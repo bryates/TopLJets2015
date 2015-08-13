@@ -1,0 +1,1281 @@
+DEBUG 2015-08-12 11:15:54,131: 	 Executing command: 'status'
+DEBUG 2015-08-12 11:15:54,139: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 11:15:54,155: 	 Checking credentials
+DEBUG 2015-08-12 11:15:54,155: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 11:15:54,155: 	 Getting proxy life time left
+DEBUG 2015-08-12 11:15:55,084: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85682
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:15:55,696: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85682
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:15:55,697: 	 Proxy valid for 23:48:02 hours
+DEBUG 2015-08-12 11:15:55,701: 	 Executing command: 'status'
+DEBUG 2015-08-12 11:15:55,702: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 11:15:55,709: 	 Checking credentials
+DEBUG 2015-08-12 11:15:55,709: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 11:15:55,709: 	 Getting proxy life time left
+DEBUG 2015-08-12 11:15:56,419: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85681
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:15:56,930: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85681
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:15:56,930: 	 Proxy valid for 23:48:01 hours
+DEBUG 2015-08-12 11:16:24,952: 	 Executing command: 'status'
+DEBUG 2015-08-12 11:16:24,954: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 11:16:24,964: 	 Checking credentials
+DEBUG 2015-08-12 11:16:24,965: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 11:16:24,965: 	 Getting proxy life time left
+DEBUG 2015-08-12 11:16:25,877: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85652
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:26,488: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85651
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:26,488: 	 Proxy valid for 23:47:32 hours
+DEBUG 2015-08-12 11:16:26,491: 	 Executing command: 'status'
+DEBUG 2015-08-12 11:16:26,491: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 11:16:26,499: 	 Checking credentials
+DEBUG 2015-08-12 11:16:26,499: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 11:16:26,500: 	 Getting proxy life time left
+DEBUG 2015-08-12 11:16:27,105: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85650
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:27,726: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85650
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:27,726: 	 Proxy valid for 23:47:30 hours
+DEBUG 2015-08-12 11:16:27,729: 	 Executing command: 'status'
+DEBUG 2015-08-12 11:16:27,729: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 11:16:27,737: 	 Checking credentials
+DEBUG 2015-08-12 11:16:27,737: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 11:16:27,738: 	 Getting proxy life time left
+DEBUG 2015-08-12 11:16:28,345: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85649
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:28,952: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85649
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:28,953: 	 Proxy valid for 23:47:29 hours
+DEBUG 2015-08-12 11:16:28,955: 	 Executing command: 'status'
+DEBUG 2015-08-12 11:16:28,956: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 11:16:28,965: 	 Checking credentials
+DEBUG 2015-08-12 11:16:28,965: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 11:16:28,965: 	 Getting proxy life time left
+DEBUG 2015-08-12 11:16:29,680: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85648
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:30,185: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85647
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 11:16:30,185: 	 Proxy valid for 23:47:28 hours
+DEBUG 2015-08-12 20:19:03,677: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:19:03,731: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:19:03,786: 	 Checking credentials
+DEBUG 2015-08-12 20:19:03,790: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:19:03,790: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:19:04,294: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 43136
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:04,699: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 
+ error: No VOMS attributes found!
+
+ retcode : 1
+DEBUG 2015-08-12 20:19:04,699: 	 Proxy valid for 00:00:00 hours
+DEBUG 2015-08-12 20:19:04,699: 	 Creating new proxy for 24:00 hours with VO group '' and VO role 'NULL'.
+DEBUG 2015-08-12 20:19:10,827: 	 Executing : 
+ command : voms-proxy-init -voms cms:/cms -valid 24:00 -rfc
+ output : None
+ error: None
+ retcode : 0
+DEBUG 2015-08-12 20:19:11,344: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86398
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:11,748: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86398
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:12,154: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:12,154: 	 Proxy created.
+DEBUG 2015-08-12 20:19:12,214: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:19:12,214: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:19:12,221: 	 Checking credentials
+DEBUG 2015-08-12 20:19:12,222: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:19:12,222: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:19:12,625: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86397
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:13,133: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86396
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:13,133: 	 Proxy valid for 23:59:57 hours
+DEBUG 2015-08-12 20:19:13,162: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:19:13,162: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:19:13,169: 	 Checking credentials
+DEBUG 2015-08-12 20:19:13,170: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:19:13,170: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:19:13,573: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86396
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:13,977: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86396
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:13,978: 	 Proxy valid for 23:59:56 hours
+DEBUG 2015-08-12 20:19:13,998: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:19:13,999: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:19:14,005: 	 Checking credentials
+DEBUG 2015-08-12 20:19:14,008: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:19:14,008: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:19:14,413: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86395
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:14,820: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86395
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:19:14,820: 	 Proxy valid for 23:59:55 hours
+DEBUG 2015-08-12 20:20:52,954: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:20:52,971: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:20:52,990: 	 Checking credentials
+DEBUG 2015-08-12 20:20:52,993: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:20:52,994: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:20:53,500: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86296
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:54,008: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86296
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:54,008: 	 Proxy valid for 23:58:16 hours
+DEBUG 2015-08-12 20:20:54,043: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:20:54,043: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:20:54,051: 	 Checking credentials
+DEBUG 2015-08-12 20:20:54,051: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:20:54,051: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:20:54,456: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86295
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:54,964: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86295
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:54,965: 	 Proxy valid for 23:58:15 hours
+DEBUG 2015-08-12 20:20:54,968: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:20:54,969: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:20:54,977: 	 Checking credentials
+DEBUG 2015-08-12 20:20:54,980: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:20:54,980: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:20:55,384: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86294
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:55,790: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86294
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:55,791: 	 Proxy valid for 23:58:14 hours
+DEBUG 2015-08-12 20:20:55,796: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:20:55,796: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:20:55,802: 	 Checking credentials
+DEBUG 2015-08-12 20:20:55,802: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:20:55,802: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:20:56,206: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86293
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:56,612: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86293
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:20:56,612: 	 Proxy valid for 23:58:13 hours
+DEBUG 2015-08-12 20:24:13,489: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:24:13,494: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:24:13,503: 	 Checking credentials
+DEBUG 2015-08-12 20:24:13,506: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:24:13,506: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:24:14,011: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86096
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:14,415: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86095
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:14,415: 	 Proxy valid for 23:54:56 hours
+DEBUG 2015-08-12 20:24:14,421: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:24:14,421: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:24:14,428: 	 Checking credentials
+DEBUG 2015-08-12 20:24:14,428: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:24:14,428: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:24:14,832: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86095
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:15,237: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86094
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:15,238: 	 Proxy valid for 23:54:55 hours
+DEBUG 2015-08-12 20:24:15,240: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:24:15,240: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:24:15,248: 	 Checking credentials
+DEBUG 2015-08-12 20:24:15,248: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:24:15,248: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:24:15,652: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86094
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:16,057: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86093
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:16,057: 	 Proxy valid for 23:54:54 hours
+DEBUG 2015-08-12 20:24:16,060: 	 Executing command: 'status'
+DEBUG 2015-08-12 20:24:16,060: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:24:16,067: 	 Checking credentials
+DEBUG 2015-08-12 20:24:16,067: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:24:16,067: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:24:16,470: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86093
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:16,974: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86093
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:24:16,974: 	 Proxy valid for 23:54:53 hours
+DEBUG 2015-08-12 20:31:28,894: 	 Executing command: 'submit'
+DEBUG 2015-08-12 20:31:28,896: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:31:28,915: 	 Checking credentials
+DEBUG 2015-08-12 20:31:28,919: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:31:28,919: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:31:29,423: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85660
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:31:29,929: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85660
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:31:29,929: 	 Proxy valid for 23:47:40 hours
+INFO 2015-08-12 20:31:29,929: 	 Will use CRAB configuration file multicrab.py
+DEBUG 2015-08-12 20:31:29,929: 	 Loading CRAB configuration file.
+ERROR 2015-08-12 20:31:29,950: 	 Syntax error in CRAB configuration file:
+Unable to find a Configuration object instance in file:
+/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/multicrab.py
+
+Please refer to https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CommonErrors#Syntax_error_in_CRAB_configurati
+See the ./crab.log file for more details.
+The documentation about the CRAB configuration file can be found in https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile
+ERROR 2015-08-12 20:31:29,951: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 133, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 119, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/submit.py", line 40, in __init__
+    SubCommand.__init__(self, logger, cmdargs, disable_interspersed_args = True)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 294, in __init__
+    self.loadConfig(self.options.config, self.args)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 83, in loadConfig
+    raise ConfigurationException(configmsg)
+ConfigurationException: Syntax error in CRAB configuration file:
+Unable to find a Configuration object instance in file:
+/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/multicrab.py
+
+Please refer to https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CommonErrors#Syntax_error_in_CRAB_configurati
+See the ./crab.log file for more details.
+The documentation about the CRAB configuration file can be found in https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile
+DEBUG 2015-08-12 20:56:04,865: 	 Executing command: 'submit'
+DEBUG 2015-08-12 20:56:04,865: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:56:04,873: 	 Checking credentials
+DEBUG 2015-08-12 20:56:04,877: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:56:04,877: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:56:05,481: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 84184
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:56:05,896: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 84184
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:56:05,896: 	 Proxy valid for 23:23:04 hours
+INFO 2015-08-12 20:56:05,896: 	 Will use CRAB configuration file mc_crab.py
+DEBUG 2015-08-12 20:56:05,897: 	 Loading CRAB configuration file.
+DEBUG 2015-08-12 20:56:05,901: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+ERROR 2015-08-12 20:56:05,901: 	 Working area '/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_TTBar' already exists 
+Please change the requestName in the config file
+ERROR 2015-08-12 20:56:05,901: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 133, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 119, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/submit.py", line 40, in __init__
+    SubCommand.__init__(self, logger, cmdargs, disable_interspersed_args = True)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 298, in __init__
+    getattr(self.configuration.General, 'requestName', None))
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/ClientUtilities.py", line 387, in createWorkArea
+    raise ConfigException("Working area '%s' already exists \nPlease change the requestName in the config file" % fullpath)
+ConfigException: Working area '/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_TTBar' already exists 
+Please change the requestName in the config file
+DEBUG 2015-08-12 20:59:15,318: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 20:59:15,318: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:59:15,327: 	 Checking credentials
+DEBUG 2015-08-12 20:59:15,331: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:15,331: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:16,037: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83994
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:16,551: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83993
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:16,551: 	 Proxy valid for 23:19:54 hours
+DEBUG 2015-08-12 20:59:16,662: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 20:59:16,662: 	 Checking credentials
+DEBUG 2015-08-12 20:59:16,666: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:16,666: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:17,175: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83992
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:17,681: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83992
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:17,681: 	 Proxy valid for 23:19:52 hours
+DEBUG 2015-08-12 20:59:18,291: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:18,292: 	 Command use: checkwrite
+DEBUG 2015-08-12 20:59:18,292: 	 Options use: ['--site=T2_AT_Vienna']
+DEBUG 2015-08-12 20:59:18,292: 	 Instance is None
+DEBUG 2015-08-12 20:59:18,292: 	 Server base url is None
+DEBUG 2015-08-12 20:59:18,321: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_gXhG3s/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_gXhG3s/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_gXhG3s/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x264afc8>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x2593750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x264e2d0>}, 'logger': <logging.Logger object at 0x2593750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_gXhG3s/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 20:59:18,321: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 20:59:18,322: 	 Retrieving DN from proxy...
+INFO 2015-08-12 20:59:19,764: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 20:59:19,765: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 20:59:22,262: 	 Username is: wajid
+INFO 2015-08-12 20:59:22,262: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 20:59:22,262: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 20:59:22,284: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 20:59:22,284: 	 Will check write permission in /store/user/wajid on site T2_AT_Vienna
+DEBUG 2015-08-12 20:59:22,289: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_AT_Vienna'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+INFO 2015-08-12 20:59:24,295: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_AT_Vienna
+INFO 2015-08-12 20:59:24,315: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://hephyse.oeaw.ac.at:8446/srm/managerv2?SFN=/dpm/oeaw.ac.at/home/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 20:59:24,315: 	 Please wait...
+INFO 2015-08-12 20:59:25,703: 	 Failed running copy command
+INFO 2015-08-12 20:59:25,704: 	   Stdout:
+    Copying 85 bytes file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp => srm://hephyse.oeaw.ac.at:8446/srm/managerv2?SFN=/dpm/oeaw.ac.at/home/cms/store/user/wajid/crab3checkwrite.0.tmp
+    
+INFO 2015-08-12 20:59:25,704: 	   Stderr:
+    gfal-copy error: 2 (No such file or directory) - DESTINATION SRM_PUT_TURL error on the turl request : [SE][StatusOfPutRequest][SRM_INVALID_PATH] <none> 
+    
+INFO 2015-08-12 20:59:25,704: 	 Unable to check write permission in /store/user/wajid on site T2_AT_Vienna
+Please try again later or contact the site administrators sending them the 'crab checkwrite' output as printed above.
+INFO 2015-08-12 20:59:25,842: 	 Note: You cannot write to a site if you did not ask permission.
+DEBUG 2015-08-12 20:59:26,364: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 20:59:26,364: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:59:26,377: 	 Checking credentials
+DEBUG 2015-08-12 20:59:26,382: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:26,382: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:26,991: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83983
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:27,495: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83982
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:27,496: 	 Proxy valid for 23:19:43 hours
+DEBUG 2015-08-12 20:59:27,606: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 20:59:27,606: 	 Checking credentials
+DEBUG 2015-08-12 20:59:27,607: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:27,607: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:28,111: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83981
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:28,619: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83981
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:28,619: 	 Proxy valid for 23:19:41 hours
+DEBUG 2015-08-12 20:59:29,233: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:29,234: 	 Command use: checkwrite
+DEBUG 2015-08-12 20:59:29,234: 	 Options use: ['--site=T2_BE_IIHE']
+DEBUG 2015-08-12 20:59:29,234: 	 Instance is None
+DEBUG 2015-08-12 20:59:29,234: 	 Server base url is None
+DEBUG 2015-08-12 20:59:29,237: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_VNgWhi/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_VNgWhi/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_VNgWhi/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x2134050>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x2078750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x21332d0>}, 'logger': <logging.Logger object at 0x2078750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_VNgWhi/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 20:59:29,237: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 20:59:29,237: 	 Retrieving DN from proxy...
+INFO 2015-08-12 20:59:30,604: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 20:59:30,605: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 20:59:32,885: 	 Username is: wajid
+INFO 2015-08-12 20:59:32,885: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 20:59:32,886: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 20:59:32,899: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 20:59:32,900: 	 Will check write permission in /store/user/wajid on site T2_BE_IIHE
+DEBUG 2015-08-12 20:59:32,906: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_BE_IIHE'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+INFO 2015-08-12 20:59:33,295: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BE_IIHE
+INFO 2015-08-12 20:59:33,303: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://maite.iihe.ac.be:8443/srm/managerv2?SFN=/pnfs/iihe/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 20:59:33,304: 	 Please wait...
+INFO 2015-08-12 20:59:34,284: 	 Successfully copied file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BE_IIHE
+INFO 2015-08-12 20:59:34,284: 	 Attempting to delete file srm://maite.iihe.ac.be:8443/srm/managerv2?SFN=/pnfs/iihe/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_BE_IIHE
+INFO 2015-08-12 20:59:34,285: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-rm -v -t 180 'srm://maite.iihe.ac.be:8443/srm/managerv2?SFN=/pnfs/iihe/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 20:59:34,285: 	 Please wait...
+INFO 2015-08-12 20:59:34,583: 	 Successfully deleted file srm://maite.iihe.ac.be:8443/srm/managerv2?SFN=/pnfs/iihe/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_BE_IIHE
+INFO 2015-08-12 20:59:34,584: 	 Success: Able to write in /store/user/wajid on site T2_BE_IIHE
+INFO 2015-08-12 20:59:34,690: 	 Note: You cannot write to a site if you did not ask permission.
+DEBUG 2015-08-12 20:59:35,143: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 20:59:35,143: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:59:35,150: 	 Checking credentials
+DEBUG 2015-08-12 20:59:35,150: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:35,150: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:35,654: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83974
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:36,167: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83973
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:36,168: 	 Proxy valid for 23:19:34 hours
+DEBUG 2015-08-12 20:59:36,281: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 20:59:36,281: 	 Checking credentials
+DEBUG 2015-08-12 20:59:36,282: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:36,282: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:36,790: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83973
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:37,502: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83972
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:37,502: 	 Proxy valid for 23:19:33 hours
+DEBUG 2015-08-12 20:59:38,009: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:38,009: 	 Command use: checkwrite
+DEBUG 2015-08-12 20:59:38,010: 	 Options use: ['--site=T2_BE_UCL']
+DEBUG 2015-08-12 20:59:38,010: 	 Instance is None
+DEBUG 2015-08-12 20:59:38,010: 	 Server base url is None
+DEBUG 2015-08-12 20:59:38,015: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_smjWJe/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_smjWJe/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_smjWJe/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x10b4050>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0xff8750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x10b32d0>}, 'logger': <logging.Logger object at 0xff8750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_smjWJe/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 20:59:38,015: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 20:59:38,015: 	 Retrieving DN from proxy...
+INFO 2015-08-12 20:59:39,155: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 20:59:39,155: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 20:59:41,258: 	 Username is: wajid
+INFO 2015-08-12 20:59:41,258: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 20:59:41,258: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 20:59:41,271: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 20:59:41,272: 	 Will check write permission in /store/user/wajid on site T2_BE_UCL
+DEBUG 2015-08-12 20:59:41,278: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_BE_UCL'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+INFO 2015-08-12 20:59:41,678: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BE_UCL
+INFO 2015-08-12 20:59:41,685: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2?SFN=/storage/data/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 20:59:41,685: 	 Please wait...
+INFO 2015-08-12 20:59:45,956: 	 Failed running copy command
+INFO 2015-08-12 20:59:45,956: 	   Stdout:
+    Copying 85 bytes file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp => srm://ingrid-se02.cism.ucl.ac.be:8444/srm/managerv2?SFN=/storage/data/cms/store/user/wajid/crab3checkwrite.0.tmp
+    
+INFO 2015-08-12 20:59:45,956: 	   Stderr:
+    gfal-copy error: 2 (No such file or directory) - DESTINATION SRM_PUT_TURL error on the turl request : [SE][StatusOfPutRequest][SRM_INVALID_PATH] Permission to write denied 
+    
+INFO 2015-08-12 20:59:45,956: 	 Unable to check write permission in /store/user/wajid on site T2_BE_UCL
+Please try again later or contact the site administrators sending them the 'crab checkwrite' output as printed above.
+INFO 2015-08-12 20:59:46,066: 	 Note: You cannot write to a site if you did not ask permission.
+DEBUG 2015-08-12 20:59:46,512: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 20:59:46,512: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 20:59:46,521: 	 Checking credentials
+DEBUG 2015-08-12 20:59:46,521: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:46,521: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:47,126: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83962
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:47,634: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83962
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:47,634: 	 Proxy valid for 23:19:22 hours
+DEBUG 2015-08-12 20:59:47,744: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 20:59:47,744: 	 Checking credentials
+DEBUG 2015-08-12 20:59:47,748: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 20:59:47,748: 	 Getting proxy life time left
+DEBUG 2015-08-12 20:59:48,253: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83961
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:48,761: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83961
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:48,761: 	 Proxy valid for 23:19:21 hours
+DEBUG 2015-08-12 20:59:49,265: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 20:59:49,266: 	 Command use: checkwrite
+DEBUG 2015-08-12 20:59:49,266: 	 Options use: ['--site=T2_BR_SPRACE']
+DEBUG 2015-08-12 20:59:49,266: 	 Instance is None
+DEBUG 2015-08-12 20:59:49,266: 	 Server base url is None
+DEBUG 2015-08-12 20:59:49,272: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_7wjtJX/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_7wjtJX/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_7wjtJX/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x183cfc8>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x1785750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x18402d0>}, 'logger': <logging.Logger object at 0x1785750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_7wjtJX/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 20:59:49,272: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 20:59:49,272: 	 Retrieving DN from proxy...
+INFO 2015-08-12 20:59:50,507: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 20:59:50,508: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 20:59:52,969: 	 Username is: wajid
+INFO 2015-08-12 20:59:52,970: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 20:59:52,970: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 20:59:52,984: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 20:59:52,984: 	 Will check write permission in /store/user/wajid on site T2_BR_SPRACE
+DEBUG 2015-08-12 20:59:52,988: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_BR_SPRACE'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+INFO 2015-08-12 20:59:53,363: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BR_SPRACE
+INFO 2015-08-12 20:59:53,370: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://osg-se.sprace.org.br:8443/srm/managerv2?SFN=/pnfs/sprace.org.br/data/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 20:59:53,370: 	 Please wait...
+INFO 2015-08-12 21:00:02,569: 	 Successfully copied file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BR_SPRACE
+INFO 2015-08-12 21:00:02,570: 	 Attempting to delete file srm://osg-se.sprace.org.br:8443/srm/managerv2?SFN=/pnfs/sprace.org.br/data/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_BR_SPRACE
+INFO 2015-08-12 21:00:02,570: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-rm -v -t 180 'srm://osg-se.sprace.org.br:8443/srm/managerv2?SFN=/pnfs/sprace.org.br/data/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:02,570: 	 Please wait...
+INFO 2015-08-12 21:00:04,093: 	 Successfully deleted file srm://osg-se.sprace.org.br:8443/srm/managerv2?SFN=/pnfs/sprace.org.br/data/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_BR_SPRACE
+INFO 2015-08-12 21:00:04,094: 	 Success: Able to write in /store/user/wajid on site T2_BR_SPRACE
+INFO 2015-08-12 21:00:04,194: 	 Note: You cannot write to a site if you did not ask permission.
+DEBUG 2015-08-12 21:00:04,636: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:04,636: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:04,643: 	 Checking credentials
+DEBUG 2015-08-12 21:00:04,644: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:04,644: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:05,148: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83944
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:05,568: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83944
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:05,569: 	 Proxy valid for 23:19:04 hours
+DEBUG 2015-08-12 21:00:05,679: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 21:00:05,680: 	 Checking credentials
+DEBUG 2015-08-12 21:00:05,680: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:05,680: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:06,194: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83943
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:06,607: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83943
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:06,608: 	 Proxy valid for 23:19:03 hours
+DEBUG 2015-08-12 21:00:07,020: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:07,020: 	 Command use: checkwrite
+DEBUG 2015-08-12 21:00:07,020: 	 Options use: ['--site=T2_BR_UERJ']
+DEBUG 2015-08-12 21:00:07,020: 	 Instance is None
+DEBUG 2015-08-12 21:00:07,020: 	 Server base url is None
+DEBUG 2015-08-12 21:00:07,026: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_1EANjn/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_1EANjn/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_1EANjn/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x1d9a050>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x1cde750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x1d992d0>}, 'logger': <logging.Logger object at 0x1cde750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_1EANjn/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 21:00:07,026: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 21:00:07,027: 	 Retrieving DN from proxy...
+INFO 2015-08-12 21:00:08,322: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 21:00:08,322: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 21:00:10,728: 	 Username is: wajid
+INFO 2015-08-12 21:00:10,728: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 21:00:10,729: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 21:00:10,738: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 21:00:10,738: 	 Will check write permission in /store/user/wajid on site T2_BR_UERJ
+DEBUG 2015-08-12 21:00:10,741: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_BR_UERJ'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+INFO 2015-08-12 21:00:11,171: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BR_UERJ
+INFO 2015-08-12 21:00:11,177: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:11,177: 	 Please wait...
+INFO 2015-08-12 21:00:16,032: 	 Failed running copy command
+INFO 2015-08-12 21:00:16,032: 	   Stdout:
+    Copying 85 bytes file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp => srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp
+    
+INFO 2015-08-12 21:00:16,032: 	   Stderr:
+    gfal-copy error: 2 (No such file or directory) - DESTINATION SRM_PUT_TURL error on the turl request : [SE][PrepareToPut][SRM_INVALID_PATH] Dir structure does not exist.srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp 
+    
+INFO 2015-08-12 21:00:16,033: 	 Error copying file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BR_UERJ; it may be that file already exists.
+INFO 2015-08-12 21:00:16,033: 	 Attempting to delete file srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_BR_UERJ
+INFO 2015-08-12 21:00:16,033: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-rm -v -t 180 'srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:16,033: 	 Please wait...
+INFO 2015-08-12 21:00:17,102: 	 Successfully deleted file srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_BR_UERJ
+INFO 2015-08-12 21:00:17,102: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_BR_UERJ
+INFO 2015-08-12 21:00:17,108: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:17,109: 	 Please wait...
+INFO 2015-08-12 21:00:19,200: 	 Failed running copy command
+INFO 2015-08-12 21:00:19,200: 	   Stdout:
+    Copying 85 bytes file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp => srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp
+    
+INFO 2015-08-12 21:00:19,200: 	   Stderr:
+    gfal-copy error: 2 (No such file or directory) - DESTINATION SRM_PUT_TURL error on the turl request : [SE][PrepareToPut][SRM_INVALID_PATH] Dir structure does not exist.srm://se.hepgrid.uerj.br:8443/srm/v2/server?SFN=/mnt/hadoop/cms/store/user/wajid/crab3checkwrite.0.tmp 
+    
+INFO 2015-08-12 21:00:19,200: 	 Unable to check write permission in /store/user/wajid on site T2_BR_UERJ
+Please try again later or contact the site administrators sending them the 'crab checkwrite' output as printed above.
+INFO 2015-08-12 21:00:19,311: 	 Note: You cannot write to a site if you did not ask permission.
+DEBUG 2015-08-12 21:00:20,655: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:20,656: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:20,663: 	 Checking credentials
+DEBUG 2015-08-12 21:00:20,663: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:20,663: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:21,269: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83928
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:21,775: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83928
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:21,775: 	 Proxy valid for 23:18:48 hours
+DEBUG 2015-08-12 21:00:21,887: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 21:00:21,888: 	 Checking credentials
+DEBUG 2015-08-12 21:00:21,891: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:21,891: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:22,405: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83927
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:22,911: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83927
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:22,911: 	 Proxy valid for 23:18:47 hours
+DEBUG 2015-08-12 21:00:23,423: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:23,424: 	 Command use: checkwrite
+DEBUG 2015-08-12 21:00:23,424: 	 Options use: ['--site=T2_CH_CERN']
+DEBUG 2015-08-12 21:00:23,424: 	 Instance is None
+DEBUG 2015-08-12 21:00:23,424: 	 Server base url is None
+DEBUG 2015-08-12 21:00:23,441: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_0XKb_K/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_0XKb_K/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_0XKb_K/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x1abe050>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x1a02750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x1abd2d0>}, 'logger': <logging.Logger object at 0x1a02750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_0XKb_K/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 21:00:23,441: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 21:00:23,441: 	 Retrieving DN from proxy...
+INFO 2015-08-12 21:00:24,595: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 21:00:24,595: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 21:00:26,702: 	 Username is: wajid
+INFO 2015-08-12 21:00:26,702: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 21:00:26,702: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 21:00:26,720: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 21:00:26,720: 	 Will check write permission in /store/user/wajid on site T2_CH_CERN
+DEBUG 2015-08-12 21:00:26,725: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_CH_CERN'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+INFO 2015-08-12 21:00:27,355: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_CH_CERN
+INFO 2015-08-12 21:00:27,376: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:27,377: 	 Please wait...
+INFO 2015-08-12 21:00:32,380: 	 Failed running copy command
+INFO 2015-08-12 21:00:32,381: 	   Stdout:
+    Copying 85 bytes file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp => srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp
+    
+INFO 2015-08-12 21:00:32,381: 	   Stderr:
+    gfal-copy error: 2 (No such file or directory) - DESTINATION SRM_PUT_TURL error on the turl request : [SE][PrepareToPut][SRM_INVALID_PATH] Dir structure does not exist.srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp 
+    
+INFO 2015-08-12 21:00:32,381: 	 Error copying file crab3checkwrite.0.tmp to /store/user/wajid on site T2_CH_CERN; it may be that file already exists.
+INFO 2015-08-12 21:00:32,381: 	 Attempting to delete file srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_CH_CERN
+INFO 2015-08-12 21:00:32,381: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-rm -v -t 180 'srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:32,381: 	 Please wait...
+INFO 2015-08-12 21:00:32,871: 	 Successfully deleted file srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp from site T2_CH_CERN
+INFO 2015-08-12 21:00:32,871: 	 Attempting to copy (dummy) file crab3checkwrite.0.tmp to /store/user/wajid on site T2_CH_CERN
+INFO 2015-08-12 21:00:32,876: 	 Executing command: env -i X509_USER_PROXY=/tmp/x509up_u31059 gfal-copy -v -t 180 file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp 'srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp'
+INFO 2015-08-12 21:00:32,876: 	 Please wait...
+INFO 2015-08-12 21:00:33,559: 	 Failed running copy command
+INFO 2015-08-12 21:00:33,559: 	   Stdout:
+    Copying 85 bytes file:///afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab3checkwrite.0.tmp => srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp
+    
+INFO 2015-08-12 21:00:33,559: 	   Stderr:
+    gfal-copy error: 2 (No such file or directory) - DESTINATION SRM_PUT_TURL error on the turl request : [SE][PrepareToPut][SRM_INVALID_PATH] Dir structure does not exist.srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/wajid/crab3checkwrite.0.tmp 
+    
+INFO 2015-08-12 21:00:33,559: 	 Unable to check write permission in /store/user/wajid on site T2_CH_CERN
+Please try again later or contact the site administrators sending them the 'crab checkwrite' output as printed above.
+INFO 2015-08-12 21:00:33,674: 	 Note: You cannot write to a site if you did not ask permission.
+DEBUG 2015-08-12 21:00:34,101: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:34,102: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:34,108: 	 Checking credentials
+DEBUG 2015-08-12 21:00:34,108: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:34,108: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:34,816: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83915
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:35,327: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83914
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:35,327: 	 Proxy valid for 23:18:35 hours
+DEBUG 2015-08-12 21:00:35,437: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 21:00:35,437: 	 Checking credentials
+DEBUG 2015-08-12 21:00:35,440: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:35,440: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:36,045: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83914
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:36,551: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83913
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:36,551: 	 Proxy valid for 23:18:34 hours
+DEBUG 2015-08-12 21:00:37,059: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:37,059: 	 Command use: checkwrite
+DEBUG 2015-08-12 21:00:37,059: 	 Options use: ['--site=T2_CH_CERN_AI']
+DEBUG 2015-08-12 21:00:37,060: 	 Instance is None
+DEBUG 2015-08-12 21:00:37,060: 	 Server base url is None
+DEBUG 2015-08-12 21:00:37,064: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_8J0zi7/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_8J0zi7/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_8J0zi7/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x1c04fc8>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x1936790>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x1c08310>}, 'logger': <logging.Logger object at 0x1936790>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_8J0zi7/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 21:00:37,064: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 21:00:37,064: 	 Retrieving DN from proxy...
+INFO 2015-08-12 21:00:38,322: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 21:00:38,322: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 21:00:40,413: 	 Username is: wajid
+INFO 2015-08-12 21:00:40,413: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 21:00:40,413: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 21:00:40,441: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 21:00:40,441: 	 Will check write permission in /store/user/wajid on site T2_CH_CERN_AI
+DEBUG 2015-08-12 21:00:40,447: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_CH_CERN_AI'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+WARNING 2015-08-12 21:00:40,838: 	 The cachefile /tmp/wajid/.wmcore_cache_8J0zi7/cmsweb.cern.ch/3998055469964561240_GET_lfn2pfn does not exist and the service at https://cmsweb.cern.ch/phedex/datasvc/json/prod/lfn2pfn is unavailable - it returned 400 because Bad Request
+ with result: no nodes found for ' T2_CH_CERN_AI '.\n
+
+INFO 2015-08-12 21:00:40,838: 	 Error: Failed to contact PhEDEx or wrong PhEDEx node name is used
+INFO 2015-08-12 21:00:40,838: 	 Result: no nodes found for ' T2_CH_CERN_AI '.\n
+Status :400
+URL :https://cmsweb.cern.ch/phedex/datasvc/json/prod/lfn2pfn?node=T2_CH_CERN_AI&custodial=n&lfn=%2Fstore%2Fuser%2Fwajid%2Fcrab3checkwrite.0.tmp&protocol=srmv2
+INFO 2015-08-12 21:00:40,838: 	 Error contacting the server.
+DEBUG 2015-08-12 21:00:40,838: 	 ERROR: Bad Request (400):  'no nodes found for ' T2_CH_CERN_AI '.\n'
+DEBUG 2015-08-12 21:00:40,838: 	 Command failed with URI: https://cmsweb.cern.ch/phedex/datasvc/json/prod/lfn2pfn?node=T2_CH_CERN_AI&custodial=n&lfn=%2Fstore%2Fuser%2Fwajid%2Fcrab3checkwrite.0.tmp&protocol=srmv2
+DEBUG 2015-08-12 21:00:40,838: 	      Input data: 
+DEBUG 2015-08-12 21:00:40,838: 	      Request headers: {'status': '400', 'content-length': '39', 'expires': 'Wed, 12 Aug 2015 19:15:40 GMT', 'server': 'Apache', 'connection': 'close', 'x-pad': 'avoid browser bug', 'cache-control': 'public, must-revalidate, max-age=900', 'date': 'Wed, 12 Aug 2015 19:00:40 GMT', 'content-type': 'text/html; charset=iso-8859-1', 'cms-server-time': 'D=36061 t=1439406040800938'}
+ERROR 2015-08-12 21:00:40,838: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 133, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 121, in __call__
+    self.cmd()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/checkwrite.py", line 83, in __call__
+    pfn = self.getPFN()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/checkwrite.py", line 168, in getPFN
+    raise HTTPException, errormsg
+HTTPException
+DEBUG 2015-08-12 21:00:41,252: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:41,252: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:41,259: 	 Checking credentials
+DEBUG 2015-08-12 21:00:41,259: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:41,259: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:41,768: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83908
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:42,278: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83907
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:42,278: 	 Proxy valid for 23:18:28 hours
+DEBUG 2015-08-12 21:00:42,387: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 21:00:42,388: 	 Checking credentials
+DEBUG 2015-08-12 21:00:42,388: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:42,388: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:42,893: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83907
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:43,499: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83906
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:43,499: 	 Proxy valid for 23:18:27 hours
+DEBUG 2015-08-12 21:00:44,706: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:44,707: 	 Command use: checkwrite
+DEBUG 2015-08-12 21:00:44,707: 	 Options use: ['--site=T2_CH_CERN_HLT']
+DEBUG 2015-08-12 21:00:44,707: 	 Instance is None
+DEBUG 2015-08-12 21:00:44,707: 	 Server base url is None
+DEBUG 2015-08-12 21:00:44,711: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_lCB4eQ/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_lCB4eQ/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_lCB4eQ/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x2181fc8>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x1eb3790>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x2185310>}, 'logger': <logging.Logger object at 0x1eb3790>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_lCB4eQ/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 21:00:44,711: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 21:00:44,711: 	 Retrieving DN from proxy...
+INFO 2015-08-12 21:00:45,790: 	 DN is: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+INFO 2015-08-12 21:00:45,791: 	 Retrieving username from SiteDB...
+INFO 2015-08-12 21:00:47,860: 	 Username is: wajid
+INFO 2015-08-12 21:00:47,860: 	 Validating LFN /store/user/wajid...
+INFO 2015-08-12 21:00:47,860: 	 LFN /store/user/wajid is valid.
+INFO 2015-08-12 21:00:47,875: 	 Will use `gfal-copy`, `gfal-rm` commands for checking write permissions
+INFO 2015-08-12 21:00:47,876: 	 Will check write permission in /store/user/wajid on site T2_CH_CERN_HLT
+DEBUG 2015-08-12 21:00:47,879: 	 getData: 
+	url: lfn2pfn
+	data: {'node': ['T2_CH_CERN_HLT'], 'custodial': 'n', 'lfn': ['/store/user/wajid/crab3checkwrite.0.tmp'], 'protocol': 'srmv2'}
+WARNING 2015-08-12 21:00:48,296: 	 The cachefile /tmp/wajid/.wmcore_cache_lCB4eQ/cmsweb.cern.ch/4914699617059426163_GET_lfn2pfn does not exist and the service at https://cmsweb.cern.ch/phedex/datasvc/json/prod/lfn2pfn is unavailable - it returned 400 because Bad Request
+ with result: no nodes found for ' T2_CH_CERN_HLT '.\n
+
+INFO 2015-08-12 21:00:48,297: 	 Error: Failed to contact PhEDEx or wrong PhEDEx node name is used
+INFO 2015-08-12 21:00:48,297: 	 Result: no nodes found for ' T2_CH_CERN_HLT '.\n
+Status :400
+URL :https://cmsweb.cern.ch/phedex/datasvc/json/prod/lfn2pfn?node=T2_CH_CERN_HLT&custodial=n&lfn=%2Fstore%2Fuser%2Fwajid%2Fcrab3checkwrite.0.tmp&protocol=srmv2
+INFO 2015-08-12 21:00:48,297: 	 Error contacting the server.
+DEBUG 2015-08-12 21:00:48,297: 	 ERROR: Bad Request (400):  'no nodes found for ' T2_CH_CERN_HLT '.\n'
+DEBUG 2015-08-12 21:00:48,297: 	 Command failed with URI: https://cmsweb.cern.ch/phedex/datasvc/json/prod/lfn2pfn?node=T2_CH_CERN_HLT&custodial=n&lfn=%2Fstore%2Fuser%2Fwajid%2Fcrab3checkwrite.0.tmp&protocol=srmv2
+DEBUG 2015-08-12 21:00:48,297: 	      Input data: 
+DEBUG 2015-08-12 21:00:48,297: 	      Request headers: {'status': '400', 'content-length': '40', 'expires': 'Wed, 12 Aug 2015 19:15:48 GMT', 'server': 'Apache', 'connection': 'close', 'x-pad': 'avoid browser bug', 'cache-control': 'public, must-revalidate, max-age=900', 'date': 'Wed, 12 Aug 2015 19:00:48 GMT', 'content-type': 'text/html; charset=iso-8859-1', 'cms-server-time': 'D=26133 t=1439406048268906'}
+ERROR 2015-08-12 21:00:48,297: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 133, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/bin/crab", line 121, in __call__
+    self.cmd()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/checkwrite.py", line 83, in __call__
+    pfn = self.getPFN()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1507-comp/lib/python2.6/site-packages/CRABClient/Commands/checkwrite.py", line 168, in getPFN
+    raise HTTPException, errormsg
+HTTPException
+DEBUG 2015-08-12 21:00:48,741: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:48,741: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:48,748: 	 Checking credentials
+DEBUG 2015-08-12 21:00:48,748: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:48,748: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:49,253: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83900
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:49,862: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83900
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:49,863: 	 Proxy valid for 23:18:20 hours
+DEBUG 2015-08-12 21:00:49,972: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 21:00:49,972: 	 Checking credentials
+DEBUG 2015-08-12 21:00:49,972: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:49,972: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:50,481: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83899
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:50,889: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83899
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:50,889: 	 Proxy valid for 23:18:19 hours
+DEBUG 2015-08-12 21:00:51,294: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:51,294: 	 Command use: checkwrite
+DEBUG 2015-08-12 21:00:51,295: 	 Options use: ['--site=T2_CH_CERN_T0']
+DEBUG 2015-08-12 21:00:51,295: 	 Instance is None
+DEBUG 2015-08-12 21:00:51,295: 	 Server base url is None
+DEBUG 2015-08-12 21:00:51,300: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_wsmklj/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_wsmklj/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_wsmklj/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x22d0fc8>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x2002790>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x22d4310>}, 'logger': <logging.Logger object at 0x2002790>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_wsmklj/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 21:00:51,300: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 21:00:51,300: 	 Retrieving DN from proxy...
+ERROR 2015-08-12 21:00:51,388: 	 Keyboard Interrupted
+DEBUG 2015-08-12 21:00:51,830: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:51,830: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:51,837: 	 Checking credentials
+DEBUG 2015-08-12 21:00:51,838: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:51,838: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:52,345: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83897
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:52,852: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83897
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:52,852: 	 Proxy valid for 23:18:17 hours
+DEBUG 2015-08-12 21:00:52,965: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-12 21:00:52,965: 	 Checking credentials
+DEBUG 2015-08-12 21:00:52,965: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:52,965: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:53,477: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83896
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:53,885: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 83896
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:53,886: 	 Proxy valid for 23:18:16 hours
+DEBUG 2015-08-12 21:00:54,392: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-12 21:00:54,392: 	 Command use: checkwrite
+DEBUG 2015-08-12 21:00:54,392: 	 Options use: ['--site=T2_CH_CSCS']
+DEBUG 2015-08-12 21:00:54,392: 	 Instance is None
+DEBUG 2015-08-12 21:00:54,392: 	 Server base url is None
+DEBUG 2015-08-12 21:00:54,399: 	 Service initialised ({'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'maxcachereuse': 24.0, 'cachepath': '/tmp/wajid/.wmcore_cache_INQf89/cmsweb.cern.ch', 'inputdata': {}, 'cert': '/tmp/x509up_u31059', 'timeout': 300, 'service_name': 'PhEDEx', 'requests': {'endpoint': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'key': '/tmp/x509up_u31059', 'req_cache_path': '/tmp/wajid/.wmcore_cache_INQf89/cmsweb.cern.ch/.cache', 'cachepath': '/tmp/wajid/.wmcore_cache_INQf89/cmsweb.cern.ch', 'host': 'https://cmsweb.cern.ch/phedex/datasvc/json/prod/', 'cacheduration': 0, 'cert': '/tmp/x509up_u31059', 'accept_type': 'text/html', 'timeout': 300, 'deleteCacheOnExit': <WMCore.Services.Requests.TempDirectory instance at 0x2a76050>, 'endpoint_components': ParseResult(scheme='https', netloc='cmsweb.cern.ch', path='/phedex/datasvc/json/prod/', params='', query='', fragment=''), 'logger': <logging.Logger object at 0x29ba750>, 'content_type': 'application/x-www-form-urlencoded', 'conn': <httplib2.Http object at 0x2a752d0>}, 'logger': <logging.Logger object at 0x29ba750>, 'cacheduration': 0, 'method': None}):
+	 host: cmsweb.cern.ch, basepath: https://cmsweb.cern.ch/phedex/datasvc/json/prod/ (text/html)
+	 cache: /tmp/wajid/.wmcore_cache_INQf89/cmsweb.cern.ch (duration 0 hours, max reuse 24.0 hours)
+INFO 2015-08-12 21:00:54,399: 	 Will check write permission in the default location /store/user/<username>
+INFO 2015-08-12 21:00:54,399: 	 Retrieving DN from proxy...
+ERROR 2015-08-12 21:00:55,398: 	 Keyboard Interrupted
+DEBUG 2015-08-12 21:00:55,819: 	 Executing command: 'checkwrite'
+DEBUG 2015-08-12 21:00:55,820: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-12 21:00:55,831: 	 Checking credentials
+DEBUG 2015-08-12 21:00:55,831: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-12 21:00:55,831: 	 Getting proxy life time left
+DEBUG 2015-08-12 21:00:56,236: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 83893
+
+ error: 
+ retcode : 0
+ERROR 2015-08-12 21:00:56,509: 	 Keyboard Interrupted
+DEBUG 2015-08-13 05:42:34,919: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:42:34,931: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:42:34,952: 	 Checking credentials
+DEBUG 2015-08-13 05:42:34,953: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:42:34,953: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:42:35,759: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19282
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:42:36,369: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19281
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:42:36,369: 	 Proxy valid for 05:21:22 hours
+DEBUG 2015-08-13 05:42:36,427: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:42:36,427: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:42:36,437: 	 Checking credentials
+DEBUG 2015-08-13 05:42:36,438: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:42:36,438: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:42:37,043: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19281
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:42:37,757: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19280
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:42:37,758: 	 Proxy valid for 05:21:21 hours

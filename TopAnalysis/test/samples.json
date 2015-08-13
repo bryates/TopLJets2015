@@ -1,0 +1,70 @@
+{
+  "proc":[
+    {
+      "tag":"QCD",
+      "isdata":false,
+      "color":7,
+      "lcolor":1,
+      "marker":1,
+      "data":[
+        {"dtag":"miniAOD_QCD_80_120_Tune4C", "split":1, "xsec":3000114.3, "br":[ 1 ]},
+        {"dtag":"miniAOD_QCD_120_170_Tune4C", "split":1, "xsec":493200, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_170_300_Tune4C", "split":1, "xsec":120300, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_300_470_Tune4C", "split":1, "xsec":7475, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_470_600_Tune4C", "split":1, "xsec":587.1, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_600_800_Tune4C", "split":1, "xsec":167, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_800_1000_Tune4C", "split":1, "xsec":28.25, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_1000_1400_Tune4C", "split":1, "xsec":8.195, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_1400_1800_Tune4C", "split":1, "xsec":0.7346, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_1800_2400_Tune4C", "split":1, "xsec":0.102, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_2400_3200_Tune4C", "split":1, "xsec":0.00644, "br":[ 1.0 ]},
+        {"dtag":"miniAOD_QCD_3200_Tune4C", "split":1, "xsec":0.000163, "br":[ 1.0 ]}
+      ]
+    },
+    {
+      "tag":"S_Top",
+      "isdata":false,
+      "color":6,
+      "lcolor":1,
+      "marker":1,
+      "data":[
+        {"dtag":"miniAOD_TToLeptons_s_channel_new", "split":1, "xsec":6.35, "br":[ 1 ]},
+        {"dtag":"miniAOD_TBarToLeptons_s_channel_new", "split":1, "xsec":3.97, "br":[ 1 ]},
+        {"dtag":"miniAOD_TBarToLeptons_t_channel_new", "split":1, "xsec":103.4, "br":[ 1 ]},
+        {"dtag":"miniAOD_TToLeptons_t_channel_new", "split":1, "xsec":61.56, "br":[ 1 ]},
+        {"dtag":"miniAOD_T_tW_channel_new", "split":1, "xsec":35.85, "br":[ 1 ]},
+        {"dtag":"miniAOD_Tbar_tW_channel_new", "split":1, "xsec":35.85, "br":[ 1 ]}
+      ]
+    },
+    {
+      "tag":"W+jets",
+      "isdata":false,
+      "color":3,
+      "lcolor":1,
+      "marker":1,
+      "data":[
+        {"dtag":"miniAOD_wjets_PU20bx25_new", "split":1, "xsec":50100, "br":[ 1 ]}
+      ]
+    },	
+    {
+      "tag":"DY+jets",
+      "isdata":false,
+      "color":4,
+      "lcolor":1,
+      "marker":1,
+      "data":[
+        {"dtag":"miniAOD_DY_PU20bx25_new", "split":1, "xsec":4746, "br":[ 1 ]}
+      ]
+    },
+    {
+      "tag":"t#bar{t}",
+      "isdata":false,
+      "color":2,
+      "lcolor":1,
+      "marker":1,
+      "data":[
+        {"dtag":"miniAOD_MC_v2_new", "split":1, "xsec":831.76, "br":[ 1 ]}
+      ]
+    }
+  ]
+}

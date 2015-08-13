@@ -1,0 +1,988 @@
+DEBUG 2015-08-13 05:29:59,328: 	 Executing command: 'submit'
+DEBUG 2015-08-13 05:29:59,328: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:29:59,345: 	 Checking credentials
+DEBUG 2015-08-13 05:29:59,346: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:29:59,346: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:29:59,952: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 20038
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:00,577: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 20037
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:00,577: 	 Proxy valid for 05:33:58 hours
+INFO 2015-08-13 05:30:00,577: 	 Will use CRAB configuration file data_crab.py
+DEBUG 2015-08-13 05:30:00,578: 	 Loading CRAB configuration file.
+DEBUG 2015-08-13 05:30:00,579: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+DEBUG 2015-08-13 05:30:00,712: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:30:00,712: 	 Checking credentials
+DEBUG 2015-08-13 05:30:00,712: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:30:00,712: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:30:01,320: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 20036
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:01,841: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 20036
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:01,841: 	 Proxy valid for 05:33:56 hours
+DEBUG 2015-08-13 05:30:02,582: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u31059 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:02,898: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 05:30:03,012: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:30:03,013: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 05:30:03,013: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 05:30:05,529: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 415:10:19  (17.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:05,531: 	 Myproxy is valid: 1494619
+DEBUG 2015-08-13 05:30:05,531: 	 Command use: submit
+DEBUG 2015-08-13 05:30:05,531: 	 Options use: ['-c', 'data_crab.py']
+DEBUG 2015-08-13 05:30:07,113: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 05:30:07,113: 	 Instance is prod
+DEBUG 2015-08-13 05:30:07,113: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 05:30:07,114: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 05:30:07,114: 	 Started submission
+DEBUG 2015-08-13 05:30:07,114: 	 Working on /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+DEBUG 2015-08-13 05:30:07,442: 	 Loading required information from the environment
+DEBUG 2015-08-13 05:30:07,443: 	 Found CMSSW_7_4_5 for slc6_amd64_gcc491 with base /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5
+DEBUG 2015-08-13 05:30:07,585: 	 UNIQUE NAME: tarUUID 492b18a3-a314-4796-9b5c-1e2361191927 
+DEBUG 2015-08-13 05:30:07,586: 	 self.config: from WMCore.Configuration import Configuration
+config = Configuration()
+config.section_('General')
+config.General.transferLogs = False
+config.General.transferOutputs = True
+config.General.workArea = 'crab_projects'
+config.General.requestName = 'Mu_Run2015'
+config.section_('JobType')
+config.JobType.psetName = '/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/runMiniAnalyzer_10Aug_data_cfg.py'
+config.JobType.pluginName = 'Analysis'
+config.section_('Data')
+config.Data.inputDataset = '/SingleMuon/Run2015B-PromptReco-v1/MINIAOD'
+config.Data.publication = False
+config.Data.unitsPerJob = 20
+config.Data.splitting = 'LumiBased'
+config.Data.inputDBS = 'global'
+config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt'
+config.Data.runRange = '246908-251883'
+config.section_('Site')
+config.Site.storageSite = 'T2_IT_Legnaro'
+config.section_('User')
+config.section_('Debug')
+
+DEBUG 2015-08-13 05:30:07,586: 	 self.config.JobType.psetName: /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/runMiniAnalyzer_10Aug_data_cfg.py
+DEBUG 2015-08-13 05:30:07,586: 	 Importing CMSSW configuration /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/runMiniAnalyzer_10Aug_data_cfg.py
+DEBUG 2015-08-13 05:30:10,096: 	 Writing CMSSW configuration to /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/inputs/PSet.py
+DEBUG 2015-08-13 05:30:10,255: 	 The following EDM output files will be collected: []
+DEBUG 2015-08-13 05:30:10,255: 	 The following TFile output files will be collected: ['Data_Run2015B.root']
+DEBUG 2015-08-13 05:30:10,255: 	 The following user output files will be collected: []
+DEBUG 2015-08-13 05:30:10,255: 	 Loading required information from the environment
+DEBUG 2015-08-13 05:30:10,255: 	 Found CMSSW_7_4_5 for slc6_amd64_gcc491 with base /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5
+DEBUG 2015-08-13 05:30:10,255: 	 Making tarball in /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/inputs/492b18a3-a314-4796-9b5c-1e2361191927default.tgz
+DEBUG 2015-08-13 05:30:10,256: 	  checking directory /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/lib
+DEBUG 2015-08-13 05:30:10,256: 	  adding directory /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/lib to tarball
+DEBUG 2015-08-13 05:30:10,472: 	  checking directory /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/biglib
+DEBUG 2015-08-13 05:30:10,472: 	  adding directory /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/biglib to tarball
+DEBUG 2015-08-13 05:30:10,473: 	  checking directory /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/module
+DEBUG 2015-08-13 05:30:10,488: 	  adding data directory /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/interface to tarball
+DEBUG 2015-08-13 05:30:10,520: 	 tgz contents: [('lib', 0, 1438963665, 'wajid'), ('lib/slc6_amd64_gcc491', 0, 1439295823, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs5334', 42813, 1439028031, 'wajid'), ('lib/slc6_amd64_gcc491/.poisonededmplugincache', 0, 1439195967, 'wajid'), ('lib/slc6_amd64_gcc491/.edmplugincache', 160, 1439295823, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs09F2', 44797, 1439192646, 'wajid'), ('lib/slc6_amd64_gcc491/UserCodeTopAnalysis_yr_rdict.pcm', 1327, 1439286494, 'wajid'), ('lib/slc6_amd64_gcc491/libUserCodeTopAnalysis.so', 44775, 1439295819, 'wajid'), ('lib/slc6_amd64_gcc491/.__afsA208', 42813, 1439195938, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs1BE5', 42813, 1438963678, 'wajid'), ('lib/slc6_amd64_gcc491/.__afsB601', 42901, 1439191331, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs3C28', 42813, 1439018478, 'wajid'), ('lib/slc6_amd64_gcc491/pluginUserCodeTopAnalysisAuto.so', 265286, 1439295822, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs198B', 42813, 1439191837, 'wajid'), ('lib/slc6_amd64_gcc491/.__afsA6B4', 42813, 1439192129, 'wajid'), ('lib/slc6_amd64_gcc491/UserCodeTopAnalysisAuto.edmplugin', 40, 1439295822, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs3634', 42813, 1439196357, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs9D02', 44797, 1439197054, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs813C', 44775, 1439291659, 'wajid'), ('lib/slc6_amd64_gcc491/.__afs1053', 44775, 1439295636, 'wajid'), ('biglib', 0, 1438963665, 'wajid'), ('biglib/slc6_amd64_gcc491', 0, 1438963665, 'wajid'), ('src/UserCode/TopAnalysis/interface', 0, 1439285885, 'wajid'), ('src/UserCode/TopAnalysis/interface/MiniEvent.h', 830, 1439285885, 'wajid'), ('src/UserCode/TopAnalysis/interface/ReadTree.h', 345, 1439196345, 'wajid'), ('PSet.py', 101, 1439436610, 'wajid'), ('PSet.pkl', 302742, 1439436610, 'wajid'), ('debug/originalPSet.py', 2307, 1439436564, 'wajid'), ('debug/crabConfig.py', 1019, 1439436610, 'wajid')]
+DEBUG 2015-08-13 05:30:10,520: 	 MD5 checksum: 295e8fd3d4776a414ff550d8b5d860a5
+DEBUG 2015-08-13 05:30:10,529: 	  uploading archive to cache /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/inputs/492b18a3-a314-4796-9b5c-1e2361191927default.tgz 
+DEBUG 2015-08-13 05:30:10,828: 	 Result uploading input files: ('36d5f18d6de9a54e713ac18e267d1a1bdc110a3d84f578cbf3d5e6fbdc7849d7.tar.gz', '295e8fd3d4776a414ff550d8b5d860a5') 
+DEBUG 2015-08-13 05:30:10,828: 	 Attaching lumi mask https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt to the request
+DEBUG 2015-08-13 05:30:10,828: 	 Downloading lumi-mask from https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt
+INFO 2015-08-13 05:30:10,851: 	 Sending the request to the server
+DEBUG 2015-08-13 05:30:10,851: 	 Submitting {'ignorelocality': 0, 'savelogsflag': 0, 'useparent': 0, 'asyncdest': 'T2_IT_Legnaro', 'algoargs': 20, 'cachefilename': '36d5f18d6de9a54e713ac18e267d1a1bdc110a3d84f578cbf3d5e6fbdc7849d7.tar.gz', 'addoutputfiles': [], 'generator': 'pythia', 'publishdbsurl': 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter', 'jobsw': 'CMSSW_7_4_5', 'edmoutfiles': [], 'cacheurl': 'https://cmsweb.cern.ch/crabcache', 'inputdata': '/SingleMuon/Run2015B-PromptReco-v1/MINIAOD', 'dryrun': 0, 'workflow': 'crab_Mu_Run2015', 'adduserfiles': [], 'publishname': '295e8fd3d4776a414ff550d8b5d860a5', 'jobarch': 'slc6_amd64_gcc491', 'lumis': ['85,86,88,93,96,121,123,156,158,428,430,442', '1,31,33,97,99,167', '1,283,285,505,507,554', '1,94', '1,439,443,691', '1,216,222,606', '21,36', '56,56,58,60,62,144,156,437'], 'nonprodsw': 0, 'tfileoutfiles': ['Data_Run2015B.root'], 'oneEventMode': 0, 'saveoutput': 1, 'publication': 0, 'runs': [u'251244', u'251251', u'251252', u'251561', u'251562', u'251643', u'251721', u'251883'], 'totalunits': 0, 'splitalgo': 'LumiBased', 'nonvaliddata': 0, 'dbsurl': 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader', 'publishgroupname': 0, 'jobtype': 'Analysis'} 
+DEBUG 2015-08-13 05:30:10,852: 	 Encoded submit request: ignorelocality=0&savelogsflag=0&useparent=0&asyncdest=T2_IT_Legnaro&algoargs=20&cachefilename=36d5f18d6de9a54e713ac18e267d1a1bdc110a3d84f578cbf3d5e6fbdc7849d7.tar.gz&generator=pythia&publishdbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fphys03%2FDBSWriter&jobsw=CMSSW_7_4_5&cacheurl=https%3A%2F%2Fcmsweb.cern.ch%2Fcrabcache&inputdata=%2FSingleMuon%2FRun2015B-PromptReco-v1%2FMINIAOD&dryrun=0&workflow=crab_Mu_Run2015&publishname=295e8fd3d4776a414ff550d8b5d860a5&jobarch=slc6_amd64_gcc491&nonprodsw=0&oneEventMode=0&saveoutput=1&publication=0&totalunits=0&splitalgo=LumiBased&nonvaliddata=0&dbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fglobal%2FDBSReader&publishgroupname=0&jobtype=Analysis&tfileoutfiles=Data_Run2015B.root&runs=251244&runs=251251&runs=251252&runs=251561&runs=251562&runs=251643&runs=251721&runs=251883&lumis=85%2C86%2C88%2C93%2C96%2C121%2C123%2C156%2C158%2C428%2C430%2C442&lumis=1%2C31%2C33%2C97%2C99%2C167&lumis=1%2C283%2C285%2C505%2C507%2C554&lumis=1%2C94&lumis=1%2C439%2C443%2C691&lumis=1%2C216%2C222%2C606&lumis=21%2C36&lumis=56%2C56%2C58%2C60%2C62%2C144%2C156%2C437
+DEBUG 2015-08-13 05:30:11,593: 	 Result: {'result': [{'RequestName': '150813_033011:wajid_crab_Mu_Run2015'}]}
+INFO 2015-08-13 05:30:11,595: 	 Success: Your task has been delivered to the CRAB3 server.
+INFO 2015-08-13 05:30:11,595: 	 Task name: 150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 05:30:11,595: 	 Please use 'crab status' to check how the submission process proceeds.
+DEBUG 2015-08-13 05:30:11,595: 	 About to return
+INFO 2015-08-13 05:30:11,598: 	 Log file is /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/crab.log
+DEBUG 2015-08-13 05:30:23,723: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:30:23,723: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:30:23,732: 	 Checking credentials
+DEBUG 2015-08-13 05:30:23,733: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:30:23,733: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:30:24,445: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 20013
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:25,063: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 20012
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:25,063: 	 Proxy valid for 05:33:33 hours
+DEBUG 2015-08-13 05:30:25,189: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:30:25,189: 	 Checking credentials
+DEBUG 2015-08-13 05:30:25,189: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:30:25,190: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:30:25,803: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 20012
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:26,414: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 20011
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:26,414: 	 Proxy valid for 05:33:32 hours
+DEBUG 2015-08-13 05:30:26,788: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 05:30:26,907: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:30:26,907: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 05:30:26,908: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 05:30:27,319: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 415:09:57  (17.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:27,322: 	 Myproxy is valid: 1494597
+DEBUG 2015-08-13 05:30:27,322: 	 Command use: status
+DEBUG 2015-08-13 05:30:27,322: 	 Options use: ['-d', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 05:30:27,600: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 05:30:27,601: 	 Instance is prod
+DEBUG 2015-08-13 05:30:27,601: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 05:30:27,601: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 05:30:27,601: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 05:30:29,069: 	 {'status': 'QUEUED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'totalJobdefs': 0, 'jobSetID': '', 'jobsPerStatus': {}, 'taskWarningMsg': [], 'taskFailureMsg': '', 'failedJobdefs': 0, 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': []}
+INFO 2015-08-13 05:30:29,069: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 05:30:29,069: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 05:30:29,069: 	 Task status:			QUEUED
+INFO 2015-08-13 05:30:29,070: 	 
+No jobs created yet!
+INFO 2015-08-13 05:30:29,072: 	 Log file is /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/crab.log
+DEBUG 2015-08-13 05:30:39,609: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:30:39,609: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:30:39,619: 	 Checking credentials
+DEBUG 2015-08-13 05:30:39,620: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:30:39,620: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:30:40,224: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19997
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:40,744: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19997
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:40,745: 	 Proxy valid for 05:33:17 hours
+DEBUG 2015-08-13 05:30:40,866: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:30:40,866: 	 Checking credentials
+DEBUG 2015-08-13 05:30:40,867: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:30:40,867: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:30:41,371: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19996
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:42,079: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19996
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:42,080: 	 Proxy valid for 05:33:16 hours
+DEBUG 2015-08-13 05:30:42,331: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 05:30:42,443: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:30:42,444: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 05:30:42,444: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 05:30:42,855: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 415:09:42  (17.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:30:42,856: 	 Myproxy is valid: 1494582
+DEBUG 2015-08-13 05:30:42,856: 	 Command use: status
+DEBUG 2015-08-13 05:30:42,856: 	 Options use: ['-d', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 05:30:43,140: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 05:30:43,140: 	 Instance is prod
+DEBUG 2015-08-13 05:30:43,140: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 05:30:43,140: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 05:30:43,140: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 05:30:44,401: 	 {'status': 'QUEUED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'totalJobdefs': 0, 'jobSetID': '', 'jobsPerStatus': {}, 'taskWarningMsg': [], 'taskFailureMsg': '', 'failedJobdefs': 0, 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': []}
+INFO 2015-08-13 05:30:44,401: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 05:30:44,401: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 05:30:44,401: 	 Task status:			QUEUED
+INFO 2015-08-13 05:30:44,401: 	 
+No jobs created yet!
+INFO 2015-08-13 05:30:44,403: 	 Log file is /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/crab.log
+DEBUG 2015-08-13 05:36:55,956: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:36:55,957: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:36:55,971: 	 Checking credentials
+DEBUG 2015-08-13 05:36:55,971: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:36:55,971: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:36:56,777: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19621
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:36:57,389: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19620
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:36:57,390: 	 Proxy valid for 05:27:01 hours
+DEBUG 2015-08-13 05:36:57,514: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:36:57,515: 	 Checking credentials
+DEBUG 2015-08-13 05:36:57,517: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:36:57,517: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:36:58,034: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19619
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:36:58,643: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19619
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:36:58,645: 	 Proxy valid for 05:26:59 hours
+DEBUG 2015-08-13 05:36:58,927: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 05:36:59,053: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:36:59,053: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 05:36:59,053: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 05:36:59,561: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 415:03:25  (17.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:36:59,563: 	 Myproxy is valid: 1494205
+DEBUG 2015-08-13 05:36:59,563: 	 Command use: status
+DEBUG 2015-08-13 05:36:59,563: 	 Options use: ['-d', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 05:36:59,811: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 05:36:59,811: 	 Instance is prod
+DEBUG 2015-08-13 05:36:59,811: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 05:36:59,811: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 05:36:59,811: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 05:37:06,006: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'running': 118, 'transferring': 24}, 'jobs': {'133': {'State': 'running'}, '132': {'State': 'running'}, '131': {'State': 'running'}, '130': {'State': 'running'}, '137': {'State': 'running'}, '136': {'State': 'running'}, '135': {'State': 'running'}, '134': {'State': 'running'}, '139': {'State': 'running'}, '138': {'State': 'running'}, '24': {'State': 'transferring'}, '25': {'State': 'transferring'}, '26': {'State': 'transferring'}, '27': {'State': 'running'}, '20': {'State': 'transferring'}, '21': {'State': 'running'}, '22': {'State': 'transferring'}, '23': {'State': 'transferring'}, '28': {'State': 'transferring'}, '29': {'State': 'transferring'}, '4': {'State': 'running'}, '8': {'State': 'running'}, '120': {'State': 'running'}, '121': {'State': 'running'}, '122': {'State': 'running'}, '123': {'State': 'running'}, '124': {'State': 'running'}, '125': {'State': 'running'}, '126': {'State': 'running'}, '127': {'State': 'running'}, '128': {'State': 'running'}, '129': {'State': 'running'}, '59': {'State': 'running'}, '58': {'State': 'running'}, '55': {'State': 'running'}, '54': {'State': 'running'}, '57': {'State': 'running'}, '56': {'State': 'running'}, '51': {'State': 'running'}, '50': {'State': 'running'}, '53': {'State': 'running'}, '52': {'State': 'running'}, '115': {'State': 'running'}, '114': {'State': 'running'}, '88': {'State': 'running'}, '89': {'State': 'running'}, '111': {'State': 'running'}, '110': {'State': 'running'}, '113': {'State': 'running'}, '112': {'State': 'running'}, '82': {'State': 'running'}, '83': {'State': 'running'}, '80': {'State': 'running'}, '81': {'State': 'running'}, '119': {'State': 'running'}, '118': {'State': 'running'}, '84': {'State': 'running'}, '85': {'State': 'running'}, '3': {'State': 'running'}, '7': {'State': 'transferring'}, '108': {'State': 'running'}, '109': {'State': 'running'}, '102': {'State': 'running'}, '103': {'State': 'running'}, '100': {'State': 'running'}, '101': {'State': 'running'}, '106': {'State': 'running'}, '107': {'State': 'running'}, '104': {'State': 'running'}, '105': {'State': 'running'}, '39': {'State': 'running'}, '38': {'State': 'running'}, '33': {'State': 'transferring'}, '32': {'State': 'running'}, '31': {'State': 'transferring'}, '30': {'State': 'transferring'}, '37': {'State': 'transferring'}, '36': {'State': 'transferring'}, '35': {'State': 'transferring'}, '34': {'State': 'transferring'}, '60': {'State': 'running'}, '61': {'State': 'running'}, '62': {'State': 'running'}, '63': {'State': 'running'}, '64': {'State': 'running'}, '65': {'State': 'running'}, '66': {'State': 'running'}, '67': {'State': 'running'}, '68': {'State': 'running'}, '69': {'State': 'running'}, '2': {'State': 'running'}, '6': {'State': 'running'}, '99': {'State': 'running'}, '98': {'State': 'running'}, '91': {'State': 'running'}, '90': {'State': 'running'}, '93': {'State': 'running'}, '92': {'State': 'running'}, '95': {'State': 'running'}, '94': {'State': 'running'}, '97': {'State': 'running'}, '96': {'State': 'running'}, '11': {'State': 'transferring'}, '10': {'State': 'running'}, '13': {'State': 'running'}, '12': {'State': 'running'}, '15': {'State': 'running'}, '14': {'State': 'transferring'}, '17': {'State': 'transferring'}, '16': {'State': 'transferring'}, '19': {'State': 'transferring'}, '18': {'State': 'transferring'}, '117': {'State': 'running'}, '116': {'State': 'running'}, '41': {'State': 'running'}, '48': {'State': 'running'}, '49': {'State': 'transferring'}, '46': {'State': 'running'}, '86': {'State': 'running'}, '44': {'State': 'running'}, '45': {'State': 'running'}, '42': {'State': 'running'}, '43': {'State': 'running'}, '40': {'State': 'running'}, '87': {'State': 'running'}, '1': {'State': 'running'}, '5': {'State': 'running'}, '9': {'State': 'transferring'}, '142': {'State': 'running'}, '140': {'State': 'running'}, '141': {'State': 'running'}, '77': {'State': 'running'}, '76': {'State': 'running'}, '75': {'State': 'running'}, '74': {'State': 'running'}, '73': {'State': 'running'}, '72': {'State': 'running'}, '71': {'State': 'running'}, '70': {'State': 'running'}, '79': {'State': 'running'}, '78': {'State': 'running'}, '47': {'State': 'running'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['running', 133], ['running', 132], ['running', 131], ['running', 130], ['running', 137], ['running', 136], ['running', 135], ['running', 134], ['running', 139], ['running', 138], ['transferring', 24], ['transferring', 25], ['transferring', 26], ['running', 27], ['transferring', 20], ['running', 21], ['transferring', 22], ['transferring', 23], ['transferring', 28], ['transferring', 29], ['running', 4], ['running', 8], ['running', 119], ['running', 120], ['running', 121], ['running', 122], ['running', 123], ['running', 124], ['running', 125], ['running', 126], ['running', 127], ['running', 128], ['running', 129], ['running', 118], ['running', 59], ['running', 58], ['running', 55], ['running', 54], ['running', 57], ['running', 56], ['running', 51], ['running', 50], ['running', 53], ['running', 52], ['running', 115], ['running', 114], ['running', 88], ['running', 89], ['running', 111], ['running', 110], ['running', 113], ['running', 112], ['running', 82], ['running', 83], ['running', 80], ['running', 81], ['running', 86], ['running', 87], ['running', 84], ['running', 85], ['running', 3], ['transferring', 7], ['running', 108], ['running', 109], ['running', 102], ['running', 103], ['running', 100], ['running', 101], ['running', 106], ['running', 107], ['running', 104], ['running', 105], ['running', 39], ['running', 38], ['transferring', 33], ['running', 32], ['transferring', 31], ['transferring', 30], ['transferring', 37], ['transferring', 36], ['transferring', 35], ['transferring', 34], ['running', 60], ['running', 61], ['running', 62], ['running', 63], ['running', 64], ['running', 65], ['running', 66], ['running', 67], ['running', 68], ['running', 69], ['running', 2], ['running', 6], ['running', 99], ['running', 98], ['running', 91], ['running', 90], ['running', 93], ['running', 92], ['running', 95], ['running', 94], ['running', 97], ['running', 96], ['transferring', 11], ['running', 10], ['running', 13], ['running', 12], ['running', 15], ['transferring', 14], ['transferring', 17], ['transferring', 16], ['transferring', 19], ['transferring', 18], ['running', 117], ['running', 116], ['running', 48], ['transferring', 49], ['running', 46], ['running', 47], ['running', 44], ['running', 45], ['running', 42], ['running', 43], ['running', 40], ['running', 41], ['running', 1], ['running', 5], ['transferring', 9], ['running', 142], ['running', 140], ['running', 141], ['running', 77], ['running', 76], ['running', 75], ['running', 74], ['running', 73], ['running', 72], ['running', 71], ['running', 70], ['running', 79], ['running', 78]]}
+INFO 2015-08-13 05:37:06,006: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 05:37:06,006: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 05:37:06,006: 	 Task status:			SUBMITTED
+INFO 2015-08-13 05:37:06,006: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 05:37:06,006: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 05:37:06,007: 	 Details:			running        83.1% (118/142)
+INFO 2015-08-13 05:37:06,007: 	 				transferring   16.9% ( 24/142)
+INFO 2015-08-13 05:37:06,007: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-08-13 05:37:06,011: 	 Log file is /afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015/crab.log
+DEBUG 2015-08-13 05:41:39,163: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:41:39,163: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:41:39,174: 	 Checking credentials
+DEBUG 2015-08-13 05:41:39,175: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:41:39,175: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:41:39,779: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19338
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:41:40,392: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19337
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:41:40,393: 	 Proxy valid for 05:22:18 hours
+DEBUG 2015-08-13 05:41:40,530: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:41:40,530: 	 Checking credentials
+DEBUG 2015-08-13 05:41:40,530: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:41:40,530: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:41:41,138: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19336
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:41:41,643: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19336
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:41:41,644: 	 Proxy valid for 05:22:16 hours
+DEBUG 2015-08-13 05:41:42,732: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 05:41:42,841: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:41:42,842: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 05:41:42,842: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 05:41:43,450: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 414:58:41  (17.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:41:43,450: 	 Myproxy is valid: 1493921
+DEBUG 2015-08-13 05:41:43,450: 	 Command use: status
+DEBUG 2015-08-13 05:41:43,450: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 05:41:43,691: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 05:41:43,691: 	 Instance is prod
+DEBUG 2015-08-13 05:41:43,691: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 05:41:43,691: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 05:41:43,691: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 05:41:47,579: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'running': 54, 'transferring': 88}, 'jobs': {'133': {'State': 'running'}, '132': {'State': 'transferring'}, '131': {'State': 'running'}, '130': {'State': 'transferring'}, '137': {'State': 'running'}, '136': {'State': 'transferring'}, '135': {'State': 'transferring'}, '134': {'State': 'running'}, '139': {'State': 'transferring'}, '138': {'State': 'running'}, '24': {'State': 'transferring'}, '25': {'State': 'transferring'}, '26': {'State': 'transferring'}, '27': {'State': 'transferring'}, '20': {'State': 'transferring'}, '21': {'State': 'transferring'}, '22': {'State': 'transferring'}, '23': {'State': 'transferring'}, '28': {'State': 'transferring'}, '29': {'State': 'transferring'}, '4': {'State': 'transferring'}, '8': {'State': 'transferring'}, '120': {'State': 'transferring'}, '121': {'State': 'running'}, '122': {'State': 'transferring'}, '123': {'State': 'transferring'}, '124': {'State': 'transferring'}, '125': {'State': 'transferring'}, '126': {'State': 'running'}, '127': {'State': 'running'}, '128': {'State': 'running'}, '129': {'State': 'running'}, '59': {'State': 'transferring'}, '58': {'State': 'transferring'}, '55': {'State': 'transferring'}, '54': {'State': 'running'}, '57': {'State': 'running'}, '56': {'State': 'running'}, '51': {'State': 'transferring'}, '50': {'State': 'transferring'}, '53': {'State': 'transferring'}, '52': {'State': 'transferring'}, '115': {'State': 'running'}, '114': {'State': 'running'}, '88': {'State': 'transferring'}, '89': {'State': 'transferring'}, '111': {'State': 'running'}, '110': {'State': 'transferring'}, '113': {'State': 'transferring'}, '112': {'State': 'running'}, '82': {'State': 'transferring'}, '83': {'State': 'running'}, '80': {'State': 'running'}, '81': {'State': 'running'}, '119': {'State': 'transferring'}, '118': {'State': 'running'}, '84': {'State': 'running'}, '85': {'State': 'transferring'}, '3': {'State': 'transferring'}, '7': {'State': 'transferring'}, '108': {'State': 'running'}, '109': {'State': 'running'}, '102': {'State': 'running'}, '103': {'State': 'running'}, '100': {'State': 'running'}, '101': {'State': 'running'}, '106': {'State': 'running'}, '107': {'State': 'running'}, '104': {'State': 'running'}, '105': {'State': 'transferring'}, '39': {'State': 'running'}, '38': {'State': 'running'}, '33': {'State': 'transferring'}, '32': {'State': 'transferring'}, '31': {'State': 'transferring'}, '30': {'State': 'transferring'}, '37': {'State': 'transferring'}, '36': {'State': 'transferring'}, '35': {'State': 'transferring'}, '34': {'State': 'transferring'}, '60': {'State': 'running'}, '61': {'State': 'transferring'}, '62': {'State': 'running'}, '63': {'State': 'transferring'}, '64': {'State': 'transferring'}, '65': {'State': 'transferring'}, '66': {'State': 'running'}, '67': {'State': 'transferring'}, '68': {'State': 'running'}, '69': {'State': 'transferring'}, '2': {'State': 'transferring'}, '6': {'State': 'transferring'}, '99': {'State': 'transferring'}, '98': {'State': 'transferring'}, '91': {'State': 'running'}, '90': {'State': 'running'}, '93': {'State': 'transferring'}, '92': {'State': 'running'}, '95': {'State': 'running'}, '94': {'State': 'running'}, '97': {'State': 'transferring'}, '96': {'State': 'transferring'}, '11': {'State': 'transferring'}, '10': {'State': 'transferring'}, '13': {'State': 'transferring'}, '12': {'State': 'transferring'}, '15': {'State': 'transferring'}, '14': {'State': 'transferring'}, '17': {'State': 'transferring'}, '16': {'State': 'transferring'}, '19': {'State': 'transferring'}, '18': {'State': 'transferring'}, '117': {'State': 'running'}, '116': {'State': 'transferring'}, '41': {'State': 'running'}, '48': {'State': 'running'}, '49': {'State': 'transferring'}, '46': {'State': 'transferring'}, '86': {'State': 'transferring'}, '44': {'State': 'running'}, '45': {'State': 'transferring'}, '42': {'State': 'running'}, '43': {'State': 'transferring'}, '40': {'State': 'running'}, '87': {'State': 'transferring'}, '1': {'State': 'transferring'}, '5': {'State': 'transferring'}, '9': {'State': 'transferring'}, '142': {'State': 'transferring'}, '140': {'State': 'running'}, '141': {'State': 'running'}, '77': {'State': 'running'}, '76': {'State': 'transferring'}, '75': {'State': 'running'}, '74': {'State': 'transferring'}, '73': {'State': 'transferring'}, '72': {'State': 'transferring'}, '71': {'State': 'transferring'}, '70': {'State': 'transferring'}, '79': {'State': 'running'}, '78': {'State': 'running'}, '47': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['running', 133], ['transferring', 132], ['running', 131], ['transferring', 130], ['running', 137], ['transferring', 136], ['transferring', 135], ['running', 134], ['transferring', 139], ['running', 138], ['transferring', 24], ['transferring', 25], ['transferring', 26], ['transferring', 27], ['transferring', 20], ['transferring', 21], ['transferring', 22], ['transferring', 23], ['transferring', 28], ['transferring', 29], ['transferring', 4], ['transferring', 8], ['transferring', 119], ['transferring', 120], ['running', 121], ['transferring', 122], ['transferring', 123], ['transferring', 124], ['transferring', 125], ['running', 126], ['running', 127], ['running', 128], ['running', 129], ['running', 118], ['transferring', 59], ['transferring', 58], ['transferring', 55], ['running', 54], ['running', 57], ['running', 56], ['transferring', 51], ['transferring', 50], ['transferring', 53], ['transferring', 52], ['running', 115], ['running', 114], ['transferring', 88], ['transferring', 89], ['running', 111], ['transferring', 110], ['transferring', 113], ['running', 112], ['transferring', 82], ['running', 83], ['running', 80], ['running', 81], ['transferring', 86], ['transferring', 87], ['running', 84], ['transferring', 85], ['transferring', 3], ['transferring', 7], ['running', 108], ['running', 109], ['running', 102], ['running', 103], ['running', 100], ['running', 101], ['running', 106], ['running', 107], ['running', 104], ['transferring', 105], ['running', 39], ['running', 38], ['transferring', 33], ['transferring', 32], ['transferring', 31], ['transferring', 30], ['transferring', 37], ['transferring', 36], ['transferring', 35], ['transferring', 34], ['running', 60], ['transferring', 61], ['running', 62], ['transferring', 63], ['transferring', 64], ['transferring', 65], ['running', 66], ['transferring', 67], ['running', 68], ['transferring', 69], ['transferring', 2], ['transferring', 6], ['transferring', 99], ['transferring', 98], ['running', 91], ['running', 90], ['transferring', 93], ['running', 92], ['running', 95], ['running', 94], ['transferring', 97], ['transferring', 96], ['transferring', 11], ['transferring', 10], ['transferring', 13], ['transferring', 12], ['transferring', 15], ['transferring', 14], ['transferring', 17], ['transferring', 16], ['transferring', 19], ['transferring', 18], ['running', 117], ['transferring', 116], ['running', 48], ['transferring', 49], ['transferring', 46], ['transferring', 47], ['running', 44], ['transferring', 45], ['running', 42], ['transferring', 43], ['running', 40], ['running', 41], ['transferring', 1], ['transferring', 5], ['transferring', 9], ['transferring', 142], ['running', 140], ['running', 141], ['running', 77], ['transferring', 76], ['running', 75], ['transferring', 74], ['transferring', 73], ['transferring', 72], ['transferring', 71], ['transferring', 70], ['running', 79], ['running', 78]]}
+INFO 2015-08-13 05:41:47,579: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 05:41:47,579: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 05:41:47,579: 	 Task status:			SUBMITTED
+INFO 2015-08-13 05:41:47,579: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 05:41:47,579: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 05:41:47,579: 	 Details:			running        38.0% ( 54/142)
+INFO 2015-08-13 05:41:47,580: 	 				transferring   62.0% ( 88/142)
+INFO 2015-08-13 05:41:47,580: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+DEBUG 2015-08-13 05:44:46,357: 	 Executing command: 'status'
+DEBUG 2015-08-13 05:44:46,357: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 05:44:46,383: 	 Checking credentials
+DEBUG 2015-08-13 05:44:46,383: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:44:46,383: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:44:47,089: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19150
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:44:47,707: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19150
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:44:47,707: 	 Proxy valid for 05:19:10 hours
+DEBUG 2015-08-13 05:44:47,827: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:44:47,827: 	 Checking credentials
+DEBUG 2015-08-13 05:44:47,828: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 05:44:47,828: 	 Getting proxy life time left
+DEBUG 2015-08-13 05:44:48,432: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 19149
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:44:49,153: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 19148
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:44:49,153: 	 Proxy valid for 05:19:09 hours
+DEBUG 2015-08-13 05:44:49,395: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 05:44:49,509: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 05:44:49,510: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 05:44:49,510: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 05:44:49,721: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 414:55:35  (17.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 05:44:49,721: 	 Myproxy is valid: 1493735
+DEBUG 2015-08-13 05:44:49,721: 	 Command use: status
+DEBUG 2015-08-13 05:44:49,722: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 05:44:50,052: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 05:44:50,052: 	 Instance is prod
+DEBUG 2015-08-13 05:44:50,052: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 05:44:50,052: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 05:44:50,052: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 05:44:54,472: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'running': 26, 'transferring': 116}, 'jobs': {'133': {'State': 'transferring'}, '132': {'State': 'transferring'}, '131': {'State': 'transferring'}, '130': {'State': 'transferring'}, '137': {'State': 'running'}, '136': {'State': 'transferring'}, '135': {'State': 'transferring'}, '134': {'State': 'running'}, '139': {'State': 'transferring'}, '138': {'State': 'transferring'}, '24': {'State': 'transferring'}, '25': {'State': 'transferring'}, '26': {'State': 'transferring'}, '27': {'State': 'transferring'}, '20': {'State': 'transferring'}, '21': {'State': 'transferring'}, '22': {'State': 'transferring'}, '23': {'State': 'transferring'}, '28': {'State': 'transferring'}, '29': {'State': 'transferring'}, '4': {'State': 'transferring'}, '8': {'State': 'transferring'}, '120': {'State': 'transferring'}, '121': {'State': 'running'}, '122': {'State': 'transferring'}, '123': {'State': 'transferring'}, '124': {'State': 'transferring'}, '125': {'State': 'transferring'}, '126': {'State': 'running'}, '127': {'State': 'transferring'}, '128': {'State': 'running'}, '129': {'State': 'running'}, '59': {'State': 'transferring'}, '58': {'State': 'transferring'}, '55': {'State': 'transferring'}, '54': {'State': 'running'}, '57': {'State': 'running'}, '56': {'State': 'transferring'}, '51': {'State': 'transferring'}, '50': {'State': 'transferring'}, '53': {'State': 'transferring'}, '52': {'State': 'transferring'}, '115': {'State': 'running'}, '114': {'State': 'transferring'}, '88': {'State': 'transferring'}, '89': {'State': 'transferring'}, '111': {'State': 'transferring'}, '110': {'State': 'transferring'}, '113': {'State': 'transferring'}, '112': {'State': 'running'}, '82': {'State': 'transferring'}, '83': {'State': 'transferring'}, '80': {'State': 'transferring'}, '81': {'State': 'transferring'}, '119': {'State': 'transferring'}, '118': {'State': 'transferring'}, '84': {'State': 'running'}, '85': {'State': 'transferring'}, '3': {'State': 'transferring'}, '7': {'State': 'transferring'}, '108': {'State': 'transferring'}, '109': {'State': 'transferring'}, '102': {'State': 'running'}, '103': {'State': 'running'}, '100': {'State': 'transferring'}, '101': {'State': 'transferring'}, '106': {'State': 'running'}, '107': {'State': 'transferring'}, '104': {'State': 'running'}, '105': {'State': 'transferring'}, '39': {'State': 'running'}, '38': {'State': 'running'}, '33': {'State': 'transferring'}, '32': {'State': 'transferring'}, '31': {'State': 'transferring'}, '30': {'State': 'transferring'}, '37': {'State': 'transferring'}, '36': {'State': 'transferring'}, '35': {'State': 'transferring'}, '34': {'State': 'transferring'}, '60': {'State': 'running'}, '61': {'State': 'transferring'}, '62': {'State': 'transferring'}, '63': {'State': 'transferring'}, '64': {'State': 'transferring'}, '65': {'State': 'transferring'}, '66': {'State': 'transferring'}, '67': {'State': 'transferring'}, '68': {'State': 'running'}, '69': {'State': 'transferring'}, '2': {'State': 'transferring'}, '6': {'State': 'transferring'}, '99': {'State': 'transferring'}, '98': {'State': 'transferring'}, '91': {'State': 'running'}, '90': {'State': 'running'}, '93': {'State': 'transferring'}, '92': {'State': 'transferring'}, '95': {'State': 'transferring'}, '94': {'State': 'running'}, '97': {'State': 'transferring'}, '96': {'State': 'transferring'}, '11': {'State': 'transferring'}, '10': {'State': 'transferring'}, '13': {'State': 'transferring'}, '12': {'State': 'transferring'}, '15': {'State': 'transferring'}, '14': {'State': 'transferring'}, '17': {'State': 'transferring'}, '16': {'State': 'transferring'}, '19': {'State': 'transferring'}, '18': {'State': 'transferring'}, '117': {'State': 'transferring'}, '116': {'State': 'transferring'}, '41': {'State': 'running'}, '48': {'State': 'transferring'}, '49': {'State': 'transferring'}, '46': {'State': 'transferring'}, '86': {'State': 'transferring'}, '44': {'State': 'transferring'}, '45': {'State': 'transferring'}, '42': {'State': 'transferring'}, '43': {'State': 'transferring'}, '40': {'State': 'running'}, '87': {'State': 'transferring'}, '1': {'State': 'transferring'}, '5': {'State': 'transferring'}, '9': {'State': 'transferring'}, '142': {'State': 'transferring'}, '140': {'State': 'transferring'}, '141': {'State': 'transferring'}, '77': {'State': 'transferring'}, '76': {'State': 'transferring'}, '75': {'State': 'running'}, '74': {'State': 'transferring'}, '73': {'State': 'transferring'}, '72': {'State': 'transferring'}, '71': {'State': 'transferring'}, '70': {'State': 'transferring'}, '79': {'State': 'transferring'}, '78': {'State': 'running'}, '47': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['transferring', 133], ['transferring', 132], ['transferring', 131], ['transferring', 130], ['running', 137], ['transferring', 136], ['transferring', 135], ['running', 134], ['transferring', 139], ['transferring', 138], ['transferring', 24], ['transferring', 25], ['transferring', 26], ['transferring', 27], ['transferring', 20], ['transferring', 21], ['transferring', 22], ['transferring', 23], ['transferring', 28], ['transferring', 29], ['transferring', 4], ['transferring', 8], ['transferring', 119], ['transferring', 120], ['running', 121], ['transferring', 122], ['transferring', 123], ['transferring', 124], ['transferring', 125], ['running', 126], ['transferring', 127], ['running', 128], ['running', 129], ['transferring', 118], ['transferring', 59], ['transferring', 58], ['transferring', 55], ['running', 54], ['running', 57], ['transferring', 56], ['transferring', 51], ['transferring', 50], ['transferring', 53], ['transferring', 52], ['running', 115], ['transferring', 114], ['transferring', 88], ['transferring', 89], ['transferring', 111], ['transferring', 110], ['transferring', 113], ['running', 112], ['transferring', 82], ['transferring', 83], ['transferring', 80], ['transferring', 81], ['transferring', 86], ['transferring', 87], ['running', 84], ['transferring', 85], ['transferring', 3], ['transferring', 7], ['transferring', 108], ['transferring', 109], ['running', 102], ['running', 103], ['transferring', 100], ['transferring', 101], ['running', 106], ['transferring', 107], ['running', 104], ['transferring', 105], ['running', 39], ['running', 38], ['transferring', 33], ['transferring', 32], ['transferring', 31], ['transferring', 30], ['transferring', 37], ['transferring', 36], ['transferring', 35], ['transferring', 34], ['running', 60], ['transferring', 61], ['transferring', 62], ['transferring', 63], ['transferring', 64], ['transferring', 65], ['transferring', 66], ['transferring', 67], ['running', 68], ['transferring', 69], ['transferring', 2], ['transferring', 6], ['transferring', 99], ['transferring', 98], ['running', 91], ['running', 90], ['transferring', 93], ['transferring', 92], ['transferring', 95], ['running', 94], ['transferring', 97], ['transferring', 96], ['transferring', 11], ['transferring', 10], ['transferring', 13], ['transferring', 12], ['transferring', 15], ['transferring', 14], ['transferring', 17], ['transferring', 16], ['transferring', 19], ['transferring', 18], ['transferring', 117], ['transferring', 116], ['transferring', 48], ['transferring', 49], ['transferring', 46], ['transferring', 47], ['transferring', 44], ['transferring', 45], ['transferring', 42], ['transferring', 43], ['running', 40], ['running', 41], ['transferring', 1], ['transferring', 5], ['transferring', 9], ['transferring', 142], ['transferring', 140], ['transferring', 141], ['transferring', 77], ['transferring', 76], ['running', 75], ['transferring', 74], ['transferring', 73], ['transferring', 72], ['transferring', 71], ['transferring', 70], ['transferring', 79], ['running', 78]]}
+INFO 2015-08-13 05:44:54,472: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 05:44:54,472: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 05:44:54,473: 	 Task status:			SUBMITTED
+INFO 2015-08-13 05:44:54,473: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 05:44:54,473: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 05:44:54,473: 	 Details:			running        18.3% ( 26/142)
+INFO 2015-08-13 05:44:54,473: 	 				transferring   81.7% (116/142)
+INFO 2015-08-13 05:44:54,473: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+DEBUG 2015-08-13 07:01:22,984: 	 Executing command: 'status'
+DEBUG 2015-08-13 07:01:22,984: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 07:01:22,996: 	 Checking credentials
+DEBUG 2015-08-13 07:01:22,996: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:01:22,996: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:01:23,501: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86369
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:01:24,005: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86369
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:01:24,006: 	 Proxy valid for 23:59:29 hours
+DEBUG 2015-08-13 07:01:24,168: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:01:24,168: 	 Checking credentials
+DEBUG 2015-08-13 07:01:24,168: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:01:24,168: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:01:24,675: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 86368
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:01:25,184: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 86367
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:01:25,184: 	 Proxy valid for 23:59:28 hours
+DEBUG 2015-08-13 07:01:25,566: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 07:01:25,689: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:01:25,689: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 07:01:25,689: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 07:01:25,995: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 413:38:59  (17.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:01:25,996: 	 Myproxy is valid: 1489139
+DEBUG 2015-08-13 07:01:25,996: 	 Command use: status
+DEBUG 2015-08-13 07:01:25,997: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 07:01:26,374: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 07:01:26,374: 	 Instance is prod
+DEBUG 2015-08-13 07:01:26,374: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 07:01:26,374: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 07:01:26,374: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 07:01:31,954: 	 {'status': 'COMPLETED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 142}, 'jobs': {'133': {'State': 'finished'}, '132': {'State': 'finished'}, '131': {'State': 'finished'}, '130': {'State': 'finished'}, '137': {'State': 'finished'}, '136': {'State': 'finished'}, '135': {'State': 'finished'}, '134': {'State': 'finished'}, '139': {'State': 'finished'}, '138': {'State': 'finished'}, '24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '120': {'State': 'finished'}, '121': {'State': 'finished'}, '122': {'State': 'finished'}, '123': {'State': 'finished'}, '124': {'State': 'finished'}, '125': {'State': 'finished'}, '126': {'State': 'finished'}, '127': {'State': 'finished'}, '128': {'State': 'finished'}, '129': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '119': {'State': 'finished'}, '118': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '117': {'State': 'finished'}, '116': {'State': 'finished'}, '41': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'finished'}, '86': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '87': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '142': {'State': 'finished'}, '140': {'State': 'finished'}, '141': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}, '47': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['finished', 133], ['finished', 132], ['finished', 131], ['finished', 130], ['finished', 137], ['finished', 136], ['finished', 135], ['finished', 134], ['finished', 139], ['finished', 138], ['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 119], ['finished', 120], ['finished', 121], ['finished', 122], ['finished', 123], ['finished', 124], ['finished', 125], ['finished', 126], ['finished', 127], ['finished', 128], ['finished', 129], ['finished', 118], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 117], ['finished', 116], ['finished', 48], ['finished', 49], ['finished', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 142], ['finished', 140], ['finished', 141], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-08-13 07:01:31,954: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 07:01:31,955: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 07:01:31,957: 	 Task status:			COMPLETED
+INFO 2015-08-13 07:01:31,958: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:01:31,961: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:01:31,962: 	 Details:			finished      100.0% (142/142)
+INFO 2015-08-13 07:01:31,962: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+DEBUG 2015-08-13 07:13:28,144: 	 Executing command: 'status'
+DEBUG 2015-08-13 07:13:28,145: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 07:13:28,152: 	 Checking credentials
+DEBUG 2015-08-13 07:13:28,152: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:13:28,152: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:13:28,656: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85644
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:13:29,166: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85643
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:13:29,166: 	 Proxy valid for 23:47:24 hours
+DEBUG 2015-08-13 07:13:29,349: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:13:29,349: 	 Checking credentials
+DEBUG 2015-08-13 07:13:29,349: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:13:29,349: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:13:29,855: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85643
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:13:30,360: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85642
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:13:30,361: 	 Proxy valid for 23:47:23 hours
+DEBUG 2015-08-13 07:13:30,929: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 07:13:31,044: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:13:31,044: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 07:13:31,044: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 07:13:31,250: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 413:26:53  (17.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:13:31,250: 	 Myproxy is valid: 1488413
+DEBUG 2015-08-13 07:13:31,250: 	 Command use: status
+DEBUG 2015-08-13 07:13:31,251: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 07:13:31,653: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 07:13:31,653: 	 Instance is prod
+DEBUG 2015-08-13 07:13:31,653: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 07:13:31,653: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 07:13:31,654: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 07:13:37,557: 	 {'status': 'COMPLETED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 142}, 'jobs': {'133': {'State': 'finished'}, '132': {'State': 'finished'}, '131': {'State': 'finished'}, '130': {'State': 'finished'}, '137': {'State': 'finished'}, '136': {'State': 'finished'}, '135': {'State': 'finished'}, '134': {'State': 'finished'}, '139': {'State': 'finished'}, '138': {'State': 'finished'}, '24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '120': {'State': 'finished'}, '121': {'State': 'finished'}, '122': {'State': 'finished'}, '123': {'State': 'finished'}, '124': {'State': 'finished'}, '125': {'State': 'finished'}, '126': {'State': 'finished'}, '127': {'State': 'finished'}, '128': {'State': 'finished'}, '129': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '119': {'State': 'finished'}, '118': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '117': {'State': 'finished'}, '116': {'State': 'finished'}, '41': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'finished'}, '86': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '87': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '142': {'State': 'finished'}, '140': {'State': 'finished'}, '141': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}, '47': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['finished', 133], ['finished', 132], ['finished', 131], ['finished', 130], ['finished', 137], ['finished', 136], ['finished', 135], ['finished', 134], ['finished', 139], ['finished', 138], ['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 119], ['finished', 120], ['finished', 121], ['finished', 122], ['finished', 123], ['finished', 124], ['finished', 125], ['finished', 126], ['finished', 127], ['finished', 128], ['finished', 129], ['finished', 118], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 117], ['finished', 116], ['finished', 48], ['finished', 49], ['finished', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 142], ['finished', 140], ['finished', 141], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-08-13 07:13:37,557: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 07:13:37,557: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 07:13:37,557: 	 Task status:			COMPLETED
+INFO 2015-08-13 07:13:37,557: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:13:37,558: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:13:37,558: 	 Details:			finished      100.0% (142/142)
+INFO 2015-08-13 07:13:37,558: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+DEBUG 2015-08-13 07:15:21,715: 	 Executing command: 'resubmit'
+DEBUG 2015-08-13 07:15:21,715: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 07:15:21,728: 	 Checking credentials
+DEBUG 2015-08-13 07:15:21,728: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:15:21,728: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:15:22,234: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85530
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:15:22,738: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85530
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:15:22,738: 	 Proxy valid for 23:45:30 hours
+DEBUG 2015-08-13 07:15:22,863: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:15:22,863: 	 Checking credentials
+DEBUG 2015-08-13 07:15:22,863: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:15:22,863: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:15:23,374: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85529
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:15:23,881: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85529
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:15:23,881: 	 Proxy valid for 23:45:29 hours
+DEBUG 2015-08-13 07:15:24,238: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 07:15:24,348: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:15:24,348: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 07:15:24,348: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 07:15:24,757: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 413:25:00  (17.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:15:24,758: 	 Myproxy is valid: 1488300
+DEBUG 2015-08-13 07:15:24,759: 	 Command use: resubmit
+DEBUG 2015-08-13 07:15:24,759: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 07:15:25,134: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 07:15:25,134: 	 Instance is prod
+DEBUG 2015-08-13 07:15:25,134: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 07:15:25,134: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 07:15:25,134: 	 Requesting resubmission of failed jobs in task 150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 07:15:25,134: 	 Sending the request to the server
+DEBUG 2015-08-13 07:15:25,134: 	 Submitting {'force': 0, 'subresource': 'resubmit', 'workflow': '150813_033011:wajid_crab_Mu_Run2015'} 
+DEBUG 2015-08-13 07:15:25,134: 	 Encoded resubmit request: force=0&subresource=resubmit&workflow=150813_033011%3Awajid_crab_Mu_Run2015
+DEBUG 2015-08-13 07:16:08,055: 	 Executing command: 'status'
+DEBUG 2015-08-13 07:16:08,056: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 07:16:08,064: 	 Checking credentials
+DEBUG 2015-08-13 07:16:08,064: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:16:08,064: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:16:08,669: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85484
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:09,174: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85483
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:09,175: 	 Proxy valid for 23:44:44 hours
+DEBUG 2015-08-13 07:16:09,427: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:16:09,427: 	 Checking credentials
+DEBUG 2015-08-13 07:16:09,427: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:16:09,427: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:16:09,935: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85483
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:10,443: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85482
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:10,443: 	 Proxy valid for 23:44:43 hours
+DEBUG 2015-08-13 07:16:10,875: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 07:16:10,994: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:16:10,994: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 07:16:10,995: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 07:16:11,202: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 413:24:13  (17.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:11,203: 	 Myproxy is valid: 1488253
+DEBUG 2015-08-13 07:16:11,203: 	 Command use: status
+DEBUG 2015-08-13 07:16:11,203: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 07:16:11,583: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 07:16:11,583: 	 Instance is prod
+DEBUG 2015-08-13 07:16:11,583: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 07:16:11,583: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 07:16:11,583: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 07:16:16,945: 	 {'status': 'COMPLETED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 142}, 'jobs': {'133': {'State': 'finished'}, '132': {'State': 'finished'}, '131': {'State': 'finished'}, '130': {'State': 'finished'}, '137': {'State': 'finished'}, '136': {'State': 'finished'}, '135': {'State': 'finished'}, '134': {'State': 'finished'}, '139': {'State': 'finished'}, '138': {'State': 'finished'}, '24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '120': {'State': 'finished'}, '121': {'State': 'finished'}, '122': {'State': 'finished'}, '123': {'State': 'finished'}, '124': {'State': 'finished'}, '125': {'State': 'finished'}, '126': {'State': 'finished'}, '127': {'State': 'finished'}, '128': {'State': 'finished'}, '129': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '119': {'State': 'finished'}, '118': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '117': {'State': 'finished'}, '116': {'State': 'finished'}, '41': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'finished'}, '86': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '87': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '142': {'State': 'finished'}, '140': {'State': 'finished'}, '141': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}, '47': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['finished', 133], ['finished', 132], ['finished', 131], ['finished', 130], ['finished', 137], ['finished', 136], ['finished', 135], ['finished', 134], ['finished', 139], ['finished', 138], ['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 119], ['finished', 120], ['finished', 121], ['finished', 122], ['finished', 123], ['finished', 124], ['finished', 125], ['finished', 126], ['finished', 127], ['finished', 128], ['finished', 129], ['finished', 118], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 117], ['finished', 116], ['finished', 48], ['finished', 49], ['finished', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 142], ['finished', 140], ['finished', 141], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-08-13 07:16:16,946: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 07:16:16,946: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 07:16:16,946: 	 Task status:			COMPLETED
+INFO 2015-08-13 07:16:16,946: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:16:16,946: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:16:16,946: 	 Details:			finished      100.0% (142/142)
+INFO 2015-08-13 07:16:16,946: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+DEBUG 2015-08-13 07:16:52,820: 	 Executing command: 'status'
+DEBUG 2015-08-13 07:16:52,820: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 07:16:52,829: 	 Checking credentials
+DEBUG 2015-08-13 07:16:52,829: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:16:52,829: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:16:53,437: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85439
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:53,946: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85439
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:53,946: 	 Proxy valid for 23:43:59 hours
+DEBUG 2015-08-13 07:16:54,114: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:16:54,114: 	 Checking credentials
+DEBUG 2015-08-13 07:16:54,115: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:16:54,115: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:16:54,630: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85438
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:55,138: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85437
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:55,138: 	 Proxy valid for 23:43:58 hours
+DEBUG 2015-08-13 07:16:55,571: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 07:16:55,681: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:16:55,681: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 07:16:55,681: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 07:16:55,887: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 413:23:29  (17.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:16:55,887: 	 Myproxy is valid: 1488209
+DEBUG 2015-08-13 07:16:55,887: 	 Command use: status
+DEBUG 2015-08-13 07:16:55,888: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 07:16:56,261: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 07:16:56,261: 	 Instance is prod
+DEBUG 2015-08-13 07:16:56,261: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 07:16:56,261: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 07:16:56,261: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 07:17:00,705: 	 {'status': 'COMPLETED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 142}, 'jobs': {'133': {'State': 'finished'}, '132': {'State': 'finished'}, '131': {'State': 'finished'}, '130': {'State': 'finished'}, '137': {'State': 'finished'}, '136': {'State': 'finished'}, '135': {'State': 'finished'}, '134': {'State': 'finished'}, '139': {'State': 'finished'}, '138': {'State': 'finished'}, '24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '120': {'State': 'finished'}, '121': {'State': 'finished'}, '122': {'State': 'finished'}, '123': {'State': 'finished'}, '124': {'State': 'finished'}, '125': {'State': 'finished'}, '126': {'State': 'finished'}, '127': {'State': 'finished'}, '128': {'State': 'finished'}, '129': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '119': {'State': 'finished'}, '118': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '117': {'State': 'finished'}, '116': {'State': 'finished'}, '41': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'finished'}, '86': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '87': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '142': {'State': 'finished'}, '140': {'State': 'finished'}, '141': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}, '47': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['finished', 133], ['finished', 132], ['finished', 131], ['finished', 130], ['finished', 137], ['finished', 136], ['finished', 135], ['finished', 134], ['finished', 139], ['finished', 138], ['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 119], ['finished', 120], ['finished', 121], ['finished', 122], ['finished', 123], ['finished', 124], ['finished', 125], ['finished', 126], ['finished', 127], ['finished', 128], ['finished', 129], ['finished', 118], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 117], ['finished', 116], ['finished', 48], ['finished', 49], ['finished', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 142], ['finished', 140], ['finished', 141], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-08-13 07:17:00,705: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 07:17:00,705: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 07:17:00,705: 	 Task status:			COMPLETED
+INFO 2015-08-13 07:17:00,705: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:17:00,705: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:17:00,706: 	 Details:			finished      100.0% (142/142)
+INFO 2015-08-13 07:17:00,706: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+DEBUG 2015-08-13 07:19:12,324: 	 Executing command: 'status'
+DEBUG 2015-08-13 07:19:12,325: 	 Found CRAB cache file /afs/cern.ch/user/w/wajid/.crab3
+DEBUG 2015-08-13 07:19:12,332: 	 Checking credentials
+DEBUG 2015-08-13 07:19:12,332: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:19:12,332: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:19:12,838: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85300
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:19:13,348: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85299
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:19:13,348: 	 Proxy valid for 23:41:40 hours
+DEBUG 2015-08-13 07:19:13,568: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:19:13,568: 	 Checking credentials
+DEBUG 2015-08-13 07:19:13,569: 	 Found proxy file /tmp/x509up_u31059
+DEBUG 2015-08-13 07:19:13,569: 	 Getting proxy life time left
+DEBUG 2015-08-13 07:19:14,080: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -timeleft
+ output : 85298
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:19:14,593: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u31059 -actimeleft
+ output : 85298
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:19:14,593: 	 Proxy valid for 23:41:38 hours
+DEBUG 2015-08-13 07:19:15,013: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+DEBUG 2015-08-13 07:19:15,140: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-08-13 07:19:15,140: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-08-13 07:19:15,141: 	 Calculating hash of /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan_cmsweb.cern.ch for credential name
+DEBUG 2015-08-13 07:19:15,349: 	 Executing : 
+ command : myproxy-info -l 924a7c6cb36cfed000df804af62394413528f79d -s myproxy.cern.ch
+ output : username: 924a7c6cb36cfed000df804af62394413528f79d
+owner: /C=DE/O=GermanGrid/OU=KIT/CN=Wajid Ali Khan
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0119).cern.ch
+  timeleft: 413:21:09  (17.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-08-13 07:19:15,349: 	 Myproxy is valid: 1488069
+DEBUG 2015-08-13 07:19:15,350: 	 Command use: status
+DEBUG 2015-08-13 07:19:15,350: 	 Options use: ['--dir', 'crab_projects/crab_Mu_Run2015']
+DEBUG 2015-08-13 07:19:15,715: 	 CRABClient version: 3.3.1507
+DEBUG 2015-08-13 07:19:15,715: 	 Instance is prod
+DEBUG 2015-08-13 07:19:15,715: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-08-13 07:19:15,715: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-08-13 07:19:15,715: 	 Looking up detailed status of task 150813_033011:wajid_crab_Mu_Run2015
+DEBUG 2015-08-13 07:19:20,276: 	 {'status': 'COMPLETED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 142}, 'jobs': {'133': {'State': 'finished'}, '132': {'State': 'finished'}, '131': {'State': 'finished'}, '130': {'State': 'finished'}, '137': {'State': 'finished'}, '136': {'State': 'finished'}, '135': {'State': 'finished'}, '134': {'State': 'finished'}, '139': {'State': 'finished'}, '138': {'State': 'finished'}, '24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '120': {'State': 'finished'}, '121': {'State': 'finished'}, '122': {'State': 'finished'}, '123': {'State': 'finished'}, '124': {'State': 'finished'}, '125': {'State': 'finished'}, '126': {'State': 'finished'}, '127': {'State': 'finished'}, '128': {'State': 'finished'}, '129': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '119': {'State': 'finished'}, '118': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '117': {'State': 'finished'}, '116': {'State': 'finished'}, '41': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'finished'}, '86': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '87': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '142': {'State': 'finished'}, '140': {'State': 'finished'}, '141': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}, '47': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'outdatasets': None, 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '150813_033011:wajid_crab_Mu_Run2015', 'jobdefErrors': [], 'collector': 'vocms097.cern.ch,vocms099.cern.ch', 'jobList': [['finished', 133], ['finished', 132], ['finished', 131], ['finished', 130], ['finished', 137], ['finished', 136], ['finished', 135], ['finished', 134], ['finished', 139], ['finished', 138], ['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 119], ['finished', 120], ['finished', 121], ['finished', 122], ['finished', 123], ['finished', 124], ['finished', 125], ['finished', 126], ['finished', 127], ['finished', 128], ['finished', 129], ['finished', 118], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 117], ['finished', 116], ['finished', 48], ['finished', 49], ['finished', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 142], ['finished', 140], ['finished', 141], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-08-13 07:19:20,276: 	 CRAB project directory:		/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/crab_projects/crab_Mu_Run2015
+INFO 2015-08-13 07:19:20,276: 	 Task name:			150813_033011:wajid_crab_Mu_Run2015
+INFO 2015-08-13 07:19:20,276: 	 Task status:			COMPLETED
+INFO 2015-08-13 07:19:20,276: 	 Glidemon monitoring URL:	http://glidemon.web.cern.ch/glidemon/jobs.php?taskname=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:19:20,276: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=150813_033011%3Awajid_crab_Mu_Run2015
+INFO 2015-08-13 07:19:20,276: 	 Details:			finished      100.0% (142/142)
+INFO 2015-08-13 07:19:20,276: 	 
+No publication information (publication has been disabled in the CRAB configuration file)

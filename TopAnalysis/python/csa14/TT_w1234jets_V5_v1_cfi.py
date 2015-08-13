@@ -1,0 +1,77 @@
+import FWCore.ParameterSet.Config as cms
+
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring() 
+source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+readFiles.extend( [
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/02093105-9007-E411-B86A-00221982B6BA.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/02A8D78B-9107-E411-9D6D-F04DA27710A2.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/04DB88FA-9107-E411-8BAC-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/08B8F1DE-9007-E411-B054-20CF3027A610.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/0AA125C6-8F07-E411-8B14-00221982C61D.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/0AFF30CB-8F07-E411-9852-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/0CABC671-9107-E411-8F1F-20CF3027A5DE.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/146D645F-9107-E411-A07F-20CF3027A610.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/18AF840E-9007-E411-A5D7-00221982C606.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/18FCF80D-9307-E411-8398-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/200EA5FD-9107-E411-A601-BCAEC528225F.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/2650E73C-9107-E411-A2F4-0019B9E7C777.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/3002AC60-9207-E411-A8DA-00221982C61D.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/32098E6C-9107-E411-9735-002590D6002C.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/3E9AEC8D-9207-E411-B87B-20CF3019DEFF.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/42D5B374-9107-E411-B0A9-002590D6004A.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/4CA79D09-9107-E411-A2F3-001EC9EB7B49.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/600A0071-9107-E411-90A8-20CF3027A5B2.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/62FDD414-9207-E411-91CD-00221982C606.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/64DF6E05-9207-E411-90F4-F04DA27710A2.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/66B781F2-8F07-E411-9424-20CF3027A610.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/680CDA9A-9207-E411-8697-5404A64A1265.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/6A1C56F9-9107-E411-9E15-00221982B698.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/6A373843-9107-E411-9B12-002590D60026.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/6C121971-9107-E411-8BB7-20CF3027A5DE.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/704D7589-9207-E411-A9E2-20CF305B054E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/768FEC4D-9107-E411-A67A-001EC9EB7B49.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/7A584504-9207-E411-ADB0-20CF3027A62D.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/7A839B15-9107-E411-82A2-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/80B8210A-9007-E411-8B41-5404A64A1265.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/827E78FF-8F07-E411-AD6E-00221982C606.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/889F1204-9307-E411-8344-BCAEC528225F.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/946F3471-9107-E411-A77A-002590D600A4.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/A2E3520C-9207-E411-890F-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/A4E0780F-9207-E411-870E-20CF3027A62D.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/AC70BA99-9207-E411-BE84-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/B26834CF-8F07-E411-AC4D-20CF3027A610.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/B491444C-9107-E411-AFBF-00221982D6A1.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/B493BA47-9107-E411-9295-00221982C61D.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/B65A9119-9307-E411-BC40-00221982C606.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/BA01F471-9107-E411-9E52-20CF305B054E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/BA547CC5-8F07-E411-9AA4-001EC9EB7B49.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/BE1D410E-9207-E411-B5E0-0019B9E7C777.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/C0A48798-9207-E411-A6B2-20CF3027A61E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/C0BFE808-9207-E411-9DF6-001EC9EB7B39.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/C205B87D-9207-E411-903D-001EC9EB7B49.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/C6E80EF9-9207-E411-B3EA-00221982B698.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/CE512BFA-9007-E411-A43E-00221982C61D.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/D2BD7A71-9107-E411-BA30-00221982B698.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/DCA1A188-9207-E411-A5B8-20CF3027A5DE.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/DE024416-9107-E411-B647-BCAEC5097210.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/E0D3AE6E-9107-E411-8444-002590D60026.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/E2EDD098-9207-E411-8CD5-BCAEC5097210.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/E48F82CD-8F07-E411-A241-BCAEC5097210.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/E6F78450-9107-E411-B599-002590D60026.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/EADF3288-9207-E411-97B2-20CF3027A610.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/EC74320F-9307-E411-8D0C-F04DA2770C8E.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/F47569C8-8F07-E411-A4A6-F04DA27710A2.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/F498DF4B-9107-E411-9463-001EC9EB7B39.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/F63D3775-9107-E411-9973-00221982B6BA.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/F6F25903-9007-E411-87E6-20CF30703963.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/FA1CBF4B-9107-E411-8CCC-20CF3027A5DE.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/FA45D1F8-8F07-E411-A021-5404A64A1265.root',
+       '/store/mc/Spring14miniaod/W1234JetsToLNu_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/FE42BBDA-9007-E411-AA89-F04DA27710A2.root' ] );
+
+
+secFiles.extend( [
+               ] )
+
+
