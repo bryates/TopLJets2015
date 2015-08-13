@@ -31,5 +31,6 @@ __init__.py*
 *.root
 *.log
 
-TopAnalysis/test/CRAB/crab_projects
+crab_projects/
+qamar_scripts/
 .__afs*
