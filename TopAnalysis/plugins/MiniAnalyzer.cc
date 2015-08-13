@@ -360,27 +360,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //Confused since the relIsoWithEA applied to Electron cut based ID
   //https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
   
-  //double Aeff04 = 0.5;
-  //if ( fabs(e->superCluster()->eta()) < 1.0 ) Aeff04 = 0.208;
-  //if ( fabs(e->superCluster()->eta()) > 1.0   && fabs(e->superCluster()->eta()) < 1.479 ) Aeff04 = 0.209;
-  //if ( fabs(e->superCluster()->eta()) > 1.479 && fabs(e->superCluster()->eta()) < 2.0   ) Aeff04 = 0.115;
-  //if ( fabs(e->superCluster()->eta()) > 2.0   && fabs(e->superCluster()->eta()) < 2.2   ) Aeff04 = 0.143;
-  //if ( fabs(e->superCluster()->eta()) > 2.2   && fabs(e->superCluster()->eta()) < 2.3   ) Aeff04 = 0.183;
-  //if ( fabs(e->superCluster()->eta()) > 2.3   && fabs(e->superCluster()->eta()) < 2.4   ) Aeff04 = 0.194;
-  //if ( fabs(e->superCluster()->eta()) > 2.4 ) Aeff04 = 0.261; 
-  
-  //double Aeff03 = 0.5;
-  //if ( fabs(e->superCluster()->eta()) < 1.0 ) Aeff03 = 0.13;
-  //if ( fabs(e->superCluster()->eta()) > 1.0   && fabs(e->superCluster()->eta()) < 1.479 ) Aeff03 = 0.14;
-  //if ( fabs(e->superCluster()->eta()) > 1.479 && fabs(e->superCluster()->eta()) < 2.0   ) Aeff03 = 0.07;
-  //if ( fabs(e->superCluster()->eta()) > 2.0   && fabs(e->superCluster()->eta()) < 2.2   ) Aeff03 = 0.09;
-  //if ( fabs(e->superCluster()->eta()) > 2.2   && fabs(e->superCluster()->eta()) < 2.3   ) Aeff03 = 0.11;
-  //if ( fabs(e->superCluster()->eta()) > 2.3   && fabs(e->superCluster()->eta()) < 2.4   ) Aeff03 = 0.11;
-  //if ( fabs(e->superCluster()->eta()) > 2.4 ) Aeff03 = 0.14;
- 
-  //float  RhoCorrectedIso04 =  e->chargedHadronIso() + std::max(e->neutralHadronIso() + e->photonIso() - rho*Aeff04, 0.);
-  //float  RhoCorrectedIso03 =  e->chargedHadronIso() + std::max(e->neutralHadronIso() + e->photonIso() - rho*Aeff03, 0.);  
-
   if(e->dB() < 0.02  && e->passConversionVeto() == true ){
 	    if(passPt && passEta && passTightId){
 	    histContainer_["electronchreliso"]->Fill(relchIso);
