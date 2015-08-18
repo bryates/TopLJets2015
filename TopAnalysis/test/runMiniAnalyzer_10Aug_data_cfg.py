@@ -17,14 +17,15 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 #from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_Powheg_cfi import source as events_source
 #from UserCode.TopAnalysis.sp15.TT_new_cfi import source as events_source
-#process.source=events_source
+from UserCode.TopAnalysis.Data_Mu_2015.data_mu_cfi import source as events_source
+process.source=events_source
 
-process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring(
-# 'root://cms-xrd-global.cern.ch//store/data/Run2015B/JetHT/MINIAOD/PromptReco-v1/000/251/163/00000/F05CF208-A026-E511-85F4-02163E011B15.root'
- 'root://cms-xrd-global.cern.ch//store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/252/116/00000/7E03BD9B-7730-E511-BA13-02163E011976.root'
- )
-)
+#process.source = cms.Source("PoolSource",
+#  fileNames = cms.untracked.vstring(
+## 'root://cms-xrd-global.cern.ch//store/data/Run2015B/JetHT/MINIAOD/PromptReco-v1/000/251/163/00000/F05CF208-A026-E511-85F4-02163E011B15.root'
+# 'root://cms-xrd-global.cern.ch//store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/252/116/00000/7E03BD9B-7730-E511-BA13-02163E011976.root'
+# )
+#)
 
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -35,6 +36,19 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.TFileService = cms.Service("TFileService",
   fileName = cms.string('Data_Run2015B.root')
 )
+
+
+#luminosity
+import FWCore.ParameterSet.Config as cms
+import FWCore.PythonUtilities.LumiList as LumiList
+process.source.lumisToProcess = LumiList.LumiList(filename = '/afs/cern.ch/work/w/wajid/qamar_ttbar/CMSSW_7_4_5/src/UserCode/TopAnalysis/test/CRAB/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt').getVLuminosityBlockRange()
+
+#input file
+#import FWCore.Utilities.FileUtils as FileUtils
+#files2015data = FileUtils.loadListFromFile ('files.txt') 
+#readFiles = cms.untracked.vstring( *files2015data )
+#process.source.fileNames = readFiles
+
 
 # Set up electron ID (VID framework)
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
