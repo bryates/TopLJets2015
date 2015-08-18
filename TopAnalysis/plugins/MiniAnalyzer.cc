@@ -163,10 +163,18 @@ MiniAnalyzer::~MiniAnalyzer()
 // ------------ method called for each event  ------------
 void
 MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  //  bool isData = iEvent.isRealData();
+  bool is_Data = false;
+  bool is_MC = false;
+
+  if(iEvent.isRealData()) is_Data = true;
+  else is_MC = true;
+  //cout << " isData : "<<is_Data<< " | isMC :  "<<is_MC<<endl;
+  
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event();
+  ev_.isData  = is_Data;
+  ev_.isMC    = is_MC;
 
   TriggerResults tr; 
   edm::Handle<edm::TriggerResults> h_trigRes;
@@ -219,6 +227,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   
   if(triggerList[i] == "HLT_Ele27_eta2p1_WP75_Gsf_v1"){ 
       el_trigger = true;
+      ev_.elTrigger = el_trigger;
       //cout <<"Electron Trigger: "<<el_trigger<< " : " << triggerList[i] <<endl;
       histContainer_["ecutflow"]->Fill(1);
     }

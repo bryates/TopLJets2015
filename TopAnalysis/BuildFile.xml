@@ -1,6 +1,7 @@
 <use name="rootrflx"/>
 <use name="roofit"/>
 <use name="root"/>
+<use name="PhysicsTools/PatAlgos"/>
 <export>
   <lib name="1"/>
 </export>

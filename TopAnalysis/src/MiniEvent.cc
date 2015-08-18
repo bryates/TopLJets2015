@@ -6,7 +6,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("run",       &ev.run,       "run/I");
   t->Branch("event",     &ev.event,     "event/I");
   t->Branch("lumi",      &ev.lumi,      "lumi/I");
-  t->Branch("nvtx",      &ev.nvtx,      "nvtx/I");
+  t->Branch("isData",    &ev.isData,    "isData/I");
+  t->Branch("isMC",      &ev.isMC,      "isMC/O");
+  t->Branch("elTrigger", &ev.elTrigger, "elTrigger/O");
+  t->Branch("muTrigger", &ev.muTrigger, "muTrigger/O");
+  
+  t->Branch("nvtx",      &ev.nvtx,      "nvtx/O");
   t->Branch("l_id",      &ev.l_id,      "l_id/I");
   t->Branch("l_charge",  &ev.l_charge,  "l_charge/I");
   t->Branch("l_pt",      &ev.l_pt,      "l_pt/F");
@@ -16,10 +21,10 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_neutralHadronIso",        &ev.l_neutralHadronIso,     "l_neutralHadronIso/F");
   t->Branch("l_photonIso",               &ev.l_photonIso,            "l_photonIso/F");
   t->Branch("l_puChargedHadronIso",      &ev.l_puChargedHadronIso,   "l_puChargedHadronIso/F");
-  t->Branch("l_passVetoId",              &ev.l_passVetoId,           "l_passVetoId/I");
-  t->Branch("l_passLooseId",             &ev.l_passLooseId,          "l_passLooseId/I");
-  t->Branch("l_passMediumId",            &ev.l_passMediumId,         "l_passMediumId/I");
-  t->Branch("l_passTightId",             &ev.l_passTightId,          "l_passTightId/I");
+  t->Branch("l_passVetoId",              &ev.l_passVetoId,           "l_passVetoId/O");
+  t->Branch("l_passLooseId",             &ev.l_passLooseId,          "l_passLooseId/O");
+  t->Branch("l_passMediumId",            &ev.l_passMediumId,         "l_passMediumId/O");
+  t->Branch("l_passTightId",             &ev.l_passTightId,          "l_passTightId/O");
 
   t->Branch("nj",           &ev.nj,        "nj/I");
   t->Branch("j_pt",         ev.j_pt,       "j_pt[nj]/F");
@@ -53,6 +58,11 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("run",       &ev.run);
   t->SetBranchAddress("event",     &ev.event);
   t->SetBranchAddress("lumi",      &ev.lumi);
+  t->SetBranchAddress("isData",    &ev.isData);
+  t->SetBranchAddress("isMC",      &ev.isMC);
+  t->SetBranchAddress("elTrigger", &ev.elTrigger);
+  t->SetBranchAddress("muTrigger", &ev.muTrigger);
+  
   t->SetBranchAddress("nvtx",      &ev.nvtx);
   t->SetBranchAddress("l_id",      &ev.l_id);
   t->SetBranchAddress("l_charge",  &ev.l_charge);

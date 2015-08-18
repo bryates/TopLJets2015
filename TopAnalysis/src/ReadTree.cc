@@ -282,38 +282,39 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 	    //sumiso_2j_leading->Fill(sum_iso);
 	    }
 	    
-	    if(nJets ==3 && nJets30>0){
-              if(lxyz>0){
-                disvtx_3j_leading->Fill(lxyz);
-                lxyz_sig_3j_leading->Fill(lxyz_sig);
-                vertexmass_3j_leading->Fill(vtxmass);
-                numvertices_3j_leading->Fill(numvertex);
-              }
-              jetpt_3j_leading->Fill(pt);
-              jeteta_3j_leading->Fill(fabs(eta));
-	      lepCh_3j_leading->Fill(lep_charge);
-              wmass_3j_leading->Fill(mass_Wbos);
-              wchmass_3j_leading->Fill(chmass_Wbos);
-	     // neutiso_3j_leading->Fill(neut_iso);
-            //  photoniso_3j_leading->Fill(photon_iso);
-            //  sumiso_3j_leading->Fill(sum_iso);
+  if(nJets ==3 && nJets30>0){
+    if(lxyz>0){
+       disvtx_3j_leading->Fill(lxyz);
+       lxyz_sig_3j_leading->Fill(lxyz_sig);
+       vertexmass_3j_leading->Fill(vtxmass);
+       numvertices_3j_leading->Fill(numvertex);
+      }
+    jetpt_3j_leading->Fill(pt);
+    jeteta_3j_leading->Fill(fabs(eta));
+    lepCh_3j_leading->Fill(lep_charge);
+    wmass_3j_leading->Fill(mass_Wbos);
+    wchmass_3j_leading->Fill(chmass_Wbos);
+ // neutiso_3j_leading->Fill(neut_iso);
+      //  photoniso_3j_leading->Fill(photon_iso);
+      //  sumiso_3j_leading->Fill(sum_iso);
 	    }
 
 	    if(nJets >=4 && nJets30>0){
 	      if(lxyz>0){
-		disvtx_4j_leading->Fill(lxyz);
-		lxyz_sig_4j_leading->Fill(lxyz_sig);
-		vertexmass_4j_leading->Fill(vtxmass);
-		numvertices_4j_leading->Fill(numvertex);
-	      }
-	      jetpt_4j_leading->Fill(pt);
-	      jeteta_4j_leading->Fill(fabs(eta));
+          disvtx_4j_leading->Fill(lxyz);
+          lxyz_sig_4j_leading->Fill(lxyz_sig);
+          vertexmass_4j_leading->Fill(vtxmass);
+          numvertices_4j_leading->Fill(numvertex);
+          }
+        
+        jetpt_4j_leading->Fill(pt);
+        jeteta_4j_leading->Fill(fabs(eta));
 	      lepCh_4j_leading->Fill(lep_charge);
 	      wmass_4j_leading->Fill(mass_Wbos);
-              wchmass_4j_leading->Fill(chmass_Wbos);
-//	      neutiso_4j_leading->Fill(neut_iso);
-//              photoniso_4j_leading->Fill(photon_iso);
-//              sumiso_4j_leading->Fill(sum_iso);
+        wchmass_4j_leading->Fill(chmass_Wbos);
+//	    neutiso_4j_leading->Fill(neut_iso);
+//      photoniso_4j_leading->Fill(photon_iso);
+//      sumiso_4j_leading->Fill(sum_iso);
 	    }
 	  }
 	  
@@ -321,19 +322,19 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 	  if(v==1 && lepton_id == 13) {
 	    if(nJets ==2 && nJets30>0){
 	      if(lxyz>0){
-		disvtx_2j_nextleading->Fill(lxyz);
-		lxyz_sig_2j_nextleading->Fill(lxyz_sig);
-		vertexmass_2j_nextleading->Fill(vtxmass);
-		numvertices_2j_nextleading->Fill(numvertex);
-	      }
+		      disvtx_2j_nextleading->Fill(lxyz);
+		      lxyz_sig_2j_nextleading->Fill(lxyz_sig);
+		      vertexmass_2j_nextleading->Fill(vtxmass);
+		      numvertices_2j_nextleading->Fill(numvertex);
+	        }
 	      jetpt_2j_nextleading->Fill(pt);
 	      jeteta_2j_nextleading->Fill(fabs(eta));
-              lepCh_2j_nextleading->Fill(lep_charge);
+        lepCh_2j_nextleading->Fill(lep_charge);
 	      wmass_2j_nextleading->Fill(mass_Wbos);
-              wchmass_2j_nextleading->Fill(chmass_Wbos);
-//	      neutiso_2j_nextleading->Fill(neut_iso);
-//              photoniso_2j_nextleading->Fill(photon_iso);
-//              sumiso_2j_nextleading->Fill(sum_iso);
+        wchmass_2j_nextleading->Fill(chmass_Wbos);
+//	    neutiso_2j_nextleading->Fill(neut_iso);
+//      photoniso_2j_nextleading->Fill(photon_iso);
+//      sumiso_2j_nextleading->Fill(sum_iso);
 	    }
 
 	    if(nJets ==3 && nJets30>0){
