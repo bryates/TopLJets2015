@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-
 # Load the standard set of configuration modules
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-runOnData=False #data/MC switch
+runOnData=True#data/MC switch
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -31,8 +30,10 @@ process.source=data_events_source
 
 if runOnData:
   process.source=data_events_source
+  outfilename='data_minitree.root'
 else:
   process.source=mc_events_source
+  outfilename='mc_minitree.root'
 
 # Define the input source
 #if runOnData:
@@ -54,18 +55,17 @@ process.MessageLogger.cerr.threshold = ''
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 #tfileservice
-process.TFileService = cms.Service("TFileService", fileName = cms.string('TT_TuneCUETP8M1_13TeV_Powheg.root'))
+process.TFileService = cms.Service("TFileService", 
+  fileName = cms.string(outfilename))
 
 # Set up electron ID (VID framework)
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
 # turn on VID producer, indicate data format  to be  DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
-
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 # define which IDs we want to produce
 my_id_modules_el = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
-#my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
 
 #add them to the VID producer
 for idmod in my_id_modules_el:
