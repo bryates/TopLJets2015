@@ -25,7 +25,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_passLooseId",             &ev.l_passLooseId,          "l_passLooseId/O");
   t->Branch("l_passMediumId",            &ev.l_passMediumId,         "l_passMediumId/O");
   t->Branch("l_passTightId",             &ev.l_passTightId,          "l_passTightId/O");
-
+  t->Branch("l_passMediumMVAId",            &ev.l_passMediumMVAId,   "l_passMediumMVAId/O");
+  t->Branch("l_passTightMVAId",             &ev.l_passTightMVAId,    "l_passTightMVAId/O");
   t->Branch("nj",           &ev.nj,        "nj/I");
   t->Branch("j_pt",         ev.j_pt,       "j_pt[nj]/F");
   t->Branch("j_eta",        ev.j_eta,      "j_eta[nj]/F");
@@ -77,6 +78,8 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("l_passLooseId",          &ev.l_passLooseId);
   t->SetBranchAddress("l_passMediumId",         &ev.l_passMediumId);
   t->SetBranchAddress("l_passTightId",          &ev.l_passTightId);
+  t->SetBranchAddress("l_passMediumMVAId",      &ev.l_passMediumMVAId);
+  t->SetBranchAddress("l_passTightMVAId",       &ev.l_passTightMVAId);
   t->SetBranchAddress("nj",        &ev.nj);
   t->SetBranchAddress("j_pt",       ev.j_pt);
   t->SetBranchAddress("j_eta",      ev.j_eta);

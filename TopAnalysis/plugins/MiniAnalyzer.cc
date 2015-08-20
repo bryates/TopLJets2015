@@ -106,6 +106,13 @@ private:
   edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
+
+  // MVA_ID decisions objects and MVA values and categories (optional)
+  edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumMVAIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eleTightMVAIdMapToken_;  
+  
+  edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;
                   
   std::unordered_map<std::string,TH1F*> histContainer_;
   std::unordered_map<std::string,TH2F*> histContainer2d_; 
@@ -139,8 +146,11 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
   eleLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
   eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
-  eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap")))
-
+  eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
+  eleMediumMVAIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumMVAIdMap"))),
+  eleTightMVAIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightMVAIdMap"))),
+  mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
+  mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap")))
 {
   //now do what ever initialization is needed
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -197,7 +207,20 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
   iEvent.getByToken(eleTightIdMapToken_ ,tight_id_decisions);
-      
+
+  // Get MVA values and categories (optional)
+  edm::Handle<edm::ValueMap<bool> > medium_mva_id_decisions;
+  iEvent.getByToken(eleMediumMVAIdMapToken_,medium_mva_id_decisions); 
+  
+  edm::Handle<edm::ValueMap<bool> > tight_mva_id_decisions; 
+  iEvent.getByToken(eleTightMVAIdMapToken_,tight_mva_id_decisions);
+
+  edm::Handle<edm::ValueMap<float> > mvaValues;
+  iEvent.getByToken(mvaValuesMapToken_,mvaValues); 
+  
+  edm::Handle<edm::ValueMap<int> > mvaCategories;
+  iEvent.getByToken(mvaCategoriesMapToken_,mvaCategories); 
+
   tr = *h_trigRes;
   std::vector<string> triggerList;
   Service<service::TriggerNamesService> tns;
@@ -346,6 +369,9 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   bool passLooseId = (*loose_id_decisions)[e];
   bool passMediumId = (*medium_id_decisions)[e];
   bool passTightId  = (*tight_id_decisions)[e];
+  
+  bool passMediumMVAId = (*medium_mva_id_decisions)[e];
+  bool passTightMVAId  = (*tight_mva_id_decisions)[e];
   nele++;
   
   //kinematics cuts
@@ -401,6 +427,9 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       ev_.l_passLooseId=passLooseId;
       ev_.l_passMediumId=passMediumId;
       ev_.l_passTightId=passTightId;
+      
+      ev_.l_passMediumMVAId=passMediumMVAId;
+      ev_.l_passTightMVAId=passTightMVAId;
 	    }
 	
       else if(passVetoPt && passEta && passVetoId && passVetoIso){

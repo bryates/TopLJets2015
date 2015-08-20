@@ -29,6 +29,8 @@ struct MiniEvent_t
   Bool_t l_passMediumId;
   Bool_t l_passTightId;
 
+  Bool_t l_passMediumMVAId;
+  Bool_t l_passTightMVAId;
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);
