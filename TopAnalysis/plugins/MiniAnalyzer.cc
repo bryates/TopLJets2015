@@ -233,7 +233,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     }
 
   if(triggerList[i] == "HLT_IsoMu24_eta2p1_v1"){ 
-      mu_trigger = true;     
+      mu_trigger = true;    
+      ev_.muTrigger = mu_trigger; 
       //cout <<"Muon Trigger: "<<mu_trigger<< " : " <<triggerList[i] <<endl;
       histContainer_["mucutflow"]->Fill(1);
       }
@@ -259,7 +260,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   histContainer_["nrecomuons"]->Fill(muons->size());
   std::vector<const pat::Muon *> selectedMuons,vetoMuons;        
   
-  if(mu_trigger){
   for (const pat::Muon &mu : *muons) { 
     //kinematics
     bool passPt( mu.pt() > 26 );
@@ -323,7 +323,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
         }
         }
   }//muon loop
-  }//moun trigger loop
   
   histContainer_["nselmuons"]->Fill(selectedMuons.size());
   if(selectedMuons.size()==1)      histContainer_["mucutflow"]->Fill(2);
@@ -338,7 +337,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   histContainer_["nrecoelectrons"]->Fill(electrons->size());
   std::vector<const pat::Electron *> selectedElectrons, vetoElectrons;
   int nele = 0;    
-  if(el_trigger){
+  
   for (const pat::Electron &el : *electrons) {        
    const auto e = electrons->ptrAt(nele); 
   
@@ -409,7 +408,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       }
 
       }//Electron event loop
-      }//Electron trigger loop
        
   histContainer_["nselelectrons"]->Fill(selectedElectrons.size());
   
