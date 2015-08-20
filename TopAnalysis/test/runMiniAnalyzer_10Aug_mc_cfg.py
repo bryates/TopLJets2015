@@ -2,22 +2,44 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-#from Configuration.AlCa.GlobalTag import GlobalTag
+# Load the standard set of configuration modules
 process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All' #for Simulation
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
+runOnData=False #data/MC switch
 
-#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_Powheg_cfi import source as events_source
-from UserCode.TopAnalysis.sp15.TT_new_cfi import source as events_source
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
-process.source=events_source
+if runOnData:
+  process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+else:
+  process.GlobalTag.globaltag = 'MCRUN2_74_V9'
+
+#Number of events to process
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+
+#Input files
+from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
+#process.source=mc_events_source
+
+from UserCode.TopAnalysis.Data_Mu_2015.data_mu_cfi import source as data_events_source
+#process.source=data_events_source
+
+if runOnData:
+  process.source=data_events_source
+else:
+  process.source=mc_events_source
+
+
+# Define the input source
+#if runOnData:
+#  fname = 'root://eoscms.cern.ch//store/data/Run2015B/JetHT/MINIAOD/PromptReco-v1/000/251/252/00000/263D331F-AF27-E511-969B-02163E012627.root'
+#else:
+#  fname = 'root://eoscms.cern.ch//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/001C7571-0511-E511-9B8E-549F35AE4FAF.root'
+#process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring([ fname ]))
 
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -43,48 +65,7 @@ my_id_modules_el = ['RecoEgamma.ElectronIdentification.Identification.cutBasedEl
 for idmod in my_id_modules_el:
   setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
-#============JEC
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.jec = cms.ESSource("PoolDBESSource",
-  DBParameters = cms.PSet(
-  messageLevel = cms.untracked.int32(1)
-  ),
-  timetype = cms.string('runnumber'),
-  toGet = cms.VPSet(
-  cms.PSet(
-    record = cms.string('JetCorrectionsRecord'),
-    tag    = cms.string('JetCorrectorParametersCollection_Summer15_50nsV2_MC_AK4PFchs'),
-    # tag    = cms.string('JetCorrectorParametersCollection_Summer12_V3_MC_AK5PF'),
-    label  = cms.untracked.string('AK4PFchs')
-    ),
-   ## here you add as many jet types as you need
-   ## note that the tag name is specific for the particular sqlite file 
-   ), 
-   connect = cms.string('sqlite:Summer15_50nsV2_MC.db')
-   # uncomment above tag lines and this comment to use MC JEC
-   # connect = cms.string('sqlite:Summer12_V7_MC.db')
-)
-## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
-process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
-
-process.load("PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff")
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-process.patJetCorrFactorsReapplyJEC = process.patJetCorrFactorsUpdated.clone(
-  src = cms.InputTag("slimmedJets"),
-  levels = ['L1FastJet', 'L2Relative', 'L3Absolute'],
-  payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
-
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-process.patJetsReapplyJEC = process.patJetsUpdated.clone(
-  jetSource = cms.InputTag("slimmedJets"),
-  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-  )
-process.JEC = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process. patJetsReapplyJEC )
-#============JEC
-
 #running sequence
 process.load('UserCode.TopAnalysis.miniAnalyzer_cfi')
 process.p = cms.Path(process.egmGsfElectronIDSequence*process.demo)
-process.p += cms.Sequence( process.patJetCorrFactorsReapplyJEC + process. patJetsReapplyJEC )
 

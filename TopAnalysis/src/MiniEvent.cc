@@ -6,7 +6,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("run",       &ev.run,       "run/I");
   t->Branch("event",     &ev.event,     "event/I");
   t->Branch("lumi",      &ev.lumi,      "lumi/I");
-  t->Branch("isData",    &ev.isData,    "isData/I");
+  t->Branch("isData",    &ev.isData,    "isData/O");
   t->Branch("isMC",      &ev.isMC,      "isMC/O");
   t->Branch("elTrigger", &ev.elTrigger, "elTrigger/O");
   t->Branch("muTrigger", &ev.muTrigger, "muTrigger/O");
