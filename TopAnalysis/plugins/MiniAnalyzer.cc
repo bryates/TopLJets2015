@@ -59,6 +59,7 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
+#include <string>
 
 using namespace edm;
 using namespace std;
@@ -117,6 +118,8 @@ private:
   std::unordered_map<std::string,TH1F*> histContainer_;
   std::unordered_map<std::string,TH2F*> histContainer2d_; 
 
+  bool DEBUG_;
+  
   TTree *tree_;
   MiniEvent_t ev_;
 };
@@ -150,7 +153,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   eleMediumMVAIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumMVAIdMap"))),
   eleTightMVAIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightMVAIdMap"))),
   mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
-  mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap")))
+  mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap"))),
+  DEBUG_(iConfig.getUntrackedParameter<bool>("DEBUG",false))
 {
   //now do what ever initialization is needed
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -231,7 +235,20 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   
   bool mu_trigger = false;
   bool el_trigger = false;
+  string electronTrigger;
+  string muonTrigger;
 
+
+  if (is_Data){
+    electronTrigger =  "HLT_Ele27_eta2p1_WPLoose_Gsf_v1";
+    muonTrigger = "HLT_IsoMu24_eta2p1_v2";
+    }
+  
+  else if (is_MC){
+    electronTrigger = "HLT_Ele27_eta2p1_WP75_Gsf_v1";
+    muonTrigger = "HLT_IsoMu24_eta2p1_v2";
+    }
+  
   bool foundNames = tns->getTrigPaths(tr,triggerList);
   if (!foundNames) std::cout << "Could not get trigger names!\n";
   if (tr.size()!=triggerList.size()) std::cout << "ERROR: length of names and paths not the same: "
@@ -244,22 +261,22 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //": " << (tr[i].accept() ? "Pass" : "Fail") << std::endl;
   
   if( !tr[i].accept() == 1 ) continue;
-  if(triggerList[i] == "HLT_Ele27_eta2p1_WP75_Gsf_v1" || triggerList[i] == "HLT_IsoMu24_eta2p1_v1"){
+  if(triggerList[i] == electronTrigger || triggerList[i] == muonTrigger){
     histContainer_["cutflow"]->Fill(1);
     }
   
-  if(triggerList[i] == "HLT_Ele27_eta2p1_WP75_Gsf_v1"){ 
+  if(triggerList[i] == electronTrigger){ 
       el_trigger = true;
       ev_.elTrigger = el_trigger;
-      //cout <<"Electron Trigger: "<<el_trigger<< " : " << triggerList[i] <<endl;
       histContainer_["ecutflow"]->Fill(1);
+      //cout <<"Electron Trigger: "<<el_trigger<< " : " << triggerList[i] <<endl; 
     }
 
-  if(triggerList[i] == "HLT_IsoMu24_eta2p1_v1"){ 
+  if(triggerList[i] == muonTrigger){ 
       mu_trigger = true;    
       ev_.muTrigger = mu_trigger; 
-      //cout <<"Muon Trigger: "<<mu_trigger<< " : " <<triggerList[i] <<endl;
       histContainer_["mucutflow"]->Fill(1);
+      //cout <<"Muon Trigger: "<<mu_trigger<< " : " <<triggerList[i] <<endl;
       }
     }
   
@@ -282,7 +299,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   iEvent.getByToken(muonToken_, muons);
   histContainer_["nrecomuons"]->Fill(muons->size());
   std::vector<const pat::Muon *> selectedMuons,vetoMuons;        
-  
+ 
+  if(mu_trigger){ 
   for (const pat::Muon &mu : *muons) { 
     //kinematics
     bool passPt( mu.pt() > 26 );
@@ -298,8 +316,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     //float relchIso = (mu.pfIsolationR04().sumChargedHadronPt + std::max(0.,mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5*mu.pfIsolationR04().sumPUPt))/mu.pt();
     
     float relchIso = (mu.chargedHadronIso() + std::max(0., mu.neutralHadronIso() + mu.photonIso() - 0.5*mu.puChargedHadronIso()))/mu.pt(); 
-
-    bool passIso( relchIso<0.2 );
+    bool passIso( relchIso  < 0.12 );
+    
     if( mu.isPFMuon() 
       && mu.isGlobalMuon() 
       && mu.normChi2() < 10 
@@ -346,7 +364,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
         }
         }
   }//muon loop
-  
+  }//muon trigger
+   
   histContainer_["nselmuons"]->Fill(selectedMuons.size());
   if(selectedMuons.size()==1)      histContainer_["mucutflow"]->Fill(2);
 
@@ -360,7 +379,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   histContainer_["nrecoelectrons"]->Fill(electrons->size());
   std::vector<const pat::Electron *> selectedElectrons, vetoElectrons;
   int nele = 0;    
-  
+ 
+  if(el_trigger) {
   for (const pat::Electron &el : *electrons) {        
    const auto e = electrons->ptrAt(nele); 
   
@@ -386,23 +406,21 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   float absIso = (e->chargedHadronIso() + std::max(0., e->neutralHadronIso() + e->photonIso() - 0.5*e->puChargedHadronIso())); 
   double relchIso = absIso/e->pt();
-  bool passIso(relchIso < 0.2);
-  bool passVetoIso(relchIso < 0.15);
+  bool passIso(relchIso < 0.12);
+  bool passVetoIso(relchIso < 0.2);
 
   
   //Combined RelIso with Effective Area corrections to PU 
   //Confused since the relIsoWithEA applied to Electron cut based ID
   //https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
   
-  if(e->dB() < 0.02  && e->passConversionVeto() == true ){
-	    if(passPt && passEta && passTightId){
+  if(passPt && passEta && passTightId){
 	    histContainer_["electronchreliso"]->Fill(relchIso);
 	    histContainer_["electronchiso"]->Fill(e->chargedHadronIso());
 	    histContainer_["electronneuthadiso"]->Fill(e->neutralHadronIso());
 	    histContainer_["electronphotoniso"]->Fill(e->photonIso());
 	    histContainer_["electronpuchiso"]->Fill(e->puChargedHadronIso());
 	    }
-    }
   
 	if(passTightId && passIso){
 	    if(passEta) histContainer_["electronpt"]->Fill(e->pt());    //N-1 plot
@@ -437,7 +455,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       }
 
       }//Electron event loop
-       
+      }// elec trigger loop
+      
   histContainer_["nselelectrons"]->Fill(selectedElectrons.size());
   
   //require only 1 tight lepton in the event

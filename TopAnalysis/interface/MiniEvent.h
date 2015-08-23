@@ -4,11 +4,10 @@
 #include <iostream>
 #include "TTree.h"
 
-struct MiniEvent_t
-{
+struct MiniEvent_t{
+
   Int_t run,event,lumi;
-  
-  Int_t isData,isMC;
+  Bool_t isData, isMC;
   
   Bool_t muTrigger;
   Bool_t elTrigger;

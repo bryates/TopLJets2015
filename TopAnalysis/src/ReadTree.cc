@@ -481,27 +481,11 @@ if(nJets >=4 && nJets30>0 && lepton_id == 13)      sumiso_4j->Fill(sum_iso);
 
 void RunOverSamples(TString output, bool useChPt,int minVtx, int maxVtx){
   TString files[]={
-   "miniAOD_DY_PU20bx25_new.root",
-   "miniAOD_MC_v2_new.root",
-   "miniAOD_QCD_1000_1400_Tune4C.root",
-   "miniAOD_QCD_120_170_Tune4C.root",
-   "miniAOD_QCD_1400_1800_Tune4C.root",
-   "miniAOD_QCD_170_300_Tune4C.root",
-   "miniAOD_QCD_1800_2400_Tune4C.root",
-   "miniAOD_QCD_2400_3200_Tune4C.root",
-   "miniAOD_QCD_300_470_Tune4C.root",
-   "miniAOD_QCD_3200_Tune4C.root",
-   "miniAOD_QCD_470_600_Tune4C.root",
-   "miniAOD_QCD_600_800_Tune4C.root",
-   "miniAOD_QCD_800_1000_Tune4C.root",
-   "miniAOD_QCD_80_120_Tune4C.root",
-   "miniAOD_TBarToLeptons_s_channel_new.root",
-   "miniAOD_TBarToLeptons_t_channel_new.root",
-   "miniAOD_Tbar_tW_channel_new.root",
-   "miniAOD_TToLeptons_s_channel_new.root",
-   "miniAOD_TToLeptons_t_channel_new.root",
-   "miniAOD_T_tW_channel_new.root",
-   "miniAOD_wjets_PU20bx25_new.root"
+  "DYJetsToLL_M50_TuneCUETP8M1_13TeV_amcatnloFXFX_pythia8.root",
+  "ST_tW_antitop_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1.root",
+  "ST_tW_top_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1.root",
+  "ST_t_channel_4f_leptonDecays_13TeV_amcatnlo_pythia8_TuneCUETP8M1.root",
+  "WJetsToLNu_TuneCUETP8M1_13TeV_amcatnloFXFX_pythia8.root"
   };
   
   

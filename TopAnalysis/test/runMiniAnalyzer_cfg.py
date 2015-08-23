@@ -7,7 +7,10 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-runOnData=True#data/MC switch
+runOnData=True  #data/MC switch
+
+use_nonTrigV1wp80=True #cut-based/mva-based elec_id switch
+use_nonTrigV1wp90=False #cut-based/mva-based elec_id switch
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -19,11 +22,11 @@ else:
   process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 #Number of events to process
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(300000))
 
 #Input files
 from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
-from UserCode.TopAnalysis.Data_Mu_2015.data_mu_cfi import source as data_events_source
+from UserCode.TopAnalysis.DataMu15.data_mu_cfi import source as data_events_source
 
 process.source=mc_events_source
 process.source=data_events_source
