@@ -12,7 +12,7 @@ struct MiniEvent_t{
   Bool_t muTrigger;
   Bool_t elTrigger;
     
-  Int_t nvtx,pu;
+  Int_t nvtx, pu;
   Int_t l_id,l_charge;
   Float_t l_pt,l_eta,l_phi,l_chargedHadronIso,l_neutralHadronIso,l_photonIso,l_puChargedHadronIso;
   Float_t rho;

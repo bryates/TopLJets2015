@@ -246,7 +246,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   
   else if (is_MC){
     electronTrigger = "HLT_Ele27_eta2p1_WP75_Gsf_v1";
-    muonTrigger = "HLT_IsoMu24_eta2p1_v2";
+    muonTrigger = "HLT_IsoMu24_eta2p1_v1";
     }
   
   bool foundNames = tns->getTrigPaths(tr,triggerList);
@@ -303,25 +303,28 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   if(mu_trigger){ 
   for (const pat::Muon &mu : *muons) { 
     //kinematics
-    bool passPt( mu.pt() > 26 );
-    bool passVetoPt( mu.pt()>10 );
+    bool passPt( mu.pt() > 30 );
+    bool passVetoPt( mu.pt() > 15 );
     bool passEta(fabs(mu.eta()) < 2.1 );
+    bool passVetoEta(fabs(mu.eta()) < 2.4 );
     
     //distance to the PV
     float dz(fabs( mu.vertex().z()- primVtx.z())); 
-    bool passDB( mu.dB()<0.2 && dz<0.5 );
+    bool passDB( mu.dB()< 0.2 && dz < 0.5 );
     
     //isolation
     //float relchIso((mu.chargedHadronIso())/mu.pt());
     //float relchIso = (mu.pfIsolationR04().sumChargedHadronPt + std::max(0.,mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5*mu.pfIsolationR04().sumPUPt))/mu.pt();
     
     float relchIso = (mu.chargedHadronIso() + std::max(0., mu.neutralHadronIso() + mu.photonIso() - 0.5*mu.puChargedHadronIso()))/mu.pt(); 
-    bool passIso( relchIso  < 0.12 );
+    bool passIso( relchIso  < 0.05 );
+    bool passVetoIso( relchIso  < 0.1 );
+    
     
     if( mu.isPFMuon() 
       && mu.isGlobalMuon() 
       && mu.normChi2() < 10 
-      && mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 
+      && mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 6 
       && mu.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 
       && mu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 
       && mu.numberOfMatchedStations() > 1 ) {
@@ -342,7 +345,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     if(passDB && passIso) {
 	    if( passEta ) histContainer_["muonpt"]->Fill(mu.pt()); //N-1 plot
 	    if( passPt  ) histContainer_["muoneta"]->Fill(fabs(mu.eta()));
-	    if( passPt && passEta ) {
+	    
+      if( passPt && passEta ) {
 		    selectedMuons.push_back( &mu );
 		    leptonpt = mu.pt();
 		    leptonphi = mu.phi();
@@ -358,11 +362,12 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
         ev_.l_photonIso=mu.photonIso();
         ev_.l_puChargedHadronIso=mu.puChargedHadronIso();
 	      }
-	    else if(passVetoPt && passEta){
+        }
+        } // muon ID
+	    
+        else if(passVetoPt && passVetoEta && passVetoIso){
 		    vetoMuons.push_back( &mu );
 	      }
-        }
-        }
   }//muon loop
   }//muon trigger
    
@@ -392,11 +397,12 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   
   bool passMediumMVAId = (*medium_mva_id_decisions)[e];
   bool passTightMVAId  = (*tight_mva_id_decisions)[e];
+  
   nele++;
   
   //kinematics cuts
-  bool passPt(e->pt()>30);
-  bool passVetoPt(e->pt()>20);
+  bool passPt(e->pt() > 30.0);
+  bool passVetoPt(e->pt() > 15.0);
   bool passEta(fabs(e->eta()) < 2.5 && (fabs(e->superCluster()->eta()) < 1.4442 || fabs(e->superCluster()->eta()) > 1.5660));
 
   //Combined RelIso with Delta_beta correction to PU
@@ -404,11 +410,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //double absIso = (pfIso.sumChargedHadronPt + std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5*pfIso.sumPUPt ));
   //double relchIso = absIso/e->pt();
 
-  float absIso = (e->chargedHadronIso() + std::max(0., e->neutralHadronIso() + e->photonIso() - 0.5*e->puChargedHadronIso())); 
-  double relchIso = absIso/e->pt();
-  bool passIso(relchIso < 0.12);
-  bool passVetoIso(relchIso < 0.2);
-
+  double relchIso = (e->chargedHadronIso() + std::max(0., e->neutralHadronIso() + e->photonIso() - 0.5*e->puChargedHadronIso()))/e->pt(); 
   
   //Combined RelIso with Effective Area corrections to PU 
   //Confused since the relIsoWithEA applied to Electron cut based ID
@@ -422,15 +424,16 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    histContainer_["electronpuchiso"]->Fill(e->puChargedHadronIso());
 	    }
   
-	if(passTightId && passIso){
+	if(passTightId ){
 	    if(passEta) histContainer_["electronpt"]->Fill(e->pt());    //N-1 plot
 	    if(passPt)  histContainer_["electroneta"]->Fill(fabs(e->eta()));  //N-1 plot
 	    }
 	  
-  if(passPt && passEta && passTightId && passIso){
+  if(passPt && passEta && passTightId ){
 	    selectedElectrons.push_back(&el);
 	    leptonpt = e->pt();
 	    leptonphi = e->phi();
+      
       //save the selected lepton
 	    ev_.l_id=11;
 	    ev_.l_charge=e->charge();
@@ -445,12 +448,11 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       ev_.l_passLooseId=passLooseId;
       ev_.l_passMediumId=passMediumId;
       ev_.l_passTightId=passTightId;
-      
       ev_.l_passMediumMVAId=passMediumMVAId;
       ev_.l_passTightMVAId=passTightMVAId;
 	    }
 	
-      else if(passVetoPt && passEta && passVetoId && passVetoIso){
+      else if(passVetoPt && passEta && passVetoId){
 	    vetoElectrons.push_back(&el);
       }
 

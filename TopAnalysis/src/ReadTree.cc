@@ -215,7 +215,7 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 	      if (pt > 30 && fabs(eta) < 2.5){
         nJets++; 
         nJets30++;	
-		  if (csv>0.679) {
+		  if (csv>0.890) {
 		      nBtags++;
 		      std::pair<float,float> jetKinematics(csv,pt);
 		      vlxyz_sig.push_back( std::pair<int,std::pair<float,float> >(k,jetKinematics) );
@@ -337,55 +337,54 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 //      sumiso_2j_nextleading->Fill(sum_iso);
 	    }
 
-	    if(nJets ==3 && nJets30>0){
-              if(lxyz>0){
-                disvtx_3j_nextleading->Fill(lxyz);
-                lxyz_sig_3j_nextleading->Fill(lxyz_sig);
-                vertexmass_3j_nextleading->Fill(vtxmass);
-		numvertices_3j_nextleading->Fill(numvertex);
-              }
-              jetpt_3j_nextleading->Fill(pt);
-              jeteta_3j_nextleading->Fill(fabs(eta));
-	      lepCh_3j_nextleading->Fill(lep_charge);
-	      wmass_3j_nextleading->Fill(mass_Wbos);
-              wchmass_3j_nextleading->Fill(chmass_Wbos);
-//              neutiso_3j_nextleading->Fill(neut_iso);
-//              photoniso_3j_nextleading->Fill(photon_iso);
-//              sumiso_3j_nextleading->Fill(sum_iso);
-	    }
+   if(nJets ==3 && nJets30>0){
+   if(lxyz>0){
+      disvtx_3j_nextleading->Fill(lxyz);
+      lxyz_sig_3j_nextleading->Fill(lxyz_sig);
+      vertexmass_3j_nextleading->Fill(vtxmass);
+		  numvertices_3j_nextleading->Fill(numvertex);
+      }
+     jetpt_3j_nextleading->Fill(pt);
+     jeteta_3j_nextleading->Fill(fabs(eta));
+	   lepCh_3j_nextleading->Fill(lep_charge);
+	   wmass_3j_nextleading->Fill(mass_Wbos);
+     wchmass_3j_nextleading->Fill(chmass_Wbos);
+//   neutiso_3j_nextleading->Fill(neut_iso);
+//   photoniso_3j_nextleading->Fill(photon_iso);
+//   sumiso_3j_nextleading->Fill(sum_iso);
+	   }
 	    
-	    if(nJets >=4 && nJets30>0){
+	   if(nJets >=4 && nJets30>0){
 	      if(lxyz>0){
-		disvtx_4j_nextleading->Fill(lxyz);
-		lxyz_sig_4j_nextleading->Fill(lxyz_sig);
-		vertexmass_4j_nextleading->Fill(vtxmass);
-		numvertices_4j_nextleading->Fill(numvertex);
+        disvtx_4j_nextleading->Fill(lxyz);
+        lxyz_sig_4j_nextleading->Fill(lxyz_sig);
+        vertexmass_4j_nextleading->Fill(vtxmass);
+        numvertices_4j_nextleading->Fill(numvertex);
 	      }
 	      jetpt_4j_nextleading->Fill(pt);
 	      jeteta_4j_nextleading->Fill(fabs(eta));
 	      lepCh_4j_nextleading->Fill(lep_charge);
 	      wmass_4j_nextleading->Fill(mass_Wbos);
-              wchmass_4j_nextleading->Fill(chmass_Wbos);
-//              neutiso_4j_nextleading->Fill(neut_iso);
-//              photoniso_4j_nextleading->Fill(photon_iso);
-//              sumiso_4j_nextleading->Fill(sum_iso);
+        wchmass_4j_nextleading->Fill(chmass_Wbos);
+//      neutiso_4j_nextleading->Fill(neut_iso);
+//      photoniso_4j_nextleading->Fill(photon_iso);
+//      sumiso_4j_nextleading->Fill(sum_iso);
+	      }
 	    }
-	  }
-if(nJets ==2 && nJets30>0 && lepton_id == 13)      neutiso_2j->Fill(neut_iso);
-if(nJets ==2 && nJets30>0 && lepton_id == 13)      photoniso_2j->Fill(photon_iso);
-if(nJets ==2 && nJets30>0 && lepton_id == 13)      sumiso_2j->Fill(sum_iso);
+      if(nJets == 2 && nJets30 > 0 && lepton_id == 13) neutiso_2j->Fill(neut_iso);
+      if(nJets == 2 && nJets30 > 0 && lepton_id == 13) photoniso_2j->Fill(photon_iso);
+      if(nJets == 2 && nJets30 > 0 && lepton_id == 13) sumiso_2j->Fill(sum_iso);
 
-if(nJets ==3 && nJets30>0 && lepton_id == 13)	neutiso_3j->Fill(neut_iso);
-if(nJets ==3 && nJets30>0 && lepton_id == 13)	photoniso_3j->Fill(photon_iso);
-if(nJets ==3 && nJets30>0 && lepton_id == 13)	sumiso_3j->Fill(sum_iso);
+      if(nJets == 3 && nJets30 > 0 && lepton_id == 13) neutiso_3j->Fill(neut_iso);
+      if(nJets == 3 && nJets30 > 0 && lepton_id == 13) photoniso_3j->Fill(photon_iso);
+      if(nJets == 3 && nJets30 > 0 && lepton_id == 13) sumiso_3j->Fill(sum_iso);
 
-if(nJets >=4 && nJets30>0 && lepton_id == 13)	neutiso_4j->Fill(neut_iso);
-if(nJets >=4 && nJets30>0 && lepton_id == 13)      photoniso_4j->Fill(photon_iso);
-if(nJets >=4 && nJets30>0 && lepton_id == 13)      sumiso_4j->Fill(sum_iso);
-	
-	}
-    }
-    
+      if(nJets >= 4 && nJets30 > 0 && lepton_id == 13) neutiso_4j->Fill(neut_iso);
+      if(nJets >= 4 && nJets30 > 0 && lepton_id == 13) photoniso_4j->Fill(photon_iso);
+      if(nJets >= 4 && nJets30 > 0 && lepton_id == 13) sumiso_4j->Fill(sum_iso);
+        }
+      }
+      
   
   //close file
   
