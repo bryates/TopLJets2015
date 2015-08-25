@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
+
 # Load the standard set of configuration modules
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
@@ -16,13 +17,18 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
 if runOnData:
-  #process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
   process.GlobalTag.globaltag = 'GR_P_V56'
 else:
   process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
+# Set the process options -- Display summary at the end, enable unscheduled execution
+process.options = cms.untracked.PSet(
+  allowUnscheduled = cms.untracked.bool(True),
+  wantSummary = cms.untracked.bool(False)
+)
+
 #Number of events to process
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(300000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 #Input files
 from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
@@ -48,7 +54,6 @@ else:
 #luminosity
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
-
 if runOnData:
   process.source.lumisToProcess = LumiList.LumiList(filename = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt').getVLuminosityBlockRange()
 
@@ -57,9 +62,23 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = ''
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
-#tfileservice
-process.TFileService = cms.Service("TFileService", 
-  fileName = cms.string(outfilename))
+#Tfileservice
+process.TFileService = cms.Service("TFileService",fileName = cms.string(outfilename))
+
+#JEC: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JecGlobalTag
+process.load("PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff")
+process.patJetCorrFactorsReapplyJEC = process.patJetCorrFactorsUpdated.clone(
+src = cms.InputTag("slimmedJets"),
+  levels = ['L1FastJet','L2Relative', 'L3Absolute'],
+  payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+process.patJetsReapplyJEC = process.patJetsUpdated.clone(
+  jetSource = cms.InputTag("slimmedJets"),
+  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+  )
+process.reapplyJEC = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC)
+
 
 # Set up electron ID (VID framework)
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -76,5 +95,9 @@ for idmod in my_id_modules_el:
 
 #running sequence
 process.load('UserCode.TopAnalysis.miniAnalyzer_cfi')
-process.p = cms.Path(process.egmGsfElectronIDSequence*process.demo)
+process.p = cms.Path(
+  process.reapplyJEC*
+  process.egmGsfElectronIDSequence*
+  process.demo
+  )
 
