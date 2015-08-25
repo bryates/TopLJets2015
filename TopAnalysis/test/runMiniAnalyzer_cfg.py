@@ -8,6 +8,12 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+
+
+from JetMETCorrections.Configuration.DefaultJEC_cff import *
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+
 runOnData=True  #data/MC switch
 
 use_nonTrigV1wp80=True #cut-based/mva-based elec_id switch
@@ -24,7 +30,7 @@ else:
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet(
   allowUnscheduled = cms.untracked.bool(True),
-  wantSummary = cms.untracked.bool(False)
+  wantSummary = cms.untracked.bool(True)
 )
 
 #Number of events to process
@@ -78,7 +84,6 @@ process.patJetsReapplyJEC = process.patJetsUpdated.clone(
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
   )
 process.reapplyJEC = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC)
-
 
 # Set up electron ID (VID framework)
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *

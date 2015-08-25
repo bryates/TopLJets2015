@@ -215,7 +215,8 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 	      if (pt > 30 && fabs(eta) < 2.5){
         nJets++; 
         nJets30++;	
-		  if (csv>0.890) {
+		  //b-discriminator cut https://twiki.cern.ch/twiki/bin/view/CMS/TopBTV
+      if (csv>0.890) {
 		      nBtags++;
 		      std::pair<float,float> jetKinematics(csv,pt);
 		      vlxyz_sig.push_back( std::pair<int,std::pair<float,float> >(k,jetKinematics) );
