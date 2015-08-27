@@ -7,9 +7,9 @@
       "lcolor":1,
       "marker":1,
       "data":[
-        {"dtag":"ST_t_channel_4f_leptonDecays_13TeV", "split":1, "xsec":61.56, "br":[ 1 ]},
-        {"dtag":"ST_tW_top_5f_DS_inclusiveDecays_13TeV", "split":1, "xsec":35.85, "br":[ 1 ]},
-        {"dtag":"ST_tW_antitop_5f_DS_inclusiveDecays_13TeV", "split":1, "xsec":35.85, "br":[ 1 ]}
+        {"dtag":"ST_t_channel_4f_leptonDecays", "split":1, "xsec":216.99, "br":[ 0.324 ]},
+        {"dtag":"ST_tW_top_5f_DS_inclusiveDecays", "split":1, "xsec":71.20, "br":[ 0.324 ]},
+        {"dtag":"ST_tW_antitop_5f_DS_inclusiveDecays", "split":1, "xsec":71.20, "br":[ 0.324 ]}
       ]
     },
     {
@@ -19,7 +19,7 @@
       "lcolor":1,
       "marker":1,
       "data":[
-        {"dtag":"WJetsToLNu_TuneCUETP8M1_13TeV", "split":1, "xsec":50100, "br":[ 1 ]}
+        {"dtag":"WJetsToLNu_TuneCUETP8M1", "split":1, "xsec":61524, "br":[ 1 ]}
       ]
     },	
     {
@@ -29,7 +29,7 @@
       "lcolor":1,
       "marker":1,
       "data":[
-        {"dtag":"DYJetsToLL_M50_TuneCUETP8M1_13TeV", "split":1, "xsec":4746, "br":[ 1 ]}
+        {"dtag":"DYJetsToLL_M50_TuneCUETP8M1", "split":1, "xsec":6024, "br":[ 1 ]}
       ]
     },
     {
@@ -39,7 +39,7 @@
       "lcolor":1,
       "marker":1,
       "data":[
-        {"dtag":"TT_TuneCUETP8M1_13TeV", "split":1, "xsec":831.76, "br":[ 1 ]}
+        {"dtag":"TT_TuneCUETP8M1", "split":1, "xsec":831.76, "br":[ 1 ]}
       ]
     },
     {
@@ -49,8 +49,10 @@
       "lcolor":1,
       "marker":1,
       "data":[
-        {"dtag":"data_mu_17july", "split":1, "xsec":0, "br":[ 1 ]},
-        {"dtag":"data_mu_promptreco", "split":1, "xsec":0, "br":[ 1 ]}
+        {"dtag":"mu_17july", "split":1, "xsec":1, "br":[ 1 ]},
+        {"dtag":"mu_promptreco", "split":1, "xsec":1, "br":[ 1 ]},
+        {"dtag":"ele_17july", "split":1, "xsec":1, "br":[ 1 ]},
+        {"dtag":"ele_promptreco", "split":1, "xsec":1, "br":[ 1 ]}
        ]
       }
   ]

@@ -235,6 +235,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   
   bool mu_trigger = false;
   bool el_trigger = false;
+  
   string electronTrigger;
   string muonTrigger;
 
@@ -265,20 +266,31 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     histContainer_["cutflow"]->Fill(1);
     }
   
-  if(triggerList[i] == electronTrigger){ 
-      el_trigger = true;
-      ev_.elTrigger = el_trigger;
-      histContainer_["ecutflow"]->Fill(1);
-      //cout <<"Electron Trigger: "<<el_trigger<< " : " << triggerList[i] <<endl; 
-    }
-
-  if(triggerList[i] == muonTrigger){ 
-      mu_trigger = true;    
-      ev_.muTrigger = mu_trigger; 
-      histContainer_["mucutflow"]->Fill(1);
-      //cout <<"Muon Trigger: "<<mu_trigger<< " : " <<triggerList[i] <<endl;
+  if(triggerList[i] == muonTrigger && tr[i].accept()){ 
+      mu_trigger = true;  
+      }
+  if(!mu_trigger){
+        if(triggerList[i] == electronTrigger && tr[i].accept()){ 
+        el_trigger = true;
+        }
       }
     }
+  
+  if(!(mu_trigger && el_trigger)){ 
+    if(mu_trigger){
+      ev_.muTrigger = mu_trigger; 
+      histContainer_["mucutflow"]->Fill(1);
+      }
+    
+    if(el_trigger){
+      ev_.elTrigger = el_trigger;
+      histContainer_["ecutflow"]->Fill(1);
+      }
+  } 
+  
+  //if(mu_trigger && el_trigger) cout <<" Muon & Electron trigger fired "<<endl;
+  
+  //cout << "Muon Trigger: "<<mu_trigger <<"    "<<"Electron Trigger: "<<el_trigger<<endl; 
   
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxToken_, vertices);
@@ -368,12 +380,11 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
         else if(passVetoPt && passVetoEta && passVetoIso){
 		    vetoMuons.push_back( &mu );
 	      }
-  }//muon loop
-  }//muon trigger
-   
+    }//muon loop
+  }//muon trigger 
   histContainer_["nselmuons"]->Fill(selectedMuons.size());
   if(selectedMuons.size()==1)      histContainer_["mucutflow"]->Fill(2);
-
+ 
 
   // ELECTRONS
   // cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaCutBasedIdentification  
@@ -455,9 +466,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       else if(passVetoPt && passEta && passVetoId){
 	    vetoElectrons.push_back(&el);
       }
-
       }//Electron event loop
-      }// elec trigger loop
+  }// elec trigger loop    
       
   histContainer_["nselelectrons"]->Fill(selectedElectrons.size());
   
@@ -475,8 +485,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   if(selectedElectrons.size()==1)  histContainer_["ecutflow"]->Fill(3);
   if(selectedMuons.size()==1)      histContainer_["mucutflow"]->Fill(3);  
   
+
   // JETS
-  
   uint32_t nSecVtx(0);
   edm::Handle<pat::JetCollection> jets;
   iEvent.getByToken(jetToken_, jets);
@@ -484,6 +494,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   histContainer_["nrecojets"]->Fill(jets->size());
   ev_.nj=0;
   int njets30(0);
+  if(!(mu_trigger && el_trigger)){
   for (const pat::Jet &j : *jets) {
 	  
   float dR2lepton= selectedMuons.size()==1 ?  deltaR(j,*(selectedMuons[0])) :  deltaR(j,*(selectedElectrons[0]));
@@ -562,6 +573,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	      }
 
 	    ev_.j_pt[ev_.nj]=j.pt();
+	    ev_.j_energy[ev_.nj]=j.energy();
 	    ev_.j_eta[ev_.nj]=j.eta();
 	    ev_.j_phi[ev_.nj]=j.phi();
 	    ev_.j_chsumpt[ev_.nj]=sumptcharged;
@@ -578,11 +590,11 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    ev_.j_flav[ev_.nj]=j.partonFlavour();
 	    ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
 	    ev_.nj++;
-
 	        }
-      }// Jet ID loop
-  }// Jet Event loop
-
+        }// Jet ID loop
+      }// Jet Event loop
+    }
+  
   histContainer_["nseljets"]->Fill(selectedJets.size());
   histContainer_["nseljetsfull"]->Fill(njets30);
 
@@ -619,6 +631,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   ev_.chmet_phi=chMet.Phi();
   ev_.chmt=chmt;
   
+
   //
   // FINAL SELECTION PLOTS
   //
@@ -671,8 +684,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    if(selectedMuons.size()==1)      histContainer_["mucutflow"]->Fill(8);  
 	    }
     }
-  }
-
+}
 // ------------ method called once each job just before starting event loop  ------------
 void 
 MiniAnalyzer::beginJob(){

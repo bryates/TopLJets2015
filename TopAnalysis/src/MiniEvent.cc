@@ -29,6 +29,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_passTightMVAId",             &ev.l_passTightMVAId,    "l_passTightMVAId/O");
   t->Branch("nj",           &ev.nj,        "nj/I");
   t->Branch("j_pt",         ev.j_pt,       "j_pt[nj]/F");
+  t->Branch("j_energy",     ev.j_energy,   "j_energy[nj]/F");
   t->Branch("j_eta",        ev.j_eta,      "j_eta[nj]/F");
   t->Branch("j_phi",        ev.j_phi,      "j_phi[nj]/F");
   t->Branch("j_nch",        ev.j_nch,      "j_nch[nj]/I");
@@ -82,6 +83,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("l_passTightMVAId",       &ev.l_passTightMVAId);
   t->SetBranchAddress("nj",        &ev.nj);
   t->SetBranchAddress("j_pt",       ev.j_pt);
+  t->SetBranchAddress("j_energy",   ev.j_energy);
   t->SetBranchAddress("j_eta",      ev.j_eta);
   t->SetBranchAddress("j_phi",      ev.j_phi);
   t->SetBranchAddress("j_nch",      ev.j_nch);

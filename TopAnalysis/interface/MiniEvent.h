@@ -17,7 +17,9 @@ struct MiniEvent_t{
   Float_t l_pt,l_eta,l_phi,l_chargedHadronIso,l_neutralHadronIso,l_photonIso,l_puChargedHadronIso;
   Float_t rho;
   Int_t nj;
-  Float_t j_pt[1000],j_eta[1000],j_phi[1000],j_csv[1000],j_vtxmass[1000],j_vtx3DVal[1000],j_vtx3DSig[1000],j_puid[1000], j_chsumpt[1000],j_chpt[1000],j_cheta[1000],j_chphi[1000];
+  Float_t j_pt[1000],j_energy[1000],j_eta[1000],j_phi[1000];
+  Float_t j_csv[1000],j_vtxmass[1000],j_vtx3DVal[1000],j_vtx3DSig[1000];
+  Float_t j_puid[1000], j_chsumpt[1000],j_chpt[1000],j_cheta[1000],j_chphi[1000];
   Int_t j_nch[1000];
   Int_t j_vtxNtracks[1000],j_flav[1000],j_pid[1000];
   Float_t met_pt,met_phi,mt;

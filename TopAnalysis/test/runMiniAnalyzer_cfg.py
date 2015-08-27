@@ -9,15 +9,10 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-
-
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
-runOnData=True  #data/MC switch
-
-use_nonTrigV1wp80=True #cut-based/mva-based elec_id switch
-use_nonTrigV1wp90=False #cut-based/mva-based elec_id switch
+runOnData=True #data/MC switch
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -30,14 +25,15 @@ else:
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet(
   allowUnscheduled = cms.untracked.bool(True),
-  wantSummary = cms.untracked.bool(True)
+#  wantSummary = cms.untracked.bool(True)
 )
 
 #Number of events to process
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
 
 #Input files
 from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_tW_top_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
 from UserCode.TopAnalysis.DataMu15.data_mu_cfi import source as data_events_source
 
 process.source=mc_events_source
@@ -66,15 +62,41 @@ if runOnData:
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = ''
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 20
 
 #Tfileservice
 process.TFileService = cms.Service("TFileService",fileName = cms.string(outfilename))
 
 #JEC: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JecGlobalTag
+from CondCore.DBCommon.CondDBSetup_cfi import *
+import os
+if runOnData:
+  jecfile="Summer15_50nsV4_DATA"
+else:
+  jecfile="Summer15_50nsV4_MC"
+
+dBFile = os.path.expandvars("$CMSSW_BASE/src/UserCode/TopAnalysis/jec/"+jecfile+".db")
+process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
+  connect = cms.string( "sqlite_file://"+dBFile ),
+  toGet =  cms.VPSet(
+  cms.PSet(
+    record = cms.string("JetCorrectionsRecord"),
+    tag = cms.string("JetCorrectorParametersCollection_"+jecfile+"_AK4PF"),
+    label= cms.untracked.string("AK4PF")
+    ),
+  cms.PSet(
+    record = cms.string("JetCorrectionsRecord"),
+    tag = cms.string("JetCorrectorParametersCollection_"+jecfile+"_AK4PF"),
+    label= cms.untracked.string("AK4PFchs")
+    ),
+  )
+  )
+
+process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
+
 process.load("PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff")
 process.patJetCorrFactorsReapplyJEC = process.patJetCorrFactorsUpdated.clone(
-src = cms.InputTag("slimmedJets"),
+  src = cms.InputTag("slimmedJets"),
   levels = ['L1FastJet','L2Relative', 'L3Absolute'],
   payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
@@ -91,6 +113,7 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # turn on VID producer, indicate data format  to be  DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
+
 # define which IDs we want to produce
 my_id_modules_el = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
 
@@ -101,7 +124,7 @@ for idmod in my_id_modules_el:
 #running sequence
 process.load('UserCode.TopAnalysis.miniAnalyzer_cfi')
 process.p = cms.Path(
-  process.reapplyJEC*
+  process.reapplyJEC* 
   process.egmGsfElectronIDSequence*
   process.demo
   )
