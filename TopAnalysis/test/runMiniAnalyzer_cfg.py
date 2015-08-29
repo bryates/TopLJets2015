@@ -12,7 +12,7 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
-runOnData=True #data/MC switch
+runOnData=False #data/MC switch
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -32,8 +32,8 @@ process.options = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
 
 #Input files
-from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
-#from UserCode.TopAnalysis.sp15.ST_tW_top_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
+from UserCode.TopAnalysis.sp15.ST_tW_top_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
 from UserCode.TopAnalysis.DataMu15.data_mu_cfi import source as data_events_source
 
 process.source=mc_events_source
@@ -75,9 +75,11 @@ if runOnData:
 else:
   jecfile="Summer15_50nsV4_MC"
 
-dBFile = os.path.expandvars("$CMSSW_BASE/src/UserCode/TopAnalysis/jec/"+jecfile+".db")
+#dBFile = os.path.expandvars("$CMSSW_BASE/src/UserCode/TopAnalysis/jec/"+jecfile+".db")
+dBFile = os.path.expandvars(jecfile+".db")
 process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-  connect = cms.string( "sqlite_file://"+dBFile ),
+  #connect = cms.string( "sqlite_file://"+dBFile ),
+  connect = cms.string( "sqlite:"+dBFile),
   toGet =  cms.VPSet(
   cms.PSet(
     record = cms.string("JetCorrectionsRecord"),

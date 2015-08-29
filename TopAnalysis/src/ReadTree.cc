@@ -247,94 +247,98 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 	  
   //most significantly displaced vertex
   if(v==0) {
-	if(nJets ==2 && nJets30>0){
+	if(nJets == 2 && nJets30>0 && nBtags == 0){
 	if(lxyz>0){
     disvtx_2j_leading->Fill(lxyz);
     lxyz_sig_2j_leading->Fill(lxyz_sig);
     vertexmass_2j_leading->Fill(vtxmass);
     numvertices_2j_leading->Fill(numvertex);
-    }
-	  jetpt_2j_leading->Fill(pt);
+	  
+    jetpt_2j_leading->Fill(pt);
 	  jeteta_2j_leading->Fill(fabs(eta));
 	  lepCh_2j_leading->Fill(lep_charge);
 	  wmass_2j_leading->Fill(mass_Wbos);
 	  wchmass_2j_leading->Fill(chmass_Wbos);
 	  }
-	   
-  if(nJets ==3 && nJets30>0){
+	  } 
+  if(nJets == 3 && nJets30>0 && nBtags == 1){
     if(lxyz>0){
     disvtx_3j_leading->Fill(lxyz);
     lxyz_sig_3j_leading->Fill(lxyz_sig);
     vertexmass_3j_leading->Fill(vtxmass);
     numvertices_3j_leading->Fill(numvertex);
-    }
+    
     jetpt_3j_leading->Fill(pt);
     jeteta_3j_leading->Fill(fabs(eta));
     lepCh_3j_leading->Fill(lep_charge);
     wmass_3j_leading->Fill(mass_Wbos);
     wchmass_3j_leading->Fill(chmass_Wbos);
 	  }
-
-  if(nJets ==4 && nJets30>0){
+    }
+  
+  if(nJets == 4 && nJets30>0 && nBtags == 2){
 	  if(lxyz>0){
     disvtx_4j_leading->Fill(lxyz);
     lxyz_sig_4j_leading->Fill(lxyz_sig);
     vertexmass_4j_leading->Fill(vtxmass);
     numvertices_4j_leading->Fill(numvertex);
-    }
+    
     jetpt_4j_leading->Fill(pt);
     jeteta_4j_leading->Fill(fabs(eta));
 	  lepCh_4j_leading->Fill(lep_charge);
 	  wmass_4j_leading->Fill(mass_Wbos);
     wchmass_4j_leading->Fill(chmass_Wbos);
 	  }
-	  }//v==0 loop
+	  }
+    }//v==0 loop
 	  
 	//second most significantly displaced vertex
 	if(v==1) {
   
-  if(nJets==2 && nJets30>0){
+  if(nJets==2 && nJets30>0 && nBtags == 0){
   if(lxyz>0){
 	  disvtx_2j_nextleading->Fill(lxyz);
 	  lxyz_sig_2j_nextleading->Fill(lxyz_sig);
 	  vertexmass_2j_nextleading->Fill(vtxmass);
 	  numvertices_2j_nextleading->Fill(numvertex);
-	  }
+	  
 	  jetpt_2j_nextleading->Fill(pt);
 	  jeteta_2j_nextleading->Fill(fabs(eta));
     lepCh_2j_nextleading->Fill(lep_charge);
 	  wmass_2j_nextleading->Fill(mass_Wbos);
     wchmass_2j_nextleading->Fill(chmass_Wbos);
 	  }
+   } 
 
-  if(nJets ==3 && nJets30>0){
+  if(nJets == 3 && nJets30>0 && nBtags == 1){
   if(lxyz>0){
     disvtx_3j_nextleading->Fill(lxyz);
     lxyz_sig_3j_nextleading->Fill(lxyz_sig);
     vertexmass_3j_nextleading->Fill(vtxmass);
  	  numvertices_3j_nextleading->Fill(numvertex);
-    }
+    
     jetpt_3j_nextleading->Fill(pt);
     jeteta_3j_nextleading->Fill(fabs(eta));
     lepCh_3j_nextleading->Fill(lep_charge);
     wmass_3j_nextleading->Fill(mass_Wbos);
     wchmass_3j_nextleading->Fill(chmass_Wbos);
     }
-    
-  if(nJets == 4 && nJets30>0){
+   } 
+  if(nJets == 4 && nJets30>0 && nBtags == 2){
 	if(lxyz>0){
     disvtx_4j_nextleading->Fill(lxyz);
     lxyz_sig_4j_nextleading->Fill(lxyz_sig);
     vertexmass_4j_nextleading->Fill(vtxmass);
     numvertices_4j_nextleading->Fill(numvertex);
-	  }
+	 
 	  jetpt_4j_nextleading->Fill(pt);
 	  jeteta_4j_nextleading->Fill(fabs(eta));
 	  lepCh_4j_nextleading->Fill(lep_charge);
 	  wmass_4j_nextleading->Fill(mass_Wbos);
     wchmass_4j_nextleading->Fill(chmass_Wbos);
 	  }
-	  } // v==1 loop
+	  }
+    } // v==1 loop
 
 
     } //vertices loop
