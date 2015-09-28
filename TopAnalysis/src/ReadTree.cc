@@ -7,12 +7,8 @@
 #include <iostream>
 #include <algorithm>
 
-bool sortBySignificance(std::pair<int,std::pair<float,float> > a, std::pair<int,std::pair<float,float> > b){
-  if( a.second.first>0 || b.second.first>0 ) return (a.second.first>b.second.first);
-  return (a.second.second>b.second.second);
-}
 
-void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVtx){
+void ReadTree(TString filename,TString output,int chToSelect){
 
   gROOT->Reset();
 
@@ -34,115 +30,85 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
   bjetcutflow->GetXaxis()->SetBinLabel(7,"4j,=0b");
   bjetcutflow->GetXaxis()->SetBinLabel(8,"4j,=1b");
   bjetcutflow->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-  
-  TH1F *disvtx_2j_leading     = new TH1F("disvtx_2j_leading",";lxy;Events" ,10,0.,10.);
-  TH1F *disvtx_2j_nextleading = (TH1F *)disvtx_2j_leading->Clone("disvtx_2j_nextleading");
-  TH1F *disvtx_3j_leading     = (TH1F *)disvtx_2j_leading->Clone("disvtx_3j_leading");
-  TH1F *disvtx_3j_nextleading = (TH1F *)disvtx_2j_leading->Clone("disvtx_3j_nextleading");
-  TH1F *disvtx_4j_leading     = (TH1F *)disvtx_2j_leading->Clone("disvtx_4j_leading");
-  TH1F *disvtx_4j_nextleading = (TH1F *)disvtx_2j_leading->Clone("disvtx_4j_nextleading");
-  disvtx_2j_nextleading->SetName("disvtx_2j_nextleading");
-  disvtx_3j_leading->SetName("disvtx_3j_leading");    
-  disvtx_3j_nextleading->SetName("disvtx_3j_nextleading");
-  disvtx_4j_leading->SetName("disvtx_4j_leading");
-  disvtx_4j_nextleading->SetName("disvtx_4j_nextleading");
-  
-  TH1F *lxyz_sig_2j_leading     = new TH1F("lxyz_sig_2j_leading",";lxyz_sig;Events" ,10,0.,20.);
-  TH1F *lxyz_sig_2j_nextleading = (TH1F *)lxyz_sig_2j_leading->Clone("lxyz_sig_2j_nextleading");
-  TH1F *lxyz_sig_3j_leading     = (TH1F *)lxyz_sig_2j_leading->Clone("lxyz_sig_3j_leading");
-  TH1F *lxyz_sig_3j_nextleading = (TH1F *)lxyz_sig_2j_leading->Clone("lxyz_sig_3j_nextleading");
-  TH1F *lxyz_sig_4j_leading     = (TH1F *)lxyz_sig_2j_leading->Clone("lxyz_sig_4j_leading");
-  TH1F *lxyz_sig_4j_nextleading = (TH1F *)lxyz_sig_2j_leading->Clone("lxyz_sig_4j_nextleading");
-  lxyz_sig_2j_nextleading -> SetName("lxyz_sig_2j_nextleading");
-  lxyz_sig_3j_leading     -> SetName("lxyz_sig_3j_leading");
-  lxyz_sig_3j_nextleading -> SetName("lxyz_sig_3j_nextleading");
-  lxyz_sig_4j_leading     -> SetName("lxyz_sig_4j_leading");
-  lxyz_sig_4j_nextleading -> SetName("lxyz_sig_4j_nextleading");
 
-  TH1F *vertexmass_2j_leading     = new TH1F("vertexmass_2j_leading",";vertexmass;Events" ,12,0.,6.);
-  TH1F *vertexmass_2j_nextleading = (TH1F *)vertexmass_2j_leading->Clone("vertexmass_2j_nextleading");
-  TH1F *vertexmass_3j_leading     = (TH1F *)vertexmass_2j_leading->Clone("vertexmass_3j_leading");
-  TH1F *vertexmass_3j_nextleading = (TH1F *)vertexmass_2j_leading->Clone("vertexmass_3j_nextleading");
-  TH1F *vertexmass_4j_leading     = (TH1F *)vertexmass_2j_leading->Clone("vertexmass_4j_leading");
-  TH1F *vertexmass_4j_nextleading = (TH1F *)vertexmass_2j_leading->Clone("vertexmass_4j_nextleading");
-  vertexmass_2j_nextleading -> SetName("vertexmass_2j_nextleading");
-  vertexmass_3j_leading     -> SetName("vertexmass_3j_leading");
-  vertexmass_3j_nextleading -> SetName("vertexmass_3j_nextleading");
-  vertexmass_4j_leading     -> SetName("vertexmass_4j_leading");
-  vertexmass_4j_nextleading -> SetName("vertexmass_4j_nextleading");
+// Lepton pt 
+  TH1F *leppt_2j_leading = new TH1F("leppt_2j_leading",";ch;Events" ,20,0.,300.);
+  TH1F *leppt_3j_leading = (TH1F *)leppt_2j_leading->Clone("leppt_3j_leading");
+  TH1F *leppt_4j_leading = (TH1F *)leppt_2j_leading->Clone("leppt_4j_leading");
+  leppt_3j_leading   ->SetName("leppt_3j_leading");
+  leppt_4j_leading   ->SetName("leppt_4j_leading");
 
-  TH1F *numvertices_2j_leading     = new TH1F("numvertices_2j_leading",";vertices;Events" ,25,0.,50.);
-  TH1F *numvertices_2j_nextleading = (TH1F *)numvertices_2j_leading->Clone("numvertices_2j_nextleading");
+// Lepton eta
+  TH1F *lepeta_2j_leading = new TH1F("lepeta_2j_leading",";ch;Events" ,12,0.,3.);
+  TH1F *lepeta_3j_leading = (TH1F *)lepeta_2j_leading->Clone("lepeta_3j_leading");
+  TH1F *lepeta_4j_leading = (TH1F *)lepeta_2j_leading->Clone("lepeta_4j_leading");
+  lepeta_3j_leading   ->SetName("lepeta_3j_leading");
+  lepeta_4j_leading   ->SetName("lepeta_4j_leading");
+
+// Lepton phi
+  TH1F *lepphi_2j_leading = new TH1F("lepphi_2j_leading",";ch;Events" ,50,-3.2,3.2);
+  TH1F *lepphi_3j_leading = (TH1F *)lepphi_2j_leading->Clone("lepphi_3j_leading");
+  TH1F *lepphi_4j_leading = (TH1F *)lepphi_2j_leading->Clone("lepphi_4j_leading");
+  lepphi_3j_leading   ->SetName("lepphi_3j_leading");
+  lepphi_4j_leading   ->SetName("lepphi_4j_leading");
+
+// Lepton transverse mass
+  TH1F *leptmass_2j_leading = new TH1F("leptmass_2j_leading",";Transverse Mass;Events" ,100,0.,200.);
+  TH1F *leptmass_3j_leading = (TH1F *)leptmass_2j_leading->Clone("leptmass_3j_leading");
+  TH1F *leptmass_4j_leading = (TH1F *)leptmass_2j_leading->Clone("leptmass_4j_leading");
+  leptmass_3j_leading   ->SetName("leptmass_3j_leading");
+  leptmass_4j_leading   ->SetName("leptmass_4j_leading");
+
+// Jet pt
+  TH1F *jetpt_2j_leading = new TH1F("jetpt_2j_leading",";pt;Events" ,20,0.,300.);
+  TH1F *jetpt_3j_leading = (TH1F *)jetpt_2j_leading->Clone("jetpt_3j_leading");
+  TH1F *jetpt_4j_leading = (TH1F *)jetpt_2j_leading->Clone("jetpt_4j_leading");
+  jetpt_3j_leading   ->SetName("jetpt_3j_leading");
+  jetpt_4j_leading   ->SetName("jetpt_4j_leading");
+
+// Jet eta  
+  TH1F *jeteta_2j_leading = new TH1F("jeteta_2j_leading",";eta;Events" ,12,0.,3.);
+  TH1F *jeteta_3j_leading = (TH1F *)jeteta_2j_leading->Clone("jeteta_3j_leading");
+  TH1F *jeteta_4j_leading = (TH1F *)jeteta_2j_leading->Clone("jeteta_4j_leading");
+  jeteta_3j_leading   ->SetName("jeteta_3j_leading");
+  jeteta_4j_leading   ->SetName("jeteta_4j_leading");
+
+// CSV
+  TH1F *jetcsv_2j_leading = new TH1F("jetcsv_2j_leading",";csv;Events" ,100,-1.2,1.2);
+  TH1F *jetcsv_3j_leading     = (TH1F *)jetcsv_2j_leading->Clone("jetcsv_3j_leading");
+  TH1F *jetcsv_4j_leading     = (TH1F *)jetcsv_2j_leading->Clone("jetcsv_4j_leading");
+  jetcsv_3j_leading     -> SetName("jetcsv_3j_leading");
+  jetcsv_4j_leading     -> SetName("jetcsv_4j_leading");
+
+// numvertices
+  TH1F *numvertices_2j_leading = new TH1F("numvertices_2j_leading",";vertices;Events" ,25,0.,50.);
   TH1F *numvertices_3j_leading     = (TH1F *)numvertices_2j_leading->Clone("numvertices_3j_leading");
-  TH1F *numvertices_3j_nextleading = (TH1F *)numvertices_2j_leading->Clone("numvertices_3j_nextleading");
   TH1F *numvertices_4j_leading     = (TH1F *)numvertices_2j_leading->Clone("numvertices_4j_leading");
-  TH1F *numvertices_4j_nextleading = (TH1F *)numvertices_2j_leading->Clone("numvertices_4j_nextleading");
-  numvertices_2j_nextleading -> SetName("numvertices_2j_nextleading");
-  numvertices_3j_leading     -> SetName("numvertices_3j_leading");   
-  numvertices_3j_nextleading -> SetName("numvertices_3j_nextleading");
+  numvertices_3j_leading     -> SetName("numvertices_3j_leading");
   numvertices_4j_leading     -> SetName("numvertices_4j_leading");
-  numvertices_4j_nextleading -> SetName("numvertices_4j_nextleading");
 
-  TH1F *jetpt_2j_leading     = new TH1F("jetpt_2j_leading",";pt;Events" ,20,0.,300.);
-  TH1F *jetpt_2j_nextleading = (TH1F *)jetpt_2j_leading->Clone("jetpt_2j_nextleading");
-  TH1F *jetpt_3j_leading     = (TH1F *)jetpt_2j_leading->Clone("jetpt_3j_leading");
-  TH1F *jetpt_3j_nextleading = (TH1F *)jetpt_2j_leading->Clone("jetpt_3j_nextleading");
-  TH1F *jetpt_4j_leading     = (TH1F *)jetpt_2j_leading->Clone("jetpt_4j_leading");
-  TH1F *jetpt_4j_nextleading = (TH1F *)jetpt_2j_leading->Clone("jetpt_4j_nextleading");
-  jetpt_2j_nextleading -> SetName("jetpt_2j_nextleading");
-  jetpt_3j_leading     -> SetName("jetpt_3j_leading");   
-  jetpt_3j_nextleading -> SetName("jetpt_3j_nextleading");
-  jetpt_4j_leading     -> SetName("jetpt_4j_leading");
-  jetpt_4j_nextleading -> SetName("jetpt_4j_nextleading");
+// MET pt
+  TH1F *metpt_2j_leading = new TH1F("metpt_2j_leading",";ch;Events" ,20,0.,300.);
+  TH1F *metpt_3j_leading     = (TH1F *)metpt_2j_leading->Clone("metpt_3j_leading");
+  TH1F *metpt_4j_leading     = (TH1F *)metpt_2j_leading->Clone("metpt_4j_leading");
+  metpt_3j_leading     -> SetName("metpt_3j_leading");
+  metpt_4j_leading     -> SetName("metpt_4j_leading");
 
-  TH1F *jeteta_2j_leading     = new TH1F("jeteta_2j_leading",";eta;Events" ,12,0.,3.);
-  TH1F *jeteta_2j_nextleading = (TH1F *)jeteta_2j_leading->Clone("jeteta_2j_nextleading");
-  TH1F *jeteta_3j_leading     = (TH1F *)jeteta_2j_leading->Clone("jeteta_3j_leading");
-  TH1F *jeteta_3j_nextleading = (TH1F *)jeteta_2j_leading->Clone("jeteta_3j_nextleading");
-  TH1F *jeteta_4j_leading     = (TH1F *)jeteta_2j_leading->Clone("jeteta_4j_leading");
-  TH1F *jeteta_4j_nextleading = (TH1F *)jeteta_2j_leading->Clone("jeteta_4j_nextleading");
-  jeteta_2j_nextleading -> SetName("jeteta_2j_nextleading");
-  jeteta_3j_leading     -> SetName("jeteta_3j_leading");   
-  jeteta_3j_nextleading -> SetName("jeteta_3j_nextleading");
-  jeteta_4j_leading     -> SetName("jeteta_4j_leading");
-  jeteta_4j_nextleading -> SetName("jeteta_4j_nextleading");
-  
-  TH1F *lepCh_2j_leading     = new TH1F("lepCh_2j_leading",";ch;Events" ,6,-2.,2.);
-  TH1F *lepCh_2j_nextleading = (TH1F *)lepCh_2j_leading->Clone("lepCh_2j_nextleading");
-  TH1F *lepCh_3j_leading     = (TH1F *)lepCh_2j_leading->Clone("lepCh_3j_leading");
-  TH1F *lepCh_3j_nextleading = (TH1F *)lepCh_2j_leading->Clone("lepCh_3j_nextleading");
-  TH1F *lepCh_4j_leading     = (TH1F *)lepCh_2j_leading->Clone("lepCh_4j_leading");
-  TH1F *lepCh_4j_nextleading = (TH1F *)lepCh_2j_leading->Clone("lepCh_4j_nextleading");
-  lepCh_2j_nextleading -> SetName("lepCh_2j_nextleading");
-  lepCh_3j_leading     -> SetName("lepCh_3j_leading");   
-  lepCh_3j_nextleading -> SetName("lepCh_3j_nextleading");
-  lepCh_4j_leading     -> SetName("lepCh_4j_leading");
-  lepCh_4j_nextleading -> SetName("lepCh_4j_nextleading");
-  
-  TH1F *wmass_2j_leading     = new TH1F("wmass_2j_leading",";Wmass;Events" ,15,0.,300.);
-  TH1F *wmass_2j_nextleading = (TH1F *)wmass_2j_leading->Clone("wmass_2j_nextleading");
-  TH1F *wmass_3j_leading     = (TH1F *)wmass_2j_leading->Clone("wmass_3j_leading");
-  TH1F *wmass_3j_nextleading = (TH1F *)wmass_2j_leading->Clone("wmass_3j_nextleading");
-  TH1F *wmass_4j_leading     = (TH1F *)wmass_2j_leading->Clone("wmass_4j_leading");
-  TH1F *wmass_4j_nextleading = (TH1F *)wmass_2j_leading->Clone("wmass_4j_nextleading");
-  wmass_2j_nextleading -> SetName("wmass_2j_nextleading");
-  wmass_3j_leading     -> SetName("wmass_3j_leading");   
-  wmass_3j_nextleading -> SetName("wmass_3j_nextleading");
-  wmass_4j_leading     -> SetName("wmass_4j_leading");
-  wmass_4j_nextleading -> SetName("wmass_4j_nextleading");
+// MET phi
+  TH1F *metphi_2j_leading = new TH1F("metphi_2j_leading",";ch;Events" ,50,-3.2,3.2);
+  TH1F *metphi_3j_leading     = (TH1F *)metphi_2j_leading->Clone("metphi_3j_leading");
+  TH1F *metphi_4j_leading     = (TH1F *)metphi_2j_leading->Clone("metphi_4j_leading");
+  metphi_3j_leading     -> SetName("metphi_3j_leading");
+  metphi_4j_leading     -> SetName("metphi_4j_leading");
 
-  TH1F *wchmass_2j_leading     = new TH1F("wchmass_2j_leading",";chWmass;Events" ,15,0.,300.);
-  TH1F *wchmass_2j_nextleading = (TH1F *)wchmass_2j_leading->Clone("wchmass_2j_nextleading");
-  TH1F *wchmass_3j_leading     = (TH1F *)wchmass_2j_leading->Clone("wchmass_3j_leading");
-  TH1F *wchmass_3j_nextleading = (TH1F *)wchmass_2j_leading->Clone("wchmass_3j_nextleading");
-  TH1F *wchmass_4j_leading     = (TH1F *)wchmass_2j_leading->Clone("wchmass_4j_leading");
-  TH1F *wchmass_4j_nextleading = (TH1F *)wchmass_2j_leading->Clone("wchmass_4j_nextleading");
-  wchmass_2j_nextleading -> SetName("wchmass_2j_nextleading");
-  wchmass_3j_leading     -> SetName("wchmass_3j_leading");   
-  wchmass_3j_nextleading -> SetName("wchmass_3j_nextleading");
-  wchmass_4j_leading     -> SetName("wchmass_4j_leading");
-  wchmass_4j_nextleading -> SetName("wchmass_4j_nextleading");
+// MET transverse mass
+  TH1F *mettmass_2j_leading = new TH1F("mettmass_2j_leading",";Transverse Mass;Events" ,100,0.,200.);
+  TH1F *mettmass_3j_leading     = (TH1F *)mettmass_2j_leading->Clone("mettmass_3j_leading");
+  TH1F *mettmass_4j_leading     = (TH1F *)mettmass_2j_leading->Clone("mettmass_4j_leading");
+  mettmass_3j_leading     -> SetName("mettmass_3j_leading");
+  mettmass_4j_leading     -> SetName("mettmass_4j_leading");
   
+
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -165,185 +131,68 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
 
   //std::cout <<"Electron Triiger :" <<ev.elTrigger<<" : Muon Trigger "<<ev.muTrigger <<std::endl;
   //select jets
-  uint32_t nJets(0), nBtags(0),nJets30(0) ;
-  int Nvertices(ev.nvtx); 	
-  std::vector< std::pair<int,std::pair<float,float> > > vlxyz_sig;
+  uint32_t nJets(0), nBtags(0); //,nJets30(0) ;
+  int lepton_id(ev.l_id); //Nvertices(ev.nvtx), lepton_id(ev.l_id); 	
+
   for (int k=0; k<ev.nj;k++){
     //check pt and eta of this jet
-    float pt  = ev.j_pt[k];
-    float chPt  = ev.j_chpt[k];
-    float eta = ev.j_eta[k];
-    //int Nvertices = ev.nvtx;
-    float csv = ev.j_csv[k];
-    float lxyz = ev.j_vtx3DVal[k];
-    float lxyz_sig = ev.j_vtx3DSig[k];
-    //float mass_Wbos= ev.mt;
-    //float chmass_Wbos= ev.chmt;
-
-	  if (useChPt) {
-	  if(chPt > 15 && fabs(eta) < 2.5 ){
-		  nJets++;
-		if (chPt > 30) nJets30 ++;
-		if(lxyz>0) {
-     nBtags++;
-     std::pair<float,float> jetKinematics(lxyz_sig,chPt);
-     vlxyz_sig.push_back( std::pair<int,std::pair<float,float> >(k,jetKinematics) );
-	       }   
-	      }
-	    }
-	  
-    else {
-	  if (pt > 30 && fabs(eta) < 2.5){
-      nJets++; 
-      nJets30++;	
-		  //b-discriminator cut https://twiki.cern.ch/twiki/bin/view/CMS/TopBTV
-      if (csv>0.890) {
-		      nBtags++;
-		      std::pair<float,float> jetKinematics(csv,pt);
-		      vlxyz_sig.push_back( std::pair<int,std::pair<float,float> >(k,jetKinematics) );
-		      }
-		    }
-	    }
-	  }
-
-  std::sort(vlxyz_sig.begin(),vlxyz_sig.end(),sortBySignificance);
-	  
-  //filter on the number of vertices
-  if(Nvertices < minVtx || Nvertices >= maxVtx) continue;
-  //if(lep_charge < lepCh_neg || lep_charge >= lepCh_pos) continue;
+    float jet_pt  = ev.j_pt[k], jet_eta = ev.j_eta[k], csv = ev.j_csv[k];
+    if(jet_pt > 30 && fabs(jet_eta) < 2.5) 
+      {
+	nJets ++;
+	if(csv>0.890) nBtags ++;
+      }
+  }
   
+  //select according to the lepton id
+  if(chToSelect>0 && lepton_id!=chToSelect) continue;
+  if(nJets<2) continue;
+
+  float wgt(1.0);
+
   //fill cutflow histos
-  if(nJets == 2 && nJets30 > 0)               cutflow->Fill(1);
-  if(nJets == 3 && nJets30 > 0)               cutflow->Fill(2);
-  if(nJets == 4 && nJets30 > 0)               cutflow->Fill(3);
+  if(nJets >= 2 )               cutflow->Fill(1,wgt);
+  if(nJets >= 3 )               cutflow->Fill(2,wgt);
+  if(nJets >= 4 )               cutflow->Fill(3,wgt);
   
-  if(nJets == 4 && nJets30 > 0 && nBtags == 1) cutflow->Fill(4);
-  if(nJets == 4 && nJets30 > 0 && nBtags == 2) cutflow->Fill(5);
+  if(nJets >= 4 && nBtags >= 1) cutflow->Fill(4,wgt);
+  if(nJets >= 4 && nBtags >= 2) cutflow->Fill(5,wgt);
   
-  if(nJets == 2 && nJets30 > 0 && nBtags == 0) bjetcutflow->Fill(0);	
-  if(nJets == 2 && nJets30 > 0 && nBtags == 1) bjetcutflow->Fill(1);	
-  if(nJets == 2 && nJets30 > 0 && nBtags == 2) bjetcutflow->Fill(2);	
-  if(nJets == 3 && nJets30 > 0 && nBtags == 0) bjetcutflow->Fill(3);	
-  if(nJets == 3 && nJets30 > 0 && nBtags == 1) bjetcutflow->Fill(4);	
-  if(nJets == 3 && nJets30 > 0 && nBtags == 2) bjetcutflow->Fill(5);	
-  if(nJets == 4 && nJets30 > 0 && nBtags == 0) bjetcutflow->Fill(6);
-  if(nJets == 4 && nJets30 > 0 && nBtags == 1) bjetcutflow->Fill(7);
-  if(nJets == 4 && nJets30 > 0 && nBtags == 2) bjetcutflow->Fill(8);
-  
-  //show b-tagging discriminator distributions
-  for(size_t v=0; v<vlxyz_sig.size(); v++) {
-	  if(v>1) break;
-	  int k = vlxyz_sig[v].first;
-	  float pt  = useChPt ?  ev.j_chpt[k] : ev.j_pt[k];
-	  float eta = ev.j_eta[k];
-	  float lxyz = ev.j_vtx3DVal[k];
-	  float lxyz_sig = ev.j_vtx3DSig[k];
-	  float vtxmass = ev.j_vtxmass[k]; 
-	  int   numvertex = ev.nvtx;
-	  int   lep_charge = ev.l_charge;
-    float mass_Wbos = ev.mt;
-    float chmass_Wbos = ev.chmt;
-	  //int lepton_id = ev.l_id;
-	  
-  //most significantly displaced vertex
-  if(v==0) {
-	if(nJets == 2 && nJets30>0 && nBtags == 0){
-	if(lxyz>0){
-    disvtx_2j_leading->Fill(lxyz);
-    lxyz_sig_2j_leading->Fill(lxyz_sig);
-    vertexmass_2j_leading->Fill(vtxmass);
-    numvertices_2j_leading->Fill(numvertex);
-	  
-    jetpt_2j_leading->Fill(pt);
-	  jeteta_2j_leading->Fill(fabs(eta));
-	  lepCh_2j_leading->Fill(lep_charge);
-	  wmass_2j_leading->Fill(mass_Wbos);
-	  wchmass_2j_leading->Fill(chmass_Wbos);
-	  }
-	  } 
-  if(nJets == 3 && nJets30>0 && nBtags == 1){
-    if(lxyz>0){
-    disvtx_3j_leading->Fill(lxyz);
-    lxyz_sig_3j_leading->Fill(lxyz_sig);
-    vertexmass_3j_leading->Fill(vtxmass);
-    numvertices_3j_leading->Fill(numvertex);
-    
-    jetpt_3j_leading->Fill(pt);
-    jeteta_3j_leading->Fill(fabs(eta));
-    lepCh_3j_leading->Fill(lep_charge);
-    wmass_3j_leading->Fill(mass_Wbos);
-    wchmass_3j_leading->Fill(chmass_Wbos);
-	  }
-    }
-  
-  if(nJets == 4 && nJets30>0 && nBtags == 2){
-	  if(lxyz>0){
-    disvtx_4j_leading->Fill(lxyz);
-    lxyz_sig_4j_leading->Fill(lxyz_sig);
-    vertexmass_4j_leading->Fill(vtxmass);
-    numvertices_4j_leading->Fill(numvertex);
-    
-    jetpt_4j_leading->Fill(pt);
-    jeteta_4j_leading->Fill(fabs(eta));
-	  lepCh_4j_leading->Fill(lep_charge);
-	  wmass_4j_leading->Fill(mass_Wbos);
-    wchmass_4j_leading->Fill(chmass_Wbos);
-	  }
-	  }
-    }//v==0 loop
-	  
-	//second most significantly displaced vertex
-	if(v==1) {
-  
-  if(nJets==2 && nJets30>0 && nBtags == 0){
-  if(lxyz>0){
-	  disvtx_2j_nextleading->Fill(lxyz);
-	  lxyz_sig_2j_nextleading->Fill(lxyz_sig);
-	  vertexmass_2j_nextleading->Fill(vtxmass);
-	  numvertices_2j_nextleading->Fill(numvertex);
-	  
-	  jetpt_2j_nextleading->Fill(pt);
-	  jeteta_2j_nextleading->Fill(fabs(eta));
-    lepCh_2j_nextleading->Fill(lep_charge);
-	  wmass_2j_nextleading->Fill(mass_Wbos);
-    wchmass_2j_nextleading->Fill(chmass_Wbos);
-	  }
-   } 
+  if(nJets == 2 && nBtags == 0 ) bjetcutflow->Fill(0);	
+  if(nJets == 2 && nBtags == 1 ) bjetcutflow->Fill(1,wgt);	
+  if(nJets == 2 && nBtags == 2 ) bjetcutflow->Fill(2,wgt);	
+  if(nJets >= 3 && nBtags == 0 ) bjetcutflow->Fill(3,wgt);	
+  if(nJets >= 3 && nBtags == 1 ) bjetcutflow->Fill(4,wgt);	
+  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow->Fill(5,wgt);	
+  if(nJets >= 4 && nBtags == 0 ) bjetcutflow->Fill(6,wgt);
+  if(nJets >= 4 && nBtags == 1 ) bjetcutflow->Fill(7,wgt);
+  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow->Fill(8,wgt);
 
-  if(nJets == 3 && nJets30>0 && nBtags == 1){
-  if(lxyz>0){
-    disvtx_3j_nextleading->Fill(lxyz);
-    lxyz_sig_3j_nextleading->Fill(lxyz_sig);
-    vertexmass_3j_nextleading->Fill(vtxmass);
- 	  numvertices_3j_nextleading->Fill(numvertex);
-    
-    jetpt_3j_nextleading->Fill(pt);
-    jeteta_3j_nextleading->Fill(fabs(eta));
-    lepCh_3j_nextleading->Fill(lep_charge);
-    wmass_3j_nextleading->Fill(mass_Wbos);
-    wchmass_3j_nextleading->Fill(chmass_Wbos);
-    }
-   } 
-  if(nJets == 4 && nJets30>0 && nBtags == 2){
-	if(lxyz>0){
-    disvtx_4j_nextleading->Fill(lxyz);
-    lxyz_sig_4j_nextleading->Fill(lxyz_sig);
-    vertexmass_4j_nextleading->Fill(vtxmass);
-    numvertices_4j_nextleading->Fill(numvertex);
-	 
-	  jetpt_4j_nextleading->Fill(pt);
-	  jeteta_4j_nextleading->Fill(fabs(eta));
-	  lepCh_4j_nextleading->Fill(lep_charge);
-	  wmass_4j_nextleading->Fill(mass_Wbos);
-    wchmass_4j_nextleading->Fill(chmass_Wbos);
-	  }
-	  }
-    } // v==1 loop
+  
+  TH1F *lepptH=leppt_2j_leading, *lepetaH=lepeta_2j_leading,*lepphiH=lepphi_2j_leading,*mtH=leptmass_2j_leading, *jetptH=jetpt_2j_leading, *jetetaH=jeteta_2j_leading, *jetcsvH=jetcsv_2j_leading, *numvtxH=numvertices_2j_leading, *metptH=metpt_2j_leading, *metphiH=metphi_2j_leading, *mettmassH=mettmass_2j_leading;
+  if(nJets==3){
+    lepptH=leppt_3j_leading; lepetaH=lepeta_3j_leading; lepphiH=lepphi_3j_leading; mtH=leptmass_3j_leading; jetptH=jetpt_3j_leading; jetetaH=jeteta_3j_leading; jetcsvH=jetcsv_3j_leading; numvtxH=numvertices_3j_leading; metptH=metpt_3j_leading, metphiH=metphi_3j_leading, mettmassH=mettmass_3j_leading;
+  }
+  if(nJets>=4){
+    lepptH=leppt_4j_leading; lepetaH=lepeta_4j_leading; lepphiH=lepphi_4j_leading; mtH=leptmass_4j_leading; jetptH=jetpt_4j_leading; jetetaH=jeteta_4j_leading; jetcsvH=jetcsv_4j_leading; numvtxH=numvertices_4j_leading; metptH=metpt_4j_leading, metphiH=metphi_4j_leading, mettmassH=mettmass_4j_leading;
 
+  }
 
-    } //vertices loop
-    }//Entries loop
-      
+  lepptH->Fill(ev.l_pt,wgt);
+  lepetaH->Fill(ev.l_eta,wgt);
+  lepphiH->Fill(ev.l_phi,wgt);
+  mtH->Fill(ev.l_tmass,wgt);
+
+  jetptH->Fill(ev.j_pt[0],wgt);
+  jetetaH->Fill(fabs(ev.j_eta[0]),wgt);
+  jetcsvH->Fill(fabs(ev.j_csv[0]),wgt);
+  numvtxH->Fill(ev.nvtx,wgt);
+
+  metptH->Fill(ev.met_pt,wgt);
+  metphiH->Fill(ev.met_phi,wgt);
+  mettmassH->Fill(ev.mt,wgt);
+  }
+  
   
   //close file
   
@@ -354,86 +203,76 @@ void ReadTree(TString filename,TString output,bool useChPt,int minVtx, int maxVt
   cutflow->Write();
   bjetcutflow->Write();
 
-  disvtx_2j_leading->Write();
-  lxyz_sig_2j_leading->Write();
-  vertexmass_2j_leading->Write();
-  numvertices_2j_leading->Write();
+  // 2-Jets
+  leppt_2j_leading->Write();
+  lepeta_2j_leading->Write();
+  lepphi_2j_leading->Write();
+  leptmass_2j_leading->Write();
+  
   jetpt_2j_leading->Write();
   jeteta_2j_leading->Write();
-  lepCh_2j_leading->Write();
-  wmass_2j_leading->Write();
-  wchmass_2j_leading->Write();
+  jetcsv_2j_leading->Write();
+  numvertices_2j_leading->Write();
 
-  disvtx_3j_leading->Write();
-  lxyz_sig_3j_leading->Write();
-  vertexmass_3j_leading->Write();
-  numvertices_3j_leading->Write();
+  metpt_2j_leading->Write();
+  metphi_2j_leading->Write();
+  mettmass_2j_leading->Write();
+
+// 3-Jets
+  leppt_3j_leading->Write();
+  lepeta_3j_leading->Write();
+  lepphi_3j_leading->Write();
+  leptmass_3j_leading->Write();
+  
   jetpt_3j_leading->Write();
   jeteta_3j_leading->Write();
-  lepCh_3j_leading->Write();
-  wmass_3j_leading->Write();
-  wchmass_3j_leading->Write();
+  jetcsv_3j_leading->Write();
+  numvertices_3j_leading->Write();
 
-  disvtx_4j_leading->Write();
-  lxyz_sig_4j_leading->Write();
-  vertexmass_4j_leading->Write();
-  numvertices_4j_leading->Write();
+  metpt_3j_leading->Write();
+  metphi_3j_leading->Write();
+  mettmass_3j_leading->Write();
+
+// 4-Jets
+  leppt_4j_leading->Write();
+  lepeta_4j_leading->Write();
+  lepphi_4j_leading->Write();
+  leptmass_4j_leading->Write();
+  
   jetpt_4j_leading->Write();
   jeteta_4j_leading->Write();
-  lepCh_4j_leading->Write();
-  wmass_4j_leading->Write();
-  wchmass_4j_leading->Write();
+  jetcsv_4j_leading->Write();
+  numvertices_4j_leading->Write();
 
-  disvtx_2j_nextleading->Write();
-  lxyz_sig_2j_leading->Write();
-  vertexmass_2j_nextleading->Write();
-  numvertices_2j_nextleading->Write();
-  jetpt_2j_nextleading->Write();
-  jeteta_2j_nextleading->Write();
-  lepCh_2j_nextleading->Write();
-  wmass_2j_nextleading->Write();
-  wchmass_2j_nextleading->Write();
+  metpt_4j_leading->Write();
+  metphi_4j_leading->Write();
+  mettmass_4j_leading->Write();
 
-  disvtx_3j_nextleading->Write();
-  lxyz_sig_3j_leading->Write();
-  vertexmass_3j_nextleading->Write();
-  numvertices_3j_nextleading->Write();
-  jetpt_3j_nextleading->Write();
-  jeteta_3j_nextleading->Write();
-  lepCh_3j_nextleading->Write();
-  wmass_3j_nextleading->Write();
-  wchmass_3j_nextleading->Write();
-
-  disvtx_4j_nextleading->Write();
-  lxyz_sig_4j_nextleading->Write();
-  vertexmass_4j_nextleading->Write();
-  numvertices_4j_nextleading->Write();
-  jetpt_4j_nextleading->Write();
-  jeteta_4j_nextleading->Write();
-  lepCh_4j_nextleading->Write();
-  wmass_4j_nextleading->Write();
-  wchmass_4j_nextleading->Write();
- 
   fOut->Close();
 }
 
 
-void RunOverSamples(TString output, bool useChPt,int minVtx, int maxVtx){
+void RunOverSamples(TString output, int chToSelect){
   TString files[]={
-  "DYJetsToLL_M50_TuneCUETP8M1.root",
-  "ST_tW_antitop_5f_DS_inclusiveDecays.root",
-  "ST_tW_top_5f_DS_inclusiveDecays.root",
-  "ST_t_channel_4f_leptonDecays.root",
-  "TT_TuneCUETP8M1.root",
-  "WJetsToLNu_TuneCUETP8M1.root",
-  "ele_17july.root",
-  "ele_promptreco.root",
-  "mu_17july.root",
-  "mu_promptreco.root"
+  "DYJetsToLL_M50_SEP22.root",
+  "ST_s_channel_SEP22.root",
+  "ST_t_channel_SEP22.root",
+  "ST_tW_antitop_SEP22.root",
+  "ST_tW_top_SEP22.root",
+  "TT_TuneCUETP8M1_SEP22.root",
+  "WJetsToLNu_TuneCUETP8M1_SEP22.root",
+  "QCD_Pt_80to120_EMEnriched_SEP22.root",
+  "QCD_Pt_120to170_EMEnriched_SEP22.root",
+  "QCD_Pt_170to300_EMEnriched_SEP22.root",
+  "QCD_Pt_300toInf_EMEnriched_SEP22.root",
+  "singleEle_28Aug2015_SEP25.root",
+  "singleEle_PromptReco2015C_SEP25.root",
+  "singleEle_2015D_SEP25.root",
+  "singlemu_2015C_SEP25.root",
+  "singlemu_2015D_SEP25.root"
   };
   
-  
   for(size_t i=0; i<sizeof(files)/sizeof(TString); i++){
-    ReadTree(files[i],output,useChPt,minVtx,maxVtx);
+    ReadTree(files[i],output,chToSelect);
     }
 }

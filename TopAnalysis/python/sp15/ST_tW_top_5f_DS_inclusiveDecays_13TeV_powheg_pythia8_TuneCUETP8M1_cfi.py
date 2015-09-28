@@ -5,22 +5,18 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/50000/628B3F1A-28FF-E411-BEDF-20CF3019DF09.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/50000/6CF47F80-27FF-E411-B98E-002590A831B4.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/50000/B24D4580-27FF-E411-A7AE-002590200964.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/60000/489BD5F5-10FF-E411-B8E8-001E67396E3C.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/60000/F6D9ABFB-10FF-E411-9F91-E0CB4E29C4D7.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/60000/FE2AD6FA-10FF-E411-B52F-00259073E4A0.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/70000/06BCC94F-E9FE-E411-8ECD-485B39800B67.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/70000/3E4D3796-E9FE-E411-B343-0025B3E0656C.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/70000/4C670393-E9FE-E411-BDF0-002590A371AE.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/70000/76B37A50-E9FE-E411-8FDF-00259077501E.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/70000/DA9E274F-E9FE-E411-AE7D-00259073E514.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/80000/324B0854-04FF-E411-A943-E0CB4E29C4DB.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/80000/4C42C0FD-04FF-E411-9847-0025905B858C.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/80000/5631B8FD-04FF-E411-9133-0025905B858C.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/80000/C01FB4AE-04FF-E411-AF74-001E67396707.root',
-       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v1/80000/DC1ECC58-04FF-E411-9575-BCAEC51B8F58.root' ] );
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/02D835D8-FC01-E511-A105-525400929F2C.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/22894C59-FD01-E511-AAA1-E0CB4E553643.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/24F64413-EB01-E511-98B9-0025905964A6.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/2665ED5A-FD01-E511-A685-00259073E3F0.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/46E51013-EB01-E511-9136-0026189438C9.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/72A37118-EB01-E511-9FEA-0025905A609E.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/9C5D08DC-FC01-E511-891F-0025907B4EEA.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/A06764A2-EA01-E511-AE7D-0025B3E0652A.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/CE87C51A-EB01-E511-9C92-0025905A60A6.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/D218475A-EA01-E511-89A6-002590200B38.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/EA1F2233-EA01-E511-A746-002590A88736.root',
+       '/store/mc/RunIISpring15DR74/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/70000/EE472C53-FD01-E511-B8D6-20CF3027A5C4.root' ] );
 
 
 secFiles.extend( [

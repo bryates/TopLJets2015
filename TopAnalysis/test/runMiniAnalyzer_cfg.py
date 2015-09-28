@@ -12,7 +12,7 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
-runOnData=False #data/MC switch
+runOnData= True #data/MC switch
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -29,12 +29,39 @@ process.options = cms.untracked.PSet(
 )
 
 #Number of events to process
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 #Input files
-#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_pythia8_cfi import source as mc_events_source
-from UserCode.TopAnalysis.sp15.ST_tW_top_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
-from UserCode.TopAnalysis.DataMu15.data_mu_cfi import source as data_events_source
+
+# Signal & BKG
+#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_poWheg_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.DYJetsToLL_M50_TuneCUETP8M1_13TeV_amcatnloFXFX_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.WJetsToLNu_TuneCUETP8M1_13TeV_amcatnloFXFX_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_s_channel_4f_leptonDecays_13TeV_amcatnlo_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_t_channel_4f_leptonDecays_13TeV_amcatnlo_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_t_channel_antitop_4f_leptonDecays_13TeV_amcatnlo_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_t_channel_top_4f_leptonDecays_13TeV_amcatnlo_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_tW_antitop_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.ST_tW_top_5f_DS_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M1_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.QCD_Pt_80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.QCD_Pt_120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.QCD_Pt_170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.QCD_Pt_300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8_cfi import source as mc_events_source
+
+# Systematics
+#from UserCode.TopAnalysis.sp15.TTJets_TuneCUETP8M1_13TeV_amcatnloFXFX_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.TTJets_TuneCUETP8M1_13TeV_madgraphMLM_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_scaleup_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_13TeV_powheg_scaledown_pythia8_cfi import source as mc_events_source
+#from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_mtop1695_13TeV_powheg_pythia8_cfi import source as mc_events_source
+from UserCode.TopAnalysis.sp15.TT_TuneCUETP8M1_mtop1755_13TeV_powheg_pythia8_cfi import source as mc_events_source
+
+# DATA
+#from UserCode.TopAnalysis.DataMu15.singlemu_2015C_cfi import source as data_events_source
+from UserCode.TopAnalysis.DataMu15.singlemu_2015D_cfi import source as data_events_source
+#from UserCode.TopAnalysis.DataMu15.singleEle_28Aug2015_cfi import source as data_events_source
+#from UserCode.TopAnalysis.DataMu15.singleEle_PromptReco2015C_cfi import source as data_events_source
+#from UserCode.TopAnalysis.DataMu15.singleEle_2015D_cfi import source as data_events_source
 
 process.source=mc_events_source
 process.source=data_events_source
@@ -46,26 +73,54 @@ else:
   process.source=mc_events_source
   outfilename='mc_minitree.root'
 
-# Define the input source
-#if runOnData:
-#  fname = 'root://eoscms.cern.ch//store/data/Run2015B/JetHT/MINIAOD/PromptReco-v1/000/251/252/00000/263D331F-AF27-E511-969B-02163E012627.root'
-#else:
-#  fname = 'root://eoscms.cern.ch//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/001C7571-0511-E511-9B8E-549F35AE4FAF.root'
-#process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring([ fname ]))
-
 #luminosity
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
 if runOnData:
-  process.source.lumisToProcess = LumiList.LumiList(filename = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt').getVLuminosityBlockRange()
+#  process.source.lumisToProcess = LumiList.LumiList(filename = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt').getVLuminosityBlockRange()
+  process.source.lumisToProcess = LumiList.LumiList(filename = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-256869_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = ''
-process.MessageLogger.cerr.FwkReport.reportEvery = 20
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #Tfileservice
-process.TFileService = cms.Service("TFileService",fileName = cms.string(outfilename))
+process.TFileService = cms.Service("TFileService",
+
+# Signal & BKG
+#fileName = cms.string("TT_TuneCUETP8M1_SEP22.root")
+#fileName = cms.string("DYJetsToLL_M50_SEP22.root")
+#fileName = cms.string("WJetsToLNu_TuneCUETP8M1_SEP22.root")
+#fileName = cms.string("ST_s_channel_SEP22.root")
+#fileName = cms.string("ST_t_channel_SEP22.root")
+#fileName = cms.string("ST_t_antitop_channel_SEP22.root")
+#fileName = cms.string("ST_t_top_channel_SEP22.root")
+#fileName = cms.string("ST_tW_antitop_SEP22.root")
+#fileName = cms.string("ST_tW_top_SEP22.root")
+#fileName = cms.string("QCD_Pt_80to120_EMEnriched_SEP22.root")
+#fileName = cms.string("QCD_Pt_120to170_EMEnriched_SEP22.root")
+#fileName = cms.string("QCD_Pt_170to300_EMEnriched_SEP22.root")
+#fileName = cms.string("QCD_Pt_300toInf_EMEnriched_SEP22.root")
+
+# Systematics
+#fileName = cms.string("TTJets_TuneCUETP8M1_13TeV_amcatnloFXFX_SEP22.root")
+#fileName = cms.string("TTJets_TuneCUETP8M1_13TeV_madgraphMLM_SEP22.root")
+#fileName = cms.string("TT_TuneCUETP8M1_13TeV_powheg_scaleup_SEP22.root")
+#fileName = cms.string("TT_TuneCUETP8M1_13TeV_powheg_scaledown_SEP22.root")
+#fileName = cms.string("TT_TuneCUETP8M1_mtop1695_SEP22.root")
+#fileName = cms.string("TT_TuneCUETP8M1_mtop1755_SEP17.root")
+
+# DATA
+#fileName = cms.string("singlemu_2015C_SEP22.root")
+#fileName = cms.string("singlemu_2015C_SEP25.root")
+fileName = cms.string("singlemu_2015D_SEP25.root")
+#fileName = cms.string("singleEle_28Aug2015_SEP25.root")
+#fileName = cms.string("singleEle_28Aug2015_SEP22.root")
+#fileName = cms.string("singleEle_PromptReco2015C_SEP25.root")
+#fileName = cms.string("singleEle_PromptReco2015C_SEP22.root")
+#fileName = cms.string("singleEle_2015D_SEP25.root")
+)
 
 #JEC: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JecGlobalTag
 from CondCore.DBCommon.CondDBSetup_cfi import *
