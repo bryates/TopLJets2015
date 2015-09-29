@@ -214,6 +214,9 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   ev_.isData  = is_Data;
   ev_.isMC    = is_MC;
 
+cout<<"Run Number: "<<iEvent.id().run()<<", luminosity: "<<iEvent.luminosityBlock()<<", event:"<<iEvent.id().event()<<endl;
+
+
   TriggerResults tr; 
   edm::Handle<edm::TriggerResults> h_trigRes;
   iEvent.getByToken(triggerBits_, h_trigRes);
@@ -286,6 +289,9 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   
   if(mu_trigger) histContainer_["mucutflow"]->Fill(1);
   if(el_trigger) histContainer_["ecutflow"]->Fill(1);
+  ev_.muTrigger = mu_trigger;
+  ev_.elTrigger = el_trigger;
+
   //GENERATOR LEVEL INFO
   ev_.ttbar_nw=0;
   if(!is_Data)
