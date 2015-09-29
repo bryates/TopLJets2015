@@ -1,6 +1,7 @@
 #include <TFile.h>
 #include <TROOT.h>
 #include <TH1.h>
+#include <TH2.h>
 #include "UserCode/TopAnalysis/interface/MiniEvent.h"
  
 #include <vector>
@@ -108,7 +109,43 @@ void ReadTree(TString filename,TString output,int chToSelect){
   mettmass_3j_leading     -> SetName("mettmass_3j_leading");
   mettmass_4j_leading     -> SetName("mettmass_4j_leading");
   
+// Run & Luminosity
+  TH2F *lumi_2j_leading = new TH2F("lumi_2j_leading",";Run Number;Number of jets" ,10,0.,10.,10,0.,10.);
+  TH2F *lumi_3j_leading = (TH2F *)lumi_2j_leading->Clone("lumi_3j_leading");
+  TH2F *lumi_4j_leading = (TH2F *)lumi_2j_leading->Clone("lumi_4j_leading");
+  lumi_3j_leading -> SetName("lumi_3j_leading");
+  lumi_4j_leading -> SetName("lumi_4j_leading");
 
+  TH1F *runlumi_2j = new TH1F("runlumi_2j",";Run;Events" ,8,0.,8.);
+  runlumi_2j->GetXaxis()->SetBinLabel(1,"254231");
+  runlumi_2j->GetXaxis()->SetBinLabel(2,"254232");
+  runlumi_2j->GetXaxis()->SetBinLabel(3,"254790");
+  runlumi_2j->GetXaxis()->SetBinLabel(4,"254852");
+  runlumi_2j->GetXaxis()->SetBinLabel(5,"254879");
+  runlumi_2j->GetXaxis()->SetBinLabel(6,"254906");
+  runlumi_2j->GetXaxis()->SetBinLabel(7,"254907");
+  runlumi_2j->GetXaxis()->SetBinLabel(8,"254914");
+
+  TH1F *runlumi_3j = new TH1F("runlumi_3j",";Run;Events" ,8,0.,8.);
+  runlumi_3j->GetXaxis()->SetBinLabel(1,"254231");
+  runlumi_3j->GetXaxis()->SetBinLabel(2,"254232");
+  runlumi_3j->GetXaxis()->SetBinLabel(3,"254790");
+  runlumi_3j->GetXaxis()->SetBinLabel(4,"254852");
+  runlumi_3j->GetXaxis()->SetBinLabel(5,"254879");
+  runlumi_3j->GetXaxis()->SetBinLabel(6,"254906");
+  runlumi_3j->GetXaxis()->SetBinLabel(7,"254907");
+  runlumi_3j->GetXaxis()->SetBinLabel(8,"254914");
+  
+  TH1F *runlumi_4j = new TH1F("runlumi_4j",";Run;Events" ,8,0.,8.);
+  runlumi_4j->GetXaxis()->SetBinLabel(1,"254231");
+  runlumi_4j->GetXaxis()->SetBinLabel(2,"254232");
+  runlumi_4j->GetXaxis()->SetBinLabel(3,"254790");
+  runlumi_4j->GetXaxis()->SetBinLabel(4,"254852");
+  runlumi_4j->GetXaxis()->SetBinLabel(5,"254879");
+  runlumi_4j->GetXaxis()->SetBinLabel(6,"254906");
+  runlumi_4j->GetXaxis()->SetBinLabel(7,"254907");
+  runlumi_4j->GetXaxis()->SetBinLabel(8,"254914");
+ 
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -143,10 +180,11 @@ void ReadTree(TString filename,TString output,int chToSelect){
 	if(csv>0.890) nBtags ++;
       }
   }
-  
   //select according to the lepton id
   if(chToSelect>0 && lepton_id!=chToSelect) continue;
   if(nJets<2) continue;
+//  if(lepton_id == 13 && ev.muTrigger) continue;
+//  if(lepton_id == 11 && ev.elTrigger) continue;
 
   float wgt(1.0);
 
@@ -168,13 +206,41 @@ void ReadTree(TString filename,TString output,int chToSelect){
   if(nJets >= 4 && nBtags == 1 ) bjetcutflow->Fill(7,wgt);
   if(nJets >= 4 && nBtags >= 2 ) bjetcutflow->Fill(8,wgt);
 
-  
+  if(nJets == 2 && ev.run == 254231)  runlumi_2j->Fill(1,wgt/0.029);
+  if(nJets == 2 && ev.run == 254232)  runlumi_2j->Fill(2,wgt/0.097);
+  if(nJets == 2 && ev.run == 254790)  runlumi_2j->Fill(3,wgt/10.36);
+  if(nJets == 2 && ev.run == 254852)  runlumi_2j->Fill(4,wgt/0.82);
+  if(nJets == 2 && ev.run == 254879)  runlumi_2j->Fill(5,wgt/1.66);
+  if(nJets == 2 && ev.run == 254906)  runlumi_2j->Fill(6,wgt/1.48);
+  if(nJets == 2 && ev.run == 254907)  runlumi_2j->Fill(7,wgt/1.02);
+  if(nJets == 2 && ev.run == 254914)  runlumi_2j->Fill(8,wgt/0.87);
+
+  if(nJets == 3 && ev.run == 254231)  runlumi_3j->Fill(1,wgt/0.029);
+  if(nJets == 3 && ev.run == 254232)  runlumi_3j->Fill(2,wgt/0.097);
+  if(nJets == 3 && ev.run == 254790)  runlumi_3j->Fill(3,wgt/10.36);
+  if(nJets == 3 && ev.run == 254852)  runlumi_3j->Fill(4,wgt/0.82);
+  if(nJets == 3 && ev.run == 254879)  runlumi_3j->Fill(5,wgt/1.66);
+  if(nJets == 3 && ev.run == 254906)  runlumi_3j->Fill(6,wgt/1.48);
+  if(nJets == 3 && ev.run == 254907)  runlumi_3j->Fill(7,wgt/1.02);
+  if(nJets == 3 && ev.run == 254914)  runlumi_3j->Fill(8,wgt/0.87);
+
+  if(nJets >= 4 && ev.run == 254231)  runlumi_4j->Fill(1,wgt/0.029);
+  if(nJets >= 4 && ev.run == 254232)  runlumi_4j->Fill(2,wgt/0.097);
+  if(nJets >= 4 && ev.run == 254790)  runlumi_4j->Fill(3,wgt/10.36);
+  if(nJets >= 4 && ev.run == 254852)  runlumi_4j->Fill(4,wgt/0.82);
+  if(nJets >= 4 && ev.run == 254879)  runlumi_4j->Fill(5,wgt/1.66);
+  if(nJets >= 4 && ev.run == 254906)  runlumi_4j->Fill(6,wgt/1.48);
+  if(nJets >= 4 && ev.run == 254907)  runlumi_4j->Fill(7,wgt/1.02);
+  if(nJets >= 4 && ev.run == 254914)  runlumi_4j->Fill(8,wgt/0.87);
+
+
   TH1F *lepptH=leppt_2j_leading, *lepetaH=lepeta_2j_leading,*lepphiH=lepphi_2j_leading,*mtH=leptmass_2j_leading, *jetptH=jetpt_2j_leading, *jetetaH=jeteta_2j_leading, *jetcsvH=jetcsv_2j_leading, *numvtxH=numvertices_2j_leading, *metptH=metpt_2j_leading, *metphiH=metphi_2j_leading, *mettmassH=mettmass_2j_leading;
+  TH2F *lumiH=lumi_2j_leading;
   if(nJets==3){
-    lepptH=leppt_3j_leading; lepetaH=lepeta_3j_leading; lepphiH=lepphi_3j_leading; mtH=leptmass_3j_leading; jetptH=jetpt_3j_leading; jetetaH=jeteta_3j_leading; jetcsvH=jetcsv_3j_leading; numvtxH=numvertices_3j_leading; metptH=metpt_3j_leading, metphiH=metphi_3j_leading, mettmassH=mettmass_3j_leading;
+    lepptH=leppt_3j_leading; lepetaH=lepeta_3j_leading; lepphiH=lepphi_3j_leading; mtH=leptmass_3j_leading; jetptH=jetpt_3j_leading; jetetaH=jeteta_3j_leading; jetcsvH=jetcsv_3j_leading; numvtxH=numvertices_3j_leading; metptH=metpt_3j_leading, metphiH=metphi_3j_leading, mettmassH=mettmass_3j_leading; lumiH=lumi_3j_leading;
   }
   if(nJets>=4){
-    lepptH=leppt_4j_leading; lepetaH=lepeta_4j_leading; lepphiH=lepphi_4j_leading; mtH=leptmass_4j_leading; jetptH=jetpt_4j_leading; jetetaH=jeteta_4j_leading; jetcsvH=jetcsv_4j_leading; numvtxH=numvertices_4j_leading; metptH=metpt_4j_leading, metphiH=metphi_4j_leading, mettmassH=mettmass_4j_leading;
+    lepptH=leppt_4j_leading; lepetaH=lepeta_4j_leading; lepphiH=lepphi_4j_leading; mtH=leptmass_4j_leading; jetptH=jetpt_4j_leading; jetetaH=jeteta_4j_leading; jetcsvH=jetcsv_4j_leading; numvtxH=numvertices_4j_leading; metptH=metpt_4j_leading, metphiH=metphi_4j_leading, mettmassH=mettmass_4j_leading; lumiH=lumi_4j_leading;
 
   }
 
@@ -191,6 +257,8 @@ void ReadTree(TString filename,TString output,int chToSelect){
   metptH->Fill(ev.met_pt,wgt);
   metphiH->Fill(ev.met_phi,wgt);
   mettmassH->Fill(ev.mt,wgt);
+
+  lumiH->Fill(ev.run,ev.nj);
   }
   
   
@@ -202,6 +270,9 @@ void ReadTree(TString filename,TString output,int chToSelect){
   TFile *fOut=TFile::Open(output+"/"+filename,"RECREATE");
   cutflow->Write();
   bjetcutflow->Write();
+  runlumi_2j->Write();
+  runlumi_3j->Write();
+  runlumi_4j->Write();
 
   // 2-Jets
   leppt_2j_leading->Write();
@@ -217,6 +288,7 @@ void ReadTree(TString filename,TString output,int chToSelect){
   metpt_2j_leading->Write();
   metphi_2j_leading->Write();
   mettmass_2j_leading->Write();
+  lumi_2j_leading->Write();
 
 // 3-Jets
   leppt_3j_leading->Write();
@@ -232,6 +304,7 @@ void ReadTree(TString filename,TString output,int chToSelect){
   metpt_3j_leading->Write();
   metphi_3j_leading->Write();
   mettmass_3j_leading->Write();
+  lumi_3j_leading->Write();
 
 // 4-Jets
   leppt_4j_leading->Write();
@@ -247,6 +320,7 @@ void ReadTree(TString filename,TString output,int chToSelect){
   metpt_4j_leading->Write();
   metphi_4j_leading->Write();
   mettmass_4j_leading->Write();
+  lumi_4j_leading->Write();
 
   fOut->Close();
 }
