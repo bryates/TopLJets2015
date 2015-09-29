@@ -214,9 +214,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   ev_.isData  = is_Data;
   ev_.isMC    = is_MC;
 
-cout<<"Run Number: "<<iEvent.id().run()<<", luminosity: "<<iEvent.luminosityBlock()<<", event:"<<iEvent.id().event()<<endl;
-
-
   TriggerResults tr; 
   edm::Handle<edm::TriggerResults> h_trigRes;
   iEvent.getByToken(triggerBits_, h_trigRes);

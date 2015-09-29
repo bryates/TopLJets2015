@@ -116,36 +116,120 @@ void ReadTree(TString filename,TString output,int chToSelect){
   lumi_3j_leading -> SetName("lumi_3j_leading");
   lumi_4j_leading -> SetName("lumi_4j_leading");
 
-  TH1F *runlumi_2j = new TH1F("runlumi_2j",";Run;Events" ,8,0.,8.);
-  runlumi_2j->GetXaxis()->SetBinLabel(1,"254231");
-  runlumi_2j->GetXaxis()->SetBinLabel(2,"254232");
-  runlumi_2j->GetXaxis()->SetBinLabel(3,"254790");
-  runlumi_2j->GetXaxis()->SetBinLabel(4,"254852");
-  runlumi_2j->GetXaxis()->SetBinLabel(5,"254879");
-  runlumi_2j->GetXaxis()->SetBinLabel(6,"254906");
-  runlumi_2j->GetXaxis()->SetBinLabel(7,"254907");
-  runlumi_2j->GetXaxis()->SetBinLabel(8,"254914");
-
-  TH1F *runlumi_3j = new TH1F("runlumi_3j",";Run;Events" ,8,0.,8.);
-  runlumi_3j->GetXaxis()->SetBinLabel(1,"254231");
-  runlumi_3j->GetXaxis()->SetBinLabel(2,"254232");
-  runlumi_3j->GetXaxis()->SetBinLabel(3,"254790");
-  runlumi_3j->GetXaxis()->SetBinLabel(4,"254852");
-  runlumi_3j->GetXaxis()->SetBinLabel(5,"254879");
-  runlumi_3j->GetXaxis()->SetBinLabel(6,"254906");
-  runlumi_3j->GetXaxis()->SetBinLabel(7,"254907");
-  runlumi_3j->GetXaxis()->SetBinLabel(8,"254914");
-  
-  TH1F *runlumi_4j = new TH1F("runlumi_4j",";Run;Events" ,8,0.,8.);
-  runlumi_4j->GetXaxis()->SetBinLabel(1,"254231");
-  runlumi_4j->GetXaxis()->SetBinLabel(2,"254232");
-  runlumi_4j->GetXaxis()->SetBinLabel(3,"254790");
-  runlumi_4j->GetXaxis()->SetBinLabel(4,"254852");
-  runlumi_4j->GetXaxis()->SetBinLabel(5,"254879");
-  runlumi_4j->GetXaxis()->SetBinLabel(6,"254906");
-  runlumi_4j->GetXaxis()->SetBinLabel(7,"254907");
-  runlumi_4j->GetXaxis()->SetBinLabel(8,"254914");
- 
+  TH1F *runlumi_2j = new TH1F("runlumi_2j",";Run;Events" ,18,0.,19.);
+  runlumi_2j->GetXaxis()->SetBinLabel(1,"231");
+  runlumi_2j->GetXaxis()->SetBinLabel(2,"232");
+  runlumi_2j->GetXaxis()->SetBinLabel(3,"790");
+  runlumi_2j->GetXaxis()->SetBinLabel(4,"852");
+  runlumi_2j->GetXaxis()->SetBinLabel(5,"879");
+  runlumi_2j->GetXaxis()->SetBinLabel(6,"906");
+  runlumi_2j->GetXaxis()->SetBinLabel(7,"907");
+  runlumi_2j->GetXaxis()->SetBinLabel(8,"914");
+  runlumi_2j->GetXaxis()->SetBinLabel(9,"630");
+  runlumi_2j->GetXaxis()->SetBinLabel(10,"673");
+  runlumi_2j->GetXaxis()->SetBinLabel(11,"674");
+  runlumi_2j->GetXaxis()->SetBinLabel(12,"675");
+  runlumi_2j->GetXaxis()->SetBinLabel(13,"677");
+  runlumi_2j->GetXaxis()->SetBinLabel(14,"729");
+  runlumi_2j->GetXaxis()->SetBinLabel(15,"734");
+  runlumi_2j->GetXaxis()->SetBinLabel(16,"801");
+  runlumi_2j->GetXaxis()->SetBinLabel(17,"842");
+  runlumi_2j->GetXaxis()->SetBinLabel(18,"843");
+/*  runlumi_2j->GetXaxis()->SetBinLabel(19,"231");
+  runlumi_2j->GetXaxis()->SetBinLabel(20,"232");
+  runlumi_2j->GetXaxis()->SetBinLabel(21,"790");
+  runlumi_2j->GetXaxis()->SetBinLabel(22,"852");
+  runlumi_2j->GetXaxis()->SetBinLabel(23,"879");
+  runlumi_2j->GetXaxis()->SetBinLabel(24,"906");
+  runlumi_2j->GetXaxis()->SetBinLabel(25,"907");
+  runlumi_2j->GetXaxis()->SetBinLabel(26,"914");
+  runlumi_2j->GetXaxis()->SetBinLabel(27,"630");
+  runlumi_2j->GetXaxis()->SetBinLabel(28,"673");
+  runlumi_2j->GetXaxis()->SetBinLabel(29,"674");
+  runlumi_2j->GetXaxis()->SetBinLabel(30,"675");
+  runlumi_2j->GetXaxis()->SetBinLabel(31,"677");
+  runlumi_2j->GetXaxis()->SetBinLabel(32,"729");
+  runlumi_2j->GetXaxis()->SetBinLabel(33,"734");
+  runlumi_2j->GetXaxis()->SetBinLabel(34,"801");
+  runlumi_2j->GetXaxis()->SetBinLabel(35,"842");
+  runlumi_2j->GetXaxis()->SetBinLabel(36,"843");
+*/
+  TH1F *runlumi_3j = new TH1F("runlumi_3j",";Run;Events" ,18,0.,19.);
+  runlumi_3j->GetXaxis()->SetBinLabel(1,"231");
+  runlumi_3j->GetXaxis()->SetBinLabel(2,"232");
+  runlumi_3j->GetXaxis()->SetBinLabel(3,"790");
+  runlumi_3j->GetXaxis()->SetBinLabel(4,"852");
+  runlumi_3j->GetXaxis()->SetBinLabel(5,"879");
+  runlumi_3j->GetXaxis()->SetBinLabel(6,"906");
+  runlumi_3j->GetXaxis()->SetBinLabel(7,"907");
+  runlumi_3j->GetXaxis()->SetBinLabel(8,"914");
+  runlumi_3j->GetXaxis()->SetBinLabel(9,"630");
+  runlumi_3j->GetXaxis()->SetBinLabel(10,"673");
+  runlumi_3j->GetXaxis()->SetBinLabel(11,"674");
+  runlumi_3j->GetXaxis()->SetBinLabel(12,"675");
+  runlumi_3j->GetXaxis()->SetBinLabel(13,"677");
+  runlumi_3j->GetXaxis()->SetBinLabel(14,"729");
+  runlumi_3j->GetXaxis()->SetBinLabel(15,"734");
+  runlumi_3j->GetXaxis()->SetBinLabel(16,"801");
+  runlumi_3j->GetXaxis()->SetBinLabel(17,"842");
+  runlumi_3j->GetXaxis()->SetBinLabel(18,"843");
+/*  runlumi_3j->GetXaxis()->SetBinLabel(19,"231");
+  runlumi_3j->GetXaxis()->SetBinLabel(20,"232");
+  runlumi_3j->GetXaxis()->SetBinLabel(21,"790");
+  runlumi_3j->GetXaxis()->SetBinLabel(22,"852");
+  runlumi_3j->GetXaxis()->SetBinLabel(23,"879");
+  runlumi_3j->GetXaxis()->SetBinLabel(24,"906");
+  runlumi_3j->GetXaxis()->SetBinLabel(25,"907");
+  runlumi_3j->GetXaxis()->SetBinLabel(26,"914");
+  runlumi_3j->GetXaxis()->SetBinLabel(27,"630");
+  runlumi_3j->GetXaxis()->SetBinLabel(28,"673");
+  runlumi_3j->GetXaxis()->SetBinLabel(29,"674");
+  runlumi_3j->GetXaxis()->SetBinLabel(30,"675");
+  runlumi_3j->GetXaxis()->SetBinLabel(31,"677");
+  runlumi_3j->GetXaxis()->SetBinLabel(32,"729");
+  runlumi_3j->GetXaxis()->SetBinLabel(33,"734");
+  runlumi_3j->GetXaxis()->SetBinLabel(34,"801");
+  runlumi_3j->GetXaxis()->SetBinLabel(35,"842");
+  runlumi_3j->GetXaxis()->SetBinLabel(36,"843");
+*/
+ TH1F *runlumi_4j = new TH1F("runlumi_4j",";Run;Events" ,18,0.,19.);
+  runlumi_4j->GetXaxis()->SetBinLabel(1,"231");
+  runlumi_4j->GetXaxis()->SetBinLabel(2,"232");
+  runlumi_4j->GetXaxis()->SetBinLabel(3,"790");
+  runlumi_4j->GetXaxis()->SetBinLabel(4,"852");
+  runlumi_4j->GetXaxis()->SetBinLabel(5,"879");
+  runlumi_4j->GetXaxis()->SetBinLabel(6,"906");
+  runlumi_4j->GetXaxis()->SetBinLabel(7,"907");
+  runlumi_4j->GetXaxis()->SetBinLabel(8,"914");
+  runlumi_4j->GetXaxis()->SetBinLabel(9,"630");
+  runlumi_4j->GetXaxis()->SetBinLabel(10,"673");
+  runlumi_4j->GetXaxis()->SetBinLabel(11,"674");
+  runlumi_4j->GetXaxis()->SetBinLabel(12,"675");
+  runlumi_4j->GetXaxis()->SetBinLabel(13,"677");
+  runlumi_4j->GetXaxis()->SetBinLabel(14,"729");
+  runlumi_4j->GetXaxis()->SetBinLabel(15,"734");
+  runlumi_4j->GetXaxis()->SetBinLabel(16,"801");
+  runlumi_4j->GetXaxis()->SetBinLabel(17,"842");
+  runlumi_4j->GetXaxis()->SetBinLabel(18,"843");
+/*  runlumi_4j->GetXaxis()->SetBinLabel(19,"231");
+  runlumi_4j->GetXaxis()->SetBinLabel(20,"232");
+  runlumi_4j->GetXaxis()->SetBinLabel(21,"790");
+  runlumi_4j->GetXaxis()->SetBinLabel(22,"852");
+  runlumi_4j->GetXaxis()->SetBinLabel(23,"879");
+  runlumi_4j->GetXaxis()->SetBinLabel(24,"906");
+  runlumi_4j->GetXaxis()->SetBinLabel(25,"907");
+  runlumi_4j->GetXaxis()->SetBinLabel(26,"914");
+  runlumi_4j->GetXaxis()->SetBinLabel(27,"630");
+  runlumi_4j->GetXaxis()->SetBinLabel(28,"673");
+  runlumi_4j->GetXaxis()->SetBinLabel(29,"674");
+  runlumi_4j->GetXaxis()->SetBinLabel(30,"675");
+  runlumi_4j->GetXaxis()->SetBinLabel(31,"677");
+  runlumi_4j->GetXaxis()->SetBinLabel(32,"729");
+  runlumi_4j->GetXaxis()->SetBinLabel(33,"734");
+  runlumi_4j->GetXaxis()->SetBinLabel(34,"801");
+  runlumi_4j->GetXaxis()->SetBinLabel(35,"842");
+  runlumi_4j->GetXaxis()->SetBinLabel(36,"843");
+*/ 
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -214,7 +298,35 @@ void ReadTree(TString filename,TString output,int chToSelect){
   if(nJets == 2 && ev.run == 254906)  runlumi_2j->Fill(6,wgt/1.48);
   if(nJets == 2 && ev.run == 254907)  runlumi_2j->Fill(7,wgt/1.02);
   if(nJets == 2 && ev.run == 254914)  runlumi_2j->Fill(8,wgt/0.87);
-
+  if(nJets == 2 && ev.run == 256630)  runlumi_2j->Fill(9,wgt/0.95);
+  if(nJets == 2 && ev.run == 256673)  runlumi_2j->Fill(10,wgt/0.005);
+  if(nJets == 2 && ev.run == 256674)  runlumi_2j->Fill(11,wgt/0.09);
+  if(nJets == 2 && ev.run == 256675)  runlumi_2j->Fill(12,wgt/7.28);
+  if(nJets == 2 && ev.run == 256677)  runlumi_2j->Fill(13,wgt/15.58);
+  if(nJets == 2 && ev.run == 256729)  runlumi_2j->Fill(14,wgt/66.55);
+  if(nJets == 2 && ev.run == 256734)  runlumi_2j->Fill(15,wgt/7.2);
+  if(nJets == 2 && ev.run == 256801)  runlumi_2j->Fill(16,wgt/8.83);
+  if(nJets == 2 && ev.run == 256842)  runlumi_2j->Fill(17,wgt/0.02);
+  if(nJets == 2 && ev.run == 256843)  runlumi_2j->Fill(18,wgt/17.48);
+/*  if(nJets == 2 && ev.run == 254231)  runlumi_2j->Fill(19,wgt/0.029);
+  if(nJets == 2 && ev.run == 254232)  runlumi_2j->Fill(20,wgt/0.097);
+  if(nJets == 2 && ev.run == 254790)  runlumi_2j->Fill(21,wgt/10.36);
+  if(nJets == 2 && ev.run == 254852)  runlumi_2j->Fill(22,wgt/0.82);
+  if(nJets == 2 && ev.run == 254879)  runlumi_2j->Fill(23,wgt/1.66);
+  if(nJets == 2 && ev.run == 254906)  runlumi_2j->Fill(24,wgt/1.48);
+  if(nJets == 2 && ev.run == 254907)  runlumi_2j->Fill(25,wgt/1.02);
+  if(nJets == 2 && ev.run == 254914)  runlumi_2j->Fill(26,wgt/0.87);
+  if(nJets == 2 && ev.run == 256630)  runlumi_2j->Fill(27,wgt/0.95);
+  if(nJets == 2 && ev.run == 256673)  runlumi_2j->Fill(28,wgt/0.005);
+  if(nJets == 2 && ev.run == 256674)  runlumi_2j->Fill(29,wgt/0.09);
+  if(nJets == 2 && ev.run == 256675)  runlumi_2j->Fill(30,wgt/7.28);
+  if(nJets == 2 && ev.run == 256677)  runlumi_2j->Fill(31,wgt/15.58);
+  if(nJets == 2 && ev.run == 256729)  runlumi_2j->Fill(32,wgt/66.55);
+  if(nJets == 2 && ev.run == 256734)  runlumi_2j->Fill(33,wgt/7.2);
+  if(nJets == 2 && ev.run == 256801)  runlumi_2j->Fill(34,wgt/8.83);
+  if(nJets == 2 && ev.run == 256842)  runlumi_2j->Fill(35,wgt/0.02);
+  if(nJets == 2 && ev.run == 256843)  runlumi_2j->Fill(36,wgt/17.48);
+*/
   if(nJets == 3 && ev.run == 254231)  runlumi_3j->Fill(1,wgt/0.029);
   if(nJets == 3 && ev.run == 254232)  runlumi_3j->Fill(2,wgt/0.097);
   if(nJets == 3 && ev.run == 254790)  runlumi_3j->Fill(3,wgt/10.36);
@@ -223,7 +335,35 @@ void ReadTree(TString filename,TString output,int chToSelect){
   if(nJets == 3 && ev.run == 254906)  runlumi_3j->Fill(6,wgt/1.48);
   if(nJets == 3 && ev.run == 254907)  runlumi_3j->Fill(7,wgt/1.02);
   if(nJets == 3 && ev.run == 254914)  runlumi_3j->Fill(8,wgt/0.87);
-
+  if(nJets == 3 && ev.run == 256630)  runlumi_3j->Fill(9,wgt/0.95);
+  if(nJets == 3 && ev.run == 256673)  runlumi_3j->Fill(10,wgt/0.005);
+  if(nJets == 3 && ev.run == 256674)  runlumi_3j->Fill(11,wgt/0.09);
+  if(nJets == 3 && ev.run == 256675)  runlumi_3j->Fill(12,wgt/7.28);
+  if(nJets == 3 && ev.run == 256677)  runlumi_3j->Fill(13,wgt/15.58);
+  if(nJets == 3 && ev.run == 256729)  runlumi_3j->Fill(14,wgt/66.55);
+  if(nJets == 3 && ev.run == 256734)  runlumi_3j->Fill(15,wgt/7.2);
+  if(nJets == 3 && ev.run == 256801)  runlumi_3j->Fill(16,wgt/8.83);
+  if(nJets == 3 && ev.run == 256842)  runlumi_3j->Fill(17,wgt/0.02);
+  if(nJets == 3 && ev.run == 256843)  runlumi_3j->Fill(18,wgt/17.48);
+/*  if(nJets == 3 && ev.run == 254231)  runlumi_3j->Fill(19,wgt/0.029);
+  if(nJets == 3 && ev.run == 254232)  runlumi_3j->Fill(20,wgt/0.097);
+  if(nJets == 3 && ev.run == 254790)  runlumi_3j->Fill(21,wgt/10.36);
+  if(nJets == 3 && ev.run == 254852)  runlumi_3j->Fill(22,wgt/0.82);
+  if(nJets == 3 && ev.run == 254879)  runlumi_3j->Fill(23,wgt/1.66);
+  if(nJets == 3 && ev.run == 254906)  runlumi_3j->Fill(24,wgt/1.48);
+  if(nJets == 3 && ev.run == 254907)  runlumi_3j->Fill(25,wgt/1.02);
+  if(nJets == 3 && ev.run == 254914)  runlumi_3j->Fill(26,wgt/0.87);
+  if(nJets == 3 && ev.run == 256630)  runlumi_3j->Fill(27,wgt/0.95);
+  if(nJets == 3 && ev.run == 256673)  runlumi_3j->Fill(28,wgt/0.005);
+  if(nJets == 3 && ev.run == 256674)  runlumi_3j->Fill(29,wgt/0.09);
+  if(nJets == 3 && ev.run == 256675)  runlumi_3j->Fill(30,wgt/7.28);
+  if(nJets == 3 && ev.run == 256677)  runlumi_3j->Fill(31,wgt/15.58);
+  if(nJets == 3 && ev.run == 256729)  runlumi_3j->Fill(32,wgt/66.55);
+  if(nJets == 3 && ev.run == 256734)  runlumi_3j->Fill(33,wgt/7.2);
+  if(nJets == 3 && ev.run == 256801)  runlumi_3j->Fill(34,wgt/8.83);
+  if(nJets == 3 && ev.run == 256842)  runlumi_3j->Fill(35,wgt/0.02);
+  if(nJets == 3 && ev.run == 256843)  runlumi_3j->Fill(36,wgt/17.48);
+*/
   if(nJets >= 4 && ev.run == 254231)  runlumi_4j->Fill(1,wgt/0.029);
   if(nJets >= 4 && ev.run == 254232)  runlumi_4j->Fill(2,wgt/0.097);
   if(nJets >= 4 && ev.run == 254790)  runlumi_4j->Fill(3,wgt/10.36);
@@ -232,7 +372,35 @@ void ReadTree(TString filename,TString output,int chToSelect){
   if(nJets >= 4 && ev.run == 254906)  runlumi_4j->Fill(6,wgt/1.48);
   if(nJets >= 4 && ev.run == 254907)  runlumi_4j->Fill(7,wgt/1.02);
   if(nJets >= 4 && ev.run == 254914)  runlumi_4j->Fill(8,wgt/0.87);
-
+  if(nJets >= 4 && ev.run == 256630)  runlumi_4j->Fill(9,wgt/0.95);
+  if(nJets >= 4 && ev.run == 256673)  runlumi_4j->Fill(10,wgt/0.005);
+  if(nJets >= 4 && ev.run == 256674)  runlumi_4j->Fill(11,wgt/0.09);
+  if(nJets >= 4 && ev.run == 256675)  runlumi_4j->Fill(12,wgt/7.28);
+  if(nJets >= 4 && ev.run == 256677)  runlumi_4j->Fill(13,wgt/15.58);
+  if(nJets >= 4 && ev.run == 256729)  runlumi_4j->Fill(14,wgt/66.55);
+  if(nJets >= 4 && ev.run == 256734)  runlumi_4j->Fill(15,wgt/7.2);
+  if(nJets >= 4 && ev.run == 256801)  runlumi_4j->Fill(16,wgt/8.83);
+  if(nJets >= 4 && ev.run == 256842)  runlumi_4j->Fill(17,wgt/0.02);
+  if(nJets >= 4 && ev.run == 256843)  runlumi_4j->Fill(18,wgt/17.48);
+/*  if(nJets >= 4 && ev.run == 254231)  runlumi_4j->Fill(19,wgt/0.029);
+  if(nJets >= 4 && ev.run == 254232)  runlumi_4j->Fill(20,wgt/0.097);
+  if(nJets >= 4 && ev.run == 254790)  runlumi_4j->Fill(21,wgt/10.36);
+  if(nJets >= 4 && ev.run == 254852)  runlumi_4j->Fill(22,wgt/0.82);
+  if(nJets >= 4 && ev.run == 254879)  runlumi_4j->Fill(23,wgt/1.66);
+  if(nJets >= 4 && ev.run == 254906)  runlumi_4j->Fill(24,wgt/1.48);
+  if(nJets >= 4 && ev.run == 254907)  runlumi_4j->Fill(25,wgt/1.02);
+  if(nJets >= 4 && ev.run == 254914)  runlumi_4j->Fill(26,wgt/0.87);
+  if(nJets >= 4 && ev.run == 256630)  runlumi_4j->Fill(27,wgt/0.95);
+  if(nJets >= 4 && ev.run == 256673)  runlumi_4j->Fill(28,wgt/0.005);
+  if(nJets >= 4 && ev.run == 256674)  runlumi_4j->Fill(29,wgt/0.09);
+  if(nJets >= 4 && ev.run == 256675)  runlumi_4j->Fill(30,wgt/7.28);
+  if(nJets >= 4 && ev.run == 256677)  runlumi_4j->Fill(31,wgt/15.58);
+  if(nJets >= 4 && ev.run == 256729)  runlumi_4j->Fill(32,wgt/66.55);
+  if(nJets >= 4 && ev.run == 256734)  runlumi_4j->Fill(33,wgt/7.2);
+  if(nJets >= 4 && ev.run == 256801)  runlumi_4j->Fill(34,wgt/8.83);
+  if(nJets >= 4 && ev.run == 256842)  runlumi_4j->Fill(35,wgt/0.02);
+  if(nJets >= 4 && ev.run == 256843)  runlumi_4j->Fill(36,wgt/17.48);
+*/
 
   TH1F *lepptH=leppt_2j_leading, *lepetaH=lepeta_2j_leading,*lepphiH=lepphi_2j_leading,*mtH=leptmass_2j_leading, *jetptH=jetpt_2j_leading, *jetetaH=jeteta_2j_leading, *jetcsvH=jetcsv_2j_leading, *numvtxH=numvertices_2j_leading, *metptH=metpt_2j_leading, *metphiH=metphi_2j_leading, *mettmassH=mettmass_2j_leading;
   TH2F *lumiH=lumi_2j_leading;
@@ -339,7 +507,6 @@ void RunOverSamples(TString output, int chToSelect){
   "QCD_Pt_120to170_EMEnriched_SEP22.root",
   "QCD_Pt_170to300_EMEnriched_SEP22.root",
   "QCD_Pt_300toInf_EMEnriched_SEP22.root",
-  "singleEle_28Aug2015_SEP25.root",
   "singleEle_PromptReco2015C_SEP25.root",
   "singleEle_2015D_SEP25.root",
   "singlemu_2015C_SEP25.root",
