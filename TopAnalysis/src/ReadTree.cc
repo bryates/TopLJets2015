@@ -267,8 +267,8 @@ void ReadTree(TString filename,TString output,int chToSelect){
   //select according to the lepton id
   if(chToSelect>0 && lepton_id!=chToSelect) continue;
   if(nJets<2) continue;
-//  if(lepton_id == 13 && ev.muTrigger) continue;
-//  if(lepton_id == 11 && ev.elTrigger) continue;
+  if(abs(lepton_id) == 13 && !ev.muTrigger) continue;
+  if(abs(lepton_id) == 11 && !ev.elTrigger) continue;
 
   float wgt(1.0);
 
