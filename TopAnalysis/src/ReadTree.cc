@@ -69,8 +69,6 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   TH1F *lepphi_2j = new TH1F("lepphi_2j",";#phi [rad];Events" ,50,-3.2,3.2);
   TH1F *lepphi_3j = (TH1F *)lepphi_2j->Clone("lepphi_3j");
   TH1F *lepphi_4j = (TH1F *)lepphi_2j->Clone("lepphi_4j");
-  lepphi_3j   ->SetName("lepphi_3j");
-  lepphi_4j   ->SetName("lepphi_4j");
 
 // Lepton transverse mass
   TH1F *leptmass_2j = new TH1F("leptmass_2j",";Transverse Mass [GeV];Events" ,100,0.,200.);
@@ -81,22 +79,16 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   TH1F *jetpt_2j = new TH1F("jetpt_2j",";Transverse momentum [GeV];Events" ,20,0.,300.);
   TH1F *jetpt_3j = (TH1F *)jetpt_2j->Clone("jetpt_3j");
   TH1F *jetpt_4j = (TH1F *)jetpt_2j->Clone("jetpt_4j");
-  jetpt_3j   ->SetName("jetpt_3j");
-  jetpt_4j   ->SetName("jetpt_4j");
 
 // Jet eta  
   TH1F *jeteta_2j = new TH1F("jeteta_2j",";Pseudo-rapidity;Events" ,12,0.,3.);
   TH1F *jeteta_3j = (TH1F *)jeteta_2j->Clone("jeteta_3j");
   TH1F *jeteta_4j = (TH1F *)jeteta_2j->Clone("jeteta_4j");
-  jeteta_3j   ->SetName("jeteta_3j");
-  jeteta_4j   ->SetName("jeteta_4j");
 
 // CSV
   TH1F *jetcsv_2j = new TH1F("jetcsv_2j",";CSV discriminator;Events" ,100,-1.2,1.2);
   TH1F *jetcsv_3j     = (TH1F *)jetcsv_2j->Clone("jetcsv_3j");
   TH1F *jetcsv_4j     = (TH1F *)jetcsv_2j->Clone("jetcsv_4j");
-  jetcsv_3j     -> SetName("jetcsv_3j");
-  jetcsv_4j     -> SetName("jetcsv_4j");
 
 // numvertices
   TH1F *numvertices_2j = new TH1F("numvertices_2j",";Vertex multiplicity;Events" ,50,0.,50.);
