@@ -18,7 +18,7 @@
 
 using namespace edm;
 
-void ReadTree(TString filename,TString output,int chToSelect){
+void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
 
   gROOT->Reset();
 
@@ -41,143 +41,19 @@ void ReadTree(TString filename,TString output,int chToSelect){
   bjetcutflow->GetXaxis()->SetBinLabel(8,"4j,=1b");
   bjetcutflow->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
 
-// QCD Scale
-  TH1F *bjetcutflow_qcdScaleLo = new TH1F("bjetcutflow_qcdScaleLo","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_qcdScaleLo->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-  TH1F *bjetcutflow_qcdScaleHi = new TH1F("bjetcutflow_qcdScaleHi","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_qcdScaleHi->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-// HDAMP Scale
-  TH1F *bjetcutflow_hdampLo = new TH1F("bjetcutflow_hdampLo","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_hdampLo->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-  TH1F *bjetcutflow_hdampHi = new TH1F("bjetcutflow_hdampHi","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_hdampHi->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-// JES
-  TH1F *bjetcutflow_jesLo = new TH1F("bjetcutflow_jesLo","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_jesLo->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-  TH1F *bjetcutflow_jesHi = new TH1F("bjetcutflow_jesHi","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_jesHi->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-// JER
-  TH1F *bjetcutflow_jerLo = new TH1F("bjetcutflow_jerLo","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_jerLo->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-  TH1F *bjetcutflow_jerHi = new TH1F("bjetcutflow_jerHi","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_jerHi->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-// bTag
-  TH1F *bjetcutflow_btagLo = new TH1F("bjetcutflow_btagLo","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_btagLo->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-  TH1F *bjetcutflow_btagHi = new TH1F("bjetcutflow_btagHi","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_btagHi->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-// misTag
-  TH1F *bjetcutflow_mistagLo = new TH1F("bjetcutflow_mistagLo","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_mistagLo->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
-
-  TH1F *bjetcutflow_mistagHi = new TH1F("bjetcutflow_mistagHi","bjet cutflow ;Cut;Events" ,9,0.,9.);
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(1,"2j,=0b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(2,"2j,=1b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(3,"2j,#geq2b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(4,"3j,=0b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(5,"3j,=1b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(6,"3j,#geq2b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(7,"4j,=0b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(8,"4j,=1b");
-  bjetcutflow_mistagHi->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
+  std::map<TString, TH1F *> systVars;
+  systVars["qcdScaleLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_qcdScaleLo");
+  systVars["qcdScaleHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_qcdScaleHi");
+  systVars["hdampScaleLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_hdampScaleLo");
+  systVars["hdampScaleHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_hdampScaleHi");
+  systVars["jesLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jesLo");
+  systVars["jesHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jesHi");
+  systVars["jerLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jerLo");
+  systVars["jerHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jerHi");
+  systVars["beffLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_beffLo");
+  systVars["beffHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_beffHi");
+  systVars["mistagLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_mistagLo");
+  systVars["mistagHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_mistagHi");
 
 // Lepton pt 
   TH1F *leppt_2j = new TH1F("leppt_2j",";ch;Events" ,20,0.,300.);
@@ -256,6 +132,9 @@ void ReadTree(TString filename,TString output,int chToSelect){
   mettmass_3j     -> SetName("mettmass_3j");
   mettmass_4j     -> SetName("mettmass_4j");
 
+  //jet uncertainty parameterization
+ JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty("Jec11_V12_Uncertainty_AK5PF.txt");
+
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -276,236 +155,121 @@ void ReadTree(TString filename,TString output,int chToSelect){
   for (Int_t i=0;i<nentries;i++){
   t->GetEntry(i);
 
-  //std::cout <<"Electron Triiger :" <<ev.elTrigger<<" : Muon Trigger "<<ev.muTrigger <<std::endl;
-  //select jets
-  uint32_t nJets(0), nBtags(0); //,nJets30(0) ;
-  int lepton_id(ev.l_id); //Nvertices(ev.nvtx), lepton_id(ev.l_id); 	
-
-  for (int k=0; k<ev.nj;k++){
-    //check pt and eta of this jet
-    float jet_pt  = ev.j_pt[k], jet_eta = ev.j_eta[k], csv = ev.j_csv[k];
-    if(jet_pt > 30 && fabs(jet_eta) < 2.5) 
-      {
-	nJets ++;
-	if(csv>0.890) nBtags ++;
-      }
-  }
   //select according to the lepton id
+  int lepton_id(ev.l_id);	
   if(chToSelect>0 && lepton_id!=chToSelect) continue;
-  if(nJets<2) continue;
   if(abs(lepton_id) == 13 && !ev.muTrigger) continue;
   if(abs(lepton_id) == 11 && !ev.elTrigger) continue;
 
-// JES
-  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-//  iSetup.get<JetCorrectionsRecord>().get("AK5PF",JetCorParColl);
-  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-//  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+  //select jets
+  uint32_t nJets(0), nJetsJESLo(0),nJetsJESHi(0), nJetsJERLo(0), nJetsJERHi(0);
+  uint32_t nBtags(0), nBtagsBeffLo(0), nBtagsBeffHi(0), nBtagsMistagLo(0),nBtagsMistagHi(0);
+  for (int k=0; k<ev.nj;k++){
+    //check pt and eta of this jet
+    float jet_pt  = ev.j_pt[k], jet_eta = ev.j_eta[k], csv = ev.j_csv[k];
+    if(fabs(jet_eta) < 2.5) continue;
+    
+    if(jet_pt > 30)
+      {
+	nJets ++;
+	bool isBTagged(csv>0.890);
+	
+	//update csv decision based on the flavour of the jet
+	bool isHeavyFlavor(abs(ev.j_flav[k])==5 || abs(ev.j_flav[k])==4);
+	
+	//TODO USING B-TAGGING CODE!!!!!
+	
+	nBtags += isBTagged;
+	nBtagsBeffLo += isBTagged;
+	nBtagsBeffHi += isBTagged;
+	nBtagsMistagLo += isBTagged;
+	nBtagsMistagHi += isBTagged;
+      }
+      
+    //jet energy scale variations
+    jecUnc->setJetEta(fabs(jet_eta));
+    jecUnc->setJetPt(jet_pt);
+    double unc = jecUnc->getUncertainty(true);
+    if((jet_pt)*(1+unc)>30) nJetsJESHi++;
+    if((jet_pt)*(1-unc)>30) nJetsJESLo++;
+    
+    //jet energy resolution
+    float JERCor(1.0),JERCor_UP(1.0),JERCor_DOWN(1.0);
+    
+    //NEEDS GEN JETS IN THE TREE!!!!!!!!!!
+    //float genJet_pt(ev.genj_pt[k]);
+    //if(genJet_pt>0)
+    //{
+    //	JERCor = getJERfactor(jet_pt, jet_eta, genJet_pt);
+    //	JERCor_UP = getJERfactor_up(jet_pt, jet_eta, genJet_pt);
+    //  JERCor_DOWN = getJERfactor_down(jet_pt, jet_eta, genJet_pt);
+    // }
+    if(JERCor_UP*jet_pt>30) nJetsJERHi++;
+    if(JERCor_DOWN*jet_pt>30) nJetsJERLo++;
+  }
 
-   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty("Jec11_V12_Uncertainty_AK5PF.txt");
-
-   jecUnc->setJetEta(fabs(ev.j_eta[0]));
-   jecUnc->setJetPt(ev.j_pt[0]);
-   double unc = jecUnc->getUncertainty(true);
-   double jesHi = (ev.j_pt[0])*(1+unc);
-   double jesLo = (ev.j_pt[0])*(1-unc);
-
-// b-tagging 
-   const reco::Candidate *genjet = j.genParton();
-        bool bjet(false),cjet(false),lightjets(false);
-        if(genjet){
-  bjet=(abs(genjet->pdgId())==5);
-        cjet=(abs(genjet->pdgId())==4);
-  //for u, d, s, g 
-        lightjets=(abs(genjet->pdgId())== 1 || abs(genjet->pdgId())==2 || abs(genjet->pdgId())==3 || abs(genjet->pdgId())==21);
-        }
-
-  math::XYZTLorentzVector vvv = j.p4();
-  if (doJER && !Data) {
-    (j.genJet() && vvv.pt()>10)? JERCor = getJERfactor(j.pt(), j.eta(), j.genJet()->pt()): JERCor = 1.0;
-vvv *= JERCor;
-jer_pt = vvv.pt(), jer_eta = vvv.eta(), jer_phi = vvv.phi();
-}
-if (doJER && !Data) {
-(j.genJet() && vvv.pt()>10)? JERCor_UP = getJERfactor_up(j.pt(), j.eta(), j.genJet()->pt()): JERCor_UP = 1.0;
-vvv *= JERCor_UP;
-jerup_pt = vvv.pt(), jerup_eta = vvv.eta(), jerup_phi = vvv.phi();
-}
-if (doJER && !Data) {
-(j.genJet() && vvv.pt()>10)? JERCor_DOWN = getJERfactor_down(j.pt(), j.eta(), j.genJet()->pt()): JERCor_DOWN = 1.0;
-vvv *= JERCor_DOWN;
-jerdown_pt = vvv.pt(), jerdown_eta = vvv.eta(), jerdown_phi = vvv.phi();
-}
-
-for( pat::JetCollection::const_iterator jetIter = jets->begin(); jetIter != jets->end(); ++jetIter ){
-
-//        float csvm = jetIter->bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags");
-math::XYZTLorentzVector vvv = jetIter->p4();
-if (doJER && !Data) {
-// get the JER correction factor for this jet
-(jetIter->genJet() && vvv.pt()>10)? JERCor = getJERfactor(jetIter->pt(), jetIter->eta(), jetIter->genJet()->pt()): JERCor = 1.0;
-vvv *= JERCor;
-jer_pt = vvv.pt(), jer_eta = vvv.eta(), jer_phi = vvv.phi();
-}
-if (doJER && !Data) {
-// get the JER correction factor for this jet
-(jetIter->genJet() && vvv.pt()>10)? JERCor_UP = getJERfactor_up(jetIter->pt(), jetIter->eta(), jetIter->genJet()->pt()): JERCor_UP = 1.0;
-vvv *= JERCor_UP;
-jerup_pt = vvv.pt(), jerup_eta = vvv.eta(), jerup_phi = vvv.phi();
-}
-if (doJER && !Data) {
-// get the JER correction factor for this jet
-(jetIter->genJet() && vvv.pt()>10)? JERCor_DOWN = getJERfactor_down(jetIter->pt(), jetIter->eta(), jetIter->genJet()->pt()): JERCor_DOWN = 1.0;
-vvv *= JERCor_DOWN;
-jerdown_pt = vvv.pt(), jerdown_eta = vvv.eta(), jerdown_phi = vvv.phi();
-}
-
-  float wgt(1.0);
-
+  float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
+  if(isTTbar) 
+  {
+  	wgt=ev.ttbar_w[0];
+  	wgtQCDScaleLo=wgt*ttbar_w[9]/ttbar_w[0];
+  	wgtQCDScaleHi=wgt*ttbar_w[5]/ttbar_w[0];
+  	wgthdampScaleLo=wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0];
+  	wgthdampScaleHi=wgt*wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0];
+  }
+  
   //fill cutflow histos
   if(nJets >= 2 )               cutflow->Fill(1,wgt);
   if(nJets >= 3 )               cutflow->Fill(2,wgt);
   if(nJets >= 4 )               cutflow->Fill(3,wgt);
-  
   if(nJets >= 4 && nBtags >= 1) cutflow->Fill(4,wgt);
   if(nJets >= 4 && nBtags >= 2) cutflow->Fill(5,wgt);
   
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow->Fill(8,wgt);
+  //main histogram for xsec extraction
+  int binToFill(nBtags>=2?2:nBtags);
+  binToFill+=3*nJets;
+  if(nJets>=2){
+	bjetcutflow->Fill(0,wgt);
+  	systVars["qcdScaleLo"]->Fill(binToFill,wgtQCDScaleLo);
+	systVars["qcdScaleHi"]->Fill(binToFill,wgtQCDScaleHi);
+  	systVars["hdampScaleLo"]->Fill(binToFill,wgthdampScaleLo);
+  	systVars["hdampScaleHi"]->Fill(binToFill,wgthdampScaleHi);
+  }
 
-// QCD Scale
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_qcdScaleLo->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_qcdScaleLo->Fill(1,wgt*ttbar_w[9]/ttbar_w[0]);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_qcdScaleLo->Fill(2,wgt*ttbar_w[9]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_qcdScaleLo->Fill(3,wgt*ttbar_w[9]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_qcdScaleLo->Fill(4,wgt*ttbar_w[9]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_qcdScaleLo->Fill(5,wgt*ttbar_w[9]/ttbar_w[0]);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_qcdScaleLo->Fill(6,wgt*ttbar_w[9]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_qcdScaleLo->Fill(7,wgt*ttbar_w[9]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_qcdScaleLo->Fill(8,wgt*ttbar_w[9]/ttbar_w[0]);
+  binToFill=(nBtags>=2?2:nBtags);
+  binToFill+=3*nJetsJESHi;
+  if(nJetsJESHi>=2) systVars["jesHi"]->Fill(binToFill,wgt);
 
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_qcdScaleHi->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_qcdScaleHi->Fill(1,wgt*ttbar_w[5]/ttbar_w[0]);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_qcdScaleHi->Fill(2,wgt*ttbar_w[5]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_qcdScaleHi->Fill(3,wgt*ttbar_w[5]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_qcdScaleHi->Fill(4,wgt*ttbar_w[5]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_qcdScaleHi->Fill(5,wgt*ttbar_w[5]/ttbar_w[0]);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_qcdScaleHi->Fill(6,wgt*ttbar_w[5]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_qcdScaleHi->Fill(7,wgt*ttbar_w[5]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_qcdScaleHi->Fill(8,wgt*ttbar_w[5]/ttbar_w[0]);
+  binToFill=(nBtags>=2?2:nBtags);
+  binToFill+=3*nJetsJESLo;
+  if(nJetsJESLo>=2) systVars["jesLo"]->Fill(binToFill,wgt);
+  
+  binToFill=(nBtags>=2?2:nBtags);
+  binToFill+=3*nJetsJERHi;
+  if(nJetsJERHi>=2) systVars["jerHi"]->Fill(binToFill,wgt);
 
-// HDAMP
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_hdampLo->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_hdampLo->Fill(1,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_hdampLo->Fill(2,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_hdampLo->Fill(3,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_hdampLo->Fill(4,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_hdampLo->Fill(5,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_hdampLo->Fill(6,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_hdampLo->Fill(7,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_hdampLo->Fill(8,wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0]);
+  binToFill=(nBtags>=2?2:nBtags);
+  binToFill+=3*nJetsJERLo;
+  if(nJetsJERLo>=2) systVars["jerLo"]->Fill(binToFill,wgt);
+  
+  binToFill=(nBtagsBeffLo>=2?2:nBtagsBeffLo);
+  binToFill+=3*nJets;
+  if(nJets>=2) systVars["beffLo"]->Fill(binToFill,wgt); 
 
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_hdampHi->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_hdampHi->Fill(1,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_hdampHi->Fill(2,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_hdampHi->Fill(3,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_hdampHi->Fill(4,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_hdampHi->Fill(5,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_hdampHi->Fill(6,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_hdampHi->Fill(7,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_hdampHi->Fill(8,wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0]);
+  binToFill=(nBtagsBeffHi>=2?2:nBtagsBeffHi);
+  binToFill+=3*nJets;
+  if(nJets>=2) systVars["beffHi"]->Fill(binToFill,wgt); 
 
-// JES
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_jesLo->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_jesLo->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_jesLo->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_jesLo->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_jesLo->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_jesLo->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_jesLo->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_jesLo->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_jesLo->Fill(8,wgt);
+  binToFill=(nBtagsMistagLo>=2?2:nBtagsMistagLo);
+  binToFill+=3*nJets;
+  if(nJets>=2) systVars[mistagLo"]->Fill(binToFill,wgt); 
 
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_jesHi->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_jesHi->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_jesHi->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_jesHi->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_jesHi->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_jesHi->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_jesHi->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_jesHi->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_jesHi->Fill(8,wgt);
+  binToFill=(nBtagsMistagHi>=2?2:nBtagsMistagHi);
+  binToFill+=3*nJets;
+  if(nJets>=2) systVars[mistagHi"]->Fill(binToFill,wgt); 
 
-// JER
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_jerLo->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_jerLo->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_jerLo->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_jerLo->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_jerLo->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_jerLo->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_jerLo->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_jerLo->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_jerLo->Fill(8,wgt);
-
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_jerHi->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_jerHi->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_jerHi->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_jerHi->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_jerHi->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_jerHi->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_jerHi->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_jerHi->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_jerHi->Fill(8,wgt);
-
-// bTag
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_btagLo->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_btagLo->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_btagLo->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_btagLo->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_btagLo->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_btagLo->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_btagLo->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_btagLo->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_btagLo->Fill(8,wgt);
-
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_btagHi->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_btagHi->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_btagHi->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_btagHi->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_btagHi->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_btagHi->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_btagHi->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_btagHi->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_btagHi->Fill(8,wgt);
-
-// misTag
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_mistagLo->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_mistagLo->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_mistagLo->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_mistagLo->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_mistagLo->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_mistagLo->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_mistagLo->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_mistagLo->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_mistagLo->Fill(8,wgt);
-
-  if(nJets == 2 && nBtags == 0 ) bjetcutflow_mistagHi->Fill(0);	
-  if(nJets == 2 && nBtags == 1 ) bjetcutflow_mistagHi->Fill(1,wgt);	
-  if(nJets == 2 && nBtags == 2 ) bjetcutflow_mistagHi->Fill(2,wgt);	
-  if(nJets >= 3 && nBtags == 0 ) bjetcutflow_mistagHi->Fill(3,wgt);	
-  if(nJets >= 3 && nBtags == 1 ) bjetcutflow_mistagHi->Fill(4,wgt);	
-  if(nJets >= 3 && nBtags >= 2 ) bjetcutflow_mistagHi->Fill(5,wgt);	
-  if(nJets >= 4 && nBtags == 0 ) bjetcutflow_mistagHi->Fill(6,wgt);
-  if(nJets >= 4 && nBtags == 1 ) bjetcutflow_mistagHi->Fill(7,wgt);
-  if(nJets >= 4 && nBtags >= 2 ) bjetcutflow_mistagHi->Fill(8,wgt);
-
+  //control histograms for the nominal selection only
+  if(nJets<2) continue;
 
   TH1F *lepptH=leppt_2j, *lepetaH=lepeta_2j,*lepphiH=lepphi_2j,*mtH=leptmass_2j, *jetptH=jetpt_2j, *jetetaH=jeteta_2j, *jetcsvH=jetcsv_2j, *numvtxH=numvertices_2j, *metptH=metpt_2j, *metphiH=metphi_2j, *mettmassH=mettmass_2j;
   
@@ -542,18 +306,7 @@ jerdown_pt = vvv.pt(), jerdown_eta = vvv.eta(), jerdown_phi = vvv.phi();
   TFile *fOut=TFile::Open(output+"/"+filename,"RECREATE");
   cutflow->Write();
   bjetcutflow->Write();
-  bjetcutflow_qcdScaleLo->Write();
-  bjetcutflow_qcdScaleHi->Write();
-  bjetcutflow_hdampLo->Write();
-  bjetcutflow_hdampHi->Write();
-  bjetcutflow_jesLo->Write();
-  bjetcutflow_jesHi->Write();
-  bjetcutflow_jerLo->Write();
-  bjetcutflow_jerHi->Write();
-  bjetcutflow_btagLo->Write();
-  bjetcutflow_btagHi->Write();
-  bjetcutflow_mistagLo->Write();
-  bjetcutflow_mistagHi->Write();
+  for(std::map<TString, TH1F *>::iterator it=systVars.begin(); it!=systVars.end(); it++) it->second->Write();
 
   runlumi_2j->Write();
   runlumi_3j->Write();
@@ -628,6 +381,8 @@ void RunOverSamples(TString output, int chToSelect){
   };
   
   for(size_t i=0; i<sizeof(files)/sizeof(TString); i++){
-    ReadTree(files[i],output,chToSelect);
+    bool isTTbar(false);
+    if(files[i].Contains("TT_")) isTTbar=true;
+    ReadTree(files[i],output,chToSelect,isTTbar);
     }
 }
