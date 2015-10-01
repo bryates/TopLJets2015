@@ -8,6 +8,15 @@
 #include <iostream>
 #include <algorithm>
 
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+using namespace edm;
 
 void ReadTree(TString filename,TString output,int chToSelect){
 
@@ -108,7 +117,20 @@ void ReadTree(TString filename,TString output,int chToSelect){
   TH1F *mettmass_4j_leading     = (TH1F *)mettmass_2j_leading->Clone("mettmass_4j_leading");
   mettmass_3j_leading     -> SetName("mettmass_3j_leading");
   mettmass_4j_leading     -> SetName("mettmass_4j_leading");
-  
+ 
+// JEC Uncertainty
+  TH1F *upjec_2j_leading  = new TH1F("upjec_2j_leading",";Transverse momentum [GeV];# jets", 100, 0., 250.);
+  TH1F *upjec_3j_leading = (TH1F *)TH1F *upjec_2j_leading -> Clone("upjec_3j_leading");
+  TH1F *upjec_4j_leading = (TH1F *)TH1F *upjec_2j_leading -> Clone("upjec_4j_leading");
+  TH1F *upjec_3j_leading ->SetName("upjec_3j_leading");
+  TH1F *upjec_4j_leading ->SetName("upjec_4j_leading");
+
+  TH1F *downjec_2j_leading  = new TH1F("downjec_2j_leading",";Transverse momentum [GeV];# jets", 100, 0., 250.);
+  TH1F *downjec_3j_leading = (TH1F *)TH1F *downjec_2j_leading -> Clone("downjec_3j_leading");
+  TH1F *downjec_4j_leading = (TH1F *)TH1F *downjec_2j_leading -> Clone("downjec_4j_leading");
+  TH1F *downjec_3j_leading ->SetName("downjec_3j_leading");
+  TH1F *downjec_4j_leading ->SetName("downjec_4j_leading");
+
 // Run & Luminosity
   TH2F *lumi_2j_leading = new TH2F("lumi_2j_leading",";Run Number;Number of jets" ,10,0.,10.,10,0.,10.);
   TH2F *lumi_3j_leading = (TH2F *)lumi_2j_leading->Clone("lumi_3j_leading");
@@ -267,9 +289,20 @@ void ReadTree(TString filename,TString output,int chToSelect){
   //select according to the lepton id
   if(chToSelect>0 && lepton_id!=chToSelect) continue;
   if(nJets<2) continue;
-  if(abs(lepton_id) == 13 && !ev.muTrigger) continue;
-  if(abs(lepton_id) == 11 && !ev.elTrigger) continue;
+//  if(abs(lepton_id) == 13 && !ev.muTrigger) continue;
+//  if(abs(lepton_id) == 11 && !ev.elTrigger) continue;
 
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+//  iSetup.get<JetCorrectionsRecord>().get("AK5PF",JetCorParColl);
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+ 
+   jecUnc->setJetEta(fabs(ev.j_eta[0]));
+   jecUnc->setJetPt(ev.j_pt[0]);
+   double unc = jecUnc->getUncertainty(true);
+   double up_jecpt = (ev.j_pt[0])*(1+unc);
+   double down_jecpt = (ev.j_pt[0])*(1-unc);
+ 
   float wgt(1.0);
 
   //fill cutflow histos
@@ -402,13 +435,14 @@ void ReadTree(TString filename,TString output,int chToSelect){
   if(nJets >= 4 && ev.run == 256843)  runlumi_4j->Fill(36,wgt/17.48);
 */
 
-  TH1F *lepptH=leppt_2j_leading, *lepetaH=lepeta_2j_leading,*lepphiH=lepphi_2j_leading,*mtH=leptmass_2j_leading, *jetptH=jetpt_2j_leading, *jetetaH=jeteta_2j_leading, *jetcsvH=jetcsv_2j_leading, *numvtxH=numvertices_2j_leading, *metptH=metpt_2j_leading, *metphiH=metphi_2j_leading, *mettmassH=mettmass_2j_leading;
+  TH1F *lepptH=leppt_2j_leading, *lepetaH=lepeta_2j_leading,*lepphiH=lepphi_2j_leading,*mtH=leptmass_2j_leading, *jetptH=jetpt_2j_leading, *jetetaH=jeteta_2j_leading, *jetcsvH=jetcsv_2j_leading, *numvtxH=numvertices_2j_leading, *metptH=metpt_2j_leading, *metphiH=metphi_2j_leading, *mettmassH=mettmass_2j_leading, *upjecH==upjec_2j_leading, *downjecH=downjec_2j_leading;
   TH2F *lumiH=lumi_2j_leading;
   if(nJets==3){
-    lepptH=leppt_3j_leading; lepetaH=lepeta_3j_leading; lepphiH=lepphi_3j_leading; mtH=leptmass_3j_leading; jetptH=jetpt_3j_leading; jetetaH=jeteta_3j_leading; jetcsvH=jetcsv_3j_leading; numvtxH=numvertices_3j_leading; metptH=metpt_3j_leading, metphiH=metphi_3j_leading, mettmassH=mettmass_3j_leading; lumiH=lumi_3j_leading;
+    lepptH=leppt_3j_leading; lepetaH=lepeta_3j_leading; lepphiH=lepphi_3j_leading; mtH=leptmass_3j_leading; jetptH=jetpt_3j_leading; jetetaH=jeteta_3j_leading; jetcsvH=jetcsv_3j_leading; numvtxH=numvertices_3j_leading; metptH=metpt_3j_leading; metphiH=metphi_3j_leading; mettmassH=mettmass_3j_leading; upjecH==upjec_3j_leading; downjecH=downjec_3j_leading;
+lumiH=lumi_3j_leading;
   }
   if(nJets>=4){
-    lepptH=leppt_4j_leading; lepetaH=lepeta_4j_leading; lepphiH=lepphi_4j_leading; mtH=leptmass_4j_leading; jetptH=jetpt_4j_leading; jetetaH=jeteta_4j_leading; jetcsvH=jetcsv_4j_leading; numvtxH=numvertices_4j_leading; metptH=metpt_4j_leading, metphiH=metphi_4j_leading, mettmassH=mettmass_4j_leading; lumiH=lumi_4j_leading;
+    lepptH=leppt_4j_leading; lepetaH=lepeta_4j_leading; lepphiH=lepphi_4j_leading; mtH=leptmass_4j_leading; jetptH=jetpt_4j_leading; jetetaH=jeteta_4j_leading; jetcsvH=jetcsv_4j_leading; numvtxH=numvertices_4j_leading; metptH=metpt_4j_leading; metphiH=metphi_4j_leading; mettmassH=mettmass_4j_leading; upjecH==upjec_4j_leading; downjecH=downjec_4j_leading; lumiH=lumi_4j_leading;
 
   }
 
@@ -426,6 +460,8 @@ void ReadTree(TString filename,TString output,int chToSelect){
   metphiH->Fill(ev.met_phi,wgt);
   mettmassH->Fill(ev.mt,wgt);
 
+  upjecH->Fill(up_jecpt);
+  downjecH->Fill(down_jecpt);
   lumiH->Fill(ev.run,ev.nj);
   }
   
@@ -458,6 +494,9 @@ void ReadTree(TString filename,TString output,int chToSelect){
   mettmass_2j_leading->Write();
   lumi_2j_leading->Write();
 
+  upjec_2j_leading->Write();
+  downjec_2j_leading->Write();
+
 // 3-Jets
   leppt_3j_leading->Write();
   lepeta_3j_leading->Write();
@@ -474,6 +513,9 @@ void ReadTree(TString filename,TString output,int chToSelect){
   mettmass_3j_leading->Write();
   lumi_3j_leading->Write();
 
+  upjec_3j_leading->Write();
+  downjec_3j_leading->Write();
+
 // 4-Jets
   leppt_4j_leading->Write();
   lepeta_4j_leading->Write();
@@ -489,6 +531,9 @@ void ReadTree(TString filename,TString output,int chToSelect){
   metphi_4j_leading->Write();
   mettmass_4j_leading->Write();
   lumi_4j_leading->Write();
+
+  upjec_4j_leading->Write();
+  downjec_4j_leading->Write();
 
   fOut->Close();
 }
@@ -507,10 +552,10 @@ void RunOverSamples(TString output, int chToSelect){
   "QCD_Pt_120to170_EMEnriched_SEP22.root",
   "QCD_Pt_170to300_EMEnriched_SEP22.root",
   "QCD_Pt_300toInf_EMEnriched_SEP22.root",
-  "singleEle_PromptReco2015C_SEP25.root",
-  "singleEle_2015D_SEP25.root",
-  "singlemu_2015C_SEP25.root",
-  "singlemu_2015D_SEP25.root"
+  "singleEle_PromptReco2015C_SEP25.root"
+//  "singleEle_2015D_SEP25.root",
+//  "singlemu_2015C_SEP25.root"
+//  "singlemu_2015D_SEP25.root"
   };
   
   for(size_t i=0; i<sizeof(files)/sizeof(TString); i++){
