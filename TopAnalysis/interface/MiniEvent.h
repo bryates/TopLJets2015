@@ -7,6 +7,7 @@ struct MiniEvent_t
 {
   Int_t run,event,lumi; 
   Int_t nvtx,pu;
+  Bool_t isFiducial;
   Int_t l_id,l_charge, ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
   Float_t l_pt,l_eta,l_phi,l_chargedHadronIso,l_neutralHadronIso,l_photonIso,l_puChargedHadronIso, l_tmass;
   Float_t rho;
