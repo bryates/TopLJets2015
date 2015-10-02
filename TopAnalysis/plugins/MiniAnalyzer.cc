@@ -192,9 +192,37 @@ MiniAnalyzer::~MiniAnalyzer()
 //
 bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    bool isFiducial(false);
+    edm::Handle<reco::GenParticleCollection> genParticles;
+    iEvent.getByLabel(genParticleCollectionName_, genParticles);
     
-    return isFiducial;
+    //require only one lepton (can be from tau, if tau not from hadron)
+    int nLeptons(0);
+    float lphi(0), leta(0)
+    for (size_t i = 0; i < genParticles->size(); ++i) {
+      const GenParticle & genIt = (*genParticles)[i];
+      if(!genIt->isPromptFinalState() && !genIt->isDirectPromptTauDecayProductFinalState()) continue;
+      int ID = abs(genIt.pdgId());
+      if(ID!=11 && ID!=13) continue;
+      if(genIt->pt()<20 || fabs(genIt->eta())>2.5) continue;
+      nLeptons++;
+      lphi=genIt->phi();
+      leta=genIt->eta();
+    }
+    if(nLeptons!=1) return false;
+    
+    //require 2 jets not overlapping with lepton
+    int njets(0);
+    edm::Handle< std::vector<reco::GenJet> > genJets;
+    iEvent.getByLabel("ak4GenJets", genJets);
+    for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
+     {
+       if(genJet->pt()<20 || fabs(genJet->eta())>2.5) continue;
+       float dR=deltaR(genJet->eta(),genJet->phi(),leta,lphi);
+       if(dR<0.4) continue;
+       njets++;
+     }
+    if(njets<2) return false;
+    return true;
 }
 
 // ------------ method called for each event  ------------
