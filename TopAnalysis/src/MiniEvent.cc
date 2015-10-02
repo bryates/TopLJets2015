@@ -3,6 +3,7 @@
 //
 void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 {
+  t->Branch("isFiducial",       &ev.isFiducial,       "isFiducial/O");
   t->Branch("run",       &ev.run,       "run/I");
   t->Branch("event",     &ev.event,     "event/I");
   t->Branch("lumi",      &ev.lumi,      "lumi/I");
@@ -54,6 +55,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 //
 void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
 {
+  t->SetBranchAddress("isFiducial",       &ev.isFiducial);
   t->SetBranchAddress("run",       &ev.run);
   t->SetBranchAddress("event",     &ev.event);
   t->SetBranchAddress("lumi",      &ev.lumi);
