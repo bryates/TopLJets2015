@@ -546,11 +546,11 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       selectedJets.push_back( &j );
       const reco::GenJet *genJet=j.genJet(); 
       ev_.j_pt[ev_.nj]=j.pt();
-      ev_.j_energy[ev_.nj]=j.energy();
+      ev_.j_mass[ev_.nj]=j.mass();
       ev_.j_eta[ev_.nj]=j.eta();
       ev_.j_phi[ev_.nj]=j.phi();
       ev_.genj_pt[ev_.nj]=genJet ? genJet->pt() : 0;
-      ev_.genj_energy[ev_.nj]=genJet ? genJet->energy() : 0;
+      ev_.genj_mass[ev_.nj]=genJet ? genJet->mass() : 0;
       ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;
       ev_.genj_phi[ev_.nj]=genJet ?  genJet->phi() : 0;
       ev_.j_csv[ev_.nj]=csv;
