@@ -89,6 +89,7 @@ public:
 
 
 private:
+  bool doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
@@ -189,6 +190,12 @@ MiniAnalyzer::~MiniAnalyzer()
 //
 // member functions
 //
+bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+    bool isFiducial(false);
+    
+    return isFiducial;
+}
 
 // ------------ method called for each event  ------------
 void
@@ -205,9 +212,13 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   bool is_Data = false;
   bool is_MC = false;
 
+  ev_.isFiducial = true; 
   if(iEvent.isRealData()) is_Data = true;
-  else is_MC = true;
-  
+  else {
+  	is_MC = true;
+        ev_.isFiducial = doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup); 
+  }
+ 
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event();
