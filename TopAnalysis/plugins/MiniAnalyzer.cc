@@ -1,4 +1,4 @@
-// -*- C++ -*-
+/ -*- C++ -*-
 //
 // Package:    UserCode/MiniAnalyzer
 // Class:      MiniAnalyzer
@@ -332,11 +332,10 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    
   // MUONS
   // cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
-  
   edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
   histContainer_["nrecomuons"]->Fill(muons->size());
-  std::vector<const pat::Muon *> selectedMuons,vetoMuons;        
+  std::vector<const pat::Muon *> selectedMuons,selectedNonIsoMuons,vetoMuons,nonIsoVetoMuons;        
   for (const pat::Muon &mu : *muons) 
     { 
       //kinematics
@@ -349,7 +348,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       bool isMedium(muon::isMediumMuon(mu));
       bool isTight(muon::isTightMuon(mu,primVtx));
       float dz(fabs( mu.vertex().z()- primVtx.z())); 
-
 
       //isolation
       float relchIso = (mu.chargedHadronIso() + std::max(0., mu.neutralHadronIso() + mu.photonIso() - 0.5*mu.puChargedHadronIso()))/mu.pt(); 
@@ -377,6 +375,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	}
 
       //MUON SELECTION
+      if(passPt && passEta) selectedNonIsoMuons.push_back( &mu );
+      else if(passVetoPt && passVetoEta && isMedium && passVetoIso) nonIsoVetoMuons.push_back( &mu )
       if(passPt &&  passEta && isTight && passIso)
 	selectedMuons.push_back( &mu );	
       else if(passVetoPt && passVetoEta && isMedium && passVetoIso)
@@ -389,7 +389,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   edm::Handle<edm::View<pat::Electron> >    electrons;
   iEvent.getByToken(electronToken_, electrons);
   histContainer_["nrecoelectrons"]->Fill(electrons->size());
-  std::vector<const pat::Electron *> selectedElectrons, vetoElectrons;
+  std::vector<const pat::Electron *> selectedElectrons, selectedNonIsoElectrons, vetoElectrons, nonIsoVetoElectrons;
   Int_t nele(0);
   for (const pat::Electron &el : *electrons) 
     {        
@@ -421,53 +421,61 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	histContainer_["electronphotoniso"]->Fill(e->photonIso());
 	histContainer_["electronpuchiso"]->Fill(e->puChargedHadronIso());
       }
-      
+
+      bool passTightIdNoIso(passTightId);
+      if(passPt && passEta && passTightIdNoIso )
+	selectedNonIsoElectrons.push_back(&el);
+      else if(passVetoPt && passEta && passVetoId)
+	nonIsoVetoElectrons.push_back(&el);
+
       if(passPt && passEta && passTightId )
 	selectedElectrons.push_back(&el);
       else if(passVetoPt && passEta && passVetoId)
 	vetoElectrons.push_back(&el);
     }
   histContainer_["nselelectrons"]->Fill(selectedElectrons.size());
+
   //require only 1 tight lepton in the event
-  int nSelLeptons(selectedElectrons.size()+selectedMuons.size());
-  if(nSelLeptons!=1) return;
-  if(mu_trigger)
+  bool passLepton((mu_trigger && selectedMuons.size()==1) || (el_trigger && selectedElectrons.size()==1));
+  bool passNonIsoLepton((mu_trigger && selectedNonIsoMuons.size()==1) || (el_trigger && selectedNonIsoElectrons.size()==1));
+  if(passLepton) histContainer_["cutflow"]->Fill(2);  
+  if(mu_trigger && (selectedMuons.size()==1 || selectedNonIsoMuons.size()==1))
     {
-      if(selectedMuons.size()!=1) return;
-      histContainer_["mucutflow"]->Fill(2);
-      ev_.l_id=13;
-      ev_.l_charge=selectedMuons[0]->charge();
-      ev_.l_pt=selectedMuons[0]->pt();
-      ev_.l_eta=selectedMuons[0]->eta();
-      ev_.l_phi=selectedMuons[0]->phi();
-      ev_.l_tmass=selectedMuons[0]->mt();
-      ev_.l_chargedHadronIso=selectedMuons[0]->chargedHadronIso();
-      ev_.l_neutralHadronIso=selectedMuons[0]->neutralHadronIso();
-      ev_.l_photonIso=selectedMuons[0]->photonIso();
-      ev_.l_puChargedHadronIso=selectedMuons[0]->puChargedHadronIso();
+      if(selectedMuons.size()==1) histContainer_["mucutflow"]->Fill(2);
+      const pat::Muon *mu=(selectedMuons.size()==1 ? selectedMuons[0] : selectedNonIsoMuons[0]);
+      ev_.l_id=(selectedMuons.size()==1 ? 13 :  1300);
+      ev_.l_charge=mu->charge();
+      ev_.l_pt=mu->pt();
+      ev_.l_eta=mu->eta();
+      ev_.l_phi=mu->phi();
+      ev_.l_tmass=mu->mt();
+      ev_.l_chargedHadronIso=mu->chargedHadronIso();
+      ev_.l_neutralHadronIso=mu->neutralHadronIso();
+      ev_.l_photonIso=mu->photonIso();
+      ev_.l_puChargedHadronIso=mu->puChargedHadronIso();
     }
-  if(el_trigger)
+  if(el_trigger && (selectedElectrons.size()==1 || selectedNonIsoElectrons.size()))
     {
-      if(selectedElectrons.size()!=1) return;
-      histContainer_["ecutflow"]->Fill(2);
-      ev_.l_id=11;
-      ev_.l_charge=selectedElectrons[0]->charge();
-      ev_.l_pt=selectedElectrons[0]->pt();
-      ev_.l_eta=selectedElectrons[0]->eta();
-      ev_.l_phi=selectedElectrons[0]->phi();
-      ev_.l_tmass=selectedElectrons[0]->mt();
-      ev_.l_chargedHadronIso=selectedElectrons[0]->chargedHadronIso();
-      ev_.l_neutralHadronIso=selectedElectrons[0]->neutralHadronIso();
-      ev_.l_photonIso=selectedElectrons[0]->photonIso();
-      ev_.l_puChargedHadronIso=selectedElectrons[0]->puChargedHadronIso();
+      if(selectedElectrons.size()==1)  histContainer_["ecutflow"]->Fill(2);
+      const pat::Electron *el=(selectedElectrons.size()==1 ? selectedElectrons[0] : selectedNonIsoElectrons[0]);
+      ev_.l_id=(selectedElectrons.size()==1 ? 11 :  1100);
+      ev_.l_charge=el->charge();
+      ev_.l_pt=el->pt();
+      ev_.l_eta=el->eta();
+      ev_.l_phi=el->phi();
+      ev_.l_tmass=el->mt();
+      ev_.l_chargedHadronIso=el->chargedHadronIso();
+      ev_.l_neutralHadronIso=el->neutralHadronIso();
+      ev_.l_photonIso=el->photonIso();
+      ev_.l_puChargedHadronIso=el->puChargedHadronIso();
     }
-  histContainer_["cutflow"]->Fill(2);  
+
   //require no other leptons in the event
-  int nVetoLeptons(vetoElectrons.size()+vetoMuons.size());
-  if(nVetoLeptons>0) return;
-  histContainer_["cutflow"]->Fill(3);
-  if(mu_trigger)  histContainer_["mucutflow"]->Fill(3);  
-  if(el_trigger)  histContainer_["ecutflow"]->Fill(3);
+  bool passVetoLepton(passLepton && (vetoElectrons.size()+vetoMuons.size()));
+  bool passNonIsoVetoLepton(passNonIsoLepton && (vetoNonIsoElectrons.size()+vetoNonIsoMuons.size()));
+  if(passVeto) histContainer_["cutflow"]->Fill(3);
+  if(mu_trigger && passVetoLepton)        histContainer_["mucutflow"]->Fill(3);  
+  if(el_trigger && passNonIsoVetoLepton)  histContainer_["ecutflow"]->Fill(3);
   
   // JETS
   edm::Handle<pat::JetCollection> jets;
@@ -484,8 +492,12 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       eta = j.eta();
       if(pt<30 || fabs(eta)>2.5) continue;
 
-      float dR2lepton= selectedMuons.size()==1 ?  deltaR(j,*(selectedMuons[0])) :  deltaR(j,*(selectedElectrons[0]));
+      //cross clean to selected iso leptons
+      float dR2lepton=9999.
+      for(size_t il=0; il<selectedMuons.size(); il++) dR2lepton = TMath::Min(deltaR2lepton,deltaR(j,*(selectedMuons[il])));
+      for(size_t il=0; il<selectedElectrons.size(); il++) dR2lepton = TMath::Min(deltaR2lepton,deltaR(j,*(selectedElectrons[il])));
       if(dR2lepton<0.4) continue;
+      
       // PF jet ID
       pat::strbitset retpf = pfjetIDLoose_.getBitTemplate();
       retpf.set(false);
@@ -532,11 +544,15 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       histContainer_["jetpileupid"]->Fill(j.userFloat("pileupJetId:fullDiscriminant"));
 
       selectedJets.push_back( &j );
-      
+      const reco::GenJet *genJet=j.genJet(); 
       ev_.j_pt[ev_.nj]=j.pt();
       ev_.j_energy[ev_.nj]=j.energy();
       ev_.j_eta[ev_.nj]=j.eta();
       ev_.j_phi[ev_.nj]=j.phi();
+      ev_.genj_pt[ev_.nj]=genJet ? genJet->pt() : 0;
+      ev_.genj_energy[ev_.nj]=genJet ? genJet->energy() : 0;
+      ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;
+      ev_.genj_phi[ev_.nj]=genJet ?  genJet->phi() : 0;
       ev_.j_csv[ev_.nj]=csv;
       ev_.j_vtxmass[ev_.nj]=svtxmass;
       ev_.j_vtxNtracks[ev_.nj]=vtxNtracks;
@@ -547,7 +563,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
       ev_.nj++;
     }
-  histContainer_["nseljets"]->Fill(selectedJets.size());
+  if(passVetoLepton) histContainer_["nseljets"]->Fill(selectedJets.size());
 
   //
   // MET
@@ -580,60 +596,19 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   ev_.chmet_pt=chMet.Pt();
   ev_.chmet_phi=chMet.Phi();
   ev_.chmt=chmt;
-  //
-  // FINAL SELECTION PLOTS
-  //
-  //  int nn = 2;
-  if(selectedJets.size()<2) return;
-  int jetCateg(selectedJets.size()-2);
-  //int jetCateg(nn-2);
-  if(selectedJets.size()>4) jetCateg=2;
-  //  if(selectedJets.size()>4) jetCateg=2;
-  TString jetPostFix(""); 
-  jetPostFix+=jetCateg;
 
-  histContainer_["cutflow"]->Fill(4+jetCateg);
-  if(selectedElectrons.size()==1)  histContainer_["ecutflow"]->Fill(4+jetCateg);
-  if(selectedMuons.size()==1)      histContainer_["mucutflow"]->Fill(4+jetCateg); 
-
-  histContainer_[("leptonpt"+jetPostFix).Data()]->Fill(ev_.l_pt);      
-  histContainer_[("leptoneta"+jetPostFix).Data()]->Fill(ev_.l_eta);      
-  histContainer_[("leptonphi"+jetPostFix).Data()]->Fill(ev_.l_phi);      
-  histContainer_[("lep_tmass"+jetPostFix).Data()]->Fill(ev_.l_tmass);      
-  histContainer_[("jetmultiplicity"+jetPostFix).Data()]->Fill(ev_.nj);      
-  histContainer_[("jetpt"+jetPostFix).Data()]->Fill(ev_.j_pt[0]);      
-  histContainer_[("jeteta"+jetPostFix).Data()]->Fill(fabs(ev_.j_eta[0]));      
-  histContainer_[("jetphi"+jetPostFix).Data()]->Fill(ev_.j_phi[0]);      
-  histContainer_[("jetCSV"+jetPostFix).Data()]->Fill(ev_.j_csv[0]);      
-  histContainer_[("mt"+jetPostFix).Data()]->Fill(mt);
-  histContainer_[("metpt"+jetPostFix).Data()]->Fill(metpt);
-  histContainer_[("metphi"+jetPostFix).Data()]->Fill(metphi);
-  histContainer_[("chmt"+jetPostFix).Data()]->Fill(chmt);
-  histContainer_[("chmetpt"+jetPostFix).Data()]->Fill(chMet.Pt());
-  histContainer_[("chmetphi"+jetPostFix).Data()]->Fill(chMet.Phi()); 
-  histContainer_[("nvertices"+jetPostFix).Data()]->Fill(ev_.nvtx);
-  if(nSecVtx>=1)
-    {
-      histContainer_["cutflow"]->Fill(7);
-      if(el_trigger)  histContainer_["ecutflow"]->Fill(7);
-      if(mu_trigger)      histContainer_["mucutflow"]->Fill(7);  
-    }   
-  if(nSecVtx>=2){
-    histContainer_["cutflow"]->Fill(8);
-    if(el_trigger)  histContainer_["ecutflow"]->Fill(8);
-    if(mu_trigger)      histContainer_["mucutflow"]->Fill(8);  
-  }
-  tree_->Fill();
+  //save tree if event is interesting
+  if((passVetoLeptons || passNonIsoVetoLeptons) && selectedJets.size()>=2) tree_->Fill();
 }
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
 MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
-  histContainer_["cutflow"]   = fs->make<TH1F>("cutflow",    ";Selection cut;Events", 9, 0., 9.); 
-  histContainer_["ecutflow"]  = fs->make<TH1F>("ecutflow",   ";Selection cut;Events", 9, 0., 9.); 
-  histContainer_["mucutflow"] = fs->make<TH1F>("mucutflow",  ";Selection cut;Events", 9, 0., 9.); 
-  TString steps[]={"N(Reco.)","N(Trig.)","N(=1 good lep)","N(=0 loose lep)","N(#geq2 jets)","N(#geq3 jets)","N(#geq4 jets)","N(#geq1 SVX)","N(#geq2 SVX)"};
-  
+  histContainer_["cutflow"]   = fs->make<TH1F>("cutflow",    ";Selection cut;Events", 5, 0., 5.); 
+  histContainer_["ecutflow"]  = fs->make<TH1F>("ecutflow",   ";Selection cut;Events", 5, 0., 5.); 
+  histContainer_["mucutflow"] = fs->make<TH1F>("mucutflow",  ";Selection cut;Events", 5, 0., 5.); 
+  TString steps[]={"N(Reco.)","N(Trig.)","N(=1 good lep)","N(=0 loose lep)","N(#geq2 jets)"};
   for(size_t i=0; i<sizeof(steps)/sizeof(TString); i++){
     histContainer_["cutflow"]   -> GetXaxis()->SetBinLabel(i+1,steps[i]);
     histContainer_["ecutflow"]  -> GetXaxis()->SetBinLabel(i+1,steps[i]);
@@ -667,7 +642,6 @@ MiniAnalyzer::beginJob(){
   histContainer_["bjetpt"]     = fs->make<TH1F>("bjetpt",       ";Transverse momentum [GeV];# jets", 100, 0., 250.);
   histContainer_["lightjetpt"]     = fs->make<TH1F>("lightjetpt",       ";Transverse momentum [GeV];# jets", 100, 0., 250.);
   histContainer_["otherjetpt"]     = fs->make<TH1F>("otherjetpt",       ";Transverse momentum [GeV];# jets", 100, 0., 250.);
-  
   histContainer_["jeteta"]         = fs->make<TH1F>("jeteta",      ";Pseudo-rapidity;# jets", 100, 0., 3.);
   histContainer_["jetcsv"]         = fs->make<TH1F>("jetcsv",      ";Combined secondary vertes;# jets", 100, -1.2, 1.2);
   histContainer_["jetpileupid"]    = fs->make<TH1F>("jetpileupid", ";Pileup jet id;#jets", 100, -1.2, 1.2);
@@ -676,51 +650,13 @@ MiniAnalyzer::beginJob(){
   histContainer_["jetvtx3DVal"]    = fs->make<TH1F>("jetvtx3DVal", ";vtx3DVal [cm];#jets", 100, -5., 5.);
   histContainer_["jetvtx3DSig"]    = fs->make<TH1F>("jetvtx3DSig", ";vtx3DSig;#jets", 100, 0., 5.);
   histContainer_["nseljets"]       = fs->make<TH1F>("nseljets",    ";#selected jets;Events", 10, 0., 10.);
-  
-  for(size_t ijet=0; ijet<=2; ijet++){
- 	TString prefix("");
-  //TString prefix(imet==0 ? "": "ch");
-	TString postfix(""); postfix += ijet;
-
-  histContainer_[(prefix+"metpt"+postfix).Data()] = fs->make<TH1F>(prefix+"metpt"+postfix,    ";"+prefix+" Missing transverse momentum [GeV];Events", 100, 0., 300.);
-  histContainer_[(prefix+"metphi"+postfix).Data()] = fs->make<TH1F>(prefix+"metphi"+postfix,    ";"+prefix+" Missing transverse energy #phi [rad];Events", 50, -3.2, 3.2);
-  histContainer_[(prefix+"mt"+postfix).Data()] = fs->make<TH1F>(prefix+"mt"+postfix,    ";"+prefix+" Transverse mass [GeV]; Events", 100, 0., 200.);
-  histContainer_[(prefix+"leptonpt"+postfix).Data()] = fs->make<TH1F>(prefix+"leptonpt"+postfix,    ";"+prefix+" Lepton transverse momentum [GeV]; Events", 100, 0., 200.);
-  histContainer_[(prefix+"leptoneta"+postfix).Data()] = fs->make<TH1F>(prefix+"leptoneta"+postfix,    ";"+prefix+" Lepton pseudo-rapidity; Events", 100, 0., 3.);
-  histContainer_[(prefix+"leptonphi"+postfix).Data()] = fs->make<TH1F>(prefix+"leptonphi"+postfix,    ";"+prefix+" Lepton phi; Events", 100, -3.2, 3.2);
-  histContainer_[(prefix+"lep_tmass"+postfix).Data()] = fs->make<TH1F>(prefix+"lep_tmass"+postfix,    ";"+prefix+" Transverse mass [GeV]; Events", 100, 0., 200.);
-  histContainer_[(prefix+"jetmultiplicity"+postfix).Data()] = fs->make<TH1F>(prefix+"jetmultiplicity"+postfix,    ";"+prefix+" Jetmultiplicity; Events", 20, 0., 20.);
-       
-  histContainer_[(prefix+"jetpt"+postfix).Data()] = fs->make<TH1F>(prefix+"jetpt"+postfix,    ";"+prefix+" Jet transverse momentum [GeV]; Events", 100, 0., 200.);
-  histContainer_[(prefix+"jeteta"+postfix).Data()] = fs->make<TH1F>(prefix+"jeteta"+postfix,    ";"+prefix+" Jet pseudo-rapidity; Events", 100, 0., 3.);
-  histContainer_[(prefix+"jetphi"+postfix).Data()] = fs->make<TH1F>(prefix+"jetphi"+postfix,    ";"+prefix+" Jet phi; Events", 100, -3.2, 3.2);
-  histContainer_[(prefix+"jetCSV"+postfix).Data()] = fs->make<TH1F>(prefix+"jetCSV"+postfix,    ";"+prefix+" Jet Combined Secondary Vtx; Events", 100, -1.2, 1.2);
-  histContainer_[(prefix+"nvertices"+postfix).Data()] = fs->make<TH1F>(prefix+"nvertices"+postfix,    ";"+prefix+"# vertices;Events", 100, 0., 100.); 
-
-  }
- 
-
-  for(size_t ijet=0; ijet<=2; ijet++){
-     for(size_t imet=0; imet<2; imet++)
-        {
-       //    TString prefix(imet==0 ? "": "ch");
-        TString prefix("ch");
-	TString postfix(""); postfix += ijet;
-
-histContainer_[(prefix+"metpt"+postfix).Data()] = fs->make<TH1F>(prefix+"metpt"+postfix,    ";"+prefix+" Missing transverse momentum [GeV];Events", 100, 0., 300.);
-histContainer_[(prefix+"metphi"+postfix).Data()] = fs->make<TH1F>(prefix+"metphi"+postfix,    ";"+prefix+" Missing transverse energy #phi [rad];Events", 50, -3.2, 3.2);
-histContainer_[(prefix+"mt"+postfix).Data()] = fs->make<TH1F>(prefix+"mt"+postfix,    ";"+prefix+" Transverse mass [GeV]; Events", 100, 0., 200.);
-
-  }
- 
   }
 
 
   //instruct ROOT to compute the uncertainty from the square root of weights
   //http://root.cern.ch/root/html/TH1.html#TH1:Sumw2
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
-  //  for(std::unordered_map<std::string,TH2F*>::iterator it=histContainer2d_.begin(); it!=histContainer2d_.end(); it++) it->second->Sumw2();
-
+  
   //create a tree for the selected events
   tree_ = fs->make<TTree>("AnaTree", "AnaTree");
   createMiniEventTree(tree_,ev_);
