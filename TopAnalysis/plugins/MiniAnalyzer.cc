@@ -529,7 +529,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       //kinematics
       pt = j.pt();
       eta = j.eta();
-      if(pt<30 || fabs(eta)>2.5) continue;
+      if(pt<25 || fabs(eta)>2.5) continue;
 
       //cross clean to selected iso leptons
       float dR2lepton=9999.
