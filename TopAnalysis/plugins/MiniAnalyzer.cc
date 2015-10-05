@@ -1,4 +1,5 @@
-/ -*- C++ -*-
+//
+// -*- C++ -*-
 //
 // Package:    UserCode/MiniAnalyzer
 // Class:      MiniAnalyzer
@@ -193,20 +194,20 @@ MiniAnalyzer::~MiniAnalyzer()
 bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     edm::Handle<reco::GenParticleCollection> genParticles;
-    iEvent.getByLabel(genParticleCollectionName_, genParticles);
+    iEvent.getByLabel("genParticles", genParticles);
     
     //require only one lepton (can be from tau, if tau not from hadron)
     int nLeptons(0);
-    float lphi(0), leta(0)
+    float lphi(0), leta(0);
     for (size_t i = 0; i < genParticles->size(); ++i) {
       const GenParticle & genIt = (*genParticles)[i];
-      if(!genIt->isPromptFinalState() && !genIt->isDirectPromptTauDecayProductFinalState()) continue;
+      if(!genIt.isPromptFinalState() && !genIt.isDirectPromptTauDecayProductFinalState()) continue;
       int ID = abs(genIt.pdgId());
       if(ID!=11 && ID!=13) continue;
-      if(genIt->pt()<20 || fabs(genIt->eta())>2.5) continue;
+      if(genIt.pt()<20 || fabs(genIt.eta())>2.5) continue;
       nLeptons++;
-      lphi=genIt->phi();
-      leta=genIt->eta();
+      lphi=genIt.phi();
+      leta=genIt.eta();
     }
     if(nLeptons!=1) return false;
     
@@ -228,25 +229,45 @@ bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Event
 // ------------ method called for each event  ------------
 void
 MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  /* 
-     id1_pdfInfo_.clear();
-     id2_pdfInfo_.clear();
-     x1_pdfInfo_.clear();
-     x2_pdfInfo_.clear();
-     scalePDF_pdfInfo_.clear();
-     ptHat_=0;
-     mcWeight_=0;
-  */
-  bool is_Data = false;
+ 
+  bool is_Data =  false;
   bool is_MC = false;
 
   ev_.isFiducial = true; 
   if(iEvent.isRealData()) is_Data = true;
   else {
-  	is_MC = true;
-        ev_.isFiducial = doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup); 
-  }
+    is_MC = true;
+
+    //GENERATOR LEVEL INFO
+    ev_.isFiducial = doFiducialAnalysis(iEvent,iSetup);
+
+    ev_.ttbar_nw=0;
+    edm::Handle<GenEventInfoProduct> evt;
+    iEvent.getByLabel("generator","", evt);
+    if(evt.isValid())
+      {
+	ev_.ttbar_allmepartons   = evt->nMEPartons();
+	ev_.ttbar_matchmepartons = evt->nMEPartonsFiltered();
+	ev_.ttbar_w[0]           = evt->weight();
+	ev_.ttbar_nw++;
+      }
+    if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(0.,ev_.ttbar_w[0]);
+
+    edm::Handle<LHEEventProduct> evet;
+    iEvent.getByLabel("externalLHEProducer","", evet);    
+    if(evet.isValid())
+      {
+	double asdd=evet->originalXWGTUP();
+	for(unsigned int i=0  ; i<evet->weights().size();i++){
+	  double asdde=evet->weights()[i].wgt;
+	  ev_.ttbar_w[ev_.ttbar_nw]=ev_.ttbar_w[0]*asdde/asdd;
+	  if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(i+1.,ev_.ttbar_w[ev_.ttbar_nw]);
+	  ev_.ttbar_nw++;
+	}
+      }
+  }  
  
+  //event header 
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event();
@@ -261,8 +282,8 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   iEvent.getByToken(triggerPrescales_, triggerPrescales);
 
   // Get the electron ID data from the event stream.
-  // Note: this implies that the VID ID modules have been run upstream. If you need more info, check with the EGM group.
-  
+  // Note: this implies that the VID ID modules have been run upstream. 
+  //If you need more info, check with the EGM group.
   edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   iEvent.getByToken(eleVetoIdMapToken_ ,veto_id_decisions);
 
@@ -328,33 +349,6 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   ev_.muTrigger = mu_trigger;
   ev_.elTrigger = el_trigger;
 
-  //GENERATOR LEVEL INFO
-  ev_.ttbar_nw=0;
-  if(!is_Data)
-    {
-      edm::Handle<GenEventInfoProduct> evt;
-      iEvent.getByLabel("generator","", evt);
-      if(evt.isValid())
-	{
-	  ev_.ttbar_allmepartons   = evt->nMEPartons();
-	  ev_.ttbar_matchmepartons = evt->nMEPartonsFiltered();
-	  ev_.ttbar_w[0]           = evt->weight();
-	  ev_.ttbar_nw++;
-	}
-      edm::Handle<LHEEventProduct> evet;
-      iEvent.getByLabel("externalLHEProducer","", evet);
-
-      if(evet.isValid())
-	{
-	  double asdd=evet->originalXWGTUP();
-	  for(unsigned int i=0  ; i<evet->weights().size();i++){
-	    double asdde=evet->weights()[i].wgt;
-	    ev_.ttbar_w[ev_.ttbar_nw]=ev_.ttbar_w[0]*asdde/asdd;
-	    ev_.ttbar_nw++;
-	  }
-	}
-    }   
- 
 
   //VERTICES
   edm::Handle<reco::VertexCollection> vertices;
@@ -374,7 +368,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
   histContainer_["nrecomuons"]->Fill(muons->size());
-  std::vector<const pat::Muon *> selectedMuons,selectedNonIsoMuons,vetoMuons,nonIsoVetoMuons;        
+  std::vector<const pat::Muon *> selectedMuons,selectedNonIsoMuons,vetoMuons,vetoNonIsoMuons;        
   for (const pat::Muon &mu : *muons) 
     { 
       //kinematics
@@ -415,7 +409,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
       //MUON SELECTION
       if(passPt && passEta) selectedNonIsoMuons.push_back( &mu );
-      else if(passVetoPt && passVetoEta && isMedium && passVetoIso) nonIsoVetoMuons.push_back( &mu )
+      else if(passVetoPt && passVetoEta && isMedium && passVetoIso) vetoNonIsoMuons.push_back( &mu );
       if(passPt &&  passEta && isTight && passIso)
 	selectedMuons.push_back( &mu );	
       else if(passVetoPt && passVetoEta && isMedium && passVetoIso)
@@ -428,7 +422,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   edm::Handle<edm::View<pat::Electron> >    electrons;
   iEvent.getByToken(electronToken_, electrons);
   histContainer_["nrecoelectrons"]->Fill(electrons->size());
-  std::vector<const pat::Electron *> selectedElectrons, selectedNonIsoElectrons, vetoElectrons, nonIsoVetoElectrons;
+  std::vector<const pat::Electron *> selectedElectrons, selectedNonIsoElectrons, vetoElectrons, vetoNonIsoElectrons;
   Int_t nele(0);
   for (const pat::Electron &el : *electrons) 
     {        
@@ -465,7 +459,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       if(passPt && passEta && passTightIdNoIso )
 	selectedNonIsoElectrons.push_back(&el);
       else if(passVetoPt && passEta && passVetoId)
-	nonIsoVetoElectrons.push_back(&el);
+	vetoNonIsoElectrons.push_back(&el);
 
       if(passPt && passEta && passTightId )
 	selectedElectrons.push_back(&el);
@@ -512,7 +506,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //require no other leptons in the event
   bool passVetoLepton(passLepton && (vetoElectrons.size()+vetoMuons.size()));
   bool passNonIsoVetoLepton(passNonIsoLepton && (vetoNonIsoElectrons.size()+vetoNonIsoMuons.size()));
-  if(passVeto) histContainer_["cutflow"]->Fill(3);
+  if(passVetoLepton) histContainer_["cutflow"]->Fill(3);
   if(mu_trigger && passVetoLepton)        histContainer_["mucutflow"]->Fill(3);  
   if(el_trigger && passNonIsoVetoLepton)  histContainer_["ecutflow"]->Fill(3);
   
@@ -532,9 +526,9 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       if(pt<25 || fabs(eta)>2.5) continue;
 
       //cross clean to selected iso leptons
-      float dR2lepton=9999.
-      for(size_t il=0; il<selectedMuons.size(); il++) dR2lepton = TMath::Min(deltaR2lepton,deltaR(j,*(selectedMuons[il])));
-      for(size_t il=0; il<selectedElectrons.size(); il++) dR2lepton = TMath::Min(deltaR2lepton,deltaR(j,*(selectedElectrons[il])));
+      float dR2lepton=9999.;
+      for(size_t il=0; il<selectedMuons.size(); il++) dR2lepton = TMath::Min(dR2lepton,(float)deltaR(j,*(selectedMuons[il])));
+      for(size_t il=0; il<selectedElectrons.size(); il++) dR2lepton = TMath::Min(dR2lepton,(float)deltaR(j,*(selectedElectrons[il])));
       if(dR2lepton<0.4) continue;
       
       // PF jet ID
@@ -599,6 +593,7 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       ev_.j_vtx3DSig[ev_.nj]=vtx3DSig;
       ev_.j_puid[ev_.nj]=j.userFloat("pileupJetId:fullDiscriminant");
       ev_.j_flav[ev_.nj]=j.partonFlavour();
+      ev_.j_hadflav[ev_.nj]=j.hadronFlavour();
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
       ev_.nj++;
     }
@@ -637,13 +632,14 @@ MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   ev_.chmt=chmt;
 
   //save tree if event is interesting
-  if((passVetoLeptons || passNonIsoVetoLeptons) && selectedJets.size()>=2) tree_->Fill();
+  if((passVetoLepton || passNonIsoVetoLepton) && selectedJets.size()>0) tree_->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
 MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
+  histContainer_["fidcounter"] = fs->make<TH1F>("fidcounter",    ";Variation;Events", 100, 0., 100.); 
   histContainer_["cutflow"]   = fs->make<TH1F>("cutflow",    ";Selection cut;Events", 5, 0., 5.); 
   histContainer_["ecutflow"]  = fs->make<TH1F>("ecutflow",   ";Selection cut;Events", 5, 0., 5.); 
   histContainer_["mucutflow"] = fs->make<TH1F>("mucutflow",  ";Selection cut;Events", 5, 0., 5.); 
@@ -689,7 +685,6 @@ MiniAnalyzer::beginJob(){
   histContainer_["jetvtx3DVal"]    = fs->make<TH1F>("jetvtx3DVal", ";vtx3DVal [cm];#jets", 100, -5., 5.);
   histContainer_["jetvtx3DSig"]    = fs->make<TH1F>("jetvtx3DSig", ";vtx3DSig;#jets", 100, 0., 5.);
   histContainer_["nseljets"]       = fs->make<TH1F>("nseljets",    ";#selected jets;Events", 10, 0., 10.);
-  }
 
 
   //instruct ROOT to compute the uncertainty from the square root of weights

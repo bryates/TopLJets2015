@@ -2,6 +2,8 @@
 <use name="roofit"/>
 <use name="root"/>
 <use name="PhysicsTools/PatAlgos"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondFormats/JetMETObjects"/>
 <export>
   <lib name="1"/>
 </export>

@@ -2,24 +2,19 @@
 #include <TROOT.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TSystem.h>
 #include "UserCode/TopAnalysis/interface/MiniEvent.h"
- 
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 
-using namespace edm;
-
-void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
-
+void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar)
+{
   gROOT->Reset();
 
   TH1F *cutflow = new TH1F("cutflow",";Cut;Events" ,6,0.,6.);
@@ -41,19 +36,19 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   bjetcutflow->GetXaxis()->SetBinLabel(8,"4j,=1b");
   bjetcutflow->GetXaxis()->SetBinLabel(9,"4j,#geq2b");
 
-  std::map<TString, TH1F *> systVars;
-  systVars["qcdScaleLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_qcdScaleLo");
-  systVars["qcdScaleHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_qcdScaleHi");
-  systVars["hdampScaleLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_hdampScaleLo");
-  systVars["hdampScaleHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_hdampScaleHi");
-  systVars["jesLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jesLo");
-  systVars["jesHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jesHi");
-  systVars["jerLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jerLo");
-  systVars["jerHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jerHi");
-  systVars["beffLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_beffLo");
-  systVars["beffHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_beffHi");
-  systVars["mistagLo"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_mistagLo");
-  systVars["mistagHi"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_mistagHi");
+  std::map<TString, TH1 *> systVars;
+  systVars["qcdScaleDown"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_qcdScaleDown");
+  systVars["qcdScaleUp"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_qcdScaleUp");
+  systVars["hdampScaleDown"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_hdampScaleDown");
+  systVars["hdampScaleUp"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_hdampScaleUp");
+  systVars["jesDown"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jesDown");
+  systVars["jesUp"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jesUp");
+  systVars["jerDown"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jerDown");
+  systVars["jerUp"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_jerUp");
+  systVars["beffDown"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_beffDown");
+  systVars["beffUp"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_beffUp");
+  systVars["mistagDown"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_mistagDown");
+  systVars["mistagUp"] = (TH1 *)bjetcutflow->Clone("bjetcutflow_mistagUp");
 
 // Lepton pt 
   TH1F *leppt_2j = new TH1F("leppt_2j",";Transverse momentum [GeV];Events" ,20,0.,300.);
@@ -111,8 +106,20 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   TH1F *mettmass_4j     = (TH1F *)mettmass_2j->Clone("mettmass_4j");
 
   //jet uncertainty parameterization
- JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty("Jec11_V12_Uncertainty_AK5PF.txt");
+  TString jecUncUrl("${CMSSW_BASE}/src/UserCode/TopAnalysis/jec/Summer15_50nsV5_DATA_Uncertainty_AK4PFchs.txt");
+  gSystem->ExpandPathName(jecUncUrl);
+  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(jecUncUrl.Data());
 
+  // setup calibration readers
+  TString btagUncUrl("${CMSSW_BASE}/src/UserCode/TopAnalysis/jec/CSVv2.csv");
+  BTagCalibration calib("csvv2", btagUncUrl.Data());
+  BTagCalibrationReader btvreader(&calib,               // calibration instance
+			       BTagEntry::OP_LOOSE,  // operating point
+			       "comb",               // measurement type
+			       "central");           // systematics type
+  BTagCalibrationReader btvreader_up(&calib, BTagEntry::OP_LOOSE, "comb", "up");  // sys up
+  BTagCalibrationReader btvreader_do(&calib, BTagEntry::OP_LOOSE, "comb", "down");  // sys down
+  
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -136,43 +143,56 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   //select according to the lepton id
   int lepton_id(ev.l_id);	
   if(chToSelect>0 && lepton_id!=chToSelect) continue;
-  if(abs(lepton_id) == 13 && !ev.muTrigger) continue;
-  if(abs(lepton_id) == 11 && !ev.elTrigger) continue;
+  //FIXME 
+  //  if(abs(lepton_id) == 13 && !ev.muTrigger) continue;
+  //  if(abs(lepton_id) == 11 && !ev.elTrigger) continue;
 
   //select jets
   uint32_t nJets(0), nJetsJESLo(0),nJetsJESHi(0), nJetsJERLo(0), nJetsJERHi(0);
   uint32_t nBtags(0), nBtagsBeffLo(0), nBtagsBeffHi(0), nBtagsMistagLo(0),nBtagsMistagHi(0);
   for (int k=0; k<ev.nj;k++){
     //check pt and eta of this jet
-    float jet_pt  = ev.j_pt[k], jet_eta = ev.j_eta[k], csv = ev.j_csv[k];
-    if(fabs(jet_eta) < 2.5) continue;
+    float jet_pt  = ev.j_pt[k], jet_eta = ev.j_eta[k], csv = ev.j_csv[k];    
+    if(fabs(jet_eta) > 2.5) continue;
     
     if(jet_pt > 30)
       {
 	nJets ++;
 	bool isBTagged(csv>0.890);
 	
-	//update csv decision based on the flavour of the jet
-	bool isHeavyFlavor(abs(ev.j_flav[k])==5 || abs(ev.j_flav[k])==4);
-	
-	//TODO USING B-TAGGING CODE!!!!!
-	
+	//readout the b-tagging scale factors for this jet
+	/*
+	BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
+	if(abs(ev.j_flav[k])==4) btagFlav=BTagEntry::FLAV_C;
+	if(abs(ev.j_flav[k])==5) btagFlav=BTagEntry::FLAV_B;	
+	float jetBtagSF(1.0), jetBtagSFUp(1.0), jetBtagSFDown(1.0);
+	if (jet_pt < 1000.) {
+	  jetBtagSF = btvreader.eval(btagFlav, jet_eta, jet_pt);
+	  jetBtagSFUp = btvreader_up.eval(btagFlav, jet_eta, jet_pt);
+	  jetBtagSFDown = btvreader_do.eval(btagFlav, jet_eta, jet_pt);
+	}
+	*/
+
 	nBtags += isBTagged;
 	nBtagsBeffLo += isBTagged;
 	nBtagsBeffHi += isBTagged;
 	nBtagsMistagLo += isBTagged;
 	nBtagsMistagHi += isBTagged;
+
+	//
       }
       
+    ////////////////////////////////////////////////////////////////////////////////////////
+
     //jet energy scale variations
     jecUnc->setJetEta(fabs(jet_eta));
     jecUnc->setJetPt(jet_pt);
-    double unc = jecUnc->getUncertainty(true);
+    double unc = jecUnc->getUncertainty(true);    
     if((jet_pt)*(1+unc)>30) nJetsJESHi++;
     if((jet_pt)*(1-unc)>30) nJetsJESLo++;
     
     //jet energy resolution
-    float JERCor(1.0),JERCor_UP(1.0),JERCor_DOWN(1.0);
+    //    float JERCor(1.0),JERCor_UP(1.0),JERCor_DOWN(1.0);
     
     //NEEDS GEN JETS IN THE TREE!!!!!!!!!!
     //float genJet_pt(ev.genj_pt[k]);
@@ -182,19 +202,20 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
     //	JERCor_UP = getJERfactor_up(jet_pt, jet_eta, genJet_pt);
     //  JERCor_DOWN = getJERfactor_down(jet_pt, jet_eta, genJet_pt);
     // }
-    if(JERCor_UP*jet_pt>30) nJetsJERHi++;
-    if(JERCor_DOWN*jet_pt>30) nJetsJERLo++;
+    //    if(JERCor_UP*jet_pt>30) nJetsJERHi++;
+    //    if(JERCor_DOWN*jet_pt>30) nJetsJERLo++;
   }
+  
 
   float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
   if(isTTbar) 
-  {
-  	wgt=ev.ttbar_w[0];
-  	wgtQCDScaleLo=wgt*ttbar_w[9]/ttbar_w[0];
-  	wgtQCDScaleHi=wgt*ttbar_w[5]/ttbar_w[0];
-  	wgthdampScaleLo=wgt*ttbar_w[ttbar_nw-17]/ttbar_w[0];
-  	wgthdampScaleHi=wgt*wgt*ttbar_w[ttbar_nw-9]/ttbar_w[0];
-  }
+    {
+      wgt             = ev.ttbar_w[0];
+      wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
+      wgtQCDScaleHi   = wgt*ev.ttbar_w[5]/ev.ttbar_w[0];
+      wgthdampScaleLo = wgt*ev.ttbar_w[ev.ttbar_nw-17]/ev.ttbar_w[0];
+      wgthdampScaleHi = wgt*ev.ttbar_w[ev.ttbar_nw-9]/ev.ttbar_w[0];
+    }
   
   //fill cutflow histos
   if(nJets >= 2 )               cutflow->Fill(1,wgt);
@@ -205,46 +226,47 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   
   //main histogram for xsec extraction
   int binToFill(nBtags>=2?2:nBtags);
-  binToFill+=3*nJets;
-  if(nJets>=2){
-	bjetcutflow->Fill(0,wgt);
-  	systVars["qcdScaleLo"]->Fill(binToFill,wgtQCDScaleLo);
-	systVars["qcdScaleHi"]->Fill(binToFill,wgtQCDScaleHi);
-  	systVars["hdampScaleLo"]->Fill(binToFill,wgthdampScaleLo);
-  	systVars["hdampScaleHi"]->Fill(binToFill,wgthdampScaleHi);
-  }
+  binToFill+=3*(nJets-2);
+  if(nJets>=2)
+    {
+      bjetcutflow->Fill(binToFill,wgt);
+      systVars["qcdScaleDown"]->Fill(binToFill,wgtQCDScaleLo);
+      systVars["qcdScaleUp"]->Fill(binToFill,wgtQCDScaleHi);
+      systVars["hdampScaleDown"]->Fill(binToFill,wgthdampScaleLo);
+      systVars["hdampScaleUp"]->Fill(binToFill,wgthdampScaleHi);
+    }
 
   binToFill=(nBtags>=2?2:nBtags);
-  binToFill+=3*nJetsJESHi;
-  if(nJetsJESHi>=2) systVars["jesHi"]->Fill(binToFill,wgt);
+  binToFill+=3*(nJetsJESHi-2);
+  if(nJetsJESHi>=2) systVars["jesUp"]->Fill(binToFill,wgt);
 
   binToFill=(nBtags>=2?2:nBtags);
-  binToFill+=3*nJetsJESLo;
-  if(nJetsJESLo>=2) systVars["jesLo"]->Fill(binToFill,wgt);
-  
-  binToFill=(nBtags>=2?2:nBtags);
-  binToFill+=3*nJetsJERHi;
-  if(nJetsJERHi>=2) systVars["jerHi"]->Fill(binToFill,wgt);
+  binToFill+=3*(nJetsJESLo-2);
+  if(nJetsJESLo>=2) systVars["jesDown"]->Fill(binToFill,wgt);
 
   binToFill=(nBtags>=2?2:nBtags);
-  binToFill+=3*nJetsJERLo;
-  if(nJetsJERLo>=2) systVars["jerLo"]->Fill(binToFill,wgt);
+  binToFill+=3*(nJetsJERHi-2);
+  if(nJetsJERHi>=2) systVars["jerUp"]->Fill(binToFill,wgt);
+
+  binToFill=(nBtags>=2?2:nBtags);
+  binToFill+=3*(nJetsJERLo-2);
+  if(nJetsJERLo>=2) systVars["jerDown"]->Fill(binToFill,wgt);
   
   binToFill=(nBtagsBeffLo>=2?2:nBtagsBeffLo);
-  binToFill+=3*nJets;
-  if(nJets>=2) systVars["beffLo"]->Fill(binToFill,wgt); 
+  binToFill+=3*(nJets-2);
+  if(nJets>=2) systVars["beffDown"]->Fill(binToFill,wgt); 
 
   binToFill=(nBtagsBeffHi>=2?2:nBtagsBeffHi);
-  binToFill+=3*nJets;
-  if(nJets>=2) systVars["beffHi"]->Fill(binToFill,wgt); 
+  binToFill+=3*(nJets-2);
+  if(nJets>=2) systVars["beffUp"]->Fill(binToFill,wgt); 
 
   binToFill=(nBtagsMistagLo>=2?2:nBtagsMistagLo);
-  binToFill+=3*nJets;
-  if(nJets>=2) systVars["mistagLo"]->Fill(binToFill,wgt); 
+  binToFill+=3*(nJets-2);
+  if(nJets>=2) systVars["mistagDown"]->Fill(binToFill,wgt); 
 
   binToFill=(nBtagsMistagHi>=2?2:nBtagsMistagHi);
-  binToFill+=3*nJets;
-  if(nJets>=2) systVars["mistagHi"]->Fill(binToFill,wgt); 
+  binToFill+=3*(nJets-2);
+  if(nJets>=2) systVars["mistagUp"]->Fill(binToFill,wgt); 
 
   //control histograms for the nominal selection only
   if(nJets<2) continue;
@@ -280,28 +302,44 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   f->Close();
   
   //open output file
-  TFile *fOut=TFile::Open(output+"/"+filename,"RECREATE");
-  cutflow->Write();
-  bjetcutflow->Write();
-  for(std::map<TString, TH1F *>::iterator it=systVars.begin(); it!=systVars.end(); it++) it->second->Write();
+  
+  TFile *fOut=TFile::Open(output+"/"+gSystem->BaseName(filename),"RECREATE");
 
-  runlumi_2j->Write();
-  runlumi_3j->Write();
-  runlumi_4j->Write();
+  cutflow->SetDirectory(fOut);
+  cutflow->Write();
+
+  bjetcutflow->SetDirectory(fOut);
+  bjetcutflow->Write();
+  for(std::map<TString, TH1 *>::iterator it=systVars.begin(); it!=systVars.end(); it++) it->second->Write();
 
   // 2-Jets
+  leppt_2j->SetDirectory(fOut);
   leppt_2j->Write();
+  lepeta_2j->SetDirectory(fOut);
   lepeta_2j->Write();
+  lepphi_2j->SetDirectory(fOut);
   lepphi_2j->Write();
+  leptmass_2j->SetDirectory(fOut);
   leptmass_2j->Write();
   
+  jetpt_2j->SetDirectory(fOut);
   jetpt_2j->Write();
+  jeteta_2j->SetDirectory(fOut);
   jeteta_2j->Write();
+
+  jetcsv_2j->SetDirectory(fOut);
   jetcsv_2j->Write();
+
+  numvertices_2j->SetDirectory(fOut);
   numvertices_2j->Write();
 
+  metpt_2j->SetDirectory(fOut);
   metpt_2j->Write();
+
+  metphi_2j->SetDirectory(fOut);
   metphi_2j->Write();
+
+  mettmass_2j->SetDirectory(fOut);
   mettmass_2j->Write();
 
 // 3-Jets
@@ -319,7 +357,7 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
   metphi_3j->Write();
   mettmass_3j->Write();
 
-// 4-Jets
+  // 4-Jets
   leppt_4j->Write();
   lepeta_4j->Write();
   lepphi_4j->Write();
@@ -338,28 +376,35 @@ void ReadTree(TString filename,TString output,int chToSelect,bool isTTbar){
 }
 
 
-void RunOverSamples(TString output, int chToSelect){
+void RunOverSamples(TString inDir,TString output, int chToSelect){
   TString files[]={
-  "DYJetsToLL_M50_SEP22.root",
-  "ST_s_channel_SEP22.root",
-  "ST_t_channel_SEP22.root",
-  "ST_tW_antitop_SEP22.root",
-  "ST_tW_top_SEP22.root",
-  "TT_TuneCUETP8M1_SEP22.root",
-  "WJetsToLNu_TuneCUETP8M1_SEP22.root",
-  "QCD_Pt_80to120_EMEnriched_SEP22.root",
-  "QCD_Pt_120to170_EMEnriched_SEP22.root",
-  "QCD_Pt_170to300_EMEnriched_SEP22.root",
-  "QCD_Pt_300toInf_EMEnriched_SEP22.root",
-  "singleEle_PromptReco2015C_SEP25.root"
-//  "singleEle_2015D_SEP25.root",
-//  "singlemu_2015C_SEP25.root"
-//  "singlemu_2015D_SEP25.root"
+    "DYJetsToLL_M50_SEP22.root",
+    "ST_s_channel_SEP22.root",
+    "ST_t_channel_SEP22.root",
+    "ST_tW_antitop_SEP22.root",
+    "ST_tW_top_SEP22.root",
+    "TT_TuneCUETP8M1_SEP22.root",
+    "WJetsToLNu_TuneCUETP8M1_SEP22.root",
+    "QCD_Pt_80to120_EMEnriched_SEP22.root",
+    "QCD_Pt_120to170_EMEnriched_SEP22.root",
+    "QCD_Pt_170to300_EMEnriched_SEP22.root",
+    "QCD_Pt_300toInf_EMEnriched_SEP22.root",
+    "singleEle_PromptReco2015C_SEP25.root"
+    //"singleEle_2015D_SEP25.root",
+    "singlemu_2015C_SEP25.root"
+    //"singlemu_2015D_SEP25.root"
   };
   
   for(size_t i=0; i<sizeof(files)/sizeof(TString); i++){
     bool isTTbar(false);
     if(files[i].Contains("TT_")) isTTbar=true;
-    ReadTree(files[i],output,chToSelect,isTTbar);
-    }
+
+    if(files[i].Contains("singlemu") && chToSelect==11) continue;
+    if(files[i].Contains("singleEle") && chToSelect==13) continue;
+
+    TString url(files[i]);
+    if(inDir!="") url=inDir+"/"+files[i];
+    std::cout << "Processing " << url << " " << output << " " << chToSelect << " " << isTTbar << std::endl;
+    ReadTree(url,output,chToSelect,isTTbar);
+  }
 }

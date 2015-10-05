@@ -4,6 +4,8 @@
 void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 {
   t->Branch("isFiducial",       &ev.isFiducial,       "isFiducial/O");
+  t->Branch("muTrigger",        &ev.muTrigger,        "muTrigger/O");
+  t->Branch("elTrigger",        &ev.elTrigger,        "elTrigger/O");
   t->Branch("run",       &ev.run,       "run/I");
   t->Branch("event",     &ev.event,     "event/I");
   t->Branch("lumi",      &ev.lumi,      "lumi/I");
@@ -36,6 +38,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_vtx3DSig",  ev.j_vtx3DSig, "j_vtx3DSig[nj]/F");
   t->Branch("j_puid",     ev.j_puid,    "j_puid[nj]/F");
   t->Branch("j_flav",     ev.j_flav,    "j_flav[nj]/I");
+  t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
   t->Branch("j_pid",      ev.j_pid,     "j_pid[nj]/I");
   t->Branch("met_pt",    &ev.met_pt,    "met_pt/F");
   t->Branch("met_phi",   &ev.met_phi,   "met_phi/F");
@@ -81,6 +84,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("j_vtx3DSig",  ev.j_vtx3DSig);
   t->SetBranchAddress("j_puid",     ev.j_puid);
   t->SetBranchAddress("j_flav",     ev.j_flav);
+  t->SetBranchAddress("j_hadflav",     ev.j_hadflav);
   t->SetBranchAddress("j_pid",      ev.j_pid);
   t->SetBranchAddress("genj_pt",       ev.genj_pt);
   t->SetBranchAddress("genj_eta",      ev.genj_eta);

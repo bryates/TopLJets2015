@@ -1,7 +1,0 @@
-Recipes for regular users: common part
-The release set up: the recommendation is to start with 7.4.7 or later 7.4.X release (tested up to 7.4.9).
-cmsrel CMSSW_7_4_7
-cd CMSSW_7_4_7/src/
-cmsenv
-git cms-merge-topic ikrav:egm_id_747_v2
-scram b -j 20
