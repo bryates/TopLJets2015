@@ -1,5 +1,5 @@
-#include "UserCode/TopAnalysis/interface/MiniEvent.h"
-#include "UserCode/TopAnalysis/interface/ReadTree.h"
+#include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
+#include "TopLJets2015/TopAnalysis/interface/ReadTree.h"
 
 #ifdef __CINT__
 
