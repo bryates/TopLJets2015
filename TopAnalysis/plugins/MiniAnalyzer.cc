@@ -186,7 +186,7 @@ bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Event
     }
     if(nLeptons!=1) return false;
     
-    //require 2 jets not overlapping with lepton
+    //require 1 jets not overlapping with lepton
     int njets(0);
     edm::Handle< std::vector<reco::GenJet> > genJets;
     iEvent.getByLabel("slimmedGenJets", genJets);
@@ -197,7 +197,7 @@ bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Event
        if(dR<0.4) continue;
        njets++;
      }
-    if(njets<2) return false;
+    if(njets<1) return false;
     return true;
 }
 
