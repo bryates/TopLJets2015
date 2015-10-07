@@ -45,9 +45,6 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v3/60000/FEEAA420-1E6A-E511-8E6D-00261894393D.root')
                             )
 
-if options.runOnData:
-    process.source.fileNames = cms.untracked.vstring()
-
 
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -70,6 +67,8 @@ for idmod in my_id_modules:
 #analyzer
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
 if options.runOnData:
+    print 'Adapting to run on data'
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/258/155/00000/72A3374B-A76A-E511-AC17-02163E01388A.root')
     process.analysis.muTriggersToUse = cms.vstring('IsoMu18_v', 'IsoMu18_TriCentralPFJet50_40_30_v', 'IsoMu22_v', 'IsoMu22_TriCentralPFJet50_40_30_v', )
     process.analysis.elTriggersToUse = cms.vstring('Ele23_WPLoose_Gsf_v','Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30','Ele27_WPLoose_Gsf_v','Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30')
 

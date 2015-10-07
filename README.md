@@ -1,6 +1,9 @@
 # TopLJets2015
 
 ## Installation instructions
+
+To execute in your lxplus work area.
+
 ```
 cmsrel CMSSW_7_4_14
 cd CMSSW_7_4_14/src
@@ -14,5 +17,11 @@ scram b -j 9
 ```
 
 ## Running ntuple creation
+
+To run locally the ntuplizer, for testing purposes
+
+```
+cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.root
+```
 
 ## Running local analysis
