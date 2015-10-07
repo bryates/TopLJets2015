@@ -292,7 +292,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  ev_.elTrigger |= (1 << iel);
 	}
     }
-  if(ev_.muTrigger==0 && ev_.elTrigger==0) return;
+  if(ev_.isData && (ev_.muTrigger==0 && ev_.elTrigger==0)) return;
 
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;

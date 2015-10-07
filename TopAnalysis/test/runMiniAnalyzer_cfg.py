@@ -12,6 +12,11 @@ options.register('outFilename', 'MiniEvents.root',
                  VarParsing.varType.string,
                  "Output file name"
                  )
+options.register('inputDir', '',
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.string,
+                 "input directory with files to process"
+                 )
 options.parseArguments()
 
 process = cms.Process("MiniAnalysis")
@@ -45,7 +50,10 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(getEOSlslist(directory='/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v3/60000/')
                                                               )
                             )
-
+if options.inputDir!='':  
+    print 'Will process files from',options.inputDir
+    process.source.fileNames=cms.untracked.vstring(getEOSlslist(directory=options.inputDir))
+                                
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = ''
