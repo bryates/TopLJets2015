@@ -22,6 +22,8 @@
 
 # emacs temporary
 *~
+*\#*
+
 
 # python compiled
 *pyc
