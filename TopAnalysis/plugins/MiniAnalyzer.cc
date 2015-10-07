@@ -17,6 +17,7 @@
 //
 //
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -139,7 +140,6 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
   muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-  //electronToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
   jetToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
   metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
   pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"))),
@@ -170,7 +170,7 @@ MiniAnalyzer::~MiniAnalyzer()
 bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     edm::Handle<reco::GenParticleCollection> genParticles;
-    iEvent.getByLabel("genParticles", genParticles);
+    iEvent.getByLabel("prunedGenParticles", genParticles);
     
     //require only one lepton (can be from tau, if tau not from hadron)
     int nLeptons(0);
@@ -190,7 +190,7 @@ bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Event
     //require 2 jets not overlapping with lepton
     int njets(0);
     edm::Handle< std::vector<reco::GenJet> > genJets;
-    iEvent.getByLabel("ak4GenJets", genJets);
+    iEvent.getByLabel("slimmedGenJets", genJets);
     for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
      {
        if(genJet->pt()<20 || fabs(genJet->eta())>2.5) continue;
@@ -258,6 +258,15 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	    ev_.ttbar_nw++;
 	  }
 	}
+
+      edm::Handle<std::vector <PileupSummaryInfo> > PupInfo;
+      iEvent.getByLabel("slimmedAddPileupInfo", PupInfo);
+      std::vector<PileupSummaryInfo>::const_iterator ipu;
+      for (ipu = PupInfo->begin(); ipu != PupInfo->end(); ++ipu) {
+	if ( ipu->getBunchCrossing() != 0 ) continue; // storing detailed PU info only for BX=0
+	ev_.pu=ipu->getPU_NumInteractions();
+	ev_.putrue=ipu->getTrueNumInteractions();
+      }
     }
  
   //TRIGGER INFORMATION
@@ -270,6 +279,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.elTrigger=0;
   for (unsigned int i=0; i< h_trigRes->size(); i++) 
     {
+      //std::cout << triggerList[i] << std::endl;
       if( !(*h_trigRes)[i].accept() ) continue;
       for(size_t imu=0; imu<muTriggersToUse_.size(); imu++)
 	{
@@ -283,11 +293,10 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	}
     }
   if(ev_.muTrigger==0 && ev_.elTrigger==0) return;
-  
+
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
-  histContainer_["nrecomuons"]->Fill(muons->size());
   std::vector<const pat::Muon *> selectedMuons,selectedNonIsoMuons,vetoMuons,vetoNonIsoMuons;        
   for (const pat::Muon &mu : *muons) 
     { 
@@ -338,9 +347,14 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       bool passVetoId = (*veto_id_decisions)[e];
       bool passTightId  = (*tight_id_decisions)[e];
       vid::CutFlowResult fullCutFlowData = (*tight_id_cutflow_data)[e];
-      vid::CutFlowResult maskedCutFlowData = fullCutFlowData.getCutFlowResultMasking("");
-      bool passTightIdNoIso( maskedCutFlowData.cutFlowPassed() && !passTightId ); 
-
+      bool passTightIdNoIso(true);
+      int ncuts = fullCutFlowData.cutFlowSize();
+      for(int icut = 0; icut<ncuts; icut++)
+	{
+	  if(icut==9 && fullCutFlowData.getCutResultByIndex(icut) ) passTightIdNoIso=false;
+	  if(icut!=9 && !fullCutFlowData.getCutResultByIndex(icut)) passTightIdNoIso=false;
+	}
+      
       if(passPt && passEta && passTightIdNoIso )   selectedNonIsoElectrons.push_back(&el);
       else if(passVetoPt && passEta && passVetoId) vetoNonIsoElectrons.push_back(&el);
 
@@ -416,6 +430,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //save jet
       const reco::Candidate *genParton = j.genParton();
       const reco::GenJet *genJet=j.genJet(); 
+      ev_.j_area[ev_.nj]=j.jetArea();
       ev_.j_pt[ev_.nj]=j.pt();
       ev_.j_mass[ev_.nj]=j.mass();
       ev_.j_eta[ev_.nj]=j.eta();
@@ -461,7 +476,7 @@ MiniAnalyzer::beginJob(){
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
 
   //create a tree for the selected events
-  tree_ = fs->make<TTree>("AnaTree", "AnaTree");
+  tree_ = fs->make<TTree>("data", "data");
   createMiniEventTree(tree_,ev_);
 }
 

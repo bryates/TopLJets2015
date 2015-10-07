@@ -19,7 +19,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("elTrigger",        &ev.elTrigger,        "elTrigger/I");
 
   t->Branch("nvtx",      &ev.nvtx,      "nvtx/I");
-
+  t->Branch("pu",      &ev.pu,      "pu/I");
+  t->Branch("putrue",      &ev.putrue,      "putrue/I");
 
   t->Branch("isPromptFinalState",        &ev.isPromptFinalState,        "isPromptFinalState/O");
   t->Branch("isDirectPromptTauDecayProductFinalState",        &ev.isDirectPromptTauDecayProductFinalState,        "isDirectPromptTauDecayProductFinalState/O");
@@ -35,6 +36,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_puChargedHadronIso",      &ev.l_puChargedHadronIso,     "l_puChargedHadronIso/F");
 
   t->Branch("nj",        &ev.nj,        "nj/I");
+  t->Branch("j_area",       ev.j_area,      "j_area[nj]/F");
   t->Branch("j_pt",       ev.j_pt,      "j_pt[nj]/F");
   t->Branch("j_eta",      ev.j_eta,     "j_eta[nj]/F");
   t->Branch("j_phi",      ev.j_phi,     "j_phi[nj]/F");
@@ -77,6 +79,8 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("elTrigger",        &ev.elTrigger);
 
   t->SetBranchAddress("nvtx",      &ev.nvtx);
+  t->SetBranchAddress("pu",      &ev.pu);
+  t->SetBranchAddress("putrue",      &ev.putrue);
 
   t->SetBranchAddress("isPromptFinalState",        &ev.isPromptFinalState);
   t->SetBranchAddress("isDirectPromptTauDecayProductFinalState",        &ev.isDirectPromptTauDecayProductFinalState);
@@ -92,6 +96,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("l_puChargedHadronIso",      &ev.l_puChargedHadronIso);
 
   t->SetBranchAddress("nj",        &ev.nj);
+  t->SetBranchAddress("j_area",       ev.j_area);
   t->SetBranchAddress("j_pt",       ev.j_pt);
   t->SetBranchAddress("j_eta",      ev.j_eta);
   t->SetBranchAddress("j_phi",      ev.j_phi);
