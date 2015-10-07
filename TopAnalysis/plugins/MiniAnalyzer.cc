@@ -292,7 +292,10 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  ev_.elTrigger |= (1 << iel);
 	}
     }
-  if(ev_.isData && (ev_.muTrigger==0 && ev_.elTrigger==0)) return;
+  bool passMuTrigger(ev_.isData ? ev_.muTrigger!=0 : true);
+  bool passElTrigger(ev_.isData ? ev_.elTrigger!=0 : true);  
+  if(!passMuTrigger && !passElTrigger) return;
+ 
 
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;
@@ -311,7 +314,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       bool isTight(muon::isTightMuon(mu,primVtx));
 
       //isolation
-      float relchIso = (mu.chargedHadronIso() + std::max(0., mu.neutralHadronIso() + mu.photonIso() - 0.5*mu.puChargedHadronIso()))/mu.pt(); 
+      //float relIsoDeltaBeta = (mu.chargedHadronIso() + std::max(0., mu.neutralHadronIso() + mu.photonIso() - 0.5*mu.puChargedHadronIso()))/mu.pt();       
+      float relchIso = mu.chargedHadronIso()/mu.pt(); 
       bool passIso( relchIso  < 0.05 );
       bool passVetoIso( relchIso  < 0.1 );
 
@@ -321,7 +325,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       if(passPt &&  passEta && isTight && passIso)                    selectedMuons.push_back( &mu );	
       else if(passVetoPt && passVetoEta && isMedium && passVetoIso)   vetoMuons.push_back( &mu );
     }
- 
+  
   // ELECTRON SELECTION: cf. https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
   edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   iEvent.getByToken(eleVetoIdMapToken_ ,veto_id_decisions);
@@ -363,9 +367,10 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
   //require only 1 tight lepton in the event
-  bool passLepton((ev_.muTrigger && selectedMuons.size()==1) || (ev_.elTrigger && selectedElectrons.size()==1));
-  bool passNonIsoLepton((ev_.muTrigger && selectedNonIsoMuons.size()==1) || (ev_.elTrigger && selectedNonIsoElectrons.size()==1));
-  if(ev_.muTrigger && (selectedMuons.size()==1 || selectedNonIsoMuons.size()==1))
+  bool passLepton((passMuTrigger && selectedMuons.size()==1) || (passElTrigger && selectedElectrons.size()==1));
+  bool passNonIsoLepton((passMuTrigger && selectedNonIsoMuons.size()==1) || (passElTrigger && selectedNonIsoElectrons.size()==1));
+  if(!passLepton && !passNonIsoLepton) return;
+  if(passMuTrigger && (selectedMuons.size()==1 || selectedNonIsoMuons.size()==1))
     {
       const pat::Muon *mu=(selectedMuons.size()==1 ? selectedMuons[0] : selectedNonIsoMuons[0]);
       const reco::GenParticle * gen=mu->genLepton(); 
@@ -382,7 +387,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.l_photonIso=mu->photonIso();
       ev_.l_puChargedHadronIso=mu->puChargedHadronIso();
     }
-  if(ev_.elTrigger && (selectedElectrons.size()==1 || selectedNonIsoElectrons.size()))
+  if(passElTrigger && (selectedElectrons.size()==1 || selectedNonIsoElectrons.size()))
     {     
       const pat::Electron *el=(selectedElectrons.size()==1 ? selectedElectrons[0] : selectedNonIsoElectrons[0]);
       const reco::GenParticle * gen=el->genLepton(); 
@@ -401,10 +406,9 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
   //require no other leptons in the event
-  bool passVetoLepton(passLepton && (vetoElectrons.size()+vetoMuons.size()));
-  bool passNonIsoVetoLepton(passNonIsoLepton && (vetoNonIsoElectrons.size()+vetoNonIsoMuons.size()));
-  if(!(passVetoLepton || passNonIsoVetoLepton) ) return;
-
+  bool passVetoLepton(vetoElectrons.size()+vetoMuons.size()==0);
+  bool passNonIsoVetoLepton(vetoNonIsoElectrons.size()+vetoNonIsoMuons.size()==0);
+  if( !passVetoLepton && !passNonIsoVetoLepton) return;
   
   // JETS
   edm::Handle<pat::JetCollection> jets;
