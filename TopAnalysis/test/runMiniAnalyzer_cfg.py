@@ -40,10 +40,11 @@ process.options = cms.untracked.PSet(
 #Number of events to process
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
+from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v3/60000/FEEAA420-1E6A-E511-8E6D-00261894393D.root')
+                            fileNames = cms.untracked.vstring(getEOSlslist(directory='/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v3/60000/')
+                                                              )
                             )
-
 
 #reduce verbosity
 process.load("FWCore.MessageService.MessageLogger_cfi")

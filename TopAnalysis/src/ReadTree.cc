@@ -122,8 +122,8 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	      //readout the b-tagging scale factors for this jet
 	      /*
 		BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
-		if(abs(ev.j_flav[k])==4) btagFlav=BTagEntry::FLAV_C;
-		if(abs(ev.j_flav[k])==5) btagFlav=BTagEntry::FLAV_B;	
+		if(abs(ev.j_hadflav[k])==4) btagFlav=BTagEntry::FLAV_C;
+		if(abs(ev.j_hadflav[k])==5) btagFlav=BTagEntry::FLAV_B;	
 		float jetBtagSF(1.0), jetBtagSFUp(1.0), jetBtagSFDown(1.0);
 		if (jet_pt < 1000.) {
 		jetBtagSF = btvreader.eval(btagFlav, jet_eta, jet_pt);

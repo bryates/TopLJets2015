@@ -16,7 +16,7 @@
 //         Created:  Sun, 13 Jul 2014 06:22:18 GMT
 //
 //
-
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -81,7 +81,7 @@ class MiniAnalyzer : public edm::EDAnalyzer {
 public:
   explicit MiniAnalyzer(const edm::ParameterSet&);
   ~MiniAnalyzer();
-
+  virtual void endRun(const edm::Run & iRun, edm::EventSetup const & iSetup);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
@@ -111,7 +111,6 @@ private:
 
                   
   std::unordered_map<std::string,TH1F*> histContainer_;
-  std::unordered_map<std::string,TH2F*> histContainer2d_; 
 
   PFJetIDSelectionFunctor pfjetIDLoose_;
 
@@ -234,7 +233,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if(!ev_.isData)
     {
       ev_.isFiducial = doFiducialAnalysis(iEvent,iSetup);
-      if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(0.,ev_.ttbar_w[0]);
+      histContainer_["fidcounter"]->Fill(0.,ev_.ttbar_w[0]);
+      if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(1.,ev_.ttbar_w[0]);
 
       edm::Handle<GenEventInfoProduct> evt;
       iEvent.getByLabel("generator","", evt);
@@ -254,7 +254,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  for(unsigned int i=0  ; i<evet->weights().size();i++){
 	    double asdde=evet->weights()[i].wgt;
 	    ev_.ttbar_w[ev_.ttbar_nw]=ev_.ttbar_w[0]*asdde/asdd;
-	    if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(i+1.,ev_.ttbar_w[ev_.ttbar_nw]);
+	    if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(i+2.,ev_.ttbar_w[ev_.ttbar_nw]);
 	    ev_.ttbar_nw++;
 	  }
 	}
@@ -471,13 +471,52 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void 
 MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
-  histContainer_["fidcounter"] = fs->make<TH1F>("fidcounter",    ";Variation;Events", 100, 0., 100.); 
+  histContainer_["fidcounter"] = fs->make<TH1F>("fidcounter",    ";Variation;Events", 200, 0., 200.); 
   histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",1,0,1);
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
 
   //create a tree for the selected events
   tree_ = fs->make<TTree>("data", "data");
   createMiniEventTree(tree_,ev_);
+}
+
+//
+void
+MiniAnalyzer::endRun(const edm::Run & iRun, edm::EventSetup const & iSetup)
+{
+  try{
+    edm::Service<TFileService> fs;
+    
+    edm::Handle<LHERunInfoProduct> lheruninfo;
+    typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
+    iRun.getByLabel( "externalLHEProducer", lheruninfo );
+    
+    LHERunInfoProduct myLHERunInfoProduct = *(lheruninfo.product());
+    for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); 
+	 iter!=myLHERunInfoProduct.headers_end(); 
+	 iter++)
+      {
+	std::string tag("generator");
+	if(iter->tag()!="") tag+="_"+iter->tag();
+		
+	std::vector<std::string> lines = iter->lines();
+	std::vector<std::string> prunedLines;
+	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) 
+	  {
+	    if(lines.at(iLine)=="") continue;
+	    if(lines.at(iLine).find("weightgroup")!=std::string::npos) continue;
+	    prunedLines.push_back( lines.at(iLine) );
+	  }
+	
+	if(histContainer_.find(tag)==histContainer_.end()) 
+	  histContainer_[tag]=fs->make<TH1F>(tag.c_str(),tag.c_str(),prunedLines.size(),0,prunedLines.size());
+	for (unsigned int iLine = 0; iLine<prunedLines.size(); iLine++) 
+	  histContainer_[tag]->GetXaxis()->SetBinLabel(iLine+1,prunedLines.at(iLine).c_str());  
+      }
+  }
+  catch(...){
+    std::cout << "Failed to retrieve LHERunInfoProduct" << std::endl;
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
