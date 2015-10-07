@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
-
 options = VarParsing ('python')
-
 options.register('runOnData', False,
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.bool,
@@ -14,6 +12,7 @@ options.register('outFilename', 'MiniEvents.root',
                  VarParsing.varType.string,
                  "Output file name"
                  )
+options.parseArguments()
 
 process = cms.Process("MiniAnalysis")
 
