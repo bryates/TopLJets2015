@@ -66,12 +66,14 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 
 
   //jet uncertainty parameterization
-  TString jecUncUrl("${CMSSW_BASE}/src/UserCode/TopAnalysis/jec/Summer15_50nsV5_DATA_Uncertainty_AK4PFchs.txt");
+  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_50nsV5_DATA_Uncertainty_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(jecUncUrl.Data());
 
   // setup calibration readers
-  TString btagUncUrl("${CMSSW_BASE}/src/UserCode/TopAnalysis/jec/CSVv2.csv");
+  TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
+  gSystem->ExpandPathName(btagUncUrl);
+  /*
   BTagCalibration calib("csvv2", btagUncUrl.Data());
   BTagCalibrationReader btvreader(&calib,               // calibration instance
 				  BTagEntry::OP_LOOSE,  // operating point
@@ -79,27 +81,27 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 				  "central");           // systematics type
   BTagCalibrationReader btvreader_up(&calib, BTagEntry::OP_LOOSE, "comb", "up");  // sys up
   BTagCalibrationReader btvreader_do(&calib, BTagEntry::OP_LOOSE, "comb", "down");  // sys down
-  
+  */
+
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
-  TTree *t = (TTree*)f->Get("demo/AnaTree");
+  TTree *t = (TTree*)f->Get("analysis/data");
   attachToMiniEventTree(t,ev);
 
   //loop over events
   for (Int_t i=0;i<t->GetEntriesFast();i++)
     {
       t->GetEntry(i);
-
+      
       //select according to the lepton id/charge
-      int lepton_id(ev.l_id);	
       if(channelSelection!=0 && abs(ev.l_id)!=abs(channelSelection)) continue;
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 
       //apply trigger requirement
-      if(abs(lepton_id) == 13 && ev.muTrigger==0) continue;
-      if(abs(lepton_id) == 11 && ev.elTrigger==0) continue;
-
+      if(abs(ev.l_id) == 13 && ((ev.muTrigger>>0)&0x1)==0) continue;
+      if(abs(ev.l_id) == 11 && ((ev.elTrigger>>0)&0x1)==0) continue;
+      
       //select jets
       uint32_t nJets(0), nJetsJESLo(0),nJetsJESHi(0), nJetsJERLo(0), nJetsJERHi(0);
       uint32_t nBtags(0), nBtagsBeffLo(0), nBtagsBeffHi(0), nBtagsMistagLo(0),nBtagsMistagHi(0);
@@ -158,7 +160,6 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	  if(JERCor_UP*jet_pt>30) nJetsJERHi++;
 	  if(JERCor_DOWN*jet_pt>30) nJetsJERLo++;
 	}
-  
       
       float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
       if(isTTbar) 
@@ -169,7 +170,7 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	  wgthdampScaleLo = wgt*ev.ttbar_w[ev.ttbar_nw-17]/ev.ttbar_w[0];
 	  wgthdampScaleHi = wgt*ev.ttbar_w[ev.ttbar_nw-9]/ev.ttbar_w[0];
 	}
-  
+
       //main histogram for xsec extraction
       int binToFill(nBtags>=2?2:nBtags);
       binToFill+=3*(nJets-1);
@@ -181,7 +182,6 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	  allPlots["catcount_hdampScaleDown"]->Fill(binToFill,wgthdampScaleLo);
 	  allPlots["catcount_hdampScaleUp"]->Fill(binToFill,wgthdampScaleHi);
 	}
-      
       binToFill=(nBtags>=2?2:nBtags);
       binToFill+=3*(nJetsJESHi-1);
       if(nJetsJESHi>=1) allPlots["catcount_jesUp"]->Fill(binToFill,wgt);
@@ -221,6 +221,7 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
       if(nJets>4) tag="4";
       else tag += nJets;
       tag+="j";
+
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
       allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
       allPlots["jpt_"+tag]->Fill(ev.j_pt[ selJetsIdx[0] ],wgt);

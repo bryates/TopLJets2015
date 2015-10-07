@@ -34,3 +34,7 @@ python checkProductionIntegrity.py -i my_output_directory_in_eos
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
 ## Running local analysis
+To test the code on a single file to produce plots
+```
+python scripts/runLocalAnalysis.py -i MiniEvents.root
+```

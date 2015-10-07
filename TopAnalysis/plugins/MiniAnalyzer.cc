@@ -288,7 +288,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       for(size_t iel=0; iel<elTriggersToUse_.size(); iel++) 
 	{
-	  if (triggerList[i].find(muTriggersToUse_[iel])==string::npos)continue;
+	  if (triggerList[i].find(elTriggersToUse_[iel])==string::npos)continue;
 	  ev_.elTrigger |= (1 << iel);
 	}
     }

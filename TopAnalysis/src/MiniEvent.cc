@@ -3,7 +3,7 @@
 //
 void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 {
-  t->Branch("isData",     &ev.isData,     "isData/B");
+  t->Branch("isData",     &ev.isData,     "isData/O");
 
   t->Branch("ttbar_nw",        &ev.ttbar_nw,        "ttbar_nw/I");
   t->Branch("ttbar_allmepartons",        &ev.ttbar_allmepartons,        "ttbar_allmepartons/I");
