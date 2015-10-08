@@ -27,7 +27,7 @@ cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.r
 ```
 To submit a list of samples, described in a json file to the grid you can use the following script.
 ```
-python submitToGrid.py -j data/samples_Run2015.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
+python scripts/submitToGrid.py -j data/samples_Run2015.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
 Don't forget to init the environment for crab3
@@ -35,12 +35,23 @@ Don't forget to init the environment for crab3
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python checkProductionIntegrity.py -i my_output_directory_in_eos
+python scripts/checkProductionIntegrity.py -i my_output_directory_in_eos
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
 ## Running local analysis
-To test the code on a single file to produce plots
+To test the code on a single file to produce plots.
 ```
 python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
+To run the code on a set of samples, listed in a json file you can run it as follows:
+```
+python scripts/runLocalAnalysis.py -i directory -j data/samples_Run2015.json 
+```
+The first time it runs over the directory it will compute the normalization factor for MC
+such that the distributions will correspond to 1/pb of data.
+The normalization factor is given by (xsec / N generated events)
+where xsec is stored in the json file, and N generated events is summed up
+from the "cutflow" histogram stored in the the files to process for each process.
+
+
