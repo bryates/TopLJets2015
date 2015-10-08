@@ -183,9 +183,9 @@ void ReadTree(TString filename,
       }
 	
       //generator level weights to apply
-      float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
-      if(genWgtMode==FULLWEIGHT) wgt = ev.ttbar_w[0];
-      if(genWgtMode==ONLYSIGN)   wgt = ev.ttbar_w[0]>0 ? +1.0 : -1.0;
+      float wgt(norm),wgtQCDScaleLo(norm),wgtQCDScaleHi(norm),wgthdampScaleLo(norm),wgthdampScaleHi(norm);
+      if(genWgtMode==FULLWEIGHT) wgt *= ev.ttbar_w[0];
+      if(genWgtMode==ONLYSIGN)   wgt *= (ev.ttbar_w[0]>0 ? +1.0 : -1.0)*norm;
       if(isTTbar)
 	{
 	  wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
