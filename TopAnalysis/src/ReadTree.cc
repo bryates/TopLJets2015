@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t chargeSelection, Float_t norm, Bool_t isTTbar)
+void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t chargeSelection, Float_t norm, Bool_t isTTbar,Int_t flavourSplitting=NOFLAVOURSPLITTING)
 {
   gROOT->Reset();
 
@@ -90,6 +90,7 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
   attachToMiniEventTree(t,ev);
 
   //loop over events
+  Int_t nudsgJets(0),ncJets(0), nbJets(0);
   for (Int_t i=0;i<t->GetEntriesFast();i++)
     {
       t->GetEntry(i);
@@ -118,6 +119,11 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	      selJetsIdx.push_back(k);
 	      htsum += jet_pt;
 	      bool isBTagged(csv>0.890);
+
+		BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
+		if(abs(ev.j_hadflav[k])==4)      { btagFlav=BTagEntry::FLAV_C; ncJets++; }
+		else if(abs(ev.j_hadflav[k])==5) { btagFlav=BTagEntry::FLAV_B; nbJets++; }
+		else nudsgJets++;
 
 	      //readout the b-tagging scale factors for this jet
 	      /*
@@ -160,6 +166,15 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	  if(JERCor_UP*jet_pt>30) nJetsJERHi++;
 	  if(JERCor_DOWN*jet_pt>30) nJetsJERLo++;
 	}
+
+      //check if flavour splitting was required
+      if(flavourSplitting!=NOFLAVOURSPLITTING)
+      {
+      	if(flavourSplitting==BSPLIT && nbJets==0) continue;
+      	if(flavourSplitting==CSPLIT && ncJets==0) continue;
+      	if(flavourSplitting==UDSGSPLIT && nlightJets==0) continue;
+      }
+	
       
       float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
       if(isTTbar) 
