@@ -16,6 +16,7 @@ cd HiggsAnalysis/CombinedLimit
 git checkout 74x-root6
 scram b -j 9
 cd -
+git cms-merge-topic ikrav:egm_id_7.4.12_v1
 git clone git@github.com:pfs/TopLJets2015.git
 scram b -j 9
 ```

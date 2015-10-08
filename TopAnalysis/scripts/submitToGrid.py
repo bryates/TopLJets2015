@@ -52,8 +52,6 @@ steer the script
 """
 def main():
 
-    
-
     #configuration
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
