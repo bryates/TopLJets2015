@@ -91,7 +91,6 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
   attachToMiniEventTree(t,ev);
 
   //loop over events
-  Int_t nudsgJets(0),ncJets(0), nbJets(0);
   for (Int_t i=0;i<t->GetEntriesFast();i++)
     {
       t->GetEntry(i);
@@ -105,6 +104,7 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
       if(abs(ev.l_id) == 11 && ((ev.elTrigger>>0)&0x1)==0) continue;
       
       //select jets
+      Int_t nudsgJets(0),ncJets(0), nbJets(0);
       uint32_t nJets(0), nJetsJESLo(0),nJetsJESHi(0), nJetsJERLo(0), nJetsJERHi(0);
       uint32_t nBtags(0), nBtagsBeffLo(0), nBtagsBeffHi(0), nBtagsMistagLo(0),nBtagsMistagHi(0);
       Float_t htsum(0);
@@ -171,12 +171,12 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
       //check if flavour splitting was required
       if(flavourSplitting!=FlavourSplitting::NOFLAVOURSPLITTING)
       {
-      	if(flavourSplitting==FlavourSplitting::BSPLITTING    && nbJets==0)    continue;
-      	if(flavourSplitting==FlavourSplitting::CSPLITTING    && ncJets==0)    continue;
-      	if(flavourSplitting==FlavourSplitting::UDSGSPLITTING && nudsgJets==0) continue;
+      	if(flavourSplitting==FlavourSplitting::BSPLITTING)         { if(nbJets==0)    continue; }
+      	else if(flavourSplitting==FlavourSplitting::CSPLITTING)    { if(ncJets==0 || nbJets!=0)    continue; }
+      	else if(flavourSplitting==FlavourSplitting::UDSGSPLITTING) { if(nudsgJets==0 || ncJets!=0 || nbJets!=0) continue; }
       }
 	
-      
+      //generator level weights to apply
       float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
       if(isTTbar) 
 	{
