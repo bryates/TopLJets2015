@@ -3,6 +3,8 @@
 
 #include <TString.h>
 
+enum FlavourSplitting {NOFLAVOURSPLITTING=0, UDSGSPLITTING=1, CSPLITTING=4, BSPLITTING=5 };
+
 void ReadTree(TString filename,
 	      TString outDir,
 	      Int_t channelSelection=13,
