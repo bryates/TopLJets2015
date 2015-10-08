@@ -255,7 +255,9 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
   //save histos to file  
   gSystem->ExpandPathName(outDir);
   gSystem->Exec("mkdir -p " + outDir);
-  TFile *fOut=TFile::Open(outDir+"/"+gSystem->BaseName(filename),"RECREATE");
+  TString selPrefix("");
+  if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
+  TFile *fOut=TFile::Open(outDir+"/"selPrefix+gSystem->BaseName(filename),"RECREATE");
   for (auto& it : allPlots)  { it.second->SetDirectory(fOut); it.second->Write(); }
   fOut->Close();
 }
