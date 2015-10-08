@@ -10,7 +10,8 @@ void ReadTree(TString filename,
 	      Int_t channelSelection=13,
 	      Int_t chargeSelection=0,
 	      Float_t norm=1.0,
-	      Bool_t isTTbar=false);
+	      Bool_t isTTbar=false,
+	      FlavourSplitting flavourSplitting=NOFLAVOURSPLITTING);
 
 
 #endif

@@ -5,6 +5,7 @@
 #include <TSystem.h>
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
+#include "TopLJets2015/TopAnalysis/interface/ReadTree.h"
 
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
@@ -17,7 +18,7 @@
 
 using namespace std;
 
-void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t chargeSelection, Float_t norm, Bool_t isTTbar,Int_t flavourSplitting=NOFLAVOURSPLITTING)
+void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t chargeSelection, Float_t norm, Bool_t isTTbar,FlavourSplitting flavourSplitting)
 {
   gROOT->Reset();
 
@@ -120,11 +121,11 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	      htsum += jet_pt;
 	      bool isBTagged(csv>0.890);
 
-		BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
-		if(abs(ev.j_hadflav[k])==4)      { btagFlav=BTagEntry::FLAV_C; ncJets++; }
-		else if(abs(ev.j_hadflav[k])==5) { btagFlav=BTagEntry::FLAV_B; nbJets++; }
-		else nudsgJets++;
-
+	      //BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
+	      if(abs(ev.j_hadflav[k])==4)      { /*btagFlav=BTagEntry::FLAV_C;*/ ncJets++; }
+	      else if(abs(ev.j_hadflav[k])==5) { /*btagFlav=BTagEntry::FLAV_B;*/ nbJets++; }
+	      else nudsgJets++;
+	      
 	      //readout the b-tagging scale factors for this jet
 	      /*
 		BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
@@ -168,11 +169,11 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	}
 
       //check if flavour splitting was required
-      if(flavourSplitting!=NOFLAVOURSPLITTING)
+      if(flavourSplitting!=FlavourSplitting::NOFLAVOURSPLITTING)
       {
-      	if(flavourSplitting==BSPLIT && nbJets==0) continue;
-      	if(flavourSplitting==CSPLIT && ncJets==0) continue;
-      	if(flavourSplitting==UDSGSPLIT && nlightJets==0) continue;
+      	if(flavourSplitting==FlavourSplitting::BSPLITTING    && nbJets==0)    continue;
+      	if(flavourSplitting==FlavourSplitting::CSPLITTING    && ncJets==0)    continue;
+      	if(flavourSplitting==FlavourSplitting::UDSGSPLITTING && nudsgJets==0) continue;
       }
 	
       
@@ -257,7 +258,7 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
   gSystem->Exec("mkdir -p " + outDir);
   TString selPrefix("");
   if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
-  TFile *fOut=TFile::Open(outDir+"/"selPrefix+gSystem->BaseName(filename),"RECREATE");
+  TFile *fOut=TFile::Open(outDir+"/"+selPrefix+gSystem->BaseName(filename),"RECREATE");
   for (auto& it : allPlots)  { it.second->SetDirectory(fOut); it.second->Write(); }
   fOut->Close();
 }

@@ -7,12 +7,14 @@
 #pragma link off all function; 
 #pragma link off all global; 
 #pragma link off all typedef;
+#pragma link off all enum;
 
 #pragma link C++ function ReadTree;
 #pragma link C++ function RunOverSamples;
 #pragma link C++ defined_in "src/TopAnalysisLinkDef.h";
 #pragma link C++ function attachToMiniEventTree;
 #pragma link C++ function createMiniEventTree;
+#pragma link C++ enum FlavourSplitting;
 
 #endif
 
