@@ -18,10 +18,15 @@
 
 using namespace std;
 
-void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t chargeSelection, Float_t norm, Bool_t isTTbar,FlavourSplitting flavourSplitting)
+void ReadTree(TString filename,
+	      TString outname,
+	      Int_t channelSelection, 
+	      Int_t chargeSelection, 
+	      Float_t norm, 
+	      Bool_t isTTbar,
+	      FlavourSplitting flavourSplitting,
+	      GenWeightMode genWgtMode)
 {
-  gROOT->Reset();
-
   //book histograms
   std::map<TString, TH1 *> allPlots;
   allPlots["catcount"] = new TH1F("catcount",";Category;Events" ,12,0.,12.);
@@ -65,12 +70,11 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
     }
   for (auto& it : allPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
 
-
   //jet uncertainty parameterization
   TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_50nsV5_DATA_Uncertainty_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(jecUncUrl.Data());
-
+  
   // setup calibration readers
   TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
   gSystem->ExpandPathName(btagUncUrl);
@@ -91,6 +95,8 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
   attachToMiniEventTree(t,ev);
 
   //loop over events
+  Int_t nentries(t->GetEntriesFast());
+  cout << "...producing " << outname << " from " << nentries << " events" << endl;
   for (Int_t i=0;i<t->GetEntriesFast();i++)
     {
       t->GetEntry(i);
@@ -178,15 +184,16 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
 	
       //generator level weights to apply
       float wgt(1.0),wgtQCDScaleLo(1.0),wgtQCDScaleHi(1.0),wgthdampScaleLo(1.0),wgthdampScaleHi(1.0);
-      if(isTTbar) 
+      if(genWgtMode==FULLWEIGHT) wgt = ev.ttbar_w[0];
+      if(genWgtMode==ONLYSIGN)   wgt = ev.ttbar_w[0]>0 ? +1.0 : -1.0;
+      if(isTTbar)
 	{
-	  wgt             = ev.ttbar_w[0];
 	  wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
 	  wgtQCDScaleHi   = wgt*ev.ttbar_w[5]/ev.ttbar_w[0];
 	  wgthdampScaleLo = wgt*ev.ttbar_w[ev.ttbar_nw-17]/ev.ttbar_w[0];
 	  wgthdampScaleHi = wgt*ev.ttbar_w[ev.ttbar_nw-9]/ev.ttbar_w[0];
 	}
-
+      
       //main histogram for xsec extraction
       int binToFill(nBtags>=2?2:nBtags);
       binToFill+=3*(nJets-1);
@@ -254,11 +261,11 @@ void ReadTree(TString filename,TString outDir,Int_t channelSelection, Int_t char
   f->Close();
 
   //save histos to file  
-  gSystem->ExpandPathName(outDir);
-  gSystem->Exec("mkdir -p " + outDir);
-  TString selPrefix("");
+  TString selPrefix("");  
   if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
-  TFile *fOut=TFile::Open(outDir+"/"+selPrefix+gSystem->BaseName(filename),"RECREATE");
+  TString baseName=gSystem->BaseName(outname); 
+  TString dirName=gSystem->DirName(outname);
+  TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   for (auto& it : allPlots)  { it.second->SetDirectory(fOut); it.second->Write(); }
   fOut->Close();
 }

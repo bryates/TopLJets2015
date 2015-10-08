@@ -4,7 +4,7 @@ import json
 import ROOT
 import math
 
-from rounding import *
+from TopLJets2015.TopAnalysis.rounding import *
 
 
 """
@@ -338,18 +338,21 @@ def main():
     plots={}
     for tag,sample in samplesList: 
         fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, tag) )
-        for tkey in fIn.GetListOfKeys():
-            key=tkey.GetName()
-            keep=False
-            for tag in onlyList: 
-                if tag in key: keep=True
-            if not keep: continue
-            obj=fIn.Get(key)
-            if not obj.InheritsFrom('TH1') : continue
-            if not key in plots : plots[key]=Plot(key)
-            if opt.rebin>1:  obj.Rebin(opt.rebin)
-            plots[key].add(h=obj,title=sample[3],color=sample[4],isData=sample[1])
-    
+        try:
+            for tkey in fIn.GetListOfKeys():
+                key=tkey.GetName()
+                keep=False
+                for tag in onlyList: 
+                    if tag in key: keep=True
+                if not keep: continue
+                obj=fIn.Get(key)
+                if not obj.InheritsFrom('TH1') : continue
+                if not key in plots : plots[key]=Plot(key)
+                if opt.rebin>1:  obj.Rebin(opt.rebin)
+                plots[key].add(h=obj,title=sample[3],color=sample[4],isData=sample[1])
+        except:
+            pass
+
     #show plots
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)

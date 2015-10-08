@@ -1,3 +1,6 @@
+import ROOT
+import pickle
+
 """
 Takes a directory on eos (starting from /store/...) and returns a list of all files with 'prepend' prepended
 """
@@ -28,3 +31,34 @@ def getEOSlslist(directory, mask='', prepend='root://eoscms//eos/cms'):
 
     ## return 
     return full_list
+
+"""
+Loops over a list of samples and produces a cache file to normalize MC
+"""
+def produceNormalizationCache(samplesList,inDir,cache):
+
+    xsecWgts,integLumi={},{}
+    for tag,sample in samplesList: 
+
+        if sample[1]==1 : 
+            xsecWgts[tag]=1.0
+            continue
+
+        input_list=getEOSlslist(directory=inDir+'/'+tag)            
+        xsec=sample[0]            
+        norigEvents=0
+        for f in input_list:
+            fIn=ROOT.TFile.Open(f)
+            norigEvents+=fIn.Get('analysis/counter').GetBinContent(1)
+            fIn.Close()
+        xsecWgts[tag]  = xsec/norigEvents  if norigEvents>0 else 0
+        integLumi[tag] = norigEvents/xsec  if norigEvents>0 else 0
+        print '... %s cross section=%f pb #orig events=%d lumi=%3.2f/fb' % (tag,xsec,norigEvents,integLumi[tag]/1000.)
+
+        #dump to file    
+        cachefile=open(cache,'w')
+        pickle.dump(xsecWgts, cachefile, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(integLumi, cachefile, pickle.HIGHEST_PROTOCOL)
+        cachefile.close()
+        print 'Produced normalization cache (%s)'%cache
+    return xsecWgts,integLumi

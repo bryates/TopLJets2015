@@ -1,7 +1,7 @@
 import os
 import sys
 import optparse
-from storeTools import getEOSlslist
+from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
 
 """
 steer the script
@@ -12,9 +12,12 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--inDir',       dest='inDir',       help='input directory with files',               default=None,   type='string')
+    parser.add_option('-o', '--outDir',      dest='outDir',      help='output directory with files',              default=None,   type='string')
     parser.add_option('-c', '--cleanup',     dest='cleanup',     help='removes original crab directory',          default =False, action='store_true')
     parser.add_option(      '--nocheck',     dest='nocheck',     help='do not prompt user',                       default=False,  action='store_true')
     (opt, args) = parser.parse_args()
+
+    if opt.outDir is None: opt.outDir=opt.inDir
 
     dset_list=getEOSlslist(directory=opt.inDir,prepend='')
     for dset in dset_list:
@@ -38,7 +41,7 @@ def main():
             for count in count_list: out_list += getEOSlslist(directory=count,prepend='')
             file_list=[x for x in out_list if '.root' in x]
 
-            newDir='%s/%s' % (opt.inDir,pub)        
+            newDir='%s/%s' % (opt.outDir,pub)        
             print '<primary-dataset>=%s <publication-name>=crab_%s <time-stamp>=%s has %d files' % (dsetname,pub,time_stamp,len(file_list) )
             if not opt.nocheck:
                 choice = raw_input('Will move to %s current output directory. [y/n] ?' % newDir ).lower()
@@ -46,7 +49,7 @@ def main():
             os.system('cmsMkdir %s' % newDir)
 
             moveIndividualFiles=True
-            if len(file_list)>5:
+            if len(file_list)>0:
                 subgroupMerge = int( raw_input('This set has %d files. Merge into groups? (enter 0 if no merging)' % len(file_list)) )
                 if subgroupMerge>0:
                     moveIndividualFiles=False
@@ -55,7 +58,7 @@ def main():
                     split_file_lists = splitFunc( file_list )
                 
                     for ilist in xrange(0,len(split_file_lists)):
-                        mergedFileName='/tmp/MergedJetTree_%d.root '%ilist
+                        mergedFileName='/tmp/MergedMiniEvents_%d.root '%ilist
                         toAdd='%s ' % mergedFileName
                         for f in split_file_lists[ilist]:
                             os.system('cmsStage -f %s /tmp/' % f)

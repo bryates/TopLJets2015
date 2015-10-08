@@ -35,7 +35,7 @@ Don't forget to init the environment for crab3
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i my_output_directory_in_eos
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/5692fcb -o /store/cmst3/user/psilva/LJets2015/5692fcb
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
@@ -46,12 +46,15 @@ python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
 To run the code on a set of samples, listed in a json file you can run it as follows:
 ```
-python scripts/runLocalAnalysis.py -i directory -j data/samples_Run2015.json 
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json
 ```
 The first time it runs over the directory it will compute the normalization factor for MC
 such that the distributions will correspond to 1/pb of data.
 The normalization factor is given by (xsec / N generated events)
 where xsec is stored in the json file, and N generated events is summed up
-from the "cutflow" histogram stored in the the files to process for each process.
-
+from the "counter" histogram stored in the the files to process for each process.
+To plot the output of the local analysis you can run the following:
+```
+python scripts/plotter.py -i analysis/ -j data/samples_Run2015.json -l 203
+```
 
