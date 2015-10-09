@@ -50,6 +50,7 @@ def main():
     
     task_list = []
     if '.root' in opt.input:
+        if '/store/' in opt.input: opt.input='root://eoscms.cern.ch//eos/cms/'+opt.input
         outF=os.path.join(opt.outDir,os.path.basename(opt.input))
         task_list.append( (opt.input,outF,opt.channel,opt.charge,opt.norm,opt.isTT,opt.flav,opt.genWgtMode) )
     else:
