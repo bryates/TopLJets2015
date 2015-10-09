@@ -19,6 +19,7 @@
 
 using namespace std;
 
+
 Int_t getSecVtxBinToFill(Float_t firstVtxMass,Float_t secondVtxMass,Int_t nJets,Int_t nsvtxMassBins,Float_t minSvtxMass,Float_t maxSvtxMass)
 {
   Int_t nJetsBin(nJets>4 ? 4 : nJets);
@@ -51,9 +52,14 @@ void ReadTree(TString filename,
   //book histograms
   std::map<TString, TH1 *> allPlots;
 
+  std::map<Int_t,Float_t> lumiMap=lumiPerRun();
   for(Int_t ij=1; ij<=4; ij++)
     {
       TString tag(Form("%dj",ij));
+      allPlots["ratevsrun_"+tag] = new TH1F("ratevsrun_"+tag,";Run number; Events/pb",lumiMap.size(),0,lumiMap.size());
+      Int_t runCtr(0);
+      for(std::map<Int_t,Float_t>::iterator it=lumiMap.begin(); it!=lumiMap.end(); it++,runCtr++)
+	allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
       allPlots["lpt_"+tag]  = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
       allPlots["leta_"+tag] = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
       allPlots["jpt_"+tag]  = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
@@ -71,7 +77,18 @@ void ReadTree(TString filename,
   Int_t nsvtxMassBins=allPlots["secvtxmass_4j"]->GetXaxis()->GetNbins(); 
   Float_t maxSvtxMass=allPlots["secvtxmass_4j"]->GetXaxis()->GetXmax();
   Float_t minSvtxMass=allPlots["secvtxmass_4j"]->GetXaxis()->GetXmin();
-  allPlots["catcountSecVtx"] = new TH1F("catcountSecVtx",";Category;Events",4*(2*nsvtxMassBins+1),0.,4*(2*nsvtxMassBins+1));
+  allPlots["catcountSecVtx"] = new TH1F("catcountSecVtx",";SecVtx Mass [GeV];Events",4*(2*nsvtxMassBins+1),0.,4*(2*nsvtxMassBins+1));
+  for(Int_t njets=1; njets<=4; njets++)
+    {
+      Int_t startBin=(njets-1)*(2*nsvtxMassBins+1)+1;
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin,Form("%dj,0v",njets));
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin+1,"0");
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin+6,Form("%dj,1v",njets));
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin+nsvtxMassBins,"5");
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin+1+nsvtxMassBins,"0");
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin+6+nsvtxMassBins,Form("%dj,2v",njets));
+      allPlots["catcountSecVtx"]->GetXaxis()->SetBinLabel(startBin+2*nsvtxMassBins,"5");
+    }
   allPlots["catcount"] = new TH1F("catcount",";Category;Events" ,12,0.,12.);
   allPlots["catcount"]->GetXaxis()->SetBinLabel(1, "1j,=0b");
   allPlots["catcount"]->GetXaxis()->SetBinLabel(2, "1j,=1b");
@@ -89,6 +106,7 @@ void ReadTree(TString filename,
   for(size_t i=0; i<sizeof(systs)/sizeof(TString); i++)
     {
       allPlots["catcount_"+systs[i]]       = (TH1 *)allPlots["catcount"]->Clone("catcount_"+systs[i]);
+      if(systs[i].Contains("beff") || systs[i].Contains("mistag") ) continue;
       allPlots["catcountSecVtx_"+systs[i]] = (TH1 *)allPlots["catcountSecVtx"]->Clone("catcountSecVtx_"+systs[i]);
     }
 
@@ -299,6 +317,11 @@ void ReadTree(TString filename,
       if(nJets>4) tag="4";
       else tag += nJets;
       tag+="j";
+      std::map<Int_t,Float_t>::iterator rIt=lumiMap.find(ev.run);
+      if(rIt!=lumiMap.end()) {
+	Int_t runCtr=std::distance(lumiMap.begin(),rIt);
+	allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
+      }
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
       allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
       allPlots["jpt_"+tag]->Fill(ev.j_pt[ selJetsIdx[0] ],wgt);
@@ -328,3 +351,32 @@ void ReadTree(TString filename,
   for (auto& it : allPlots)  { it.second->SetDirectory(fOut); it.second->Write(); }
   fOut->Close();
 }
+
+//
+std::map<Int_t,Float_t> lumiPerRun()
+{
+  std::map<Int_t,Float_t> toReturn;
+  toReturn[256630]= 948417.609;  
+  toReturn[256673]=    5534.408;   
+  toReturn[256674]=   92567.485;   
+  toReturn[256675]=  7282554.291;  
+  toReturn[256676]=  9172872.886;  
+  toReturn[256677]=  15581756.928; 
+  toReturn[256729]=  66555084.031; 
+  toReturn[256734]=  7199959.798;  
+  toReturn[256801]=  8830347.675;  
+  toReturn[256842]=   16510.582;   
+  toReturn[256843]=  37367788.087; 
+  toReturn[256866]=   58250.406 ;  
+  toReturn[256867]=  4546508.033;  
+  toReturn[256868]=  22542014.201; 
+  toReturn[256869]=  1539580.832;  
+  toReturn[256941]=  8741029.381;  
+  toReturn[257394]=  1630030.328;  
+  toReturn[257395]=   701401.393;  
+  toReturn[257461]=  3057928.782;  
+  toReturn[257531]=  8418598.194;  
+  toReturn[257599]=  4940876.751;  
+  toReturn[258159]=  25687049.652;
+  return toReturn;
+};

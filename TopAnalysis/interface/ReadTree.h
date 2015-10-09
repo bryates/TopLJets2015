@@ -2,6 +2,7 @@
 #define _readtree_h_
 
 #include <TString.h>
+#include <map>
 
 enum FlavourSplitting {NOFLAVOURSPLITTING=0, UDSGSPLITTING=1, CSPLITTING=4, BSPLITTING=5 };
 enum GenWeightMode { NOGENWGT=0, ONLYSIGN=1, FULLWEIGHT=2 };
@@ -17,5 +18,6 @@ void ReadTree(TString filename,
 	      FlavourSplitting flavourSplitting=NOFLAVOURSPLITTING,
 	      GenWeightMode genWgtMode=NOGENWGT);
 
+std::map<Int_t,Float_t> lumiPerRun();
 
 #endif
