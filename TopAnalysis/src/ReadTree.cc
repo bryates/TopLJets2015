@@ -3,6 +3,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TSystem.h>
+#include <TGraph.h>
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/ReadTree.h"
@@ -61,6 +62,8 @@ void ReadTree(TString filename,
       for(std::map<Int_t,Float_t>::iterator it=lumiMap.begin(); it!=lumiMap.end(); it++,runCtr++)
 	allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
       allPlots["lpt_"+tag]  = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
+      allPlots["lchiso_"+tag]  = new TH1F("lchiso_"+tag,";Charged hadron isolation [GeV];Events" ,25,0.,50.);
+      allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
       allPlots["leta_"+tag] = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
       allPlots["jpt_"+tag]  = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
       allPlots["jeta_"+tag] = new TH1F("jeta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
@@ -102,15 +105,17 @@ void ReadTree(TString filename,
   allPlots["catcount"]->GetXaxis()->SetBinLabel(10,"4j,=0b");
   allPlots["catcount"]->GetXaxis()->SetBinLabel(11,"4j,=1b");
   allPlots["catcount"]->GetXaxis()->SetBinLabel(12,"4j,#geq2b");
-  TString systs[]={"qcdScaleDown","qcdScaleUp","hdampScaleDown","hdampScaleUp","jesDown","jesUp","jerDown","jerUp","beffDown","beffUp","mistagDown","mistagUp"};
+  TString systs[]={"puUp","puDown","muEffUp","muEffDown","eEffUp","eEffDown","qcdScaleDown","qcdScaleUp","hdampScaleDown","hdampScaleUp","jesDown","jesUp","jerDown","jerUp","beffDown","beffUp","mistagDown","mistagUp"};
   for(size_t i=0; i<sizeof(systs)/sizeof(TString); i++)
     {
       allPlots["catcount_"+systs[i]]       = (TH1 *)allPlots["catcount"]->Clone("catcount_"+systs[i]);
-      if(systs[i].Contains("beff") || systs[i].Contains("mistag") ) continue;
       allPlots["catcountSecVtx_"+systs[i]] = (TH1 *)allPlots["catcountSecVtx"]->Clone("catcountSecVtx_"+systs[i]);
     }
 
   for (auto& it : allPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
+
+  //pileup weights
+  TGraph *puWgtGr=0,*puWgtGrUp=0,*puWgtGrDown=0;
 
   //jet uncertainty parameterization
   TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_50nsV5_DATA_Uncertainty_AK4PFchs.txt");
@@ -233,7 +238,21 @@ void ReadTree(TString filename,
       }
 	
       //generator level weights to apply
-      float wgt(norm),wgtQCDScaleLo(norm),wgtQCDScaleHi(norm),wgthdampScaleLo(norm),wgthdampScaleHi(norm);
+      std::vector<float> lepSF=getLeptonSelectionScaleFactor(ev.l_id,ev.l_pt,ev.l_eta,ev.isData);
+      std::vector<float> puWeight(3,1.0);
+      if(!ev.isData && puWgtGr)
+	{
+	  puWeight[0]=puWgtGr->Eval(ev.putrue);  puWeight[1]=puWgtGrUp->Eval(ev.putrue); puWeight[2]=puWgtGrDown->Eval(ev.putrue);
+	}
+      float wgt          (norm*lepSF[0]                                *puWeight[0]);
+      float wgtPuUp      (norm*lepSF[0]                                *puWeight[1]);
+      float wgtPuDown    (norm*lepSF[0]                                *puWeight[2]);
+      float wgtMuEffUp   (norm*(abs(ev.l_id)==13 ? lepSF[1] : lepSF[0])*puWeight[0]);
+      float wgtMuEffDown (norm*(abs(ev.l_id)==13 ? lepSF[2] : lepSF[0])*puWeight[0]);
+      float wgtElEffUp   (norm*(abs(ev.l_id)==11 ? lepSF[1] : lepSF[0])*puWeight[0]);
+      float wgtElEffDown (norm*(abs(ev.l_id)==11 ? lepSF[2] : lepSF[0])*puWeight[0]);
+
+      float wgtQCDScaleLo(wgt),wgtQCDScaleHi(wgt),wgthdampScaleLo(wgt),wgthdampScaleHi(wgt);
       if(genWgtMode==FULLWEIGHT) wgt *= ev.ttbar_w[0];
       if(genWgtMode==ONLYSIGN)   wgt *= (ev.ttbar_w[0]>0 ? +1.0 : -1.0)*norm;
       if(isTTbar)
@@ -254,11 +273,24 @@ void ReadTree(TString filename,
 	  allPlots["catcountSecVtx_qcdScaleUp"]->Fill(secvtxBinToFill,wgtQCDScaleHi);
 	  allPlots["catcountSecVtx_hdampScaleDown"]->Fill(secvtxBinToFill,wgthdampScaleLo);
 	  allPlots["catcountSecVtx_hdampScaleUp"]->Fill(secvtxBinToFill,wgthdampScaleHi);
+	  allPlots["catcountSecVtx_puUp"]->Fill(secvtxBinToFill,wgtPuUp);
+	  allPlots["catcountSecVtx_puDown"]->Fill(secvtxBinToFill,wgtPuDown);
+	  allPlots["catcountSecVtx_muEffUp"]->Fill(secvtxBinToFill,wgtMuEffUp);
+	  allPlots["catcountSecVtx_muEffDown"]->Fill(secvtxBinToFill,wgtMuEffDown);
+	  allPlots["catcountSecVtx_eEffUp"]->Fill(secvtxBinToFill,wgtElEffUp);
+	  allPlots["catcountSecVtx_eEffDown"]->Fill(secvtxBinToFill,wgtElEffDown);
+
 	  allPlots["catcount"]->Fill(binToFill,wgt);
 	  allPlots["catcount_qcdScaleDown"]->Fill(binToFill,wgtQCDScaleLo);
 	  allPlots["catcount_qcdScaleUp"]->Fill(binToFill,wgtQCDScaleHi);
 	  allPlots["catcount_hdampScaleDown"]->Fill(binToFill,wgthdampScaleLo);
 	  allPlots["catcount_hdampScaleUp"]->Fill(binToFill,wgthdampScaleHi);
+	  allPlots["catcount_puUp"]->Fill(binToFill,wgtPuUp);
+	  allPlots["catcount_puDown"]->Fill(binToFill,wgtPuDown);
+	  allPlots["catcount_muEffUp"]->Fill(binToFill,wgtMuEffUp);
+	  allPlots["catcount_muEffDown"]->Fill(binToFill,wgtMuEffDown);
+	  allPlots["catcount_eEffUp"]->Fill(binToFill,wgtElEffUp);
+	  allPlots["catcount_eEffDown"]->Fill(binToFill,wgtElEffDown);
 	}
 
       binToFill=getBtagCatBinToFill(nBtags,nJetsJESHi);
@@ -320,6 +352,8 @@ void ReadTree(TString filename,
       if(!ev.isData)
 	for(Int_t xbin=1; xbin<=allPlots["ratevsrun_"+tag]->GetNbinsX(); xbin++) allPlots["ratevsrun_"+tag]->Fill(xbin,wgt);	
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
+      allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);
+      allPlots["lchreliso_"+tag]->Fill(ev.l_chargedHadronIso/ev.l_pt,wgt);
       allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
       allPlots["jpt_"+tag]->Fill(ev.j_pt[ selJetsIdx[0] ],wgt);
       allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ selJetsIdx[0] ]),wgt);
@@ -378,6 +412,12 @@ std::map<Int_t,Float_t> lumiPerRun()
   return toReturn;
 };
 
+//
+std::vector<float> getLeptonSelectionScaleFactor(int l_id,float l_pt,float l_eta,bool isData)
+{
+  std::vector<float> lepSelSF(3,1.0);
+  return lepSelSF;
+}
 
 //Sources
 //  Assuming nominal JER but uncertainties from Run I

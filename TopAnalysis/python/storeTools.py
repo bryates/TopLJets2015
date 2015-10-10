@@ -37,7 +37,24 @@ Loops over a list of samples and produces a cache file to normalize MC
 """
 def produceNormalizationCache(samplesList,inDir,cache):
 
-    xsecWgts,integLumi={},{}
+    #open pileup files
+    puDists={}
+    for puEstimate in ['pudata_nominal','pudata_up','pudata_down']:
+        try:
+            fIn=ROOT.TFile.Open('${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/%s.root'%puEstimate)
+            puDists[puEstimate]=fIn.Get('pileup').Clone(puEstimate)
+            puDists[puEstimate].SetDirectory(0)
+        except:
+            pass        
+    hputrue=None
+    try:
+        hputrue=puDists['pudata_nominal'].Clone('pumc')
+        hputrue.SetDirectory(0)
+    except:
+        print 'No pileup distributions found under data/ pileup weights won\'t be stored'
+
+    #loop over samples
+    xsecWgts,integLumi,puHistos={},{},{}
     for tag,sample in samplesList: 
 
         if sample[1]==1 : 
@@ -47,18 +64,34 @@ def produceNormalizationCache(samplesList,inDir,cache):
         input_list=getEOSlslist(directory=inDir+'/'+tag)            
         xsec=sample[0]            
         norigEvents=0
+        if hputrue : hputrue.Reset('ICE')
         for f in input_list:
             fIn=ROOT.TFile.Open(f)
             norigEvents+=fIn.Get('analysis/counter').GetBinContent(1)
+            if hputrue:
+                fIn.Get('analysis/data').Draw('putrue>>+hputrue','','goff')
             fIn.Close()
         xsecWgts[tag]  = xsec/norigEvents  if norigEvents>0 else 0
         integLumi[tag] = norigEvents/xsec  if norigEvents>0 else 0
+
+        puGr=[]
+        if hputrue:
+            for puEst in ['pudata_nominal','pudata_up','pudata_down']:
+                hwgt=puDists[puEst].Clone('htemp')
+                hwgt.Divide(hputrue)
+                puGr[puEst]=ROOT.TGraph(hwgt)
+                puGr[puEst].SetName(puEst+'_wgt')
+                hwgt.Delete()
+        puHistos[tag] = puGr
+
         print '... %s cross section=%f pb #orig events=%d lumi=%3.2f/fb' % (tag,xsec,norigEvents,integLumi[tag]/1000.)
 
         #dump to file    
         cachefile=open(cache,'w')
         pickle.dump(xsecWgts, cachefile, pickle.HIGHEST_PROTOCOL)
         pickle.dump(integLumi, cachefile, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(puHistos, cachefile, pickle.HIGHEST_PROTOCOL)
         cachefile.close()
-        print 'Produced normalization cache (%s)'%cache
-    return xsecWgts,integLumi
+        print 'Produced normalization cache and pileup weights @ %s'%cache
+
+    return xsecWgts,integLumi,puHistos
