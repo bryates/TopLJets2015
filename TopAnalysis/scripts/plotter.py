@@ -100,7 +100,8 @@ class Plot(object):
         p1.SetLeftMargin(0.12)
         p1.SetTopMargin(0.01)
         p1.SetBottomMargin(0.12)
-        p1.SetGridx(True)
+        p1.SetGridx(False)
+        p1.SetGridy(True)
         self._garbageList.append(p1)
         p1.cd()
 
@@ -144,7 +145,12 @@ class Plot(object):
         if self.dataH:
             if maxY<self.dataH.GetMaximum():
                 maxY=self.dataH.GetMaximum()
-        frame.GetYaxis().SetRangeUser(0.1,maxY*1.3)
+        if maxY>1e5 : 
+            p1.SetLogy(True)
+            frame.GetYaxis().SetRangeUser(1,maxY*10)
+        else        : 
+            p1.SetLogy(False)
+            frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)        
         frame.SetDirectory(0)
         frame.Reset('ICE')
         self._garbageList.append(frame)
@@ -153,7 +159,6 @@ class Plot(object):
         frame.GetYaxis().SetNoExponent()
         frame.Draw()
         frame.GetYaxis().SetTitleOffset(1.3)
-
         if totalMC is not None   : stack.Draw('hist same')
         if self.data is not None : self.data.Draw('p')
 
@@ -176,7 +181,7 @@ class Plot(object):
         p2.SetRightMargin(0.05)
         p2.SetLeftMargin(0.12)
         p2.SetTopMargin(0.05)
-        p2.SetGridx(True)
+        p2.SetGridx(False)
         p2.SetGridy(True)
         self._garbageList.append(p2)
         p2.cd()

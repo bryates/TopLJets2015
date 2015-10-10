@@ -1,8 +1,10 @@
 {
+"MC13TeV_TTJets_amcatnloFXFX"       : [831.76,    0, "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM", "t#bar{t}",          920, true, false, 0],
 "MC13TeV_TTWJets"                        : [ 0.2043, 0, "/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t}+V", 800,false,false,1],
 "MC13TeV_TTZToQQ"                        : [ 0.5297, 0, "/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t}+V", 800, false,false,1 ],
 "MC13TeV_WZ"                        : [65.9,      0, "/WZJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "Multiboson",        815, false, false, 1],
-"MC13TeV_TTJets_amcatnloFXFX"       : [831.76,    0, "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM", "t#bar{t}",          920, true, false, 0],
+"MC13TeV_WJets" : [61526, 0, "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", 797,false,false,1]
+"MC13TeV_SingleT_tW"         : [35.6,      0, "/ST_tW_antitop_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "Single top",        865],
 "Data13TeV_SingleMuon_2015D_v3"     : [1, 1, "/SingleMuon/Run2015D-PromptReco-v3/MINIAOD",     "Data", 1, false, false, 0],
 "Data13TeV_SingleElectron_2015D_v3" : [1, 1, "/SingleElectron/Run2015D-PromptReco-v3/MINIAOD", "Data", 1, false, false, 0],
 "Data13TeV_SingleMuon_2015D_v4"     : [1, 1, "/SingleMuon/Run2015D-PromptReco-v4/MINIAOD",     "Data", 1, false, false, 0],
