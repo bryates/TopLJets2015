@@ -3,6 +3,7 @@
 
 #include <TString.h>
 #include <map>
+#include <vector>
 
 enum FlavourSplitting {NOFLAVOURSPLITTING=0, UDSGSPLITTING=1, CSPLITTING=4, BSPLITTING=5 };
 enum GenWeightMode { NOGENWGT=0, ONLYSIGN=1, FULLWEIGHT=2 };
@@ -17,7 +18,7 @@ void ReadTree(TString filename,
 	      Bool_t isTTbar=false,
 	      FlavourSplitting flavourSplitting=NOFLAVOURSPLITTING,
 	      GenWeightMode genWgtMode=NOGENWGT);
-
 std::map<Int_t,Float_t> lumiPerRun();
+std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt);
 
 #endif

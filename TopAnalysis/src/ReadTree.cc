@@ -120,6 +120,7 @@ void ReadTree(TString filename,
   // setup calibration readers
   TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
   gSystem->ExpandPathName(btagUncUrl);
+
   /*
   BTagCalibration calib("csvv2", btagUncUrl.Data());
   BTagCalibrationReader btvreader(&calib,               // calibration instance
@@ -215,18 +216,12 @@ void ReadTree(TString filename,
 	  if((jet_pt)*(1-unc)>30) nJetsJESLo++;
 	  
 	  //jet energy resolution
-	  float JERCor_UP(1.0),JERCor_DOWN(1.0);
-	  
-	  //NEEDS GEN JETS IN THE TREE!!!!!!!!!!
-	  //float genJet_pt(ev.genj_pt[k]);
-	  //if(genJet_pt>0)
-	  //{
-	  //	JERCor = getJERfactor(jet_pt, jet_eta, genJet_pt);
-	  //	JERCor_UP = getJERfactor_up(jet_pt, jet_eta, genJet_pt);
-	  //  JERCor_DOWN = getJERfactor_down(jet_pt, jet_eta, genJet_pt);
-	  // }
-	  if(JERCor_UP*jet_pt>30) nJetsJERHi++;
-	  if(JERCor_DOWN*jet_pt>30) nJetsJERLo++;
+	  std::vector<float> jerScale(3,1.0);
+	  float genJet_pt(ev.genj_pt[k]);
+	  if(!ev.isData && genJet_pt>0)
+	      jerScale=getJetResolutionScales(jet_pt,jet_eta,genJet_pt);
+	  if(jerScale[1]*jet_pt>30) nJetsJERLo++;
+	  if(jerScale[2]*jet_pt>30) nJetsJERHi++;
 	}
 
       //check if flavour splitting was required
@@ -322,6 +317,8 @@ void ReadTree(TString filename,
 	Int_t runCtr=std::distance(lumiMap.begin(),rIt);
 	allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
       }
+      if(!ev.isData)
+	for(Int_t xbin=1; xbin<=allPlots["ratevsrun_"+tag]->GetNbinsX(); xbin++) allPlots["ratevsrun_"+tag]->Fill(xbin,wgt);	
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
       allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
       allPlots["jpt_"+tag]->Fill(ev.j_pt[ selJetsIdx[0] ],wgt);
@@ -380,3 +377,45 @@ std::map<Int_t,Float_t> lumiPerRun()
   toReturn[258159]=  25687049.652;
   return toReturn;
 };
+
+
+//Sources
+//  Assuming nominal JER but uncertainties from Run I
+//  https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
+std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt)
+{
+  std::vector<float> res(3,1.0);
+
+  float ptSF(1.0), ptSF_err(0.06);
+  if(TMath::Abs(eta)<0.5) 
+    {
+      ptSF=1.0;
+      ptSF_err = TMath::Sqrt(pow(0.012,2)+pow(0.5*(0.062+0.061),2));
+    }
+  else if(TMath::Abs(eta)<1.1)
+    {
+      ptSF=1.0;
+      ptSF_err = TMath::Sqrt(pow(0.012,2)+pow(0.5*(0.056+0.055),2));
+    }
+  else if(TMath::Abs(eta)<1.7)
+    {
+      ptSF=1.0;
+      ptSF_err = TMath::Sqrt(pow(0.017,2)+pow(0.5*(0.063+0.062),2));
+    }
+  else if(TMath::Abs(eta)<2.3)
+    {
+      ptSF=1.0;
+      ptSF_err = TMath::Sqrt(pow(0.035,2)+pow(0.5*(0.087+0.085),2));
+    }
+  else
+    {
+      ptSF=1.0;
+      ptSF_err = TMath::Sqrt(pow(0.127,2)+pow(0.5*(0.155+0.153),2));
+    }
+
+  res[0] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF)*(pt-genjpt)))/pt;
+  res[1] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF-ptSF_err)*(pt-genjpt)))/pt;
+  res[2] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF+ptSF_err)*(pt-genjpt)))/pt;
+  
+  return res;
+}
