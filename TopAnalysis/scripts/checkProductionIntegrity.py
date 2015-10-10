@@ -63,6 +63,7 @@ def main():
                         for f in split_file_lists[ilist]:
                             os.system('cmsStage -f %s /tmp/' % f)
                             toAdd += '/tmp/'+os.path.basename(f) + ' '
+                        
                         os.system('hadd -f %s'%toAdd)
                         os.system('cmsStage -f %s %s/' %(mergedFileName,newDir))
                         os.system('rm %s' % toAdd)

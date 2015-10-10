@@ -2,6 +2,8 @@
 #define _readtree_h_
 
 #include <TString.h>
+#include <TGraph.h>
+
 #include <map>
 #include <vector>
 
@@ -17,7 +19,8 @@ void ReadTree(TString filename,
 	      Float_t norm=1.0,
 	      Bool_t isTTbar=false,
 	      FlavourSplitting flavourSplitting=NOFLAVOURSPLITTING,
-	      GenWeightMode genWgtMode=NOGENWGT);
+	      GenWeightMode genWgtMode=NOGENWGT,
+	      TGraph *puWgtGr=0,TGraph *puUpWgtGr=0,TGraph *puDownWgtGr=0);
 std::map<Int_t,Float_t> lumiPerRun();
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt);
 std::vector<float> getLeptonSelectionScaleFactor(int l_id,float l_pt,float l_eta,bool isData);

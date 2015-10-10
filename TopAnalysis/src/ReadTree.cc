@@ -48,7 +48,8 @@ void ReadTree(TString filename,
 	      Float_t norm, 
 	      Bool_t isTTbar,
 	      FlavourSplitting flavourSplitting,
-	      GenWeightMode genWgtMode)
+	      GenWeightMode genWgtMode,
+	      TGraph *puWgtGr,TGraph *puUpWgtGr,TGraph *puDownWgtGr)
 {
   //book histograms
   std::map<TString, TH1 *> allPlots;
@@ -114,8 +115,6 @@ void ReadTree(TString filename,
 
   for (auto& it : allPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
 
-  //pileup weights
-  TGraph *puWgtGr=0,*puWgtGrUp=0,*puWgtGrDown=0;
 
   //jet uncertainty parameterization
   TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_50nsV5_DATA_Uncertainty_AK4PFchs.txt");
@@ -242,7 +241,7 @@ void ReadTree(TString filename,
       std::vector<float> puWeight(3,1.0);
       if(!ev.isData && puWgtGr)
 	{
-	  puWeight[0]=puWgtGr->Eval(ev.putrue);  puWeight[1]=puWgtGrUp->Eval(ev.putrue); puWeight[2]=puWgtGrDown->Eval(ev.putrue);
+	  puWeight[0]=puWgtGr->Eval(ev.putrue);  puWeight[1]=puUpWgtGr->Eval(ev.putrue); puWeight[2]=puDownWgtGr->Eval(ev.putrue);
 	}
       float wgt          (norm*lepSF[0]                                *puWeight[0]);
       float wgtPuUp      (norm*lepSF[0]                                *puWeight[1]);
@@ -387,35 +386,113 @@ void ReadTree(TString filename,
 std::map<Int_t,Float_t> lumiPerRun()
 {
   std::map<Int_t,Float_t> toReturn;
-  toReturn[256630]= 948417.609;  
-  toReturn[256673]=    5534.408;   
-  toReturn[256674]=   92567.485;   
-  toReturn[256675]=  7282554.291;  
-  toReturn[256676]=  9172872.886;  
-  toReturn[256677]=  15581756.928; 
-  toReturn[256729]=  66555084.031; 
-  toReturn[256734]=  7199959.798;  
-  toReturn[256801]=  8830347.675;  
-  toReturn[256842]=   16510.582;   
-  toReturn[256843]=  37367788.087; 
-  toReturn[256866]=   58250.406 ;  
-  toReturn[256867]=  4546508.033;  
-  toReturn[256868]=  22542014.201; 
-  toReturn[256869]=  1539580.832;  
-  toReturn[256941]=  8741029.381;  
-  toReturn[257394]=  1630030.328;  
-  toReturn[257395]=   701401.393;  
-  toReturn[257461]=  3057928.782;  
-  toReturn[257531]=  8418598.194;  
-  toReturn[257599]=  4940876.751;  
-  toReturn[258159]=  25687049.652;
+  toReturn[256630]=948417.609   ;
+  toReturn[256673]=5534.408     ;
+  toReturn[256674]=92567.485    ;
+  toReturn[256675]=7282554.291  ;
+  toReturn[256676]=9172872.886  ;
+  toReturn[256677]=15581756.928 ;
+  toReturn[256729]=66555084.031 ;
+  toReturn[256734]=7199959.798  ;
+  toReturn[256801]=8830347.675  ;
+  toReturn[256842]=16510.582    ;
+  toReturn[256843]=37367788.087 ;
+  toReturn[256866]=58250.406    ;
+  toReturn[256867]=4546508.033  ;
+  toReturn[256868]=22542014.201 ;
+  toReturn[256869]=1539580.832  ;
+  toReturn[256926]=1499855.808  ;
+  toReturn[256941]=8741029.381  ;
+  toReturn[257394]=1630030.328  ;
+  toReturn[257395]=701401.393   ;
+  toReturn[257461]=3057928.782  ;
+  toReturn[257531]=8418598.194  ;
+  toReturn[257599]=4940876.751  ;
+  toReturn[257613]=75639153.224 ;
+  toReturn[257614]=850778.922   ;
+  toReturn[257645]=62520503.888 ;
+  toReturn[257682]=13053256.987 ;
+  toReturn[257722]=810552.138   ;
+  toReturn[257723]=5941442.106  ;
+  toReturn[257735]=521278.124   ;
+  toReturn[257751]=27029514.967 ;
+  toReturn[257804]=210956.374   ;
+  toReturn[257805]=17038078.687 ;
+  toReturn[257816]=24328019.178 ;
+  toReturn[257819]=15147148.51  ;
+  toReturn[257968]=16769109.914 ;
+  toReturn[257969]=39179793.996 ;
+  toReturn[258129]=5813530.48   ;
+  toReturn[258136]=3617731.16   ;
+  toReturn[258157]=3866329.715  ;
+  toReturn[258158]=29505332.962 ;
+  toReturn[258159]=25687049.652 ;
   return toReturn;
 };
 
 //
-std::vector<float> getLeptonSelectionScaleFactor(int l_id,float l_pt,float l_eta,bool isData)
+std::vector<float> getLeptonSelectionScaleFactor(int id,float pt,float eta,bool isData)
 {
   std::vector<float> lepSelSF(3,1.0);
+  if(isData) return lepSelSF;
+
+  std::pair<float,float>res(1.0,0.0);
+
+  //electrons
+  if(abs(id)==11)
+    {
+      if (fabs(eta)<0.8)
+	{
+	  if (pt<30)      { res.first=0.927; res.second=0.073; }
+	  else if (pt<40) { res.first=0.975; res.second=0.018; }
+	  else if (pt<50) { res.first=0.962; res.second=0.036; }
+	  else            { res.first=0.955; res.second=0.022; }
+	}
+      else if (fabs(eta)<1.5)
+	{
+	  if (pt<30)      { res.first=0.891; res.second=0.074; }
+	  else if (pt<40) { res.first=0.965; res.second=0.020; }
+	  else if (pt<50) { res.first=0.968; res.second=0.018; }
+	  else            { res.first=0.955; res.second=0.018; }
+	}
+      else
+	{
+	  if (pt<30)      { res.first=0.956; res.second=0.059; }
+	  else if (pt<40) { res.first=0.995; res.second=0.018; }
+	  else if (pt<50) { res.first=0.993; res.second=0.019; }
+	  else            { res.first=0.985; res.second=0.023; }
+	}
+    }
+
+  //muons
+  if (abs(id)==13)
+    {
+      if (fabs(eta)<0.9)
+	{
+	  if (pt<30)      { res.first=1.003; res.second=0.019; }
+	  else if (pt<40) { res.first=1.014; res.second=0.015; }
+	  else if (pt<50) { res.first=1.001; res.second=0.014; }
+	  else            { res.first=0.983; res.second=0.014; }
+	}
+      else if(fabs(eta)<1.2)
+	{
+	  if (pt<30)      { res.first=0.993; res.second=0.019; }
+	  else if (pt<40) { res.first=0.994; res.second=0.015; }
+	  else if (pt<50) { res.first=0.980; res.second=0.014; }
+	  else            { res.first=0.987; res.second=0.015; }
+	}
+      else
+	{
+	  if (pt<30)      { res.first=1.023; res.second=0.028; }
+	  else if (pt<40) { res.first=0.994; res.second=0.014; }
+	  else if (pt<50) { res.first=0.996; res.second=0.014; }
+	  else            { res.first=0.979; res.second=0.014; }
+	}
+    }
+
+  lepSelSF[0]=res.first;
+  lepSelSF[1]=res.first+res.second;
+  lepSelSF[2]=res.first-res.second;
   return lepSelSF;
 }
 

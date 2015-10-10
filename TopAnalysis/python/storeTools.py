@@ -39,17 +39,19 @@ def produceNormalizationCache(samplesList,inDir,cache):
 
     #open pileup files
     puDists={}
-    for puEstimate in ['pudata_nominal','pudata_up','pudata_down']:
+    for puEstimate in ['nom','up','down']:
         try:
-            fIn=ROOT.TFile.Open('${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/%s.root'%puEstimate)
+            fIn=ROOT.TFile.Open('${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/PileupData_%s.root'%puEstimate)
             puDists[puEstimate]=fIn.Get('pileup').Clone(puEstimate)
             puDists[puEstimate].SetDirectory(0)
+            print puDists[puEstimate]
         except:
             pass        
     hputrue=None
     try:
-        hputrue=puDists['pudata_nominal'].Clone('pumc')
+        hputrue=puDists['nom'].Clone('hputrue')
         hputrue.SetDirectory(0)
+        print 'Pileup distributions will be computed, this make take a while...'
     except:
         print 'No pileup distributions found under data/ pileup weights won\'t be stored'
 
@@ -69,29 +71,36 @@ def produceNormalizationCache(samplesList,inDir,cache):
             fIn=ROOT.TFile.Open(f)
             norigEvents+=fIn.Get('analysis/counter').GetBinContent(1)
             if hputrue:
+                hputrue.SetDirectory(fIn)
                 fIn.Get('analysis/data').Draw('putrue>>+hputrue','','goff')
+                hputrue.SetDirectory(0)
             fIn.Close()
         xsecWgts[tag]  = xsec/norigEvents  if norigEvents>0 else 0
         integLumi[tag] = norigEvents/xsec  if norigEvents>0 else 0
 
         puGr=[]
-        if hputrue:
-            for puEst in ['pudata_nominal','pudata_up','pudata_down']:
+        if hputrue and hputrue.Integral()>0:
+            hputrue.Scale(1./hputrue.Integral())
+            for puEst in ['nom','up','down']:
                 hwgt=puDists[puEst].Clone('htemp')
+                if hwgt.Integral()==0 : 
+                    puGr.append(None)
+                    continue
+                hwgt.Scale(1./hwgt.Integral())
                 hwgt.Divide(hputrue)
-                puGr[puEst]=ROOT.TGraph(hwgt)
-                puGr[puEst].SetName(puEst+'_wgt')
+                puGr.append( ROOT.TGraph(hwgt) )
+                puGr[-1].SetName(puEst+'_wgt')
                 hwgt.Delete()
         puHistos[tag] = puGr
 
         print '... %s cross section=%f pb #orig events=%d lumi=%3.2f/fb' % (tag,xsec,norigEvents,integLumi[tag]/1000.)
-
-        #dump to file    
-        cachefile=open(cache,'w')
-        pickle.dump(xsecWgts, cachefile, pickle.HIGHEST_PROTOCOL)
-        pickle.dump(integLumi, cachefile, pickle.HIGHEST_PROTOCOL)
-        pickle.dump(puHistos, cachefile, pickle.HIGHEST_PROTOCOL)
-        cachefile.close()
-        print 'Produced normalization cache and pileup weights @ %s'%cache
+        
+    #dump to file    
+    cachefile=open(cache,'w')
+    pickle.dump(xsecWgts, cachefile, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(integLumi, cachefile, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(puHistos, cachefile, pickle.HIGHEST_PROTOCOL)
+    cachefile.close()
+    print 'Produced normalization cache and pileup weights @ %s'%cache
 
     return xsecWgts,integLumi,puHistos

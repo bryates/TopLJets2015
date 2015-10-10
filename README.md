@@ -55,7 +55,7 @@ Use the table which is printed out to update the "lumiPerRun" method in ReadTree
 That will be used to monitor the event yields per run in order to identify outlier runs.
 To update the pileup distributions run
 ```
-python scripts/runPileupEstimation.py -i SingleElectron_lumi.json
+python scripts/runPileupEstimation.py --json SingleElectron_lumi.json
 ```
 It will store the data pileup distributions for different min.bias cross section values under data.
 You're now ready to start locally the analysis.
@@ -83,7 +83,7 @@ Both the normalization factors and the pileup weights are stored under the "anal
 in a cache file called ".xsecweights.pck".
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis/ -j data/samples_Run2015.json -l 235
+python scripts/plotter.py -i analysis/ -j data/samples_Run2015.json -l 578.25
 ```
 
 ## Updating the code
