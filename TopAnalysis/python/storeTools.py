@@ -64,18 +64,19 @@ def produceNormalizationCache(samplesList,inDir,cache):
 
         input_list=getEOSlslist(directory=inDir+'/'+tag)            
         xsec=sample[0]            
-        norigEvents=0
+        norigEvents,nrawEvents=0,0
         if hputrue : hputrue.Reset('ICE')
         for f in input_list:
             fIn=ROOT.TFile.Open(f)
-            norigEvents+=fIn.Get('analysis/counter').GetBinContent(1)
+            norigEvents+=fIn.Get('analysis/fidcounter').GetBinContent(1)
+            nrawEvents+=fIn.Get('analysis/counter').GetBinContent(1)
             if hputrue:
                 hputrue.SetDirectory(fIn)
-                fIn.Get('analysis/data').Draw('putrue>>+hputrue','','goff')
+                fIn.Get('analysis/data').Draw('putrue>>+hputrue','ttbar_w[0]','goff')
                 hputrue.SetDirectory(0)
             fIn.Close()
         xsecWgts[tag]  = xsec/norigEvents  if norigEvents>0 else 0
-        integLumi[tag] = norigEvents/xsec  if norigEvents>0 else 0
+        integLumi[tag] = nrawEvents/xsec  if norigEvents>0 else 0
 
         puGr=[]
         if hputrue and hputrue.Integral()>0:

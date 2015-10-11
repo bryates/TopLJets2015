@@ -60,6 +60,7 @@
 #include "TH1.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TTree.h"
 
 #include <vector>
 #include <unordered_map>
@@ -86,7 +87,7 @@ public:
 
 
 private:
-  bool doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  Int_t doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
@@ -166,7 +167,7 @@ MiniAnalyzer::~MiniAnalyzer()
 //
 // member functions
 //
-bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByLabel("prunedGenParticles", genParticles);
@@ -184,7 +185,7 @@ bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Event
       lphi=genIt.phi();
       leta=genIt.eta();
     }
-    if(nLeptons!=1) return false;
+    if(nLeptons!=1) return 0;
     
     //require 1 jets not overlapping with lepton
     int njets(0);
@@ -197,8 +198,7 @@ bool MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Event
        if(dR<0.4) continue;
        njets++;
      }
-    if(njets<1) return false;
-    return true;
+    return njets;
 }
 
 // ------------ method called for each event  ------------
@@ -232,9 +232,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.ttbar_nw=0;
   if(!ev_.isData)
     {
-      ev_.isFiducial = doFiducialAnalysis(iEvent,iSetup);
-      histContainer_["fidcounter"]->Fill(0.,ev_.ttbar_w[0]);
-      if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(1.,ev_.ttbar_w[0]);
+      Int_t ngenJets = doFiducialAnalysis(iEvent,iSetup);
+      if(ngenJets<1) ev_.isFiducial=false;
 
       edm::Handle<GenEventInfoProduct> evt;
       iEvent.getByLabel("generator","", evt);
@@ -245,6 +244,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  ev_.ttbar_w[0]           = evt->weight();
 	  ev_.ttbar_nw++;
 	}
+      histContainer_["counter"]->Fill(1,ev_.ttbar_w[0]);
 
       edm::Handle<LHEEventProduct> evet;
       iEvent.getByLabel("externalLHEProducer","", evet);    
@@ -254,9 +254,19 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  for(unsigned int i=0  ; i<evet->weights().size();i++){
 	    double asdde=evet->weights()[i].wgt;
 	    ev_.ttbar_w[ev_.ttbar_nw]=ev_.ttbar_w[0]*asdde/asdd;
-	    if(ev_.isFiducial) histContainer_["fidcounter"]->Fill(i+2.,ev_.ttbar_w[ev_.ttbar_nw]);
 	    ev_.ttbar_nw++;
 	  }
+	}
+      
+      for(Int_t igenjet=0; igenjet<5; igenjet++)
+	{
+	  TString tag("fidcounter"); tag+=igenjet;
+	  histContainer_[tag.Data()]->Fill(0.,ev_.ttbar_w[0]);
+	  if(igenjet<=ngenJets)
+	    {
+	      for(Int_t iw=1; iw<ev_.ttbar_nw; iw++)
+		histContainer_[tag.Data()]->Fill((float)iw,ev_.ttbar_w[iw]);
+	    }
 	}
 
       edm::Handle<std::vector <PileupSummaryInfo> > PupInfo;
@@ -475,8 +485,12 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void 
 MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
-  histContainer_["fidcounter"] = fs->make<TH1F>("fidcounter",    ";Variation;Events", 200, 0., 200.); 
-  histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",1,0,1);
+  for(Int_t igenjet=0; igenjet<5; igenjet++)
+    {
+      TString tag("fidcounter"); tag+=igenjet;
+      histContainer_[tag.Data()] = fs->make<TH1F>(tag,    ";Variation;Events", 200, 0., 200.); 
+    }
+  histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",2,0,2);
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
 
   //create a tree for the selected events

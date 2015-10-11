@@ -256,15 +256,13 @@ void ReadTree(TString filename,
       float wgtElEffDown (norm*(abs(ev.l_id)==11 ? lepSF[2] : lepSF[0])*puWeight[0]);
 
       float wgtQCDScaleLo(wgt),wgtQCDScaleHi(wgt),wgthdampScaleLo(wgt),wgthdampScaleHi(wgt);
-      if(genWgtMode!=NOGENWGT && !ev.isData) wgt *= (fabs(ev.ttbar_w[0])!=0 ? ev.ttbar_w[0]/fabs(ev.ttbar_w[0]) : 0.);
+      if(genWgtMode!=NOGENWGT && !ev.isData) wgt *= ev.ttbar_w[0];
       if(isTTbar)
 	{
 	  wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
 	  wgtQCDScaleHi   = wgt*ev.ttbar_w[5]/ev.ttbar_w[0];
 	  wgthdampScaleLo = wgt*ev.ttbar_w[ev.ttbar_nw-17]/ev.ttbar_w[0];
 	  wgthdampScaleHi = wgt*ev.ttbar_w[ev.ttbar_nw-9]/ev.ttbar_w[0];
-	  cout << wgt << " " << wgtQCDScaleLo << " " << wgtQCDScaleHi << " " << wgthdampScaleLo << " " << wgthdampScaleHi << endl;
-
 	}
       
       //main histogram for xsec extraction

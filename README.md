@@ -85,7 +85,9 @@ Both the normalization factors and the pileup weights are stored under the "anal
 in a cache file called ".xsecweights.pck".
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis/ -j data/samples_Run2015.json -l 578.25
+python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 578.25
+python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 578.25
+python scripts/plotter.py -i analysis_nonisomu/ -j data/samples_Run2015.json -l 578.25
 ```
 
 ## Updating the code
