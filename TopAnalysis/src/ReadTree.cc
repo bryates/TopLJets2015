@@ -149,7 +149,11 @@ void ReadTree(TString filename,
       t->GetEntry(i);
       
       //select according to the lepton id/charge
-      if(channelSelection!=0 && abs(ev.l_id)!=abs(channelSelection)) continue;
+      if(channelSelection!=0)
+	{
+	  if(abs(ev.l_id)!=abs(channelSelection)) continue;
+	  if(channelSelection==1300 && (ev.l_chargedHadronIso/ev.l_pt<0.6 || ev.l_chargedHadronIso/ev.l_pt>0.12)) continue;
+	}
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 
       //apply trigger requirement
@@ -259,6 +263,8 @@ void ReadTree(TString filename,
 	  wgtQCDScaleHi   = wgt*ev.ttbar_w[5]/ev.ttbar_w[0];
 	  wgthdampScaleLo = wgt*ev.ttbar_w[ev.ttbar_nw-17]/ev.ttbar_w[0];
 	  wgthdampScaleHi = wgt*ev.ttbar_w[ev.ttbar_nw-9]/ev.ttbar_w[0];
+	  cout << wgt << " " << wgtQCDScaleLo << " " << wgtQCDScaleHi << " " << wgthdampScaleLo << " " << wgthdampScaleHi << endl;
+
 	}
       
       //main histogram for xsec extraction

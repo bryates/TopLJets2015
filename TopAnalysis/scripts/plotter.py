@@ -106,7 +106,7 @@ class Plot(object):
         p1.cd()
 
         # legend
-        leg = ROOT.TLegend(0.18, 0.8-0.04*max(len(self.mc)-2,0), 0.95, 0.9)
+        leg = ROOT.TLegend(0.4, 0.8-0.03*max(len(self.mc)-2,0), 0.98, 0.9)
         leg.SetBorderSize(0)
         leg.SetFillStyle(0)
         leg.SetTextFont(43)
