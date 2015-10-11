@@ -44,7 +44,6 @@ def produceNormalizationCache(samplesList,inDir,cache):
             fIn=ROOT.TFile.Open('${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/PileupData_%s.root'%puEstimate)
             puDists[puEstimate]=fIn.Get('pileup').Clone(puEstimate)
             puDists[puEstimate].SetDirectory(0)
-            print puDists[puEstimate]
         except:
             pass        
     hputrue=None

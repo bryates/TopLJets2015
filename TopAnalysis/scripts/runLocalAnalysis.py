@@ -36,6 +36,7 @@ def main():
     parser.add_option('-i', '--in',          dest='input',       help='input directory with files or single file',  default=None,       type='string')
     parser.add_option('-o', '--out',         dest='outDir',      help='output directory',                           default='analysis', type='string')
     parser.add_option('-j', '--json',        dest='json',        help='json file to process',                       default=None,       type='string')
+    parser.add_option(      '--only',        dest='only',        help='csv list of samples to process',             default=None,       type='string')
     parser.add_option(      '--resetCache',  dest='resetCache',  help='reset normalization cache',                  default=False,       action='store_true')
     parser.add_option(      '--ch',          dest='channel',     help='channel',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge',                                     default=0,          type=int)
@@ -45,6 +46,12 @@ def main():
     parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=only sign, 2=full weight (for single files)',     default=0,        type=int)
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel',    default=0,           type='int')
     (opt, args) = parser.parse_args()
+
+    onlyList=[]
+    try:
+        onlyList=opt.only.split(',')
+    except:
+        pass
 
     #prepare output
     os.system('mkdir -p %s'%opt.outDir)
@@ -82,6 +89,15 @@ def main():
             
         #create the analysis jobs
         for tag,sample in samplesList:
+
+            if len(onlyList)>0:
+                processThisTag=False
+                for itag in onlyList:
+                    if itag in tag:
+                        processThisTag=True
+                if not processThisTag : continue
+
+            #get configuration
             isTT=sample[5]
             doFlavourSplitting=sample[6]
             genWgtMode=sample[7]
@@ -97,7 +113,7 @@ def main():
                 outF=os.path.join(opt.outDir,'%s_%d.root' % (tag,ifctr) )
                 if doFlavourSplitting:
                     for flav in [0,1,4,5]:
-                        task_list.append( (inF,opt.outF,opt.channel,opt.charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr) )                
+                        task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr) )                
                 else:
                     task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,0,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr) )                
 

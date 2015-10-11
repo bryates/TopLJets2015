@@ -349,7 +349,8 @@ void ReadTree(TString filename,
 	allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
       }
       if(!ev.isData)
-	for(Int_t xbin=1; xbin<=allPlots["ratevsrun_"+tag]->GetNbinsX(); xbin++) allPlots["ratevsrun_"+tag]->Fill(xbin,wgt);	
+	allPlots["ratevsrun_"+tag]->Fill(0.,wgt);
+
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
       allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);
       allPlots["lchreliso_"+tag]->Fill(ev.l_chargedHadronIso/ev.l_pt,wgt);
@@ -378,7 +379,9 @@ void ReadTree(TString filename,
   TString baseName=gSystem->BaseName(outname); 
   TString dirName=gSystem->DirName(outname);
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
-  for (auto& it : allPlots)  { it.second->SetDirectory(fOut); it.second->Write(); }
+  for (auto& it : allPlots)  { 
+    it.second->SetDirectory(fOut); it.second->Write(); 
+  }
   fOut->Close();
 }
 
