@@ -252,8 +252,7 @@ void ReadTree(TString filename,
       float wgtElEffDown (norm*(abs(ev.l_id)==11 ? lepSF[2] : lepSF[0])*puWeight[0]);
 
       float wgtQCDScaleLo(wgt),wgtQCDScaleHi(wgt),wgthdampScaleLo(wgt),wgthdampScaleHi(wgt);
-      if(genWgtMode==FULLWEIGHT) wgt *= ev.ttbar_w[0];
-      if(genWgtMode==ONLYSIGN)   wgt *= (ev.ttbar_w[0]>0 ? +1.0 : -1.0)*norm;
+      if(genWgtMode!=NOGENWGT && !ev.isData) wgt *= (fabs(ev.ttbar_w[0])!=0 ? ev.ttbar_w[0]/fabs(ev.ttbar_w[0]) : 0.);
       if(isTTbar)
 	{
 	  wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
@@ -348,8 +347,6 @@ void ReadTree(TString filename,
 	Int_t runCtr=std::distance(lumiMap.begin(),rIt);
 	allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
       }
-      if(!ev.isData)
-	allPlots["ratevsrun_"+tag]->Fill(0.,wgt);
 
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
       allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);

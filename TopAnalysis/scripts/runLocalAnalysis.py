@@ -43,7 +43,7 @@ def main():
     parser.add_option(      '--flav',        dest='flav',        help='flavour splitting (for single files)',       default=0,          type=int)
     parser.add_option(      '--isTT',        dest='isTT',        help='ttbar sample (for single files)',            default=False,      action='store_true')
     parser.add_option(      '--norm',        dest='norm',        help='normalization scale (for single files)',     default=1.0,        type=float)
-    parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=only sign, 2=full weight (for single files)',     default=0,        type=int)
+    parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=gen weight (for single files)',     default=0,        type=int)
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel',    default=0,           type='int')
     (opt, args) = parser.parse_args()
 
@@ -57,6 +57,7 @@ def main():
     os.system('mkdir -p %s'%opt.outDir)
     
     task_list = []
+    processedTags=[]
     if '.root' in opt.input:
         if '/store/' in opt.input: opt.input='root://eoscms.cern.ch//eos/cms/'+opt.input
         outF=os.path.join(opt.outDir,os.path.basename(opt.input))
@@ -96,6 +97,7 @@ def main():
                     if itag in tag:
                         processThisTag=True
                 if not processThisTag : continue
+            processedTags.append(tag)
 
             #get configuration
             isTT=sample[5]
@@ -128,8 +130,15 @@ def main():
 
     #merge final outputs
     for tag,sample in samplesList:
-        os.system('hadd -f %s/%s.root %s/%s_*.root' % (opt.outDir,tag,opt.outDir,tag) )
-        os.system('rm %s/%s_*.root' % (opt.outDir,tag) )
+        if not tag in processedTags: continue
+        doFlavourSplitting=sample[6]
+        groupsToHadd=[tag]
+        if doFlavourSplitting : 
+            for flav in [1,4,5]:
+                grouptsToHadd.append('%d_%s'%(flav,tag))
+        for itag in groupsToHadd:
+            os.system('hadd -f %s/%s.root %s/%s_*.root' % (opt.outDir,itag,opt.outDir,itag) )
+            os.system('rm %s/%s_*.root' % (opt.outDir,itag) )
     print 'Analysis results are available in %s' % opt.outDir
 
 

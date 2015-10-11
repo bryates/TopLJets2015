@@ -8,7 +8,7 @@
 #include <vector>
 
 enum FlavourSplitting {NOFLAVOURSPLITTING=0, UDSGSPLITTING=1, CSPLITTING=4, BSPLITTING=5 };
-enum GenWeightMode { NOGENWGT=0, ONLYSIGN=1, FULLWEIGHT=2 };
+enum GenWeightMode { NOGENWGT=0, GENWEIGHT=1 };
 
 Int_t getSecVtxBinToFill(Float_t firstVtxMass,Float_t secondVtxMass,Int_t nJets);
 Int_t getBtagCatBinToFill(Int_t nBtags,Int_t nJets);

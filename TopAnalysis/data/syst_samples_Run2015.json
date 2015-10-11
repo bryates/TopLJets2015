@@ -1,7 +1,7 @@
 {
-"MC13TeV_TTJets_amcatnloFXFX_herwig"  : [831.76,    0, "/TT_TuneEE5C_13TeV-amcatnlo-herwigpp/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t} aMC@NLO Herwig++",          920, true, false, 0],
-"MC13TeV_TTJets_m169v5"  : [831.76,    0, "/TT_TuneCUETP8M1_mtop1695_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t} m=169.5",          920, true, false, 0],
-"MC13TeV_TTJets_m175v5"  : [831.76,    0, "/TT_TuneCUETP8M1_mtop1755_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t} m=175.5",          920, true, false, 0]
+"MC13TeV_TTJets_amcatnloFXFX_herwig"  : [831.76,    0, "/TT_TuneEE5C_13TeV-amcatnlo-herwigpp/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t} aMC@NLO Herwig++",          920, true, false, 1],
+"MC13TeV_TTJets_m169v5"  : [831.76,    0, "/TT_TuneCUETP8M1_mtop1695_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t} m=169.5",          920, true, false, 1],
+"MC13TeV_TTJets_m175v5"  : [831.76,    0, "/TT_TuneCUETP8M1_mtop1755_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t#bar{t} m=175.5",          920, true, false, 1]
 }
 
 

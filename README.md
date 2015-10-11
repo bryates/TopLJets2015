@@ -70,7 +70,9 @@ python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
 To run the code on a set of samples, listed in a json file you can run it as follows:
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8 -o analysis_nonisomu --ch 1300
 ```
 The first time it runs over the directory it will compute the normalization factor for MC
 such that the distributions will correspond to 1/pb of data.
