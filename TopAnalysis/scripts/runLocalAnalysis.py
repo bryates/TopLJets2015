@@ -135,7 +135,7 @@ def main():
         groupsToHadd=[tag]
         if doFlavourSplitting : 
             for flav in [1,4,5]:
-                grouptsToHadd.append('%d_%s'%(flav,tag))
+                groupsToHadd.append('%d_%s'%(flav,tag))
         for itag in groupsToHadd:
             os.system('hadd -f %s/%s.root %s/%s_*.root' % (opt.outDir,itag,opt.outDir,itag) )
             os.system('rm %s/%s_*.root' % (opt.outDir,itag) )

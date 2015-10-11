@@ -342,21 +342,28 @@ def main():
     #read plots 
     plots={}
     for tag,sample in samplesList: 
-        fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, tag) )
-        try:
-            for tkey in fIn.GetListOfKeys():
-                key=tkey.GetName()
-                keep=False
-                for tag in onlyList: 
-                    if tag in key: keep=True
-                if not keep: continue
-                obj=fIn.Get(key)
-                if not obj.InheritsFrom('TH1') : continue
-                if not key in plots : plots[key]=Plot(key)
-                if opt.rebin>1:  obj.Rebin(opt.rebin)
-                plots[key].add(h=obj,title=sample[3],color=sample[4],isData=sample[1])
-        except:
-            pass
+        doFlavourSplitting=sample[6]
+        subProcs=[(tag,sample[3],sample[4])]
+        if doFlavourSplitting:
+            subProcs=[]
+            for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
+                subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+flav[0]-1))
+        for sp in subProcs:
+            fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
+            try:
+                for tkey in fIn.GetListOfKeys():
+                    key=tkey.GetName()
+                    keep=False if len(onlyList)>0 else True
+                    for pname in onlyList: 
+                        if pname in key: keep=True
+                    if not keep: continue
+                    obj=fIn.Get(key)
+                    if not obj.InheritsFrom('TH1') : continue
+                    if not key in plots : plots[key]=Plot(key)
+                    if opt.rebin>1:  obj.Rebin(opt.rebin)
+                    plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
+            except:
+                pass
 
     #show plots
     ROOT.gStyle.SetOptTitle(0)
