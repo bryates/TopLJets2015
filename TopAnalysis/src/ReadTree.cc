@@ -152,13 +152,13 @@ void ReadTree(TString filename,
       if(channelSelection!=0)
 	{
 	  if(abs(ev.l_id)!=abs(channelSelection)) continue;
-	  if(channelSelection==1300 && (ev.l_chargedHadronIso/ev.l_pt<0.6 || ev.l_chargedHadronIso/ev.l_pt>0.12)) continue;
+	  if(channelSelection==1300 && (ev.l_chargedHadronIso/ev.l_pt<0.06 || ev.l_chargedHadronIso/ev.l_pt>0.2)) continue;
 	}
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 
       //apply trigger requirement
-      if(abs(ev.l_id) == 13 && ((ev.muTrigger>>0)&0x1)==0) continue;
-      if(abs(ev.l_id) == 11 && ((ev.elTrigger>>0)&0x1)==0) continue;
+      if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300) && ((ev.muTrigger>>0)&0x1)==0) continue;
+      if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
       
       //select jets
       Int_t nudsgJets(0),ncJets(0), nbJets(0);
