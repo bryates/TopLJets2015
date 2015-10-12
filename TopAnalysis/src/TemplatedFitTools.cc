@@ -1,4 +1,4 @@
-#include "TopLJets2015/TopAnalysis/interface/TTbarSFbFitTools.h"
+#include "TopLJets2015/TopAnalysis/interface/TemplatedFitTools.h"
 
 #include "TMath.h"
 #include "TCanvas.h"
