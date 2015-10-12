@@ -1,4 +1,4 @@
-#include "TTbarSFbFitTools.h"
+#include "TopLJets2015/TopAnalysis/interface/TTbarSFbFitTools.h"
 
 #include "TMath.h"
 #include "TCanvas.h"
@@ -19,7 +19,7 @@
 using namespace std;
 
 //
-TTbarFracFitter::TTbarFracFitter()
+TemplatedFitTools::TemplatedFitTools()
 {
   using namespace RooFit;
 
@@ -40,11 +40,11 @@ TTbarFracFitter::TTbarFracFitter()
 }
 
 //
-TTbarFracFitterResult_t TTbarFracFitter::fit(TObjArray &expTemplates, TH1F *dataH,Int_t idxOfInterest,TString saveResultIn)
+TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH,Int_t idxOfInterest,TString saveResultIn)
 {
   using namespace RooFit;
 
-  TTbarFracFitterResult_t result; 
+  TemplatedFitResult_t result; 
   
   //variable to fit
   RooRealVar x("x",dataH->GetXaxis()->GetTitle(),dataH->GetXaxis()->GetXmin(),dataH->GetXaxis()->GetXmax());
@@ -229,7 +229,7 @@ TTbarFracFitterResult_t TTbarFracFitter::fit(TObjArray &expTemplates, TH1F *data
 }
 
 //
-TTbarFracFitter::~TTbarFracFitter()
+TemplatedFitTools::~TemplatedFitTools()
 {
   
 }
