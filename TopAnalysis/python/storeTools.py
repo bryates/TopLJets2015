@@ -68,8 +68,8 @@ def produceNormalizationCache(samplesList,inDir,cache):
         if hputrue : hputrue.Reset('ICE')
         for f in input_list:
             fIn=ROOT.TFile.Open(f)
-            norigEvents+=fIn.Get('analysis/fidcounter').GetBinContent(1)
             nrawEvents+=fIn.Get('analysis/counter').GetBinContent(1)
+            norigEvents+=fIn.Get('analysis/counter').GetBinContent(2)
             if hputrue:
                 hputrue.SetDirectory(fIn)
                 fIn.Get('analysis/data').Draw('putrue>>+hputrue','ttbar_w[0]','goff')
