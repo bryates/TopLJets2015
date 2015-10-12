@@ -2,11 +2,14 @@ import os
 import sys
 import optparse
 from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
+from subprocess import Popen, PIPE
 
 """
 steer the script
 """
 def main():
+
+    eos_cmd = '/afs/cern.ch/project/eos/installation/0.2.41/bin/eos.select'
 
     #configuration
     usage = 'usage: %prog [options]'
@@ -46,8 +49,9 @@ def main():
             if not opt.nocheck:
                 choice = raw_input('Will move to %s current output directory. [y/n] ?' % newDir ).lower()
                 if not 'y' in choice : continue
-            os.system('cmsMkdir %s' % newDir)
-
+                
+            Popen([eos_cmd, 'mkdir', '/eos/cms/'+newDir],stdout=PIPE).communicate()
+    
             moveIndividualFiles=True
             if len(file_list)>0:
                 subgroupMerge = int( raw_input('This set has %d files. Merge into groups? (enter 0 if no merging)' % len(file_list)) )
@@ -60,21 +64,22 @@ def main():
                     for ilist in xrange(0,len(split_file_lists)):
                         mergedFileName='/tmp/MergedMiniEvents_%d.root '%ilist
                         toAdd='%s ' % mergedFileName
-                        for f in split_file_lists[ilist]:
-                            os.system('cmsStage -f %s /tmp/' % f)
+                        for f in split_file_lists[ilist]:                            
+                            os.system('xrdcp  -f root://eoscms//eos/cms/%s /tmp/' % f)
                             toAdd += '/tmp/'+os.path.basename(f) + ' '
                         
                         os.system('hadd -f %s'%toAdd)
-                        os.system('cmsStage -f %s %s/' %(mergedFileName,newDir))
+                        os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/' %(mergedFileName,newDir))
                         os.system('rm %s' % toAdd)
 
                 #if still needed copy individual files
                 if moveIndividualFiles:
-                    for f in file_list : os.system('cmsStage -f %s %s/' % (f, newDir) )
+                    for f in file_list : os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/' % (f, newDir) )
 
             if not opt.nocheck and opt.cleanup : 
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()
-                if 'y' in choice: os.system('cmsRm -r %s' % dset)
+                if 'y' in choice: 
+                    Popen([eos_cmd, 'rm', '-r /eos/cms/'+dset],stdout=PIPE).communicate()
 
             print 'Crab outputs may now be found in %s' % newDir
 

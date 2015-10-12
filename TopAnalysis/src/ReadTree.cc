@@ -256,7 +256,16 @@ void ReadTree(TString filename,
       float wgtElEffDown (norm*(abs(ev.l_id)==11 ? lepSF[2] : lepSF[0])*puWeight[0]);
 
       float wgtQCDScaleLo(wgt),wgtQCDScaleHi(wgt),wgthdampScaleLo(wgt),wgthdampScaleHi(wgt);
-      if(genWgtMode!=NOGENWGT && !ev.isData) wgt *= ev.ttbar_w[0];
+      if(genWgtMode!=NOGENWGT && !ev.isData) 
+	{
+	  wgt          *= ev.ttbar_w[0];
+	  wgtPuUp      *= ev.ttbar_w[0];
+	  wgtPuDown    *= ev.ttbar_w[0];
+	  wgtMuEffUp   *= ev.ttbar_w[0];
+	  wgtMuEffDown *= ev.ttbar_w[0];
+	  wgtElEffUp   *= ev.ttbar_w[0];
+	  wgtElEffDown *= ev.ttbar_w[0];
+	}
       if(isTTbar)
 	{
 	  wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
