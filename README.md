@@ -89,6 +89,13 @@ python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 57
 python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 578.25
 python scripts/plotter.py -i analysis_nonisomu/ -j data/samples_Run2015.json -l 578.25
 ```
+After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
+The script will also produce the QCD templates using the data from the sideband region. It runs as
+```
+python scripts/runQCDEstimation.py --iso analysis_muplus/plots/plotter.root --noniso analysis_nonisomu/plots/plotter.root --out analysis_muplus/ --norm metpt
+```
+The output is a ROOT file called Data_QCDMultijets.root which can now be used in addition to the predictions of all the other backgrounds.
+To include it in the final plots you can run the plotter script again (see instructions above).
 
 ## Updating the code
 
