@@ -79,7 +79,7 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
       if(i<(expTemplates.GetEntriesFast()-1))
 	{
 	  float frac(nExp/totalExp);
-	  RooRealVar *fracVar = new RooRealVar(name,name,frac,0.5*frac,TMath::Min((float)1.0,(float)2*frac));
+	  RooRealVar *fracVar = new RooRealVar(name,name,frac,0,1.0);
 	  fracVar->SetTitle(title);
 	  expFracs.add(*fracVar);
 	}

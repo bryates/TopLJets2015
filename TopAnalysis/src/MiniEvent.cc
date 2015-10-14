@@ -34,6 +34,9 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_neutralHadronIso",        &ev.l_neutralHadronIso,     "l_neutralHadronIso/F");
   t->Branch("l_photonIso",               &ev.l_photonIso,     "l_photonIso/F");
   t->Branch("l_puChargedHadronIso",      &ev.l_puChargedHadronIso,     "l_puChargedHadronIso/F");
+  t->Branch("l_ip3d",      &ev.l_ip3d,      "l_ip3d/F");
+  t->Branch("l_ip3dsig",      &ev.l_ip3dsig,      "l_ip3dsig/F");
+
 
   t->Branch("nj",        &ev.nj,        "nj/I");
   t->Branch("j_area",       ev.j_area,      "j_area[nj]/F");
@@ -94,6 +97,8 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("l_neutralHadronIso",        &ev.l_neutralHadronIso);
   t->SetBranchAddress("l_photonIso",               &ev.l_photonIso);
   t->SetBranchAddress("l_puChargedHadronIso",      &ev.l_puChargedHadronIso);
+  t->SetBranchAddress("l_ip3d",      &ev.l_ip3d);
+  t->SetBranchAddress("l_ip3dsig",      &ev.l_ip3dsig);
 
   t->SetBranchAddress("nj",        &ev.nj);
   t->SetBranchAddress("j_area",       ev.j_area);

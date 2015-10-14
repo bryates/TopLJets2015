@@ -44,6 +44,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
+#include "TopLJets2015/TopAnalysis/interface/MyIPTools.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -218,6 +219,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByToken(vtxToken_, vertices);
   if (vertices->empty()) return; // skip the event if no PV found
   const reco::Vertex &primVtx = vertices->front();
+  reco::VertexRef primVtxRef(vertices,0);
+
   ev_.nvtx=vertices->size();
   if(ev_.nvtx==0) return;
   
@@ -396,6 +399,9 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.l_neutralHadronIso=mu->neutralHadronIso();
       ev_.l_photonIso=mu->photonIso();
       ev_.l_puChargedHadronIso=mu->puChargedHadronIso();
+      std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::TrackRef>(mu->innerTrack(), primVtxRef, iSetup, true);
+      ev_.l_ip3d    = ip3dRes.second.value();
+      ev_.l_ip3dsig = ip3dRes.second.significance();
     }
   if(passElTrigger && (selectedElectrons.size()==1 || selectedNonIsoElectrons.size()))
     {     
@@ -413,6 +419,9 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.l_neutralHadronIso=el->neutralHadronIso();
       ev_.l_photonIso=el->photonIso();
       ev_.l_puChargedHadronIso=el->puChargedHadronIso();
+      std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::GsfTrackRef>(el->gsfTrack(), primVtxRef, iSetup, true);
+      ev_.l_ip3d    = ip3dRes.second.value();
+      ev_.l_ip3dsig = ip3dRes.second.significance();
     }
 
   //require no other leptons in the event

@@ -152,7 +152,11 @@ void ReadTree(TString filename,
       if(channelSelection!=0)
 	{
 	  if(abs(ev.l_id)!=abs(channelSelection)) continue;
-	  if(channelSelection==1300 && (ev.l_chargedHadronIso/ev.l_pt<0.06 || ev.l_chargedHadronIso/ev.l_pt>0.2)) continue;
+	  if(channelSelection==1300)
+	    {
+	      float relchIso = ev.l_chargedHadronIso/ev.l_pt;
+	      if(relchIso<0.4) continue;
+	    }
 	}
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 

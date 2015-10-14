@@ -106,11 +106,11 @@ class Plot(object):
         p1.cd()
 
         # legend
-        leg = ROOT.TLegend(0.4, 0.8-0.03*max(len(self.mc)-2,0), 0.98, 0.9)
+        leg = ROOT.TLegend(0.5, 0.85-0.02*max(len(self.mc)-2,0), 0.98, 0.9)
         leg.SetBorderSize(0)
-        leg.SetFillStyle(0)
+        leg.SetFillStyle(0)        
         leg.SetTextFont(43)
-        leg.SetTextSize(16)
+        leg.SetTextSize(12)
         nlegCols = 0
 
         if self.dataH is not None:
@@ -118,7 +118,7 @@ class Plot(object):
             leg.AddEntry( self.data, self.data.GetTitle(),'p')
             nlegCols += 1
         for h in self.mc:
-            if not noScale : self.mc[h].Scale(lumi)
+            if not noScale and not '(data)' in self.mc[h].GetTitle(): self.mc[h].Scale(lumi)
             leg.AddEntry(self.mc[h], self.mc[h].GetTitle(), 'f')
             nlegCols += 1
         if nlegCols ==0 :
@@ -347,7 +347,7 @@ def main():
         if doFlavourSplitting:
             subProcs=[]
             for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
-                subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+flav[0]-1))
+                subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+3*len(subProcs)))
         for sp in subProcs:
             fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
             try:

@@ -19,7 +19,7 @@ struct MiniEvent_t
   
   Bool_t isPromptFinalState, isDirectPromptTauDecayProductFinalState;
   Int_t l_id,l_charge;
-  Float_t l_pt,l_eta,l_phi, l_mass, l_chargedHadronIso, l_neutralHadronIso, l_photonIso, l_puChargedHadronIso;
+  Float_t l_pt,l_eta,l_phi, l_mass, l_chargedHadronIso, l_neutralHadronIso, l_photonIso, l_puChargedHadronIso,l_ip3d,l_ip3dsig;
 
   Int_t nj;
   Float_t j_pt[1000],j_eta[1000],j_phi[1000],j_mass[1000],j_area[1000];
