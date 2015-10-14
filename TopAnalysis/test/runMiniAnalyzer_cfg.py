@@ -22,6 +22,7 @@ options.parseArguments()
 process = cms.Process("MiniAnalysis")
 
 # Load the standard set of configuration modules
+process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')

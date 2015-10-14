@@ -37,8 +37,16 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_ip3d",      &ev.l_ip3d,      "l_ip3d/F");
   t->Branch("l_ip3dsig",      &ev.l_ip3dsig,      "l_ip3dsig/F");
 
+  t->Branch("me_id",        &ev.me_id,        "me_id/I");
+  t->Branch("me_np",        &ev.me_np,        "me_np/I");
+  t->Branch("me_pid",       ev.me_pid,        "me_pid/I");
+  t->Branch("me_px",       ev.me_px,        "me_px/F");
+  t->Branch("me_py",       ev.me_py,        "me_py/F");
+  t->Branch("me_pz",       ev.me_pz,        "me_pz/F");
+  t->Branch("me_mass",       ev.me_mass,        "me_mass/F");
 
   t->Branch("nj",        &ev.nj,        "nj/I");
+  t->Branch("ngenj",        &ev.ngenj,        "ngenj/I");
   t->Branch("j_area",       ev.j_area,      "j_area[nj]/F");
   t->Branch("j_pt",       ev.j_pt,      "j_pt[nj]/F");
   t->Branch("j_eta",      ev.j_eta,     "j_eta[nj]/F");
@@ -49,6 +57,9 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("genj_phi",      ev.genj_phi,     "genj_phi[nj]/F");
   t->Branch("genj_mass",       ev.genj_mass,      "genj_mass[nj]/F");
   t->Branch("j_csv",      ev.j_csv,     "j_csv[nj]/F");
+  t->Branch("j_vtxpx",  ev.j_vtxpx, "j_vtxpx[nj]/F");
+  t->Branch("j_vtxpy",  ev.j_vtxpy, "j_vtxpy[nj]/F");
+  t->Branch("j_vtxpz",  ev.j_vtxpz, "j_vtxpz[nj]/F");
   t->Branch("j_vtxmass",  ev.j_vtxmass, "j_vtxmass[nj]/F");
   t->Branch("j_vtxNtracks",  ev.j_vtxNtracks, "j_vtxNtracks[nj]/I");
   t->Branch("j_vtx3DVal",  ev.j_vtx3DVal, "j_vtx3DVal[nj]/F");
@@ -72,6 +83,14 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("ttbar_allmepartons",        &ev.ttbar_allmepartons);
   t->SetBranchAddress("ttbar_matchmepartons",        &ev.ttbar_matchmepartons);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
+
+  t->SetBranchAddress("me_id",        &ev.me_id);
+  t->SetBranchAddress("me_np",        &ev.me_np);
+  t->SetBranchAddress("me_pid",       ev.me_pid);
+  t->SetBranchAddress("me_px",       ev.me_px);
+  t->SetBranchAddress("me_py",       ev.me_py);
+  t->SetBranchAddress("me_pz",       ev.me_pz);
+  t->SetBranchAddress("me_mass",       ev.me_mass);
 
   t->SetBranchAddress("run",       &ev.run);
   t->SetBranchAddress("event",     &ev.event);
@@ -100,6 +119,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("l_ip3d",      &ev.l_ip3d);
   t->SetBranchAddress("l_ip3dsig",      &ev.l_ip3dsig);
 
+  t->SetBranchAddress("ngenj",        &ev.ngenj);
   t->SetBranchAddress("nj",        &ev.nj);
   t->SetBranchAddress("j_area",       ev.j_area);
   t->SetBranchAddress("j_pt",       ev.j_pt);
@@ -111,6 +131,9 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("genj_phi",      ev.genj_phi);
   t->SetBranchAddress("genj_mass",       ev.genj_mass);
   t->SetBranchAddress("j_csv",      ev.j_csv);
+  t->SetBranchAddress("j_vtxpy",  ev.j_vtxpx);
+  t->SetBranchAddress("j_vtxpx",  ev.j_vtxpy);
+  t->SetBranchAddress("j_vtxpz",  ev.j_vtxpz);
   t->SetBranchAddress("j_vtxmass",  ev.j_vtxmass);
   t->SetBranchAddress("j_vtxNtracks",  ev.j_vtxNtracks);
   t->SetBranchAddress("j_vtx3DVal",  ev.j_vtx3DVal);

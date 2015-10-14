@@ -189,7 +189,6 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     if(nLeptons!=1) return 0;
     
     //require 1 jets not overlapping with lepton
-    int njets(0);
     edm::Handle< std::vector<reco::GenJet> > genJets;
     iEvent.getByLabel("slimmedGenJets", genJets);
     for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
@@ -197,9 +196,13 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
        if(genJet->pt()<20 || fabs(genJet->eta())>2.5) continue;
        float dR=deltaR(genJet->eta(),genJet->phi(),leta,lphi);
        if(dR<0.4) continue;
-       njets++;
+       ev_.genj_pt[ev_.ngenj]=genJet->pt();
+       ev_.genj_eta[ev_.ngenj]=genJet->eta();
+       ev_.genj_phi[ev_.ngenj]=genJet->phi();
+       ev_.genj_mass[ev_.ngenj]=genJet->mass();
+       ev_.ngenj++;
      }
-    return njets;
+    return ev_.ngenj;
 }
 
 // ------------ method called for each event  ------------
@@ -233,6 +236,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //GENERATOR LEVEL INFO
   ev_.isFiducial = true;  
   ev_.ttbar_nw=0;
+  ev_.me_np=0;
+  ev_.ngenj=0;
   if(!ev_.isData)
     {
       Int_t ngenJets = doFiducialAnalysis(iEvent,iSetup);
@@ -259,6 +264,19 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	    ev_.ttbar_w[ev_.ttbar_nw]=ev_.ttbar_w[0]*asdde/asdd;
 	    ev_.ttbar_nw++;
 	  }
+	  
+	  const lhef::HEPEUP &hepeup=evet->hepeup();
+	  ev_.me_id=hepeup.IDPRUP;
+	  for(int ip=0;ip<hepeup.NUP; ip++)
+	    {
+	      ev_.me_pid[ev_.me_np]=hepeup.IDUP[ip];
+	      ev_.me_px[ev_.me_np]=hepeup.PUP[ip][0];
+	      ev_.me_py[ev_.me_np]=hepeup.PUP[ip][1];
+	      ev_.me_pz[ev_.me_np]=hepeup.PUP[ip][2];
+	      ev_.me_mass[ev_.me_np]=hepeup.PUP[ip][4];
+	      ev_.me_np++;
+	    }
+
 	}
       
       for(Int_t igenjet=0; igenjet<5; igenjet++)
@@ -399,9 +417,14 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.l_neutralHadronIso=mu->neutralHadronIso();
       ev_.l_photonIso=mu->photonIso();
       ev_.l_puChargedHadronIso=mu->puChargedHadronIso();
-      std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::TrackRef>(mu->innerTrack(), primVtxRef, iSetup, true);
-      ev_.l_ip3d    = ip3dRes.second.value();
-      ev_.l_ip3dsig = ip3dRes.second.significance();
+      ev_.l_ip3d = -9999.;
+      ev_.l_ip3dsig = -9999;
+      if(mu->innerTrack().get())
+	{
+	  std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::TrackRef>(mu->innerTrack(), primVtxRef, iSetup, true);
+	  ev_.l_ip3d    = ip3dRes.second.value();
+	  ev_.l_ip3dsig = ip3dRes.second.significance();
+	}
     }
   if(passElTrigger && (selectedElectrons.size()==1 || selectedNonIsoElectrons.size()))
     {     
@@ -419,9 +442,14 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.l_neutralHadronIso=el->neutralHadronIso();
       ev_.l_photonIso=el->photonIso();
       ev_.l_puChargedHadronIso=el->puChargedHadronIso();
-      std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::GsfTrackRef>(el->gsfTrack(), primVtxRef, iSetup, true);
-      ev_.l_ip3d    = ip3dRes.second.value();
-      ev_.l_ip3dsig = ip3dRes.second.significance();
+      ev_.l_ip3d = -9999.;
+      ev_.l_ip3dsig = -9999;
+      if(el->gsfTrack().get())
+	{
+	  std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::GsfTrackRef>(el->gsfTrack(), primVtxRef, iSetup, true);
+	  ev_.l_ip3d    = ip3dRes.second.value();
+	  ev_.l_ip3dsig = ip3dRes.second.significance();
+	}
     }
 
   //require no other leptons in the event
@@ -463,6 +491,9 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;
       ev_.genj_phi[ev_.nj]=genJet ?  genJet->phi() : 0;
       ev_.j_csv[ev_.nj]=j.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      ev_.j_vtxpx[ev_.nj]=j.userFloat("vtxPx");
+      ev_.j_vtxpy[ev_.nj]=j.userFloat("vtxPy");
+      ev_.j_vtxpz[ev_.nj]=j.userFloat("vtxPz");
       ev_.j_vtxmass[ev_.nj]=j.userFloat("vtxMass");
       ev_.j_vtxNtracks[ev_.nj]=j.userFloat("vtxNtracks");
       ev_.j_vtx3DVal[ev_.nj]=j.userFloat("vtx3DVal");
@@ -494,6 +525,12 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void 
 MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
+
+  //create a tree for the selected events
+  tree_ = fs->make<TTree>("data","data");
+  createMiniEventTree(tree_,ev_);
+
+
   for(Int_t igenjet=0; igenjet<5; igenjet++)
     {
       TString tag("fidcounter"); tag+=igenjet;
@@ -501,10 +538,6 @@ MiniAnalyzer::beginJob(){
     }
   histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",2,0,2);
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
-
-  //create a tree for the selected events
-  tree_ = fs->make<TTree>("data", "data");
-  createMiniEventTree(tree_,ev_);
 }
 
 //
