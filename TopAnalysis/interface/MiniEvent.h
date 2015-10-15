@@ -8,7 +8,7 @@ struct MiniEvent_t
   Bool_t isData;
   Int_t run,event,lumi;
 
-  Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
+  Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons,ttbar_genId;
   Float_t ttbar_w[500];
   Bool_t isFiducial;
 

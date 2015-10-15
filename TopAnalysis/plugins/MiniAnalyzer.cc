@@ -86,7 +86,6 @@ public:
   virtual void endRun(const edm::Run & iRun, edm::EventSetup const & iSetup);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
 private:
   Int_t doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob() override;
@@ -94,8 +93,7 @@ private:
   virtual void endJob() override;
 
 
-  // ----------member data ---------------------------
-      
+  // member data 
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
@@ -110,13 +108,15 @@ private:
   edm::EDGetTokenT<edm::ValueMap<bool> > eleVetoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > eleTightIdFullInfoMapToken_;
-
                   
   std::unordered_map<std::string,TH1F*> histContainer_;
 
   PFJetIDSelectionFunctor pfjetIDLoose_;
 
   std::vector<std::string> muTriggersToUse_, elTriggersToUse_;
+
+  //ttbar event classifier
+  edm::EDGetTokenT<int> genTtbarIdToken_;
   
   TTree *tree_;
   MiniEvent_t ev_;
@@ -147,7 +147,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
   eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleMediumIdFullInfoMap"))),
-  pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE )
+  pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ),
+  genTtbarIdToken_(consumes<int>(iConfig.getParameter<edm::InputTag>("genTtbarId")))
 {
   //now do what ever initialization is needed
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -190,7 +191,7 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     
     //require 1 jets not overlapping with lepton
     edm::Handle< std::vector<reco::GenJet> > genJets;
-    iEvent.getByLabel("slimmedGenJets", genJets);
+    iEvent.getByLabel("ak4GenJetsCustom", genJets);
     for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
      {
        if(genJet->pt()<20 || fabs(genJet->eta())>2.5) continue;
@@ -240,6 +241,11 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.ngenj=0;
   if(!ev_.isData)
     {
+      edm::Handle<int> genTtbarIdHandle;
+      iEvent.getByToken(genTtbarIdToken_, genTtbarIdHandle);
+      ev_.ttbar_genId=0;
+      if(genTtbarIdHandle.isValid()) ev_.ttbar_genId=*genTtbarIdHandle;
+
       Int_t ngenJets = doFiducialAnalysis(iEvent,iSetup);
       if(ngenJets<1) ev_.isFiducial=false;
 
@@ -529,7 +535,6 @@ MiniAnalyzer::beginJob(){
   //create a tree for the selected events
   tree_ = fs->make<TTree>("data","data");
   createMiniEventTree(tree_,ev_);
-
 
   for(Int_t igenjet=0; igenjet<5; igenjet++)
     {

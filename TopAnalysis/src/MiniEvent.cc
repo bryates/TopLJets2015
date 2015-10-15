@@ -9,6 +9,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("ttbar_allmepartons",        &ev.ttbar_allmepartons,        "ttbar_allmepartons/I");
   t->Branch("ttbar_matchmepartons",        &ev.ttbar_matchmepartons,        "ttbar_matchmepartons/I");
   t->Branch("ttbar_w",        ev.ttbar_w,        "ttbar_w[ttbar_nw]/F");
+  t->Branch("ttbar_genId",    &ev.ttbar_genId,    "ttbar_genId/I");
 
   t->Branch("run",       &ev.run,       "run/I");
   t->Branch("event",     &ev.event,     "event/I");
@@ -83,6 +84,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("ttbar_allmepartons",        &ev.ttbar_allmepartons);
   t->SetBranchAddress("ttbar_matchmepartons",        &ev.ttbar_matchmepartons);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
+  t->SetBranchAddress("ttbar_genId",    &ev.ttbar_genId);
 
   t->SetBranchAddress("me_id",        &ev.me_id);
   t->SetBranchAddress("me_np",        &ev.me_np);
