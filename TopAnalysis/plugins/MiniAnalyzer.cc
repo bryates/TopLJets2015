@@ -524,7 +524,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.mt=mt;
 
   //save tree if event is interesting
-  //tree_->Fill();
+  tree_->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -533,8 +533,8 @@ MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
 
   //create a tree for the selected events
-  //tree_ = fs->make<TTree>("data","data");
-  //createMiniEventTree(tree_,ev_);
+  tree_ = fs->make<TTree>("data","data");
+  createMiniEventTree(tree_,ev_);
 
   for(Int_t igenjet=0; igenjet<5; igenjet++)
     {
