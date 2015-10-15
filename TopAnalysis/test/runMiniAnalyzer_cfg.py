@@ -81,33 +81,13 @@ if options.runOnData:
     process.analysis.muTriggersToUse = cms.vstring('IsoMu18_v', 'IsoMu18_TriCentralPFJet50_40_30_v', 'IsoMu22_v', 'IsoMu22_TriCentralPFJet50_40_30_v', )
     process.analysis.elTriggersToUse = cms.vstring('Ele23_WPLoose_Gsf_v','Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30','Ele27_WPLoose_Gsf_v','Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30')
 
-
-
-from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
-process.ak4GenJetsCustom = ak4GenJets.clone(src = 'packedGenParticles',
-                                            rParam = cms.double(0.4),
-                                            jetAlgorithm = cms.string("AntiKt")
-                                            )
-
-from PhysicsTools.JetMCAlgos.sequences.GenHFHadronMatching_cff import *
-process.genJetFlavourPlusLeptonInfos = genJetFlavourPlusLeptonInfos.clone( jets = 'ak4GenJetsCustom',
-                                                                           rParam = cms.double(0.4),
-                                                                           jetAlgorithm = cms.string("AntiKt")
-                                                                           )
-process.matchGenBHadron = matchGenBHadron.clone(genParticles = 'prunedGenParticles')
-process.matchGenCHadron = matchGenCHadron.clone(genParticles = 'prunedGenParticles')
-
-from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
-process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(particles = 'prunedGenParticles')
-
-from TopLJets2015.TopAnalysis.GenTtbarCategorizer_cfi import *
-process.categorizeGenTtbar = categorizeGenTtbar.clone( genJets = 'ak4GenJetsCustom')
-
-process.p = cms.Path( process.ak4GenJetsCustom
-                      *process.genJetFlavourPlusLeptonInfos
-                      *process.matchGenBHadron
-                      *process.matchGenCHadron
-                      *process.categorizeGenTtbar 
-                      *process.egmGsfElectronIDSequence
-                      *process.analysis)
+if options.runOnData:
+    process.p = cms.Path( process.egmGsfElectronIDSequence
+                          *process.analysis)
+else:
+    from TopLJets2015.TopAnalysis.GenTtbarCategorizer_cfi import defineGenTtbarCategorizerSequence
+    defineGenTtbarCategorizerSequence(process)
+    process.p = cms.Path( process.genTtbarCategorizerSequence
+                          *process.egmGsfElectronIDSequence
+                          *process.analysis)
 

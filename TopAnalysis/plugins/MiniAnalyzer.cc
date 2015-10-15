@@ -239,11 +239,11 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.ttbar_nw=0;
   ev_.me_np=0;
   ev_.ngenj=0;
+  ev_.ttbar_genId=0;
   if(!ev_.isData)
     {
       edm::Handle<int> genTtbarIdHandle;
       iEvent.getByToken(genTtbarIdToken_, genTtbarIdHandle);
-      ev_.ttbar_genId=0;
       if(genTtbarIdHandle.isValid()) ev_.ttbar_genId=*genTtbarIdHandle;
 
       Int_t ngenJets = doFiducialAnalysis(iEvent,iSetup);
@@ -524,7 +524,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.mt=mt;
 
   //save tree if event is interesting
-  tree_->Fill();
+  //tree_->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -533,8 +533,8 @@ MiniAnalyzer::beginJob(){
   edm::Service<TFileService> fs;
 
   //create a tree for the selected events
-  tree_ = fs->make<TTree>("data","data");
-  createMiniEventTree(tree_,ev_);
+  //tree_ = fs->make<TTree>("data","data");
+  //createMiniEventTree(tree_,ev_);
 
   for(Int_t igenjet=0; igenjet<5; igenjet++)
     {
