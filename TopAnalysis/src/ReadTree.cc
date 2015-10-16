@@ -66,6 +66,7 @@ void ReadTree(TString filename,
       allPlots["lchiso_"+tag]  = new TH1F("lchiso_"+tag,";Charged hadron isolation [GeV];Events" ,25,0.,50.);
       allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
       allPlots["leta_"+tag] = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
+      allPlots["sip3d_"+tag] = new TH1F("sip3d_"+tag,";Lepton SIP3D;Events" ,25,0.,100.);
       allPlots["jpt_"+tag]  = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
       allPlots["jeta_"+tag] = new TH1F("jeta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
       allPlots["ht_"+tag]   = new TH1F("ht_"+tag,";H_{T} [GeV];Events",40,0,800);
@@ -75,6 +76,7 @@ void ReadTree(TString filename,
       allPlots["metphi_"+tag] = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
       allPlots["mt_"+tag] = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,100,0.,200.);
       allPlots["secvtxmass_"+tag] = new TH1F("secvtxmass_"+tag,";SecVtx Mass [GeV];Events" ,10,0.,5.);
+      allPlots["secvtxpt_"+tag] = new TH1F("secvtxpt_"+tag,";SecVtx p_{T} [GeV];Events" ,10,0.,50.);
       allPlots["secvtx3dsig_"+tag] = new TH1F("secvtx3dsig_"+tag,";SecVtx 3D sig;Events" ,10,0.,100.);
     }
 
@@ -168,7 +170,8 @@ void ReadTree(TString filename,
       Int_t nudsgJets(0),ncJets(0), nbJets(0);
       uint32_t nJets(0), nJetsJESLo(0),nJetsJESHi(0), nJetsJERLo(0), nJetsJERHi(0);
       uint32_t nBtags(0), nBtagsBeffLo(0), nBtagsBeffHi(0), nBtagsMistagLo(0),nBtagsMistagHi(0);
-      Float_t htsum(0),firstVtxMass(0.),firstVtxLxySig(-9999.),secondVtxMass(0.),secondVtxLxySig(-9999.);
+      Float_t htsum(0),firstVtxLxySig(-9999.),secondVtxLxySig(-9999.);
+      TLorentzVector firstVtxP4,secondVtxP4;
       std::vector<int> selJetsIdx;
       for (int k=0; k<ev.nj;k++)
 	{
@@ -181,17 +184,19 @@ void ReadTree(TString filename,
 	      selJetsIdx.push_back(k);
 	      htsum += jet_pt;
 	      bool isBTagged(csv>0.890);
+	      float svtxEn=sqrt(pow(ev.j_vtxpx[k],2)+pow(ev.j_vtxpy[k],2)+pow(ev.j_vtxpz[k],2)+pow(ev.j_vtxmass[k],2));
+	      TLorentzVector svtxP4(ev.j_vtxpx[k],ev.j_vtxpy[k],ev.j_vtxpz[k],svtxEn);
 	      if(ev.j_vtx3DSig[k]>firstVtxLxySig)
 		{
 		  secondVtxLxySig=firstVtxLxySig;
-		  secondVtxMass=firstVtxMass;
+		  secondVtxP4=firstVtxP4;
 		  firstVtxLxySig=ev.j_vtx3DSig[k];
-		  firstVtxMass=ev.j_vtxmass[k];
+		  firstVtxP4=svtxP4;
 		}
 	      else if(ev.j_vtx3DSig[k]>secondVtxLxySig)
 		{
 		  secondVtxLxySig=ev.j_vtx3DSig[k];
-		  secondVtxMass=ev.j_vtxmass[k];
+		  secondVtxP4=svtxP4;
 		}
 
 	      //BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
@@ -369,6 +374,7 @@ void ReadTree(TString filename,
       allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);
       allPlots["lchreliso_"+tag]->Fill(ev.l_chargedHadronIso/ev.l_pt,wgt);
       allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
+      allPlots["sip3d_"+tag]->Fill(ev.l_sip3d,wgt);
       allPlots["jpt_"+tag]->Fill(ev.j_pt[ selJetsIdx[0] ],wgt);
       allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ selJetsIdx[0] ]),wgt);
       allPlots["csv_"+tag]->Fill(ev.j_csv[ selJetsIdx[0] ],wgt);
@@ -377,9 +383,10 @@ void ReadTree(TString filename,
       allPlots["met_"+tag]->Fill(ev.met_pt,wgt);
       allPlots["metphi_"+tag]->Fill(ev.met_phi,wgt);
       allPlots["mt_"+tag]->Fill(ev.mt,wgt);
-      if(firstVtxMass>0) 
+      if(firstVtxLxySig>0) 
 	{
-	  allPlots["secvtxmass_"+tag]->Fill(firstVtxMass,wgt);
+	  allPlots["secvtxpt_"+tag]->Fill(firstVtxP4.Pt(),wgt);
+	  allPlots["secvtxmass_"+tag]->Fill(firstVtxP4.M(),wgt);
 	  allPlots["secvtx3dsig_"+tag]->Fill(firstVtxLxySig,wgt);
 	}
     }
