@@ -1,0 +1,20 @@
+{
+"MC13TeV_QCD_Mu15to20"     : [1,    0, "/QCD_Pt-15to20_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu20to30"     : [1,    0, "/QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu50to80"    : [1,    0, "/QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2_ext1-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu80to120ext" : [1,    0, "/QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu170to300"   : [1,    0, "/QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2_ext1-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu300to470"   : [1,    0, "/QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu800to1000"  : [1,    0, "/QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_Mu1000toInf"  : [1,    0, "/QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_EM20to30"     : [1,    0, "/QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_EM30to50"     : [1,    0, "/QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_EM80to120"    : [1,    0, "/QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1],
+"MC13TeV_QCD_EM120to170"   : [1,    0, "/QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "QCD",          920, true, false, 1]
+}
+
+
+
+
+
+
