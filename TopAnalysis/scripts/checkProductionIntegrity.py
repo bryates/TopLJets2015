@@ -20,6 +20,8 @@ def main():
     parser.add_option(      '--nocheck',     dest='nocheck',     help='do not prompt user',                       default=False,  action='store_true')
     (opt, args) = parser.parse_args()
 
+    Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
+
     if opt.outDir is None: opt.outDir=opt.inDir
 
     dset_list=getEOSlslist(directory=opt.inDir,prepend='')
@@ -65,16 +67,14 @@ def main():
                         mergedFileName='/tmp/MergedMiniEvents_%d.root '%ilist
                         toAdd='%s ' % mergedFileName
                         for f in split_file_lists[ilist]:                            
-                            os.system('xrdcp  -f root://eoscms//eos/cms/%s /tmp/' % f)
-                            toAdd += '/tmp/'+os.path.basename(f) + ' '
-                        
+                            toAdd += 'eos/cms/%s '%f 
+
                         os.system('hadd -f %s'%toAdd)
                         os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/' %(mergedFileName,newDir))
-                        os.system('rm %s' % toAdd)
 
                 #if still needed copy individual files
                 if moveIndividualFiles:
-                    for f in file_list : os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/' % (f, newDir) )
+                    for f in file_list : os.system('xrdcp  -f %s eos/cms/%s/' % (f, newDir) )
 
             if not opt.nocheck and opt.cleanup : 
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()
@@ -83,6 +83,7 @@ def main():
 
             print 'Crab outputs may now be found in %s' % newDir
 
+    Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
     print '-'*50
     print 'All done. In case errors were found check that the crab output structure is '
     print '<outLFNDirBase>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>/<file-name>'
