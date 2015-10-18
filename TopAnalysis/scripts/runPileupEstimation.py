@@ -16,7 +16,7 @@ def main():
     (opt, args) = parser.parse_args()
 
 
-    MINBIASXSEC={'nom':80000,'up':88000,'down':72000}
+    MINBIASXSEC={'nom':88000,'up':97680,'down':79200}
     PUBINS=50    
     for scenario in MINBIASXSEC:
         print scenario, 'xsec=',MINBIASXSEC[scenario]

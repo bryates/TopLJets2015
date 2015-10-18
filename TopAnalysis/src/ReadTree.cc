@@ -4,6 +4,7 @@
 #include <TH2.h>
 #include <TSystem.h>
 #include <TGraph.h>
+#include <TLorentzVector.h>
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/ReadTree.h"
@@ -63,6 +64,7 @@ void ReadTree(TString filename,
       for(std::map<Int_t,Float_t>::iterator it=lumiMap.begin(); it!=lumiMap.end(); it++,runCtr++)
 	allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
       allPlots["lpt_"+tag]  = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
+      allPlots["lsip3d_"+tag]  = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,25,0.,50.);
       allPlots["lchiso_"+tag]  = new TH1F("lchiso_"+tag,";Charged hadron isolation [GeV];Events" ,25,0.,50.);
       allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
       allPlots["leta_"+tag] = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
@@ -74,8 +76,19 @@ void ReadTree(TString filename,
       allPlots["met_"+tag]  = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,20,0.,300.);
       allPlots["metphi_"+tag] = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
       allPlots["mt_"+tag] = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,100,0.,200.);
-      allPlots["secvtxmass_"+tag] = new TH1F("secvtxmass_"+tag,";SecVtx Mass [GeV];Events" ,10,0.,5.);
-      allPlots["secvtx3dsig_"+tag] = new TH1F("secvtx3dsig_"+tag,";SecVtx 3D sig;Events" ,10,0.,100.);
+
+      for(size_t i=0; i<2; i++)
+	{
+	  TString prefix(i==0 ? "" : "second_");
+	  allPlots[prefix+"secvtxmass_"+tag] = new TH1F(prefix+"secvtxmass_"+tag,";SecVtx Mass [GeV];Events" ,10,0.,5.);
+	  allPlots[prefix+"secvtxmass_"+tag] = new TH1F(prefix+"secvtxlmass_"+tag,";SecVtx+lepton Mass [GeV];Events" ,25,0.,250.);
+	  allPlots[prefix+"secvtx3dsig_"+tag] = new TH1F(prefix+"secvtx3dsig_"+tag,";SecVtx 3D sig;Events" ,10,0.,100.);
+	  allPlots[prefix+"secvtxl3d_"+tag] = new TH1F(prefix+"secvtxl3d_"+tag,";SecVtx 3D flight distance [cm];Events" ,10,0.,10.);
+	  allPlots[prefix+"secvtxntk_"+tag] = new TH1F(prefix+"secvtxntk_"+tag,";SecVtx track multiplicity;Events" ,5,2.,6.);
+	  allPlots[prefix+"secvtxpt_"+tag] = new TH1F(prefix+"secvtxpt_"+tag,";SecVtx p_{T} [GeV];Events" ,25,0.,100.);
+	}
+      
+
     }
 
   Int_t nsvtxMassBins=allPlots["secvtxmass_4j"]->GetXaxis()->GetNbins(); 
@@ -164,11 +177,19 @@ void ReadTree(TString filename,
       if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300) && ((ev.muTrigger>>0)&0x1)==0) continue;
       if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
       
+      //lepton kinematics
+      TLorentzVector lp4;
+      lp4.SetPtEtaPhiM(ev.l_pt,ev.l_eta,ev.l_phi,ev.l_mass);
+
+
       //select jets
       Int_t nudsgJets(0),ncJets(0), nbJets(0);
       uint32_t nJets(0), nJetsJESLo(0),nJetsJESHi(0), nJetsJERLo(0), nJetsJERHi(0);
       uint32_t nBtags(0), nBtagsBeffLo(0), nBtagsBeffHi(0), nBtagsMistagLo(0),nBtagsMistagHi(0);
-      Float_t htsum(0),firstVtxMass(0.),firstVtxLxySig(-9999.),secondVtxMass(0.),secondVtxLxySig(-9999.);
+      Float_t htsum(0);
+      Float_t firstVtxLxySig(-9999.),secondVtxLxySig(-9999.),firstVtxL3d(-9999.),secondVtxL3d(-9999.);
+      Int_t firstVtxNtk(0),secondVtxNtk(0);
+      TLorentzVector firstVtxP4,secondVtxP4;
       std::vector<int> selJetsIdx;
       for (int k=0; k<ev.nj;k++)
 	{
@@ -181,17 +202,26 @@ void ReadTree(TString filename,
 	      selJetsIdx.push_back(k);
 	      htsum += jet_pt;
 	      bool isBTagged(csv>0.890);
+	      Float_t vtxEn=sqrt(pow(ev.j_vtxpx[k],2)+pow(ev.j_vtxpy[k],2)+pow(ev.j_vtxpz[k],2)+pow(ev.j_vtxmass[k],2));
+	      TLorentzVector vtxP4(ev.j_vtxpx[k],ev.j_vtxpz[k],ev.j_vtxpz[k],vtxEn);
 	      if(ev.j_vtx3DSig[k]>firstVtxLxySig)
 		{
 		  secondVtxLxySig=firstVtxLxySig;
-		  secondVtxMass=firstVtxMass;
+		  secondVtxP4=firstVtxP4;
+		  secondVtxL3d=firstVtxL3d;
+		  secondVtxNtk=firstVtxNtk;
+
 		  firstVtxLxySig=ev.j_vtx3DSig[k];
-		  firstVtxMass=ev.j_vtxmass[k];
+		  firstVtxL3d=ev.j_vtx3DVal[k];
+		  firstVtxNtk=ev.j_vtxNtracks[k];
+		  firstVtxP4=vtxP4;
 		}
 	      else if(ev.j_vtx3DSig[k]>secondVtxLxySig)
 		{
 		  secondVtxLxySig=ev.j_vtx3DSig[k];
-		  secondVtxMass=ev.j_vtxmass[k];
+		  secondVtxP4=vtxP4;
+		  secondVtxL3d=ev.j_vtx3DVal[k];
+		  secondVtxNtk=ev.j_vtxNtracks[k];
 		}
 
 	      //BTagEntry::JetFlavor btagFlav( BTagEntry::FLAV_UDSG  );
@@ -280,7 +310,7 @@ void ReadTree(TString filename,
       
       //main histogram for xsec extraction
       int binToFill=getBtagCatBinToFill(nBtags,nJets);
-      int secvtxBinToFill=getSecVtxBinToFill(firstVtxMass,secondVtxMass,nJets,nsvtxMassBins, minSvtxMass,maxSvtxMass);
+      int secvtxBinToFill=getSecVtxBinToFill(firstVtxP4.M(),secondVtxP4.M(),nJets,nsvtxMassBins, minSvtxMass,maxSvtxMass);
       if(nJets>=1)
 	{
 	  allPlots["catcountSecVtx"]->Fill(secvtxBinToFill,wgt);
@@ -309,7 +339,7 @@ void ReadTree(TString filename,
 	}
 
       binToFill=getBtagCatBinToFill(nBtags,nJetsJESHi);
-      secvtxBinToFill=getSecVtxBinToFill(firstVtxMass,secondVtxMass,nJetsJESHi,nsvtxMassBins, minSvtxMass,maxSvtxMass);
+      secvtxBinToFill=getSecVtxBinToFill(firstVtxP4.M(),secondVtxP4.M(),nJetsJESHi,nsvtxMassBins, minSvtxMass,maxSvtxMass);
       if(nJetsJESHi>=1)
 	{
 	  allPlots["catcount_jesUp"]->Fill(binToFill,wgt);
@@ -317,7 +347,7 @@ void ReadTree(TString filename,
 	}
 
       binToFill=getBtagCatBinToFill(nBtags,nJetsJESLo);
-      secvtxBinToFill=getSecVtxBinToFill(firstVtxMass,secondVtxMass,nJetsJESLo,nsvtxMassBins, minSvtxMass,maxSvtxMass);
+      secvtxBinToFill=getSecVtxBinToFill(firstVtxP4.M(),secondVtxP4.M(),nJetsJESLo,nsvtxMassBins, minSvtxMass,maxSvtxMass);
       if(nJetsJESLo>=1) 
 	{
 	  allPlots["catcount_jesDown"]->Fill(binToFill,wgt);
@@ -325,7 +355,7 @@ void ReadTree(TString filename,
 	}
 
       binToFill=getBtagCatBinToFill(nBtags,nJetsJERHi);
-      secvtxBinToFill=getSecVtxBinToFill(firstVtxMass,secondVtxMass,nJetsJERHi,nsvtxMassBins, minSvtxMass,maxSvtxMass);
+      secvtxBinToFill=getSecVtxBinToFill(firstVtxP4.M(),secondVtxP4.M(),nJetsJERHi,nsvtxMassBins, minSvtxMass,maxSvtxMass);
       if(nJetsJERHi>=1) 
 	{
 	  allPlots["catcount_jerUp"]->Fill(binToFill,wgt);
@@ -333,7 +363,7 @@ void ReadTree(TString filename,
 	}
 
       binToFill=getBtagCatBinToFill(nBtags,nJetsJERLo);
-      secvtxBinToFill=getSecVtxBinToFill(firstVtxMass,secondVtxMass,nJetsJERLo,nsvtxMassBins, minSvtxMass,maxSvtxMass);
+      secvtxBinToFill=getSecVtxBinToFill(firstVtxP4.M(),secondVtxP4.M(),nJetsJERLo,nsvtxMassBins, minSvtxMass,maxSvtxMass);
       if(nJetsJERHi>=1) 
 	{
 	  allPlots["catcount_jerDown"]->Fill(binToFill,wgt);
@@ -366,6 +396,7 @@ void ReadTree(TString filename,
       }
 
       allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
+      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig,wgt);
       allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);
       allPlots["lchreliso_"+tag]->Fill(ev.l_chargedHadronIso/ev.l_pt,wgt);
       allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
@@ -377,11 +408,25 @@ void ReadTree(TString filename,
       allPlots["met_"+tag]->Fill(ev.met_pt,wgt);
       allPlots["metphi_"+tag]->Fill(ev.met_phi,wgt);
       allPlots["mt_"+tag]->Fill(ev.mt,wgt);
-      if(firstVtxMass>0) 
+      if(firstVtxP4.Pt()>0) 
 	{
-	  allPlots["secvtxmass_"+tag]->Fill(firstVtxMass,wgt);
+	  allPlots["secvtxl3d_"+tag]->Fill(firstVtxL3d,wgt);
+	  allPlots["secvtxntk_"+tag]->Fill(firstVtxNtk,wgt);
+	  allPlots["secvtxpt_"+tag]->Fill(firstVtxP4.Pt(),wgt);
+	  allPlots["secvtxmass_"+tag]->Fill(firstVtxP4.M(),wgt);
+	  allPlots["secvtxlmass_"+tag]->Fill((firstVtxP4+lp4).M(),wgt);
 	  allPlots["secvtx3dsig_"+tag]->Fill(firstVtxLxySig,wgt);
 	}
+      if(secondVtxP4.Pt()>0) 
+	{
+	  allPlots["second_secvtxl3d_"+tag]->Fill(secondVtxL3d,wgt);
+	  allPlots["second_secvtxntk_"+tag]->Fill(secondVtxNtk,wgt);
+	  allPlots["second_secvtxpt_"+tag]->Fill(secondVtxP4.Pt(),wgt);
+	  allPlots["second_secvtxmass_"+tag]->Fill(secondVtxP4.M(),wgt);
+	  allPlots["second_secvtxlmass_"+tag]->Fill((secondVtxP4+lp4).M(),wgt);
+	  allPlots["second_secvtx3dsig_"+tag]->Fill(secondVtxLxySig,wgt);
+	}
+
     }
 
   //close input file
@@ -403,47 +448,58 @@ void ReadTree(TString filename,
 std::map<Int_t,Float_t> lumiPerRun()
 {
   std::map<Int_t,Float_t> toReturn;
-  toReturn[256630]=948417.609   ;
-  toReturn[256673]=5534.408     ;
-  toReturn[256674]=92567.485    ;
-  toReturn[256675]=7282554.291  ;
-  toReturn[256676]=9172872.886  ;
-  toReturn[256677]=15581756.928 ;
-  toReturn[256729]=66555084.031 ;
-  toReturn[256734]=7199959.798  ;
-  toReturn[256801]=8830347.675  ;
-  toReturn[256842]=16510.582    ;
-  toReturn[256843]=37367788.087 ;
-  toReturn[256866]=58250.406    ;
-  toReturn[256867]=4546508.033  ;
-  toReturn[256868]=22542014.201 ;
-  toReturn[256869]=1539580.832  ;
-  toReturn[256926]=1499855.808  ;
-  toReturn[256941]=8741029.381  ;
-  toReturn[257394]=1630030.328  ;
-  toReturn[257395]=701401.393   ;
-  toReturn[257461]=3057928.782  ;
-  toReturn[257531]=8418598.194  ;
-  toReturn[257599]=4940876.751  ;
-  toReturn[257613]=75639153.224 ;
-  toReturn[257614]=850778.922   ;
-  toReturn[257645]=62520503.888 ;
-  toReturn[257682]=13053256.987 ;
-  toReturn[257722]=810552.138   ;
-  toReturn[257723]=5941442.106  ;
-  toReturn[257735]=521278.124   ;
-  toReturn[257751]=27029514.967 ;
-  toReturn[257804]=210956.374   ;
-  toReturn[257805]=17038078.687 ;
-  toReturn[257816]=24328019.178 ;
-  toReturn[257819]=15147148.51  ;
-  toReturn[257968]=16769109.914 ;
-  toReturn[257969]=39179793.996 ;
-  toReturn[258129]=5813530.48   ;
-  toReturn[258136]=3617731.16   ;
-  toReturn[258157]=3866329.715  ;
-  toReturn[258158]=29505332.962 ;
-  toReturn[258159]=25687049.652 ;
+  toReturn[256630]=  948417.609  ;
+  toReturn[256673]=   5534.408   ;
+  toReturn[256674]=  92567.485   ;
+  toReturn[256675]= 7282554.291  ;
+  toReturn[256676]= 9172872.886  ;
+  toReturn[256677]= 15581756.928 ;
+  toReturn[256801]= 8830347.675  ;
+  toReturn[256842]=  16510.582   ;
+  toReturn[256843]= 37367788.087 ;
+  toReturn[256866]=  58250.406   ;
+  toReturn[256867]= 4546508.033  ;
+  toReturn[256868]= 22542014.201 ;
+  toReturn[256869]= 1539580.832  ;
+  toReturn[256926]= 1499855.808  ;
+  toReturn[256941]= 8741029.381  ;
+  toReturn[257461]= 3057928.782  ;
+  toReturn[257531]= 8418598.194  ;
+  toReturn[257599]= 4940876.751  ;
+  toReturn[257613]= 75639153.224 ;
+  toReturn[257614]=  850778.922  ;
+  toReturn[257645]= 62520503.888 ;
+  toReturn[257682]= 13053256.987 ;
+  toReturn[257722]=  810552.138  ;
+  toReturn[257723]= 5941442.106  ;
+  toReturn[257735]=  521278.124  ;
+  toReturn[257751]= 27029514.967 ;
+  toReturn[257804]=  210956.374  ;
+  toReturn[257805]= 17038078.687 ;
+  toReturn[257816]= 24328019.178 ;
+  toReturn[257819]= 15147148.510 ;
+  toReturn[257968]= 16769109.914 ;
+  toReturn[257969]= 39179793.996 ;
+  toReturn[258129]= 5813530.480  ;
+  toReturn[258136]= 3617731.160  ;
+  toReturn[258157]= 3866329.715  ;
+  toReturn[258158]= 105692715.515 ;
+  toReturn[258159]= 25632955.799 ;
+  toReturn[258175]= 6321719.899  ;
+  toReturn[258177]= 110624282.848 ;
+  toReturn[258215]=  411364.505  ;
+  toReturn[258287]= 13116082.901 ;
+  toReturn[258403]= 15612888.766 ;
+  toReturn[258426]=  751812.067  ;
+  toReturn[258427]= 7901302.746  ;
+  toReturn[258428]= 23293177.541 ;
+  toReturn[258432]=  279944.749  ;
+  toReturn[258434]= 30536738.787 ;
+  toReturn[258444]= 7259630.524  ;
+  toReturn[258655]=  383658.834  ;
+  toReturn[258656]= 25581933.798 ;
+  toReturn[258705]= 7604760.367  ;
+  toReturn[258714]= 4168945.356  ;
   return toReturn;
 };
 
