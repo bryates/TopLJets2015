@@ -138,6 +138,15 @@ class Plot(object):
                 self._garbageList.append(totalMC)
                 totalMC.SetDirectory(0)
 
+        #test for null plots
+        if totalMC :
+            if totalMC.Integral()==0:
+                if self.dataH is None : return
+                if self.dataH.Integral()==0: return
+        elif self.dataH is None : return
+        elif self.dataH.Integral()==0 : return 
+
+
         frame = totalMC.Clone('frame') if totalMC is not None else self.dataH.Clone('frame')
         frame.Reset('ICE')
         if totalMC:
@@ -161,6 +170,7 @@ class Plot(object):
         frame.GetYaxis().SetTitleOffset(1.3)
         if totalMC is not None   : stack.Draw('hist same')
         if self.data is not None : self.data.Draw('p')
+
 
         leg.Draw()
         txt=ROOT.TLatex()

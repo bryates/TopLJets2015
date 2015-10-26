@@ -14,7 +14,7 @@
 #include "RooMinuit.h"
 #include "RooFitResult.h"
 #include "RooWorkspace.h"
-
+#include "RooExtendPdf.h"
 
 using namespace std;
 
@@ -75,7 +75,15 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
 	  result.nExp = nExp;
 	  result.nExpUnc = nExpUnc;
 	}
-      
+
+      RooRealVar *expVar = new RooRealVar(name,name,nExp,0.,2*dataH->Integral());
+      RooDataHist *itempl = new RooDataHist(name+"_hist",name+"_hist", RooArgList(x), Import(*h));
+      RooHistPdf *ipdf    = new RooHistPdf (name+"_shapepdf", name+"_shapepdf",  RooArgSet(x), *itempl);
+      RooExtendPdf *iextpdf =  new RooExtendPdf(name+"_pdf",name+"_pdf",*ipdf,*expVar);
+      expVar->SetTitle(title);
+      expFracs.add(*expVar); 
+
+      /*
       if(i<(expTemplates.GetEntriesFast()-1))
 	{
 	  float frac(nExp/totalExp);
@@ -89,29 +97,35 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
       RooHistPdf *ipdf    = new RooHistPdf (name+"_pdf", name+"_pdf",  RooArgSet(x), *itempl);
       ipdf->SetTitle(title);
       expPDFs.add(*ipdf);
-      if(i!=idxOfInterest) nonPOIPDFs.add(*ipdf);
+      */
+
+      iextpdf->SetTitle(title);
+      expPDFs.add(*iextpdf);
+      if(i!=idxOfInterest) nonPOIPDFs.add(*iextpdf);
     }
 
 
   //create the final pdf
-  RooAddPdf *pdf=new RooAddPdf("pdf","pdf", expPDFs, expFracs);
+  //RooAddPdf *pdf=new RooAddPdf("pdf","pdf", expPDFs, expFracs);
+  RooAddPdf *pdf=new RooAddPdf("pdf","pdf", expPDFs);
 
   //fit (using minos has the same behavior of profiling all variables except the parameter of interest)
-  RooAbsReal *ll = pdf->createNLL(*data);
+  cout << __LINE__ << endl;
+  RooAbsReal *ll = pdf->createNLL(*data,Extended(kTRUE));
   RooMinuit minuit(*ll);
   minuit.setErrorLevel(0.5);
   minuit.migrad();
   minuit.hesse();
   RooArgSet poi(*expFracs.find(poiName));
   result.minuitStatus = minuit.minos(poi);
-
+  cout << __LINE__ << endl;
   //save result
   RooRealVar *fracVar=(RooRealVar *)expFracs.find(poiName);
-  result.nObs    = fracVar->getVal()*totalExp;
-  result.nObsUnc = fracVar->getError()*totalExp;     
+  result.nObs    = fracVar->getVal();//*totalExp;
+  result.nObsUnc = fracVar->getError();//*totalExp;     
   result.sf      = result.nExp<=0 ? -1 : result.nObs/result.nExp;
   result.sfUnc   = result.nExp<=0 ? -1 : TMath::Sqrt(TMath::Power(result.nObs*result.nExpUnc,2)+TMath::Power(result.nObsUnc*result.nExp,2))/TMath::Power(result.nExp,2);
-  
+    cout << __LINE__ << endl;
   //
   if(saveResultIn!="")
     {
@@ -205,7 +219,7 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
       frame2->GetXaxis()->SetRangeUser(165,180);
       frame2->GetYaxis()->SetNdivisions(3);
       frame2->GetXaxis()->SetNdivisions(3);
-      frame2->GetXaxis()->SetTitle(expFracs.find(poiName)->GetTitle() + TString(" fraction"));
+      frame2->GetXaxis()->SetTitle(expFracs.find(poiName)->GetTitle() + TString(" yields"));
       frame2->GetYaxis()->SetTitle("LL");
       frame2->GetYaxis()->SetTitleOffset(1.5);
       frame2->GetXaxis()->SetTitleSize(0.08);

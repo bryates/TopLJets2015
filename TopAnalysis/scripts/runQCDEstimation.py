@@ -9,7 +9,7 @@ from TopLJets2015.TopAnalysis.storeTools import *
 """
 Get data and sum of MC from file
 """
-def getTemplates(fIn,dist,tag):
+def getTemplates(fIn,dist,tag,rebin=False):
     data,sumMC=None,None
     for key in fIn.Get(dist).GetListOfKeys():
         keyName=key.GetName()
@@ -30,6 +30,11 @@ def getTemplates(fIn,dist,tag):
         val=sumMC.GetBinContent(xbin)
         if val==0:
             sumMC.SetBinContent(xbin,1e-3)
+
+    #if rebin:
+    #    data.Rebin()
+    #    sumMC.Rebin()
+
     return data,sumMC
 
 
@@ -63,18 +68,18 @@ def main():
     fNonIso=ROOT.TFile.Open(opt.noniso)
     fIso=ROOT.TFile.Open(opt.iso)
 
-    #perform a fit to met
+    #perform a fit to a variable of interest
     nonIsoTemplateSF={}
     for sel in ['1j','2j','3j','4j']:
 
         #data in the sideband
-        dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist='%s_%s'%(opt.norm,sel), tag='noniso')
+        dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist='%s_%s'%(opt.norm,sel), tag='noniso',rebin=True)
         dataNonIso.Add(sumMCNonIso,-1)
         dataNonIso.SetTitle('QCD multijets (data)')
         nsideband=dataNonIso.Integral()
 
         #data in the signal region
-        dataIso,    sumMCIso    = getTemplates(fIn=fIso,    dist='%s_%s'%(opt.norm,sel), tag='iso')
+        dataIso,    sumMCIso    = getTemplates(fIn=fIso,    dist='%s_%s'%(opt.norm,sel), tag='iso',rebin=True)
         dataIso.SetTitle('data')
         sumMCIso.SetTitle('other processes')
 

@@ -91,3 +91,4 @@ else:
                           *process.egmGsfElectronIDSequence
                           *process.analysis)
 
+print process.p

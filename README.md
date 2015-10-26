@@ -35,7 +35,7 @@ Don't forget to init the environment for crab3
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/5692fcb -o /store/cmst3/user/psilva/LJets2015/5692fcb
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/715b465 -o /store/cmst3/user/psilva/LJets2015/7bae03e
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 For data, don't forget to create the json files with the list of runs/luminosity sections processed, e.g. as:
@@ -58,6 +58,12 @@ To update the pileup distributions run
 python scripts/runPileupEstimation.py --json SingleElectron_lumi.json
 ```
 It will store the data pileup distributions for different min.bias cross section values under data.
+Before running it's better to save the expected b-tagging efficiency with
+```
+python scripts/saveExpectedBtagEff.py 
+```
+This will project the jet pT spectrum from the TTbar sample before and after applying b-tagging,
+and save the expected efficiencies in data/expTageff.root.
 You're now ready to start locally the analysis.
 
 ## Running locally the analysis
@@ -70,9 +76,11 @@ python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
 To run the code on a set of samples, listed in a json file you can run it as follows:
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5692fcb -j data/samples_Run2015.json -n 8 -o analysis_nonisomu --ch 1300
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/7bae03e -j data/samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/7bae03e -j data/samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/7bae03e -j data/samples_Run2015.json -n 8 -o analysis_munoniso --ch 1300
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/7bae03e -j data/syst_samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/7bae03e -j data/syst_samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
 ```
 The first time it runs over the directory it will compute the normalization factor for MC
 such that the distributions will correspond to 1/pb of data.
@@ -85,14 +93,15 @@ Both the normalization factors and the pileup weights are stored under the "anal
 in a cache file called ".xsecweights.pck".
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 578.25
-python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 578.25
-python scripts/plotter.py -i analysis_nonisomu/ -j data/samples_Run2015.json -l 578.25
+python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 831
+python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 831
+python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l 831
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as
 ```
-python scripts/runQCDEstimation.py --iso analysis_muplus/plots/plotter.root --noniso analysis_nonisomu/plots/plotter.root --out analysis_muplus/ --norm metpt
+python scripts/runQCDEstimation.py --iso analysis_muplus/plots/plotter.root --noniso analysis_munoniso/plots/plotter.root --out analysis_muplus/ --norm metpt
+python scripts/runQCDEstimation.py --iso analysis_muminus/plots/plotter.root --noniso analysis_munoniso/plots/plotter.root --out analysis_muminus/ --norm metpt
 ```
 The output is a ROOT file called Data_QCDMultijets.root which can now be used in addition to the predictions of all the other backgrounds.
 To include it in the final plots you can run the plotter script again (see instructions above).
