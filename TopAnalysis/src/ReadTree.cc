@@ -41,7 +41,7 @@ void ReadTree(TString filename,
 	      TString outname,
 	      Int_t channelSelection, 
 	      Int_t chargeSelection, 
-	      Float_t norm, 
+	      TH1F *normH, 
 	      Bool_t isTTbar,
 	      FlavourSplitting flavourSplitting,
 	      GenWeightMode genWgtMode,
@@ -342,6 +342,8 @@ void ReadTree(TString filename,
 	{
 	  puWeight[0]=puWgtGr->Eval(ev.putrue);  puWeight[1]=puUpWgtGr->Eval(ev.putrue); puWeight[2]=puDownWgtGr->Eval(ev.putrue);
 	}
+
+      float norm=normH ? normH->GetBinContent(1) : 1.0;
       float wgt          (norm*lepSF[0]                                *puWeight[0]);
       float wgtPuUp      (norm*lepSF[0]                                *puWeight[1]);
       float wgtPuDown    (norm*lepSF[0]                                *puWeight[2]);
@@ -352,18 +354,20 @@ void ReadTree(TString filename,
       float wgtQCDScaleLo(wgt),wgtQCDScaleHi(wgt);
       if(genWgtMode!=NOGENWGT && !ev.isData) 
 	{
-	  wgt          *= ev.ttbar_w[0];
-	  wgtPuUp      *= ev.ttbar_w[0];
-	  wgtPuDown    *= ev.ttbar_w[0];
-	  wgtMuEffUp   *= ev.ttbar_w[0];
-	  wgtMuEffDown *= ev.ttbar_w[0];
-	  wgtElEffUp   *= ev.ttbar_w[0];
-	  wgtElEffDown *= ev.ttbar_w[0];
+	  wgt           *= ev.ttbar_w[0];
+	  wgtPuUp       *= ev.ttbar_w[0];
+	  wgtPuDown     *= ev.ttbar_w[0];
+	  wgtMuEffUp    *= ev.ttbar_w[0];
+	  wgtMuEffDown  *= ev.ttbar_w[0];
+	  wgtElEffUp    *= ev.ttbar_w[0];
+	  wgtElEffDown  *= ev.ttbar_w[0];
+	  wgtQCDScaleLo *= ev.ttbar_w[0];
+	  wgtQCDScaleHi *= ev.ttbar_w[0];
 	}
       if(isTTbar)
 	{
-	  wgtQCDScaleLo   = wgt*ev.ttbar_w[9]/ev.ttbar_w[0];
-	  wgtQCDScaleHi   = wgt*ev.ttbar_w[5]/ev.ttbar_w[0];	 
+	  wgtQCDScaleLo   = wgt*(normH->GetBinContent(10)/norm)*(ev.ttbar_w[9]/ev.ttbar_w[0]);
+	  wgtQCDScaleHi   = wgt*(normH->GetBinContent(6)/norm)*(ev.ttbar_w[5]/ev.ttbar_w[0]);	 
 	}
 
       //nominal selection
@@ -520,74 +524,76 @@ void ReadTree(TString filename,
 std::map<Int_t,Float_t> lumiPerRun()
 {
   std::map<Int_t,Float_t> toReturn;
-  toReturn[256630]=  948417.609  ;
-  toReturn[256673]=   5534.408   ;
-  toReturn[256674]=  92567.485   ;
-  toReturn[256675]= 7282554.291  ;
-  toReturn[256676]= 9172872.886  ;
-  toReturn[256677]= 15581756.928 ;
-  toReturn[256801]= 8830347.675  ;
-  toReturn[256842]=  16510.582   ;
-  toReturn[256843]= 37367788.087 ;
-  toReturn[256866]=  58250.406   ;
-  toReturn[256867]= 4546508.033  ;
-  toReturn[256868]= 22542014.201 ;
-  toReturn[256869]= 1539580.832  ;
-  toReturn[256926]= 1499855.808  ;
-  toReturn[256941]= 8741029.381  ;
-  toReturn[257461]= 3057928.782  ;
-  toReturn[257531]= 8418598.194  ;
-  toReturn[257599]= 4940876.751  ;
-  toReturn[257613]= 75639153.224 ;
-  toReturn[257614]=  850778.922  ;
-  toReturn[257645]= 62520503.888 ;
-  toReturn[257682]= 13053256.987 ;
-  toReturn[257722]=  810552.138  ;
-  toReturn[257723]= 5941442.106  ;
-  toReturn[257735]=  521278.124  ;
-  toReturn[257751]= 27029514.967 ;
-  toReturn[257804]=  210956.374  ;
-  toReturn[257805]= 17038078.687 ;
-  toReturn[257816]= 24328019.178 ;
-  toReturn[257819]= 15147148.510 ;
-  toReturn[257968]= 16769109.914 ;
-  toReturn[257969]= 39179793.996 ;
-  toReturn[258129]= 5813530.480  ;
-  toReturn[258136]= 3617731.160  ;
-  toReturn[258157]= 3866329.715  ;
-  toReturn[258158]= 105692715.515 ;
-  toReturn[258159]= 25632955.799 ;
-  toReturn[258175]= 6321719.899  ;
-  toReturn[258177]= 110624282.848 ;
-  toReturn[258215]=  411364.505  ;
-  toReturn[258287]= 13116082.901 ;
-  toReturn[258403]= 15612888.766 ;
-  toReturn[258426]=  751812.067  ;
-  toReturn[258427]= 7901302.746  ;
-  toReturn[258428]= 23293177.541 ;
-  toReturn[258432]=  279944.749  ;
-  toReturn[258434]= 30536738.787 ;
-  toReturn[258444]= 7259630.524  ;
-  toReturn[258655]=  383658.834  ;
-  toReturn[258656]= 25581933.798 ;
-  toReturn[258705]= 7604760.367  ;
-  toReturn[258714]= 4168945.356  ;
-  toReturn[258159]= 25529760.587;
-  toReturn[258175]= 6321719.899 ;
-  toReturn[258177]=110409356.095;
-  toReturn[258215]=  411364.505 ;
-  toReturn[258287]= 13116082.901;
-  toReturn[258403]= 15612888.766;
-  toReturn[258426]=  751812.067 ;
-  toReturn[258427]= 7901302.746 ;
-  toReturn[258428]= 23293177.541;
-  toReturn[258432]=  279944.749 ;
-  toReturn[258434]= 30536738.787;
-  toReturn[258444]= 7147490.708 ;
-  toReturn[258655]=  383658.834 ;
-  toReturn[258656]= 25581933.798;
-  toReturn[258705]= 7604760.367 ;
-  toReturn[258714]= 4168945.356 ;
+toReturn[ 256630 ]=  948417.609 ;
+toReturn[ 256673 ]=   5534.408  ;
+toReturn[ 256674 ]=  92567.485  ;
+toReturn[ 256675 ]= 7099162.193 ;
+toReturn[ 256676 ]= 9172872.886 ;
+toReturn[ 256677 ]= 15581756.928;
+toReturn[ 256801 ]= 8830347.675 ;
+toReturn[ 256842 ]=  16510.582  ;
+toReturn[ 256843 ]= 37131085.338;
+toReturn[ 256866 ]=  58250.406  ;
+toReturn[ 256867 ]= 4546508.033 ;
+toReturn[ 256868 ]= 22542014.201;
+toReturn[ 256869 ]= 1539580.832 ;
+toReturn[ 256926 ]= 1499855.808 ;
+toReturn[ 256941 ]= 8741029.381 ;
+toReturn[ 257461 ]= 3057928.782 ;
+toReturn[ 257531 ]= 8418598.194 ;
+toReturn[ 257599 ]= 4940876.751 ;
+toReturn[ 257613 ]= 75519819.209;
+toReturn[ 257614 ]=  850778.922 ;
+toReturn[ 257645 ]= 62388624.946;
+toReturn[ 257682 ]= 13053256.987;
+toReturn[ 257722 ]=  719350.314 ;
+toReturn[ 257723 ]= 5941442.106 ;
+toReturn[ 257735 ]=  521278.124 ;
+toReturn[ 257751 ]= 27029514.967;
+toReturn[ 257804 ]=  210956.374 ;
+toReturn[ 257805 ]= 17038078.687;
+toReturn[ 257816 ]= 24328019.178;
+toReturn[ 257819 ]= 15147148.510;
+toReturn[ 257968 ]= 16769109.914;
+toReturn[ 257969 ]= 39179793.996;
+toReturn[ 258129 ]= 5813530.480 ;
+toReturn[ 258136 ]= 3617731.160 ;
+toReturn[ 258157 ]= 3866329.715 ;
+toReturn[ 258158 ]=105571609.093;
+toReturn[ 258159 ]= 25531210.007;
+toReturn[ 258177 ]=101938042.657;
+toReturn[ 258211 ]= 6371404.543 ;
+toReturn[ 258213 ]= 11238447.671;
+toReturn[ 258214 ]= 15172855.551;
+toReturn[ 258215 ]=  411364.505 ;
+toReturn[ 258287 ]= 12966493.641;
+toReturn[ 258403 ]= 15612888.766;
+toReturn[ 258425 ]= 10170405.992;
+toReturn[ 258426 ]=  751812.067 ;
+toReturn[ 258427 ]= 7901302.746 ;
+toReturn[ 258428 ]= 11578208.046;
+toReturn[ 258432 ]=  279944.749 ;
+toReturn[ 258434 ]= 30536738.787;
+toReturn[ 258440 ]= 44624917.855;
+toReturn[ 258444 ]= 2079367.112 ;
+toReturn[ 258445 ]= 16403375.902;
+toReturn[ 258446 ]= 7474593.995 ;
+toReturn[ 258448 ]= 35705866.510;
+toReturn[ 258655 ]=  383658.834 ;
+toReturn[ 258656 ]= 25581933.798;
+toReturn[ 258694 ]= 15219679.888;
+toReturn[ 258702 ]= 29093248.654;
+toReturn[ 258703 ]= 31138680.065;
+toReturn[ 258705 ]= 7604760.367 ;
+toReturn[ 258706 ]= 52122692.407;
+toReturn[ 258712 ]= 34495799.123;
+toReturn[ 258713 ]= 10164347.291;
+toReturn[ 258714 ]= 4168945.356 ;
+toReturn[ 258741 ]= 4446752.908 ;
+toReturn[ 258742 ]= 59299810.293;
+toReturn[ 258745 ]= 20966777.757;
+toReturn[ 258749 ]= 44752319.500;
+toReturn[ 258750 ]= 14330984.460;
   return toReturn;
 };
 

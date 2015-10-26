@@ -35,7 +35,7 @@ Don't forget to init the environment for crab3
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/715b465 -o /store/cmst3/user/psilva/LJets2015/7bae03e
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/dee6421 -o /store/cmst3/user/psilva/LJets2015/7bae03e
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 For data, don't forget to create the json files with the list of runs/luminosity sections processed, e.g. as:
@@ -93,9 +93,9 @@ Both the normalization factors and the pileup weights are stored under the "anal
 in a cache file called ".xsecweights.pck".
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 831
-python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 831
-python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l 831
+python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 1262
+python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 1262
+python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l 1262
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as

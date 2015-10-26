@@ -3,6 +3,7 @@
 
 #include <TString.h>
 #include <TGraph.h>
+#include <TH1F.h>
 
 #include <map>
 #include <vector>
@@ -16,7 +17,7 @@ void ReadTree(TString filename,
 	      TString outname,
 	      Int_t channelSelection=13,
 	      Int_t chargeSelection=0,
-	      Float_t norm=1.0,
+	      TH1F *normH=0,
 	      Bool_t isTTbar=false,
 	      FlavourSplitting flavourSplitting=NOFLAVOURSPLITTING,
 	      GenWeightMode genWgtMode=NOGENWGT,

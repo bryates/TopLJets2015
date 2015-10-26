@@ -35,7 +35,7 @@ def getEOSlslist(directory, mask='', prepend='root://eoscms//eos/cms'):
 """
 Loops over a list of samples and produces a cache file to normalize MC
 """
-def produceNormalizationCache(samplesList,inDir,cache):
+def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts):
 
     #open pileup files
     puDists={}
@@ -55,29 +55,32 @@ def produceNormalizationCache(samplesList,inDir,cache):
         print 'No pileup distributions found under data/ pileup weights won\'t be stored'
 
     #loop over samples
-    xsecWgts,integLumi,puHistos={},{},{}
     for tag,sample in samplesList: 
 
         if sample[1]==1 : 
-            xsecWgts[tag]=1.0
+            xsecWgts[tag]=None
             continue
 
         input_list=getEOSlslist(directory=inDir+'/'+tag)            
         xsec=sample[0]            
-        norigEvents,nrawEvents=0,0
+        norigEvents=None
         if hputrue : hputrue.Reset('ICE')
         for f in input_list:
             fIn=ROOT.TFile.Open(f)
-            nrawEvents+=fIn.Get('analysis/counter').GetBinContent(1)
-            norigEvents+=fIn.Get('analysis/counter').GetBinContent(2)
+            if norigEvents is None:
+                norigEvents=fIn.Get('analysis/fidcounter0').Clone('xsecwgts')
+                norigEvents.Reset('ICE')
+            norigEvents.Add(fIn.Get('analysis/fidcounter0'))
             if hputrue:
                 hputrue.SetDirectory(fIn)
                 fIn.Get('analysis/data').Draw('putrue>>+hputrue','ttbar_w[0]','goff')
                 hputrue.SetDirectory(0)
             fIn.Close()
-        xsecWgts[tag]  = xsec/norigEvents  if norigEvents>0 else 0
-        integLumi[tag] = nrawEvents/xsec  if norigEvents>0 else 0
-
+        for xbin in xrange(1,norigEvents.GetNbinsX()+1):
+            norigEvents.SetBinContent(xbin,xsec/norigEvents.GetBinContent(xbin))
+            norigEvents.SetBinError(xbin,0.)
+        xsecWgts[tag]  = norigEvents
+        integLumi[tag] = norigEvents.GetBinContent(1)/xsec
         puGr=[]
         if hputrue and hputrue.Integral()>0:
             hputrue.Scale(1./hputrue.Integral())

@@ -38,6 +38,7 @@ def main():
     parser.add_option('-j', '--json',        dest='json',        help='json file to process',                       default=None,       type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process',             default=None,       type='string')
     parser.add_option(      '--resetCache',  dest='resetCache',  help='reset normalization cache',                  default=False,       action='store_true')
+    parser.add_option(      '--cache',       dest='cache',       help='use this cache file',                        default='data/.xsecweights.pck', type='string')
     parser.add_option(      '--ch',          dest='channel',     help='channel',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge',                                     default=0,          type=int)
     parser.add_option(      '--flav',        dest='flav',        help='flavour splitting (for single files)',       default=0,          type=int)
@@ -69,25 +70,27 @@ def main():
         jsonFile.close()
 
         #read normalization
-        xsecWgts, integLumi, puWgts = {}, {}, {}
-        cache='%s/.xsecweights.pck'%opt.outDir
+        xsecWgts, integLumi, puWgts = {}, {}, {}        
         if opt.resetCache : 
             print 'Removing normalization cache'
-            os.system('rm %s'%cache)
+            os.system('rm %s'%opt.cache)
         try:
-            cachefile = open(cache, 'r')
+            cachefile = open(opt.cache, 'r')
             xsecWgts  = pickle.load(cachefile)
             integLumi = pickle.load(cachefile)
             puWgts    = pickle.load(cachefile)
             cachefile.close()        
-            print 'Normalization read from cache (%s)' % cache
+            print 'Normalization read from cache (%s)' % opt.cache
             for tag,sample in samplesList:
                 if not tag in xsecWgts:
                     raise KeyError
         except:
             print 'Computing original number of events and storing in cache, this may take a while if it\'s the first time'
-            xsecWgts,integLumi, puWgts = produceNormalizationCache(samplesList=samplesList,inDir=opt.input,cache=cache)
-            
+            print 'Starting with %d processes'%len(xsecWgts)
+            xsecWgts, integLumi, puWgts = produceNormalizationCache(samplesList=samplesList,inDir=opt.input,cache=opt.cache, 
+                                                                    xsecWgts=xsecWgts, integLumi=integLumi, puWgts=puWgts)
+            print 'Current map has now %d processes'%len(xsecWgts)
+
         #create the analysis jobs
         for tag,sample in samplesList:
 
