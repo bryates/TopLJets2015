@@ -61,6 +61,11 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
             xsecWgts[tag]=None
             continue
 
+        if tag in xsecWgts:
+            print '[Warning] won\'t override current definition for',tag,'. Use --resetCache option to override'
+            continue
+        
+
         input_list=getEOSlslist(directory=inDir+'/'+tag)            
         xsec=sample[0]            
         norigEvents=None
@@ -69,6 +74,7 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
             fIn=ROOT.TFile.Open(f)
             if norigEvents is None:
                 norigEvents=fIn.Get('analysis/fidcounter0').Clone('xsecwgts')
+                norigEvents.SetDirectory(0)
                 norigEvents.Reset('ICE')
             norigEvents.Add(fIn.Get('analysis/fidcounter0'))
             if hputrue:
@@ -76,11 +82,14 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
                 fIn.Get('analysis/data').Draw('putrue>>+hputrue','ttbar_w[0]','goff')
                 hputrue.SetDirectory(0)
             fIn.Close()
-        for xbin in xrange(1,norigEvents.GetNbinsX()+1):
-            norigEvents.SetBinContent(xbin,xsec/norigEvents.GetBinContent(xbin))
-            norigEvents.SetBinError(xbin,0.)
+        try:
+            for xbin in xrange(1,norigEvents.GetNbinsX()+1):
+                norigEvents.SetBinContent(xbin,xsec/norigEvents.GetBinContent(xbin))
+                norigEvents.SetBinError(xbin,0.)
+        except:
+            print 'No normalization histogram for ',tag
         xsecWgts[tag]  = norigEvents
-        integLumi[tag] = norigEvents.GetBinContent(1)/xsec
+        integLumi[tag] = 1./norigEvents.GetBinContent(1) if norigEvents else 0.
         puGr=[]
         if hputrue and hputrue.Integral()>0:
             hputrue.Scale(1./hputrue.Integral())
@@ -94,15 +103,17 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
                 puGr.append( ROOT.TGraph(hwgt) )
                 puGr[-1].SetName(puEst+'_wgt')
                 hwgt.Delete()
-        puHistos[tag] = puGr
+        puWgts[tag] = puGr
 
-        print '... %s cross section=%f pb #orig events=%d lumi=%3.2f/fb' % (tag,xsec,norigEvents,integLumi[tag]/1000.)
+        if norigEvents:
+            print '... %s cross section=%f pb weights sum(initial events)=%3.0f lumi=%3.2f/fb' % (tag,xsec,xsec/norigEvents.GetBinContent(1),integLumi[tag]/1000.)
+            
         
     #dump to file    
     cachefile=open(cache,'w')
     pickle.dump(xsecWgts, cachefile, pickle.HIGHEST_PROTOCOL)
     pickle.dump(integLumi, cachefile, pickle.HIGHEST_PROTOCOL)
-    pickle.dump(puHistos, cachefile, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(puWgts, cachefile, pickle.HIGHEST_PROTOCOL)
     cachefile.close()
     print 'Produced normalization cache and pileup weights @ %s'%cache
 
