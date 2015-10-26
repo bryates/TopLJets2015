@@ -117,4 +117,4 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
     cachefile.close()
     print 'Produced normalization cache and pileup weights @ %s'%cache
 
-    return xsecWgts,integLumi,puHistos
+    return xsecWgts,integLumi,puWgts
