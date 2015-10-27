@@ -43,7 +43,6 @@ def main():
     parser.add_option(      '--charge',      dest='charge',      help='charge',                                     default=0,          type=int)
     parser.add_option(      '--flav',        dest='flav',        help='flavour splitting (for single files)',       default=0,          type=int)
     parser.add_option(      '--isTT',        dest='isTT',        help='ttbar sample (for single files)',            default=False,      action='store_true')
-    parser.add_option(      '--norm',        dest='norm',        help='normalization scale (for single files)',     default=1.0,        type=float)
     parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=gen weight (for single files)',     default=0,        type=int)
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel',    default=0,           type='int')
     (opt, args) = parser.parse_args()
@@ -60,9 +59,10 @@ def main():
     task_list = []
     processedTags=[]
     if '.root' in opt.input:
-        if '/store/' in opt.input: opt.input='root://eoscms.cern.ch//eos/cms/'+opt.input
+        if '/store/' in opt.input: opt.input='root://eoscms//eos/cms'+opt.input
+        print opt.input
         outF=os.path.join(opt.outDir,os.path.basename(opt.input))
-        task_list.append( (opt.input,outF,opt.channel,opt.charge,opt.norm,opt.isTT,opt.flav,opt.genWgtMode) )
+        task_list.append( (opt.input,outF,opt.channel,opt.charge,None,opt.isTT,opt.flav,opt.genWgtMode,None,None,None) )
     else:
         #read list of samples
         jsonFile = open(opt.json,'r')

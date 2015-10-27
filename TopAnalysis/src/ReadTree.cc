@@ -171,6 +171,7 @@ void ReadTree(TString filename,
 
       //apply trigger requirement
       Int_t muTriggerBit( ev.isData ? 2 : 0);
+      if(abs(ev.l_id) == 13 && ev.run>258445) cout << muTriggerBit << " " << ((ev.muTrigger>>muTriggerBit)&0x1) << " " << ((ev.muTrigger>>0)&0x1) << endl;
       if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300) && ((ev.muTrigger>>muTriggerBit)&0x1)==0) continue;
       if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
       
@@ -398,9 +399,6 @@ void ReadTree(TString filename,
 	      if(rIt!=lumiMap.end()) {
 		Int_t runCtr=std::distance(lumiMap.begin(),rIt);
 		allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
-	      }
-	      else{
-		cout << "unable to find lumi for " << ev.run << " @ tag " << tag << endl;
 	      }
 	      allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig,wgt);

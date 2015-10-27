@@ -12,7 +12,7 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('--json',      dest='inJson'  ,      help='json file with processed runs',      default=None,    type='string')
-    parser.add_option('--puJson',    dest='puJson'  ,      help='pileup json file',      default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/PileUp/pileup_JSON_1.2_PRE_10-09-2015.txt',    type='string')
+    parser.add_option('--puJson',    dest='puJson'  ,      help='pileup json file',      default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/PileUp/pileup_JSON_10-23-2015.txt',    type='string')
     (opt, args) = parser.parse_args()
 
 

@@ -77,7 +77,9 @@ for idmod in my_id_modules:
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
 if options.runOnData:
     print 'Adapting to run on data'
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/258/155/00000/72A3374B-A76A-E511-AC17-02163E01388A.root')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/448/00000/12098228-206F-E511-8730-02163E014775.root',
+                                                     '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/448/00000/12BDD138-206F-E511-B6F4-02163E014186.root'
+)
     process.analysis.muTriggersToUse = cms.vstring('IsoMu18_v', 'IsoMu18_TriCentralPFJet50_40_30_v', 'IsoMu22_v', 'IsoMu22_TriCentralPFJet50_40_30_v', )
     process.analysis.elTriggersToUse = cms.vstring('Ele23_WPLoose_Gsf_v','Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30','Ele27_WPLoose_Gsf_v','Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30')
 
