@@ -29,13 +29,14 @@ def main():
         dsetname=dset.split('/')[-1]
 
         pub_list=getEOSlslist(directory=dset,prepend='')
-        for pub in pub_list:
-            if not 'crab' in pub_list[0]:
+        for pubDir in pub_list:
+
+            if not 'crab' in pubDir:
                 print 'Ambiguity found @ <publication-name> for <primary-dataset>=%s , bailing out'%dsetname
                 continue
-            pub=pub.split('/crab_')[-1]
+            pub=pubDir.split('/crab_')[-1]
 
-            time_list=getEOSlslist(directory=pub_list[0],prepend='')
+            time_list=getEOSlslist(directory=pubDir,prepend='')
             if len(time_list)!=1:
                 print 'Ambiguity found @ <time-stamp> for <primary-dataset>=%s , bailing out'%dsetname
                 continue

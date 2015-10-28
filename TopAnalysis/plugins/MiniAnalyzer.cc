@@ -121,6 +121,8 @@ private:
   TTree *tree_;
   MiniEvent_t ev_;
 
+  edm::Service<TFileService> fs;
+
 };
 
 //
@@ -154,6 +156,18 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
   elTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("elTriggersToUse");
   muTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("muTriggersToUse");
+
+  for(Int_t igenjet=0; igenjet<5; igenjet++)
+    {
+      TString tag("fidcounter"); tag+=igenjet;
+      histContainer_[tag.Data()] = fs->make<TH1F>(tag,    ";Variation;Events", 200, 0., 200.); 
+    }
+  histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",2,0,2);
+  for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
+
+  //create a tree for the selected events
+  tree_ = fs->make<TTree>("data","data");
+  createMiniEventTree(tree_,ev_);
 }
 
 
@@ -530,19 +544,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 // ------------ method called once each job just before starting event loop  ------------
 void 
 MiniAnalyzer::beginJob(){
-  edm::Service<TFileService> fs;
-
-  //create a tree for the selected events
-  tree_ = fs->make<TTree>("data","data");
-  createMiniEventTree(tree_,ev_);
-
-  for(Int_t igenjet=0; igenjet<5; igenjet++)
-    {
-      TString tag("fidcounter"); tag+=igenjet;
-      histContainer_[tag.Data()] = fs->make<TH1F>(tag,    ";Variation;Events", 200, 0., 200.); 
-    }
-  histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",2,0,2);
-  for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
 }
 
 //
@@ -550,7 +551,6 @@ void
 MiniAnalyzer::endRun(const edm::Run & iRun, edm::EventSetup const & iSetup)
 {
   try{
-    edm::Service<TFileService> fs;
     
     edm::Handle<LHERunInfoProduct> lheruninfo;
     typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;

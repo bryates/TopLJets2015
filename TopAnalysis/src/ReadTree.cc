@@ -170,9 +170,7 @@ void ReadTree(TString filename,
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 
       //apply trigger requirement
-      Int_t muTriggerBit( ev.isData ? 2 : 0);
-      if(abs(ev.l_id) == 13 && ev.run>258445) cout << muTriggerBit << " " << ((ev.muTrigger>>muTriggerBit)&0x1) << " " << ((ev.muTrigger>>0)&0x1) << endl;
-      if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300) && ((ev.muTrigger>>muTriggerBit)&0x1)==0) continue;
+      if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300) && ((ev.muTrigger>>0)&0x1)==0) continue;
       if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
       
       //lepton kinematics
@@ -278,16 +276,17 @@ void ReadTree(TString filename,
 		      nBtagsMistagHi += isBTaggedUp;
 		    }
 		}
-	      if(isBTagged) minMlb        = TMath::Min(minMlb,(Float_t)(jp4+lp4).M()); 
+
+	      if(isBTagged) minMlb = TMath::Min(minMlb,(Float_t)(jp4+lp4).M()); 
 	      if(abs(ev.j_hadflav[k])==4 || abs(ev.j_hadflav[k])==5)
 		{
 		  if(isBTaggedDown) minMlbBeffLo=TMath::Min(minMlbBeffLo,(Float_t)(jp4+lp4).M());
-		  if(isBTaggedUp) minMlbBeffHi=TMath::Min(minMlbBeffHi,(Float_t)(jp4+lp4).M());
+		  if(isBTaggedUp)   minMlbBeffHi=TMath::Min(minMlbBeffHi,(Float_t)(jp4+lp4).M());
 		} 
 	      else
 		{
 		  if(isBTaggedDown) minMlbLeffLo=TMath::Min(minMlbLeffLo,(Float_t)(jp4+lp4).M());
-		  if(isBTaggedUp) minMlbLeffHi=TMath::Min(minMlbLeffHi,(Float_t)(jp4+lp4).M());
+		  if(isBTaggedUp)   minMlbLeffHi=TMath::Min(minMlbLeffHi,(Float_t)(jp4+lp4).M());
 		}
 	    }
 	  if((jp4.Pt())*(1+unc)>30) 

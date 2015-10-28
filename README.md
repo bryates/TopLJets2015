@@ -12,10 +12,6 @@ cmsrel CMSSW_7_4_14
 cd CMSSW_7_4_14/src
 cmsenv
 git cms-merge-topic ikrav:egm_id_7.4.12_v1
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-git checkout 74x-root6
-cd -
 git clone git@github.com:pfs/TopLJets2015.git
 scram b -j 9
 ```
@@ -35,7 +31,7 @@ Don't forget to init the environment for crab3
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/dee6421 -o /store/cmst3/user/psilva/LJets2015/7bae03e
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/1caa016 -o /store/cmst3/user/psilva/LJets2015/7bae03e
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 For data, don't forget to create the json files with the list of runs/luminosity sections processed, e.g. as:
