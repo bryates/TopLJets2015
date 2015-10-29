@@ -1,4 +1,4 @@
-# TopLJets2015
+B1;2c# TopLJets2015
 
 ## Analysis twiki
 Please keep 
@@ -101,6 +101,14 @@ python scripts/runQCDEstimation.py --iso analysis_muminus/plots/plotter.root --n
 ```
 The output is a ROOT file called Data_QCDMultijets.root which can now be used in addition to the predictions of all the other backgrounds.
 To include it in the final plots you can run the plotter script again (see instructions above).
+
+## Cross section fitting
+We use the Higgs combination tool to perform the fit of the production cross section.
+(cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit for details of the release to use).
+To create the datacard you can run the following script
+```
+python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o analysis_muplus/datacard -d njetsnbtags
+```
 
 ## Updating the code
 
