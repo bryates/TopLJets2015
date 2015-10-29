@@ -194,6 +194,7 @@ void ReadTree(TString filename,
 	  //check kinematics
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
+	  if(jp4.DeltaR(lp4)<0.4) continue;
 	  float csv = ev.j_csv[k];	  
 
 	  if(fabs(jp4.Eta()) > 2.4) continue;

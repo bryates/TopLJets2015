@@ -89,7 +89,7 @@ def main():
         niso=dataIso.Integral(xbin,nxbins)
         nmciso=sumMCIso.Integral(xbin,nxbins)
         nnoniso=dataNonIso.Integral(xbin,nxbins)
-        nonIsoTemplateSF[sel]=((niso-nmciso)/nnoniso,nnoniso)
+        nonIsoTemplateSF[sel]=(ROOT.TMath.Max(niso-nmciso,0.)/nnoniso,nnoniso)
 
         #free mem
         dataNonIso.Delete()
