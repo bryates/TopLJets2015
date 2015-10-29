@@ -48,7 +48,7 @@ def main():
     parser.add_option('--iso',          dest='iso',          help='plotter file with the iso selection',        default=None,       type='string')
     parser.add_option('--noniso',       dest='noniso',       help='plotter file with the non iso selection',    default=None,       type='string')
     parser.add_option('--out',          dest='outdir',       help='output directory',                           default='./',       type='string')
-    parser.add_option('--norm',         dest='norm',         help='distribution to be used for normalization',  default='metpt',    type='string')
+    parser.add_option('--norm',         dest='norm',         help='SIP3d cut to normalized QCD',                default=4,          type=float)
     (opt, args) = parser.parse_args()
 
     #prepare output
@@ -70,35 +70,42 @@ def main():
 
     #perform a fit to a variable of interest
     nonIsoTemplateSF={}
-    for sel in ['1j','2j','3j','4j']:
+    for sel in ['1j0t','1j1t','2j0t','2j1t','2j2t','3j0t','3j1t','3j2t','4j0t','4j1t','4j2t']:
 
         #data in the sideband
-        dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist='%s_%s'%(opt.norm,sel), tag='noniso',rebin=True)
+        dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist='lsip3d_%s'%sel, tag='noniso',rebin=True)
         dataNonIso.Add(sumMCNonIso,-1)
         dataNonIso.SetTitle('QCD multijets (data)')
-        nsideband=dataNonIso.Integral()
+       
 
         #data in the signal region
-        dataIso,    sumMCIso    = getTemplates(fIn=fIso,    dist='%s_%s'%(opt.norm,sel), tag='iso',rebin=True)
+        dataIso,    sumMCIso    = getTemplates(fIn=fIso,    dist='lsip3d_%s'%sel, tag='iso',rebin=True)
         dataIso.SetTitle('data')
         sumMCIso.SetTitle('other processes')
 
-        #initial estimate in signal region = data-sum MC
-        nini=dataIso.Integral()-sumMCIso.Integral()
-        dataNonIso.Scale(nini/dataNonIso.Integral())
-
-        #perform the fit to adjust initial estimate
-        templates=ROOT.TObjArray()
-        templates.Add(dataNonIso)
-        templates.Add(sumMCIso)
-        res=fracFitter.fit(templates,dataIso,0,'%s/%s_%s'%(opt.outdir,opt.norm,sel))
-        nonIsoTemplateSF[sel]=(res.sf*nini/nsideband,res.sfUnc*nini/nsideband)
+        #normalized QCD template above the cut in SIP3d
+        xbin=dataNonIso.GetXaxis().FindBin(opt.norm)
+        nxbins=dataNonIso.GetNbinsX()        
+        niso=dataIso.Integral(xbin,nxbins)
+        nmciso=sumMCIso.Integral(xbin,nxbins)
+        nnoniso=dataNonIso.Integral(xbin,nxbins)
+        nonIsoTemplateSF[sel]=((niso-nmciso)/nnoniso,nnoniso)
 
         #free mem
         dataNonIso.Delete()
         sumMCNonIso.Delete()
         dataIso.Delete()
         sumMCIso.Delete()
+
+    #combined categories
+    for combCat in ['1j','2j','3j','4j']:
+        totalIni,totalFinal=0,0
+        for btags in xrange(0,3):
+            key='%s%dt'%(combCat,btags)
+            if key in nonIsoTemplateSF:
+                totalIni   += nonIsoTemplateSF[key][1]
+                totalFinal += nonIsoTemplateSF[key][0]*nonIsoTemplateSF[key][1]
+        nonIsoTemplateSF[combCat]=(totalFinal/totalIni,totalIni)
 
     fIso.Close()
 
@@ -110,19 +117,18 @@ def main():
         dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist=dist, tag=dist)
         dataNonIso.Add(sumMCNonIso,-1)        
         dataNonIso.SetTitle('QCD multijets (data)')
-        sel='inc'
-        if '_1j' in dist : sel='1j'
-        if '_2j' in dist : sel='2j'
-        if '_3j' in dist : sel='3j'
-        if '_4j' in dist : sel='4j'
+        category=dist.split('_')[-1]
         try:
-            dataNonIso.Scale( nonIsoTemplateSF[sel][0] )
+            dataNonIso.Scale( nonIsoTemplateSF[category][0] )
         except:            
             if 'njetsnbtags' in dist:
                 for xbin in xrange(1,dataNonIso.GetNbinsX()+1):
                     val,unc=dataNonIso.GetBinContent(xbin),dataNonIso.GetBinError(xbin)
                     njets=int((xbin-1)/3)+1
-                    scale=nonIsoTemplateSF['%dj'%njets][0]
+                    nbtags=int(xbin%3)
+                    key='%dj%dt'%(njets,nbtags)
+                    if not key in nonIsoTemplateSF: continue
+                    scale=nonIsoTemplateSF[key][0]
                     val=val*scale
                     unc=unc*scale
                     dataNonIso.SetBinContent(xbin,val)
