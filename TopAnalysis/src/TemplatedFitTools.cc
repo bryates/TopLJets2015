@@ -76,6 +76,7 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
 	  result.nExpUnc = nExpUnc;
 	}
 
+
       RooRealVar *expVar = new RooRealVar(name,name,nExp,0.,2*dataH->Integral());
       RooDataHist *itempl = new RooDataHist(name+"_hist",name+"_hist", RooArgList(x), Import(*h));
       RooHistPdf *ipdf    = new RooHistPdf (name+"_shapepdf", name+"_shapepdf",  RooArgSet(x), *itempl);
@@ -110,7 +111,6 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
   RooAddPdf *pdf=new RooAddPdf("pdf","pdf", expPDFs);
 
   //fit (using minos has the same behavior of profiling all variables except the parameter of interest)
-  cout << __LINE__ << endl;
   RooAbsReal *ll = pdf->createNLL(*data,Extended(kTRUE));
   RooMinuit minuit(*ll);
   minuit.setErrorLevel(0.5);
@@ -118,14 +118,14 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
   minuit.hesse();
   RooArgSet poi(*expFracs.find(poiName));
   result.minuitStatus = minuit.minos(poi);
-  cout << __LINE__ << endl;
+
   //save result
   RooRealVar *fracVar=(RooRealVar *)expFracs.find(poiName);
   result.nObs    = fracVar->getVal();//*totalExp;
   result.nObsUnc = fracVar->getError();//*totalExp;     
   result.sf      = result.nExp<=0 ? -1 : result.nObs/result.nExp;
   result.sfUnc   = result.nExp<=0 ? -1 : TMath::Sqrt(TMath::Power(result.nObs*result.nExpUnc,2)+TMath::Power(result.nObsUnc*result.nExp,2))/TMath::Power(result.nExp,2);
-    cout << __LINE__ << endl;
+
   //
   if(saveResultIn!="")
     {
@@ -189,19 +189,19 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
       p2->Draw();
       p2->cd();
       
-      RooHist *hpull = frame->pullHist();
-      RooPlot *pullFrame = x.frame();
-      //hpull->plotOn(pullFrame);
+      //RooHist *hpull = frame->pullHist();
+      RooHist *hpull = frame->residHist();
+      RooPlot *pullFrame = x.frame();      
       pullFrame->addPlotable((RooPlotable *)hpull,"P") ;      
       pullFrame->Draw();
-      pullFrame->GetYaxis()->SetTitle("Pull");
+      pullFrame->GetYaxis()->SetTitle("Residuals");
       pullFrame->GetYaxis()->SetTitleSize(0.2);
       pullFrame->GetYaxis()->SetLabelSize(0.2);
       pullFrame->GetXaxis()->SetTitleSize(0);
       pullFrame->GetXaxis()->SetLabelSize(0);
       pullFrame->GetYaxis()->SetTitleOffset(0.15);
       pullFrame->GetYaxis()->SetNdivisions(4);
-      pullFrame->GetYaxis()->SetRangeUser(-3.1,3.1);
+      //pullFrame->GetYaxis()->SetRangeUser(-10.0,10.0);
       pullFrame->GetXaxis()->SetTitleOffset(0.8);
 
       canvas->cd();
@@ -216,7 +216,7 @@ TemplatedFitResult_t TemplatedFitTools::fit(TObjArray &expTemplates, TH1F *dataH
       ll->plotOn(frame2,RooFit::ShiftToZero());
       frame2->Draw();
       frame2->GetYaxis()->SetRangeUser(0,12);
-      frame2->GetXaxis()->SetRangeUser(165,180);
+      frame2->GetXaxis()->SetRangeUser(result.nObs-3*result.nObsUnc,result.nObs+3*result.nObsUnc);
       frame2->GetYaxis()->SetNdivisions(3);
       frame2->GetXaxis()->SetNdivisions(3);
       frame2->GetXaxis()->SetTitle(expFracs.find(poiName)->GetTitle() + TString(" yields"));

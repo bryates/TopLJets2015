@@ -118,16 +118,7 @@ def main():
         try:
             dataNonIso.Scale( nonIsoTemplateSF[sel][0] )
         except:            
-            if 'catcountSecVtx' in dist:
-                for xbin in xrange(1,dataNonIso.GetNbinsX()+1):
-                    val,unc=dataNonIso.GetBinContent(xbin),dataNonIso.GetBinError(xbin)
-                    njets=int((xbin-1)/21)+1
-                    scale=nonIsoTemplateSF['%dj'%njets][0]
-                    val=val*scale
-                    unc=unc*scale
-                    dataNonIso.SetBinContent(xbin,val)
-                    dataNonIso.SetBinError(xbin,unc)
-            elif 'catcount' in dist:
+            if 'njetsnbtags' in dist:
                 for xbin in xrange(1,dataNonIso.GetNbinsX()+1):
                     val,unc=dataNonIso.GetBinContent(xbin),dataNonIso.GetBinError(xbin)
                     njets=int((xbin-1)/3)+1
