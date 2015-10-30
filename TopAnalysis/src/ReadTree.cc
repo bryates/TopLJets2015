@@ -167,6 +167,7 @@ void ReadTree(TString filename,
 	      if(relchIso<0.4) continue;
 	    }
 	}
+
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 
       //apply trigger requirement
