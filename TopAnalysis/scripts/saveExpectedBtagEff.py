@@ -3,13 +3,13 @@ from array import array
 from TopLJets2015.TopAnalysis.storeTools import *
 
 csvWP='j_csv>0.890'
-inputDir='/store/cmst3/user/psilva/LJets2015/7bae03e/MC13TeV_TTJets'
+inputDir='/store/cmst3/user/psilva/LJets2015/552ed48/MC13TeV_TTJets'
 
 #open a ttbar file
 input_list=getEOSlslist(directory=inputDir)
 data=ROOT.TChain('analysis/data')
 #for i in xrange(0,len(input_list)):
-for i in xrange(0,1):
+for i in xrange(0,3):
     data.Add(input_list[i])
 
 print 'Projecting tagging efficiency from ',data.GetEntries(),' events'
