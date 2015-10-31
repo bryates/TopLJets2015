@@ -17,11 +17,19 @@ def getDistsFrom(directory):
         if not obj.InheritsFrom('TH1') : continue
         if obj.GetName()==dirName : 
             obs=obj.Clone('data_obs')
+            obs.SetDirectory(0)
         else : 
             newName=obj.GetName().split(dirName+'_')[-1]
             for token in ['+','-','*',' ','#','{','(',')','}']:
                 newName=newName.replace(token,'')
             exp[newName]=obj.Clone(newName)
+            exp[newName].SetDirectory(0)
+            for xbin in xrange(1,exp[newName].GetXaxis().GetNbins()+1):
+                binContent=exp[newName].GetBinContent(xbin)
+                if binContent>0: continue
+                newBinContent=ROOT.TMath.Max(ROOT.TMath.Abs(binContent),1e-3)
+                exp[newName].SetBinContent(xbin,newBinContent)
+                exp[newName].SetBinError(xbin,newBinContent)
     return obs,exp
 
 """
@@ -73,8 +81,7 @@ def main():
     datacard.write('jmax *\n')
     datacard.write('kmax *\n')
     datacard.write('-'*50+'\n')
-    datacard.write('shapes *        * %s/shapes.root nominal/$PROCESS $SYSTEMATIC/$PROCESS\n' % (opt.input))
-    datacard.write('shapes data_obs * %s/shapes.root data_obs\n' % (opt.input))
+    datacard.write('shapes *        * shapes.root nom/$PROCESS $SYSTEMATIC/$PROCESS\n')
     datacard.write('-'*50+'\n')
     datacard.write('bin 1\n')
     datacard.write('observation %3.1f\n' % obs.Integral())
@@ -98,7 +105,7 @@ def main():
         i=i+1
         datacard.write('%15s'%str(i))
     datacard.write('\n')
-    datacard.write('\t\t\t %15s'%'process')
+    datacard.write('\t\t\t %15s'%'rate')
     for sig in signalList: datacard.write('%15s'%('%3.2f'%exp[sig].Integral()))
     for proc in exp: 
         if proc in signalList: continue
@@ -106,20 +113,21 @@ def main():
     datacard.write('\n')
     datacard.write('-'*50+'\n')
 
-    saveToShapesFile(opt.output,{'data_obs':obs})
-    saveToShapesFile(opt.output,exp,'nom')
+    nomShapes=exp.copy()
+    nomShapes['data_obs']=obs
+    saveToShapesFile(opt.output,nomShapes,'nom')
     
-    #weighting systematics
+    #weighting systematics: syst name, white list, black list
     weightSysts=[
-        ('pu',      []       ,['Multijets']),
-        ('muEff',   []       ,['Multijets']),
-        ('eEff',    []       ,['Multijets']),
-        ('umet',    []       ,['Multijets']),
-        ('jes',     []       ,['Multijets']),
-        ('jer',     []       ,['Multijets']),
-        ('beff',    []       ,['Multijets']),
-        ('mistag',  []       ,['Multijets']),
-        ('qcdScale',['tbart'],['Multijets'])
+        ('pu',      []       ,['Multijetsdata']),
+        ('muEff',   []       ,['Multijetsdata']),
+        ('eEff',    []       ,['Multijetsdata']),
+        ('umet',    []       ,['Multijetsdata']),
+        ('jes',     []       ,['Multijetsdata']),
+        ('jer',     []       ,['Multijetsdata']),
+        ('beff',    []       ,['Multijetsdata']),
+        ('mistag',  []       ,['Multijetsdata']),
+        ('qcdScale',['tbart'],['Multijetsdata'])
         ]
     for syst,whiteList,blackList in weightSysts:
         datacard.write('%32s shapeN2'%syst)        
@@ -142,10 +150,10 @@ def main():
 
     #reate systematics
     rateSysts=[
-        ('lumi',           1.12,    'lnN',    []                ,['Multijets']),
+        ('lumi',           1.12,    'lnN',    []                ,['Multijetsdata','tbart']),
         ('Wth',            1.041,   'lnN',    ['Wl','Wc','Wb']  ,[]),
         ('DYth',           1.041,   'lnN',    ['DY']            ,[]),
-#        ('MultiJetsNorm',  1.041,  'lnU',    ['Multijets']     ,[]),
+#        ('MultiJetsNorm',  1.041,  'lnU',    ['Multijetsdata']     ,[]),
         ]
     for syst,val,pdf,whiteList,blackList in rateSysts:
 
