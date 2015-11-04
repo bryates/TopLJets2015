@@ -105,10 +105,30 @@ To include it in the final plots you can run the plotter script again (see instr
 ## Cross section fitting
 We use the Higgs combination tool to perform the fit of the production cross section.
 (cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit for details of the release to use).
+It currently has to be run from a CMSSW_7_1_5 release.
 To create the datacard you can run the following script
 ```
 python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o analysis_muplus/datacard -d njetsnbtags
+python scripts/createDataCard.py -i analysis_muminus/plots/plotter.root -o analysis_muminus/datacard -d njetsnbtags
 ```
+Combine the two datacards above into the final one
+```
+mkdir -p analysis_mu/datacard
+cd analysis_mu/datacard
+combineCards.py muplus=../../analysis_muplus/datacard/datacard.dat muminus=../../analysis_muminus/datacard/datacard.dat > datacard.dat
+cd -
+```
+Run the fits and show the results
+```
+python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat -o analysis_muplus/datacard
+python scripts/fitCrossSection.py "#mu^{-}"=analysis_muminus/datacard/datacard.dat -o analysis_muminus/datacard
+python scripts/fitCrossSection.py "#mu^{#pm}"=analysis_mu/datacard/datacard.dat -o analysis_mu/datacard
+```
+After all is run you can also compare the results with
+```
+python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat  "#mu^{-}"=analysis_muminus/datacard/datacard.dat  "#mu^{#pm}"=analysis_mu/datacard/datacard.dat --noFit
+```
+
 
 ## Updating the code
 

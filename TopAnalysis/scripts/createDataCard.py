@@ -121,8 +121,8 @@ def main():
     weightSysts=[
         ('pu',      []       ,['Multijetsdata']),
         ('muEff',   []       ,['Multijetsdata']),
-        ('eEff',    []       ,['Multijetsdata']),
-        ('umet',    []       ,['Multijetsdata']),
+        #('eEff',    []       ,['Multijetsdata']),
+        #('umet',    []       ,['Multijetsdata']),
         ('jes',     []       ,['Multijetsdata']),
         ('jer',     []       ,['Multijetsdata']),
         ('beff',    []       ,['Multijetsdata']),
@@ -150,7 +150,7 @@ def main():
 
     #reate systematics
     rateSysts=[
-        ('lumi',           1.12,    'lnN',    []                ,['Multijetsdata','tbart']),
+        #('lumi',           1.12,    'lnN',    []                ,['Multijetsdata','tbart']),
         ('Wth',            1.041,   'lnN',    ['Wl','Wc','Wb']  ,[]),
         ('DYth',           1.041,   'lnN',    ['DY']            ,[]),
 #        ('MultiJetsNorm',  1.041,  'lnU',    ['Multijetsdata']     ,[]),
