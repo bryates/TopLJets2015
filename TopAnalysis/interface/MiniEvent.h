@@ -24,7 +24,7 @@ struct MiniEvent_t
   Int_t nj,ngenj;
   Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200];
   Float_t genj_pt[200],genj_eta[200],genj_phi[200],genj_mass[200];
-  Float_t j_csv[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
+  Float_t j_csv[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_qg[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
   Int_t j_vtxNtracks[200],j_flav[200],j_pid[200],j_hadflav[200];
 
   Float_t met_pt,met_phi,mt;

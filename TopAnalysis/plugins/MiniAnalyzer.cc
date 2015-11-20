@@ -100,7 +100,8 @@ private:
   edm::EDGetTokenT<double> rhoToken_;
   edm::EDGetTokenT<pat::MuonCollection> muonToken_;
   edm::EDGetTokenT<edm::View<pat::Electron>  >  electronToken_;
-  edm::EDGetTokenT<pat::JetCollection> jetToken_;
+  edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > qgToken_;
   edm::EDGetTokenT<pat::METCollection> metToken_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
 
@@ -143,12 +144,13 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
   muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-  jetToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+  jetToken_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
+  qgToken_(consumes<edm::ValueMap<float>>(edm::InputTag("QGTagger", "qgLikelihood"))),
   metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
   pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"))),
   eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
-  eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleMediumIdFullInfoMap"))),
+  eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleTightIdFullInfoMap"))),
   pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ),
   genTtbarIdToken_(consumes<int>(iConfig.getParameter<edm::InputTag>("genTtbarId")))
 {
@@ -356,7 +358,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     { 
       //kinematics
       bool passPt( mu.pt() > 30 );
-      bool passVetoPt( mu.pt() > 15 );
+      bool passVetoPt( mu.pt() > 10 );
       bool passEta(fabs(mu.eta()) < 2.1 );
       bool passVetoEta(fabs(mu.eta()) < 2.4 );
     
@@ -365,10 +367,10 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       bool isTight(muon::isTightMuon(mu,primVtx));
 
       //isolation
-      //float relIsoDeltaBeta = (mu.chargedHadronIso() + std::max(0., mu.neutralHadronIso() + mu.photonIso() - 0.5*mu.puChargedHadronIso()))/mu.pt();       
-      float relchIso = mu.chargedHadronIso()/mu.pt(); 
-      bool passIso( relchIso  < 0.05 );
-      bool passVetoIso( relchIso  < 0.1 );
+      //float relchIso = mu.chargedHadronIso()/mu.pt(); 
+      float relIsoDeltaBeta( (mu.pfIsolationR04().sumChargedHadronPt + max(0., mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5*mu.pfIsolationR04().sumPUPt))/mu.pt() ); 
+      bool passIso( relIsoDeltaBeta  < 0.15 );
+      bool passVetoIso( relIsoDeltaBeta  < 0.25 );
 
       //MUON SELECTION
       if(passPt && passEta)                                           selectedNonIsoMuons.push_back( &mu );
@@ -433,10 +435,10 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.l_eta=mu->eta();
       ev_.l_phi=mu->phi();
       ev_.l_mass=mu->mass();
-      ev_.l_chargedHadronIso=mu->chargedHadronIso();
-      ev_.l_neutralHadronIso=mu->neutralHadronIso();
-      ev_.l_photonIso=mu->photonIso();
-      ev_.l_puChargedHadronIso=mu->puChargedHadronIso();
+      ev_.l_chargedHadronIso=mu->pfIsolationR04().sumChargedHadronPt;
+      ev_.l_neutralHadronIso=mu->pfIsolationR04().sumNeutralHadronEt;
+      ev_.l_photonIso=mu->pfIsolationR04().sumPhotonEt;
+      ev_.l_puChargedHadronIso=mu->pfIsolationR04().sumPUPt;
       ev_.l_ip3d = -9999.;
       ev_.l_ip3dsig = -9999;
       if(mu->innerTrack().get())
@@ -478,53 +480,61 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if( !passVetoLepton && !passNonIsoVetoLepton) return;
   
   // JETS
-  edm::Handle<pat::JetCollection> jets;
-  iEvent.getByToken(jetToken_, jets);
   ev_.nj=0;
-  for (const pat::Jet &j : *jets) 
-    {  
+
+  edm::Handle<edm::View<pat::Jet> > jets;
+  iEvent.getByToken(jetToken_,jets);
+  edm::Handle<edm::ValueMap<float> > qgHandle; 
+  iEvent.getByToken(qgToken_, qgHandle);  
+  int ncentralJets(0);
+  for(auto j = jets->begin();  j != jets->end(); ++j)
+    {
       //kinematics
-      if(j.pt()<25 || fabs(j.eta())>2.5) continue;
+      if(j->pt()<20 || fabs(j->eta())>4.7) continue;
 
       //cross clean to selected tight leptons
       float dR2lepton=9999.;
-      for(size_t il=0; il<selectedMuons.size(); il++)     dR2lepton = TMath::Min(dR2lepton,(float)deltaR(j,*(selectedMuons[il])));
-      for(size_t il=0; il<selectedElectrons.size(); il++) dR2lepton = TMath::Min(dR2lepton,(float)deltaR(j,*(selectedElectrons[il])));
+      for(size_t il=0; il<selectedMuons.size(); il++)     dR2lepton = TMath::Min(dR2lepton,(float)deltaR(*j,*(selectedMuons[il])));
+      for(size_t il=0; il<selectedElectrons.size(); il++) dR2lepton = TMath::Min(dR2lepton,(float)deltaR(*j,*(selectedElectrons[il])));
       if(dR2lepton<0.4) continue;
       
       // PF jet ID
       pat::strbitset retpf = pfjetIDLoose_.getBitTemplate();
       retpf.set(false);
-      bool passLoose=pfjetIDLoose_( j, retpf );
+      bool passLoose=pfjetIDLoose_( *j, retpf );
       if(!passLoose) continue;
 
+      if(j->pt()>25 && fabs(j->eta())<2.5) ncentralJets++;      
+
       //save jet
-      const reco::Candidate *genParton = j.genParton();
-      const reco::GenJet *genJet=j.genJet(); 
-      ev_.j_area[ev_.nj]=j.jetArea();
-      ev_.j_pt[ev_.nj]=j.pt();
-      ev_.j_mass[ev_.nj]=j.mass();
-      ev_.j_eta[ev_.nj]=j.eta();
-      ev_.j_phi[ev_.nj]=j.phi();
+      const reco::Candidate *genParton = j->genParton();
+      const reco::GenJet *genJet=j->genJet(); 
+      ev_.j_area[ev_.nj]=j->jetArea();
+      ev_.j_pt[ev_.nj]=j->pt();
+      ev_.j_mass[ev_.nj]=j->mass();
+      ev_.j_eta[ev_.nj]=j->eta();
+      ev_.j_phi[ev_.nj]=j->phi();
       ev_.genj_pt[ev_.nj]=genJet ? genJet->pt() : 0;
       ev_.genj_mass[ev_.nj]=genJet ? genJet->mass() : 0;
       ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;
       ev_.genj_phi[ev_.nj]=genJet ?  genJet->phi() : 0;
-      ev_.j_csv[ev_.nj]=j.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
-      ev_.j_vtxpx[ev_.nj]=j.userFloat("vtxPx");
-      ev_.j_vtxpy[ev_.nj]=j.userFloat("vtxPy");
-      ev_.j_vtxpz[ev_.nj]=j.userFloat("vtxPz");
-      ev_.j_vtxmass[ev_.nj]=j.userFloat("vtxMass");
-      ev_.j_vtxNtracks[ev_.nj]=j.userFloat("vtxNtracks");
-      ev_.j_vtx3DVal[ev_.nj]=j.userFloat("vtx3DVal");
-      ev_.j_vtx3DSig[ev_.nj]=j.userFloat("vtx3DSig");
-      ev_.j_puid[ev_.nj]=j.userFloat("pileupJetId:fullDiscriminant");
-      ev_.j_flav[ev_.nj]=j.partonFlavour();
-      ev_.j_hadflav[ev_.nj]=j.hadronFlavour();
+      ev_.j_csv[ev_.nj]=j->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      ev_.j_vtxpx[ev_.nj]=j->userFloat("vtxPx");
+      ev_.j_vtxpy[ev_.nj]=j->userFloat("vtxPy");
+      ev_.j_vtxpz[ev_.nj]=j->userFloat("vtxPz");
+      ev_.j_vtxmass[ev_.nj]=j->userFloat("vtxMass");
+      ev_.j_vtxNtracks[ev_.nj]=j->userFloat("vtxNtracks");
+      ev_.j_vtx3DVal[ev_.nj]=j->userFloat("vtx3DVal");
+      ev_.j_vtx3DSig[ev_.nj]=j->userFloat("vtx3DSig");
+      ev_.j_puid[ev_.nj]=j->userFloat("pileupJetId:fullDiscriminant");
+      edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jets, j - jets->begin()) );
+      ev_.j_qg[ev_.nj] = (*qgHandle)[jetRef];
+      ev_.j_flav[ev_.nj]=j->partonFlavour();
+      ev_.j_hadflav[ev_.nj]=j->hadronFlavour();
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
       ev_.nj++;
     }
-  if(ev_.nj==0) return;
+  if(ncentralJets==0) return;
 
   // MET
   edm::Handle<pat::METCollection> mets;
@@ -536,7 +546,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.met_pt=metpt;
   ev_.met_phi=metphi;
   ev_.mt=mt;
-  
+
   //save tree if event is interesting
   tree_->Fill();
 }

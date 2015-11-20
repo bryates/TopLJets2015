@@ -7,7 +7,7 @@ from array import array
 import ROOT
 
 POItitles={'r':'#mu=#sigma/#sigma_{th}',
-           'beff':'SF_{b}=#varepsilon_{b}/#varepsilon_{b}^{exp}',
+           'beff':'kx#sigma_{varepsilon_{b}}',
            'mtop':'m_{t} [GeV]'}
 
 """
@@ -195,11 +195,6 @@ def show2DLikelihoodScan(resultsSet,parameters):
     
     contours = array('d',[1.0,3.84])
 
-    minPiVal=0.5 if parameters[0]=='r' else -3.0
-    maxPiVal=1.5 if parameters[0]=='r' else +3.0
-    minPjVal=0.5 if parameters[1]=='r' else -3.0
-    maxPjVal=1.5 if parameters[1]=='r' else +3.0
-    h2cont=ROOT.TH2F('h2cont','h2cont',100,minPiVal,maxPiVal,100,minPjVal,maxPjVal)
 
     #likelihood scans
     nllGrs={}
@@ -215,36 +210,21 @@ def show2DLikelihoodScan(resultsSet,parameters):
 
         for ftitle,f,lstyle,lwidth in files:
 
-            c.Clear()
-            
+            if not ftitle in nllGrs: nllGrs[ftitle]=[]
+
             #if file not available continue
             fIn=ROOT.TFile.Open('%s/%s_%svs%s.root' % (dir,f,parameters[0],parameters[1]) )
             if not fIn : continue
             tree=fIn.Get('limit')
 
-            c.Clear()
-            h2cont.Reset('ICE')
-            h2cont.SetDirectory(fIn)
-            tree.Draw('%s:%s>>h2cont'%(parameters[1],parameters[0]),'deltaNLL*(deltaNLL<10)')
-            h2cont.SetContour(1,contours)
-            h2cont.Draw('cont4 z list')
-            h2cont.SetDirectory(0)
-            c.Update() #need to force update to get contours
-            conts = ROOT.gROOT.GetListOfSpecials().FindObject("contours")
-            print conts
-
-            
-            raw_input()
-            fIn.Close()
-
-            for contLevel in conts:
-                print contLevel.First(),contLevel
-                if not ftitle in nllGrs : nllGrs[ftitle]=[]             
-                nllGrs[ftitle].append( contLevel.First() )
+            for ll,ul,tag in [(1-0.99,1.0,'99cl')] : #(1-0.68,1.0,'68cl'),(1-0.95,1.0,'95cl'),(1-0.99,1.0,'99cl')]:
+                c.Clear()    
+                nllGrs[ftitle].append( ROOT.ll2dContourPlot(tree,parameters[0],parameters[1],ll,ul) )
                 nllGrs[ftitle][-1].SetTitle(title)
                 nllGrs[ftitle][-1].SetLineStyle(lstyle)
                 nllGrs[ftitle][-1].SetMarkerStyle(1)
-                nllGrs[ftitle][-1].SetFillStyle(0)
+                nllGrs[ftitle][-1].SetFillStyle(1001)
+                nllGrs[ftitle][-1].SetFillColor(colors[ires-1])
                 nllGrs[ftitle][-1].SetLineWidth(lwidth)
                 nllGrs[ftitle][-1].SetLineColor(colors[ires-1])
                 nllGrs[ftitle][-1].SetMarkerColor(colors[ires-1])
@@ -255,12 +235,12 @@ def show2DLikelihoodScan(resultsSet,parameters):
     c.SetLeftMargin(0.12)
     c.SetBottomMargin(0.1)
     c.SetRightMargin(0.05)
-   
-    h2cont.Reset('ICE')
-    h2cont.Draw()
+    frame=ROOT.TH2F('frame','frame',10,0.8,1.2,10,-3,3)
+    frame.Draw()
     allLegs=[]
     ileg=0
     for ftitle in nllGrs:
+        if len(nllGrs[ftitle])==0 : continue
         allLegs.append( ROOT.TLegend(0.15+ileg*0.15,0.92,0.3+ileg*0.15,0.85-0.04*len(nllGrs[ftitle]) ) )
         allLegs[-1].SetTextFont(42)
         allLegs[-1].SetTextSize(0.035)
@@ -269,8 +249,8 @@ def show2DLikelihoodScan(resultsSet,parameters):
         allLegs[-1].SetFillColor(0)
         allLegs[-1].SetHeader(ftitle)
         for gr in nllGrs[ftitle]:
-            gr.Draw('c')
-            allLegs[-1].AddEntry(gr,gr.GetTitle(),'l')
+            gr.Draw('f')
+            allLegs[-1].AddEntry(gr,gr.GetTitle(),'f')
         ileg+=1
     for leg in allLegs: leg.Draw()
 
@@ -409,14 +389,17 @@ def main():
             print 'Fit script for %s available at %s'%(cat,fitScriptUrl)
             os.system('sh %s'%fitScriptUrl)
 
-    compareNuisances(resultsSet=resultsSet,output=opt.output)
+    #compareNuisances(resultsSet=resultsSet,output=opt.output)
     
-    for parameter in POIs:
-        show1DLikelihoodScan(resultsSet=resultsSet,parameter=parameter,output=opt.output)
+    #for parameter in POIs:
+    #    show1DLikelihoodScan(resultsSet=resultsSet,parameter=parameter,output=opt.output)
 
-    #for i in xrange(0,len(POIs)):
-    #    for j in xrange(i+1,len(POIs)):
-    #        show2DLikelihoodScan(resultsSet,parameters=[POIs[i],POIs[j]])
+
+    ROOT.gROOT.LoadMacro('src/RootTools.cc+')
+
+    for i in xrange(0,len(POIs)):
+        for j in xrange(i+1,len(POIs)):
+            show2DLikelihoodScan(resultsSet,parameters=[POIs[i],POIs[j]])
     
             
 

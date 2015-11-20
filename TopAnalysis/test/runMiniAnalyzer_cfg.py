@@ -28,13 +28,24 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+#jet energy corrections
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
+jecLevels=['L1FastJet','L2Relative','L3Absolute']
+jecFile='data/Summer15_25nsV6_MC.db'
+jecTag='Summer15_25nsV6_MC_AK4PFchs'
+if options.runOnData : 
+    jecLevels.append( 'L2L3Residual' )
+    jecFile='data/Summer15_25nsV6_DATA.db'
+    jecTag='Summer15_25nsV6_DATA_AK4PFchs'
+customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
+
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag.globaltag = '74X_dataRun2_v2' if options.runOnData else '74X_mcRun2_asymptotic_v2'
+process.GlobalTag.globaltag = '74X_dataRun2_v2' if options.runOnData else '74X_mcRun2_asymptotic_v4'
 
 
 # Set the process options -- Display summary at the end, enable unscheduled execution
@@ -89,6 +100,7 @@ else:
     defineGenTtbarCategorizerSequence(process)
     process.p = cms.Path( process.genTtbarCategorizerSequence
                           *process.egmGsfElectronIDSequence
+                          *process.customizeJetToolsSequence
                           *process.analysis)
-
+    
 print process.p
