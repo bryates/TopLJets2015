@@ -37,23 +37,6 @@ Loops over a list of samples and produces a cache file to normalize MC
 """
 def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts):
 
-    #open pileup files
-    puDists={}
-    for puEstimate in ['nom','up','down']:
-        try:
-            fIn=ROOT.TFile.Open('${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/PileupData_%s.root'%puEstimate)
-            puDists[puEstimate]=fIn.Get('pileup').Clone(puEstimate)
-            puDists[puEstimate].SetDirectory(0)
-        except:
-            pass        
-    hputrue=None
-    try:
-        hputrue=puDists['nom'].Clone('hputrue')
-        hputrue.SetDirectory(0)
-        print 'Pileup distributions will be computed, this make take a while...'
-    except:
-        print 'No pileup distributions found under data/ pileup weights won\'t be stored'
-
     #loop over samples
     for tag,sample in samplesList: 
 
@@ -65,11 +48,9 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
             print '[Warning] won\'t override current definition for',tag,'. Use --resetCache option to override'
             continue
         
-
         input_list=getEOSlslist(directory=inDir+'/'+tag)            
         xsec=sample[0]            
         norigEvents=None
-        if hputrue : hputrue.Reset('ICE')
         for f in input_list:
             fIn=ROOT.TFile.Open(f)
             if norigEvents is None:
@@ -77,10 +58,6 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
                 norigEvents.SetDirectory(0)
                 norigEvents.Reset('ICE')
             norigEvents.Add(fIn.Get('analysis/fidcounter0'))
-            if hputrue:
-                hputrue.SetDirectory(fIn)
-                fIn.Get('analysis/data').Draw('putrue>>+hputrue','ttbar_w[0]','goff')
-                hputrue.SetDirectory(0)
             fIn.Close()
         try:
             for xbin in xrange(1,norigEvents.GetNbinsX()+1):
@@ -90,31 +67,15 @@ def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts)
             print 'No normalization histogram for ',tag
         xsecWgts[tag]  = norigEvents
         integLumi[tag] = 1./norigEvents.GetBinContent(1) if norigEvents else 0.
-        puGr=[]
-        if hputrue and hputrue.Integral()>0:
-            hputrue.Scale(1./hputrue.Integral())
-            for puEst in ['nom','up','down']:
-                hwgt=puDists[puEst].Clone('htemp')
-                if hwgt.Integral()==0 : 
-                    puGr.append(None)
-                    continue
-                hwgt.Scale(1./hwgt.Integral())
-                hwgt.Divide(hputrue)
-                puGr.append( ROOT.TGraph(hwgt) )
-                puGr[-1].SetName(puEst+'_wgt')
-                hwgt.Delete()
-        puWgts[tag] = puGr
 
         if norigEvents:
             print '... %s cross section=%f pb weights sum(initial events)=%3.0f lumi=%3.2f/fb' % (tag,xsec,xsec/norigEvents.GetBinContent(1),integLumi[tag]/1000.)
             
-        
     #dump to file    
     cachefile=open(cache,'w')
     pickle.dump(xsecWgts, cachefile, pickle.HIGHEST_PROTOCOL)
     pickle.dump(integLumi, cachefile, pickle.HIGHEST_PROTOCOL)
-    pickle.dump(puWgts, cachefile, pickle.HIGHEST_PROTOCOL)
     cachefile.close()
     print 'Produced normalization cache and pileup weights @ %s'%cache
 
-    return xsecWgts,integLumi,puWgts
+    return xsecWgts,integLumi

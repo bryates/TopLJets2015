@@ -14,28 +14,23 @@
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
 
 #include <vector>
 #include <iostream>
 #include <algorithm>
 
 #include "TMath.h"
+#include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
 
 using namespace std;
-
-Int_t getBtagCatBinToFill(Int_t nBtags,Int_t nJets)
-{
-  Int_t nJetsBin(nJets>4 ? 4 : nJets);
-
-  Int_t binToFill(nBtags>=2?2:nBtags);
-  binToFill+=3*(nJetsBin-1);
-  return binToFill;
-}
 
 Float_t computeMT(TLorentzVector &a, TLorentzVector &b)
 {
   return TMath::Sqrt(2*a.Pt()*b.Pt()*(1-TMath::Cos(a.DeltaPhi(b))));
 }
+
 
 void ReadTree(TString filename,
 	      TString outname,
@@ -45,82 +40,12 @@ void ReadTree(TString filename,
 	      Bool_t isTTbar,
 	      FlavourSplitting flavourSplitting,
 	      GenWeightMode genWgtMode,
+	      Bool_t runSysts,
 	      TGraph *puWgtGr,TGraph *puUpWgtGr,TGraph *puDownWgtGr)
 {
 
-  TString systs[]={"nom",
-		   "puUp","puDown",
-		   "muEffUp","muEffDown",
-		   "eEffUp","eEffDown",
-		   "qcdScaleDown","qcdScaleUp",
-		   "umetDown", "umetUp",
-		   "jesDown","jesUp",
-		   "jerDown","jerUp",
-		   "beffDown","beffUp",
-		   "mistagDown","mistagUp"};
+  std::vector<TString> systs(1,"nom");
 
-
-
-  //book histograms
-  std::map<TString, TH1 *> allPlots;
-
-  std::map<Int_t,Float_t> lumiMap=lumiPerRun();
-  for(Int_t ij=1; ij<=4; ij++)
-    {
-      for(Int_t itag=-1; itag<=2; itag++)
-	{
-	  if(itag>ij) continue;
-	  TString tag(itag<0 ? Form("%dj",ij) : Form("%dj%dt",ij,itag));
-	  allPlots["ratevsrun_"+tag] = new TH1F("ratevsrun_"+tag,";Run number; Events/pb",lumiMap.size(),0,lumiMap.size());
-	  Int_t runCtr(0);
-	  for(std::map<Int_t,Float_t>::iterator it=lumiMap.begin(); it!=lumiMap.end(); it++,runCtr++)
-	    allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
-	  allPlots["lpt_"+tag]  = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
-	  allPlots["lsip3d_"+tag]  = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,40,0.,20.);
-	  allPlots["lchiso_"+tag]  = new TH1F("lchiso_"+tag,";Charged hadron isolation [GeV];Events" ,25,0.,50.);
-	  allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
-	  allPlots["leta_"+tag] = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
-	  allPlots["jpt_"+tag]  = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
-	  allPlots["jeta_"+tag] = new TH1F("jeta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
-	  allPlots["ht_"+tag]   = new TH1F("ht_"+tag,";H_{T} [GeV];Events",40,0,800);
-	  allPlots["csv_"+tag]  = new TH1F("csv_"+tag,";CSV discriminator;Events",100,0,1.0);
-	  allPlots["nvtx_"+tag] = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events" ,50,0.,50.);
-	  allPlots["met_"+tag]  = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,20,0.,300.);
-	  allPlots["metphi_"+tag] = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
-	  for(size_t isyst=0; isyst<sizeof(systs)/sizeof(TString); isyst++)
-	    {
-	      allPlots["mt_"+systs[isyst]+"_"+tag]     = new TH1F("mt_"+systs[isyst]+"_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
-	      allPlots["minmlb_"+systs[isyst]+"_"+tag] = new TH1F("minmlb_"+systs[isyst]+"_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
-	    }
-	}
-    }
-
-  //category counting
-  for(size_t i=0; i<sizeof(systs)/sizeof(TString); i++)
-    {
-      allPlots["njetsnbtags_"+systs[i]] = new TH1F("njetsnbtags_"+systs[i],";Category;Events" ,12,0.,12.);
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(1, "1j,=0b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(2, "1j,=1b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(3, "");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(4, "2j,=0b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(5, "2j,=1b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(6, "2j,#geq2b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(7, "3j,=0b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(8, "3j,=1b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(9, "3j,#geq2b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(10,"4j,=0b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(11,"4j,=1b");
-      allPlots["njetsnbtags_"+systs[i]]->GetXaxis()->SetBinLabel(12,"4j,#geq2b");
-    }
-
-  for (auto& it : allPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
-
-
-  //jet uncertainty parameterization
-  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_25nsV5_DATA_Uncertainty_AK4PFchs.txt");
-  gSystem->ExpandPathName(jecUncUrl);
-  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(jecUncUrl.Data());
-  
   // setup b-tag calibration readers
   TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
   gSystem->ExpandPathName(btagUncUrl);
@@ -140,6 +65,102 @@ void ReadTree(TString filename,
   TGraphAsymmErrors *expEff_udsg=(TGraphAsymmErrors *)beffIn->Get("udsg");
   BTagSFUtil myBTagSFUtil;
 
+
+  //jES uncertainties
+  TString jesSrcNames[] = {"Absolute",        "HighPtExtra",    "SinglePionECAL",  "SinglePionHCAL", "Time",
+			       "RelativeJEREC1",  "RelativeJEREC2", "RelativeJERHF",
+			       "RelativePtBB",    "RelativePtEC1",  "RelativePtEC2",   "RelativePtHF",  "RelativeFSR",
+			       "RelativeStatEC2", "RelativeStatHF",
+			       "PileUpDataMC",    "PileUpPtBB",     "PileUpPtEC",      "PileUpPtHF", "PileUpBias",
+			       "FlavorPureGluon", "FlavorPureQuark","FlavorPureCharm", "FlavorPureBottom"};
+  size_t nJecSrc=sizeof(jesSrcNames)/sizeof(TString);
+  std::vector<JetCorrectionUncertainty*> jecUncs;
+  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_25nsV6M3_DATA_UncertaintySources_AK4PFchs.txt");
+  gSystem->ExpandPathName(jecUncUrl);
+  if(runSysts)
+    {
+      systs.push_back("puUp");         systs.push_back("puDown");
+      systs.push_back("mTrigUp");      systs.push_back("mTrigDown");
+      systs.push_back("mEffUp");       systs.push_back("mEffDown");
+      systs.push_back("mscaleUp");     systs.push_back("mscaleDown");
+      systs.push_back("eTrigUp");      systs.push_back("eTrigDown");
+      systs.push_back("eEffUp");       systs.push_back("eEffDown");
+      systs.push_back("escaleUp");     systs.push_back("escaleDown");
+      systs.push_back("muFUp");        systs.push_back("muFDown");
+      systs.push_back("muRUp");        systs.push_back("muRDown");
+      systs.push_back("muRmuFUp");     systs.push_back("muRmuFDown");
+      systs.push_back("umetUp");       systs.push_back("umetUp");      
+      systs.push_back("jerUp");        systs.push_back("jerDown");
+      systs.push_back("beffUp");       systs.push_back("beffDown");
+      systs.push_back("ceffUp");       systs.push_back("ceffDown");
+      systs.push_back("mistagUp");     systs.push_back("mistagDown");
+      systs.push_back("puUp");         systs.push_back("puDown");
+      for(size_t i=0; i<nJecSrc; i++)
+	{
+	  systs.push_back(jesSrcNames[i]+"Up");     
+	  systs.push_back(jesSrcNames[i]+"Down");    
+
+	  JetCorrectorParameters *p = new JetCorrectorParameters(jecUncUrl.Data(), jesSrcNames[i].Data());
+	  jecUncs.push_back( new JetCorrectionUncertainty(*p) );
+	}
+    }
+
+  //auxiliary to solve neutrino pZ using MET
+  MEzCalculator neutrinoPzComputer;
+
+  //book histograms
+  std::map<TString, TH1 *> allPlots;
+  std::map<TString, TH2 *> all2dPlots;
+
+  std::map<Int_t,Float_t> lumiMap=lumiPerRun();
+  for(Int_t ij=1; ij<=4; ij++)
+    {
+      for(Int_t itag=-1; itag<=2; itag++)
+	{
+	  if(itag>ij) continue;
+	  TString tag(itag<0 ? Form("%dj",ij) : Form("%dj%dt",ij,itag));
+	  allPlots["ratevsrun_"+tag] = new TH1F("ratevsrun_"+tag,";Run number; Events/pb",lumiMap.size(),0,lumiMap.size());
+	  Int_t runCtr(0);
+	  for(std::map<Int_t,Float_t>::iterator it=lumiMap.begin(); it!=lumiMap.end(); it++,runCtr++)
+	    allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
+	  allPlots["lpt_"+tag]        = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
+	  allPlots["lsip3d_"+tag]     = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,40,0.,20.);
+	  allPlots["lchiso_"+tag]     = new TH1F("lchiso_"+tag,";Charged hadron isolation [GeV];Events" ,25,0.,50.);
+	  allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
+	  allPlots["leta_"+tag]       = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
+	  allPlots["jpt_"+tag]        = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
+	  allPlots["jeta_"+tag]       = new TH1F("jeta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
+	  allPlots["ht_"+tag]         = new TH1F("ht_"+tag,";H_{T} [GeV];Events",40,0,800);
+	  allPlots["csv_"+tag]        = new TH1F("csv_"+tag,";CSV discriminator;Events",100,0,1.0);
+	  allPlots["nvtx_"+tag]       = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events" ,50,0.,50.);
+	  allPlots["met_"+tag]        = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,20,0.,300.);
+	  allPlots["metphi_"+tag]     = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
+	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,100,300.,700.);
+	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
+	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
+	  allPlots["nbtags_"+tag]     = new TH1F("nbtags_"+tag,";Category;Events" ,3,0.,3.);
+	  allPlots["nbtags_"+tag]->GetXaxis()->SetBinLabel(1, "=0b");
+	  allPlots["nbtags_"+tag]->GetXaxis()->SetBinLabel(2, "=1b");
+	  allPlots["nbtags_"+tag]->GetXaxis()->SetBinLabel(3, "#geq2b");
+	  
+	  //shape analysis
+	  Int_t nSysts( sizeof(systs)/sizeof(TString) );
+	  all2dPlots["mtshapes_"+tag]     = new TH2F("mtshapes_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200., nSysts,0,nSysts);
+	  all2dPlots["minmlbshapes_"+tag] = new TH2F("minmlbshapes_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.,nSysts,0,nSysts);
+	  all2dPlots["nbtagsshapes_"+tag] = new TH2F("nbtagsshapes_"+tag,";Category;Events" ,3,0.,3.,nSysts,0,nSysts);
+	  for(size_t isyst=0; isyst<sizeof(systs)/sizeof(TString); isyst++)
+	    {
+	      all2dPlots["mtshapes_"+tag]->GetYaxis()->SetBinLabel(isyst+1,systs[isyst]);
+	      all2dPlots["minmlbshapes_"+tag]->GetYaxis()->SetBinLabel(isyst+1,systs[isyst]);
+	      all2dPlots["nbtagsshapes_"+tag]->GetYaxis()->SetBinLabel(isyst+1,systs[isyst]);
+	    }
+	}
+    }
+
+  for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
+  for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
+
+ 
   //read tree from file
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -148,7 +169,7 @@ void ReadTree(TString filename,
 
   //loop over events
   Int_t nentries(t->GetEntriesFast());
-  cout << "...producing " << outname << " from " << nentries << " events" << endl;
+  cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   for (Int_t i=0;i<nentries;i++)
     {
       t->GetEntry(i);
@@ -200,10 +221,11 @@ void ReadTree(TString filename,
 
 	  if(fabs(jp4.Eta()) > 2.4) continue;
 
+	  //FIXME
 	  //jet energy scale variations
-	  jecUnc->setJetEta(fabs(jp4.Eta()));
-	  jecUnc->setJetPt(jp4.Pt());
-	  double unc = jecUnc->getUncertainty(true);    
+	  //jecUnc->setJetEta(fabs(jp4.Eta()));
+	  //jecUnc->setJetPt(jp4.Pt());
+	  double unc = 0; //jecUnc->getUncertainty(true);    
 	  
 	  //jet energy resolution
 	  std::vector<float> jerScale(3,1.0);
@@ -378,7 +400,7 @@ void ReadTree(TString filename,
 	{
 	  int nJetsCat=TMath::Min((int)nJets,(int)4);
 	  int nBtagsCat=TMath::Min((int)nBtags,(int)2);
-	  int binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);
+	  int binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);
 	  
 	  allPlots["njetsnbtags_nom"]->Fill(binToFill,wgt);
 	  allPlots["njetsnbtags_qcdScaleDown"]->Fill(binToFill,wgtQCDScaleLo);
@@ -447,7 +469,7 @@ void ReadTree(TString filename,
 	  int nJetsCat=TMath::Min((int)nJetsJESHi,(int)4);
           int nBtagsCat=TMath::Min((int)nBtags,(int)2);
 	  if(nBtagsCat>nJetsCat) nBtagsCat=nJetsCat;
-	  int binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);
+	  int binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);
 	  allPlots["njetsnbtags_jesUp"]->Fill(binToFill,wgt);
 	  TString tag(Form("%dj%dt",nJetsCat,nBtagsCat));
 	  allPlots["mt_jesUp_"+tag]->Fill(mtJESup,wgt);
@@ -458,7 +480,7 @@ void ReadTree(TString filename,
 	  int nJetsCat=TMath::Min((int)nJetsJESLo,(int)4);
           int nBtagsCat=TMath::Min((int)nBtags,(int)2);
 	  if(nBtagsCat>nJetsCat) nBtagsCat=nJetsCat;
-	  int binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);
+	  int binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);
 	  allPlots["njetsnbtags_jesDown"]->Fill(binToFill,wgt);
 	  TString tag(Form("%dj%dt",nJetsCat,nBtagsCat));
 	  allPlots["mt_jesDown_"+tag]->Fill(mtJESdown,wgt);
@@ -469,7 +491,7 @@ void ReadTree(TString filename,
 	  int nJetsCat=TMath::Min((int)nJetsJERHi,(int)4);
           int nBtagsCat=TMath::Min((int)nBtags,(int)2);
 	  if(nBtagsCat>nJetsCat) nBtagsCat=nJetsCat;
-	  int binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);
+	  int binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);
 	  allPlots["njetsnbtags_jerUp"]->Fill(binToFill,wgt);
 	  TString tag(Form("%dj%dt",nJetsCat,nBtagsCat));
 	  allPlots["mt_jerUp_"+tag]->Fill(mtJERup,wgt);
@@ -480,7 +502,7 @@ void ReadTree(TString filename,
 	  int nJetsCat=TMath::Min((int)nJetsJERLo,(int)4);
           int nBtagsCat=TMath::Min((int)nBtags,(int)2);
 	  if(nBtagsCat>nJetsCat) nBtagsCat=nJetsCat;
-	  int binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);
+	  int binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);
 	  allPlots["njetsnbtags_jerDown"]->Fill(binToFill,wgt);
 	  TString tag(Form("%dj%dt",nJetsCat,nBtagsCat));
 	  allPlots["mt_jerDown_"+tag]->Fill(mtJERdown,wgt);
@@ -491,21 +513,24 @@ void ReadTree(TString filename,
 	  int nJetsCat=TMath::Min((int)nJets,(int)4);
           
 	  int nBtagsCat=TMath::Min((int)nBtagsBeffLo,(int)2);
-          int binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);
+          int binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);
 	  allPlots["njetsnbtags_beffDown"]->Fill(binToFill,wgt); 
 	  
 	  nBtagsCat=TMath::Min((int)nBtagsBeffHi,(int)2);
-	  binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);          
+	  binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);          
 	  allPlots["njetsnbtags_beffUp"]->Fill(binToFill,wgt); 
 
 	  nBtagsCat=TMath::Min((int)nBtagsMistagLo,(int)2);
-	  binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);          
+	  binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);          
 	  allPlots["njetsnbtags_mistagDown"]->Fill(binToFill,wgt); 
 
 	  nBtagsCat=TMath::Min((int)nBtagsMistagHi,(int)2);
-	  binToFill=getBtagCatBinToFill(nBtagsCat,nJetsCat);          
+	  binToFill=0;//getBtagCatBinToFill(nBtagsCat,nJetsCat);          
 	  allPlots["njetsnbtags_mistagUp"]->Fill(binToFill,wgt); 
+
+	  cout << nBtagsCat << " " << nJetsCat << endl;
 	}
+
     }
   
   //close input file

@@ -17,6 +17,11 @@ scram b -j 9
 ```
 
 ## Running ntuple creation
+First time create a symbolic link to the jet energy corrections files
+```
+ln -s data/Summer15_25nsV6_DATA.db
+ln -s data/Summer15_25nsV6_MC.db
+```
 To run locally the ntuplizer, for testing purposes
 ```
 cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.root
@@ -72,11 +77,11 @@ python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
 To run the code on a set of samples, listed in a json file you can run it as follows:
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/552ed48 -j data/samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/552ed48 -j data/samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/552ed48 -j data/samples_Run2015.json -n 8 -o analysis_munoniso --ch 1300
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/552ed48 -j data/syst_samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/552ed48 -j data/syst_samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/samples_Run2015.json -n 8 -o analysis_munoniso --ch 1300
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/syst_samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/syst_samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
 ```
 The first time it runs over the directory it will compute the normalization factor for MC
 such that the distributions will correspond to 1/pb of data.
@@ -89,9 +94,9 @@ Both the normalization factors and the pileup weights are stored under the "anal
 in a cache file called ".xsecweights.pck".
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 1615
-python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 1615
-python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l 1615
+python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 2093.6
+python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 2093.6
+python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l2093.6
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as

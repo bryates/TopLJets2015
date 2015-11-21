@@ -14,7 +14,7 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('--json',      dest='inJson'  ,      help='json file with processed runs',      default=None,    type='string')
-    parser.add_option('--mbXsec',    dest='mbXsec'  ,      help='minimum bias cross section to use',  default=69000,   type=float)
+    parser.add_option('--mbXsec',    dest='mbXsec'  ,      help='minimum bias cross section to use',  default=69900,   type=float)
     parser.add_option('--puJson',    dest='puJson'  ,      help='pileup json file',      
                       default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/PileUp/pileup_latest.txt',    type='string')
     (opt, args) = parser.parse_args()

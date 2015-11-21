@@ -34,11 +34,11 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='data/Summer15_25nsV6_MC.db'
+jecFile='Summer15_25nsV6_MC.db'
 jecTag='Summer15_25nsV6_MC_AK4PFchs'
 if options.runOnData : 
     jecLevels.append( 'L2L3Residual' )
-    jecFile='data/Summer15_25nsV6_DATA.db'
+    jecFile='Summer15_25nsV6_DATA.db'
     jecTag='Summer15_25nsV6_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 

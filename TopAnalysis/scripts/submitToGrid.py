@@ -8,6 +8,9 @@ creates the crab cfg and submits the job
 """
 def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=False):
     
+    jecDB="Summer15_25nsV6_DATA.db" if isData else "Summer15_25nsV6_MC.db"
+    os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/%s' % jecDB)
+
     os.system("rm -rvf %s/*%s* "%(workDir,tag))
     crabConfigFile=workDir+'/'+tag+'_cfg.py'
     config_file=open(crabConfigFile,'w')
@@ -26,6 +29,7 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     config_file.write('config.JobType.psetName = "'+cfg+'"\n')
     config_file.write('config.JobType.disableAutomaticOutputCollection = False\n')
     config_file.write('config.JobType.pyCfgParams = [\'runOnData=%s\']\n' % bool(isData))    
+    config_file.write('config.JobType.inputFiles = [\'%s\']\n'%jecDB)
     config_file.write('\n')
     config_file.write('config.section_("Data")\n')
     config_file.write('config.Data.inputDataset = "%s"\n' % dataset)

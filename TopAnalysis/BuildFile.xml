@@ -4,6 +4,7 @@
 <use name="PhysicsTools/PatAlgos"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="CondFormats/JetMETObjects"/>
+<use name="TopQuarkAnalysis/TopTools"/>
 <export>
   <lib name="1"/>
 </export>
