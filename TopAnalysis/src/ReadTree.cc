@@ -192,7 +192,7 @@ void ReadTree(TString filename,
     {
       t->GetEntry(iev);
       printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
-
+      
       //base kinematics
       TLorentzVector lp4;
       lp4.SetPtEtaPhiM(ev.l_pt,ev.l_eta,ev.l_phi,ev.l_mass);
@@ -219,7 +219,7 @@ void ReadTree(TString filename,
       TLorentzVector met(0,0,0,0);
       met.SetPtEtaPhiM(ev.met_pt,0,ev.met_phi,0.);
       float mt( computeMT(lp4,met) );
-
+      
       //compute neutrino kinematics
       neutrinoPzComputer.SetMET(met);
       neutrinoPzComputer.SetLepton(lp4);
@@ -309,7 +309,6 @@ void ReadTree(TString filename,
 	  if(genWgtMode!=NOGENWGT) wgt *= ev.ttbar_w[0];
 	}
 
-
       //nominal selection control histograms
       if(bJets.size()+lightJets.size()>=1)
 	{
@@ -329,7 +328,7 @@ void ReadTree(TString filename,
 		  Int_t runCtr=std::distance(lumiMap.begin(),rIt);
 		  allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
 		}
-	      
+
 	      allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig,wgt);
 	      allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);
@@ -344,13 +343,13 @@ void ReadTree(TString filename,
 	      allPlots["mt_"+tag]->Fill(mt,wgt);
 	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
 	      allPlots["ht_"+tag]->Fill(htsum,wgt);
-	      allPlots["nbtags_"+tag]->Fill(bJets.size(),wgt);
-
+	      if(icat==0) allPlots["nbtags_"+tag]->Fill(bJets.size(),wgt);
+	      
 	      if(bJets.size())
 		{
 		  float mlb=(bJets[0]+lp4).M();
 		  if(bJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(bJets[1]+lp4).M() );
-		  allPlots["minmlb_nom_"+tag]->Fill(mlb,wgt);
+		  allPlots["minmlb_"+tag]->Fill(mlb,wgt);
 		  if(visSystem.M()<375) allPlots["minmlblowmttbar_"+tag]->Fill(mlb,wgt);
 		  else                  allPlots["minmlbhighmttbar_"+tag]->Fill(mlb,wgt);
 		}	  
