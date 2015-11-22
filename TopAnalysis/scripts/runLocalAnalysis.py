@@ -10,9 +10,9 @@ from TopLJets2015.TopAnalysis.storeTools import *
 Wrapper to be used when run in parallel
 """
 def RunMethodPacked(args):
-    inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr=args
+    inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,runSysts=args
     try:
-        ROOT.ReadTree(str(inF),str(outF),channel,charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr)
+        ROOT.ReadTree(str(inF),str(outF),channel,charge,wgt,isTT,flav,genWgtMode,runSysts)
     except :
         print 50*'<'
         print "  Problem  (%s) with %s continuing without"%(sys.exc_info()[1],inF)
@@ -37,14 +37,15 @@ def main():
     parser.add_option('-o', '--out',         dest='outDir',      help='output directory',                           default='analysis', type='string')
     parser.add_option('-j', '--json',        dest='json',        help='json file to process',                       default=None,       type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process',             default=None,       type='string')
-    parser.add_option(      '--resetCache',  dest='resetCache',  help='reset normalization cache',                  default=False,       action='store_true')
+    parser.add_option(      '--resetCache',  dest='resetCache',  help='reset normalization cache',                  default=False,      action='store_true')
+    parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics',                            default=False,      action='store_true')
     parser.add_option(      '--cache',       dest='cache',       help='use this cache file',                        default='data/.xsecweights.pck', type='string')
     parser.add_option(      '--ch',          dest='channel',     help='channel',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge',                                     default=0,          type=int)
     parser.add_option(      '--flav',        dest='flav',        help='flavour splitting (for single files)',       default=0,          type=int)
     parser.add_option(      '--isTT',        dest='isTT',        help='ttbar sample (for single files)',            default=False,      action='store_true')
-    parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=gen weight (for single files)',     default=0,        type=int)
-    parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel',    default=0,           type='int')
+    parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=gen weight (for single files)',   default=0,    type=int)
+    parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel',                                default=0,    type='int')
     (opt, args) = parser.parse_args()
 
     onlyList=[]
@@ -62,15 +63,16 @@ def main():
         if '/store/' in opt.input: opt.input='root://eoscms//eos/cms'+opt.input
         print opt.input
         outF=os.path.join(opt.outDir,os.path.basename(opt.input))
-        task_list.append( (opt.input,outF,opt.channel,opt.charge,None,opt.isTT,opt.flav,opt.genWgtMode,None,None,None) )
+        task_list.append( (opt.input,outF,opt.channel,opt.charge,None,opt.isTT,opt.flav,opt.genWgtMode,opt.runSysts) )
     else:
+
         #read list of samples
         jsonFile = open(opt.json,'r')
         samplesList=json.load(jsonFile,encoding='utf-8').items()
         jsonFile.close()
 
         #read normalization
-        xsecWgts, integLumi, puWgts = {}, {}, {}        
+        xsecWgts, integLumi = {}, {}
         if opt.resetCache : 
             print 'Removing normalization cache'
             os.system('rm %s'%opt.cache)
@@ -78,7 +80,6 @@ def main():
             cachefile = open(opt.cache, 'r')
             xsecWgts  = pickle.load(cachefile)
             integLumi = pickle.load(cachefile)
-            puWgts    = pickle.load(cachefile)
             cachefile.close()        
             print 'Normalization read from cache (%s)' % opt.cache
             for tag,sample in samplesList:
@@ -87,8 +88,11 @@ def main():
         except:
             print 'Computing original number of events and storing in cache, this may take a while if it\'s the first time'
             print 'Starting with %d processes'%len(xsecWgts)
-            xsecWgts, integLumi, puWgts = produceNormalizationCache(samplesList=samplesList,inDir=opt.input,cache=opt.cache, 
-                                                                    xsecWgts=xsecWgts, integLumi=integLumi, puWgts=puWgts)
+            xsecWgts, integLumi = produceNormalizationCache(samplesList=samplesList,
+                                                            inDir=opt.input,
+                                                            cache=opt.cache, 
+                                                            xsecWgts=xsecWgts, 
+                                                            integLumi=integLumi)
             print 'Current map has now %d processes'%len(xsecWgts)
 
         #create the analysis jobs
@@ -107,25 +111,20 @@ def main():
             doFlavourSplitting=sample[6]
             genWgtMode=sample[7]
             wgt = xsecWgts[tag]
-            puWgtGr,puUpWgtGr,puDownWgtGr=None,None,None
-            try:
-                puWgtGr,puUpWgtGr,puDownWgtGr=puWgts[tag]
-            except:
-                pass
             input_list=getEOSlslist(directory=opt.input+'/'+tag)
             for ifctr in xrange(0,len(input_list)):
                 inF=input_list[ifctr]
                 outF=os.path.join(opt.outDir,'%s_%d.root' % (tag,ifctr) )
                 if doFlavourSplitting:
                     for flav in [0,1,4,5]:
-                        task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr) )                
+                        task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,flav,genWgtMode,opt.runSysts) )
                 else:
-                    task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,0,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr) )                
+                    task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,0,genWgtMode,opt.runSysts) )
 
     #run the analysis jobs
     if opt.njobs == 0:
-        for inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr in task_list:      
-            ROOT.ReadTree(str(inF),str(outF),channel,charge,wgt,isTT,flav,genWgtMode,puWgtGr,puUpWgtGr,puDownWgtGr)
+        for inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,runSysts in task_list:
+            ROOT.ReadTree(str(inF),str(outF),channel,charge,wgt,isTT,flav,genWgtMode,runSysts)
     else:
         from multiprocessing import Pool
         pool = Pool(opt.njobs)

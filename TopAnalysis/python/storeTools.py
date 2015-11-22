@@ -35,7 +35,7 @@ def getEOSlslist(directory, mask='', prepend='root://eoscms//eos/cms'):
 """
 Loops over a list of samples and produces a cache file to normalize MC
 """
-def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi,puWgts):
+def produceNormalizationCache(samplesList,inDir,cache,xsecWgts,integLumi):
 
     #loop over samples
     for tag,sample in samplesList: 
