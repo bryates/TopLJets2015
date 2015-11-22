@@ -24,12 +24,6 @@ def RunMethodPacked(args):
 """
 def main():
 
-    ROOT.AutoLibraryLoader.enable()
-    ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
-    ROOT.gROOT.LoadMacro('src/ReadTree.cc+')
-    from ROOT import ReadTree
-
-
     #configuration
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
@@ -37,6 +31,7 @@ def main():
     parser.add_option('-o', '--out',         dest='outDir',      help='output directory',                           default='analysis', type='string')
     parser.add_option('-j', '--json',        dest='json',        help='json file to process',                       default=None,       type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process',             default=None,       type='string')
+    parser.add_option(      '--nocompile',   dest='nocompile',   help='don\'t compile macro',                       default=False,      action='store_true')
     parser.add_option(      '--resetCache',  dest='resetCache',  help='reset normalization cache',                  default=False,      action='store_true')
     parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics',                            default=False,      action='store_true')
     parser.add_option(      '--cache',       dest='cache',       help='use this cache file',                        default='data/.xsecweights.pck', type='string')
@@ -44,9 +39,22 @@ def main():
     parser.add_option(      '--charge',      dest='charge',      help='charge',                                     default=0,          type=int)
     parser.add_option(      '--flav',        dest='flav',        help='flavour splitting (for single files)',       default=0,          type=int)
     parser.add_option(      '--isTT',        dest='isTT',        help='ttbar sample (for single files)',            default=False,      action='store_true')
+    parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag',                    default=None,       type='string')
+    parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue',                       default='local',    type='string')
     parser.add_option(      '--genWgtMode',  dest='genWgtMode',  help='gen level wgts 0=none, 1=gen weight (for single files)',   default=0,    type=int)
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel',                                default=0,    type='int')
     (opt, args) = parser.parse_args()
+
+    ROOT.AutoLibraryLoader.enable()
+    ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
+    if opt.nocompile:
+        ROOT.gROOT.LoadMacro('src/ReadTree.cc')
+    else:
+        ROOT.gROOT.LoadMacro('src/ReadTree.cc+')
+
+    from ROOT import ReadTree
+
+
 
     onlyList=[]
     try:
@@ -56,14 +64,33 @@ def main():
 
     #prepare output
     os.system('mkdir -p %s'%opt.outDir)
-    
+
+    #read normalization
+    xsecWgts, integLumi = {}, {}
+    if opt.resetCache : 
+        print 'Removing normalization cache'
+        os.system('rm %s'%opt.cache)
+    try:
+        cachefile = open(opt.cache, 'r')
+        xsecWgts  = pickle.load(cachefile)
+        integLumi = pickle.load(cachefile)
+        cachefile.close()        
+        print 'Normalization read from cache (%s)' % opt.cache
+    except:
+        print 'Failed to read cache %s'%opt.cache
+
+
+    #process tasks
     task_list = []
     processedTags=[]
     if '.root' in opt.input:
         if '/store/' in opt.input: opt.input='root://eoscms//eos/cms'+opt.input
-        print opt.input
         outF=os.path.join(opt.outDir,os.path.basename(opt.input))
-        task_list.append( (opt.input,outF,opt.channel,opt.charge,None,opt.isTT,opt.flav,opt.genWgtMode,opt.runSysts) )
+        wgt=None
+        if opt.tag :
+            if opt.tag in xsecWgts:
+                wgt=xsecWgts[opt.tag]
+        task_list.append( (opt.input,outF,opt.channel,opt.charge,wgt,opt.isTT,opt.flav,opt.genWgtMode,opt.runSysts) )
     else:
 
         #read list of samples
@@ -71,17 +98,12 @@ def main():
         samplesList=json.load(jsonFile,encoding='utf-8').items()
         jsonFile.close()
 
-        #read normalization
-        xsecWgts, integLumi = {}, {}
-        if opt.resetCache : 
-            print 'Removing normalization cache'
-            os.system('rm %s'%opt.cache)
+        #check if all samples are in cache or force it's recreation
         try:
-            cachefile = open(opt.cache, 'r')
-            xsecWgts  = pickle.load(cachefile)
-            integLumi = pickle.load(cachefile)
-            cachefile.close()        
-            print 'Normalization read from cache (%s)' % opt.cache
+
+            if opt.resetCache : 
+                raise KeyError
+
             for tag,sample in samplesList:
                 if not tag in xsecWgts:
                     raise KeyError
@@ -94,6 +116,7 @@ def main():
                                                             xsecWgts=xsecWgts, 
                                                             integLumi=integLumi)
             print 'Current map has now %d processes'%len(xsecWgts)
+
 
         #create the analysis jobs
         for tag,sample in samplesList:
@@ -110,7 +133,7 @@ def main():
             isTT=sample[5]
             doFlavourSplitting=sample[6]
             genWgtMode=sample[7]
-            wgt = xsecWgts[tag]
+            wgt = xsecWgts[tag] if opt.queue=='local' else tag
             input_list=getEOSlslist(directory=opt.input+'/'+tag)
             for ifctr in xrange(0,len(input_list)):
                 inF=input_list[ifctr]
@@ -120,29 +143,20 @@ def main():
                         task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,flav,genWgtMode,opt.runSysts) )
                 else:
                     task_list.append( (inF,outF,opt.channel,opt.charge,wgt,isTT,0,genWgtMode,opt.runSysts) )
-
+                
     #run the analysis jobs
-    if opt.njobs == 0:
-        for inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,runSysts in task_list:
-            ROOT.ReadTree(str(inF),str(outF),channel,charge,wgt,isTT,flav,genWgtMode,runSysts)
+    if opt.queue=='local':
+        if opt.njobs == 0:
+            for inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,runSysts in task_list:
+                ROOT.ReadTree(str(inF),str(outF),channel,charge,wgt,isTT,flav,genWgtMode,runSysts)
+        else:
+            from multiprocessing import Pool
+            pool = Pool(opt.njobs)
+            pool.map(RunMethodPacked, task_list)
     else:
-        from multiprocessing import Pool
-        pool = Pool(opt.njobs)
-        pool.map(RunMethodPacked, task_list)
-
-    #merge final outputs
-    for tag,sample in samplesList:
-        if not tag in processedTags: continue
-        doFlavourSplitting=sample[6]
-        groupsToHadd=[tag]
-        if doFlavourSplitting : 
-            for flav in [1,4,5]:
-                groupsToHadd.append('%d_%s'%(flav,tag))
-        for itag in groupsToHadd:
-            os.system('hadd -f %s/%s.root %s/%s_*.root' % (opt.outDir,itag,opt.outDir,itag) )
-            os.system('rm %s/%s_*.root' % (opt.outDir,itag) )
-    print 'Analysis results are available in %s' % opt.outDir
-
+        for inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,runSysts in task_list:
+            localOpt='--nocompile -i %s -o $s --charge %d --tag %s --isTT %d --flav %d --genWgtMode %d --runSysts %d' % (inF,outF,charge,wgt,isTT,flav,genWgtMode,runSysts)
+            print localOpt
 
 """
 for execution from another script

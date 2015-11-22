@@ -130,7 +130,6 @@ void ReadTree(TString filename,
 	    allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
 	  allPlots["lpt_"+tag]        = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
 	  allPlots["lsip3d_"+tag]     = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,40,0.,20.);
-	  allPlots["lchiso_"+tag]     = new TH1F("lchiso_"+tag,";Charged hadron isolation [GeV];Events" ,25,0.,50.);
 	  allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
 	  allPlots["leta_"+tag]       = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
 	  allPlots["jpt_"+tag]        = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
@@ -140,11 +139,11 @@ void ReadTree(TString filename,
 	  allPlots["nvtx_"+tag]       = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events" ,50,0.,50.);
 	  allPlots["met_"+tag]        = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,20,0.,300.);
 	  allPlots["metphi_"+tag]     = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
-	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,100,300.,700.);
+	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,100.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
 	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
 	  allPlots["minmlblowmttbar_"+tag]   = new TH1F("minmlblowmttbar_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
-	  allPlots["minmlbhighmttbar_"+tag]  = new TH1F("minmlbhighmttbar_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
+	  allPlots["minmlbhighmttbar_"+tag]  = new TH1F("minmlbhighmttbar_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,500.);
 
 	  if(itag==-1)
 	    {
@@ -331,7 +330,6 @@ void ReadTree(TString filename,
 
 	      allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig,wgt);
-	      allPlots["lchiso_"+tag]->Fill(ev.l_chargedHadronIso,wgt);
 	      allPlots["lchreliso_"+tag]->Fill(ev.l_chargedHadronIso/ev.l_pt,wgt);
 	      allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
 	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
