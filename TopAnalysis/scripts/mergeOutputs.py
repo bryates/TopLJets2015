@@ -16,21 +16,15 @@ def getBaseNames(dirname):
         if not ext == '.root': continue
         try:
             if not ('MC13TeV' in filename or 'Data13TeV' in filename) : continue
-            sfilename = filename.split('_',1)
-            basename, number = sfilename[1].rsplit('_',1)
-            if 'filt' in filename:
-                postfix=number
-                basename, number=basename.rsplit('_',1)
-                basename += '_'+postfix
-
+            basename, number = filename.rsplit('_',1)
+            print basename,number
             if not number == 'missing' and not isint(number):
                 raise ValueError
-            key = '_'.join([header,basename])
             try:
-                counters[key].append(dirname+'/'+item)
+                counters[basename].append(dirname+'/'+item)
             except KeyError:
-                counters[key] = [dirname+'/'+item]
-            names.add(key)
+                counters[basename] = [dirname+'/'+item]
+            names.add(basename)
 
         except ValueError:
             print filename,'is single'
@@ -62,11 +56,11 @@ for basename, files in counters.iteritems():
 
     # merging:
     print '... processing', basename
-    #cmd = 'hadd -f %s %s' % (target, filenames)
-    #os.system(cmd)
+    cmd = 'hadd -f %s %s' % (target, filenames)
+    os.system(cmd)
 
     # cleanup:
-    #cmd = '/bin/mv %s %s' % (filenames, chunkdir)
-    #os.system(cmd)
+    cmd = '/bin/mv %s %s' % (filenames, chunkdir)
+    os.system(cmd)
 
 

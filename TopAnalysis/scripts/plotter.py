@@ -78,8 +78,8 @@ class Plot(object):
 
     def show(self, outDir,lumi,noScale=False,saveTeX=False):
 
-        if len(self.mc)==0:
-            print '%s has no MC!' % self.name
+        if len(self.mc)<2 and self.data is None:
+            print '%s has 0 or 1 MC!' % self.name
             return
 
         if self.mc.values()[0].InheritsFrom('TH2') :
@@ -154,12 +154,8 @@ class Plot(object):
         if self.dataH:
             if maxY<self.dataH.GetMaximum():
                 maxY=self.dataH.GetMaximum()
-        if maxY>1e5 : 
-            p1.SetLogy(True)
-            frame.GetYaxis().SetRangeUser(1,maxY*10)
-        else        : 
-            p1.SetLogy(False)
-            frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)        
+        frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)                
+
         frame.SetDirectory(0)
         frame.Reset('ICE')
         self._garbageList.append(frame)
@@ -232,6 +228,7 @@ class Plot(object):
         for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
         if self.savelog:
             p1.cd()
+            frame.GetYaxis().SetRangeUser(1,maxY*10)
             p1.SetLogy()
             c.cd()
             c.Modified()

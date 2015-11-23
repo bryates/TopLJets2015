@@ -92,11 +92,17 @@ The first time it also computes the pileup weights on a sample-by-sample basis
 by taking the ratio of the of the putrue distribution to the pileup distribution estimated in data.
 Both the normalization factors and the pileup weights are stored under the "analysis" directory
 in a cache file called ".xsecweights.pck".
+After the jobs have run you can merge the outputs with
+```
+./scripts/mergeOutputs.py analysis_muplus
+./scripts/mergeOutputs.py analysis_muminus
+./scripts/mergeOutputs.py analysis_munoniso/
+```
 To plot the output of the local analysis you can run the following:
 ```
 python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 2093.6
 python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 2093.6
-python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l2093.6
+python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l 2093.6
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as
