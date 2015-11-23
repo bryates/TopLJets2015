@@ -139,7 +139,7 @@ void ReadTree(TString filename,
 	  allPlots["nvtx_"+tag]       = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events" ,50,0.,50.);
 	  allPlots["met_"+tag]        = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,20,0.,300.);
 	  allPlots["metphi_"+tag]     = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
-	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,100.);
+	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
 	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
 	  allPlots["minmlblowmttbar_"+tag]   = new TH1F("minmlblowmttbar_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
