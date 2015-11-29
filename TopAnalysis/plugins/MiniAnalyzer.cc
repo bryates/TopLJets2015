@@ -162,7 +162,7 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   for(Int_t igenjet=0; igenjet<5; igenjet++)
     {
       TString tag("fidcounter"); tag+=igenjet;
-      histContainer_[tag.Data()] = fs->make<TH1F>(tag,    ";Variation;Events", 200, 0., 200.); 
+      histContainer_[tag.Data()] = fs->make<TH1F>(tag,    ";Variation;Events", 1000, 0., 1000.); 
     }
   histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",2,0,2);
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();

@@ -31,15 +31,17 @@ To submit a list of samples, described in a json file to the grid you can use th
 python scripts/submitToGrid.py -j data/samples_Run2015.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
-Don't forget to init the environment for crab3
-(e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial)
+Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial).
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/552ed48 -o /store/cmst3/user/psilva/LJets2015/552ed48
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/4a77bd2 -o /store/cmst3/user/psilva/LJets2015/5736a2c
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
-For data, don't forget to create the json files with the list of runs/luminosity sections processed, e.g. as:
+
+## Preparing the analysis 
+
+After ntuples are processed start by creating the json files with the list of runs/luminosity sections processed, e.g. as:
 ```
 crab report grid/crab_Data13TeV_SingleElectron_2015D_v3
 ``` 
@@ -47,25 +49,26 @@ Then you can merge the json files for the same dataset to get the full list of r
 ```
 mergeJSON.py grid/crab_Data13TeV_SingleElectron_2015D_v3/results/lumiSummary.json grid/crab_Data13TeV_SingleElectron_2015D_v4/results/lumiSummary.json --output data/SingleElectron_lumiSummary.json
 ```
-You can then run the brilcalc tool to get the integrated luminosity in total and per run.
-(see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details)
+You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
 brilcalc lumi --normtag /afs/cern.ch/user/c/cmsbril/public/normtag_json/OfflineNormtagV1.json -i data/SingleElectron_lumiSummary.json
 ```
 Use the table which is printed out to update the "lumiPerRun" method in ReadTree.cc.
 That will be used to monitor the event yields per run in order to identify outlier runs.
-To update the pileup distributions run
+* Pileup weighting. To update the pileup distributions run the script below. It will store the data pileup distributions for different min.bias cross section in data/pileupWgts.root
 ```
 python scripts/runPileupEstimation.py --json data/SingleElectron_lumiSummary.json
 ```
-It will store the data pileup distributions for different min.bias cross section values under data.
-Before running it's better to save the expected b-tagging efficiency with
+* B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
 python scripts/saveExpectedBtagEff.py 
 ```
-This will project the jet pT spectrum from the TTbar sample before and after applying b-tagging,
-and save the expected efficiencies in data/expTageff.root.
+* MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
+```
+python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/5736a2c
+```
 You're now ready to start locally the analysis.
+
 
 ## Running locally the analysis
 
@@ -77,11 +80,9 @@ python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
 To run the code on a set of samples, listed in a json file you can run it as follows:
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/samples_Run2015.json -n 8 -o analysis_munoniso --ch 1300
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/syst_samples_Run2015.json -n 8 -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -j data/syst_samples_Run2015.json -n 8 -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_munoniso --ch 1300
 ```
 The first time it runs over the directory it will compute the normalization factor for MC
 such that the distributions will correspond to 1/pb of data.

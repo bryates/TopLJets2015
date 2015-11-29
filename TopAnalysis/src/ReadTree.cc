@@ -36,88 +36,136 @@ void ReadTree(TString filename,
 	      TString outname,
 	      Int_t channelSelection, 
 	      Int_t chargeSelection, 
-	      TH1F *normH, 
-	      Bool_t isTTbar,
 	      FlavourSplitting flavourSplitting,
-	      GenWeightMode genWgtMode,
+	      TH1F *normH, 
 	      Bool_t runSysts)
 {
 
-  std::vector<TString> systs(1,"nom");
-
-  bool isMC(filename.Contains("MC13TeV"));
-  if(!isMC) runSysts=false;
-
-  //setup pileup weighting
-  TGraph *puWgtGr=0, *puUpWgtGr=0, *puDownWgtGr=0;
-  if(isMC)
-    {
-      TString puWgtUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/pileupWgts.root");
-      gSystem->ExpandPathName(puWgtUrl);
-      TFile *fIn=TFile::Open(puWgtUrl);
-      if(fIn){
-	puWgtGr     = (TGraph *)fIn->Get("puwgts_nom");
-	puDownWgtGr = (TGraph *)fIn->Get("puwgts_down");
-	puUpWgtGr   = (TGraph *)fIn->Get("puwgts_up");
-	fIn->Close();
-      }
-    }
-
-  // setup b-tag calibration readers
-  TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
-  gSystem->ExpandPathName(btagUncUrl);
-  BTagCalibration btvcalib("csvv2", btagUncUrl.Data());
-  BTagCalibrationReader btagSFbReader(&btvcalib,     BTagEntry::OP_MEDIUM, "mujets", "central");
-  BTagCalibrationReader btagSFbupReader(&btvcalib,   BTagEntry::OP_MEDIUM, "mujets", "up");
-  BTagCalibrationReader btagSFbdownReader(&btvcalib, BTagEntry::OP_MEDIUM, "mujets", "down"); 
-  BTagCalibrationReader btagSFlReader(&btvcalib,     BTagEntry::OP_MEDIUM, "comb", "central");
-  BTagCalibrationReader btagSFlupReader(&btvcalib,   BTagEntry::OP_MEDIUM, "comb", "up");
-  BTagCalibrationReader btagSFldownReader(&btvcalib, BTagEntry::OP_MEDIUM, "comb", "down"); 
-
-  TString btagEffExpUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/expTageff.root");
-  gSystem->ExpandPathName(btagEffExpUrl);
-  TFile *beffIn=TFile::Open(btagEffExpUrl);
-  TGraphAsymmErrors *expEff_b=(TGraphAsymmErrors *)beffIn->Get("b");
-  TGraphAsymmErrors *expEff_c=(TGraphAsymmErrors *)beffIn->Get("c");
-  TGraphAsymmErrors *expEff_udsg=(TGraphAsymmErrors *)beffIn->Get("udsg");
-  BTagSFUtil myBTagSFUtil;
-
-
-  //jES uncertainties
-  TString jesSrcNames[] = {"Absolute",        "HighPtExtra",    "SinglePionECAL",  "SinglePionHCAL", "Time",
-			   "RelativeJEREC1",  "RelativeJEREC2", "RelativeJERHF",
-			   "RelativePtBB",    "RelativePtEC1",  "RelativePtEC2",   "RelativePtHF",  "RelativeFSR",
-			   "RelativeStatEC2", "RelativeStatHF",
-			   "PileUpDataMC",    "PileUpPtBB",     "PileUpPtEC",      "PileUpPtHF", "PileUpBias",
-			   "FlavorPureGluon", "FlavorPureQuark","FlavorPureCharm", "FlavorPureBottom"};
-  size_t nJecSrc=sizeof(jesSrcNames)/sizeof(TString);
-  std::map<Int_t,JetCorrectionUncertainty*> jecUncs;
-  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_25nsV6M3_DATA_UncertaintySources_AK4PFchs.txt");
-  gSystem->ExpandPathName(jecUncUrl);
-  if(runSysts)
-    {
-      systs.push_back("muFUp");        systs.push_back("muFDown");
-      systs.push_back("muRUp");        systs.push_back("muRDown");
-      systs.push_back("muRmuFUp");     systs.push_back("muRmuFDown");
-      
-      for(size_t i=0; i<nJecSrc; i++)
-	{
-	  systs.push_back(jesSrcNames[i]+"Up");     
-	  systs.push_back(jesSrcNames[i]+"Down");    
-
-	  JetCorrectorParameters *p = new JetCorrectorParameters(jecUncUrl.Data(), jesSrcNames[i].Data());
-	  jecUncs[JES_Absolute+i]=new JetCorrectionUncertainty(*p);
-	}
-    }
+  //READ TREE FROM FILE
+  MiniEvent_t ev;
+  TFile *f = TFile::Open(filename);
+  TTree *t = (TTree*)f->Get("analysis/data");
+  attachToMiniEventTree(t,ev);
+  Int_t nentries(t->GetEntriesFast());
+  t->GetEntry(0);
+  if(ev.isData) runSysts=false;
+  cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
 
   //auxiliary to solve neutrino pZ using MET
   MEzCalculator neutrinoPzComputer;
 
-  //book histograms
+  //for data only get the lumi per run map
+  std::map<Int_t,Float_t> lumiMap;
+  if(ev.isData) lumiMap=lumiPerRun();
+
+  //PILEUP WEIGHTING
+  std::vector<TGraph *>puWgtGr;
+  if(!ev.isData)
+    {
+      TString puWgtUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/pileupWgts.root");
+      gSystem->ExpandPathName(puWgtUrl);
+      TFile *fIn=TFile::Open(puWgtUrl);
+      if(fIn)
+	{
+	  puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_nom") );
+	  puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_down") );
+	  puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_up") );
+	  fIn->Close();
+	}
+    }
+
+  //B-TAG CALIBRATION
+  TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
+  gSystem->ExpandPathName(btagUncUrl);
+  std::vector<BTagCalibrationReader *> sfbReaders, sflReaders;
+  TString btagEffExpUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/expTageff.root");
+  gSystem->ExpandPathName(btagEffExpUrl);
+  std::map<TString, TGraphAsymmErrors *> expBtagEff;
+  BTagSFUtil myBTagSFUtil;
+  if(!ev.isData)
+    {
+      BTagCalibration btvcalib("csvv2", btagUncUrl.Data());
+      sfbReaders.push_back( new BTagCalibrationReader(&btvcalib,     BTagEntry::OP_MEDIUM, "mujets", "central") );
+      sfbReaders.push_back( new BTagCalibrationReader(&btvcalib,   BTagEntry::OP_MEDIUM, "mujets", "up") );
+      sfbReaders.push_back( new BTagCalibrationReader(&btvcalib, BTagEntry::OP_MEDIUM, "mujets", "down") ); 
+      sflReaders.push_back( new BTagCalibrationReader(&btvcalib,     BTagEntry::OP_MEDIUM, "comb", "central") );
+      sflReaders.push_back( new BTagCalibrationReader(&btvcalib,   BTagEntry::OP_MEDIUM, "comb", "up") );
+      sflReaders.push_back( new BTagCalibrationReader(&btvcalib, BTagEntry::OP_MEDIUM, "comb", "down") ); 
+      
+      TFile *beffIn=TFile::Open(btagEffExpUrl);
+      expBtagEff["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
+      expBtagEff["c"]=(TGraphAsymmErrors *)beffIn->Get("c");
+      expBtagEff["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
+      beffIn->Close();
+    }
+
+  //JET ENERGY SCALE: https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Summer15_uncertainties
+  TString jecUncUrl("${CMSSW_BASE}/src/UserCode/BJetEnergyPeak/data/Summer15_25nsV6M3_DATA_UncertaintySources_AK4PFchs.txt");
+  gSystem->ExpandPathName(jecUncUrl);
+  std::vector<TString> jecUncSrcs;
+  std::vector<JetCorrectionUncertainty*> jecUncs;
+  if(runSysts)
+    {
+      jecUncSrcs.push_back("AbsoluteStat");        
+      jecUncSrcs.push_back("AbsoluteScale");        
+      jecUncSrcs.push_back("AbsoluteFlavMap");        
+      jecUncSrcs.push_back("AbsoluteMPFBias");        
+      jecUncSrcs.push_back("Fragmentation");        
+      jecUncSrcs.push_back("SinglePionECAL");  
+      jecUncSrcs.push_back("SinglePionHCAL"); 
+      jecUncSrcs.push_back("TimeEta");
+      jecUncSrcs.push_back("TimePt");
+      jecUncSrcs.push_back("RelativeJEREC1");  
+      jecUncSrcs.push_back("RelativeJEREC2"); 
+      jecUncSrcs.push_back("RelativeJERHF");
+      jecUncSrcs.push_back("RelativePtBB");    
+      jecUncSrcs.push_back("RelativePtEC1");  
+      jecUncSrcs.push_back("RelativePtEC2");   
+      jecUncSrcs.push_back("RelativePtHF");  
+      jecUncSrcs.push_back("RelativeFSR");
+      jecUncSrcs.push_back("RelativeStatEC"); 
+      jecUncSrcs.push_back("RelativeStatHF");
+      jecUncSrcs.push_back("PileUpDataMC");    
+      jecUncSrcs.push_back("PileUpPtRef");    
+      jecUncSrcs.push_back("PileUpPtBB");     
+      jecUncSrcs.push_back("PileUpPtEC1");      
+      jecUncSrcs.push_back("PileUpPtEC2");      
+      jecUncSrcs.push_back("PileUpPtHF");    
+      jecUncSrcs.push_back("FlavorPureGluon"); 
+      jecUncSrcs.push_back("FlavorPureQuark");
+      jecUncSrcs.push_back("FlavorPureCharm"); 
+      jecUncSrcs.push_back("FlavorPureBottom");
+      for(size_t i=0; i<jecUncSrcs.size(); i++)
+	{
+	  JetCorrectorParameters *p = new JetCorrectorParameters(jecUncUrl.Data(), jecUncSrcs[i].Data());
+	  jecUncs.push_back( new JetCorrectionUncertainty(*p) );
+	}
+    }
+
+  //experimental systematics
+  std::vector<TString> expSysts;
+  if(runSysts)
+    {
+      expSysts=jecUncSrcs;
+      expSysts.push_back("JER");
+      expSysts.push_back("Pileup");
+      expSysts.push_back("MuTrigger");
+      expSysts.push_back("MuEfficiency");
+      expSysts.push_back("MuScale");
+      expSysts.push_back("EleTrigger");
+      expSysts.push_back("EleEfficiency");
+      expSysts.push_back("EleScale");
+      expSysts.push_back("BtagEff");
+      expSysts.push_back("CtagEff");
+      expSysts.push_back("LtagEff");
+      expSysts.push_back("UncMET");
+      expSysts.push_back("topPt");
+    }
+
+
+  //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   std::map<TString, TH2 *> all2dPlots;
-
-  std::map<Int_t,Float_t> lumiMap=lumiPerRun();
   for(Int_t ij=1; ij<=4; ij++)
     {
       for(Int_t itag=-1; itag<=2; itag++)
@@ -142,9 +190,6 @@ void ReadTree(TString filename,
 	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
 	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
-	  allPlots["minmlblowmttbar_"+tag]   = new TH1F("minmlblowmttbar_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
-	  allPlots["minmlbhighmttbar_"+tag]  = new TH1F("minmlbhighmttbar_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,500.);
-
 	  if(itag==-1)
 	    {
 	      allPlots["nbtags_"+tag]     = new TH1F("nbtags_"+tag,";Category;Events" ,3,0.,3.);
@@ -156,18 +201,31 @@ void ReadTree(TString filename,
 	  //shape analysis
 	  if(runSysts)
 	    {
-	      all2dPlots["mtshapes_"+tag]     = new TH2F("mtshapes_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200., 2*LASTSYST,0,2*LASTSYST);
-	      all2dPlots["minmlbshapes_"+tag] = new TH2F("minmlbshapes_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.,2*LASTSYST,0,2*LASTSYST);
-	      if(itag==-1) all2dPlots["nbtagsshapes_"+tag] = new TH2F("nbtagsshapes_"+tag,";Category;Events" ,3,0.,3.,2*LASTSYST,0,2*LASTSYST);
-	      for(size_t isyst=0; isyst<LASTSYST; isyst++)
+	      //gen weight systematics
+	      Int_t nGenSysts=normH->GetNbinsX();
+	      all2dPlots["mtshapes"+tag+"_gen"]                   = new TH2F("mtshapes"+tag+"_gen",      ";Transverse Mass [GeV];Events" ,    20,0.,200., nGenSysts,0,nGenSysts);
+	      all2dPlots["minmlbshapes"+tag+"_gen"]               = new TH2F("minmlbshapes"+tag+"_gen",  ";min Mass(lepton,b) [GeV];Events" , 25,0.,250., nGenSysts,0,nGenSysts);
+	      if(itag==-1) all2dPlots["nbtagsshapes_"+tag+"_gen"] = new TH2F("nbtagsshapes_"+tag+"_gen", ";Category;Events" ,                 3, 0.,3.,   nGenSysts,0,nGenSysts);
+	      for(Int_t igen=0; igen<nGenSysts; igen++)
 		{
-		  TString baseLabel(getSystematicsLabel(isyst));
-		  for(size_t ivar=0; ivar<2; ivar++)
+		  all2dPlots["mtshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
+		  all2dPlots["minmlbshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
+		  all2dPlots["nbtagsshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
+		}
+	      
+	      //experimental systematics
+	      Int_t nExpSysts=expSysts.size();
+	      all2dPlots["mtshapes_"+tag+"_exp"]                  = new TH2F("mtshapes_"+tag+"_exp",     ";Transverse Mass [GeV];Events" ,   20,0.,200., 2*nExpSysts,0,2*nExpSysts);
+	      all2dPlots["minmlbshapes_"+tag+"_exp"]              = new TH2F("minmlbshapes_"+tag+"_exp", ";min Mass(lepton,b) [GeV];Events" ,25,0.,250., 2*nExpSysts,0,2*nExpSysts);
+	      if(itag==-1) all2dPlots["nbtagsshapes_"+tag+"_exp"] = new TH2F("nbtagsshapes_"+tag+"_exp", ";Category;Events" ,                3,0.,3.,    2*nExpSysts,0,2*nExpSysts);
+	      for(Int_t isyst=0; isyst<nExpSysts; isyst++)
+		{
+		  for(Int_t ivar=0; ivar<2; ivar++)
 		    {
-		      TString label(baseLabel + (ivar==0 ? "Up" : "Down"));
-		      all2dPlots["mtshapes_"+tag]->GetYaxis()->SetBinLabel(isyst+1, label);
-		      all2dPlots["minmlbshapes_"+tag]->GetYaxis()->SetBinLabel(isyst+1,label);
-		      if(itag==-1) all2dPlots["nbtagsshapes_"+tag]->GetYaxis()->SetBinLabel(isyst+1,label);
+		      TString label(expSysts[isyst] + (ivar==0 ? "Up" : "Down"));
+		      all2dPlots["mtshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1, label);
+		      all2dPlots["minmlbshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
+		      if(itag==-1) all2dPlots["nbtagsshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
 		    }
 		}
 	    }
@@ -177,16 +235,7 @@ void ReadTree(TString filename,
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
   for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
 
-  
-  //read tree from file
-  MiniEvent_t ev;
-  TFile *f = TFile::Open(filename);
-  TTree *t = (TTree*)f->Get("analysis/data");
-  attachToMiniEventTree(t,ev);
-
-  //loop over events
-  Int_t nentries(t->GetEntriesFast());
-  cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
+  //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
       t->GetEntry(iev);
@@ -235,14 +284,23 @@ void ReadTree(TString filename,
 	  //check kinematics
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
+
+	  //smear jet energy resolution for MC
+	  float genJet_pt(ev.genj_pt[k]); 
+	  if(!ev.isData && genJet_pt>0) 
+	    {
+	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+	      jp4 *= jerSmear;
+	    }
+
+	  //cross clean with respect to leptons and re-inforce kinematics cuts
 	  if(jp4.DeltaR(lp4)<0.4) continue;
 	  if(jp4.Pt()<30) continue;
 	  if(fabs(jp4.Eta()) > 2.4) continue;
 	  
-	  
 	  if(leadingJetIdx<0) leadingJetIdx=k;
 	  htsum     += jp4.Pt();
-	  visSystem += jp4;
+	  if(bJets.size()+lightJets.size()<=4) visSystem += jp4;
 
 	  //b-tag
 	  float csv = ev.j_csv[k];	  
@@ -254,22 +312,22 @@ void ReadTree(TString filename,
 	      if(abs(ev.j_hadflav[k])==4) 
 		{ 
 		  ncjets++;
-		  expEff        = expEff_c->Eval(jptForBtag); 
-		  jetBtagSF     = btagSFbReader.eval( BTagEntry::FLAV_C, jetaForBtag, jptForBtag);
+		  expEff        = expBtagEff["c"]->Eval(jptForBtag); 
+		  jetBtagSF     = sfbReaders[0]->eval( BTagEntry::FLAV_C, jetaForBtag, jptForBtag);
 		}
 	      else if(abs(ev.j_hadflav[k])==5) 
 		{ 
 		  nbjets++;
-		  expEff=expEff_b->Eval(jptForBtag); 
-		  jetBtagSF=btagSFbReader.eval( BTagEntry::FLAV_B, jetaForBtag, jptForBtag);
+		  expEff=expBtagEff["b"]->Eval(jptForBtag); 
+		  jetBtagSF=sfbReaders[0]->eval( BTagEntry::FLAV_B, jetaForBtag, jptForBtag);
 		}
 	      else
 		{
 		  nljets++;
-		  expEff=expEff_udsg->Eval(jptForBtag);
-                  jetBtagSF=btagSFlReader.eval( BTagEntry::FLAV_UDSG, jetaForBtag, jptForBtag);
+		  expEff=expBtagEff["udsg"]->Eval(jptForBtag);
+                  jetBtagSF=sflReaders[0]->eval( BTagEntry::FLAV_UDSG, jetaForBtag, jptForBtag);
 		}
-
+	      
 	      //updated b-tagging decision with the data/MC scale factor
 	      myBTagSFUtil.modifyBTagsWithSF(isBTagged,    jetBtagSF,     expEff);
 	    }
@@ -278,7 +336,7 @@ void ReadTree(TString filename,
 	  if(isBTagged) bJets.push_back(jp4);
 	  else          lightJets.push_back(jp4);
 	}
-
+      
       //check if flavour splitting was required
       if(!ev.isData)
 	{
@@ -293,32 +351,32 @@ void ReadTree(TString filename,
 
       //event weight
       float wgt(1.0);
-      std::vector<float> puWeight(3,1.0),lepSF(3,1.0);
+      std::vector<float> puWeight(3,1.0),lepTriggerSF(3,1.0),lepSelSF(3,1.0);
       if(!ev.isData)
 	{
-	  lepSF=getLeptonSelectionScaleFactor(ev.l_id,ev.l_pt,ev.l_eta,ev.isData);
-	  if(puWgtGr)
+	  lepTriggerSF = getLeptonTriggerScaleFactor  (ev.l_id,ev.l_pt,ev.l_eta,ev.isData);
+	  lepSelSF     = getLeptonSelectionScaleFactor(ev.l_id,ev.l_pt,ev.l_eta,ev.isData);
+	  if(puWgtGr.size())
 	    {
-	      puWeight[0]=puWgtGr->Eval(ev.putrue);  
-	      puWeight[1]=puUpWgtGr->Eval(ev.putrue); 
-	      puWeight[2]=puDownWgtGr->Eval(ev.putrue);
+	      puWeight[0]=puWgtGr[0]->Eval(ev.putrue);  
+	      puWeight[1]=puWgtGr[1]->Eval(ev.putrue); 
+	      puWeight[2]=puWgtGr[2]->Eval(ev.putrue);
 	    }
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
-	  wgt=norm*lepSF[0]*puWeight[0];
-	  if(genWgtMode!=NOGENWGT) wgt *= ev.ttbar_w[0];
+	  wgt=lepTriggerSF[0]*lepSelSF[0]*puWeight[0]*norm;
+	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
 	}
 
       //nominal selection control histograms
       if(bJets.size()+lightJets.size()>=1)
 	{
-	  std::map<Int_t,Float_t>::iterator rIt=lumiMap.find(ev.run);
-
 	  int nJetsCat=TMath::Min((int)(bJets.size()+lightJets.size()),(int)4);
 	  int nBtagsCat=TMath::Min((int)(bJets.size()),(int)2);
-
 	  std::vector<TString> catsToFill(2,Form("%dj",nJetsCat));
 	  catsToFill[1]+= Form("%dt",nBtagsCat);
-	  
+
+	  std::map<Int_t,Float_t>::iterator rIt=lumiMap.find(ev.run);	  
+
 	  for(size_t icat=0; icat<2; icat++)
 	    {
 	      TString tag=catsToFill[icat];
@@ -348,8 +406,6 @@ void ReadTree(TString filename,
 		  float mlb=(bJets[0]+lp4).M();
 		  if(bJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(bJets[1]+lp4).M() );
 		  allPlots["minmlb_"+tag]->Fill(mlb,wgt);
-		  if(visSystem.M()<375) allPlots["minmlblowmttbar_"+tag]->Fill(mlb,wgt);
-		  else                  allPlots["minmlbhighmttbar_"+tag]->Fill(mlb,wgt);
 		}	  
 	    }
 	}
@@ -358,7 +414,7 @@ void ReadTree(TString filename,
       if(!runSysts) continue;
 
       /*
-
+	// work in progress
 		  allPlots["minmlb_qcdScaleDown_"+tag]->Fill(minMlb,wgtQCDScaleLo);
 		  allPlots["minmlb_qcdScaleUp_"+tag]->Fill(minMlb,wgtQCDScaleHi);
 		  allPlots["minmlb_puUp_"+tag]->Fill(minMlb,wgtPuUp);
@@ -546,7 +602,6 @@ void ReadTree(TString filename,
 	      if(isBTagged)  minMlbJERup   = TMath::Min(minMlbJERup,(Float_t)( jerScale[2]*jp4+lp4).M());
 	    }
 	}
-
 
       if(nJetsJESHi>=1)
 	{
@@ -749,155 +804,32 @@ std::map<Int_t,Float_t> lumiPerRun()
 };
 
 //
-TString getSystematicsLabel(int varIdx)
+std::vector<float> getLeptonTriggerScaleFactor(int id,float pt,float eta,bool isData)
 {
-  switch(varIdx)
-    {
-    case NOMINAL: return "nominal"; break;
-    case PU: return "pileup"; break;                 
-    case MUTRIGGER: return "#mu trigger"; break;          
-    case MUEFF: return "#mu sel."; break;              
-    case MUSCALE: return "#mu scale"; break;            
-    case ETRIGGER: return "e trigger"; break;           
-    case EEFF: return "e sel."; break;               
-    case ESCALE: return "e scale"; break;             
-    case BEFF: return "SF_{b}"; break;               
-    case CEFF: return "SF_{c}"; break;               
-    case LEFF: return "SF_{udsg}"; break;               
-    case UMET: return "unc. MET"; break;               
-    case JER: return "JER"; break;                
-    case JES_Absolute: return "Absolute"; break;
-    case JES_HighPtExtra: return "HighPtExtra"; break;
-    case JES_SinglePionECAL: return "SinglePionECAL"; break;
-    case JES_SinglePionHCAL: return "SinglePionHCAL"; break;
-    case JES_Time: return "Time"; break;
-    case JES_RelativeJEREC1: return "RelativeJEREC1"; break;
-    case JES_RelativeJEREC2: return "RelativeJEREC2"; break;
-    case JES_RelativeJERHF: return "RelativeJERHF"; break;
-    case JES_RelativePtBB: return "RelativePtBB"; break;
-    case JES_RelativePtEC1: return "RelativePtEC1"; break;
-    case JES_RelativePtEC2: return "RelativePtEC2"; break;
-    case JES_RelativePtHF: return "RelativePtHF"; break;
-    case JES_RelativeFSR: return "RelativeFSR"; break;
-    case JES_RelativeStatEC2: return "RelativeStatEC2"; break;
-    case JES_RelativeStatHF: return "RelativeStatHF"; break;
-    case JES_PileUpDataMC: return "PileUpDataMC"; break;
-    case JES_PileUpPtBB: return "PileUpPtBB"; break;
-    case JES_PileUpPtEC: return "PileUpPtEC"; break;
-    case JES_PileUpPtHF: return "PileUpPtHF"; break;
-    case JES_PileUpBias: return "PileUpBias"; break;
-    case JES_FlavorPureGluon: return "FlavorPureGluon"; break;
-    case JES_FlavorPureQuark: return "FlavorPureQuark"; break;
-    case JES_FlavorPureCharm: return "FlavorPureCharm"; break;
-    case JES_FlavorPureBottom: return "FlavorPureBottom"; break;
-    case QCD_MUF: return "#mu_{F}"; break;
-    case QCD_MUR: return "#mu_{R}"; break;
-    case QCD_MURMUF: return "#mu_{R}#mu_{F}"; break;
-    default: return ""; break;
-    }
-
-  return "";
+  std::vector<float> lepTrigSF(3,1.0);
+  return lepTrigSF;
 }
 
 //
 std::vector<float> getLeptonSelectionScaleFactor(int id,float pt,float eta,bool isData)
 {
   std::vector<float> lepSelSF(3,1.0);
-  if(isData) return lepSelSF;
-
-  std::pair<float,float>res(1.0,0.0);
-
-  //electrons
-  if(abs(id)==11)
-    {
-      if (fabs(eta)<0.8)
-	{
-	  if (pt<30)      { res.first=0.927; res.second=0.073; }
-	  else if (pt<40) { res.first=0.975; res.second=0.018; }
-	  else if (pt<50) { res.first=0.962; res.second=0.036; }
-	  else            { res.first=0.955; res.second=0.022; }
-	}
-      else if (fabs(eta)<1.5)
-	{
-	  if (pt<30)      { res.first=0.891; res.second=0.074; }
-	  else if (pt<40) { res.first=0.965; res.second=0.020; }
-	  else if (pt<50) { res.first=0.968; res.second=0.018; }
-	  else            { res.first=0.955; res.second=0.018; }
-	}
-      else
-	{
-	  if (pt<30)      { res.first=0.956; res.second=0.059; }
-	  else if (pt<40) { res.first=0.995; res.second=0.018; }
-	  else if (pt<50) { res.first=0.993; res.second=0.019; }
-	  else            { res.first=0.985; res.second=0.023; }
-	}
-    }
-
-  //muons
-  if (abs(id)==13)
-    {
-      if (fabs(eta)<0.9)
-	{
-	  if (pt<30)      { res.first=1.003; res.second=0.019; }
-	  else if (pt<40) { res.first=1.014; res.second=0.015; }
-	  else if (pt<50) { res.first=1.001; res.second=0.014; }
-	  else            { res.first=0.983; res.second=0.014; }
-	}
-      else if(fabs(eta)<1.2)
-	{
-	  if (pt<30)      { res.first=0.993; res.second=0.019; }
-	  else if (pt<40) { res.first=0.994; res.second=0.015; }
-	  else if (pt<50) { res.first=0.980; res.second=0.014; }
-	  else            { res.first=0.987; res.second=0.015; }
-	}
-      else
-	{
-	  if (pt<30)      { res.first=1.023; res.second=0.028; }
-	  else if (pt<40) { res.first=0.994; res.second=0.014; }
-	  else if (pt<50) { res.first=0.996; res.second=0.014; }
-	  else            { res.first=0.979; res.second=0.014; }
-	}
-    }
-
-  lepSelSF[0]=res.first;
-  lepSelSF[1]=res.first+res.second;
-  lepSelSF[2]=res.first-res.second;
   return lepSelSF;
 }
 
-//Sources
-//  Assuming nominal JER but uncertainties from Run I
-//  https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
+//Sources :  https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt)
 {
   std::vector<float> res(3,1.0);
 
-  float ptSF(1.0), ptSF_err(0.06);
-  if(TMath::Abs(eta)<0.5) 
-    {
-      ptSF=1.0;
-      ptSF_err = TMath::Sqrt(pow(0.012,2)+pow(0.5*(0.062+0.061),2));
-    }
-  else if(TMath::Abs(eta)<1.1)
-    {
-      ptSF=1.0;
-      ptSF_err = TMath::Sqrt(pow(0.012,2)+pow(0.5*(0.056+0.055),2));
-    }
-  else if(TMath::Abs(eta)<1.7)
-    {
-      ptSF=1.0;
-      ptSF_err = TMath::Sqrt(pow(0.017,2)+pow(0.5*(0.063+0.062),2));
-    }
-  else if(TMath::Abs(eta)<2.3)
-    {
-      ptSF=1.0;
-      ptSF_err = TMath::Sqrt(pow(0.035,2)+pow(0.5*(0.087+0.085),2));
-    }
-  else
-    {
-      ptSF=1.0;
-      ptSF_err = TMath::Sqrt(pow(0.127,2)+pow(0.5*(0.155+0.153),2));
-    }
+  float ptSF(1.0), ptSF_err(0.0);
+  if(TMath::Abs(eta)<0.8)       { ptSF=1.061; ptSF_err = 0.023; }
+  else if(TMath::Abs(eta)<1.3)  { ptSF=1.088; ptSF_err = 0.029; }
+  else if(TMath::Abs(eta)<1.9)  { ptSF=1.106; ptSF_err = 0.030; }
+  else if(TMath::Abs(eta)<2.5)  { ptSF=1.126; ptSF_err = 0.094; }
+  else if(TMath::Abs(eta)<3.0)  { ptSF=1.343; ptSF_err = 0.123; }
+  else if(TMath::Abs(eta)<3.2)  { ptSF=1.303; ptSF_err = 0.111; }
+  else if(TMath::Abs(eta)<5.0)  { ptSF=1.320; ptSF_err = 0.286; }
 
   res[0] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF)*(pt-genjpt)))/pt;
   res[1] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF-ptSF_err)*(pt-genjpt)))/pt;

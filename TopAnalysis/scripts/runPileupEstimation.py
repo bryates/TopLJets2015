@@ -30,7 +30,7 @@ def main():
     #compute pileup in data assuming different xsec
     puDist=[]
     puWgts=[]
-    MINBIASXSEC={'nom':opt.mbXsec,'up':opt.mbXsec*1.1,'down':opt.mbXsec*0.9}
+    MINBIASXSEC={'nom':opt.mbXsec,'up':opt.mbXsec*1.05,'down':opt.mbXsec*0.95}
     for scenario in MINBIASXSEC:
         print scenario, 'xsec=',MINBIASXSEC[scenario]
         cmd='pileupCalc.py -i %s --inputLumiJSON %s --calcMode true --minBiasXsec %f --maxPileupBin %d --numPileupBins %s Pileup.root'%(opt.inJson,opt.puJson,MINBIASXSEC[scenario],NPUBINS,NPUBINS)
