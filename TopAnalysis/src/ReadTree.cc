@@ -260,7 +260,11 @@ void ReadTree(TString filename,
       if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
 
       //apply trigger requirement
-      if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300) && ((ev.muTrigger>>0)&0x1)==0) continue;
+      if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300))
+	{
+	  if(ev.isData  && ((ev.muTrigger>>0)&0x1)==0) continue;
+	  if(!ev.isData && ((ev.muTrigger>>2)&0x1)==0) continue;
+	}
       if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
 
       //MET and transverse mass
