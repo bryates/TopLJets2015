@@ -144,6 +144,7 @@ void ReadTree(TString filename,
 
   //experimental systematics
   std::vector<TString> expSysts;
+  Int_t nGenSysts(0);
   if(runSysts)
     {
       expSysts=jecUncSrcs;
@@ -160,6 +161,9 @@ void ReadTree(TString filename,
       expSysts.push_back("LtagEff");
       expSysts.push_back("UncMET");
       expSysts.push_back("topPt");
+      if(normH)
+	for(Int_t xbin=1; xbin<=normH->GetXaxis()->GetNbins(); xbin++) 
+	  nGenSysts += (normH->GetBinContent(xbin)!=0);	
     }
 
 
@@ -202,13 +206,12 @@ void ReadTree(TString filename,
 	  if(runSysts)
 	    {
 	      //gen weight systematics
-	      Int_t nGenSysts=normH->GetNbinsX();
 	      all2dPlots["mtshapes"+tag+"_gen"]                   = new TH2F("mtshapes"+tag+"_gen",      ";Transverse Mass [GeV];Events" ,    20,0.,200., nGenSysts,0,nGenSysts);
 	      all2dPlots["minmlbshapes"+tag+"_gen"]               = new TH2F("minmlbshapes"+tag+"_gen",  ";min Mass(lepton,b) [GeV];Events" , 25,0.,250., nGenSysts,0,nGenSysts);
 	      if(itag==-1) all2dPlots["nbtagsshapes_"+tag+"_gen"] = new TH2F("nbtagsshapes_"+tag+"_gen", ";Category;Events" ,                 3, 0.,3.,   nGenSysts,0,nGenSysts);
 	      for(Int_t igen=0; igen<nGenSysts; igen++)
 		{
-		  all2dPlots["mtshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
+		  all2dPlots["mtshapes_"+tag+"_gen"]    ->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
 		  all2dPlots["nbtagsshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,normH->GetXaxis()->GetBinLabel(igen+1));
 		}
@@ -262,8 +265,8 @@ void ReadTree(TString filename,
       //apply trigger requirement
       if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300))
 	{
-	  if(ev.isData  && ((ev.muTrigger>>0)&0x1)==0) continue;
-	  if(!ev.isData && ((ev.muTrigger>>2)&0x1)==0) continue;
+	  if(ev.isData  && ((ev.muTrigger>>2)&0x1)==0) continue;
+	  if(!ev.isData && ((ev.muTrigger>>0)&0x1)==0) continue;
 	}
       if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
 
