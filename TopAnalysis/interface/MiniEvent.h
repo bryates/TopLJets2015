@@ -27,6 +27,18 @@ struct MiniEvent_t
   Float_t j_csv[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_qg[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
   Int_t j_vtxNtracks[200],j_flav[200],j_pid[200],j_hadflav[200];
 
+  Int_t npf,pf_j[5000];
+  Int_t pf_id[5000],pf_charge[5000];
+  Float_t pf_px[5000],pf_py[5000],pf_pz[5000];
+
+  Int_t ngen,g_j[5000];
+  Int_t g_id[5000],g_charge[5000];
+  Float_t g_px[5000],g_py[5000],g_pz[5000];
+
+  Int_t ngenHardProc;
+  Int_t ghp_id[100];
+  Float_t ghp_pt[100],ghp_eta[100],ghp_phi[100],ghp_m[100];
+
   Float_t met_pt,met_phi,mt;
 
   Int_t me_id,me_np,me_pid[25];

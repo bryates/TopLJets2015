@@ -193,8 +193,20 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     //require only one lepton (can be from tau, if tau not from hadron)
     int nLeptons(0);
     float lphi(0), leta(0);
+    ev_.ngenHardProc=0;
     for (size_t i = 0; i < genParticles->size(); ++i) {
       const GenParticle & genIt = (*genParticles)[i];
+
+      if(genIt.isHardProcess())
+	{
+	  ev_.ghp_id[ ev_.ngenHardProc ] = genIt.pdgId();
+	  ev_.ghp_pt[ ev_.ngenHardProc ] = genIt.pt();
+	  ev_.ghp_eta[ ev_.ngenHardProc ] = genIt.eta();
+	  ev_.ghp_phi[ ev_.ngenHardProc ] = genIt.phi();
+	  ev_.ghp_m[ ev_.ngenHardProc ] = genIt.mass();
+	  ev_.ngenHardProc++;
+	}
+
       if(!genIt.isPromptFinalState() && !genIt.isDirectPromptTauDecayProductFinalState()) continue;
       int ID = abs(genIt.pdgId());
       if(ID!=11 && ID!=13) continue;
@@ -256,6 +268,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.me_np=0;
   ev_.ngenj=0;
   ev_.ttbar_genId=0;
+  ev_.ngenHardProc=0;
   if(!ev_.isData)
     {
       edm::Handle<int> genTtbarIdHandle;
@@ -481,7 +494,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   // JETS
   ev_.nj=0;
-
+  ev_.ngen=0;
+  ev_.npf=0;
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(jetToken_,jets);
   edm::Handle<edm::ValueMap<float> > qgHandle; 
@@ -504,7 +518,9 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       bool passLoose=pfjetIDLoose_( *j, retpf );
       if(!passLoose) continue;
 
-      if(j->pt()>25 && fabs(j->eta())<2.5) ncentralJets++;      
+      bool isCentral(false);
+      if(j->pt()>25 && fabs(j->eta())<2.5) isCentral=true;
+      ncentralJets+=isCentral;      
 
       //save jet
       const reco::Candidate *genParton = j->genParton();
@@ -532,6 +548,40 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.j_flav[ev_.nj]=j->partonFlavour();
       ev_.j_hadflav[ev_.nj]=j->hadronFlavour();
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
+      
+      //save gen/PF candidates for this jet
+      if(isCentral)
+	{
+	  if(genJet)
+	    {
+	      std::vector <const GenParticle*> genConsts=genJet->getGenConstituents(); 
+	      for(size_t igen=0; igen<genConsts.size(); igen++)
+		{
+		  ev_.g_j[ev_.ngen]      = ev_.nj;
+		  ev_.g_id[ev_.ngen]     = genConsts[igen]->pdgId();
+		  ev_.g_charge[ev_.ngen] = genConsts[igen]->charge();
+		  ev_.g_px[ev_.ngen]     = genConsts[igen]->px();
+		  ev_.g_py[ev_.ngen]     = genConsts[igen]->py();
+		  ev_.g_pz[ev_.ngen]     = genConsts[igen]->pz();
+		  ev_.ngen++;
+		}
+	    }
+
+	  const std::vector<reco::PFCandidatePtr> pfConst = j->getPFConstituents();
+	  for(size_t ipf=0; ipf<pfConst.size(); ipf++)
+	    {
+	      ev_.pf_j[ev_.npf]      = ev_.nj;
+	      ev_.pf_id[ev_.npf]     = pfConst[ipf]->pdgId();
+	      ev_.pf_charge[ev_.npf] = pfConst[ipf]->charge();
+	      ev_.pf_px[ev_.npf]     = pfConst[ipf]->px();
+	      ev_.pf_py[ev_.npf]     = pfConst[ipf]->py();
+	      ev_.pf_pz[ev_.npf]     = pfConst[ipf]
+->pz();
+	      ev_.npf++;
+	    }
+	}
+      
+      //store jet
       ev_.nj++;
     }
   if(ncentralJets==0) return;

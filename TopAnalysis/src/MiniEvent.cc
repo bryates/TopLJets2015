@@ -71,6 +71,29 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
   t->Branch("j_pid",      ev.j_pid,     "j_pid[nj]/I");
 
+  t->Branch("npf",        &ev.npf,      "npf/I");
+  t->Branch("pf_j",       ev.pf_j,     "pf_j[npf]/I");
+  t->Branch("pf_id",      ev.pf_id,     "pf_id[npf]/I");
+  t->Branch("pf_charge",  ev.pf_charge, "pf_charge[npf]/I");
+  t->Branch("pf_px",      ev.pf_px,     "pf_px[npf]/F");
+  t->Branch("pf_py",      ev.pf_py,     "pf_py[npf]/F");
+  t->Branch("pf_pz",      ev.pf_pz,     "pf_pz[npf]/F");
+
+  t->Branch("ngen",     &ev.ngen,     "ngen/I");
+  t->Branch("g_j",       ev.g_j,      "g_j[ngen]/I");
+  t->Branch("g_id",      ev.g_id,     "g_id[ngen]/I");
+  t->Branch("g_charge",  ev.g_charge, "g_charge[ngen]/I");
+  t->Branch("g_px",      ev.g_px,     "g_px[ngen]/F");
+  t->Branch("g_py",      ev.g_py,     "g_py[ngen]/F");
+  t->Branch("g_pz",      ev.g_pz,     "g_pz[ngen]/F");
+
+  t->Branch("ngenHardProc",     &ev.ngenHardProc,     "ngenHardProc/I");
+  t->Branch("ghp_id",      ev.ghp_id,     "ghp_id[ngenHardProc]/I");
+  t->Branch("ghp_pt",      ev.ghp_pt,     "ghp_pt[ngenHardProc]/F");
+  t->Branch("ghp_eta",      ev.ghp_eta,     "ghp_eta[ngenHardProc]/F");
+  t->Branch("ghp_phi",      ev.ghp_phi,     "ghp_phi[ngenHardProc]/F");
+  t->Branch("ghp_m",      ev.ghp_m,     "ghp_m[ngenHardProc]/F");
+
   t->Branch("met_pt",    &ev.met_pt,    "met_pt/F");
   t->Branch("met_phi",   &ev.met_phi,   "met_phi/F");
   t->Branch("mt",        &ev.mt,        "mt/F");
