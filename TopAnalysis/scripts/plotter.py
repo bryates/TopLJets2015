@@ -349,6 +349,7 @@ def main():
     #read plots 
     plots={}
     for tag,sample in samplesList: 
+        xsec=sample[1]
         doFlavourSplitting=sample[6]
         subProcs=[(tag,sample[3],sample[4])]
         if doFlavourSplitting:
@@ -366,8 +367,9 @@ def main():
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
-                    if not key in plots : plots[key]=Plot(key)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
+                    if not isData :  obj.Scale(xsec)
+                    if not key in plots : plots[key]=Plot(key)
                     plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
             except:
                 pass
