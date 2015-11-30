@@ -70,8 +70,8 @@ def main():
         wgt=None
         if opt.tag :
             if opt.tag in xsecWgts:
-                wgt=xsecWgts[opt.tag]
-        task_list.append( (opt.input,outF,opt.channel,opt.charge,wgt,opt.isTT,opt.flav,opt.genWgtMode,opt.runSysts) )
+                wgtH=xsecWgts[opt.tag]
+        task_list.append( (inF,outF,opt.channel,opt.charge,wgtH,opt.flav,opt.runSysts) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')
