@@ -199,7 +199,7 @@ void ReadTree(TString filename,
 	    allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
 	  allPlots["lpt_"+tag]        = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
 	  allPlots["lsip3d_"+tag]     = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,40,0.,20.);
-	  allPlots["lchreliso_"+tag]  = new TH1F("lchreliso_"+tag,";Charged hadron relative isolation;Events" ,25,0.,0.2);
+	  allPlots["lreliso_"+tag]     = new TH1F("lreliso_"+tag,";Relative isolation;Events" ,25,0.,0.5);
 	  allPlots["leta_"+tag]       = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
 	  allPlots["jpt_"+tag]        = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
 	  allPlots["jeta_"+tag]       = new TH1F("jeta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
@@ -282,15 +282,19 @@ void ReadTree(TString filename,
       TLorentzVector lp4;
       lp4.SetPtEtaPhiM(ev.l_pt,ev.l_eta,ev.l_phi,ev.l_mass);
       if(lp4.Pt()<30 || fabs(lp4.Eta())>2.1) continue;
+      float relIsoDeltaBeta((ev.l_chargedHadronIso
+			     +max(0.,ev.l_neutralHadronIso+ev.l_photonIso-0.5*ev.l_puChargedHadronIso))/ev.l_pt);
 
       //select according to the lepton id/charge
       if(channelSelection!=0)
 	{
+	  cout << channelSelection << " " << ev.l_id << " " << relIsoDeltaBeta << endl;
 	  if(abs(ev.l_id)!=abs(channelSelection)) continue;
 	  if(channelSelection==1300)
 	    {
-	      float relchIso = ev.l_chargedHadronIso/ev.l_pt;
-	      if(relchIso<0.4) continue;
+	      if(relIsoDeltaBeta<0.2) continue;
+	      //float relchIso = ev.l_chargedHadronIso/ev.l_pt;
+	      //if(relchIso<0.4) continue;
 	    }
 	}
 
@@ -468,7 +472,7 @@ void ReadTree(TString filename,
 
 	      allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig,wgt);
-	      allPlots["lchreliso_"+tag]->Fill(ev.l_chargedHadronIso/ev.l_pt,wgt);
+	      allPlots["lreliso_"+tag]->Fill(relIsoDeltaBeta,wgt);
 	      allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
 	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
 	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ leadingJetIdx ]),wgt);

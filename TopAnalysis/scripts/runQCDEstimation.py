@@ -80,9 +80,9 @@ def main():
         #data in the signal region
         dataIso,    sumMCIso    = getTemplates(fIn=fIso,    dist='lsip3d_%s'%sel, tag='iso',rebin=True)
 
-        #normalized QCD template above the cut in SIP3d
+        #normalized QCD template above the cut in SIP3d (include overflow)
         xbin=dataNonIso.GetXaxis().FindBin(opt.norm)
-        nxbins=dataNonIso.GetNbinsX()        
+        nxbins=dataNonIso.GetNbinsX()+1        
 
         #signal region
         niso=dataIso.Integral(xbin,nxbins)
