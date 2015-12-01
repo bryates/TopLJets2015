@@ -28,10 +28,11 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--in',          dest='input',       help='input directory with files or single file',  default=None,       type='string')
-    parser.add_option('-o', '--out',         dest='outDir',      help='output directory',                           default='analysis', type='string')
+    parser.add_option('-o', '--out',         dest='output',      help='output directory (or file if single file to process)',  default='analysis', type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process',             default=None,       type='string')
     parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics',                            default=False,      action='store_true')
     parser.add_option(      '--cache',       dest='cache',       help='use this cache file',                        default='data/genweights.pck', type='string')
+    parser.add_option(      '--flav',        dest='flav',        help='split according to heavy flavour content',   default=0,          type=int)
     parser.add_option(      '--ch',          dest='channel',     help='channel',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge',                                     default=0,          type=int)
     parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag',                    default=None,       type='string')
@@ -52,8 +53,9 @@ def main():
     except:
         pass
 
-    #prepare output
-    os.system('mkdir -p %s'%opt.outDir)
+    #prepare output if a directory
+    if not '.root' in opt.output:
+        os.system('mkdir -p %s'%opt.output)
 
     #read normalization
     cachefile = open(opt.cache, 'r')
@@ -65,12 +67,14 @@ def main():
     task_list = []
     processedTags=[]
     if '.root' in opt.input:
-        if '/store/' in opt.input: opt.input='root://eoscms//eos/cms'+opt.input
-        outF=os.path.join(opt.outDir,os.path.basename(opt.input))
+        inF=opt.input
+        if '/store/' in inF and not 'root:' in inF : inF='root://eoscms//eos/cms'+opt.input        
+        outF=opt.output
         wgt=None
         if opt.tag :
-            if opt.tag in xsecWgts:
-                wgtH=xsecWgts[opt.tag]
+            if opt.tag in genWgts:
+                wgtH=genWgts[opt.tag]
+        print inF,outF,opt.channel,opt.charge,wgtH,opt.flav,opt.runSysts
         task_list.append( (inF,outF,opt.channel,opt.charge,wgtH,opt.flav,opt.runSysts) )
     else:
 
@@ -87,11 +91,11 @@ def main():
                         processThisTag=True
                 if not processThisTag : continue
 
-            wgtH=genWgts[tag]
+            wgtH=genWgts[tag] if opt.queue=='local' else tag
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
-                outF=os.path.join(opt.outDir,'%s_%d.root' %(tag,ifile))
+                outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
                 doFlavourSplitting=True if 'MC13TeV_WJets' in tag else False
                 if doFlavourSplitting:
                     for flav in [0,1,4,5]:
@@ -99,10 +103,9 @@ def main():
                 else:
                     task_list.append( (inF,outF,opt.channel,opt.charge,wgtH,0,opt.runSysts) )
 
-    print 'launching %d tasks in %d parallel jobs'%(len(task_list),opt.njobs)
-
     #run the analysis jobs
     if opt.queue=='local':
+        print 'launching %d tasks in %d parallel jobs'%(len(task_list),opt.njobs)
         if opt.njobs == 0:
             for inF,outF,channel,charge,wgtH,flav,runSysts in task_list:
                 ROOT.ReadTree(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
@@ -111,9 +114,13 @@ def main():
             pool = Pool(opt.njobs)
             pool.map(RunMethodPacked, task_list)
     else:
-        for inF,outF,channel,charge,wgt,isTT,flav,genWgtMode,runSysts in task_list:
-            localOpt='--nocompile -i %s -o $s --charge %d --tag %s --isTT %d --flav %d --genWgtMode %d --runSysts %d' % (inF,outF,charge,wgt,isTT,flav,genWgtMode,runSysts)
-            print localOpt
+        print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)
+        cmsswBase=os.environ['CMSSW_BASE']
+        for inF,outF,channel,charge,tag,flav,runSysts in task_list:
+            localOpt='-i %s -o %s --charge %d --tag %s --flav %d' % (inF,outF,charge,tag,flav)
+            if runSysts : localOpt += ' --runSysts'            
+            cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localOpt)
+            print cmd
 
 """
 for execution from another script

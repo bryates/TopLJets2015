@@ -78,21 +78,13 @@ To test the code on a single file to produce plots.
 ```
 python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
-To run the code on a set of samples, listed in a json file you can run it as follows:
+To run the code on a set of samples stored in EOS you can run it as follows:
 ```
 python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_muplus   --ch 13   --charge 1
 python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_muminus  --ch 13   --charge -1
 python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_munoniso --ch 1300
 ```
-The first time it runs over the directory it will compute the normalization factor for MC
-such that the distributions will correspond to 1/pb of data.
-The normalization factor is given by (xsec / N generated events)
-where xsec is stored in the json file, and N generated events is summed up
-from the "counter" histogram stored in the the files to process for each process.
-The first time it also computes the pileup weights on a sample-by-sample basis
-by taking the ratio of the of the putrue distribution to the pileup distribution estimated in data.
-Both the normalization factors and the pileup weights are stored under the "analysis" directory
-in a cache file called ".xsecweights.pck".
+If "-q queue_name" is appended the jobs are submitted to the batch system instead of running locally.
 After the jobs have run you can merge the outputs with
 ```
 ./scripts/mergeOutputs.py analysis_muplus
