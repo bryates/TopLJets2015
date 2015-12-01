@@ -263,7 +263,7 @@ void ReadTree(TString filename,
   for (Int_t iev=0;iev<nentries;iev++)
     {
       t->GetEntry(iev);
-      printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
+      if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       
       //base kinematics
       TLorentzVector lp4;
@@ -637,6 +637,7 @@ void ReadTree(TString filename,
   TString baseName=gSystem->BaseName(outname); 
   TString dirName=gSystem->DirName(outname);
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
+  fOut->cd();
   for (auto& it : allPlots)  { 
     it.second->SetDirectory(fOut); it.second->Write(); 
   }
