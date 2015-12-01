@@ -84,7 +84,8 @@ python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c
 python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_muminus  --ch 13   --charge -1
 python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -n 8 -o analysis_munoniso --ch 1300
 ```
-If "-q queue_name" is appended the jobs are submitted to the batch system instead of running locally.
+If "-q queue_name" is appended the jobs are submitted to the batch system instead of running locally. 
+To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
 After the jobs have run you can merge the outputs with
 ```
 ./scripts/mergeOutputs.py analysis_muplus
