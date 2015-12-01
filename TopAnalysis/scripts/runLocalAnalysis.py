@@ -117,9 +117,9 @@ def main():
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)
         cmsswBase=os.environ['CMSSW_BASE']
         for inF,outF,channel,charge,tag,flav,runSysts in task_list:
-            localOpt='-i %s -o %s --charge %d --tag %s --flav %d' % (inF,outF,charge,tag,flav)
-            if runSysts : localOpt += ' --runSysts'            
-            cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localOpt)
+            localRun='python %s/src/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --tag %s --flav %d' % (cmsswBase,inF,outF,charge,tag,flav)
+            if runSysts : localRun += ' --runSysts'            
+            cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)
             print cmd
 
 """

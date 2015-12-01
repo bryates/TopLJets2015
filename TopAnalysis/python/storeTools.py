@@ -4,7 +4,7 @@ import pickle
 """
 Takes a directory on eos (starting from /store/...) and returns a list of all files with 'prepend' prepended
 """
-def getEOSlslist(directory, mask='', prepend='root://eoscms//eos/cms'):
+def getEOSlslist(directory, mask='', prepend='root://eoscms//eos/cms/'):
     from subprocess import Popen, PIPE
     print 'looking into: '+directory+'...'
 
