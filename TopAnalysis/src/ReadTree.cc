@@ -74,6 +74,19 @@ void ReadTree(TString filename,
 	}
     }
 
+  //LEPTON EFFICIENCIES
+  TString lepEffUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/leptonEfficiencies.root");
+  gSystem->ExpandPathName(lepEffUrl);
+  std::map<TString,TH2 *> lepEffH;
+  if(!ev.isData)
+    {
+      TFile *fIn=TFile::Open(lepEffUrl);
+      lepEffH["m_sel"]=(TH2 *)fIn->Get("m_sel");
+      lepEffH["m_trig"]=(TH2 *)fIn->Get("m_trig");
+      for(auto& it : lepEffH) it.second->SetDirectory(0);
+      fIn->Close();
+    }
+
   //B-TAG CALIBRATION
   TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
   gSystem->ExpandPathName(btagUncUrl);
@@ -392,14 +405,45 @@ void ReadTree(TString filename,
       std::vector<float> puWeight(3,1.0),lepTriggerSF(3,1.0),lepSelSF(3,1.0);
       if(!ev.isData)
 	{
-	  lepTriggerSF = getLeptonTriggerScaleFactor  (ev.l_id,ev.l_pt,ev.l_eta);
-	  lepSelSF     = getLeptonSelectionScaleFactor(ev.l_id,ev.l_pt,ev.l_eta);
+	  //update lepton selection scale factors, if found
+	  TString prefix("m");
+	  if(abs(ev.l_id)==11 || abs(ev.l_id)==1100) prefix="e";
+	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end())
+	    {
+	      float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
+	      float etaForEff=TMath::Max(TMath::Min(fabs(ev.l_eta),maxEtaForEff),minEtaForEff);
+	      Int_t etaBinForEff=lepEffH[prefix+"_sel"]->GetXaxis()->FindBin(etaForEff);
+	      
+	      float minPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmin() ), maxPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmax()-0.01 );
+	      float ptForEff=TMath::Max(TMath::Min(fabs(ev.l_pt),maxPtForEff),minPtForEff);
+	      Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
+
+	      float selSF(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
+	      float selSFUnc(lepEffH[prefix+"_sel"]->GetBinError(etaBinForEff,ptBinForEff));
+
+	      float trigSF(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
+	      float trigSFUnc(lepEffH[prefix+"_trig"]->GetBinError(etaBinForEff,ptBinForEff));
+
+	      lepTriggerSF[0]=trigSF; lepTriggerSF[1]=trigSF-trigSFUnc; lepTriggerSF[2]=trigSF+trigSFUnc;
+	      lepSelSF[0]=selSF;      lepSelSF[1]=selSF-selSFUnc;       lepSelSF[2]=selSF+selSFUnc;
+
+	      if(trigSF<0.5 || selSF<0.5)
+		{
+		  cout << ev.l_id << " " << ev.l_pt << " " << ptForEff << " " << ev.l_eta << " " << etaForEff << endl;
+		  cout << trigSF << " " << trigSF-trigSFUnc << " " << trigSF+trigSFUnc << endl;
+		  cout << selSF << " " << selSF-selSFUnc << " " << selSF+selSFUnc << endl;
+		}
+	    }
+
+	  //update pileup weights, if found
 	  if(puWgtGr.size())
 	    {
 	      puWeight[0]=puWgtGr[0]->Eval(ev.putrue);  
 	      puWeight[1]=puWgtGr[1]->Eval(ev.putrue); 
 	      puWeight[2]=puWgtGr[2]->Eval(ev.putrue);
 	    }
+
+	  //update nominal event weight
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
 	  wgt=lepTriggerSF[0]*lepSelSF[0]*puWeight[0]*norm;
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
@@ -762,28 +806,30 @@ std::map<Int_t,Float_t> lumiPerRun()
   return lumiMap;
 };
 
-//
-std::vector<float> getLeptonTriggerScaleFactor(int id,float pt,float eta)
-{
-  std::vector<float> lepTrigSF(3,1.0);
-  lepTrigSF[1]=0.97;
-  lepTrigSF[2]=1.03;
-  return lepTrigSF;
-}
-
-//
-std::vector<float> getLeptonSelectionScaleFactor(int id,float pt,float eta)
-{
-  std::vector<float> lepSelSF(3,1.0);
-  lepSelSF[1]=0.99;
-  lepSelSF[2]=1.01;
-  return lepSelSF;
-}
-
-//
+// 
 float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta)
 {
   float unc(0.02);
+  
+  // electron uncertainties for 8 TeV cf. AN-14-145   
+  if(abs(l_id)==11)
+    {
+      float par0(-2.27e-02), par1(-7.01e-02), par2(-3.71e-04);
+      if (fabs(l_eta) > 0.8 && fabs(l_eta)<1.5)
+        {
+          par0 = -2.92e-02;
+          par1 = -6.59e-02;
+          par2 = -7.22e-04;
+        }
+      else if(fabs(l_eta)>1.5)
+        {
+          par0 = -2.27e-02;
+          par1 = -7.01e-02;
+          par2 = -3.71e-04;
+        }
+      unc=fabs(par0 * TMath::Exp(par1 * l_pt) + par2);
+    }
+
   return unc;
 }
 

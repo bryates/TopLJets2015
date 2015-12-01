@@ -21,7 +21,5 @@ void ReadTree(TString filename,
 	      Bool_t runSysts);
 std::map<Int_t,Float_t> lumiPerRun();
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt);
-std::vector<float> getLeptonTriggerScaleFactor(int l_id,float l_pt,float l_eta);
-std::vector<float> getLeptonSelectionScaleFactor(int l_id,float l_pt,float l_eta);
 float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta);
 #endif
