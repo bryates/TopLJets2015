@@ -114,11 +114,20 @@ We use the Higgs combination tool to perform the fit of the production cross sec
 It currently has to be run from a CMSSW_7_1_5 release.
 To create the datacard you can run the following script
 ```
-python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o analysis_muplus/datacard -d njetsnbtags
-python scripts/createDataCard.py -i analysis_muminus/plots/plotter.root -o analysis_muminus/datacard -d njetsnbtags
+python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o  analysis_muplus/datacard  -q analysis_muplus/.qcdscalefactors.pck -d nbtags
+python scripts/createDataCard.py -i analysis_muminus/plots/plotter.root -o analysis_muminus/datacard -q analysis_muminus/.qcdscalefactors.pck -d nbtags
 ```
-Combine the two datacards above into the final one
+Combine the datacards per category above into the final one per channel
 ```
+#charge combinations
+a=(muplus muminus)
+for i in ${a[@]}; do
+    cd analysis_${i}/datacard;
+    combineCards.py ${i}1j=datacard_1j.dat ${i}2j=datacard_2j.dat ${i}3j=datacard_3j.dat ${i}4j=datacard_4j.dat > datacard.dat
+    cd -;
+done
+
+#final combination
 mkdir -p analysis_mu/datacard
 cd analysis_mu/datacard
 combineCards.py muplus=../../analysis_muplus/datacard/datacard.dat muminus=../../analysis_muminus/datacard/datacard.dat > datacard.dat

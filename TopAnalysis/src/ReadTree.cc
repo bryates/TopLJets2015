@@ -288,7 +288,6 @@ void ReadTree(TString filename,
       //select according to the lepton id/charge
       if(channelSelection!=0)
 	{
-	  cout << channelSelection << " " << ev.l_id << " " << relIsoDeltaBeta << endl;
 	  if(abs(ev.l_id)!=abs(channelSelection)) continue;
 	  if(channelSelection==1300)
 	    {

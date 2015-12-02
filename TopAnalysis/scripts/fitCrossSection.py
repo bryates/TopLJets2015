@@ -7,7 +7,7 @@ from array import array
 import ROOT
 
 POItitles={'r':'#mu=#sigma/#sigma_{th}',
-           'beff':'kx#sigma_{varepsilon_{b}}',
+           'BtagEff':'kx#sigma_{varepsilon_{b}}',
            'mtop':'m_{t} [GeV]'}
 
 """
@@ -370,7 +370,7 @@ def main():
     parser = optparse.OptionParser(usage)
     parser.add_option('-o', '--output',       dest='output',       help='output directory',       default='./',           type='string')
     parser.add_option(      '--noFit',        dest='noFit',        help='don\'t run the fits',    action='store_true')
-    parser.add_option(      '--POIs',         dest='POIs',         help='parameters of interest', default='r,beff',       type='string')
+    parser.add_option(      '--POIs',         dest='POIs',         help='parameters of interest', default='r,BtagEff',       type='string')
     parser.add_option(      '--unblind',      dest='unblind',      help='unblind',                action='store_true')
     (opt, args) = parser.parse_args()
 
@@ -388,18 +388,18 @@ def main():
             fitScriptUrl=prepareFitScript(datacard=datacard,POIs=POIs,unblind=opt.unblind)
             print 'Fit script for %s available at %s'%(cat,fitScriptUrl)
             os.system('sh %s'%fitScriptUrl)
-
-    #compareNuisances(resultsSet=resultsSet,output=opt.output)
+            
+    compareNuisances(resultsSet=resultsSet,output=opt.output)
     
-    #for parameter in POIs:
-    #    show1DLikelihoodScan(resultsSet=resultsSet,parameter=parameter,output=opt.output)
+    for parameter in POIs:
+        show1DLikelihoodScan(resultsSet=resultsSet,parameter=parameter,output=opt.output)
 
 
-    ROOT.gROOT.LoadMacro('src/RootTools.cc+')
+    #ROOT.gROOT.LoadMacro('src/RootTools.cc+')
 
-    for i in xrange(0,len(POIs)):
-        for j in xrange(i+1,len(POIs)):
-            show2DLikelihoodScan(resultsSet,parameters=[POIs[i],POIs[j]])
+    #for i in xrange(0,len(POIs)):
+    #    for j in xrange(i+1,len(POIs)):
+    #        show2DLikelihoodScan(resultsSet,parameters=[POIs[i],POIs[j]])
     
             
 
