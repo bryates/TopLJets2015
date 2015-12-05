@@ -9,7 +9,7 @@ import pickle
 """
 test if variation is significant enough i.e. if sum_{bins} |var-nom| > tolerance
 """
-def acceptVariationForDataCard(nomH,upH,downH,tol=1e-3):
+def acceptVariationForDataCard(nomH,upH,downH,tol=1e-2):
     diffUp,diffDown=0,0
     for xbin in xrange(1,nomH.GetNbinsX()):
         val,valUp,valDown=nomH.GetBinContent(xbin),upH.GetBinContent(xbin),downH.GetBinContent(xbin)
@@ -78,12 +78,13 @@ def main():
     #configuration
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option('-i', '--input',          dest='input',       help='input plotter',          default=None,          type='string')
-    parser.add_option('-d', '--dist',           dest='dist',        help='distribution',           default='njetsnbtags', type='string')
-    parser.add_option('-s', '--signal',         dest='signal',      help='signal (csv)',           default='tbart',       type='string')
-    parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',       default='1j,2j,3j,4j', type='string')
-    parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file', default=None,          type='string')
-    parser.add_option('-o', '--output',         dest='output',      help='output directory',       default='datacards',   type='string')
+    parser.add_option('-i', '--input',          dest='input',       help='input plotter',                                      default=None,          type='string')
+    parser.add_option(      '--systInput',      dest='systInput',   help='input plotter for systs from alternative samples',   default=None,          type='string')
+    parser.add_option('-d', '--dist',           dest='dist',        help='distribution',                                       default='njetsnbtags', type='string')
+    parser.add_option('-s', '--signal',         dest='signal',      help='signal (csv)',                                       default='tbart',       type='string')
+    parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',                                   default='1j,2j,3j,4j', type='string')
+    parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file',                             default=None,          type='string')
+    parser.add_option('-o', '--output',         dest='output',      help='output directory',                                   default='datacards',   type='string')
     (opt, args) = parser.parse_args()
 
     signalList=opt.signal.split(',')
@@ -101,9 +102,14 @@ def main():
 
     #get data and nominal expectations
     fIn=ROOT.TFile.Open(opt.input)
+    systfIn=None
+    if opt.systInput:
+        systfIn=ROOT.TFile.Open(opt.systInput)
 
     #loop over categories
     for cat in catList:
+
+        print 'Iniating datacard for ',cat
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
@@ -218,7 +224,8 @@ def main():
             #('DYth',           1.041,   'lnN',    ['DY']            ,[]),
             ]
         try:
-            rateSysts.append( ('MultiJetsNorm',  qcdNormUnc[cat],  'lnU',    ['Multijetsdata']     ,[]) )
+            jetCat=cat[:-2] if cat.endswith('t') else cat
+            rateSysts.append( ('MultiJetsNorm%s'%jetCat,  qcdNormUnc[jetCat],  'lnU',    ['Multijetsdata']     ,[]) )
         except:
             pass
 
@@ -243,6 +250,59 @@ def main():
                 else:
                     datacard.write('%15s'%'-')
             datacard.write('\n')
+
+
+        #sample systematics, if available
+        if systfIn is None: continue
+        sampleSysts=[
+            ('Mtop',     {'tbart':['tbartm=169.5','tbartm=175.5'], 'tW':['tWm=169.5','tWm=175.5'] },  True),
+            #('PSscale', {'tbart':['tbartscaledown','tbartscaleup']},    True),
+            #('tWscale', {'tW':['tWscaledown','tWscaleup']},             True),            
+            ]
+        _,altExp=getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
+        for systVar, procsToApply, normalize in sampleSysts:
+
+            #prepare shapes and check if variation is significant
+            downShapes, upShapes = {}, {}
+            
+            for iproc in procsToApply:
+
+                nomH=exp[iproc]
+
+                downH  = altExp[ procsToApply[iproc][0] ]
+                if normalize : downH.Scale( nomH.Integral()/downH.Integral() )
+
+                upH    = altExp[ procsToApply[iproc][1] ] 
+                if normalize : upH.Scale( nomH.Integral()/upH.Integral() )
+
+                accept = acceptVariationForDataCard(nomH=nomH, upH=upH, downH=downH)
+                if not accept : continue
+                
+                downShapes[iproc]=downH
+                upShapes[iproc]=upH
+
+            #check if something has been accepted
+            if len(upShapes)==0 : continue
+
+            #export to shapes file
+            saveToShapesFile(outFile,downShapes,systVar+'Down')
+            saveToShapesFile(outFile,upShapes,systVar+'Up')
+
+            #write to datacard
+            datacard.write('%32s shapeN2'%systVar)
+            for sig in signalList: 
+                if sig in procsToApply:
+                    datacard.write('%15s'%'1')
+                else:
+                    datacard.write('%15s'%'-')
+            for proc in exp: 
+                if proc in signalList: continue
+                if proc in procsToApply:
+                    datacard.write('%15s'%'1')
+                else:
+                    datacard.write('%15s'%'-')
+            datacard.write('\n')
+
 
         #all done
         datacard.close()

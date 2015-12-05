@@ -124,6 +124,7 @@ private:
 
   edm::Service<TFileService> fs;
 
+  bool saveTree_;
 };
 
 //
@@ -152,7 +153,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
   eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleTightIdFullInfoMap"))),
   pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ),
-  genTtbarIdToken_(consumes<int>(iConfig.getParameter<edm::InputTag>("genTtbarId")))
+  genTtbarIdToken_(consumes<int>(iConfig.getParameter<edm::InputTag>("genTtbarId"))),
+  saveTree_( iConfig.getParameter<bool>("saveTree") )
 {
   //now do what ever initialization is needed
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -168,8 +170,11 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
 
   //create a tree for the selected events
-  tree_ = fs->make<TTree>("data","data");
-  createMiniEventTree(tree_,ev_);
+  if(saveTree_)
+    {
+      tree_ = fs->make<TTree>("data","data");
+      createMiniEventTree(tree_,ev_);
+    }
 }
 
 
@@ -193,7 +198,6 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     //require only one lepton (can be from tau, if tau not from hadron)
     int nLeptons(0);
     float lphi(0), leta(0);
-    ev_.ngenHardProc=0;
     for (size_t i = 0; i < genParticles->size(); ++i) {
       const GenParticle & genIt = (*genParticles)[i];
 
@@ -554,29 +558,28 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	{
 	  if(genJet)
 	    {
-	      std::vector <const GenParticle*> genConsts=genJet->getGenConstituents(); 
-	      for(size_t igen=0; igen<genConsts.size(); igen++)
+	      for(size_t igen=0; igen<genJet->numberOfDaughters(); igen++)
 		{
+		  const reco::Candidate*gp=genJet->daughter(igen);
 		  ev_.g_j[ev_.ngen]      = ev_.nj;
-		  ev_.g_id[ev_.ngen]     = genConsts[igen]->pdgId();
-		  ev_.g_charge[ev_.ngen] = genConsts[igen]->charge();
-		  ev_.g_px[ev_.ngen]     = genConsts[igen]->px();
-		  ev_.g_py[ev_.ngen]     = genConsts[igen]->py();
-		  ev_.g_pz[ev_.ngen]     = genConsts[igen]->pz();
+		  ev_.g_id[ev_.ngen]     = gp->pdgId();
+		  ev_.g_charge[ev_.ngen] = gp->charge();
+		  ev_.g_px[ev_.ngen]     = gp->px();
+		  ev_.g_py[ev_.ngen]     = gp->py();
+		  ev_.g_pz[ev_.ngen]     = gp->pz();
 		  ev_.ngen++;
 		}
 	    }
 
-	  const std::vector<reco::PFCandidatePtr> pfConst = j->getPFConstituents();
-	  for(size_t ipf=0; ipf<pfConst.size(); ipf++)
+	  for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
 	    {
+	      const reco::Candidate *pf=j->daughter(ipf);
 	      ev_.pf_j[ev_.npf]      = ev_.nj;
-	      ev_.pf_id[ev_.npf]     = pfConst[ipf]->pdgId();
-	      ev_.pf_charge[ev_.npf] = pfConst[ipf]->charge();
-	      ev_.pf_px[ev_.npf]     = pfConst[ipf]->px();
-	      ev_.pf_py[ev_.npf]     = pfConst[ipf]->py();
-	      ev_.pf_pz[ev_.npf]     = pfConst[ipf]
-->pz();
+	      ev_.pf_id[ev_.npf]     = pf->pdgId();
+	      ev_.pf_charge[ev_.npf] = pf->charge();
+	      ev_.pf_px[ev_.npf]     = pf->px();
+	      ev_.pf_py[ev_.npf]     = pf->py();
+	      ev_.pf_pz[ev_.npf]     = pf->pz();
 	      ev_.npf++;
 	    }
 	}
@@ -585,6 +588,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.nj++;
     }
   if(ncentralJets==0) return;
+
 
   // MET
   edm::Handle<pat::METCollection> mets;
@@ -598,7 +602,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.mt=mt;
 
   //save tree if event is interesting
-  tree_->Fill();
+  if(saveTree_) tree_->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------

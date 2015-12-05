@@ -17,6 +17,11 @@ options.register('inputDir', '',
                  VarParsing.varType.string,
                  "input directory with files to process"
                  )
+options.register('saveTree', True,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 "save summary tree"
+                 )
 options.parseArguments()
 
 process = cms.Process("MiniAnalysis")
@@ -89,8 +94,12 @@ process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
 if options.runOnData:
     print 'Adapting to run on data'
     process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/DoubleMuon/MINIAOD/PromptReco-v4/000/258/177/00000/00C9FA0D-576D-E511-B810-02163E011D21.root')
-    process.analysis.muTriggersToUse = cms.vstring('IsoMu18_v', 'IsoMu18_TriCentralPFJet50_40_30_v', 'IsoMu22_v', 'IsoMu22_TriCentralPFJet50_40_30_v', )
+    process.analysis.muTriggersToUse = cms.vstring('IsoMu22_v','IsoTkMu20_v','IsoMu18_v', 'IsoMu22_v', 'IsoMu18_TriCentralPFJet50_40_30_v', 'IsoMu22_TriCentralPFJet50_40_30_v', )
     process.analysis.elTriggersToUse = cms.vstring('Ele23_WPLoose_Gsf_v','Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30','Ele27_WPLoose_Gsf_v','Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30')
+
+if not options.saveTree:
+    print 'Summary tree won\'t be saved'
+    process.analysis.saveTree=cms.bool(False)
 
 if options.runOnData:
     process.p = cms.Path( process.egmGsfElectronIDSequence

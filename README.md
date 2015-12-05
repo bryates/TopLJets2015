@@ -95,9 +95,11 @@ After the jobs have run you can merge the outputs with
 ```
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/ -j data/samples_Run2015.json -l 2093.6
-python scripts/plotter.py -i analysis_muminus/ -j data/samples_Run2015.json -l 2093.6
-python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json -l 2093.6
+python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2093.6
+python scripts/plotter.py -i analysis_muminus/  -j data/samples_Run2015.json                           -l 2093.6
+python scripts/plotter.py -i analysis_muplus/   -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2093.6
+python scripts/plotter.py -i analysis_muminus/  -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2093.6
+python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json                           -l 2093.6
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as
@@ -112,6 +114,9 @@ To include it in the final plots you can run the plotter script again (see instr
 We use the Higgs combination tool to perform the fit of the production cross section.
 (cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit for details of the release to use).
 It currently has to be run from a CMSSW_7_1_5 release.
+
+### Cut in categories
+
 To create the datacard you can run the following script
 ```
 python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o  analysis_muplus/datacard  -q analysis_muplus/.qcdscalefactors.pck -d nbtags
@@ -135,13 +140,56 @@ cd -
 ```
 Run the fits and show the results
 ```
-python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat -o analysis_muplus/datacard
-python scripts/fitCrossSection.py "#mu^{-}"=analysis_muminus/datacard/datacard.dat -o analysis_muminus/datacard
-python scripts/fitCrossSection.py "#mu^{#pm}"=analysis_mu/datacard/datacard.dat -o analysis_mu/datacard
+python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat -o analysis_muplus/datacard &
+python scripts/fitCrossSection.py "#mu^{-}"=analysis_muminus/datacard/datacard.dat -o analysis_muminus/datacard &
+python scripts/fitCrossSection.py "#mu^{#pm}"=analysis_mu/datacard/datacard.dat -o analysis_mu/datacard &
 ```
 After all is run you can also compare the results with
 ```
 python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat  "#mu^{-}"=analysis_muminus/datacard/datacard.dat  "#mu^{#pm}"=analysis_mu/datacard/datacard.dat --noFit
+```
+
+### Full shape analysis
+
+To create the datacard you can run the following script
+```
+a=(muplus muminus)
+for i in ${a[@]}; do 
+    python scripts/createDataCard.py -i analysis_${i}/plots/plotter.root --systInput analysis_${i}/plots/syst_plotter.root -o  analysis_${i}/datacard_shape  -q analysis_${i}/.qcdscalefactors.pck -d mt     -c 1j0t,2j0t,3j0t,4j0t;
+    python scripts/createDataCard.py -i analysis_${i}/plots/plotter.root --systInput analysis_${i}/plots/syst_plotter.root -o  analysis_${i}/datacard_shape  -q analysis_${i}/.qcdscalefactors.pck -d minmlb -c 1j1t,2j1t,2j2t,3j1t,3j2t,4j1t,4j2t;
+done
+```
+Combine the datacards per category above into the final one per channel
+```
+#charge combinations
+a=(muplus muminus)
+cats=(1j0t 1j1t 2j0t 2j1t 2j2t 3j0t 3j1t 3j2t 4j0t 4j1t 4j2t)
+for i in ${a[@]}; do
+    cd analysis_${i}/datacard_shape;
+    tocombine=""
+    for c in ${cats[@]}; do
+    	tocombine="${i}${c}=datacard_${c}.dat ${tocombine}"
+    done
+    combineCards.py ${tocombine} > datacard.dat
+    cd -;
+done
+
+#final combination
+mkdir -p analysis_mu/datacard_shape
+cd analysis_mu/datacard_shape
+combineCards.py muplus=../../analysis_muplus/datacard_shape/datacard.dat muminus=../../analysis_muminus/datacard_shape/datacard.dat > datacard.dat
+cd -
+```
+Run the fits and show the results
+```
+python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard_shape/datacard.dat  -o analysis_muplus/datacard_shape --POIs r,Mtop &
+python scripts/fitCrossSection.py "#mu^{-}"=analysis_muminus/datacard_shape/datacard.dat -o analysis_muminus/datacard_shape --POIs r,Mtop &
+python scripts/fitCrossSection.py "#mu^{#pm}"=analysis_mu/datacard_shape/datacard.dat    -o analysis_mu/datacard_shape  --POIs r,Mtop &
+```
+After all is run you can also compare the results with
+```
+python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard_shape/datacard.dat  "#mu^{-}"=analysis_muminus/datacard_shape/datacard.dat  "#mu^{#pm}"=analysis_mu/datacard_shape/datacard.dat --noFit
+python scripts/fitCrossSection.py "#mu(c&c)"=analysis_muplus/datacard/datacard.dat  "#mu(shape)"=analysis_mu/datacard_shape/datacard.dat --noFit
 ```
 
 

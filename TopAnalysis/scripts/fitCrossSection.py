@@ -8,7 +8,7 @@ import ROOT
 
 POItitles={'r':'#mu=#sigma/#sigma_{th}',
            'BtagEff':'kx#sigma_{varepsilon_{b}}',
-           'mtop':'m_{t} [GeV]'}
+           'Mtop':'m_{t} [GeV]'}
 
 """
 common CMS label
@@ -39,8 +39,8 @@ def prepareFitScript(datacard,POIs,unblind=False):
     fitScript.write('\n# likelihood scans\n')
     for parameter in POIs:
 
-        minParVal=0.5 if parameter=='r' else -3.0
-        maxParVal=1.5 if parameter=='r' else +3.0
+        minParVal=0.8 if parameter=='r' else -2.0
+        maxParVal=1.2 if parameter=='r' else +2.0
         rangeOpt='--setPhysicsModelParameterRanges %s=%f,%f'%(parameter,minParVal,maxParVal)
 
         poiOpt='' if parameter=='r' else '--redefineSignalPOIs %s'%parameter
@@ -56,10 +56,9 @@ def prepareFitScript(datacard,POIs,unblind=False):
                             
         fitScript.write('\n## function of %s\n'%parameter)
         fitScript.write('echo \"Running likelihood scan for %s\"\n'%parameter)
-        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=200 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))     
-        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=200 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
+        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=100 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
         fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_%s.root\n'%parameter)
-        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=200 %s %s -m 0 -S 0\n'%(parameter,rangeOpt,poiOpt))
+        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=100 %s %s -m 0 -S 0\n'%(parameter,rangeOpt,poiOpt))
         fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_stat_%s.root\n'%parameter)
         if unblind:
             fitScript.write('combine workspace.root -M MultiDimFit -P %s --algo=grid --points=200 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
@@ -70,19 +69,18 @@ def prepareFitScript(datacard,POIs,unblind=False):
     fitScript.write('\n# 2D likelihood scans\n')
     for i in xrange(0,len(POIs)):
         for j in xrange(i+1,len(POIs)):
-
-            minPiVal=0.5 if POIs[i]=='r' else -3.0
-            maxPiVal=1.5 if POIs[i]=='r' else +3.0
-            minPjVal=0.5 if POIs[j]=='r' else -3.0
-            maxPjVal=1.5 if POIs[j]=='r' else +3.0
+            minPiVal=0.8 if POIs[i]=='r' else -2.0
+            maxPiVal=1.2 if POIs[i]=='r' else +2.0
+            minPjVal=0.8 if POIs[j]=='r' else -2.0
+            maxPjVal=1.2 if POIs[j]=='r' else +2.0
             rangeOpt='--setPhysicsModelParameterRanges %s=%f,%f:%s=%f,%f'%(POIs[i],minPiVal,maxPiVal,POIs[j],minPjVal,maxPjVal)
             
             fitScript.write('## function of %s,%s\n'%(POIs[i],POIs[j]))
             fitScript.write('echo \"Running 2D likelihood scan for %s vs %s\"\n'%(POIs[i],POIs[j]))
-            fitScript.write('combine workspace.root -M MultiDimFit --redefineSignalPOIs %s,%s -P %s -P %s  -t -1 --expectSignal=1 --algo=grid --points=5000 %s -m 0\n'%(POIs[i],POIs[j],POIs[i],POIs[j],rangeOpt)) 
+            fitScript.write('combine workspace.root -M MultiDimFit --redefineSignalPOIs %s,%s -P %s -P %s  -t -1 --expectSignal=1 --algo=grid --points=1000 %s -m 0\n'%(POIs[i],POIs[j],POIs[i],POIs[j],rangeOpt)) 
             fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root  exp_plr_scan_%svs%s.root\n'%(POIs[i],POIs[j]))
             if unblind:
-                fitScript.write('combine workspace.root -M MultiDimFit --redefineSignalPOIs %s,%s -P %s -P %s --algo=grid --points=10000  %s -m 0\n'%(POIs[i],POIs[j],POIs[i],POIs[j],rangeOpt)) 
+                fitScript.write('combine workspace.root -M MultiDimFit --redefineSignalPOIs %s,%s -P %s -P %s --algo=grid --points=1000  %s -m 0\n'%(POIs[i],POIs[j],POIs[i],POIs[j],rangeOpt)) 
                 fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_%svs%s.root\n'%(POIs[i],POIs[j]))
 
     fitScript.write('\ncd -\n')
@@ -132,6 +130,8 @@ def show1DLikelihoodScan(resultsSet,parameter='r',output='./'):
                 if nll>20 : continue
                 npoint=nllGrs[ftitle][-1].GetN()
                 parVal=getattr(tree,parameter)
+                if parameter=='Mtop':
+                    parVal=parVal*3+172.5
                 nllGrs[ftitle][-1].SetPoint(npoint,parVal,nll)
             nllGrs[ftitle][-1].Sort()
             fIn.Close()
@@ -144,6 +144,7 @@ def show1DLikelihoodScan(resultsSet,parameter='r',output='./'):
     c.SetRightMargin(0.05)
     minParVal=0.8 if parameter=='r' else -2.0
     maxParVal=1.2 if parameter=='r' else +2.0
+    if parameter=='Mtop' : minParVal,maxParVal=166.5,178.5
     frame=ROOT.TH1F('frame',';%s;-2#DeltalnL'%POItitles[parameter],100,minParVal,maxParVal)
     frame.Draw()
     frame.GetYaxis().SetRangeUser(0,10)
@@ -378,7 +379,7 @@ def main():
 
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
-    ROOT.gROOT.SetBatch(False)
+    ROOT.gROOT.SetBatch(True) #False)
        
     resultsSet=[]
     for newCat in args:
