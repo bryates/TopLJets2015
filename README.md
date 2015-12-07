@@ -35,7 +35,7 @@ Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/4a77bd2 -o /store/cmst3/user/psilva/LJets2015/5736a2c
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/b18c191 -o /store/cmst3/user/psilva/LJets2015/b18c191
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
