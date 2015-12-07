@@ -34,16 +34,25 @@ def getDistsFrom(directory):
             obs.SetDirectory(0)
         else : 
             newName=obj.GetName().split(dirName+'_')[-1]
-            for token in ['+','-','*',' ','#','{','(',')','}']:
+            for token in ['+','-','*',' ','#','{','(',')','}','@']:
                 newName=newName.replace(token,'')
             exp[newName]=obj.Clone(newName)
             exp[newName].SetDirectory(0)
-            for xbin in xrange(1,exp[newName].GetXaxis().GetNbins()+1):
-                binContent=exp[newName].GetBinContent(xbin)
-                if binContent>0: continue
-                newBinContent=ROOT.TMath.Max(ROOT.TMath.Abs(binContent),1e-3)
-                exp[newName].SetBinContent(xbin,newBinContent)
-                exp[newName].SetBinError(xbin,newBinContent)
+            if exp[newName].InheritsFrom('TH2'):
+                for xbin in xrange(1,exp[newName].GetNbinsX()+1):
+                    for ybin in xrange(1,exp[newName].GetNbinsY()+1):
+                        binContent=exp[newName].GetBinContent(xbin,ybin)
+                        if binContent>0: continue
+                        newBinContent=ROOT.TMath.Max(ROOT.TMath.Abs(binContent),1e-3)
+                        exp[newName].SetBinContent(xbin,ybin,newBinContent)
+                        exp[newName].SetBinError(xbin,ybin,newBinContent)
+            else:
+                for xbin in xrange(1,exp[newName].GetNbinsX()+1):
+                    binContent=exp[newName].GetBinContent(xbin)
+                    if binContent>0: continue
+                    newBinContent=ROOT.TMath.Max(ROOT.TMath.Abs(binContent),1e-3)
+                    exp[newName].SetBinContent(xbin,newBinContent)
+                    exp[newName].SetBinError(xbin,newBinContent)
     return obs,exp
 
 """
@@ -219,9 +228,7 @@ def main():
 
         #rate systematics
         rateSysts=[
-            #('lumi',           1.12,    'lnN',    []                ,['Multijetsdata','tbart']),
-            #('Wth',            1.041,   'lnN',    ['Wl','Wc','Wb']  ,[]),
-            #('DYth',           1.041,   'lnN',    ['DY']            ,[]),
+            ('lumi',           1.046,    'lnN',    []                ,['Multijetsdata']),
             ]
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
@@ -251,16 +258,24 @@ def main():
                     datacard.write('%15s'%'-')
             datacard.write('\n')
 
-
-        #sample systematics, if available
+        #generator level systematics 
         if systfIn is None: continue
         sampleSysts=[
-            ('Mtop',     {'tbart':['tbartm=169.5','tbartm=175.5'], 'tW':['tWm=169.5','tWm=175.5'] },  True),
-            #('PSscale', {'tbart':['tbartscaledown','tbartscaleup']},    True),
-            #('tWscale', {'tW':['tWscaledown','tWscaleup']},             True),            
+            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True , True),
+            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                True , True),
+            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      True , True),            
+            ('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                True , True),
+            #('Hadronizer',      {'tbart'         : ['tbartaMCatNLO']},                                                                True , True),
+            ('wFactScale',           { 'Wl': ['mur1muf0.5','mur1muf2'],   'Wc': ['mur1muf0.5','mur1muf2'],  'Wb': ['mur1muf0.5','mur1muf2'] },   False, False),
+            ('wRenScale',            { 'Wl': ['mur0.5muf1','mur2muf1'],   'Wc': ['mur0.5muf1','mur2muf1'],  'Wb': ['mur0.5muf1','mur2muf1'] },   False, False),
+            ('wCombScale',           { 'Wl': ['mur0.5muf0.5','mur2muf2'], 'Wc': ['mur0.5muf0.5','mur2muf2'],'Wb': ['mur0.5muf0.5','mur2muf2'] }, False, False),
+            ('ttFactScale',          { 'tbart': ['muR1muF0.5','muR1muF2'] },                                                                     False , False),
+            ('ttRenScale',           { 'tbart': ['muR0.5muF1','muR2muF1'] },                                                                     False , False),
+            ('ttCombScale',          { 'tbart': ['muR0.5muF0.5','muR2muF2'] },                                                                    False , False),
             ]
-        _,altExp=getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
-        for systVar, procsToApply, normalize in sampleSysts:
+        _,genVarShapes = getDistsFrom(directory=fIn.Get('%sshapes_%s_gen'%(opt.dist,cat)))
+        _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
+        for systVar, procsToApply, normalize, useAltShape in sampleSysts:
 
             #prepare shapes and check if variation is significant
             downShapes, upShapes = {}, {}
@@ -269,15 +284,40 @@ def main():
 
                 nomH=exp[iproc]
 
-                downH  = altExp[ procsToApply[iproc][0] ]
-                if normalize : downH.Scale( nomH.Integral()/downH.Integral() )
+                #check which shape to use
+                if useAltShape:
 
-                upH    = altExp[ procsToApply[iproc][1] ] 
+                    #get directly from another file
+                    downH  = altExp[ procsToApply[iproc][0] ]
+                    if len( procsToApply[iproc] ) > 1 :
+                        upH    = altExp[ procsToApply[iproc][1] ]
+                    else:
+                        #if only one variation is available, mirror it
+                        upH = downH.Clone( '%s%sUp'%(iproc,systVar) )
+                        for xbin in xrange(1,upH.GetNbinsX()+1):
+                            diff=upH.GetBinContent(xbin)-nomH.GetBinContent(xbin)
+                            upH.SetBinContent(xbin,nomH.GetBinContent(xbin)-diff)
+                else:
+
+                    #project from 2D histo (re-weighted from nominal sample)
+                    ybinUp, ybinDown = -1, -1
+                    for ybin in xrange(1,genVarShapes[ iproc ].GetNbinsY()+1):
+                        label = genVarShapes[ iproc ].GetYaxis().GetBinLabel(ybin)
+                        if procsToApply[iproc][0] in label : ybinDown=ybin
+                        if procsToApply[iproc][1] in label : ybinUp=ybin
+
+                    downH = genVarShapes[ iproc ].ProjectionX('%s%sDown'%(iproc,systVar), ybinDown, ybinDown)
+                    upH   = genVarShapes[ iproc ].ProjectionX('%s%sUp'%(iproc,systVar),   ybinUp,   ybinUp)
+
+                #normalize (shape only variation is considered)
+                if normalize : downH.Scale( nomH.Integral()/downH.Integral() ) 
                 if normalize : upH.Scale( nomH.Integral()/upH.Integral() )
 
+                #check if variation is meaningful
                 accept = acceptVariationForDataCard(nomH=nomH, upH=upH, downH=downH)
                 if not accept : continue
                 
+                #save
                 downShapes[iproc]=downH
                 upShapes[iproc]=upH
 
