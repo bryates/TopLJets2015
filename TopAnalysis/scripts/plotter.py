@@ -76,7 +76,7 @@ class Plot(object):
             except:
                 pass
 
-    def show(self, outDir,lumi,noScale=False,saveTeX=False):
+    def show(self, outDir,lumi,noScale=False,noStack=False,saveTeX=False):
 
         if len(self.mc)<2 and self.dataH is None:
             print '%s has 0 or 1 MC!' % self.name
@@ -130,6 +130,11 @@ class Plot(object):
         totalMC = None
         stack = ROOT.THStack('mc','mc')
         for h in self.mc:
+
+            if noStack:
+                self.mc[h].SetFillStyle(0)
+                self.mc[h].SetLineColor(self.mc[h].GetFillColor())
+
             stack.Add(self.mc[h],'hist')
             try:
                 totalMC.Add(self.mc[h])
@@ -167,7 +172,9 @@ class Plot(object):
         frame.GetYaxis().SetNoExponent()
         frame.Draw()
         frame.GetYaxis().SetTitleOffset(1.3)
-        if totalMC is not None   : stack.Draw('hist same')
+        if totalMC is not None   : 
+            if noStack: stack.Draw('nostack same')
+            else      : stack.Draw('hist same')
         if self.data is not None : self.data.Draw('p')
 
 
@@ -336,6 +343,7 @@ def main():
     parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
     parser.add_option('-i', '--inDir',       dest='inDir' ,      help='input directory',                default=None,              type='string')
     parser.add_option('-o', '--outName',     dest='outName' ,    help='name of the output file',        default='plotter.root',    type='string')
+    parser.add_option(      '--noStack',     dest='noStack',     help='don\'t stack distributions',     default=False,             action='store_true')
     parser.add_option(      '--saveLog',     dest='saveLog' ,    help='save log versions of the plots', default=False,             action='store_true')
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
@@ -390,7 +398,7 @@ def main():
     os.system('mkdir -p %s' % outDir)
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,saveTeX=opt.saveTeX)
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
         plots[p].appendTo('%s/%s'%(outDir,opt.outName))
         plots[p].reset()
 
