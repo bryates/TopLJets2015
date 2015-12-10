@@ -203,27 +203,28 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     //require only one lepton (can be from tau, if tau not from hadron)
     int nLeptons(0);
     float lphi(0), leta(0);
-    for (size_t i = 0; i < genParticles->size(); ++i) {
-      
-      const GenParticle & genIt = (*genParticles)[i];
-      if(genIt.isHardProcess())
-	{
-	  ev_.ghp_id[ ev_.ngenHardProc ]  = genIt.pdgId();
-	  ev_.ghp_pt[ ev_.ngenHardProc ]  = genIt.pt();
-	  ev_.ghp_eta[ ev_.ngenHardProc ] = genIt.eta();
-	  ev_.ghp_phi[ ev_.ngenHardProc ] = genIt.phi();
-	  ev_.ghp_m[ ev_.ngenHardProc ]   = genIt.mass();
-	  ev_.ngenHardProc++;
-	}
-
-      if(!genIt.isPromptFinalState() && !genIt.isDirectPromptTauDecayProductFinalState()) continue;
-      int ID = abs(genIt.pdgId());
-      if(ID!=11 && ID!=13) continue;
-      if(genIt.pt()<20 || fabs(genIt.eta())>2.5) continue;
-      nLeptons++;
-      lphi=genIt.phi();
-      leta=genIt.eta();
-    }
+    for (size_t i = 0; i < genParticles->size(); ++i) 
+      {
+	
+	const GenParticle & genIt = (*genParticles)[i];
+	if(genIt.isHardProcess())
+	  {
+	    ev_.ghp_id[ ev_.ngenHardProc ]  = genIt.pdgId();
+	    ev_.ghp_pt[ ev_.ngenHardProc ]  = genIt.pt();
+	    ev_.ghp_eta[ ev_.ngenHardProc ] = genIt.eta();
+	    ev_.ghp_phi[ ev_.ngenHardProc ] = genIt.phi();
+	    ev_.ghp_m[ ev_.ngenHardProc ]   = genIt.mass();
+	    ev_.ngenHardProc++;
+	  }
+	
+	if(!genIt.isPromptFinalState() && !genIt.isDirectPromptTauDecayProductFinalState()) continue;
+	int ID = abs(genIt.pdgId());
+	if(ID!=11 && ID!=13) continue;
+	if(genIt.pt()<20 || fabs(genIt.eta())>2.5) continue;
+	nLeptons++;
+	lphi=genIt.phi();
+	leta=genIt.eta();
+      }
     if(nLeptons!=1) return 0;
     
     //require 1 jets not overlapping with lepton
@@ -323,11 +324,12 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       edm::Handle<std::vector <PileupSummaryInfo> > PupInfo;
       iEvent.getByLabel("slimmedAddPileupInfo", PupInfo);
       std::vector<PileupSummaryInfo>::const_iterator ipu;
-      for (ipu = PupInfo->begin(); ipu != PupInfo->end(); ++ipu) {
-	if ( ipu->getBunchCrossing() != 0 ) continue; // storing detailed PU info only for BX=0
-	ev_.pu=ipu->getPU_NumInteractions();
-	ev_.putrue=ipu->getTrueNumInteractions();
-      }
+      for (ipu = PupInfo->begin(); ipu != PupInfo->end(); ++ipu) 
+	{
+	  if ( ipu->getBunchCrossing() != 0 ) continue; // storing detailed PU info only for BX=0
+	  ev_.pu=ipu->getPU_NumInteractions();
+	  ev_.putrue=ipu->getTrueNumInteractions();
+	}
     }
  
   //TRIGGER INFORMATION
@@ -365,7 +367,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //LEPTON SELECTION
   //
   ev_.nl=0;
-
 
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;
