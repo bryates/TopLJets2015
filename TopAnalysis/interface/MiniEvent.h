@@ -16,10 +16,11 @@ struct MiniEvent_t
   Float_t rho;
   
   Int_t muTrigger,elTrigger;
-  
-  Bool_t isPromptFinalState, isDirectPromptTauDecayProductFinalState;
-  Int_t l_id,l_charge;
-  Float_t l_pt,l_eta,l_phi, l_mass, l_chargedHadronIso, l_neutralHadronIso, l_photonIso, l_puChargedHadronIso,l_ip3d,l_ip3dsig;
+
+  Int_t nl;
+  Bool_t isPromptFinalState[50], isDirectPromptTauDecayProductFinalState[50];
+  Int_t l_id[50],l_charge[50],l_pid[50];
+  Float_t l_pt[50],l_eta[50],l_phi[50], l_mass[50], l_miniIso[50], l_chargedHadronIso[50], l_relIso[50], l_ip3d[50], l_ip3dsig[50];
 
   Int_t nj,ngenj;
   Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200];
@@ -39,10 +40,8 @@ struct MiniEvent_t
   Int_t ghp_id[100];
   Float_t ghp_pt[100],ghp_eta[100],ghp_phi[100],ghp_m[100];
 
-  Float_t met_pt,met_phi,mt;
-
-  Int_t me_id,me_np,me_pid[25];
-  Float_t me_px[25],me_py[25],me_pz[25],me_mass[25];
+  Int_t nmet;
+  Float_t met_pt[10],met_phi[10];
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);

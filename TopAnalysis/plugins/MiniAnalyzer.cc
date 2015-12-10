@@ -105,7 +105,7 @@ private:
   edm::EDGetTokenT<edm::View<pat::Electron>  >  electronToken_;
   edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > qgToken_;
-  edm::EDGetTokenT<pat::METCollection> metToken_;
+  edm::EDGetTokenT<pat::METCollection> metToken_, metNoHFToken_, puppiMetToken_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
 
   //Electron Decisions
@@ -151,6 +151,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   jetToken_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   qgToken_(consumes<edm::ValueMap<float>>(edm::InputTag("QGTagger", "qgLikelihood"))),
   metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+  metNoHFToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("metsnoHF"))),
+  puppiMetToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("puppimets"))),
   pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"))),
   eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
@@ -202,15 +204,15 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     int nLeptons(0);
     float lphi(0), leta(0);
     for (size_t i = 0; i < genParticles->size(); ++i) {
+      
       const GenParticle & genIt = (*genParticles)[i];
-
       if(genIt.isHardProcess())
 	{
-	  ev_.ghp_id[ ev_.ngenHardProc ] = genIt.pdgId();
-	  ev_.ghp_pt[ ev_.ngenHardProc ] = genIt.pt();
+	  ev_.ghp_id[ ev_.ngenHardProc ]  = genIt.pdgId();
+	  ev_.ghp_pt[ ev_.ngenHardProc ]  = genIt.pt();
 	  ev_.ghp_eta[ ev_.ngenHardProc ] = genIt.eta();
 	  ev_.ghp_phi[ ev_.ngenHardProc ] = genIt.phi();
-	  ev_.ghp_m[ ev_.ngenHardProc ] = genIt.mass();
+	  ev_.ghp_m[ ev_.ngenHardProc ]   = genIt.mass();
 	  ev_.ngenHardProc++;
 	}
 
@@ -251,7 +253,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event(); 
-  ev_.isData=iEvent.isRealData();
+  ev_.isData  = iEvent.isRealData();
 
   //VERTICES
   edm::Handle<reco::VertexCollection> vertices;
@@ -272,7 +274,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //GENERATOR LEVEL INFO
   ev_.isFiducial = true;  
   ev_.ttbar_nw=0;
-  ev_.me_np=0;
   ev_.ngenj=0;
   ev_.ttbar_genId=0;
   ev_.ngenHardProc=0;
@@ -306,19 +307,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	    ev_.ttbar_w[ev_.ttbar_nw]=ev_.ttbar_w[0]*asdde/asdd;
 	    ev_.ttbar_nw++;
 	  }
-	  
-	  const lhef::HEPEUP &hepeup=evet->hepeup();
-	  ev_.me_id=hepeup.IDPRUP;
-	  for(int ip=0;ip<hepeup.NUP; ip++)
-	    {
-	      ev_.me_pid[ev_.me_np]=hepeup.IDUP[ip];
-	      ev_.me_px[ev_.me_np]=hepeup.PUP[ip][0];
-	      ev_.me_py[ev_.me_np]=hepeup.PUP[ip][1];
-	      ev_.me_pz[ev_.me_np]=hepeup.PUP[ip][2];
-	      ev_.me_mass[ev_.me_np]=hepeup.PUP[ip][4];
-	      ev_.me_np++;
-	    }
-
 	}
       
       for(Int_t igenjet=0; igenjet<5; igenjet++)
@@ -369,34 +357,56 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   bool passElTrigger(ev_.isData ? ev_.elTrigger!=0 : true);  
   if(!passMuTrigger && !passElTrigger) return;
  
+  //PF candidates
+  edm::Handle<pat::PackedCandidateCollection> pfcands;
+  iEvent.getByToken(pfToken_,pfcands);
+
+  //
+  //LEPTON SELECTION
+  //
+  ev_.nl=0;
+
 
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
-  std::vector<const pat::Muon *> selectedMuons,selectedNonIsoMuons,vetoMuons,vetoNonIsoMuons;        
+  Int_t nmu(0);
   for (const pat::Muon &mu : *muons) 
     { 
       //kinematics
-      bool passPt( mu.pt() > 30 );
-      bool passVetoPt( mu.pt() > 10 );
-      bool passEta(fabs(mu.eta()) < 2.1 );
-      bool passVetoEta(fabs(mu.eta()) < 2.4 );
-    
+      bool passPt( mu.pt() > 10 );
+      bool passEta(fabs(mu.eta()) < 2.4 );
+      if(!passPt || !passEta) continue;
+
       //ID
       bool isMedium(muon::isMediumMuon(mu));
       bool isTight(muon::isTightMuon(mu,primVtx));
-
-      //isolation
-      //float relchIso = mu.chargedHadronIso()/mu.pt(); 
-      float relIsoDeltaBeta( (mu.pfIsolationR04().sumChargedHadronPt + max(0., mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5*mu.pfIsolationR04().sumPUPt))/mu.pt() ); 
-      bool passIso( relIsoDeltaBeta  < 0.15 );
-      bool passVetoIso( relIsoDeltaBeta  < 0.25 );
-
-      //MUON SELECTION
-      if(passPt && passEta)                                           selectedNonIsoMuons.push_back( &mu );
-      else if(passVetoPt && passVetoEta && isMedium && passVetoIso)   vetoNonIsoMuons.push_back( &mu );
-      if(passPt &&  passEta && isTight && passIso)                    selectedMuons.push_back( &mu );	
-      else if(passVetoPt && passVetoEta && isMedium && passVetoIso)   vetoMuons.push_back( &mu );
+      if(!((isMedium && mu.pt()>10) || (isTight && mu.pt()>30))) continue;
+      
+      //save it
+      const reco::GenParticle * gen=mu.genLepton(); 
+      ev_.isPromptFinalState[ev_.nl] = gen ? gen->isPromptFinalState() : false;
+      ev_.isDirectPromptTauDecayProductFinalState[ev_.nl] = gen ? gen->isDirectPromptTauDecayProductFinalState() : false;
+      ev_.l_id[ev_.nl]=13;
+      ev_.l_charge[ev_.nl]=mu.charge();
+      ev_.l_pt[ev_.nl]=mu.pt();
+      ev_.l_eta[ev_.nl]=mu.eta();
+      ev_.l_phi[ev_.nl]=mu.phi();
+      ev_.l_mass[ev_.nl]=mu.mass();
+      ev_.l_pid[ev_.nl]=(isMedium | (isTight<<1));
+      ev_.l_chargedHadronIso[ev_.nl]=mu.pfIsolationR04().sumChargedHadronPt;
+      ev_.l_miniIso[ev_.nl]=getMiniIsolation(pfcands,&mu,0.05,0.2, 10., false);
+      ev_.l_relIso[ev_.nl]=(mu.pfIsolationR04().sumChargedHadronPt + max(0., mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5*mu.pfIsolationR04().sumPUPt))/mu.pt();
+      ev_.l_ip3d[ev_.nl] = -9999.;
+      ev_.l_ip3dsig[ev_.nl] = -9999;
+      if(mu.innerTrack().get())
+	{
+	  std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::TrackRef>(mu.innerTrack(), primVtxRef, iSetup, true);
+	  ev_.l_ip3d[ev_.nl]    = ip3dRes.second.value();
+	  ev_.l_ip3dsig[ev_.nl] = ip3dRes.second.significance();
+	}
+      ev_.nl++;
+      if (isTight && mu.pt()>30) nmu++;
     }
   
   // ELECTRON SELECTION: cf. https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
@@ -407,97 +417,60 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<edm::ValueMap<vid::CutFlowResult> > tight_id_cutflow_data;
   iEvent.getByToken(eleTightIdFullInfoMapToken_,tight_id_cutflow_data);
   edm::Handle<edm::View<pat::Electron> >    electrons;
-  iEvent.getByToken(electronToken_, electrons);  
-  std::vector<const pat::Electron *> selectedElectrons, selectedNonIsoElectrons, vetoElectrons, vetoNonIsoElectrons;
+  iEvent.getByToken(electronToken_, electrons);    
   Int_t nele(0);
   for (const pat::Electron &el : *electrons) 
     {        
       const auto e = electrons->ptrAt(nele); 
-      nele++;
 
       //kinematics cuts
-      bool passPt(e->pt() > 30.0);
-      bool passVetoPt(e->pt() > 15.0);
+      bool passPt(e->pt() > 15.0);
       bool passEta(fabs(e->eta()) < 2.5 && (fabs(e->superCluster()->eta()) < 1.4442 || fabs(e->superCluster()->eta()) > 1.5660));
-      
+      if(!passPt || !passEta) continue;
+     
       //look up id decisions
       bool passVetoId = (*veto_id_decisions)[e];
       bool passTightId  = (*tight_id_decisions)[e];
       vid::CutFlowResult fullCutFlowData = (*tight_id_cutflow_data)[e];
-      bool passTightIdNoIso(true);
-      int ncuts = fullCutFlowData.cutFlowSize();
-      for(int icut = 0; icut<ncuts; icut++)
-	{
-	  if(icut==9 && fullCutFlowData.getCutResultByIndex(icut) ) passTightIdNoIso=false;
-	  if(icut!=9 && !fullCutFlowData.getCutResultByIndex(icut)) passTightIdNoIso=false;
+      bool passTightIdExceptIso(true);
+      for(size_t icut = 0; icut<fullCutFlowData.cutFlowSize(); icut++)
+ 	{
+	  //if(icut==9 && fullCutFlowData.getCutResultByIndex(icut) ) passTightIdNoIso=false;
+	  if(icut!=9 && !fullCutFlowData.getCutResultByIndex(icut)) passTightIdExceptIso=false;
 	}
-      
-      if(passPt && passEta && passTightIdNoIso )   selectedNonIsoElectrons.push_back(&el);
-      else if(passVetoPt && passEta && passVetoId) vetoNonIsoElectrons.push_back(&el);
+      if( !((passVetoId && e->pt()>15) || (passTightIdExceptIso && e->pt()>30) ) ) continue;
 
-      if(passPt && passEta && passTightId )        selectedElectrons.push_back(&el);
-      else if(passVetoPt && passEta && passVetoId) vetoElectrons.push_back(&el);
+      //save the electron
+      const reco::GenParticle * gen=el.genLepton(); 
+      ev_.isPromptFinalState[ev_.nl] = gen ? gen->isPromptFinalState() : false;
+      ev_.isDirectPromptTauDecayProductFinalState[ev_.nl] = gen ? gen->isDirectPromptTauDecayProductFinalState() : false;
+      ev_.l_id[ev_.nl]=11;
+      ev_.l_pid[ev_.nl]=(passVetoId | (passTightId<<1) | (passTightIdExceptIso<<2));
+      ev_.l_charge[ev_.nl]=e->charge();
+      ev_.l_pt[ev_.nl]=e->pt();
+      ev_.l_eta[ev_.nl]=e->eta();
+      ev_.l_phi[ev_.nl]=e->phi();
+      ev_.l_mass[ev_.nl]=e->mass();
+      ev_.l_miniIso[ev_.nl]=getMiniIsolation(pfcands,&el,0.05, 0.2, 10., false);
+      //ev_.l_relIso[ev_.nl]=fullCutFlowData.getValueCutUpon(9);
+      ev_.l_relIso[ev_.nl]=(el.chargedHadronIso()+ max(0., el.neutralHadronIso() + el.photonIso()  - 0.5*el.puChargedHadronIso()))/el.pt();     
+      ev_.l_chargedHadronIso[ev_.nl]=el.chargedHadronIso();
+      ev_.l_ip3d[ev_.nl] = -9999.;
+      ev_.l_ip3dsig[ev_.nl] = -9999;
+      if(el.gsfTrack().get())
+	{
+	  std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::GsfTrackRef>(el.gsfTrack(), primVtxRef, iSetup, true);
+	  ev_.l_ip3d[ev_.nl]    = ip3dRes.second.value();
+	  ev_.l_ip3dsig[ev_.nl] = ip3dRes.second.significance();
+	}
+      ev_.nl++;
+      if(passTightIdExceptIso && e->pt()>30) nele++;
     }
 
-  //require only 1 tight lepton in the event
-  bool passLepton((passMuTrigger && selectedMuons.size()==1) || (passElTrigger && selectedElectrons.size()==1));
-  bool passNonIsoLepton((passMuTrigger && selectedNonIsoMuons.size()==1) || (passElTrigger && selectedNonIsoElectrons.size()==1));
-  if(!passLepton && !passNonIsoLepton) return;
-  if(passMuTrigger && (selectedMuons.size()==1 || selectedNonIsoMuons.size()==1))
-    {
-      const pat::Muon *mu=(selectedMuons.size()==1 ? selectedMuons[0] : selectedNonIsoMuons[0]);
-      const reco::GenParticle * gen=mu->genLepton(); 
-      ev_.isPromptFinalState = gen ? gen->isPromptFinalState() : false;
-      ev_.isDirectPromptTauDecayProductFinalState = gen ? gen->isDirectPromptTauDecayProductFinalState() : false;
-      ev_.l_id=(selectedMuons.size()==1 ? 13 :  1300);
-      ev_.l_charge=mu->charge();
-      ev_.l_pt=mu->pt();
-      ev_.l_eta=mu->eta();
-      ev_.l_phi=mu->phi();
-      ev_.l_mass=mu->mass();
-      ev_.l_chargedHadronIso=mu->pfIsolationR04().sumChargedHadronPt;
-      ev_.l_neutralHadronIso=mu->pfIsolationR04().sumNeutralHadronEt;
-      ev_.l_photonIso=mu->pfIsolationR04().sumPhotonEt;
-      ev_.l_puChargedHadronIso=mu->pfIsolationR04().sumPUPt;
-      ev_.l_ip3d = -9999.;
-      ev_.l_ip3dsig = -9999;
-      if(mu->innerTrack().get())
-	{
-	  std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::TrackRef>(mu->innerTrack(), primVtxRef, iSetup, true);
-	  ev_.l_ip3d    = ip3dRes.second.value();
-	  ev_.l_ip3dsig = ip3dRes.second.significance();
-	}
-    }
-  if(passElTrigger && (selectedElectrons.size()==1 || selectedNonIsoElectrons.size()))
-    {     
-      const pat::Electron *el=(selectedElectrons.size()==1 ? selectedElectrons[0] : selectedNonIsoElectrons[0]);
-      const reco::GenParticle * gen=el->genLepton(); 
-      ev_.isPromptFinalState = gen ? gen->isPromptFinalState() : false;
-      ev_.isDirectPromptTauDecayProductFinalState = gen ? gen->isDirectPromptTauDecayProductFinalState() : false;
-      ev_.l_id=(selectedElectrons.size()==1 ? 11 :  1100);
-      ev_.l_charge=el->charge();
-      ev_.l_pt=el->pt();
-      ev_.l_eta=el->eta();
-      ev_.l_phi=el->phi();
-      ev_.l_mass=el->mass();
-      ev_.l_chargedHadronIso=el->chargedHadronIso();
-      ev_.l_neutralHadronIso=el->neutralHadronIso();
-      ev_.l_photonIso=el->photonIso();
-      ev_.l_puChargedHadronIso=el->puChargedHadronIso();
-      ev_.l_ip3d = -9999.;
-      ev_.l_ip3dsig = -9999;
-      if(el->gsfTrack().get())
-	{
-	  std::pair<bool,Measurement1D> ip3dRes = getImpactParameter<reco::GsfTrackRef>(el->gsfTrack(), primVtxRef, iSetup, true);
-	  ev_.l_ip3d    = ip3dRes.second.value();
-	  ev_.l_ip3dsig = ip3dRes.second.significance();
-	}
-    }
+  //require at least 1 tight lepton in the event
+  bool passLepton((passMuTrigger && nmu>0) || (passElTrigger && nele>0));
+  if(!passLepton) return;
 
-  //require no other leptons in the event
-  bool passVetoLepton(vetoElectrons.size()+vetoMuons.size()==0);
-  bool passNonIsoVetoLepton(vetoNonIsoElectrons.size()+vetoNonIsoMuons.size()==0);
-  if( !passVetoLepton && !passNonIsoVetoLepton) return;
   
   // JETS
   ev_.nj=0;
@@ -513,12 +486,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //kinematics
       if(j->pt()<20 || fabs(j->eta())>4.7) continue;
 
-      //cross clean to selected tight leptons
-      float dR2lepton=9999.;
-      for(size_t il=0; il<selectedMuons.size(); il++)     dR2lepton = TMath::Min(dR2lepton,(float)deltaR(*j,*(selectedMuons[il])));
-      for(size_t il=0; il<selectedElectrons.size(); il++) dR2lepton = TMath::Min(dR2lepton,(float)deltaR(*j,*(selectedElectrons[il])));
-      if(dR2lepton<0.4) continue;
-      
       // PF jet ID
       pat::strbitset retpf = pfjetIDLoose_.getBitTemplate();
       retpf.set(false);
@@ -594,15 +561,16 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
   // MET
-  edm::Handle<pat::METCollection> mets;
-  iEvent.getByToken(metToken_, mets);
-  float metpt = mets->at(0).pt();
-  float metphi = mets->at(0).phi();
-  float dphi_met_lepton = deltaPhi(ev_.l_phi, metphi); 
-  float mt=sqrt(2*ev_.l_pt*metpt*(1-cos(dphi_met_lepton)));
-  ev_.met_pt=metpt;
-  ev_.met_phi=metphi;
-  ev_.mt=mt;
+  ev_.nmet=3;
+  for(int i=0; i<3; i++)
+    {
+        edm::Handle<pat::METCollection> mets;
+	if(i==0) iEvent.getByToken(metToken_, mets);
+	if(i==1) iEvent.getByToken(metNoHFToken_, mets);
+	if(i==2) iEvent.getByToken(puppiMetToken_, mets);
+	ev_.met_pt[i]=mets->at(0).pt();
+	ev_.met_phi[i]=mets->at(0).phi();
+    }
 
   //save tree if event is interesting
   if(saveTree_) tree_->Fill();
@@ -654,9 +622,9 @@ MiniAnalyzer::endRun(const edm::Run & iRun, edm::EventSetup const & iSetup)
 //-------------
 //cf. https://twiki.cern.ch/twiki/bin/view/CMS/MiniIsolationSUSY
 float MiniAnalyzer::getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
-			const reco::Candidate* ptcl,  
-                        float r_iso_min, float r_iso_max, float kt_scale,
-                        bool charged_only) 
+				     const reco::Candidate* ptcl,  
+				     float r_iso_min, float r_iso_max, float kt_scale,
+				     bool charged_only) 
 {
 
     if (ptcl->pt()<5.) return 99999.;
@@ -670,13 +638,14 @@ float MiniAnalyzer::getMiniIsolation(edm::Handle<pat::PackedCandidateCollection>
       //deadcone_ch = 0.0001; deadcone_pu = 0.01; deadcone_ph = 0.01;deadcone_nh = 0.01; // maybe use muon cones??
     }
 
-    float iso_nh(0.), iso_ch(0.), iso_ph(0.) iso_pu(0.);
+    float iso_nh(0.), iso_ch(0.), iso_ph(0.), iso_pu(0.);
     float ptThresh(0.5);
     if(ptcl->isElectron()) ptThresh = 0;
-    float r_iso = max(r_iso_min,min(r_iso_max, kt_scale/ptcl->pt()));
+    float r_iso = (float)TMath::Max((float)r_iso_min,
+				    (float)TMath::Min((float)r_iso_max, (float)(kt_scale/ptcl->pt())));
     for (const pat::PackedCandidate &pfc : *pfcands) {
       if (abs(pfc.pdgId())<7) continue;
-
+      
       float dr = deltaR(pfc, *ptcl);
       if (dr > r_iso) continue;
       

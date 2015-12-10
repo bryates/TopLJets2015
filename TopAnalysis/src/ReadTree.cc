@@ -278,6 +278,7 @@ void ReadTree(TString filename,
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       
+      /*
       //base kinematics
       TLorentzVector lp4;
       lp4.SetPtEtaPhiM(ev.l_pt,ev.l_eta,ev.l_phi,ev.l_mass);
@@ -673,6 +674,7 @@ void ReadTree(TString filename,
 		}
 	    }
 	}
+      */
     }
 
   //close input file
