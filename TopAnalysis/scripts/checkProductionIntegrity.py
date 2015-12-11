@@ -71,11 +71,14 @@ def main():
                             toAdd += 'eos/cms/%s '%f 
 
                         os.system('hadd -f %s'%toAdd)
-                        os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/' %(mergedFileName,newDir))
+                        os.system('cp %s eos/cms/%s/'%(mergedFileName,newDir))
+                        #os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/MergedMiniEvents_%d.root' %(mergedFileName,newDir,ilist))
 
                 #if still needed copy individual files
                 if moveIndividualFiles:
-                    for f in file_list : os.system('xrdcp  -f %s eos/cms/%s/' % (f, newDir) )
+                    for f in file_list : 
+                        #os.system('xrdcp  -f %s eos/cms/%s/' % (f, newDir) )
+                        os.system('cp %s eos/cms/%s/' % (f, newDir) )
 
             if not opt.nocheck and opt.cleanup : 
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()

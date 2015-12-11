@@ -1,3 +1,4 @@
+
 #include <TFile.h>
 #include <TROOT.h>
 #include <TH1.h>
@@ -278,36 +279,54 @@ void ReadTree(TString filename,
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       
-      /*
-      //base kinematics
-      TLorentzVector lp4;
-      lp4.SetPtEtaPhiM(ev.l_pt,ev.l_eta,ev.l_phi,ev.l_mass);
-      if(lp4.Pt()<30 || fabs(lp4.Eta())>2.1) continue;
-      float relIsoDeltaBeta((ev.l_chargedHadronIso
-			     +max(0.,ev.l_neutralHadronIso+ev.l_photonIso-0.5*ev.l_puChargedHadronIso))/ev.l_pt);
-
-      //select according to the lepton id/charge
-      if(channelSelection!=0)
+      //select 1 good lepton
+      std::vector<int> tightLeptonsIso, tightLeptonsNonIso, vetoLeptons;
+      for(int il=0; il<ev.nl; il++)
 	{
-	  if(abs(ev.l_id)!=abs(channelSelection)) continue;
-	  if(channelSelection==1300)
+	  bool passTightKin(ev.l_pt[il]<30 && fabs(ev.l_eta[il])<2.1);
+	  bool passVetoKin(ev.l_pt[il]<10 && fabs(ev.l_eta[il])<2.5);
+	  bool passTightId((ev.l_pid[il]>>1)&0x1);
+	  bool passIso(ev.l_miniIso[il]<0.2); 
+	  if(ev.l_id[il]==11) passIso=(ev.l_miniIso[il]<0.1);
+	  bool passNonIso(ev.l_miniIso[il]>0.4);
+	  if(passTightKin && passTightId)
 	    {
-	      if(relIsoDeltaBeta<0.2) continue;
-	      //float relchIso = ev.l_chargedHadronIso/ev.l_pt;
-	      //if(relchIso<0.4) continue;
+	      if(passIso)         tightLeptonsIso.push_back(il);
+	      else if(passNonIso) tightLeptonsNonIso.push_back(il);
 	    }
+	  else if(passVetoKin && passIso) vetoLeptons.push_back(il);
 	}
 
-      if(chargeSelection!=0 &&  ev.l_charge!=chargeSelection) continue;
+      //one good lepton either isolated or non-isolated      
+      Int_t lepIdx=-1;
+      if(tightLeptonsIso.size()==1)                                       lepIdx=tightLeptonsIso[0];
+      else if (tightLeptonsIso.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
+      if(lepIdx<0) continue;
+      
+      //no extra isolated leptons
+      if(vetoLeptons.size()>0) continue;
+  
+      //select according to the lepton id/charge
+      Int_t lid=ev.l_id[lepIdx];
+      if(tightLeptonsNonIso.size()==1) lid*=1000;
+      if(channelSelection!=0 && lid!=channelSelection) continue;
+      if(chargeSelection!=0 &&  ev.l_charge[lepIdx]!=chargeSelection) continue;
 
       //apply trigger requirement
-      if((abs(ev.l_id) == 13 || abs(ev.l_id) == 1300))
+      if(lid == 13 || lid== 1300)
 	{
-	  if(ev.isData  && ((ev.muTrigger>>2)&0x1)==0) continue;
-	  if(!ev.isData && ((ev.muTrigger>>0)&0x1)==0) continue;
+	  if(ev.isData  && (ev.muTrigger & 0x3)==0) continue;
+	  if(!ev.isData && (ev.muTrigger & 0x3)==0) continue;
 	}
-      if((abs(ev.l_id) == 11 || abs(ev.l_id) == 1100) && ((ev.elTrigger>>0)&0x1)==0) continue;
-      
+      if(lid == 11 || lid == 1100)
+	{ 
+	  if( ((ev.elTrigger>>0)&0x1)==0 ) continue;
+	}
+
+      //lepton kinematics
+      TLorentzVector lp4;
+      lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
+            
       //select jets
       Float_t htsum(0);
       TLorentzVector jetDiff(0,0,0,0);
@@ -391,10 +410,9 @@ void ReadTree(TString filename,
 
       //MET and transverse mass
       TLorentzVector met(0,0,0,0);
-      met.SetPtEtaPhiM(ev.met_pt,0,ev.met_phi,0.);
+      met.SetPtEtaPhiM(ev.met_pt[0],0,ev.met_phi[0],0.);
       met+=jetDiff;
       met.SetPz(0.); met.SetE(met.Pt());
-      
       float mt( computeMT(lp4,met) );
       
       //compute neutrino kinematics
@@ -411,15 +429,15 @@ void ReadTree(TString filename,
 	{
 	  //update lepton selection scale factors, if found
 	  TString prefix("m");
-	  if(abs(ev.l_id)==11 || abs(ev.l_id)==1100) prefix="e";
+	  if(lid==11 || lid==1100) prefix="e";
 	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end())
 	    {
 	      float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
-	      float etaForEff=TMath::Max(TMath::Min(fabs(ev.l_eta),maxEtaForEff),minEtaForEff);
+	      float etaForEff=TMath::Max(TMath::Min(float(fabs(lp4.Eta())),maxEtaForEff),minEtaForEff);
 	      Int_t etaBinForEff=lepEffH[prefix+"_sel"]->GetXaxis()->FindBin(etaForEff);
 	      
 	      float minPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmin() ), maxPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmax()-0.01 );
-	      float ptForEff=TMath::Max(TMath::Min(fabs(ev.l_pt),maxPtForEff),minPtForEff);
+	      float ptForEff=TMath::Max(TMath::Min(float(lp4.Pt()),maxPtForEff),minPtForEff);
 	      Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
 
 	      float selSF(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
@@ -430,13 +448,6 @@ void ReadTree(TString filename,
 
 	      lepTriggerSF[0]=trigSF; lepTriggerSF[1]=trigSF-trigSFUnc; lepTriggerSF[2]=trigSF+trigSFUnc;
 	      lepSelSF[0]=selSF;      lepSelSF[1]=selSF-selSFUnc;       lepSelSF[2]=selSF+selSFUnc;
-
-	      if(trigSF<0.5 || selSF<0.5)
-		{
-		  cout << ev.l_id << " " << ev.l_pt << " " << ptForEff << " " << ev.l_eta << " " << etaForEff << endl;
-		  cout << trigSF << " " << trigSF-trigSFUnc << " " << trigSF+trigSFUnc << endl;
-		  cout << selSF << " " << selSF-selSFUnc << " " << selSF+selSFUnc << endl;
-		}
 	    }
 
 	  //update pileup weights, if found
@@ -470,16 +481,16 @@ void ReadTree(TString filename,
 		  allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
 		}
 
-	      allPlots["lpt_"+tag]->Fill(ev.l_pt,wgt);
-	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig,wgt);
-	      allPlots["lreliso_"+tag]->Fill(relIsoDeltaBeta,wgt);
-	      allPlots["leta_"+tag]->Fill(ev.l_eta,wgt);
+	      allPlots["lpt_"+tag]->Fill(lp4.Pt(),wgt);
+	      allPlots["leta_"+tag]->Fill(lp4.Eta(),wgt);
+	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
+	      allPlots["lreliso_"+tag]->Fill(ev.l_miniIso[lepIdx],wgt);
 	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
 	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ leadingJetIdx ]),wgt);
 	      allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
 	      allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
-	      allPlots["met_"+tag]->Fill(ev.met_pt,wgt);
-	      allPlots["metphi_"+tag]->Fill(ev.met_phi,wgt);
+	      allPlots["met_"+tag]->Fill(ev.met_pt[0],wgt);
+	      allPlots["metphi_"+tag]->Fill(ev.met_phi[0],wgt);
 	      allPlots["mt_"+tag]->Fill(mt,wgt);
 	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
 	      allPlots["ht_"+tag]->Fill(htsum,wgt);
@@ -530,23 +541,23 @@ void ReadTree(TString filename,
 	      float newWgt(wgt);
 	      if(varName=="Pileup" && puWeight[0]!=0) newWgt*=(isign==0 ? puWeight[1]/puWeight[0] : puWeight[2]/puWeight[0]);
 	      if(
-		 (varName=="MuTrigger" && (abs(ev.l_id)==13 || abs(ev.l_id)==1300)) ||
-		 (varName=="EleTrigger" && (abs(ev.l_id)==11 || abs(ev.l_id)==1300))
+		 (varName=="MuTrigger" && (lid==13 || lid==1300)) ||
+		 (varName=="EleTrigger" && (lid==11 || lid==1300))
 		 )
 		newWgt *= (isign==0 ? lepTriggerSF[1]/lepTriggerSF[0] : lepTriggerSF[2]/lepTriggerSF[0]);
 	      if(
-		 (varName=="MuEfficiency" && (abs(ev.l_id)==13 || abs(ev.l_id)==1300)) ||
-		 (varName=="EleEfficiency" && (abs(ev.l_id)==11 || abs(ev.l_id)==1300))
+		 (varName=="MuEfficiency" && (lid==13 ||  lid==1300)) ||
+		 (varName=="EleEfficiency" && (lid==11 || lid==1300))
 		 )
 		newWgt *= (isign==0 ? lepSelSF[1]/lepSelSF[0] : lepSelSF[2]/lepSelSF[0]);
 
 	      //lepton scale systematics
 	      TLorentzVector varlp4(lp4);
 	      if(
-		 (varName=="MuScale" && (abs(ev.l_id)==13 || abs(ev.l_id)==1300)) ||
-		 (varName=="EleScale" && (abs(ev.l_id)==11 || abs(ev.l_id)==1300))
+		 (varName=="MuScale" && ( lid==13 || lid==1300)) ||
+		 (varName=="EleScale" && (lid==11 || lid==1300))
 		 )
-		varlp4 = (1.0+(isign==0?-1.:1.)*getLeptonEnergyScaleUncertainty(abs(ev.l_id),lp4.Pt(),lp4.Eta()) ) *lp4;
+		varlp4 = (1.0+(isign==0?-1.:1.)*getLeptonEnergyScaleUncertainty(lid,lp4.Pt(),lp4.Eta()) ) *lp4;
 	      if(varlp4.Pt()<30 || fabs(varlp4.Eta())>2.1) continue;
 
 	      //jets
@@ -674,7 +685,6 @@ void ReadTree(TString filename,
 		}
 	    }
 	}
-      */
     }
 
   //close input file
