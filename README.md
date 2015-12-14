@@ -65,7 +65,7 @@ python scripts/saveExpectedBtagEff.py
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```
-python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/5736a2c
+python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/64217e8
 ```
 You're now ready to start locally the analysis.
 
@@ -80,9 +80,9 @@ python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
 To run the code on a set of samples stored in EOS you can run it as follows:
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -q 8nh --runSysts -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -q 8nh --runSysts -o analysis_muminus  --ch 13   --charge -1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/5736a2c -q 8nh            -o analysis_munoniso --ch 1300
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -q 8nh --runSysts -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -q 8nh --runSysts -o analysis_muminus  --ch 13   --charge -1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -q 8nh            -o analysis_munoniso --ch 1300
 ```
 If "-q queue_name" is appended the jobs are submitted to the batch system instead of running locally. 
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
@@ -95,11 +95,11 @@ After the jobs have run you can merge the outputs with
 ```
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2093.6
-python scripts/plotter.py -i analysis_muminus/  -j data/samples_Run2015.json                           -l 2093.6
-python scripts/plotter.py -i analysis_muplus/   -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2093.6
-python scripts/plotter.py -i analysis_muminus/  -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2093.6
-python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json                           -l 2093.6
+python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2134
+python scripts/plotter.py -i analysis_muminus/  -j data/samples_Run2015.json                           -l 2134
+python scripts/plotter.py -i analysis_muplus/   -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2134
+python scripts/plotter.py -i analysis_muminus/  -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2134
+python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json                           -l 2134
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as

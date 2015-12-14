@@ -283,21 +283,22 @@ void ReadTree(TString filename,
       std::vector<int> tightLeptonsIso, tightLeptonsNonIso, vetoLeptons;
       for(int il=0; il<ev.nl; il++)
 	{
-	  bool passTightKin(ev.l_pt[il]<30 && fabs(ev.l_eta[il])<2.1);
-	  bool passVetoKin(ev.l_pt[il]<10 && fabs(ev.l_eta[il])<2.5);
+	  bool passTightKin(ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.1);
+	  bool passVetoKin(ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5);
 	  bool passTightId((ev.l_pid[il]>>1)&0x1);
-	  bool passIso(ev.l_miniIso[il]<0.2); 
-	  if(ev.l_id[il]==11) passIso=(ev.l_miniIso[il]<0.1);
-	  bool passNonIso(ev.l_miniIso[il]>0.4);
+	  float relIso(ev.l_relIso[il]);
+	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>2)&0x1 );
+	  bool passNonIso(relIso>0.4);
+	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); 
 	  if(passTightKin && passTightId)
 	    {
 	      if(passIso)         tightLeptonsIso.push_back(il);
 	      else if(passNonIso) tightLeptonsNonIso.push_back(il);
 	    }
-	  else if(passVetoKin && passIso) vetoLeptons.push_back(il);
+	  else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il);
 	}
 
-      //one good lepton either isolated or non-isolated      
+      //one good lepton either isolated or in the non-isolated sideband
       Int_t lepIdx=-1;
       if(tightLeptonsIso.size()==1)                                       lepIdx=tightLeptonsIso[0];
       else if (tightLeptonsIso.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
@@ -305,23 +306,24 @@ void ReadTree(TString filename,
       
       //no extra isolated leptons
       if(vetoLeptons.size()>0) continue;
+
+      //apply trigger requirement
+      if(ev.l_id[lepIdx]==13)
+	{
+	  if(ev.isData  && (ev.muTrigger & 0x3)==0) continue;
+	  if(!ev.isData && (ev.muTrigger & 0x3)==0) continue;
+	}
+      if(ev.l_id[lepIdx]==11)
+	{ 
+	  if( ((ev.elTrigger>>0)&0x1)==0 ) continue;
+	}
   
       //select according to the lepton id/charge
       Int_t lid=ev.l_id[lepIdx];
       if(tightLeptonsNonIso.size()==1) lid*=1000;
       if(channelSelection!=0 && lid!=channelSelection) continue;
-      if(chargeSelection!=0 &&  ev.l_charge[lepIdx]!=chargeSelection) continue;
+      if(chargeSelection!=0  && ev.l_charge[lepIdx]!=chargeSelection) continue;
 
-      //apply trigger requirement
-      if(lid == 13 || lid== 1300)
-	{
-	  if(ev.isData  && (ev.muTrigger & 0x3)==0) continue;
-	  if(!ev.isData && (ev.muTrigger & 0x3)==0) continue;
-	}
-      if(lid == 11 || lid == 1100)
-	{ 
-	  if( ((ev.elTrigger>>0)&0x1)==0 ) continue;
-	}
 
       //lepton kinematics
       TLorentzVector lp4;
@@ -339,6 +341,8 @@ void ReadTree(TString filename,
 	  //check kinematics
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
+
+	  //cross clean with respect to leptons 
 	  if(jp4.DeltaR(lp4)<0.4) continue;
 
 	  resolvedJetIdx.push_back(k);
@@ -353,14 +357,13 @@ void ReadTree(TString filename,
 	    }
 	  jetDiff += jp4;
 
-	  //cross clean with respect to leptons and re-inforce kinematics cuts
-
+	  // re-inforce kinematics cuts
 	  if(jp4.Pt()<30) continue;
 	  if(fabs(jp4.Eta()) > 2.4) continue;
 	  
 	  if(leadingJetIdx<0) leadingJetIdx=k;
-	  htsum     += jp4.Pt();
-	  if(bJets.size()+lightJets.size()<=4) visSystem += jp4;
+	  htsum += jp4.Pt();
+	  if(bJets.size()+lightJets.size()<4) visSystem += jp4;
 
 	  //b-tag
 	  float csv = ev.j_csv[k];	  
@@ -372,20 +375,20 @@ void ReadTree(TString filename,
 	      if(abs(ev.j_hadflav[k])==4) 
 		{ 
 		  ncjets++;
-		  expEff        = expBtagEff["c"]->Eval(jptForBtag); 
-		  jetBtagSF     = sfbReaders[0]->eval( BTagEntry::FLAV_C, jetaForBtag, jptForBtag);
+		  expEff    = expBtagEff["c"]->Eval(jptForBtag); 
+		  jetBtagSF = sfbReaders[0]->eval( BTagEntry::FLAV_C, jetaForBtag, jptForBtag);
 		}
 	      else if(abs(ev.j_hadflav[k])==5) 
 		{ 
 		  nbjets++;
-		  expEff=expBtagEff["b"]->Eval(jptForBtag); 
-		  jetBtagSF=sfbReaders[0]->eval( BTagEntry::FLAV_B, jetaForBtag, jptForBtag);
+		  expEff    = expBtagEff["b"]->Eval(jptForBtag); 
+		  jetBtagSF = sfbReaders[0]->eval( BTagEntry::FLAV_B, jetaForBtag, jptForBtag);
 		}
 	      else
 		{
 		  nljets++;
-		  expEff=expBtagEff["udsg"]->Eval(jptForBtag);
-                  jetBtagSF=sflReaders[0]->eval( BTagEntry::FLAV_UDSG, jetaForBtag, jptForBtag);
+		  expEff    = expBtagEff["udsg"]->Eval(jptForBtag);
+                  jetBtagSF = sflReaders[0]->eval( BTagEntry::FLAV_UDSG, jetaForBtag, jptForBtag);
 		}
 	      
 	      //updated b-tagging decision with the data/MC scale factor
@@ -410,7 +413,7 @@ void ReadTree(TString filename,
 
       //MET and transverse mass
       TLorentzVector met(0,0,0,0);
-      met.SetPtEtaPhiM(ev.met_pt[0],0,ev.met_phi[0],0.);
+      met.SetPtEtaPhiM(ev.met_pt[2],0,ev.met_phi[2],0.);
       met+=jetDiff;
       met.SetPz(0.); met.SetE(met.Pt());
       float mt( computeMT(lp4,met) );
@@ -457,7 +460,7 @@ void ReadTree(TString filename,
 	      puWeight[1]=puWgtGr[1]->Eval(ev.putrue); 
 	      puWeight[2]=puWgtGr[2]->Eval(ev.putrue);
 	    }
-
+	  
 	  //update nominal event weight
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
 	  wgt=lepTriggerSF[0]*lepSelSF[0]*puWeight[0]*norm;
@@ -484,13 +487,13 @@ void ReadTree(TString filename,
 	      allPlots["lpt_"+tag]->Fill(lp4.Pt(),wgt);
 	      allPlots["leta_"+tag]->Fill(lp4.Eta(),wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
-	      allPlots["lreliso_"+tag]->Fill(ev.l_miniIso[lepIdx],wgt);
+	      allPlots["lreliso_"+tag]->Fill(ev.l_relIso[lepIdx],wgt);
 	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
 	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ leadingJetIdx ]),wgt);
 	      allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
 	      allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
-	      allPlots["met_"+tag]->Fill(ev.met_pt[0],wgt);
-	      allPlots["metphi_"+tag]->Fill(ev.met_phi[0],wgt);
+	      allPlots["met_"+tag]->Fill(ev.met_pt[2],wgt);
+	      allPlots["metphi_"+tag]->Fill(ev.met_phi[2],wgt);
 	      allPlots["mt_"+tag]->Fill(mt,wgt);
 	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
 	      allPlots["ht_"+tag]->Fill(htsum,wgt);
@@ -505,7 +508,7 @@ void ReadTree(TString filename,
 	    }
 	}
 
-
+      //ANALYSIS WITH SYSTEMATICS
       if(!runSysts) continue;
       
       //gen weighting systematics
@@ -710,114 +713,114 @@ void ReadTree(TString filename,
 std::map<Int_t,Float_t> lumiPerRun()
 {
   std::map<Int_t,Float_t> lumiMap;
-  lumiMap[256630]=948417.609;
-  lumiMap[256673]=5534.408;
-  lumiMap[256674]=92567.485;
-  lumiMap[256675]=7282554.291;
-  lumiMap[256676]=9172872.886;
-  lumiMap[256677]=15581756.928;
-  lumiMap[256801]=8830347.675;
-  lumiMap[256842]=16510.582;
-  lumiMap[256843]=37367788.087;
-  lumiMap[256866]=58250.406;
-  lumiMap[256867]=4546508.033;
-  lumiMap[256868]=22542014.201;
-  lumiMap[256869]=1539580.832;
-  lumiMap[256926]=1499855.808;
-  lumiMap[256941]=8741029.381;
-  lumiMap[257461]=3057928.782;
-  lumiMap[257531]=8418598.194;
-  lumiMap[257599]=4940876.751;
-  lumiMap[257613]=75639153.224;
-  lumiMap[257614]=850778.922;
-  lumiMap[257645]=62520503.888;
-  lumiMap[257682]=13053256.987;
-  lumiMap[257722]=810552.138;
-  lumiMap[257723]=5941442.106;
-  lumiMap[257735]=521278.124;
-  lumiMap[257751]=27029514.967;
-  lumiMap[257804]=210956.374;
-  lumiMap[257805]=17038078.687;
-  lumiMap[257816]=24328019.178;
-  lumiMap[257819]=15147148.510;
-  lumiMap[257968]=16769109.914;
-  lumiMap[257969]=39179793.996;
-  lumiMap[258129]=5813530.480;
-  lumiMap[258136]=3617731.160;
-  lumiMap[258157]=3866329.715;
-  lumiMap[258158]=105692715.515;
-  lumiMap[258159]=25632955.799;
-  lumiMap[258177]=101938042.657;
-  lumiMap[258211]=6371404.543;
-  lumiMap[258213]=11525115.399;
-  lumiMap[258214]=15172855.551;
-  lumiMap[258215]=411364.505;
-  lumiMap[258287]=13271542.328;
-  lumiMap[258403]=15612888.766;
-  lumiMap[258425]=10170405.992;
-  lumiMap[258426]=751812.067;
-  lumiMap[258427]=7901302.746;
-  lumiMap[258428]=11578208.046;
-  lumiMap[258432]=279944.749;
-  lumiMap[258434]=30536738.787;
-  lumiMap[258440]=44624917.855;
-  lumiMap[258444]=2079367.112;
-  lumiMap[258445]=16403375.902;
-  lumiMap[258446]=7474593.995;
-  lumiMap[258448]=35705866.510;
-  lumiMap[258655]=383658.834;
-  lumiMap[258656]=25581933.798;
-  lumiMap[258694]=15219679.888;
-  lumiMap[258702]=29093248.654;
-  lumiMap[258703]=31138680.065;
-  lumiMap[258705]=7604760.367;
-  lumiMap[258706]=52122692.407;
-  lumiMap[258712]=34495799.123;
-  lumiMap[258713]=10164347.291;
-  lumiMap[258714]=4168945.356;
-  lumiMap[258741]=4446752.908;
-  lumiMap[258742]=59299810.293;
-  lumiMap[258745]=20966777.757;
-  lumiMap[258749]=44752319.500;
-  lumiMap[258750]=14330984.460;
-  lumiMap[259626]=10597934.251;
-  lumiMap[259637]=14838753.649;
-  lumiMap[259681]=1866936.539;
-  lumiMap[259683]=7150122.168;
-  lumiMap[259685]=52046691.339;
-  lumiMap[259686]=25072787.031;
-  lumiMap[259721]=11233249.877;
-  lumiMap[259809]=13415540.397;
-  lumiMap[259810]=9213536.606;
-  lumiMap[259811]=6958703.081;
-  lumiMap[259813]=696989.195;
-  lumiMap[259817]=338781.444;
-  lumiMap[259818]=12345301.694;
-  lumiMap[259820]=11764360.572;
-  lumiMap[259821]=13847071.055;
-  lumiMap[259822]=31229541.823;
-  lumiMap[259861]=6085783.718;
-  lumiMap[259862]=42639175.757;
-  lumiMap[259884]=6228050.692;
-  lumiMap[259890]=8940297.429;
-  lumiMap[259891]=8847861.645;
-  lumiMap[260373]=10082072.543;
-  lumiMap[260424]=63075300.274;
-  lumiMap[260425]=22346537.163;
-  lumiMap[260426]=41726987.678;
-  lumiMap[260427]=15191168.895;
-  lumiMap[260431]=33250906.885;
-  lumiMap[260532]=61132427.407;
-  lumiMap[260533]=1059991.553;
-  lumiMap[260534]=28416797.584;
-  lumiMap[260536]=13137987.544;
-  lumiMap[260538]=20326040.651;
-  lumiMap[260541]=1663588.353;
-  lumiMap[260575]=1681737.625;
-  lumiMap[260576]=15468612.251;
-  lumiMap[260577]=7858938.175;
-  lumiMap[260593]=33318468.559;
-  lumiMap[260627]=164681593.193;
+  lumiMap[ 256630 ]=   972453.859  ;
+  lumiMap[ 256673 ]=    5777.795   ;
+  lumiMap[ 256674 ]=   96620.611   ;
+  lumiMap[ 256675 ]=  7596277.091  ;
+  lumiMap[ 256676 ]=  9548596.716  ;
+  lumiMap[ 256677 ]=  16055929.005 ;
+  lumiMap[ 256801 ]=  9165130.512  ;
+  lumiMap[ 256842 ]=   17179.759   ;
+  lumiMap[ 256843 ]=  38623648.354 ;
+  lumiMap[ 256866 ]=   60646.099   ;
+  lumiMap[ 256867 ]=  4728164.411  ;
+  lumiMap[ 256868 ]=  23371474.596 ;
+  lumiMap[ 256869 ]=  1592810.667  ;
+  lumiMap[ 256926 ]=  1571058.735  ;
+  lumiMap[ 256941 ]=  9007928.067  ;
+  lumiMap[ 257461 ]=  3194841.970  ;
+  lumiMap[ 257531 ]=  8830131.818  ;
+  lumiMap[ 257599 ]=  5193986.242  ;
+  lumiMap[ 257613 ]=  78942504.398 ;
+  lumiMap[ 257614 ]=   882267.423  ;
+  lumiMap[ 257645 ]=  65301655.020 ;
+  lumiMap[ 257682 ]=  13710324.756 ;
+  lumiMap[ 257722 ]=   853623.834  ;
+  lumiMap[ 257723 ]=  6248262.776  ;
+  lumiMap[ 257735 ]=   542314.185  ;
+  lumiMap[ 257751 ]=  28193282.293 ;
+  lumiMap[ 257804 ]=   221266.820  ;
+  lumiMap[ 257805 ]=  17835928.295 ;
+  lumiMap[ 257816 ]=  25362711.952 ;
+  lumiMap[ 257819 ]=  15747569.138 ;
+  lumiMap[ 257968 ]=  17516821.210 ;
+  lumiMap[ 257969 ]=  40746097.178 ;
+  lumiMap[ 258129 ]=  6048266.862  ;
+  lumiMap[ 258136 ]=  3759607.514  ;
+  lumiMap[ 258157 ]=  4049174.674  ;
+  lumiMap[ 258158 ]= 109407017.749 ;
+  lumiMap[ 258159 ]=  26405897.556 ;
+  lumiMap[ 258177 ]= 110399397.530 ;
+  lumiMap[ 258211 ]=  6705307.183  ;
+  lumiMap[ 258213 ]=  12097115.770 ;
+  lumiMap[ 258214 ]=  15902014.828 ;
+  lumiMap[ 258215 ]=   430560.536  ;
+  lumiMap[ 258287 ]=  13905008.423 ;
+  lumiMap[ 258403 ]=  16154078.120 ;
+  lumiMap[ 258425 ]=  10663266.828 ;
+  lumiMap[ 258426 ]=   786886.125  ;
+  lumiMap[ 258427 ]=  8265152.264  ;
+  lumiMap[ 258428 ]=  12092990.844 ;
+  lumiMap[ 258432 ]=   291643.938  ;
+  lumiMap[ 258434 ]=  31742537.170 ;
+  lumiMap[ 258440 ]=  46151016.104 ;
+  lumiMap[ 258444 ]=  2140077.077  ;
+  lumiMap[ 258445 ]=  16854431.566 ;
+  lumiMap[ 258446 ]=  7668549.265  ;
+  lumiMap[ 258448 ]=  36534661.251 ;
+  lumiMap[ 258655 ]=   400033.787  ;
+  lumiMap[ 258656 ]=  26619578.792 ;
+  lumiMap[ 258694 ]=  15960985.116 ;
+  lumiMap[ 258702 ]=  30438445.207 ;
+  lumiMap[ 258703 ]=  32463087.020 ;
+  lumiMap[ 258705 ]=  7903450.408  ;
+  lumiMap[ 258706 ]=  53978046.823 ;
+  lumiMap[ 258712 ]=  35567148.443 ;
+  lumiMap[ 258713 ]=  10456680.471 ;
+  lumiMap[ 258714 ]=  4285875.372  ;
+  lumiMap[ 258741 ]=  4899388.331  ;
+  lumiMap[ 258742 ]=  65057022.311 ;
+  lumiMap[ 258745 ]=  14597123.777 ;
+  lumiMap[ 258749 ]=  47585277.273 ;
+  lumiMap[ 258750 ]=  15156434.748 ;
+  lumiMap[ 259626 ]=  11169319.844 ;
+  lumiMap[ 259637 ]=  15450881.949 ;
+  lumiMap[ 259681 ]=  1961953.523  ;
+  lumiMap[ 259683 ]=  7494008.728  ;
+  lumiMap[ 259685 ]=  54416576.426 ;
+  lumiMap[ 259686 ]=  26080434.224 ;
+  lumiMap[ 259721 ]=  12072683.502 ;
+  lumiMap[ 259809 ]=  14229830.368 ;
+  lumiMap[ 259810 ]=  9772545.665  ;
+  lumiMap[ 259811 ]=  7373602.434  ;
+  lumiMap[ 259813 ]=   733457.718  ;
+  lumiMap[ 259817 ]=   353071.431  ;
+  lumiMap[ 259818 ]=  13027383.967 ;
+  lumiMap[ 259820 ]=   937057.379  ;
+  lumiMap[ 259821 ]=  4734961.135  ;
+  lumiMap[ 259822 ]=  32487481.427 ;
+  lumiMap[ 259861 ]=  6369581.222  ;
+  lumiMap[ 259862 ]=  44470716.726 ;
+  lumiMap[ 259884 ]=  6510093.864  ;
+  lumiMap[ 259890 ]=  9352026.765  ;
+  lumiMap[ 259891 ]=  9243934.111  ;
+  lumiMap[ 260373 ]=  10572653.190 ;
+  lumiMap[ 260424 ]=  65639766.663 ;
+  lumiMap[ 260425 ]=  23157369.009 ;
+  lumiMap[ 260426 ]=  43093150.340 ;
+  lumiMap[ 260427 ]=  15638701.311 ;
+  lumiMap[ 260431 ]=  34141975.488 ;
+  lumiMap[ 260532 ]=  67694389.854 ;
+  lumiMap[ 260533 ]=  1084296.728  ;
+  lumiMap[ 260534 ]=  1965785.974  ;
+  lumiMap[ 260536 ]=  14172830.429 ;
+  lumiMap[ 260538 ]=  21910218.595 ;
+  lumiMap[ 260541 ]=  1783295.494  ;
+  lumiMap[ 260575 ]=  1755955.214  ;
+  lumiMap[ 260576 ]=  16233038.140 ;
+  lumiMap[ 260577 ]=  8223890.985  ;
+  lumiMap[ 260593 ]=  34830922.812 ;
+  lumiMap[ 260627 ]= 171231412.138 ;
   return lumiMap;
 };
 

@@ -125,20 +125,21 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("pu",      &ev.pu);
   t->SetBranchAddress("putrue",  &ev.putrue);
 
-  t->SetBranchAddress("isPromptFinalState",                      &ev.isPromptFinalState);
-  t->SetBranchAddress("isDirectPromptTauDecayProductFinalState", &ev.isDirectPromptTauDecayProductFinalState);
-  t->SetBranchAddress("l_id",      &ev.l_id);
-  t->SetBranchAddress("l_pid",     &ev.l_pid);
-  t->SetBranchAddress("l_charge",  &ev.l_charge);
-  t->SetBranchAddress("l_pt",      &ev.l_pt);
-  t->SetBranchAddress("l_eta",     &ev.l_eta);
-  t->SetBranchAddress("l_phi",     &ev.l_phi);
-  t->SetBranchAddress("l_mass",    &ev.l_mass);
-  t->SetBranchAddress("l_chargedHadronIso",   &ev.l_chargedHadronIso);
-  t->SetBranchAddress("l_miniIso",          &ev.l_miniIso);
-  t->SetBranchAddress("l_relIso", &ev.l_relIso);
-  t->SetBranchAddress("l_ip3d",               &ev.l_ip3d);
-  t->SetBranchAddress("l_ip3dsig",            &ev.l_ip3dsig);
+  t->SetBranchAddress("nl",      &ev.nl);
+  t->SetBranchAddress("isPromptFinalState",                      ev.isPromptFinalState);
+  t->SetBranchAddress("isDirectPromptTauDecayProductFinalState", ev.isDirectPromptTauDecayProductFinalState);
+  t->SetBranchAddress("l_id",      ev.l_id);
+  t->SetBranchAddress("l_pid",     ev.l_pid);
+  t->SetBranchAddress("l_charge",  ev.l_charge);
+  t->SetBranchAddress("l_pt",      ev.l_pt);
+  t->SetBranchAddress("l_eta",     ev.l_eta);
+  t->SetBranchAddress("l_phi",     ev.l_phi);
+  t->SetBranchAddress("l_mass",    ev.l_mass);
+  t->SetBranchAddress("l_chargedHadronIso",   ev.l_chargedHadronIso);
+  t->SetBranchAddress("l_miniIso",          ev.l_miniIso);
+  t->SetBranchAddress("l_relIso", ev.l_relIso);
+  t->SetBranchAddress("l_ip3d",               ev.l_ip3d);
+  t->SetBranchAddress("l_ip3dsig",            ev.l_ip3dsig);
 
   t->SetBranchAddress("ngenj",       &ev.ngenj);
   t->SetBranchAddress("nj",          &ev.nj);
@@ -165,8 +166,9 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("j_hadflav",    ev.j_hadflav);
   t->SetBranchAddress("j_pid",         ev.j_pid);
 
-  t->SetBranchAddress("met_pt",    &ev.met_pt);
-  t->SetBranchAddress("met_phi",   &ev.met_phi);
+  t->SetBranchAddress("nmet",    &ev.nmet);
+  t->SetBranchAddress("met_pt",    ev.met_pt);
+  t->SetBranchAddress("met_phi",   ev.met_phi);
   
   if(t->GetBranch("npf"))
     {
