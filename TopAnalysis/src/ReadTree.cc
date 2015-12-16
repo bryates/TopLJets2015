@@ -293,9 +293,9 @@ void ReadTree(TString filename,
 	{
 	  bool passTightKin(ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.1);
 	  bool passVetoKin(ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5);
-	  bool passTightId((ev.l_pid[il]>>1)&0x1);
+	  bool passTightId((ev.l_pid[il]>>2)&0x1);
 	  float relIso(ev.l_relIso[il]);
-	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>2)&0x1 );
+	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  bool passNonIso(relIso>0.4);
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); 
 	  if(passTightKin && passTightId)
@@ -476,8 +476,8 @@ void ReadTree(TString filename,
 	{
 	  //update lepton selection scale factors, if found
 	  TString prefix("m");
-	  if(lid==11 || lid==1100 || lid==2111) prefix="e";
-	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end())
+	  if(lid==11 || lid==1100) prefix="e";
+	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end() && !isZ)
 	    {
 	      for(size_t il=0; il<tightLeptonsIso.size(); il++)
 		{
@@ -499,23 +499,23 @@ void ReadTree(TString filename,
 		  lepTriggerSF[0]*=trigSF; lepTriggerSF[1]*=(trigSF-trigSFUnc); lepTriggerSF[2]*=(trigSF+trigSFUnc);
 		  lepSelSF[0]*=selSF;      lepSelSF[1]*=(selSF-selSFUnc);       lepSelSF[2]*=(selSF+selSFUnc);
 		}
-
-	      Int_t ntops(0);
-	      float ptsf(1.0);
-	      for(Int_t igen=0; igen<ev.ngenHardProc; igen++)
-		{
-		  if(abs(ev.ghp_id[igen])!=6) continue;
-		  ntops++;
-		  ptsf *= TMath::Exp(0.156-0.00137*ev.ghp_pt[igen]);
-		}
-	      if(ptsf>0 && ntops==2)
-		{
-		  ptsf=TMath::Sqrt(ptsf);
-		  topPtWgt[1]=1./ptsf;
-		  topPtWgt[2]=ptsf;
-		}
 	    }
-
+	  
+	  Int_t ntops(0);
+	  float ptsf(1.0);
+	  for(Int_t igen=0; igen<ev.ngenHardProc; igen++)
+	    {
+	      if(abs(ev.ghp_id[igen])!=6) continue;
+	      ntops++;
+	      ptsf *= TMath::Exp(0.156-0.00137*ev.ghp_pt[igen]);
+	    }
+	  if(ptsf>0 && ntops==2)
+	    {
+	      ptsf=TMath::Sqrt(ptsf);
+	      topPtWgt[1]=1./ptsf;
+	      topPtWgt[2]=ptsf;
+	    }
+	  
 	  //update pileup weights, if found
 	  if(puWgtGr.size())
 	    {
