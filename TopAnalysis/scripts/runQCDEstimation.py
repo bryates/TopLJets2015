@@ -87,12 +87,12 @@ def main():
         #signal region
         niso=dataIso.Integral(xbin,nxbins)
         nmciso=sumMCIso.Integral(xbin,nxbins)
-        niso_max,niso_cen,niso_min=niso,ROOT.TMath.Max(niso-nmciso,0.),ROOT.TMath.Max(niso-2*nmciso,0.)
-
+        niso_max,niso_cen,niso_min=niso,ROOT.TMath.Max(niso-0.7*nmciso,0.),ROOT.TMath.Max(niso-1.3*nmciso,0.)
+        
         #control region
         nmcnoniso=sumMCNonIso.Integral(xbin,nxbins)
         nnoniso=dataNonIso.Integral(xbin,nxbins)
-        nnoniso_max,nnoniso_cen,nnoniso_min=nnoniso,ROOT.TMath.Max(nnoniso-nmcnoniso,0.),ROOT.TMath.Max(nnoniso-2*nmcnoniso,0.)
+        nnoniso_max,nnoniso_cen,nnoniso_min=nnoniso,ROOT.TMath.Max(nnoniso-0.7*nmcnoniso,0.),ROOT.TMath.Max(nnoniso-1.3*nmcnoniso,0.)
 
         #scale factors to apply and relative uncertainty (maximised)
         nonIsoTemplateSF[sel]=niso_cen/nnoniso_cen

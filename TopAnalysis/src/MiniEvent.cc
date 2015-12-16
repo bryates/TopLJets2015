@@ -169,7 +169,17 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("nmet",    &ev.nmet);
   t->SetBranchAddress("met_pt",    ev.met_pt);
   t->SetBranchAddress("met_phi",   ev.met_phi);
-  
+
+  if(t->GetBranch("ngenHardProc"))
+    {
+      t->SetBranchAddress("ngenHardProc",     &ev.ngenHardProc);
+      t->SetBranchAddress("ghp_id",      ev.ghp_id);
+      t->SetBranchAddress("ghp_pt",      ev.ghp_pt);
+      t->SetBranchAddress("ghp_eta",      ev.ghp_eta);
+      t->SetBranchAddress("ghp_phi",      ev.ghp_phi);
+      t->SetBranchAddress("ghp_m",      ev.ghp_m);
+    }
+
   if(t->GetBranch("npf"))
     {
       t->SetBranchAddress("npf",        &ev.npf);

@@ -35,7 +35,7 @@ Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/b18c191 -o /store/cmst3/user/psilva/LJets2015/b18c191
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/7203808 -o /store/cmst3/user/psilva/LJets2015/64217e8
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
@@ -70,7 +70,7 @@ python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets201
 You're now ready to start locally the analysis.
 
 
-## Running locally the analysis
+## Running locally the analysis for testing
 
 The analysis (histogram filling, final selection) is in src/ReadTree.cc.
 Recompile (scram b) everytime you change it so that you can test the new features.
@@ -78,39 +78,39 @@ To test the code on a single file to produce plots.
 ```
 python scripts/runLocalAnalysis.py -i MiniEvents.root
 ```
-To run the code on a set of samples stored in EOS you can run it as follows:
-```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -q 8nh --runSysts -o analysis_muplus   --ch 13   --charge 1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -q 8nh --runSysts -o analysis_muminus  --ch 13   --charge -1
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -q 8nh            -o analysis_munoniso --ch 1300
-```
+To run the code on a set of samples stored in EOS you can run it as shown below.
 If "-q queue_name" is appended the jobs are submitted to the batch system instead of running locally. 
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
-If instead "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
+If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
+```
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
+```
 After the jobs have run you can merge the outputs with
 ```
 ./scripts/mergeOutputs.py analysis_muplus
-./scripts/mergeOutputs.py analysis_muminus
-./scripts/mergeOutputs.py analysis_munoniso/
 ```
 To plot the output of the local analysis you can run the following:
 ```
 python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2134
-python scripts/plotter.py -i analysis_muminus/  -j data/samples_Run2015.json                           -l 2134
-python scripts/plotter.py -i analysis_muplus/   -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2134
-python scripts/plotter.py -i analysis_muminus/  -j data/syst_samples_Run2015.json -o syst_plotter.root -l 2134
-python scripts/plotter.py -i analysis_munoniso/ -j data/samples_Run2015.json                           -l 2134
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as
 ```
 python scripts/runQCDEstimation.py --iso analysis_muplus/plots/plotter.root --noniso analysis_munoniso/plots/plotter.root --out analysis_muplus/
-python scripts/runQCDEstimation.py --iso analysis_muminus/plots/plotter.root --noniso analysis_munoniso/plots/plotter.root --out analysis_muminus/
 ```
 The output is a ROOT file called Data_QCDMultijets.root which can now be used in addition to the predictions of all the other backgrounds.
 To include it in the final plots you can run the plotter script again (see instructions above).
 
+## Submitting the full analysis to the batch system
+
+A script wraps up the above procedure for all the signal and control regions used in the analyis.
+To use it you can use the following script
+```
+sh scripts/steerAnalysis.sh <DISTS/MERGE/PLOT/BKG>
+```
+
 ## Cross section fitting
+
 We use the Higgs combination tool to perform the fit of the production cross section.
 (cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit for details of the release to use).
 It currently has to be run from a CMSSW_7_1_5 release.

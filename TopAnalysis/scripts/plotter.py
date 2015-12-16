@@ -350,6 +350,7 @@ def main():
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default=41.6,              type=float)
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
+    parser.add_option(      '--puNormSF',    dest='puNormSF',    help='Use this histogram to correct pu weight normalization', default=None, type='string')
     (opt, args) = parser.parse_args()
 
     #read list of samples
@@ -361,6 +362,7 @@ def main():
 
     #read plots 
     plots={}
+    report=''
     for tag,sample in samplesList: 
         xsec=sample[0]
         isData=sample[1]
@@ -371,7 +373,24 @@ def main():
             for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
                 subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+3*len(subProcs)))
         for sp in subProcs:
+
             fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
+            if not fIn : continue
+
+            #fix pileup weighting normalization
+            puNormSF=1
+            if opt.puNormSF and not isData:
+                puCorrH=fIn.Get(opt.puNormSF)
+                nonWgt=puCorrH.GetBinContent(1)
+                wgt=puCorrH.GetBinContent(2)
+                if wgt>0 :
+                    puNormSF=nonWgt/wgt
+                    if puNormSF>1.3 or puNormSF<0.7 : 
+                        puNormSF=1
+                        report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                    else :
+                        report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
+
             try:
                 for tkey in fIn.GetListOfKeys():
                     key=tkey.GetName()
@@ -381,9 +400,7 @@ def main():
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
-                    if not isData and not '(data)' in sp[1]:
-                        obj.Scale(xsec)
-                        obj.Scale(opt.lumi)
+                    if not isData and not '(data)' in sp[1]: obj.Scale(xsec*opt.lumi*puNormSF)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if not key in plots : plots[key]=Plot(key)
                     plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
@@ -404,6 +421,7 @@ def main():
 
     print '-'*50
     print 'Plots and summary ROOT file can be found in %s' % outDir
+    if len(report) : print report
     print '-'*50
 
         

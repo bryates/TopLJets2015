@@ -1,4 +1,3 @@
-
 #include <TFile.h>
 #include <TROOT.h>
 #include <TH1.h>
@@ -188,6 +187,7 @@ void ReadTree(TString filename,
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   std::map<TString, TH2 *> all2dPlots;
+  allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",2,0,2);
   for(Int_t ij=1; ij<=4; ij++)
     {
       for(Int_t itag=-1; itag<=2; itag++)
@@ -212,6 +212,8 @@ void ReadTree(TString filename,
 	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
 	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
+	  allPlots["RMPF_"+tag]       = new TH1F("RMPF_"+tag,";R_{MPF};Events" ,20,0.,2.);
+	  allPlots["alpha_"+tag]      = new TH1F("alpha_"+tag,";#alpha;Events" ,20,0.,2.);
 	  if(itag==-1)
 	    {
 	      allPlots["nbtags_"+tag]     = new TH1F("nbtags_"+tag,";Category;Events" ,3,0.,3.);
@@ -230,6 +232,8 @@ void ReadTree(TString filename,
 		    = new TH2F("mtshapes_"+tag+"_gen", ";Transverse Mass [GeV];Events" ,    20,0.,200., nGenSysts,0,nGenSysts);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]               
 		    = new TH2F("minmlbshapes_"+tag+"_gen", ";min Mass(lepton,b) [GeV];Events" , 25,0.,250., nGenSysts,0,nGenSysts);
+		  all2dPlots["RMPFshapes_"+tag+"_gen"]               
+		    = new TH2F("RMPFshapes_"+tag+"_gen", ";R_{MPF};Events" , 20,0.,2., nGenSysts,0,nGenSysts);
 		  if(itag==-1) 
 		    all2dPlots["nbtagsshapes_"+tag+"_gen"] 
 		      = new TH2F("nbtagsshapes_"+tag+"_gen", ";Category;Events" , 3, 0.,3.,   nGenSysts,0,nGenSysts);		  
@@ -238,6 +242,7 @@ void ReadTree(TString filename,
 		      TString label(normH->GetXaxis()->GetBinLabel(igen+1));
 		      all2dPlots["mtshapes_"+tag+"_gen"]    ->GetYaxis()->SetBinLabel(igen+1,label);
 		      all2dPlots["minmlbshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
+		      all2dPlots["RMPFshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
 		      if(itag!=-1) continue;
 		      all2dPlots["nbtagsshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
 		    }
@@ -251,6 +256,8 @@ void ReadTree(TString filename,
 		    = new TH2F("mtshapes_"+tag+"_exp",  ";Transverse Mass [GeV];Events" ,   20,0.,200., 2*nExpSysts,0,2*nExpSysts);
 		  all2dPlots["minmlbshapes_"+tag+"_exp"]              
 		    = new TH2F("minmlbshapes_"+tag+"_exp", ";min Mass(lepton,b) [GeV];Events" ,25,0.,250., 2*nExpSysts,0,2*nExpSysts);
+		  all2dPlots["RMPFshapes_"+tag+"_exp"]               
+		    = new TH2F("RMPFshapes_"+tag+"_exp", ";R_{MPF};Events" , 20,0.,2., 2*nExpSysts,0,2*nExpSysts);
 		  if(itag==-1) 
 		    all2dPlots["nbtagsshapes_"+tag+"_exp"] 
 		      = new TH2F("nbtagsshapes_"+tag+"_exp", ";Category;Events" ,  3,0.,3.,    2*nExpSysts,0,2*nExpSysts);
@@ -261,6 +268,7 @@ void ReadTree(TString filename,
 			  TString label(expSysts[isyst] + (ivar==0 ? "Down" : "Up"));
 			  all2dPlots["mtshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1, label);
 			  all2dPlots["minmlbshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
+			  all2dPlots["RMPFshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
 			  if(itag!=-1) continue;
 			  all2dPlots["nbtagsshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
 			}
@@ -298,15 +306,29 @@ void ReadTree(TString filename,
 	  else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il);
 	}
 
-      //one good lepton either isolated or in the non-isolated sideband
+      //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Int_t lepIdx=-1;
+      Bool_t isZ(false);
+      TLorentzVector l1p4,l2p4,dilp4;
       if(tightLeptonsIso.size()==1)                                       lepIdx=tightLeptonsIso[0];
       else if (tightLeptonsIso.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
+      else if(tightLeptonsIso.size()==2)
+	{	  
+	  l1p4.SetPtEtaPhiM(ev.l_pt[tightLeptonsIso[0]],ev.l_eta[tightLeptonsIso[0]],ev.l_phi[tightLeptonsIso[0]],ev.l_mass[tightLeptonsIso[0]]);
+	  l2p4.SetPtEtaPhiM(ev.l_pt[tightLeptonsIso[1]],ev.l_eta[tightLeptonsIso[1]],ev.l_phi[tightLeptonsIso[1]],ev.l_mass[tightLeptonsIso[1]]);
+	  dilp4=l1p4+l2p4;
+	  if(ev.l_id[tightLeptonsIso[0]]==ev.l_id[tightLeptonsIso[1]]          && 
+	     ev.l_charge[tightLeptonsIso[0]]*ev.l_charge[tightLeptonsIso[1]]<0 && 
+	     fabs(dilp4.M()-91)<10 && 
+	     dilp4.Pt()>30) 
+	    isZ=true; 
+	  lepIdx=tightLeptonsIso[0];
+	}
       if(lepIdx<0) continue;
       
       //no extra isolated leptons
       if(vetoLeptons.size()>0) continue;
-
+      
       //apply trigger requirement
       if(ev.l_id[lepIdx]==13)
 	{
@@ -320,20 +342,25 @@ void ReadTree(TString filename,
   
       //select according to the lepton id/charge
       Int_t lid=ev.l_id[lepIdx];
-      if(tightLeptonsNonIso.size()==1) lid*=1000;
-      if(channelSelection!=0 && lid!=channelSelection) continue;
+      if(isZ) lid=2100+ev.l_id[lepIdx];
+      else if(tightLeptonsNonIso.size()==1) lid=100*ev.l_id[lepIdx];
+      if(channelSelection!=0)
+	{
+	  if(channelSelection==21) { if(!isZ) continue; }
+	  else                     { if(lid!=channelSelection) continue; }
+	}
       if(chargeSelection!=0  && ev.l_charge[lepIdx]!=chargeSelection) continue;
 
 
       //lepton kinematics
       TLorentzVector lp4;
       lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
-            
+
       //select jets
       Float_t htsum(0);
       TLorentzVector jetDiff(0,0,0,0);
       std::vector<TLorentzVector> bJets,lightJets;
-      TLorentzVector visSystem(lp4);
+      TLorentzVector visSystem(isZ ? dilp4 : lp4);
       int nbjets(0),ncjets(0),nljets(0),leadingJetIdx(-1);
       std::vector<int> resolvedJetIdx;
       for (int k=0; k<ev.nj;k++)
@@ -344,11 +371,10 @@ void ReadTree(TString filename,
 
 	  //cross clean with respect to leptons 
 	  if(jp4.DeltaR(lp4)<0.4) continue;
-
-	  resolvedJetIdx.push_back(k);
-	  jetDiff -= jp4;
+	  if(isZ && jp4.DeltaR(l2p4)<0.4)continue;
 
 	  //smear jet energy resolution for MC
+	  jetDiff -= jp4;
 	  float genJet_pt(ev.genj_pt[k]); 
 	  if(!ev.isData && genJet_pt>0) 
 	    {
@@ -356,6 +382,10 @@ void ReadTree(TString filename,
 	      jp4 *= jerSmear;
 	    }
 	  jetDiff += jp4;
+	  resolvedJetIdx.push_back(k);
+
+	  //require back-to-back configuration with Z
+	  if(isZ && jp4.DeltaPhi(dilp4)<2.7) continue;
 
 	  // re-inforce kinematics cuts
 	  if(jp4.Pt()<30) continue;
@@ -399,7 +429,7 @@ void ReadTree(TString filename,
 	  if(isBTagged) bJets.push_back(jp4);
 	  else          lightJets.push_back(jp4);
 	}
-      
+
       //check if flavour splitting was required
       if(!ev.isData)
 	{
@@ -416,41 +446,74 @@ void ReadTree(TString filename,
       met.SetPtEtaPhiM(ev.met_pt[2],0,ev.met_phi[2],0.);
       met+=jetDiff;
       met.SetPz(0.); met.SetE(met.Pt());
-      float mt( computeMT(lp4,met) );
-      
+      float mt( computeMT(isZ ? dilp4: lp4,met) );
+
       //compute neutrino kinematics
       neutrinoPzComputer.SetMET(met);
-      neutrinoPzComputer.SetLepton(lp4);
+      neutrinoPzComputer.SetLepton(isZ ? dilp4 : lp4);
+      
       float nupz=neutrinoPzComputer.Calculate();
       TLorentzVector neutrinoHypP4(met.Px(),met.Py(),nupz ,TMath::Sqrt(TMath::Power(met.Pt(),2)+TMath::Power(nupz,2)));
       visSystem+=neutrinoHypP4;
 
+      //balancing variable and ISR control variable
+      float RMPF(0.0),alpha(0.0);
+      TVector2 metT(met.Px(),met.Py());
+      TVector2 visT(isZ ? dilp4.Px() : lp4.Px(), isZ ? dilp4.Py() : lp4.Py());
+      RMPF=1.0+(metT*visT)/visT.Mod2();
+      for(size_t ij=0; ij<resolvedJetIdx.size(); ij++)
+	{
+	  Int_t k=resolvedJetIdx[ij];
+	  if(k==leadingJetIdx) continue;
+	  if(ev.j_pt[k]<15 || fabs(ev.j_eta[k])>3.0) continue;
+	  alpha=ev.j_pt[k]/(isZ ? dilp4.Pt() : lp4.Pt());
+	}
+      
       //event weight
       float wgt(1.0);
-      std::vector<float> puWeight(3,1.0),lepTriggerSF(3,1.0),lepSelSF(3,1.0);
+      std::vector<float> puWeight(3,1.0),lepTriggerSF(3,1.0),lepSelSF(3,1.0), topPtWgt(3,1.0);
       if(!ev.isData)
 	{
 	  //update lepton selection scale factors, if found
 	  TString prefix("m");
-	  if(lid==11 || lid==1100) prefix="e";
+	  if(lid==11 || lid==1100 || lid==2111) prefix="e";
 	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end())
 	    {
-	      float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
-	      float etaForEff=TMath::Max(TMath::Min(float(fabs(lp4.Eta())),maxEtaForEff),minEtaForEff);
-	      Int_t etaBinForEff=lepEffH[prefix+"_sel"]->GetXaxis()->FindBin(etaForEff);
-	      
-	      float minPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmin() ), maxPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmax()-0.01 );
-	      float ptForEff=TMath::Max(TMath::Min(float(lp4.Pt()),maxPtForEff),minPtForEff);
-	      Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
+	      for(size_t il=0; il<tightLeptonsIso.size(); il++)
+		{
+		  Int_t ilIdx=tightLeptonsIso[il];
+		  float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
+		  float etaForEff=TMath::Max(TMath::Min(float(fabs(ev.l_eta[ilIdx])),maxEtaForEff),minEtaForEff);
+		  Int_t etaBinForEff=lepEffH[prefix+"_sel"]->GetXaxis()->FindBin(etaForEff);
+		  
+		  float minPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmin() ), maxPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmax()-0.01 );
+		  float ptForEff=TMath::Max(TMath::Min(float(ev.l_pt[ilIdx]),maxPtForEff),minPtForEff);
+		  Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
+		  
+		  float selSF(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
+		  float selSFUnc(lepEffH[prefix+"_sel"]->GetBinError(etaBinForEff,ptBinForEff));
+		  
+		  float trigSF(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
+		  float trigSFUnc(lepEffH[prefix+"_trig"]->GetBinError(etaBinForEff,ptBinForEff));
 
-	      float selSF(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
-	      float selSFUnc(lepEffH[prefix+"_sel"]->GetBinError(etaBinForEff,ptBinForEff));
+		  lepTriggerSF[0]*=trigSF; lepTriggerSF[1]*=(trigSF-trigSFUnc); lepTriggerSF[2]*=(trigSF+trigSFUnc);
+		  lepSelSF[0]*=selSF;      lepSelSF[1]*=(selSF-selSFUnc);       lepSelSF[2]*=(selSF+selSFUnc);
+		}
 
-	      float trigSF(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
-	      float trigSFUnc(lepEffH[prefix+"_trig"]->GetBinError(etaBinForEff,ptBinForEff));
-
-	      lepTriggerSF[0]=trigSF; lepTriggerSF[1]=trigSF-trigSFUnc; lepTriggerSF[2]=trigSF+trigSFUnc;
-	      lepSelSF[0]=selSF;      lepSelSF[1]=selSF-selSFUnc;       lepSelSF[2]=selSF+selSFUnc;
+	      Int_t ntops(0);
+	      float ptsf(1.0);
+	      for(Int_t igen=0; igen<ev.ngenHardProc; igen++)
+		{
+		  if(abs(ev.ghp_id[igen])!=6) continue;
+		  ntops++;
+		  ptsf *= TMath::Exp(0.156-0.00137*ev.ghp_pt[igen]);
+		}
+	      if(ptsf>0 && ntops==2)
+		{
+		  ptsf=TMath::Sqrt(ptsf);
+		  topPtWgt[1]=1./ptsf;
+		  topPtWgt[2]=ptsf;
+		}
 	    }
 
 	  //update pileup weights, if found
@@ -472,6 +535,8 @@ void ReadTree(TString filename,
       int nBtagsCat=TMath::Min((int)(bJets.size()),(int)2);
       std::vector<TString> catsToFill(2,Form("%dj",nJetsCat));
       catsToFill[1]+= Form("%dt",nBtagsCat);
+      allPlots["puwgtctr"]->Fill(0.,puWeight[0]!=0 ? wgt/puWeight[0] : 0.);
+      allPlots["puwgtctr"]->Fill(1.,wgt);
       if(bJets.size()+lightJets.size()>=1)
 	{
 	  std::map<Int_t,Float_t>::iterator rIt=lumiMap.find(ev.run);	  
@@ -484,8 +549,8 @@ void ReadTree(TString filename,
 		  allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
 		}
 
-	      allPlots["lpt_"+tag]->Fill(lp4.Pt(),wgt);
-	      allPlots["leta_"+tag]->Fill(lp4.Eta(),wgt);
+	      allPlots["lpt_"+tag]->Fill(isZ ? dilp4.Pt() : lp4.Pt(),wgt);
+	      allPlots["leta_"+tag]->Fill(isZ ? dilp4.Eta() : lp4.Eta(),wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
 	      allPlots["lreliso_"+tag]->Fill(ev.l_relIso[lepIdx],wgt);
 	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
@@ -497,13 +562,15 @@ void ReadTree(TString filename,
 	      allPlots["mt_"+tag]->Fill(mt,wgt);
 	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
 	      allPlots["ht_"+tag]->Fill(htsum,wgt);
+	      allPlots["alpha_"+tag]->Fill(alpha,wgt);
+	      if(alpha<0.3) allPlots["RMPF_"+tag]->Fill(RMPF,wgt);
 	      if(icat==0) allPlots["nbtags_"+tag]->Fill(bJets.size(),wgt);
-	      
+	     
 	      if(bJets.size())
 		{
-		  float mlb=(bJets[0]+lp4).M();
-		  if(bJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(bJets[1]+lp4).M() );
-		  allPlots["minmlb_"+tag]->Fill(mlb,wgt);
+		  float mlb=(bJets[0]+(isZ ? dilp4 : lp4)).M();		  
+		  if(bJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(bJets[1]+(isZ ? dilp4 : lp4)).M() );
+		  allPlots["minmlb_"+tag]->Fill(mlb,wgt);		 		 
 		}	  
 	    }
 	}
@@ -525,6 +592,7 @@ void ReadTree(TString filename,
 		  TString tag=catsToFill[icat];	 
 		  all2dPlots["mtshapes_"+tag+"_gen"]->Fill(mt,igen,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->Fill(mlb,igen,newWgt);
+		  if(alpha<0.3) all2dPlots["RMPFshapes_"+tag+"_gen"]->Fill(RMPF,igen,newWgt);
 		  if(icat==0) all2dPlots["nbtagsshapes_"+tag+"_gen"]->Fill(bJets.size(),igen,newWgt);
 		}
 	    }
@@ -544,24 +612,40 @@ void ReadTree(TString filename,
 	      float newWgt(wgt);
 	      if(varName=="Pileup" && puWeight[0]!=0) newWgt*=(isign==0 ? puWeight[1]/puWeight[0] : puWeight[2]/puWeight[0]);
 	      if(
-		 (varName=="MuTrigger" && (lid==13 || lid==1300)) ||
-		 (varName=="EleTrigger" && (lid==11 || lid==1300))
+		 (varName=="MuTrigger" && (lid==13 || lid==1300 || lid==2113)) ||
+		 (varName=="EleTrigger" && (lid==11 || lid==1100 || lid==2111))
 		 )
 		newWgt *= (isign==0 ? lepTriggerSF[1]/lepTriggerSF[0] : lepTriggerSF[2]/lepTriggerSF[0]);
 	      if(
-		 (varName=="MuEfficiency" && (lid==13 ||  lid==1300)) ||
-		 (varName=="EleEfficiency" && (lid==11 || lid==1300))
+		 (varName=="MuEfficiency" && (lid==13 ||  lid==1300 || lid==2113)) ||
+		 (varName=="EleEfficiency" && (lid==11 || lid==1100 || lid==2111))
 		 )
 		newWgt *= (isign==0 ? lepSelSF[1]/lepSelSF[0] : lepSelSF[2]/lepSelSF[0]);
+	      if(
+		 varName=="topPt"
+		 )
+		newWgt *= topPtWgt[1+isign];
 
 	      //lepton scale systematics
-	      TLorentzVector varlp4(lp4);
+	      TLorentzVector varlp4(lp4),varl2p4(0,0,0,0),vardilp4(0,0,0,0);
+	      if(isZ)
+		varl2p4.SetPtEtaPhiM(ev.l_pt[tightLeptonsIso[1]],ev.l_eta[tightLeptonsIso[1]],ev.l_phi[tightLeptonsIso[1]],ev.l_mass[tightLeptonsIso[1]]);		
 	      if(
-		 (varName=="MuScale" && ( lid==13 || lid==1300)) ||
-		 (varName=="EleScale" && (lid==11 || lid==1300))
+		 (varName=="MuScale" && ( lid==13 || lid==1300 || lid==2113)) ||
+		 (varName=="EleScale" && (lid==11 || lid==1100 || lid==2111))
 		 )
-		varlp4 = (1.0+(isign==0?-1.:1.)*getLeptonEnergyScaleUncertainty(lid,lp4.Pt(),lp4.Eta()) ) *lp4;
+		{
+		  varlp4 = (1.0+(isign==0?-1.:1.)*getLeptonEnergyScaleUncertainty(lid,lp4.Pt(),lp4.Eta()) ) *lp4;
+		  if(isZ) varl2p4 = (1.0+(isign==0?-1.:1.)*getLeptonEnergyScaleUncertainty(lid,varl2p4.Pt(),varl2p4.Eta()) ) *varl2p4;
+		}
 	      if(varlp4.Pt()<30 || fabs(varlp4.Eta())>2.1) continue;
+	      if(isZ) 
+		{
+		  if(varl2p4.Pt()<30 || fabs(varl2p4.Eta())>2.1) continue;
+		  vardilp4=varlp4+varl2p4;
+		  if(fabs(vardilp4.M()-91)>10) continue;
+		  if(vardilp4.Pt()<30) continue;
+		}
 
 	      //jets
 	      std::vector<TLorentzVector> varBJets,varLightJets;
@@ -574,7 +658,6 @@ void ReadTree(TString filename,
 		      int k(resolvedJetIdx[ij]);
 		      int jflav( abs(ev.j_hadflav[k]) ),jflavForJES( abs(ev.j_flav[k]) );
 		      
-
 		      //check kinematics
 		      TLorentzVector jp4;
 		      jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
@@ -672,6 +755,12 @@ void ReadTree(TString filename,
 	      float mlb(varBJets.size() ? (varBJets[0]+varlp4).M() : 0.);
 	      if(varBJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(varBJets[1]+varlp4).M() );
 
+	      //balancing variable
+	      float varRMPF(0);
+	      TVector2 metT(varMet.Px(),varMet.Py());
+	      TVector2 visT(isZ ? vardilp4.Px() : varlp4.Px(), isZ ? vardilp4.Py() : varlp4.Py());
+	      varRMPF=1.0+(metT*visT)/visT.Mod2();
+	
 	      //update categories
 	      int nvarJetsCat=TMath::Min((int)(varBJets.size()+varLightJets.size()),(int)4);
 	      int nvarBtagsCat=TMath::Min((int)(varBJets.size()),(int)2);
@@ -683,6 +772,7 @@ void ReadTree(TString filename,
 		  TString tag=varcatsToFill[icat];
 		  all2dPlots["mtshapes_"+tag+"_exp"]->Fill(varmt,2*ivar+isign,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_exp"]->Fill(mlb,2*ivar+isign,newWgt);
+		  all2dPlots["RMPFshapes_"+tag+"_exp"]->Fill(varRMPF,2*ivar+isign,newWgt);
 		  if(icat!=0) continue;
 		  all2dPlots["nbtagsshapes_"+tag+"_exp"]->Fill(varBJets.size(),2*ivar+isign,newWgt);
 		}
@@ -830,7 +920,7 @@ float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta)
   float unc(0.02);
   
   // electron uncertainties for 8 TeV cf. AN-14-145   
-  if(abs(l_id)==11)
+  if(abs(l_id)==11 || abs(l_id)==1100 || abs(l_id)==2111)
     {
       float par0(-2.27e-02), par1(-7.01e-02), par2(-3.71e-04);
       if (fabs(l_eta) > 0.8 && fabs(l_eta)<1.5)
