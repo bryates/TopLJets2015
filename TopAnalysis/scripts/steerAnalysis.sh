@@ -33,12 +33,12 @@ case $WHAT in
     PLOT )
 	a=(muplus muminus eplus eminus munoniso enoniso z)
 	for i in ${a[@]}; do
-	     echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi}
+	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --saveLog
 	done
 	a=(muplus muminus eplus eminus)
 	for i in ${a[@]}; do
-	     echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
+	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root --silent
 	done
 	;;

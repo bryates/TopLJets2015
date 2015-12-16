@@ -443,7 +443,7 @@ void ReadTree(TString filename,
 
       //MET and transverse mass
       TLorentzVector met(0,0,0,0);
-      met.SetPtEtaPhiM(ev.met_pt[2],0,ev.met_phi[2],0.);
+      met.SetPtEtaPhiM(ev.met_pt[0],0,ev.met_phi[0],0.);
       met+=jetDiff;
       met.SetPz(0.); met.SetE(met.Pt());
       float mt( computeMT(isZ ? dilp4: lp4,met) );
@@ -557,8 +557,8 @@ void ReadTree(TString filename,
 	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ leadingJetIdx ]),wgt);
 	      allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
 	      allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
-	      allPlots["met_"+tag]->Fill(ev.met_pt[2],wgt);
-	      allPlots["metphi_"+tag]->Fill(ev.met_phi[2],wgt);
+	      allPlots["met_"+tag]->Fill(ev.met_pt[0],wgt);
+	      allPlots["metphi_"+tag]->Fill(ev.met_phi[0],wgt);
 	      allPlots["mt_"+tag]->Fill(mt,wgt);
 	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
 	      allPlots["ht_"+tag]->Fill(htsum,wgt);
