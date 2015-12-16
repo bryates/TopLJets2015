@@ -39,7 +39,7 @@ case $WHAT in
 	a=(muplus muminus eplus eminus)
 	for i in ${a[@]}; do
 	     echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root --silent
 	done
 	;;
     BKG )
