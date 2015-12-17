@@ -5,6 +5,7 @@ WHAT=$1; if [[ "$1" == "" ]]; then echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG>";
 queue=8nh
 eosdir=/store/cmst3/user/psilva/LJets2015/64217e8
 outdir=~/work/LJets2015/
+wwwdir=~/www/LJets2015
 lumi=2134
 
 RED='\e[31m'
@@ -31,7 +32,7 @@ case $WHAT in
 	done
 	;;
     PLOT )
-	a=(muplus muminus) # eplus eminus munoniso enoniso z)
+	a=(muplus muminus eplus eminus munoniso enoniso z)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --saveLog
@@ -49,6 +50,15 @@ case $WHAT in
 	    for j in ${b[@]}; do
 		python scripts/runQCDEstimation.py --iso ${outdir}/analysis_${i}${j}/plots/plotter.root --noniso ${outdir}/analysis_${i}noniso/plots/plotter.root --out ${outdir}/analysis_${i}${j}/
 	    done
+	done
+	;;
+    WWW )
+	a=(muplus muminus eplus eminus munoniso enoniso z)
+	for i in ${a[@]}; do
+	    echo -e "[ ${RED} Moving plots for${i} ${NC} ]"
+	    mkdir -p ${wwwdir}/${i};
+	    cp ${outdir}/analysis_${i}/plots/*.png ${wwwdir}/${i};
+	    cp test/index.php ${wwwdir}/${i};
 	done
 	;;
 esac
