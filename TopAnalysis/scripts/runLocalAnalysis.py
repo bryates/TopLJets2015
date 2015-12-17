@@ -96,7 +96,7 @@ def main():
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
-                doFlavourSplitting=True if 'MC13TeV_WJets' in tag else False
+                doFlavourSplitting=True if ('MC13TeV_WJets' in tag or 'MC13TeV_DY50toInf' in tag) else False
                 if doFlavourSplitting:
                     for flav in [0,1,4,5]:
                         task_list.append( (inF,outF,opt.channel,opt.charge,wgtH,flav,opt.runSysts) )

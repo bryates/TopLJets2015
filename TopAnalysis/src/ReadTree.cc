@@ -293,7 +293,7 @@ void ReadTree(TString filename,
 	{
 	  bool passTightKin(ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.1);
 	  bool passVetoKin(ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5);
-	  bool passTightId((ev.l_pid[il]>>2)&0x1);
+	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
 	  float relIso(ev.l_relIso[il]);
 	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  bool passNonIso(relIso>0.4);
@@ -324,6 +324,7 @@ void ReadTree(TString filename,
 	    isZ=true; 
 	  lepIdx=tightLeptonsIso[0];
 	}
+
       if(lepIdx<0) continue;
       
       //no extra isolated leptons
@@ -350,7 +351,6 @@ void ReadTree(TString filename,
 	  else                     { if(lid!=channelSelection) continue; }
 	}
       if(chargeSelection!=0  && ev.l_charge[lepIdx]!=chargeSelection) continue;
-
 
       //lepton kinematics
       TLorentzVector lp4;
