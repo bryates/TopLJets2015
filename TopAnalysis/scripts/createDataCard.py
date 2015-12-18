@@ -118,7 +118,7 @@ def main():
     #loop over categories
     for cat in catList:
 
-        print 'Iniating datacard for ',cat
+        print 'Initiating %s datacard for %s'%(opt.dist,cat)
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
@@ -204,7 +204,7 @@ def main():
                     
             #test if at least one process has been white listed
             if len(upShapes)+len(downShapes)==0:
-                print 'Skipping',systVar,'for %s'%cat
+                print '\t skipping',systVar,'for %s'%cat
                 continue
 
             #export to shapes file
@@ -228,7 +228,13 @@ def main():
 
         #rate systematics
         rateSysts=[
-            ('lumi',           1.046,    'lnN',    []                ,['Multijetsdata']),
+            ('lumi',          1.046,    'lnN',    []                   ,['Multijetsdata']),
+            ('Wnorm',         1.038,    'lnN',    ['Wl','Wc','Wb']     ,[]),
+            ('DYnorm',        1.038,    'lnN',    ['DYl','DYc','DYb']  ,[]),
+            ('tWnorm',        1.054,    'lnN',    ['tW']               ,[]),
+            ('tnorm',         1.044,    'lnN',    ['tch']              ,[]),
+            ('VVnorm',        1.20,     'lnN',    ['Multiboson']       ,[]),
+            ('tbartVnorm',    1.30,     'lnN',    ['tbartV']           ,[]),
             ]
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
@@ -261,10 +267,10 @@ def main():
         #generator level systematics 
         if systfIn is None: continue
         sampleSysts=[
-            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True , True),
-            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                True , True),
-            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      True , True),            
-            ('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                True , True),
+            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                False , True),
+            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True),
+            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True),            
+            ('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  False , True),
             #('Hadronizer',      {'tbart'         : ['tbartaMCatNLO']},                                                                True , True),
             ('wFactScale',           { 'Wl': ['mur1muf0.5','mur1muf2'],   'Wc': ['mur1muf0.5','mur1muf2'],  'Wb': ['mur1muf0.5','mur1muf2'] },   False, False),
             ('wRenScale',            { 'Wl': ['mur0.5muf1','mur2muf1'],   'Wc': ['mur0.5muf1','mur2muf1'],  'Wb': ['mur0.5muf1','mur2muf1'] },   False, False),

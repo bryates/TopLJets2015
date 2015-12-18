@@ -113,85 +113,29 @@ sh scripts/steerAnalysis.sh <DISTS/MERGE/PLOT/BKG>
 
 We use the Higgs combination tool to perform the fit of the production cross section.
 (cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit for details of the release to use).
-It currently has to be run from a CMSSW_7_1_5 release.
-
-### Cut in categories
-
-To create the datacard you can run the following script
+It currently has to be run from a CMSSW_7_1_5 release. To create the datacard you can run the following script
 ```
 python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o  analysis_muplus/datacard  -q analysis_muplus/.qcdscalefactors.pck -d nbtags
-python scripts/createDataCard.py -i analysis_muminus/plots/plotter.root -o analysis_muminus/datacard -q analysis_muminus/.qcdscalefactors.pck -d nbtags
 ```
-Combine the datacards per category above into the final one per channel
-```
-#charge combinations
-a=(muplus muminus)
-for i in ${a[@]}; do
-    cd analysis_${i}/datacard;
-    combineCards.py ${i}1j=datacard_1j.dat ${i}2j=datacard_2j.dat ${i}3j=datacard_3j.dat ${i}4j=datacard_4j.dat > datacard.dat
-    cd -;
-done
+The script can be used to create the datacard from any histogram stored in plotter.root.
+For the systematic variations it expects a 2D histogram named as HISTONAMEshapes_{exp,gen} filled with alternative variations of the shape,
+being exp/gen used for experimental/generator-level systematics.
+Additional systematics from alternative samples can also be used to build the datacards using the --systInput option.
+Other options are available to choose the categories to use.
+The datacards can be further combined using the standard combineCards.py script provided by the Higgs Combination package.
 
-#final combination
-mkdir -p analysis_mu/datacard
-cd analysis_mu/datacard
-combineCards.py muplus=../../analysis_muplus/datacard/datacard.dat muminus=../../analysis_muminus/datacard/datacard.dat > datacard.dat
-cd -
-```
-Run the fits and show the results
+To run the fits and show the results you can use the following script.
 ```
 python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat -o analysis_muplus/datacard &
-python scripts/fitCrossSection.py "#mu^{-}"=analysis_muminus/datacard/datacard.dat -o analysis_muminus/datacard &
-python scripts/fitCrossSection.py "#mu^{#pm}"=analysis_mu/datacard/datacard.dat -o analysis_mu/datacard &
 ```
-After all is run you can also compare the results with
+If --noFit is passed it displays the results of the last fit. The script is a wrapper used to run combine 
+to perform the fit with and without systematics, produce the post-fit nuisance parameters summary
+and the likelihood scans.
+For the standard analysis one can re-use the steerAnalysis.sh script with two options CinC/SHAPE
+will run the Cut-in-Categories/Shape analyses.
 ```
-python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat  "#mu^{-}"=analysis_muminus/datacard/datacard.dat  "#mu^{#pm}"=analysis_mu/datacard/datacard.dat --noFit
+sh scripts/steerAnalysis.sh CinC/SHAPE
 ```
-
-### Full shape analysis
-
-To create the datacard you can run the following script
-```
-a=(muplus muminus)
-for i in ${a[@]}; do 
-    python scripts/createDataCard.py -i analysis_${i}/plots/plotter.root --systInput analysis_${i}/plots/syst_plotter.root -o  analysis_${i}/datacard_shape  -q analysis_${i}/.qcdscalefactors.pck -d mt     -c 1j0t,2j0t,3j0t,4j0t;
-    python scripts/createDataCard.py -i analysis_${i}/plots/plotter.root --systInput analysis_${i}/plots/syst_plotter.root -o  analysis_${i}/datacard_shape  -q analysis_${i}/.qcdscalefactors.pck -d minmlb -c 1j1t,2j1t,2j2t,3j1t,3j2t,4j1t,4j2t;
-done
-```
-Combine the datacards per category above into the final one per channel
-```
-#charge combinations
-a=(muplus muminus)
-cats=(1j0t 1j1t 2j0t 2j1t 2j2t 3j0t 3j1t 3j2t 4j0t 4j1t 4j2t)
-for i in ${a[@]}; do
-    cd analysis_${i}/datacard_shape;
-    tocombine=""
-    for c in ${cats[@]}; do
-    	tocombine="${i}${c}=datacard_${c}.dat ${tocombine}"
-    done
-    combineCards.py ${tocombine} > datacard.dat
-    cd -;
-done
-
-#final combination
-mkdir -p analysis_mu/datacard_shape
-cd analysis_mu/datacard_shape
-combineCards.py muplus=../../analysis_muplus/datacard_shape/datacard.dat muminus=../../analysis_muminus/datacard_shape/datacard.dat > datacard.dat
-cd -
-```
-Run the fits and show the results
-```
-python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard_shape/datacard.dat  -o analysis_muplus/datacard_shape --POIs r,Mtop &
-python scripts/fitCrossSection.py "#mu^{-}"=analysis_muminus/datacard_shape/datacard.dat -o analysis_muminus/datacard_shape --POIs r,Mtop &
-python scripts/fitCrossSection.py "#mu^{#pm}"=analysis_mu/datacard_shape/datacard.dat    -o analysis_mu/datacard_shape  --POIs r,Mtop &
-```
-After all is run you can also compare the results with
-```
-python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard_shape/datacard.dat  "#mu^{-}"=analysis_muminus/datacard_shape/datacard.dat  "#mu^{#pm}"=analysis_mu/datacard_shape/datacard.dat --noFit
-python scripts/fitCrossSection.py "#mu(c&c)"=analysis_muplus/datacard/datacard.dat  "#mu(shape)"=analysis_mu/datacard_shape/datacard.dat --noFit
-```
-
 
 ## Updating the code
 

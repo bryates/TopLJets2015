@@ -371,7 +371,7 @@ def main():
     parser = optparse.OptionParser(usage)
     parser.add_option('-o', '--output',       dest='output',       help='output directory',       default='./',           type='string')
     parser.add_option(      '--noFit',        dest='noFit',        help='don\'t run the fits',    action='store_true')
-    parser.add_option(      '--POIs',         dest='POIs',         help='parameters of interest', default='r,BtagEff',       type='string')
+    parser.add_option(      '--POIs',         dest='POIs',         help='parameters of interest', default='r',            type='string')
     parser.add_option(      '--unblind',      dest='unblind',      help='unblind',                action='store_true')
     (opt, args) = parser.parse_args()
 
