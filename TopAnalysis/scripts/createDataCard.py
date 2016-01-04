@@ -18,15 +18,32 @@ def acceptVariationForDataCard(nomH,upH,downH,tol=1e-2):
     accept = True if (diffUp>tol or diffDown>tol) else False
     return accept
 
+"""
+in case of multiple signals, remove others
+"""
+def filterShapeList(exp,signalList,rawSignalList):
+    newExp={}
+    for key in exp:
+
+        matchFound=False
+        for rawKey in rawSignalList:
+            if rawKey in key:
+                matchFound=True
+        if matchFound and not key in signalList : continue
+
+        newExp[key]=exp[key]
+    return newExp
+
 
 """
 get distributions from file
 """
-def getDistsFrom(directory):
+def getDistsFrom(directory,keyFilter=''):
     obs=None
     exp={}
     dirName=directory.GetName()
     for key in directory.GetListOfKeys():
+        if len(keyFilter)>0 and key.GetName()!='%s_%s'%(dirName,keyFilter) : continue
         obj=directory.Get(key.GetName())
         if not obj.InheritsFrom('TH1') : continue
         if obj.GetName()==dirName : 
@@ -89,14 +106,20 @@ def main():
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--input',          dest='input',       help='input plotter',                                      default=None,          type='string')
     parser.add_option(      '--systInput',      dest='systInput',   help='input plotter for systs from alternative samples',   default=None,          type='string')
-    parser.add_option('-d', '--dist',           dest='dist',        help='distribution',                                       default='njetsnbtags', type='string')
+    parser.add_option('-d', '--dist',           dest='dist',        help='distribution',                                       default='nbtags',      type='string')
     parser.add_option('-s', '--signal',         dest='signal',      help='signal (csv)',                                       default='tbart',       type='string')
+    parser.add_option('-m', '--mass',           dest='mass',        help='signal mass',                                        default=0,             type=float)
     parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',                                   default='1j,2j,3j,4j', type='string')
     parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file',                             default=None,          type='string')
     parser.add_option('-o', '--output',         dest='output',      help='output directory',                                   default='datacards',   type='string')
     (opt, args) = parser.parse_args()
 
-    signalList=opt.signal.split(',')
+    rawSignalList=opt.signal.split(',')
+    signalList=rawSignalList[:]
+    if opt.mass!=0:
+        for i in xrange(0,len(rawSignalList)):
+            signalList[i]='%sm%3.0f'%(rawSignalList[i],10*opt.mass)
+
     catList=opt.cat.split(',')
 
     #read qcd normalization
@@ -122,12 +145,13 @@ def main():
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
-    
+        exp=filterShapeList(exp,signalList,rawSignalList)
+
         #prepare output ROOT file
         outFile='%s/shapes_%s.root'%(opt.output,cat)
         fOut=ROOT.TFile.Open(outFile,'RECREATE')
         fOut.Close()
-
+        
         #start the datacard
         datacard=open('%s/datacard_%s.dat'%(opt.output,cat),'w')
         datacard.write('#\n')
@@ -150,7 +174,7 @@ def main():
         datacard.write('\t\t\t %15s'%'bin')
         for i in xrange(0,len(exp)): datacard.write('%15s'%'1')
         datacard.write('\n')
-        datacard.write('\t\t\t %15s'%'process')
+        datacard.write('\t\t\t %15s '%'process')
         for sig in signalList: datacard.write('%15s'%sig)
         for proc in exp: 
             if proc in signalList: continue
@@ -175,9 +199,10 @@ def main():
         nomShapes=exp.copy()
         nomShapes['data_obs']=obs
         saveToShapesFile(outFile,nomShapes,'nom')
-    
+
         #experimental systematics
         _,expVarShapes=getDistsFrom(directory=fIn.Get('%sshapes_%s_exp'%(opt.dist,cat)))
+        expVarShapes=filterShapeList(expVarShapes,signalList,rawSignalList)
         nExpSysts=expVarShapes[signalList[0]].GetNbinsY()/2
         for isyst in xrange(1,nExpSysts):
             
@@ -280,7 +305,9 @@ def main():
             ('ttCombScale',          { 'tbart': ['muR0.5muF0.5','muR2muF2'] },                                                                    False , False),
             ]
         _,genVarShapes = getDistsFrom(directory=fIn.Get('%sshapes_%s_gen'%(opt.dist,cat)))
+        genVarShapes=filterShapeList(genVarShapes,signalList,rawSignalList)
         _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
+        altExp=filterShapeList(altExp,signalList,rawSignalList)
         for systVar, procsToApply, normalize, useAltShape in sampleSysts:
 
             #prepare shapes and check if variation is significant
@@ -352,8 +379,6 @@ def main():
 
         #all done
         datacard.close()
-
-
 
 
 """                                                                                                                                                                                                               

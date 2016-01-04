@@ -1,10 +1,30 @@
 #!/bin/bash
 
-WHAT=$1; if [[ "$1" == "" ]]; then echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG>"; exit 1; fi
+WHAT=$1; 
+if [[ "$1" == "" ]]; then 
+    echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG/CinC/SHAPE/GENSTOP> [plotter.root] [signal] [mass]"; 
+    echo "        SEL     - launches selection jobs to the batch"; 
+    echo "        PLOT    - runs the plotter tool"
+    echo "        BKG     - runs backgrond estimation script"
+    echo "        CinC    - runs the cut-in-categories analysis from the current plotter files"
+    echo "        SHAPE   - similar for the full shape analysis"
+    echo "        GENSTOP - interpolates ttbar mass shapes to generate an ad-hoc stealth stop signal with different masses"
+    echo "        LIMITS  - runs limit setting on a defined signal (pass as extra parameters the plotter.root file, the signal name, and the mass)"
+    exit 1; 
+fi
+
+sigplotter=${2}
+if [[ "${sigplotter}" == "" ]]; then sigplotter=plotter.root; fi
+
+signal=${3}
+if [[ "${signal}" == "" ]]; then signal=tbart; fi
+
+mass=${4}
+if [[ "${mass}" == "" ]]; then mass=0; fi
 
 queue=8nh
 eosdir=/store/cmst3/user/psilva/LJets2015/64217e8
-outdir=~/work/LJets2015/
+outdir=~/work/LJets2015
 wwwdir=~/www/LJets2015
 lumi=2134
 
@@ -73,7 +93,9 @@ case $WHAT in
 
 	    chDataCards=""
 	    for j in ${b[@]}; do
-		python scripts/createDataCard.py -i ${outdir}/analysis_${i}${j}/plots/plotter.root --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
+		python scripts/createDataCard.py --signal ${signal} \
+		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
+		    -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
 		cd ${outdir}/analysis_${i}${j}/datacard;
 		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat
 		chDataCards="${i}${j}=../../analysis_${i}${j}/datacard/datacard.dat ${chDataCards}"
@@ -166,10 +188,14 @@ case $WHAT in
 
 	    chDataCards=""
 	    for j in ${b[@]}; do
-
-		
-		python scripts/createDataCard.py -i ${outdir}/analysis_${i}${j}/plots/plotter.root --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root -o  ${outdir}/analysis_${i}${j}/datacard_shape  -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck -d mt     -c 1j0t,2j0t,3j0t,4j0t;
-		python scripts/createDataCard.py -i ${outdir}/analysis_${i}${j}/plots/plotter.root --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root -o  ${outdir}/analysis_${i}${j}/datacard_shape  -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck -d minmlb -c 1j1t,2j1t,2j2t,3j1t,3j2t,4j1t,4j2t;
+		python scripts/createDataCard.py --signal ${signal} \
+		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
+		    -o  ${outdir}/analysis_${i}${j}/datacard_shape  -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
+		    -d mt -c 1j0t,2j0t,3j0t,4j0t;
+		python scripts/createDataCard.py --signal ${signal} \
+		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
+		    -o  ${outdir}/analysis_${i}${j}/datacard_shape  -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
+		    -d minmlb -c 1j1t,2j1t,2j2t,3j1t,3j2t,4j1t,4j2t;
 
 		cd ${outdir}/analysis_${i}${j}/datacard_shape;
 		combineCards.py ${i}${j}1j0t=datacard_1j0t.dat \
@@ -263,6 +289,45 @@ case $WHAT in
 
 	;;
     
+    GENSTOP)
+	a=(mu e)
+	b=(plus minus)
+	for i in ${a[@]}; do
+	    for j in ${b[@]}; do
+		echo -e "[ ${RED} Emulating stealth stop by interpolation for ${i}${j} ${NC} ]"
+		python scripts/emulateStealthStop.py \
+		    -i 172.5:${outdir}/analysis_${i}${j}/plots/plotter.root,169.5:${outdir}/analysis_${i}${j}/plots/syst_plotter.root,175.5:${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
+		    --scan 169.5,175.5,1.0 \
+		    -o ${outdir}/analysis_${i}${j}/plots/stealth_stop_plotter.root;
+
+		hadd -f -k ${outdir}/analysis_${i}${j}/plots/sig_plotter.root ${outdir}/analysis_${i}${j}/plots/stealth_stop_plotter.root ${outdir}/analysis_${i}${j}/plots/plotter.root;
+		echo " ...full signal plotter can be found in ${outdir}/analysis_${i}${j}/plots/sig_plotter.root"
+	    done
+	done
+	;;
+  LIMITS )
+	echo -e "[ ${RED} Creating datacards ${NC} ]"
+	a=(mu e)
+	b=(plus minus)
+	finalDataCards=""
+	for i in ${a[@]}; do	 
+	    for j in ${b[@]}; do
+		python scripts/createDataCard.py --signal ${signal} --mass ${mass}\
+		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
+		    -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck -d nbtags -o ${outdir}/analysis_${i}${j}/datacard_limit_${signal}${mass};
+		cd ${outdir}/analysis_${i}${j}/datacard_limit_${signal}${mass};
+		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat
+		finalDataCards="${i}${j}=../../analysis_${i}${j}/datacard_limit_${signal}${mass}/datacard.dat ${finalDataCards}"
+		cd -
+	    done
+	done
+	
+	echo "Combining datacards for all channels from ${finalDataCards}"
+	mkdir -p ${outdir}/analysis/datacard_limit_${signal}${mass}/
+	cd ${outdir}/analysis/datacard_limit_${signal}${mass}/
+	combineCards.py ${finalDataCards} > datacard.dat
+	cd -
+	;;
 
 
 
