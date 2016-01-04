@@ -307,7 +307,8 @@ def main():
         _,genVarShapes = getDistsFrom(directory=fIn.Get('%sshapes_%s_gen'%(opt.dist,cat)))
         genVarShapes=filterShapeList(genVarShapes,signalList,rawSignalList)
         _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
-        altExp=filterShapeList(altExp,signalList,rawSignalList)
+        if signalList[0]!=rawSignalList[0]:
+            altExp=filterShapeList(altExp,signalList,rawSignalList)
         for systVar, procsToApply, normalize, useAltShape in sampleSysts:
 
             #prepare shapes and check if variation is significant
