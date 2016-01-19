@@ -297,6 +297,7 @@ void ReadTree(TString filename,
 	  float relIso(ev.l_relIso[il]);
 	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  bool passNonIso(relIso>0.4);
+	  if( ev.l_id[il]==11 && (ev.l_pid[il]>>1)&0x1==1 ) passNonIso=false;
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); 
 	  if(passTightKin && passTightId)
 	    {
