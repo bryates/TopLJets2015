@@ -9,16 +9,28 @@ from TopLJets2015.TopAnalysis.storeTools import *
 """
 Get data and sum of MC from file
 """
-def getTemplates(fIn,dist,tag,rebin=False):
-    data,sumMC=None,None
+def getTemplates(fIn,dist,tag,refName='Multijets'):
+    data,refH,sumMC=None,None,None
     for key in fIn.Get(dist).GetListOfKeys():
+
         keyName=key.GetName()
-        if 'Multijets' in keyName : continue
         if 'Graph' in keyName : continue
+
         h=fIn.Get('%s/%s'%(dist,keyName))
-        if keyName==dist:
+
+        #reference
+        if refName in keyName : 
+            if refH:
+                refH.Add(h)
+            else:
+                refH=h.Clone('%s_%s'%(refName,tag))
+                refH.SetDirectory(0)
+        #data
+        elif keyName==dist:
             data=h.Clone('data_'+tag)
             data.SetDirectory(0)
+
+        #other processes
         else:
             if sumMC:
                 sumMC.Add(h)
@@ -26,16 +38,7 @@ def getTemplates(fIn,dist,tag,rebin=False):
                 sumMC=h.Clone('mcsum_'+tag)
                 sumMC.SetDirectory(0)
 
-    for xbin in xrange(1,sumMC.GetNbinsX()+1):
-        val=sumMC.GetBinContent(xbin)
-        if val==0:
-            sumMC.SetBinContent(xbin,1e-3)
-
-    #if rebin:
-    #    data.Rebin()
-    #    sumMC.Rebin()
-
-    return data,sumMC
+    return data,sumMC,refH
 
 
 """
@@ -48,7 +51,6 @@ def main():
     parser.add_option('--iso',          dest='iso',          help='plotter file with the iso selection',        default=None,       type='string')
     parser.add_option('--noniso',       dest='noniso',       help='plotter file with the non iso selection',    default=None,       type='string')
     parser.add_option('--out',          dest='outdir',       help='output directory',                           default='./',       type='string')
-    parser.add_option('--norm',         dest='norm',         help='SIP3d cut to normalized QCD',                default=3.0,        type=float)
     (opt, args) = parser.parse_args()
 
     #prepare output
@@ -57,12 +59,12 @@ def main():
     #prepare fitter
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
-    ROOT.gROOT.SetBatch(True)
+    #ROOT.gROOT.SetBatch(True)
     ROOT.AutoLibraryLoader.enable()
-    ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
-    ROOT.gROOT.LoadMacro('src/TemplatedFitTools.cc+')
-    from ROOT import TemplatedFitTools
-    fracFitter=ROOT.TemplatedFitTools()
+    #ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
+    #ROOT.gROOT.LoadMacro('src/TemplatedFitTools.cc+')
+    #from ROOT import TemplatedFitTools
+    #fracFitter=ROOT.TemplatedFitTools()
         
     #open inputs
     fNonIso=ROOT.TFile.Open(opt.noniso)
@@ -71,50 +73,44 @@ def main():
     #perform a fit to a variable of interest
     nonIsoTemplateSF={}
     qcdNormUnc={}
-    #for sel in ['1j0t','1j1t','2j0t','2j1t','2j2t','3j0t','3j1t','3j2t','4j0t','4j1t','4j2t']:  #too aggressive given QCD is small after 2t
     for sel in ['1j','2j','3j','4j']: 
 
         #data in the sideband
-        dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist='lsip3d_%s'%sel, tag='noniso',rebin=True)
+        dataNonIso,      sumMCNonIso, _      = getTemplates(fIn=fNonIso, dist='metpt_%s0t'%sel,     tag='noniso')
+        dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s0t'%sel, tag='nonisoalt')
 
         #data in the signal region
-        dataIso,    sumMCIso    = getTemplates(fIn=fIso,    dist='lsip3d_%s'%sel, tag='iso',rebin=True)
+        dataIso,    sumMCIso, _     = getTemplates(fIn=fIso,    dist='metpt_%s0t'%sel,    tag='iso')
+        dataIsoAlt, sumMCIsoAlt, _  = getTemplates(fIn=fIso,        dist='mt_%s0t'%sel, tag='isoalt')
 
-        #normalized QCD template above the cut in SIP3d (include overflow)
-        xbin=dataNonIso.GetXaxis().FindBin(opt.norm)
-        nxbins=dataNonIso.GetNbinsX()+1        
+        #normalized QCD template below the MT cut
+        bin0           = 1
+        binN           = dataNonIso.GetXaxis().FindBin(40.)
+        niso           = dataIso.Integral(bin0,binN)
+        nmciso         = sumMCIso.Integral(bin0,binN)
+        nnoniso        = dataNonIso.Integral(bin0,binN)
+        nmcnoniso      = sumMCNonIso.Integral(bin0,binN)
 
-        #signal region
-        niso=dataIso.Integral(xbin,nxbins)
-        nmciso=sumMCIso.Integral(xbin,nxbins)
-        niso_max,niso_cen,niso_min=niso,ROOT.TMath.Max(niso-0.7*nmciso,0.),ROOT.TMath.Max(niso-1.3*nmciso,0.)
-        
-        #control region
-        nmcnoniso=sumMCNonIso.Integral(xbin,nxbins)
-        nnoniso=dataNonIso.Integral(xbin,nxbins)
-        nnoniso_max,nnoniso_cen,nnoniso_min=nnoniso,ROOT.TMath.Max(nnoniso-0.7*nmcnoniso,0.),ROOT.TMath.Max(nnoniso-1.3*nmcnoniso,0.)
+        #normalized QCD template above the Alt cut
+        bin0         = 0
+        binN         = dataNonIsoAlt.GetXaxis().FindBin(20.0)
+        nisoAlt      = dataIsoAlt.Integral(bin0,binN)
+        nmcisoAlt    = sumMCIsoAlt.Integral(bin0,binN)
+        nnonisoAlt   = dataNonIsoAlt.Integral(bin0,binN)
+        nmcnonisoAlt = sumMCNonIsoAlt.Integral(bin0,binN)
 
         #scale factors to apply and relative uncertainty (maximised)
-        nonIsoTemplateSF[sel]=niso_cen/nnoniso_cen
-        qcdNormUnc[sel]=( (niso_min/nnoniso_max)/nonIsoTemplateSF[sel],
-                          (niso_max/nnoniso_min)/nonIsoTemplateSF[sel] )
+        nonIsoSF=ROOT.TMath.Max(niso-nmciso,0.)/(nnoniso-nmcnoniso)
+        nonIsoSFAlt=ROOT.TMath.Max(nisoAlt-nmcisoAlt,0.)/(nnonisoAlt-nmcnonisoAlt)
+        unc=ROOT.TMath.Abs(nonIsoSFAlt/nonIsoSF-1)
+        
+        nonIsoTemplateSF[sel]=(nonIsoSF,unc)
 
         #free mem
         dataNonIso.Delete()
         sumMCNonIso.Delete()
         dataIso.Delete()
         sumMCIso.Delete()
-
-
-    #combined categories
-    #for combCat in ['1j','2j','3j','4j']:
-    #    totalIni,totalFinal=0,0
-    #    for btags in xrange(0,3):
-    #        key='%s%dt'%(combCat,btags)
-    #        if key in nonIsoTemplateSF:
-    #            totalIni   += nonIsoTemplateSF[key][1]
-    #            totalFinal += nonIsoTemplateSF[key][0]*nonIsoTemplateSF[key][1]
-    #    nonIsoTemplateSF[combCat]=(totalFinal/totalIni,totalIni)
 
     fIso.Close()
 
@@ -125,7 +121,7 @@ def main():
 
         if 'iso' in dist or 'ratevsrun' in dist: continue
         category=dist.split('_')[-1][:2]    
-        dataNonIso, sumMCNonIso = getTemplates(fIn=fNonIso, dist=dist, tag=dist)
+        dataNonIso, sumMCNonIso,_ = getTemplates(fIn=fNonIso, dist=dist, tag=dist)
 
         #do not subtract anything in the CR
         dataNonIsoUp=dataNonIso.Clone('%s_QCD%sUp'%(dist,category))
@@ -142,7 +138,7 @@ def main():
         dataNonIso.SetTitle('QCD multijets (data)')
 
         try:
-            dataNonIso.Scale( nonIsoTemplateSF[category] )
+            dataNonIso.Scale( nonIsoTemplateSF[category][0] )
             totalQCD=dataNonIso.Integral()
             if totalQCD>0:
                 for xbin in xrange(0,dataNonIsoUp.GetNbinsX()):
@@ -166,11 +162,8 @@ def main():
     #dump to file    
     print 'QCD scale factors CR->SR'
     print nonIsoTemplateSF
-    print 'QCD normalization uncertainties'
-    print qcdNormUnc
     cachefile=open('%s/.qcdscalefactors.pck'%opt.outdir,'w')
     pickle.dump(nonIsoTemplateSF, cachefile, pickle.HIGHEST_PROTOCOL)
-    pickle.dump(qcdNormUnc, cachefile, pickle.HIGHEST_PROTOCOL)
     cachefile.close()
 
     #all done

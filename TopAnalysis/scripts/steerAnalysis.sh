@@ -6,6 +6,7 @@ if [[ "$1" == "" ]]; then
     echo "        SEL     - launches selection jobs to the batch"; 
     echo "        PLOT    - runs the plotter tool"
     echo "        BKG     - runs backgrond estimation script"
+    echo "        FINALPLOT - re-runs the plotter tool taking into account the scale factors for some processes derived in the BKG step"
     echo "        CinC    - runs the cut-in-categories analysis from the current plotter files"
     echo "        SHAPE   - similar for the full shape analysis"
     echo "        GENSTOP - interpolates ttbar mass shapes to generate an ad-hoc stealth stop signal with different masses"
@@ -14,7 +15,7 @@ if [[ "$1" == "" ]]; then
 fi
 
 sigplotter=${2}
-if [[ "${sigplotter}" == "" ]]; then sigplotter=plotter.root; fi
+if [[ "${sigplotter}" == "" ]]; then sigplotter=final_plotter.root; fi
 
 signal=${3}
 if [[ "${signal}" == "" ]]; then signal=tbart; fi
@@ -54,14 +55,14 @@ case $WHAT in
     PLOT )
 	a=(muplus muminus eplus eminus munoniso enoniso z)
 	for i in ${a[@]}; do
-	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --saveLog
+	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --silent;
 	done
 
 	a=(muplus muminus eplus eminus)
 	for i in ${a[@]}; do
-	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]"	
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root --silent
+	    echo -e "[ ${RED} Creating syst plotter for ${i} ${NC} ]";
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root --silent;
 	done
 	;;
     BKG )
@@ -69,14 +70,26 @@ case $WHAT in
 	b=(plus minus)
 	for i in ${a[@]}; do
 	    for j in ${b[@]}; do
-		python scripts/runQCDEstimation.py --iso ${outdir}/analysis_${i}${j}/plots/plotter.root --noniso ${outdir}/analysis_${i}noniso/plots/plotter.root --out ${outdir}/analysis_${i}${j}/
+		echo -e "[ ${RED} Background estimation for ${i}${j} ${NC} ]"
+		python scripts/runQCDEstimation.py     --iso   ${outdir}/analysis_${i}${j}/plots/plotter.root --noniso ${outdir}/analysis_${i}noniso/plots/plotter.root    --out ${outdir}/analysis_${i}${j}/;
+		python scripts/getWJetsScaleFactors.py --shape ${outdir}/analysis_${i}${j}/plots/plotter.root --norm   ${outdir}/analysis_${i}${j}/plots/syst_plotter.root --out ${outdir}/analysis_${i}${j}/;
+		echo " "
 	    done
+	done
+	;;
+    FINALPLOT )
+	a=(muplus muminus eplus eminus)
+	for i in ${a[@]}; do
+	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} \
+		--procSF "W+":${outdir}/analysis_${i}/.wjetsscalefactors.pck --saveLog -o final_plotter.root;
 	done
 	;;
     WWW )
 	a=(muplus muminus eplus eminus munoniso enoniso z)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Moving plots for ${i} ${NC} ]"
+	    rm -rf ${wwwdir}/${i}
 	    mkdir -p ${wwwdir}/${i};
 	    cp ${outdir}/analysis_${i}/plots/*.{png,pdf} ${wwwdir}/${i};
 	    cp test/index.php ${wwwdir}/${i};
@@ -296,11 +309,11 @@ case $WHAT in
 	    for j in ${b[@]}; do
 		echo -e "[ ${RED} Emulating stealth stop by interpolation for ${i}${j} ${NC} ]"
 		python scripts/emulateStealthStop.py \
-		    -i 172.5:${outdir}/analysis_${i}${j}/plots/plotter.root,169.5:${outdir}/analysis_${i}${j}/plots/syst_plotter.root,175.5:${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
+		    -i 172.5:${outdir}/analysis_${i}${j}/plots/final_plotter.root,169.5:${outdir}/analysis_${i}${j}/plots/syst_plotter.root,175.5:${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
 		    --scan 169.5,175.5,1.0 \
 		    -o ${outdir}/analysis_${i}${j}/plots/stealth_stop_plotter.root;
 
-		hadd -f -k ${outdir}/analysis_${i}${j}/plots/sig_plotter.root ${outdir}/analysis_${i}${j}/plots/stealth_stop_plotter.root ${outdir}/analysis_${i}${j}/plots/plotter.root;
+		hadd -f -k ${outdir}/analysis_${i}${j}/plots/sig_plotter.root ${outdir}/analysis_${i}${j}/plots/stealth_stop_plotter.root ${outdir}/analysis_${i}${j}/plots/final_plotter.root;
 		echo " ...full signal plotter can be found in ${outdir}/analysis_${i}${j}/plots/sig_plotter.root"
 	    done
 	done

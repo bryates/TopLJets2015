@@ -3,6 +3,7 @@ import os,sys
 import json
 import ROOT
 import math
+import pickle
 
 from TopLJets2015.TopAnalysis.rounding import *
 
@@ -351,12 +352,24 @@ def main():
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default=41.6,              type=float)
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
     parser.add_option(      '--puNormSF',    dest='puNormSF',    help='Use this histogram to correct pu weight normalization', default=None, type='string')
+    parser.add_option(      '--procSF',      dest='procSF',      help='Use this to scale a given process component e.g. "W":.wjetscalefactors.pck,"DY":dyscalefactors.pck', default=None, type='string')
     (opt, args) = parser.parse_args()
 
     #read list of samples
     jsonFile = open(opt.json,'r')
     samplesList=json.load(jsonFile,encoding='utf-8').items()
     jsonFile.close()
+
+    #proc SF
+    procSF={}
+    if opt.procSF:
+        procList=opt.procSF.split(',')
+        for newProc in procList:
+            proc,cacheUrl=newProc.split(':')
+            cache=open(cacheUrl,'r')
+            procSF[proc]=pickle.load(cache)
+            cache.close()
+            print 'Scale factors added for',proc
 
     onlyList=opt.only.split(',')
 
@@ -400,7 +413,16 @@ def main():
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
-                    if not isData and not '(data)' in sp[1]: obj.Scale(xsec*opt.lumi*puNormSF)
+                    if not isData and not '(data)' in sp[1]: 
+                        sfVal=1.0
+                        for procToScale in procSF:
+                            if procToScale in sp[1]:
+                                for pcat in procSF[procToScale]:                                    
+                                    if pcat not in key: continue
+                                    sfVal=procSF[procToScale][pcat][0]
+                                #print 'Applying scale factor for ',sp[1],key,sfVal
+                        obj.Scale(xsec*opt.lumi*puNormSF*sfVal)
+
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if not key in plots : plots[key]=Plot(key)
                     plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])

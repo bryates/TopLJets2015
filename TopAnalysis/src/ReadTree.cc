@@ -199,7 +199,7 @@ void ReadTree(TString filename,
 	  for(std::map<Int_t,Float_t>::iterator it=lumiMap.begin(); it!=lumiMap.end(); it++,runCtr++)
 	    allPlots["ratevsrun_"+tag]->GetXaxis()->SetBinLabel(runCtr+1,Form("%d",it->first));
 	  allPlots["lpt_"+tag]        = new TH1F("lpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
-	  allPlots["lsip3d_"+tag]     = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,40,0.,20.);
+	  allPlots["lsip3d_"+tag]     = new TH1F("lsip3d_"+tag,";3d impact parameter significance;Events" ,40,0.,4.);
 	  allPlots["lreliso_"+tag]     = new TH1F("lreliso_"+tag,";Relative isolation;Events" ,25,0.,0.5);
 	  allPlots["leta_"+tag]       = new TH1F("leta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
 	  allPlots["jpt_"+tag]        = new TH1F("jpt_"+tag,";Transverse momentum [GeV];Events" ,20,0.,300.);
@@ -207,11 +207,12 @@ void ReadTree(TString filename,
 	  allPlots["ht_"+tag]         = new TH1F("ht_"+tag,";H_{T} [GeV];Events",40,0,800);
 	  allPlots["csv_"+tag]        = new TH1F("csv_"+tag,";CSV discriminator;Events",100,0,1.0);
 	  allPlots["nvtx_"+tag]       = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events" ,50,0.,50.);
-	  allPlots["met_"+tag]        = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,20,0.,300.);
+	  allPlots["metpt_"+tag]      = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,10,0.,200.);
 	  allPlots["metphi_"+tag]     = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
 	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
 	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
+	  allPlots["passSIP3d_"+tag]     = new TH1F("passSIP3d_"+tag,";Pass SIP3d requirement;Events" ,2,0.,2.);
 	  allPlots["RMPF_"+tag]       = new TH1F("RMPF_"+tag,";R_{MPF};Events" ,20,0.,2.);
 	  allPlots["alpha_"+tag]      = new TH1F("alpha_"+tag,";#alpha;Events" ,20,0.,2.);
 	  if(itag==-1)
@@ -228,8 +229,8 @@ void ReadTree(TString filename,
 	      //gen level systematics
 	      if(normH)
 		{
-		  all2dPlots["mtshapes_"+tag+"_gen"]                   
-		    = new TH2F("mtshapes_"+tag+"_gen", ";Transverse Mass [GeV];Events" ,    20,0.,200., nGenSysts,0,nGenSysts);
+		  all2dPlots["metptshapes_"+tag+"_gen"]                   
+		    = new TH2F("metptshapes_"+tag+"_gen", ";Missing transverse energy [GeV];Events" ,    10,0.,200., nGenSysts,0,nGenSysts);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]               
 		    = new TH2F("minmlbshapes_"+tag+"_gen", ";min Mass(lepton,b) [GeV];Events" , 25,0.,250., nGenSysts,0,nGenSysts);
 		  all2dPlots["RMPFshapes_"+tag+"_gen"]               
@@ -240,7 +241,7 @@ void ReadTree(TString filename,
 		  for(Int_t igen=0; igen<nGenSysts; igen++)
 		    {
 		      TString label(normH->GetXaxis()->GetBinLabel(igen+1));
-		      all2dPlots["mtshapes_"+tag+"_gen"]    ->GetYaxis()->SetBinLabel(igen+1,label);
+		      all2dPlots["metptshapes_"+tag+"_gen"]    ->GetYaxis()->SetBinLabel(igen+1,label);
 		      all2dPlots["minmlbshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
 		      all2dPlots["RMPFshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
 		      if(itag!=-1) continue;
@@ -252,8 +253,8 @@ void ReadTree(TString filename,
 	      Int_t nExpSysts=expSysts.size();
 	      if(nExpSysts>0)
 		{
-		  all2dPlots["mtshapes_"+tag+"_exp"]                  
-		    = new TH2F("mtshapes_"+tag+"_exp",  ";Transverse Mass [GeV];Events" ,   20,0.,200., 2*nExpSysts,0,2*nExpSysts);
+		  all2dPlots["metptshapes_"+tag+"_exp"]                  
+		    = new TH2F("metptshapes_"+tag+"_exp",  ";Missing transverse energy [GeV];Events" ,   10,0.,200., 2*nExpSysts,0,2*nExpSysts);
 		  all2dPlots["minmlbshapes_"+tag+"_exp"]              
 		    = new TH2F("minmlbshapes_"+tag+"_exp", ";min Mass(lepton,b) [GeV];Events" ,25,0.,250., 2*nExpSysts,0,2*nExpSysts);
 		  all2dPlots["RMPFshapes_"+tag+"_exp"]               
@@ -266,7 +267,7 @@ void ReadTree(TString filename,
 		      for(Int_t ivar=0; ivar<2; ivar++)
 			{
 			  TString label(expSysts[isyst] + (ivar==0 ? "Down" : "Up"));
-			  all2dPlots["mtshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1, label);
+			  all2dPlots["metptshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1, label);
 			  all2dPlots["minmlbshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
 			  all2dPlots["RMPFshapes_"+tag+"_exp"]->GetYaxis()->SetBinLabel(2*isyst+ivar+1,label);
 			  if(itag!=-1) continue;
@@ -297,9 +298,12 @@ void ReadTree(TString filename,
 	  float relIso(ev.l_relIso[il]);
 	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  bool passNonIso(relIso>0.4);
-	  if( ev.l_id[il]==11 && (ev.l_pid[il]>>1)&0x1==1 ) passNonIso=false;
+	  if( ev.l_id[il]==11 && (passIso || relIso<0.4) ) passNonIso=false;
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); 
-	  if(passTightKin && passTightId)
+	  bool passSIP3d(ev.l_ip3dsig[il]<4);
+	  if(channelSelection==21) passSIP3d=true;
+
+	  if(passTightKin && passTightId && passSIP3d)
 	    {
 	      if(passIso)         tightLeptonsIso.push_back(il);
 	      else if(passNonIso) tightLeptonsNonIso.push_back(il);
@@ -309,7 +313,7 @@ void ReadTree(TString filename,
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Int_t lepIdx=-1;
-      Bool_t isZ(false);
+      Bool_t isZ(false),isZPassingSIP3d(false);
       TLorentzVector l1p4,l2p4,dilp4;
       if(tightLeptonsIso.size()==1)                                       lepIdx=tightLeptonsIso[0];
       else if (tightLeptonsIso.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
@@ -321,8 +325,11 @@ void ReadTree(TString filename,
 	  if(ev.l_id[tightLeptonsIso[0]]==ev.l_id[tightLeptonsIso[1]]          && 
 	     ev.l_charge[tightLeptonsIso[0]]*ev.l_charge[tightLeptonsIso[1]]<0 && 
 	     fabs(dilp4.M()-91)<10 && 
-	     dilp4.Pt()>30) 
-	    isZ=true; 
+	     dilp4.Pt()>30)
+	    { 
+	      isZ=true; 
+	      isZPassingSIP3d=(ev.l_ip3dsig[0]<4 && ev.l_ip3dsig[1]<4);
+	    }
 	  lepIdx=tightLeptonsIso[0];
 	}
 
@@ -553,12 +560,13 @@ void ReadTree(TString filename,
 	      allPlots["lpt_"+tag]->Fill(isZ ? dilp4.Pt() : lp4.Pt(),wgt);
 	      allPlots["leta_"+tag]->Fill(isZ ? dilp4.Eta() : lp4.Eta(),wgt);
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
+	      allPlots["passSIP3d_"+tag]->Fill(isZPassingSIP3d,wgt);
 	      allPlots["lreliso_"+tag]->Fill(ev.l_relIso[lepIdx],wgt);
 	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
 	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ leadingJetIdx ]),wgt);
 	      allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
 	      allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
-	      allPlots["met_"+tag]->Fill(ev.met_pt[0],wgt);
+	      allPlots["metpt_"+tag]->Fill(ev.met_pt[0],wgt);
 	      allPlots["metphi_"+tag]->Fill(ev.met_phi[0],wgt);
 	      allPlots["mt_"+tag]->Fill(mt,wgt);
 	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
@@ -591,7 +599,7 @@ void ReadTree(TString filename,
 		{
 		  float newWgt = wgt*(normH->GetBinContent(igen+1)*ev.ttbar_w[igen])/(normH->GetBinContent(1)*ev.ttbar_w[0]);		  
 		  TString tag=catsToFill[icat];	 
-		  all2dPlots["mtshapes_"+tag+"_gen"]->Fill(mt,igen,newWgt);
+		  all2dPlots["metptshapes_"+tag+"_gen"]->Fill(ev.met_pt[0],igen,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->Fill(mlb,igen,newWgt);
 		  if(alpha<0.3) all2dPlots["RMPFshapes_"+tag+"_gen"]->Fill(RMPF,igen,newWgt);
 		  if(icat==0) all2dPlots["nbtagsshapes_"+tag+"_gen"]->Fill(bJets.size(),igen,newWgt);
@@ -748,7 +756,7 @@ void ReadTree(TString filename,
 		  varMet = uncMet-varlp4-jetSum;
 		}
 	      varMet.SetPz(0.); varMet.SetE(varMet.Pt());
-	      float varmt(computeMT(varlp4,varMet) );
+	      // float varmt(computeMT(varlp4,varMet) );
 
 	      if(varBJets.size()+varLightJets.size()<1) continue;
 
@@ -771,7 +779,7 @@ void ReadTree(TString filename,
 	      for(size_t icat=0; icat<2; icat++)
                 {
 		  TString tag=varcatsToFill[icat];
-		  all2dPlots["mtshapes_"+tag+"_exp"]->Fill(varmt,2*ivar+isign,newWgt);
+		  all2dPlots["metptshapes_"+tag+"_exp"]->Fill(varMet.Pt(),2*ivar+isign,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_exp"]->Fill(mlb,2*ivar+isign,newWgt);
 		  all2dPlots["RMPFshapes_"+tag+"_exp"]->Fill(varRMPF,2*ivar+isign,newWgt);
 		  if(icat!=0) continue;
