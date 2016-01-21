@@ -15,6 +15,7 @@ class Plot(object):
 
     def __init__(self,name):
         self.name = name
+        self.wideCanvas = True if 'ratevsrun' in self.name else False
         self.mc = {}
         self.dataH = None
         self.data = None
@@ -77,7 +78,7 @@ class Plot(object):
             except:
                 pass
 
-    def show(self, outDir,lumi,noScale=False,noStack=False,saveTeX=False):
+    def show(self, outDir,lumi,noStack=False,saveTeX=False):
 
         if len(self.mc)<2 and self.dataH is None:
             print '%s has 0 or 1 MC!' % self.name
@@ -87,7 +88,7 @@ class Plot(object):
             print 'Skipping TH2'
             return
 
-        cwid=1000 if 'ratevsrun' in self.name else 500
+        cwid=1000 if self.wideCanvas else 500
         c = ROOT.TCanvas('c','c',cwid,500)
         c.SetBottomMargin(0.0)
         c.SetLeftMargin(0.0)
@@ -163,7 +164,8 @@ class Plot(object):
         else:
             maxY=self.dataH.GetMaximum()
 
-        frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)                
+        frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)
+
 
         frame.SetDirectory(0)
         frame.Reset('ICE')
@@ -240,7 +242,7 @@ class Plot(object):
         for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
         if self.savelog:
             p1.cd()
-            frame.GetYaxis().SetRangeUser(1,maxY*10)
+            frame.GetYaxis().SetRangeUser(1,maxY*50)
             p1.SetLogy()
             c.cd()
             c.Modified()

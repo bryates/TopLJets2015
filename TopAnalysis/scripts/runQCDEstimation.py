@@ -76,12 +76,15 @@ def main():
     for sel in ['1j','2j','3j','4j']: 
 
         #data in the sideband
-        dataNonIso,      sumMCNonIso, _      = getTemplates(fIn=fNonIso, dist='metpt_%s0t'%sel,     tag='noniso')
-        dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s0t'%sel, tag='nonisoalt')
+        extraSel=''
+        if sel in ['3j','4j']:extraSel='0t'
+
+        dataNonIso,      sumMCNonIso, _  = getTemplates(fIn=fNonIso, dist='metpt_%s%s'%(sel,extraSel), tag='noniso')
+        dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s%s'%(sel,extraSel),    tag='nonisoalt')
 
         #data in the signal region
-        dataIso,    sumMCIso, _     = getTemplates(fIn=fIso,    dist='metpt_%s0t'%sel,    tag='iso')
-        dataIsoAlt, sumMCIsoAlt, _  = getTemplates(fIn=fIso,        dist='mt_%s0t'%sel, tag='isoalt')
+        dataIso,    sumMCIso, _     = getTemplates(fIn=fIso,    dist='metpt_%s%s'%(sel,extraSel),  tag='iso')
+        dataIsoAlt, sumMCIsoAlt, _  = getTemplates(fIn=fIso,    dist='mt_%s%s'%(sel,extraSel),     tag='isoalt')
 
         #normalized QCD template below the MT cut
         bin0           = 1
