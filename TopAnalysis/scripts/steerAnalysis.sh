@@ -204,7 +204,7 @@ case $WHAT in
 		python scripts/createDataCard.py --signal ${signal} \
 		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
 		    -o  ${outdir}/analysis_${i}${j}/datacard_shape  -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
-		    -d mt -c 1j0t,2j0t,3j0t,4j0t;
+		    -d metpt -c 1j0t,2j0t,3j0t,4j0t;
 		python scripts/createDataCard.py --signal ${signal} \
 		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
 		    -o  ${outdir}/analysis_${i}${j}/datacard_shape  -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
