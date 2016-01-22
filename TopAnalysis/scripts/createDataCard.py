@@ -111,6 +111,7 @@ def main():
     parser.add_option('-m', '--mass',           dest='mass',        help='signal mass',                                        default=0,             type=float)
     parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',                                   default='1j,2j,3j,4j', type='string')
     parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file',                             default=None,          type='string')
+    parser.add_option('-w', '--wjets',          dest='wjets',       help='wjets normalization file',                           default=None,          type='string')
     parser.add_option('-o', '--output',         dest='output',      help='output directory',                                   default='datacards',   type='string')
     (opt, args) = parser.parse_args()
 
@@ -123,11 +124,17 @@ def main():
     catList=opt.cat.split(',')
 
     #read qcd normalization
-    qcdNormUnc=None
+    qcdNorm=None
     if opt.qcd:
         cache=open(opt.qcd,'r')
-        pickle.load(cache)
-        qcdNormUnc=pickle.load(cache)
+        qcdNorm=pickle.load(cache)
+
+
+    #read wjets normalization
+    wjetsNorm=None
+    if opt.wjets:
+        cache=open(opt.wjets,'r')
+        wjetsNorm=pickle.load(cache)
 
     #prepare output directory 
     os.system('mkdir -p %s'%opt.output)
@@ -254,7 +261,6 @@ def main():
         #rate systematics
         rateSysts=[
             ('lumi',          1.046,    'lnN',    []                   ,['Multijetsdata']),
-            ('Wnorm',         1.038,    'lnN',    ['Wl','Wc','Wb']     ,[]),
             ('DYnorm',        1.038,    'lnN',    ['DYl','DYc','DYb']  ,[]),
             ('tWnorm',        1.054,    'lnN',    ['tW']               ,[]),
             ('tnorm',         1.044,    'lnN',    ['tch']              ,[]),
@@ -263,7 +269,8 @@ def main():
             ]
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
-            rateSysts.append( ('MultiJetsNorm%s'%jetCat,  qcdNormUnc[jetCat],  'lnU',    ['Multijetsdata']     ,[]) )
+            rateSysts.append( ('MultiJetsNorm%s'%jetCat,  qcdNorm[jetCat][1],                       'lnU',    ['Multijetsdata']    ,[]) )
+            rateSysts.append( ('Wnorm%s'%jetCat,          1+ROOT.TMath.Abs(1-wjetsNorm[jetCat][0]), 'lnU',    ['Wl','Wc','Wb']     ,[]) )
         except:
             pass
 

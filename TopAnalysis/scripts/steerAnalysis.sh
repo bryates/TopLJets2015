@@ -53,7 +53,7 @@ case $WHAT in
 	done
 	;;
     PLOT )
-	a=(muplus muminus eplus eminus munoniso enoniso z)
+	a=(muplus muminus eplus eminus munoniso enoniso)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --silent;
@@ -78,7 +78,8 @@ case $WHAT in
 	done
 	;;
     FINALPLOT )
-	a=(muplus muminus eplus eminus)
+	a=(muplus muminus eplus eminus z)
+	a=(z)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} \
@@ -108,7 +109,9 @@ case $WHAT in
 	    for j in ${b[@]}; do
 		python scripts/createDataCard.py --signal ${signal} \
 		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
-		    -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
+		    -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
+		    -w ${outdir}/analysis_${i}${j}/.wjetsscalefactors.pck \
+		    -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
 		cd ${outdir}/analysis_${i}${j}/datacard;
 		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat
 		chDataCards="${i}${j}=../../analysis_${i}${j}/datacard/datacard.dat ${chDataCards}"

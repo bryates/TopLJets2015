@@ -368,6 +368,7 @@ def main():
         procList=opt.procSF.split(',')
         for newProc in procList:
             proc,cacheUrl=newProc.split(':')
+            if not os.path.isfile(cacheUrl) : continue
             cache=open(cacheUrl,'r')
             procSF[proc]=pickle.load(cache)
             cache.close()
