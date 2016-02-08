@@ -9,7 +9,7 @@
 "MC13TeV_SingleT_tW"    : [35.6,      0, "/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v2/MINIAODSIM", "tW",        865, false, false, 1],
 "MC13TeV_SingleT_t"    : [44.33,      0, "/ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t-ch",        864, false, false, 1],
 "MC13TeV_SingleTbar_t"    : [26.38,      0, "/ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "t-ch",        864, false, false, 1],
-"MC13TeV_DY50toInf" : [6025.0,      0, "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "DY",        41, false, false, 1],
+"MC13TeV_DY50toInf" : [6025.0,      0, "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "DY",        41, false, true, 1],
 "Data_QCDMultijets": [1.0,      0, "", "Multijets (data)", 0, false, false, 1],
 "Data13TeV_SingleMuon_2015D_05Oct"     : [1, 1, "/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD",     "Data", 1, false, false, 0],
 "Data13TeV_SingleElectron_2015D_05Oct" : [1, 1, "/SingleElectron/Run2015D-05Oct2015-v1/MINIAOD", "Data", 1, false, false, 0],

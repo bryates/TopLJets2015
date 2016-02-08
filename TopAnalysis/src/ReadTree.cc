@@ -597,7 +597,7 @@ void ReadTree(TString filename,
 	    {
 	      for(size_t icat=0; icat<2; icat++)
 		{
-		  float newWgt = wgt*(normH->GetBinContent(igen+1)*ev.ttbar_w[igen])/(normH->GetBinContent(1)*ev.ttbar_w[0]);		  
+		  float newWgt = wgt*ev.ttbar_w[igen]/ev.ttbar_w[0];
 		  TString tag=catsToFill[icat];	 
 		  all2dPlots["metptshapes_"+tag+"_gen"]->Fill(ev.met_pt[0],igen,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->Fill(mlb,igen,newWgt);

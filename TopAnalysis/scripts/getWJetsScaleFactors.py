@@ -49,10 +49,12 @@ def main():
     for sel in ['1j','2j','3j','4j']: 
 
         #data in the sideband
-        _,_,normH = getTemplates(fIn=fNorm,   dist='nbtags_%s'%sel, tag='norm',  refName='_W+')
+        #_,_,normH = getTemplates(fIn=fNorm,   dist='nbtags_%s'%sel, tag='norm',  refName='_W+')
+        _,_,normH = getTemplates(fIn=fNorm,   dist='nbtags_%s'%sel, tag='norm',  refName='_W')
 
         #data in the signal region
-        _,_,shapeH = getTemplates(fIn=fShape, dist='nbtags_%s'%sel, tag='shape', refName='_W+')
+        #_,_,shapeH = getTemplates(fIn=fShape, dist='nbtags_%s'%sel, tag='shape', refName='_W+')
+        _,_,shapeH = getTemplates(fIn=fShape, dist='nbtags_%s'%sel, tag='shape', refName='_W')
 
         expUnc=ROOT.Double()
         expNorm=shapeH.IntegralAndError(1,shapeH.GetNbinsX(),expUnc)

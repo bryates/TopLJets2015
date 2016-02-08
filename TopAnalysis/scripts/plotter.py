@@ -419,13 +419,13 @@ def main():
                     if not isData and not '(data)' in sp[1]: 
                         sfVal=1.0
                         for procToScale in procSF:
-                            if procToScale in sp[1]:
+                            if sp[1]==procToScale:
+                            #if procToScale in sp[1]:
                                 for pcat in procSF[procToScale]:                                    
                                     if pcat not in key: continue
                                     sfVal=procSF[procToScale][pcat][0]
                                 #print 'Applying scale factor for ',sp[1],key,sfVal
-                        obj.Scale(xsec*opt.lumi*puNormSF*sfVal)
-
+                        obj.Scale(xsec*opt.lumi*puNormSF*sfVal)                    
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if not key in plots : plots[key]=Plot(key)
                     plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
@@ -438,6 +438,7 @@ def main():
     ROOT.gROOT.SetBatch(True)
     outDir=opt.inDir+'/plots'
     os.system('mkdir -p %s' % outDir)
+    os.system('rm %s/%s'%(outDir,opt.outName))
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
         if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)

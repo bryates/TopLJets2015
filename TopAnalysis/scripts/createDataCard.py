@@ -139,6 +139,11 @@ def main():
     #prepare output directory 
     os.system('mkdir -p %s'%opt.output)
 
+    anCat=''
+    for subDir in opt.input.split('/'):
+        if 'analysis_' not in subDir: continue
+        anCat=subDir.replace('analysis_','')
+
     #get data and nominal expectations
     fIn=ROOT.TFile.Open(opt.input)
     systfIn=None
@@ -152,6 +157,7 @@ def main():
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
+        print exp
         exp=filterShapeList(exp,signalList,rawSignalList)
 
         #prepare output ROOT file
@@ -244,7 +250,7 @@ def main():
             saveToShapesFile(outFile,upShapes,systVar+'Up')
 
             #write to datacard
-            datacard.write('%32s shapeN2'%systVar)        
+            datacard.write('%32s shape'%systVar)        
             for sig in signalList: 
                 if sig in bwList and bwList[sig]:
                     datacard.write('%15s'%'1') 
@@ -260,17 +266,20 @@ def main():
 
         #rate systematics
         rateSysts=[
-            ('lumi',          1.046,    'lnN',    []                   ,['Multijetsdata']),
-            ('DYnorm',        1.038,    'lnN',    ['DYl','DYc','DYb']  ,[]),
-            ('tWnorm',        1.054,    'lnN',    ['tW']               ,[]),
-            ('tnorm',         1.044,    'lnN',    ['tch']              ,[]),
-            ('VVnorm',        1.20,     'lnN',    ['Multiboson']       ,[]),
-            ('tbartVnorm',    1.30,     'lnN',    ['tbartV']           ,[]),
+            ('lumi_13TeV',       1.046,    'lnN',    []                   ,['Multijetsdata']),
+            #('DYnorm_th',        1.038,    'lnN',    ['DYl','DYc','DYb']  ,[]),
+            #('Wnorm_th',         1.037,    'lnN',    ['Wl' ,'Wc','Wb']    ,[]),
+            ('DYnorm_th',        1.038,    'lnN',    ['DY']  ,[]),
+            ('Wnorm_th',         1.037,    'lnN',    ['W']   ,[]),
+            ('tWnorm_th',        1.054,    'lnN',    ['tW']               ,[]),
+            ('tnorm_th',         1.044,    'lnN',    ['tch']              ,[]),
+            ('VVnorm_th',        1.20,     'lnN',    ['Multiboson']       ,[]),
+            ('tbartVnorm_th',    1.30,     'lnN',    ['tbartV']           ,[]),
             ]
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
-            rateSysts.append( ('MultiJetsNorm%s'%jetCat,  qcdNorm[jetCat][1],                       'lnU',    ['Multijetsdata']    ,[]) )
-            rateSysts.append( ('Wnorm%s'%jetCat,          1+ROOT.TMath.Abs(1-wjetsNorm[jetCat][0]), 'lnU',    ['Wl','Wc','Wb']     ,[]) )
+            rateSysts.append( ('MultiJetsNorm%s%s'%(jetCat,anCat),  qcdNorm[jetCat][1],                       'lnN',    ['Multijetsdata']    ,[]) )
+            #rateSysts.append( ('Wnorm%s'%jetCat,          1+ROOT.TMath.Abs(1-wjetsNorm[jetCat][0]), 'lnU',    ['Wl','Wc','Wb']     ,[]) )
         except:
             pass
 
@@ -299,18 +308,35 @@ def main():
         #generator level systematics 
         if systfIn is None: continue
         sampleSysts=[
-            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                False , True),
-            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True),
-            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True),            
-            ('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  False , True),
+
+            #ttbar modelling
+            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True , True),
+            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True),            
+            ('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  True,   True),
             #('Hadronizer',      {'tbart'         : ['tbartaMCatNLO']},                                                                True , True),
-            ('wFactScale',           { 'Wl': ['mur1muf0.5','mur1muf2'],   'Wc': ['mur1muf0.5','mur1muf2'],  'Wb': ['mur1muf0.5','mur1muf2'] },   False, False),
-            ('wRenScale',            { 'Wl': ['mur0.5muf1','mur2muf1'],   'Wc': ['mur0.5muf1','mur2muf1'],  'Wb': ['mur0.5muf1','mur2muf1'] },   False, False),
-            ('wCombScale',           { 'Wl': ['mur0.5muf0.5','mur2muf2'], 'Wc': ['mur0.5muf0.5','mur2muf2'],'Wb': ['mur0.5muf0.5','mur2muf2'] }, False, False),
-            ('ttFactScale',          { 'tbart': ['muR1muF0.5','muR1muF2'] },                                                                     False , False),
-            ('ttRenScale',           { 'tbart': ['muR0.5muF1','muR2muF1'] },                                                                     False , False),
-            ('ttCombScale',          { 'tbart': ['muR0.5muF0.5','muR2muF2'] },                                                                    False , False),
+            
+            #QCD SCALES
+            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True),            
+
+            #('wFactScale',           { 'Wl': ['id3mur1muf0.5','id2mur1muf2'], 
+            #                           'Wc': ['id3mur1muf0.5','id2mur1muf2'], 
+            #                           'Wb': ['id3mur1muf0.5','id2mur1muf2'] },  False, False),
+            #('wRenScale',            { 'Wl': ['id7mur0.5muf1','id4mur2muf1'],  
+            #                           'Wc': ['id7mur0.5muf1','id4mur2muf1'],  
+            #                           'Wb': ['id7mur0.5muf1','id4mur2muf1'] },  False, False),
+            #('wCombScale',           { 'Wl': ['id9mur0.5muf0.5','id5mur2muf2'], 
+            #                           'Wc': ['id9mur0.5muf0.5','id5mur2muf2'],
+            #                           'Wb': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False),
+
+            ('wFactScale',           { 'W': ['id3mur1muf0.5','id2mur1muf2'] },  False, False),
+            ('wRenScale',            { 'W': ['id7mur0.5muf1','id4mur2muf1'] },  False, False),
+            ('wCombScale',           { 'W': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False),
+
+            ('ttFactScale',          { 'tbart': ['muR1muF0.5hdampmt172.5','muR1muF2hdampmt172.5'] },     False , False),
+            ('ttRenScale',           { 'tbart': ['muR0.5muF1hdampmt172.5','muR2muF1hdampmt172.5'] },     False , False),
+            ('ttCombScale',          { 'tbart': ['muR0.5muF0.5hdampmt172.5','muR2muF2hdampmt172.5'] },   False , False),
             ]
+
         _,genVarShapes = getDistsFrom(directory=fIn.Get('%sshapes_%s_gen'%(opt.dist,cat)))
         genVarShapes=filterShapeList(genVarShapes,signalList,rawSignalList)
         _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
@@ -349,7 +375,7 @@ def main():
 
                     downH = genVarShapes[ iproc ].ProjectionX('%s%sDown'%(iproc,systVar), ybinDown, ybinDown)
                     upH   = genVarShapes[ iproc ].ProjectionX('%s%sUp'%(iproc,systVar),   ybinUp,   ybinUp)
-
+                    
                 #normalize (shape only variation is considered)
                 if normalize : downH.Scale( nomH.Integral()/downH.Integral() ) 
                 if normalize : upH.Scale( nomH.Integral()/upH.Integral() )
@@ -370,7 +396,7 @@ def main():
             saveToShapesFile(outFile,upShapes,systVar+'Up')
 
             #write to datacard
-            datacard.write('%32s shapeN2'%systVar)
+            datacard.write('%32s shape'%systVar)
             for sig in signalList: 
                 if sig in procsToApply:
                     datacard.write('%15s'%'1')

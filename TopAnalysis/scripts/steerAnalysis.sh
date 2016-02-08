@@ -53,7 +53,7 @@ case $WHAT in
 	done
 	;;
     PLOT )
-	a=(muplus muminus eplus eminus munoniso enoniso)
+	a=(muplus  muminus eplus eminus munoniso enoniso)	
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --silent;
@@ -78,12 +78,20 @@ case $WHAT in
 	done
 	;;
     FINALPLOT )
-	a=(muplus muminus eplus eminus z)
-	a=(z)
+	a=(muplus muminus eplus eminus)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} \
-		--procSF "W+":${outdir}/analysis_${i}/.wjetsscalefactors.pck --saveLog -o final_plotter.root;
+		--saveLog -o final_plotter.root \
+		--procSF "W":${outdir}/analysis_${i}/.wjetsscalefactors.pck \
+
+	done
+	
+	a=(z)
+	for i in ${a[@]}; do
+	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/hf_samples_Run2015.json -l ${lumi} \
+		--procSF "W":${outdir}/analysis_${i}/.wjetsscalefactors.pck --saveLog -o final_plotter.root;
 	done
 	;;
     WWW )
