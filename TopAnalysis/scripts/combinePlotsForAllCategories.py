@@ -7,6 +7,7 @@ def doPlot(plotName):
 
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
+    ROOT.gROOT.SetBatch(True)
 
     #open the files
     inFiles=[ROOT.TFile.Open('~/work/LJets2015/analysis_muplus/plots/final_plotter.root'),
@@ -93,7 +94,7 @@ def doPlot(plotName):
                  isData)
     plot.finalize()
     plot.show("./",2.1)
-    raw_input()
+    #raw_input()
                      
 def main():
 

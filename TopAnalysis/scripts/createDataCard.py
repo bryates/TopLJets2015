@@ -157,7 +157,6 @@ def main():
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
-        print exp
         exp=filterShapeList(exp,signalList,rawSignalList)
 
         #prepare output ROOT file
@@ -395,20 +394,49 @@ def main():
             saveToShapesFile(outFile,downShapes,systVar+'Down')
             saveToShapesFile(outFile,upShapes,systVar+'Up')
 
-            #write to datacard
-            datacard.write('%32s shape'%systVar)
+
+        #
+        # QCD shapes
+        # 
+        systName='MultiJetsShape%s%s'%(cat,anCat)
+        qcdExp=exp['Multijetsdata'].Integral()
+        if qcdExp>0 :
+            datacard.write('%32s shape'%systName)
             for sig in signalList: 
-                if sig in procsToApply:
-                    datacard.write('%15s'%'1')
+                if (len(whiteList)==0 and not sig in blackList) or sig in whiteList:
+                    datacard.write(entryTxt)
                 else:
                     datacard.write('%15s'%'-')
             for proc in exp: 
                 if proc in signalList: continue
-                if proc in procsToApply:
+                if proc=='Multijetsdata':
                     datacard.write('%15s'%'1')
                 else:
                     datacard.write('%15s'%'-')
             datacard.write('\n')
+
+            _,qcdShapesUp = getDistsFrom(directory=fIn.Get('%s_%s_QCD%sUp'%(opt.dist,cat,jetCat)))
+            qcdShapesUp['Multijetsdata'].Scale( qcdExp/qcdShapesUp['Multijetsdata'].Integral() ) 
+            saveToShapesFile(outFile,qcdShapesUp,systName+'Up')
+
+            _,qcdShapesDown = getDistsFrom(directory=fIn.Get('%s_%s_QCD%sDown'%(opt.dist,cat,jetCat)))
+            qcdShapesDown['Multijetsdata'].Scale( qcdExp/qcdShapesDown['Multijetsdata'].Integral() ) 
+            saveToShapesFile(outFile,qcdShapesDown,systName+'Down')
+
+        #write to datacard
+        datacard.write('%32s shape'%systVar)
+        for sig in signalList: 
+            if sig in procsToApply:
+                datacard.write('%15s'%'1')
+            else:
+                datacard.write('%15s'%'-')
+        for proc in exp: 
+            if proc in signalList: continue
+            if proc in procsToApply:
+                datacard.write('%15s'%'1')
+            else:
+                datacard.write('%15s'%'-')
+        datacard.write('\n')
 
 
         #all done

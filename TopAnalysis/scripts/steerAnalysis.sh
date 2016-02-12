@@ -149,13 +149,13 @@ case $WHAT in
 	echo "Combining datacards for all + channels from ${plusDataCards}"
 	mkdir -p ${outdir}/analysis_plus/datacard/
 	cd ${outdir}/analysis_plus/datacard/
-	combineCards.py ${finalDataCards} > datacard.dat
+	combineCards.py ${plusDataCards} > datacard.dat
 	cd -
 
 	echo "Combining datacards for all - channels from ${minusDataCards}"
 	mkdir -p ${outdir}/analysis_minus/datacard/
 	cd ${outdir}/analysis_minus/datacard/
-	combineCards.py ${finalDataCards} > datacard.dat
+	combineCards.py ${minusDataCards} > datacard.dat
 	cd -
 
 	a=("mu" "e")
@@ -260,13 +260,13 @@ case $WHAT in
 	echo "Combining datacards for all + channels from ${plusDataCards}"
 	mkdir -p ${outdir}/analysis_plus/datacard_shape/
 	cd ${outdir}/analysis_plus/datacard_shape/
-	combineCards.py ${finalDataCards} > datacard.dat
+	combineCards.py ${plusDataCards} > datacard.dat
 	cd -
 
 	echo "Combining datacards for all - channels from ${minusDataCards}"
 	mkdir -p ${outdir}/analysis_minus/datacard_shape/
 	cd ${outdir}/analysis_minus/datacard_shape/
-	combineCards.py ${finalDataCards} > datacard.dat
+	combineCards.py ${mimusDataCards} > datacard.dat
 	cd -
 
 	a=("mu" "e")

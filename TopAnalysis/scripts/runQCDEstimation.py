@@ -77,7 +77,8 @@ def main():
 
         #data in the sideband
         extraSel=''
-        if sel in ['3j','4j']:extraSel='0t'
+        if sel in ['1j', '2j'] : extraSel='1t'
+        if sel in ['3j','4j']  : extraSel='0t'
 
         dataNonIso,      sumMCNonIso, _  = getTemplates(fIn=fNonIso, dist='metpt_%s%s'%(sel,extraSel), tag='noniso')
         dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s%s'%(sel,extraSel),    tag='nonisoalt')
@@ -88,7 +89,7 @@ def main():
 
         #normalized QCD template below the MT cut
         bin0           = 1
-        binN           = dataNonIso.GetXaxis().FindBin(40.)
+        binN           = dataNonIso.GetXaxis().FindBin(50.)
         niso           = dataIso.Integral(bin0,binN)
         nmciso         = sumMCIso.Integral(bin0,binN)
         nnoniso        = dataNonIso.Integral(bin0,binN)
@@ -96,7 +97,7 @@ def main():
 
         #normalized QCD template above the Alt cut
         bin0         = 0
-        binN         = dataNonIsoAlt.GetXaxis().FindBin(20.0)
+        binN         = dataNonIsoAlt.GetXaxis().FindBin(50.0)
         nisoAlt      = dataIsoAlt.Integral(bin0,binN)
         nmcisoAlt    = sumMCIsoAlt.Integral(bin0,binN)
         nnonisoAlt   = dataNonIsoAlt.Integral(bin0,binN)
