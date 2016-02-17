@@ -16,7 +16,6 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
-
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -26,12 +25,14 @@
 
 using namespace std;
 
+//
 Float_t computeMT(TLorentzVector &a, TLorentzVector &b)
 {
   return TMath::Sqrt(2*a.Pt()*b.Pt()*(1-TMath::Cos(a.DeltaPhi(b))));
 }
 
 
+//
 void ReadTree(TString filename,
 	      TString outname,
 	      Int_t channelSelection, 
@@ -114,8 +115,9 @@ void ReadTree(TString filename,
     }
 
   //JET ENERGY SCALE: https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Summer15_uncertainties
-  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_25nsV6M3_DATA_UncertaintySources_AK4PFchs.txt");
+  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/jectxt/Summer15_25nsV7_DATA_UncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
+  //FactorizedJetCorrector *jetCorr=getFactorizedJetEnergyCorrector("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/jectxt",!ev.isData);
   std::vector<TString> jecUncSrcs;
   std::vector<JetCorrectionUncertainty*> jecUncs;
   if(runSysts)
@@ -212,7 +214,8 @@ void ReadTree(TString filename,
 	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
 	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
-	  allPlots["passSIP3d_"+tag]     = new TH1F("passSIP3d_"+tag,";Pass SIP3d requirement;Events" ,2,0.,2.);
+	  allPlots["drlb_"+tag]       = new TH1F("drlb_"+tag,";#DeltaR(lepton,b);Events" ,25,0.,6.);
+	  allPlots["passSIP3d_"+tag]  = new TH1F("passSIP3d_"+tag,";Pass SIP3d requirement;Events" ,2,0.,2.);
 	  allPlots["RMPF_"+tag]       = new TH1F("RMPF_"+tag,";R_{MPF};Events" ,20,0.,2.);
 	  allPlots["alpha_"+tag]      = new TH1F("alpha_"+tag,";#alpha;Events" ,20,0.,2.);
 	  if(itag==-1)
@@ -371,11 +374,13 @@ void ReadTree(TString filename,
       TLorentzVector visSystem(isZ ? dilp4 : lp4);
       int nbjets(0),ncjets(0),nljets(0),leadingJetIdx(-1);
       std::vector<int> resolvedJetIdx;
+      std::vector<TLorentzVector> resolvedJetP4;
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
+	  //jp4=updateJES(jp4,ev.j_rawsf[k],ev.j_area[k],ev.rho,ev.nvtx,jetCorr);
 
 	  //cross clean with respect to leptons 
 	  if(jp4.DeltaR(lp4)<0.4) continue;
@@ -391,6 +396,7 @@ void ReadTree(TString filename,
 	    }
 	  jetDiff += jp4;
 	  resolvedJetIdx.push_back(k);
+	  resolvedJetP4.push_back(jp4);
 
 	  //require back-to-back configuration with Z
 	  if(isZ && jp4.DeltaPhi(dilp4)<2.7) continue;
@@ -562,8 +568,8 @@ void ReadTree(TString filename,
 	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
 	      allPlots["passSIP3d_"+tag]->Fill(isZPassingSIP3d,wgt);
 	      allPlots["lreliso_"+tag]->Fill(ev.l_relIso[lepIdx],wgt);
-	      allPlots["jpt_"+tag]->Fill(ev.j_pt[ leadingJetIdx ],wgt);
-	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[ leadingJetIdx ]),wgt);
+	      allPlots["jpt_"+tag]->Fill(ev.j_pt[leadingJetIdx],wgt);
+	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[leadingJetIdx]),wgt);
 	      allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
 	      allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
 	      allPlots["metpt_"+tag]->Fill(ev.met_pt[0],wgt);
@@ -578,8 +584,18 @@ void ReadTree(TString filename,
 	      if(bJets.size())
 		{
 		  float mlb=(bJets[0]+(isZ ? dilp4 : lp4)).M();		  
-		  if(bJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(bJets[1]+(isZ ? dilp4 : lp4)).M() );
+		  float drlb=bJets[0].DeltaR( (isZ ? dilp4 : lp4) );
+		  if(bJets.size()>1){
+		    float mlb2=(bJets[1]+(isZ ? dilp4 : lp4)).M();
+		    float drlb2=bJets[1].DeltaR( (isZ ? dilp4 : lp4) );
+		    if(mlb2<mlb)
+		      {
+			mlb=mlb2;
+			drlb=drlb2;
+		      }
+		  }
 		  allPlots["minmlb_"+tag]->Fill(mlb,wgt);		 		 
+		  allPlots["drlb_"+tag]->Fill(drlb,wgt);		 		 
 		}	  
 	    }
 	}
@@ -670,6 +686,7 @@ void ReadTree(TString filename,
 		      //check kinematics
 		      TLorentzVector jp4;
 		      jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
+		      //jp4=updateJES(jp4,ev.j_rawsf[k],ev.j_area[k],ev.rho,ev.nvtx,jetCorr);
 		      jetDiff -= jp4;
 		      
 		      //smear jet energy resolution for MC
@@ -949,6 +966,31 @@ float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta)
 
   return unc;
 }
+
+
+//
+FactorizedJetCorrector *getFactorizedJetEnergyCorrector(TString baseDir, bool isMC)
+{
+  gSystem->ExpandPathName(baseDir);
+  
+  //order matters: L1 -> L2 -> L3 (-> Residuals)
+  std::vector<std::string> jetCorFiles;
+  TString pf("Summer15_25nsV7_");
+  pf += (isMC ? "MC" : "DATA");
+  std::cout << "Jet energy corrections from " << baseDir+"/"+pf+"_*_AK4PFchs.txt" << std::endl;
+  jetCorFiles.push_back((baseDir+"/"+pf+"_L1FastJet_AK4PFchs.txt").Data());
+  jetCorFiles.push_back((baseDir+"/"+pf+"_L2Relative_AK4PFchs.txt").Data());
+  jetCorFiles.push_back((baseDir+"/"+pf+"_L3Absolute_AK4PFchs.txt").Data());
+  if(!isMC) jetCorFiles.push_back((baseDir+"/"+pf+"_L2L3Residual_AK4PFchs.txt").Data());
+  
+  //init the parameters for correction
+  std::vector<JetCorrectorParameters> corSteps;
+  for(size_t i=0; i<jetCorFiles.size(); i++) corSteps.push_back(JetCorrectorParameters(jetCorFiles[i]));
+  
+  //return the corrector
+  return new FactorizedJetCorrector(corSteps);
+}
+
 
 //Sources :  https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt)

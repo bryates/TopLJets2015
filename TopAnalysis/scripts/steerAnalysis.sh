@@ -4,6 +4,7 @@ WHAT=$1;
 if [[ "$1" == "" ]]; then 
     echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG/CinC/SHAPE/GENSTOP> [plotter.root] [signal] [mass]"; 
     echo "        SEL     - launches selection jobs to the batch"; 
+    echo "        MERGE   - merge the output of the jobs";
     echo "        PLOT    - runs the plotter tool"
     echo "        BKG     - runs backgrond estimation script"
     echo "        FINALPLOT - re-runs the plotter tool taking into account the scale factors for some processes derived in the BKG step"
@@ -25,9 +26,9 @@ if [[ "${mass}" == "" ]]; then mass=0; fi
 
 queue=8nh
 eosdir=/store/cmst3/user/psilva/LJets2015/64217e8
-outdir=~/work/LJets2015
-wwwdir=~/www/LJets2015
-lumi=2134
+outdir=~/work/LJets2015-preapp
+wwwdir=~/www/LJets2015-preapp
+lumi=2137
 
 RED='\e[31m'
 NC='\e[0m'
@@ -78,7 +79,7 @@ case $WHAT in
 	done
 	;;
     FINALPLOT )
-	a=(muplus muminus eplus eminus)
+	a=(munoniso enoniso muplus muminus eplus eminus)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} \
@@ -95,7 +96,7 @@ case $WHAT in
 	done
 	;;
     WWW )
-	a=(muplus muminus eplus eminus munoniso enoniso z)
+	a=(munoniso enoniso muplus muminus eplus eminus z)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Moving plots for ${i} ${NC} ]"
 	    rm -rf ${wwwdir}/${i}

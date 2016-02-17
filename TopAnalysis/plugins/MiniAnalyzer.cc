@@ -501,10 +501,12 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       const reco::Candidate *genParton = j->genParton();
       const reco::GenJet *genJet=j->genJet(); 
       ev_.j_area[ev_.nj]=j->jetArea();
+      ev_.j_rawsf[ev_.nj]=j->correctedJet("Uncorrected").pt()/j->pt();
       ev_.j_pt[ev_.nj]=j->pt();
       ev_.j_mass[ev_.nj]=j->mass();
       ev_.j_eta[ev_.nj]=j->eta();
       ev_.j_phi[ev_.nj]=j->phi();
+      ev_.j_rawsf[ev_.nj]=
       ev_.genj_pt[ev_.nj]=genJet ? genJet->pt() : 0;
       ev_.genj_mass[ev_.nj]=genJet ? genJet->mass() : 0;
       ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;

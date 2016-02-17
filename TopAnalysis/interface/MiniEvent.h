@@ -23,7 +23,7 @@ struct MiniEvent_t
   Float_t l_pt[50],l_eta[50],l_phi[50], l_mass[50], l_miniIso[50], l_chargedHadronIso[50], l_relIso[50], l_ip3d[50], l_ip3dsig[50];
 
   Int_t nj,ngenj;
-  Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200];
+  Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200],j_rawsf[200];
   Float_t genj_pt[200],genj_eta[200],genj_phi[200],genj_mass[200];
   Float_t j_csv[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_qg[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
   Int_t j_vtxNtracks[200],j_flav[200],j_pid[200],j_hadflav[200];

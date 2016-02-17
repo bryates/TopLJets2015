@@ -2,7 +2,7 @@ from plotter import *
 import sys
 
 
-def doPlot(plotName):
+def doPlot(plotName,ch):
 
 
     ROOT.gStyle.SetOptTitle(0)
@@ -10,12 +10,12 @@ def doPlot(plotName):
     ROOT.gROOT.SetBatch(True)
 
     #open the files
-    inFiles=[ROOT.TFile.Open('~/work/LJets2015/analysis_muplus/plots/final_plotter.root'),
-             ROOT.TFile.Open('~/work/LJets2015/analysis_muminus/plots/final_plotter.root'),
-             ROOT.TFile.Open('~/work/LJets2015/analysis_eplus/plots/final_plotter.root'),
-             ROOT.TFile.Open('~/work/LJets2015/analysis_eminus/plots/final_plotter.root')
-             ]
-
+    inFiles=[]
+    baseDir='~/work/LJets2015'
+    if ch=='all' or ch=='plus' or ch=='mu':  inFiles.append(ROOT.TFile.Open('%s/analysis_muplus/plots/final_plotter.root'%baseDir))
+    if ch=='all' or ch=='plus' or ch=='e':   inFiles.append(ROOT.TFile.Open('%s/analysis_eplus/plots/final_plotter.root'%baseDir))
+    if ch=='all' or ch=='minus' or ch=='e':  inFiles.append(ROOT.TFile.Open('%s/analysis_eminus/plots/final_plotter.root'%baseDir))
+    if ch=='all' or ch=='minus' or ch=='mu': inFiles.append(ROOT.TFile.Open('%s/analysis_muminus/plots/final_plotter.root'%baseDir))
 
     plotsPerProc={}
     if plotName=='nbtags':
@@ -80,7 +80,7 @@ def doPlot(plotName):
                 plotsPerProc[title].Add(h)
                     
     #show
-    plot=Plot(plotName)
+    plot=Plot('%s%s'%(ch,plotName))
     plot.savelog=True
     plot.wideCanvas=True if plotName=='nbtags' else False
     plot.ratiorange=(0.32,1.68)
@@ -98,7 +98,10 @@ def doPlot(plotName):
                      
 def main():
 
-    for p in sys.argv[1].split(','): doPlot(p)
+    plots=sys.argv[1].split(',')
+    ch='all'
+    if len(sys.argv)>2: ch=sys.argv[2]
+    for p in plots : doPlot(p,ch)
     
 """
 for execution from another script
