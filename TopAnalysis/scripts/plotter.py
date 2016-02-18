@@ -109,7 +109,8 @@ class Plot(object):
         p1.cd()
 
         # legend
-        leg = ROOT.TLegend(0.45, 0.85-0.02*max(len(self.mc)-2,0), 0.95, 0.9)
+        iniy=0.80 if self.wideCanvas else 0.85
+        leg = ROOT.TLegend(0.45, iniy-0.02*max(len(self.mc)-2,0), 0.95, iniy+0.05)
         leg.SetBorderSize(0)
         leg.SetFillStyle(0)        
         leg.SetTextFont(43)
@@ -187,10 +188,11 @@ class Plot(object):
         txt.SetTextFont(43)
         txt.SetTextSize(16)
         txt.SetTextAlign(12)
+        iniy=0.8 if self.wideCanvas else 0.95
         if lumi<100:
-            txt.DrawLatex(0.18,0.95,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )
+            txt.DrawLatex(0.18,iniy,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )
         else:
-            txt.DrawLatex(0.18,0.95,'#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)' % (lumi/1000.) )
+            txt.DrawLatex(0.18,iniy,'#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)' % (lumi/1000.) )
 
         #holds the ratio
         c.cd()

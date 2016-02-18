@@ -1,9 +1,9 @@
 from plotter import *
 import sys
 
-
+"""
+"""
 def doPlot(plotName,ch):
-
 
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
@@ -93,7 +93,7 @@ def doPlot(plotName,ch):
                  color,
                  isData)
     plot.finalize()
-    plot.show("./",2.1)
+    plot.show(outDir="./",lumi=2.1)
     #raw_input()
                      
 def main():
