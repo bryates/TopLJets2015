@@ -39,12 +39,12 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Summer15_25nsV6_MC.db'
-jecTag='Summer15_25nsV6_MC_AK4PFchs'
+jecFile='Summer15_25nsV7_MC.db'
+jecTag='Summer15_25nsV7_MC_AK4PFchs'
 if options.runOnData : 
     jecLevels.append( 'L2L3Residual' )
-    jecFile='Summer15_25nsV6_DATA.db'
-    jecTag='Summer15_25nsV6_DATA_AK4PFchs'
+    jecFile='Summer15_25nsV7_DATA.db'
+    jecTag='Summer15_25nsV7_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 
@@ -84,10 +84,10 @@ process.TFileService = cms.Service("TFileService",
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff']
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
+                 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'] 
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
 
 #analyzer
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')

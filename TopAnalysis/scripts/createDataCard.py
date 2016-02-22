@@ -216,7 +216,7 @@ def main():
         _,expVarShapes=getDistsFrom(directory=fIn.Get('%sshapes_%s_exp'%(opt.dist,cat)))
         expVarShapes=filterShapeList(expVarShapes,signalList,rawSignalList)
         nExpSysts=expVarShapes[signalList[0]].GetNbinsY()/2
-        for isyst in xrange(1,nExpSysts):
+        for isyst in xrange(1,nExpSysts+1):
             
             #test which variations are significant
             bwList={}
@@ -224,6 +224,7 @@ def main():
             systVar=''
             upShapes,downShapes={},{}
             for proc in exp:
+
                 if proc in expVarShapes:
                     
                     systVarDown = expVarShapes[proc].GetYaxis().GetBinLabel(ybin)
@@ -309,13 +310,13 @@ def main():
         sampleSysts=[
 
             #ttbar modelling
-            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True , True),
-            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True),            
-            ('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  True,   True),
-            #('Hadronizer',      {'tbart'         : ['tbartaMCatNLO']},                                                                True , True),
+            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True ,  True, False),
+            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True, False),            
+            #('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  False,  True, False),
+            ('Hadronizer',      {'tbart'         : ['tbartaMCNLO','tbartaMCNLOHerwig']},                                              False , True, True),
             
             #QCD SCALES
-            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True),            
+            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True, False),            
 
             #('wFactScale',           { 'Wl': ['id3mur1muf0.5','id2mur1muf2'], 
             #                           'Wc': ['id3mur1muf0.5','id2mur1muf2'], 
@@ -327,13 +328,13 @@ def main():
             #                           'Wc': ['id9mur0.5muf0.5','id5mur2muf2'],
             #                           'Wb': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False),
 
-            ('wFactScale',           { 'W': ['id3mur1muf0.5','id2mur1muf2'] },  False, False),
-            ('wRenScale',            { 'W': ['id7mur0.5muf1','id4mur2muf1'] },  False, False),
-            ('wCombScale',           { 'W': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False),
+            #('wFactScale',           { 'W': ['id3mur1muf0.5','id2mur1muf2'] },    False, False, False),
+            #('wRenScale',            { 'W': ['id7mur0.5muf1','id4mur2muf1'] },    False, False, False),
+            ('wCombScale',           { 'W': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False, False),
 
-            ('ttFactScale',          { 'tbart': ['muR1muF0.5hdampmt172.5','muR1muF2hdampmt172.5'] },     False , False),
-            ('ttRenScale',           { 'tbart': ['muR0.5muF1hdampmt172.5','muR2muF1hdampmt172.5'] },     False , False),
-            ('ttCombScale',          { 'tbart': ['muR0.5muF0.5hdampmt172.5','muR2muF2hdampmt172.5'] },   False , False),
+            ('ttFactScale',          { 'tbart': ['muR1muF0.5hdampmt172.5','muR1muF2hdampmt172.5'] },     False , False, False),
+            ('ttRenScale',           { 'tbart': ['muR0.5muF1hdampmt172.5','muR2muF1hdampmt172.5'] },     False , False, False),
+            ('ttCombScale',          { 'tbart': ['muR0.5muF0.5hdampmt172.5','muR2muF2hdampmt172.5'] },   False , False, False),
             ]
 
         _,genVarShapes = getDistsFrom(directory=fIn.Get('%sshapes_%s_gen'%(opt.dist,cat)))
@@ -341,7 +342,7 @@ def main():
         _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
         if signalList[0]!=rawSignalList[0]:
             altExp=filterShapeList(altExp,signalList,rawSignalList)
-        for systVar, procsToApply, normalize, useAltShape in sampleSysts:
+        for systVar, procsToApply, normalize, useAltShape, projectRelToNom in sampleSysts:
 
             #prepare shapes and check if variation is significant
             downShapes, upShapes = {}, {}
@@ -374,7 +375,18 @@ def main():
 
                     downH = genVarShapes[ iproc ].ProjectionX('%s%sDown'%(iproc,systVar), ybinDown, ybinDown)
                     upH   = genVarShapes[ iproc ].ProjectionX('%s%sUp'%(iproc,systVar),   ybinUp,   ybinUp)
-                    
+                
+                # use do down/up x nom to generate the variation, then mirror it
+                if projectRelToNom:
+                    ratioH=downH.Clone()
+                    ratioH.Divide(upH)
+                    for xbin in xrange(1,nomH.GetNbinsX()+1):
+                        nomVal=nomH.GetBinContent(xbin)
+                        varVal = ratioH.GetBinContent(xbin) * nomVal
+                        upH.SetBinContent(xbin, varVal)
+                        varVal = varVal- nomVal
+                        downH.SetBinContent(xbin, nomVal-varVal)
+
                 #normalize (shape only variation is considered)
                 if normalize : downH.Scale( nomH.Integral()/downH.Integral() ) 
                 if normalize : upH.Scale( nomH.Integral()/upH.Integral() )
@@ -394,6 +406,20 @@ def main():
             saveToShapesFile(outFile,downShapes,systVar+'Down')
             saveToShapesFile(outFile,upShapes,systVar+'Up')
 
+            #write to datacard
+            datacard.write('%32s shape'%systVar)
+            for sig in signalList: 
+                if sig in procsToApply and sig in upShapes:
+                    datacard.write('%15s'%'1')
+                else:
+                    datacard.write('%15s'%'-')
+            for proc in exp: 
+                if proc in signalList: continue
+                if proc in procsToApply and proc in upShapes:
+                    datacard.write('%15s'%'1')
+                else:
+                    datacard.write('%15s'%'-')
+            datacard.write('\n')
 
         #
         # QCD shapes
@@ -422,22 +448,6 @@ def main():
             _,qcdShapesDown = getDistsFrom(directory=fIn.Get('%s_%s_QCD%sDown'%(opt.dist,cat,jetCat)))
             qcdShapesDown['Multijetsdata'].Scale( qcdExp/qcdShapesDown['Multijetsdata'].Integral() ) 
             saveToShapesFile(outFile,qcdShapesDown,systName+'Down')
-
-        #write to datacard
-        datacard.write('%32s shape'%systVar)
-        for sig in signalList: 
-            if sig in procsToApply:
-                datacard.write('%15s'%'1')
-            else:
-                datacard.write('%15s'%'-')
-        for proc in exp: 
-            if proc in signalList: continue
-            if proc in procsToApply:
-                datacard.write('%15s'%'1')
-            else:
-                datacard.write('%15s'%'-')
-        datacard.write('\n')
-
 
         #all done
         datacard.close()

@@ -97,12 +97,21 @@ class Plot(object):
 
         #holds the main plot
         c.cd()
-        p1 = ROOT.TPad('p1','p1',0.0,0.85,1.0,0.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+        p1 = None
+        if self.dataH:
+            p1=ROOT.TPad('p1','p1',0.0,0.85,1.0,0.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            p1.SetRightMargin(0.05)
+            p1.SetLeftMargin(0.12)
+            p1.SetTopMargin(0.01)
+            p1.SetBottomMargin(0.12)
+        else:
+            p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            p1.SetRightMargin(0.05)
+            p1.SetLeftMargin(0.12)
+            p1.SetTopMargin(0.1)
+            p1.SetBottomMargin(0.12)
         p1.Draw()
-        p1.SetRightMargin(0.05)
-        p1.SetLeftMargin(0.12)
-        p1.SetTopMargin(0.01)
-        p1.SetBottomMargin(0.12)
+
         p1.SetGridx(False)
         p1.SetGridy(True)
         self._garbageList.append(p1)

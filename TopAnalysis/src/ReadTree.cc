@@ -42,6 +42,8 @@ void ReadTree(TString filename,
 	      Bool_t runSysts)
 {
 
+  bool isTTbar( filename.Contains("_TTJets") );
+  
   //READ TREE FROM FILE
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -614,6 +616,11 @@ void ReadTree(TString filename,
 	      for(size_t icat=0; icat<2; icat++)
 		{
 		  float newWgt = wgt*ev.ttbar_w[igen]/ev.ttbar_w[0];
+
+		  //for signal we only consider shapes and acceptance effects as it will be fit
+		  if(isTTbar) 
+		    wgt *= normH->GetBinContent(igen+1)/normH->GetBinContent(1);
+
 		  TString tag=catsToFill[icat];	 
 		  all2dPlots["metptshapes_"+tag+"_gen"]->Fill(ev.met_pt[0],igen,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->Fill(mlb,igen,newWgt);
