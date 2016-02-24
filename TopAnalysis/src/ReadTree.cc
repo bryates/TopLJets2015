@@ -85,7 +85,16 @@ void ReadTree(TString filename,
     {
       TFile *fIn=TFile::Open(lepEffUrl);
       lepEffH["m_sel"]=(TH2 *)fIn->Get("m_sel");
-      lepEffH["m_trig"]=(TH2 *)fIn->Get("m_trig");
+      lepEffH["m_trig"]=(TH2 *)fIn->Get("m_trig");      
+      for(auto& it : lepEffH) it.second->SetDirectory(0);
+      fIn->Close();
+    }
+  lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_fromTemplates_withSyst_Final.txt_SF2D.root";
+  gSystem->ExpandPathName(lepEffUrl);
+  if(!ev.isData)
+    {
+      TFile *fIn=TFile::Open(lepEffUrl);
+      lepEffH["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D");
       for(auto& it : lepEffH) it.second->SetDirectory(0);
       fIn->Close();
     }
@@ -117,7 +126,7 @@ void ReadTree(TString filename,
     }
 
   //JET ENERGY SCALE: https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Summer15_uncertainties
-  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/jectxt/Summer15_25nsV7_DATA_UncertaintySources_AK4PFchs.txt");
+  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_25nsV7_DATA_UncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
   //FactorizedJetCorrector *jetCorr=getFactorizedJetEnergyCorrector("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/jectxt",!ev.isData);
   std::vector<TString> jecUncSrcs;
@@ -389,14 +398,14 @@ void ReadTree(TString filename,
 	  if(isZ && jp4.DeltaR(l2p4)<0.4)continue;
 
 	  //smear jet energy resolution for MC
-	  jetDiff -= jp4;
+	  //jetDiff -= jp4;
 	  float genJet_pt(ev.genj_pt[k]); 
 	  if(!ev.isData && genJet_pt>0) 
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
 	      jp4 *= jerSmear;
 	    }
-	  jetDiff += jp4;
+	  //jetDiff += jp4;
 	  resolvedJetIdx.push_back(k);
 	  resolvedJetP4.push_back(jp4);
 
@@ -495,25 +504,29 @@ void ReadTree(TString filename,
 	  if(lid==11 || lid==1100) prefix="e";
 	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end() && !isZ)
 	    {
-	      for(size_t il=0; il<tightLeptonsIso.size(); il++)
+	      for(size_t il=0; il<1+0*tightLeptonsIso.size(); il++)
 		{
 		  Int_t ilIdx=tightLeptonsIso[il];
 		  float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
 		  float etaForEff=TMath::Max(TMath::Min(float(fabs(ev.l_eta[ilIdx])),maxEtaForEff),minEtaForEff);
 		  Int_t etaBinForEff=lepEffH[prefix+"_sel"]->GetXaxis()->FindBin(etaForEff);
-		  
+		  		  
 		  float minPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmin() ), maxPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmax()-0.01 );
 		  float ptForEff=TMath::Max(TMath::Min(float(ev.l_pt[ilIdx]),maxPtForEff),minPtForEff);
 		  Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
-		  
+		  		  
 		  float selSF(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
 		  float selSFUnc(lepEffH[prefix+"_sel"]->GetBinError(etaBinForEff,ptBinForEff));
+		  lepSelSF[0]*=selSF;      lepSelSF[1]*=(selSF-selSFUnc);       lepSelSF[2]*=(selSF+selSFUnc);
 		  
-		  float trigSF(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
-		  float trigSFUnc(lepEffH[prefix+"_trig"]->GetBinError(etaBinForEff,ptBinForEff));
+		  float trigSF(1.0), trigSFUnc(0.03);
+		  if(prefix=="m")
+		    {
+		      trigSF=(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
+		      trigSFUnc=(lepEffH[prefix+"_trig"]->GetBinError(etaBinForEff,ptBinForEff));
+		    }
 
 		  lepTriggerSF[0]*=trigSF; lepTriggerSF[1]*=(trigSF-trigSFUnc); lepTriggerSF[2]*=(trigSF+trigSFUnc);
-		  lepSelSF[0]*=selSF;      lepSelSF[1]*=(selSF-selSFUnc);       lepSelSF[2]*=(selSF+selSFUnc);
 		}
 	    }
 	  
@@ -836,114 +849,114 @@ void ReadTree(TString filename,
 std::map<Int_t,Float_t> lumiPerRun()
 {
   std::map<Int_t,Float_t> lumiMap;
-  lumiMap[ 256630 ]=   972453.859  ;
-  lumiMap[ 256673 ]=    5777.795   ;
-  lumiMap[ 256674 ]=   96620.611   ;
-  lumiMap[ 256675 ]=  7596277.091  ;
-  lumiMap[ 256676 ]=  9548596.716  ;
-  lumiMap[ 256677 ]=  16055929.005 ;
-  lumiMap[ 256801 ]=  9165130.512  ;
-  lumiMap[ 256842 ]=   17179.759   ;
-  lumiMap[ 256843 ]=  38623648.354 ;
-  lumiMap[ 256866 ]=   60646.099   ;
-  lumiMap[ 256867 ]=  4728164.411  ;
-  lumiMap[ 256868 ]=  23371474.596 ;
-  lumiMap[ 256869 ]=  1592810.667  ;
-  lumiMap[ 256926 ]=  1571058.735  ;
-  lumiMap[ 256941 ]=  9007928.067  ;
-  lumiMap[ 257461 ]=  3194841.970  ;
-  lumiMap[ 257531 ]=  8830131.818  ;
-  lumiMap[ 257599 ]=  5193986.242  ;
-  lumiMap[ 257613 ]=  78942504.398 ;
-  lumiMap[ 257614 ]=   882267.423  ;
-  lumiMap[ 257645 ]=  65301655.020 ;
-  lumiMap[ 257682 ]=  13710324.756 ;
-  lumiMap[ 257722 ]=   853623.834  ;
-  lumiMap[ 257723 ]=  6248262.776  ;
-  lumiMap[ 257735 ]=   542314.185  ;
-  lumiMap[ 257751 ]=  28193282.293 ;
-  lumiMap[ 257804 ]=   221266.820  ;
-  lumiMap[ 257805 ]=  17835928.295 ;
-  lumiMap[ 257816 ]=  25362711.952 ;
-  lumiMap[ 257819 ]=  15747569.138 ;
-  lumiMap[ 257968 ]=  17516821.210 ;
-  lumiMap[ 257969 ]=  40746097.178 ;
-  lumiMap[ 258129 ]=  6048266.862  ;
-  lumiMap[ 258136 ]=  3759607.514  ;
-  lumiMap[ 258157 ]=  4049174.674  ;
-  lumiMap[ 258158 ]= 109407017.749 ;
-  lumiMap[ 258159 ]=  26405897.556 ;
-  lumiMap[ 258177 ]= 110399397.530 ;
-  lumiMap[ 258211 ]=  6705307.183  ;
-  lumiMap[ 258213 ]=  12097115.770 ;
-  lumiMap[ 258214 ]=  15902014.828 ;
-  lumiMap[ 258215 ]=   430560.536  ;
-  lumiMap[ 258287 ]=  13905008.423 ;
-  lumiMap[ 258403 ]=  16154078.120 ;
-  lumiMap[ 258425 ]=  10663266.828 ;
-  lumiMap[ 258426 ]=   786886.125  ;
-  lumiMap[ 258427 ]=  8265152.264  ;
-  lumiMap[ 258428 ]=  12092990.844 ;
-  lumiMap[ 258432 ]=   291643.938  ;
-  lumiMap[ 258434 ]=  31742537.170 ;
-  lumiMap[ 258440 ]=  46151016.104 ;
-  lumiMap[ 258444 ]=  2140077.077  ;
-  lumiMap[ 258445 ]=  16854431.566 ;
-  lumiMap[ 258446 ]=  7668549.265  ;
-  lumiMap[ 258448 ]=  36534661.251 ;
-  lumiMap[ 258655 ]=   400033.787  ;
-  lumiMap[ 258656 ]=  26619578.792 ;
-  lumiMap[ 258694 ]=  15960985.116 ;
-  lumiMap[ 258702 ]=  30438445.207 ;
-  lumiMap[ 258703 ]=  32463087.020 ;
-  lumiMap[ 258705 ]=  7903450.408  ;
-  lumiMap[ 258706 ]=  53978046.823 ;
-  lumiMap[ 258712 ]=  35567148.443 ;
-  lumiMap[ 258713 ]=  10456680.471 ;
-  lumiMap[ 258714 ]=  4285875.372  ;
-  lumiMap[ 258741 ]=  4899388.331  ;
-  lumiMap[ 258742 ]=  65057022.311 ;
-  lumiMap[ 258745 ]=  14597123.777 ;
-  lumiMap[ 258749 ]=  47585277.273 ;
-  lumiMap[ 258750 ]=  15156434.748 ;
-  lumiMap[ 259626 ]=  11169319.844 ;
-  lumiMap[ 259637 ]=  15450881.949 ;
-  lumiMap[ 259681 ]=  1961953.523  ;
-  lumiMap[ 259683 ]=  7494008.728  ;
-  lumiMap[ 259685 ]=  54416576.426 ;
-  lumiMap[ 259686 ]=  26080434.224 ;
-  lumiMap[ 259721 ]=  12072683.502 ;
-  lumiMap[ 259809 ]=  14229830.368 ;
-  lumiMap[ 259810 ]=  9772545.665  ;
-  lumiMap[ 259811 ]=  7373602.434  ;
-  lumiMap[ 259813 ]=   733457.718  ;
-  lumiMap[ 259817 ]=   353071.431  ;
-  lumiMap[ 259818 ]=  13027383.967 ;
-  lumiMap[ 259820 ]=   937057.379  ;
-  lumiMap[ 259821 ]=  4734961.135  ;
-  lumiMap[ 259822 ]=  32487481.427 ;
-  lumiMap[ 259861 ]=  6369581.222  ;
-  lumiMap[ 259862 ]=  44470716.726 ;
-  lumiMap[ 259884 ]=  6510093.864  ;
-  lumiMap[ 259890 ]=  9352026.765  ;
-  lumiMap[ 259891 ]=  9243934.111  ;
-  lumiMap[ 260373 ]=  10572653.190 ;
-  lumiMap[ 260424 ]=  65639766.663 ;
-  lumiMap[ 260425 ]=  23157369.009 ;
-  lumiMap[ 260426 ]=  43093150.340 ;
-  lumiMap[ 260427 ]=  15638701.311 ;
-  lumiMap[ 260431 ]=  34141975.488 ;
-  lumiMap[ 260532 ]=  67694389.854 ;
-  lumiMap[ 260533 ]=  1084296.728  ;
-  lumiMap[ 260534 ]=  1965785.974  ;
-  lumiMap[ 260536 ]=  14172830.429 ;
-  lumiMap[ 260538 ]=  21910218.595 ;
-  lumiMap[ 260541 ]=  1783295.494  ;
-  lumiMap[ 260575 ]=  1755955.214  ;
-  lumiMap[ 260576 ]=  16233038.140 ;
-  lumiMap[ 260577 ]=  8223890.985  ;
-  lumiMap[ 260593 ]=  34830922.812 ;
-  lumiMap[ 260627 ]= 171231412.138 ;
+  lumiMap[256630]=  1019427.537  ;
+  lumiMap[256673]=    5821.004   ;
+  lumiMap[256674]=   97107.612   ;
+  lumiMap[256675]=  7631339.155  ;
+  lumiMap[256676]=  9586678.621  ;
+  lumiMap[256677]=  16208124.083 ;
+  lumiMap[256801]=  9289181.921  ;
+  lumiMap[256842]=   17564.969   ;
+  lumiMap[256843]=  39192996.677 ;
+  lumiMap[256866]=   60179.433   ;
+  lumiMap[256867]=  4778327.656  ;
+  lumiMap[256868]=  23626060.836 ;
+  lumiMap[256869]=  1613257.519  ;
+  lumiMap[256926]=  1585513.104  ;
+  lumiMap[256941]=  9153369.805  ;
+  lumiMap[257461]=  3273371.101  ;
+  lumiMap[257531]=  8952857.360  ;
+  lumiMap[257599]=  5277913.939  ;
+  lumiMap[257613]=  80350501.578 ;
+  lumiMap[257614]=   898910.938  ;
+  lumiMap[257645]=  66315220.235 ;
+  lumiMap[257682]=  14059859.130 ;
+  lumiMap[257722]=   874139.924  ;
+  lumiMap[257723]=  6416461.542  ;
+  lumiMap[257735]=   576143.428  ;
+  lumiMap[257751]=  28892223.256 ;
+  lumiMap[257804]=   225829.957  ;
+  lumiMap[257805]=  18191777.239 ;
+  lumiMap[257816]=  25831347.642 ;
+  lumiMap[257819]=  16070065.308 ;
+  lumiMap[257968]=  17947956.702 ;
+  lumiMap[257969]=  41763127.477 ;
+  lumiMap[258129]=  6161039.580  ;
+  lumiMap[258136]=  3833715.336  ;
+  lumiMap[258157]=  4130426.007  ;
+  lumiMap[258158]= 112208420.935 ;
+  lumiMap[258159]=  27041879.753 ;
+  lumiMap[258177]= 112357734.179 ;
+  lumiMap[258211]=  6899616.879  ;
+  lumiMap[258213]=  12447784.863 ;
+  lumiMap[258214]=  16373869.777 ;
+  lumiMap[258215]=   443760.789  ;
+  lumiMap[258287]=  14271300.581 ;
+  lumiMap[258403]=  16554699.075 ;
+  lumiMap[258425]=  10948640.280 ;
+  lumiMap[258426]=   808721.923  ;
+  lumiMap[258427]=  8497851.929  ;
+  lumiMap[258428]=  12440664.974 ;
+  lumiMap[258432]=   298695.064  ;
+  lumiMap[258434]=  32645147.197 ;
+  lumiMap[258440]=  47654602.747 ;
+  lumiMap[258444]=  2208821.299  ;
+  lumiMap[258445]=  17379231.195 ;
+  lumiMap[258446]=  7906567.040  ;
+  lumiMap[258448]=  37636207.590 ;
+  lumiMap[258655]=   412374.500  ;
+  lumiMap[258656]=  27561949.634 ;
+  lumiMap[258694]=  16613108.138 ;
+  lumiMap[258702]=  31593447.906 ;
+  lumiMap[258703]=  33749411.575 ;
+  lumiMap[258705]=  8215733.522  ;
+  lumiMap[258706]=  56093496.201 ;
+  lumiMap[258712]=  36912048.837 ;
+  lumiMap[258713]=  10868729.417 ;
+  lumiMap[258714]=  4462940.479  ;
+  lumiMap[258741]=  4899047.520  ;
+  lumiMap[258742]=  65372682.457 ;
+  lumiMap[258745]=  22816248.664 ;
+  lumiMap[258749]=  48011842.080 ;
+  lumiMap[258750]=  15311166.469 ;
+  lumiMap[259626]=  11468889.945 ;
+  lumiMap[259637]=  15843833.799 ;
+  lumiMap[259681]=  2006428.466  ;
+  lumiMap[259683]=  7661900.888  ;
+  lumiMap[259685]=  55748876.683 ;
+  lumiMap[259686]=  26787974.289 ;
+  lumiMap[259721]=  12400448.429 ;
+  lumiMap[259809]=  14370193.633 ;
+  lumiMap[259810]=  9903086.201  ;
+  lumiMap[259811]=  7470396.336  ;
+  lumiMap[259813]=   746162.774  ;
+  lumiMap[259817]=   362610.422  ;
+  lumiMap[259818]=  13212055.400 ;
+  lumiMap[259820]=  12560062.290 ;
+  lumiMap[259821]=  16180451.962 ;
+  lumiMap[259822]=  32303622.612 ;
+  lumiMap[259861]=  6099480.997  ;
+  lumiMap[259862]=  43744798.711 ;
+  lumiMap[259884]=  6731111.093  ;
+  lumiMap[259890]=  9701207.990  ;
+  lumiMap[259891]=  9603195.320  ;
+  lumiMap[260373]=  10920147.469 ;
+  lumiMap[260424]=  66688251.029 ;
+  lumiMap[260425]=  23599504.405 ;
+  lumiMap[260426]=  43930543.476 ;
+  lumiMap[260427]=  15969446.707 ;
+  lumiMap[260431]=  35126694.498 ;
+  lumiMap[260532]=  69168656.005 ;
+  lumiMap[260533]=  1195476.609  ;
+  lumiMap[260534]=  32043973.431 ;
+  lumiMap[260536]=  14466413.325 ;
+  lumiMap[260538]=  22368836.359 ;
+  lumiMap[260541]=  1829959.151  ;
+  lumiMap[260575]=  1721667.572  ;
+  lumiMap[260576]=  16664531.028 ;
+  lumiMap[260577]=  8251536.906  ;
+  lumiMap[260593]=  35893405.704 ;
+  lumiMap[260627]= 178937353.997 ; 
   return lumiMap;
 };
 

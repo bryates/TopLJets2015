@@ -8,10 +8,9 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_7_4_14
-cd CMSSW_7_4_14/src
+cmsrel CMSSW_7_4_16
+cd CMSSW_7_4_16/src
 cmsenv
-git cms-merge-topic ikrav:egm_id_7.4.12_v1
 git clone git@github.com:pfs/TopLJets2015.git
 scram b -j 9
 ```
@@ -35,7 +34,7 @@ Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki
 
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/7203808 -o /store/cmst3/user/psilva/LJets2015/64217e8
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/5201014 -o /store/cmst3/user/psilva/LJets2015/64217e8
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
@@ -51,7 +50,7 @@ mergeJSON.py grid/crab_Data13TeV_SingleElectron_2015D_v3/results/lumiSummary.jso
 ```
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
-brilcalc lumi --normtag /afs/cern.ch/user/c/cmsbril/public/normtag_json/OfflineNormtagV1.json -i data/SingleElectron_lumiSummary.json
+brilcalc lumi --normtag ~lumipro/public/normtag_file/moriond16_normtag.json -i data/SingleElectron_lumiSummary.json
 ```
 Use the table which is printed out to update the "lumiPerRun" method in ReadTree.cc.
 That will be used to monitor the event yields per run in order to identify outlier runs.
@@ -91,7 +90,7 @@ After the jobs have run you can merge the outputs with
 ```
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2134
+python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2247.5
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as

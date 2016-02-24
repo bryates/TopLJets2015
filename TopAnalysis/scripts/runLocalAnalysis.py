@@ -82,6 +82,7 @@ def main():
         for baseDir in inputTags:
 
             tag=os.path.basename(baseDir)
+            if tag=='backup' : continue
 
             #filter tags
             if len(onlyList)>0:

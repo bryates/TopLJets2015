@@ -28,7 +28,7 @@ queue=8nh
 eosdir=/store/cmst3/user/psilva/LJets2015/64217e8
 outdir=~/work/LJets2015-preapp
 wwwdir=~/www/LJets2015-preapp
-lumi=2137
+lumi=2247.5
 
 RED='\e[31m'
 NC='\e[0m'
