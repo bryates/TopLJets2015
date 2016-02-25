@@ -2,12 +2,14 @@
 
 WHAT=$1; 
 if [[ "$1" == "" ]]; then 
-    echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG/CinC/SHAPE/GENSTOP> [plotter.root] [signal] [mass]"; 
+    echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG/FINALPLOT/COMBPLOT/WWW/CinC/SHAPE/GENSTOP> [plotter.root] [signal] [mass]"; 
     echo "        SEL     - launches selection jobs to the batch"; 
     echo "        MERGE   - merge the output of the jobs";
     echo "        PLOT    - runs the plotter tool"
     echo "        BKG     - runs backgrond estimation script"
-    echo "        FINALPLOT - re-runs the plotter tool taking into account the scale factors for some processes derived in the BKG step"
+    echo "        FINALPLOT - re-runs the plotter tool taking into account the scale factors for some processes derived in the BKG step"    
+    echo "        COMBPLOT - combine the plots of different categories"
+    echo "        WWW - move the plots to the afs-based web area"
     echo "        CinC    - runs the cut-in-categories analysis from the current plotter files"
     echo "        SHAPE   - similar for the full shape analysis"
     echo "        GENSTOP - interpolates ttbar mass shapes to generate an ad-hoc stealth stop signal with different masses"
@@ -93,6 +95,25 @@ case $WHAT in
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/hf_samples_Run2015.json -l ${lumi} \
 		--procSF "W":${outdir}/analysis_${i}/.wjetsscalefactors.pck --saveLog -o final_plotter.root;
+	done
+	;;
+    COMBPLOT)
+	fs=(e mu plus minus all)
+	plots=(nvtx lpt leta ht mttbar csv minmlb drlb metpt)
+	cats=(1j 2j 3j 4j 1j0t 1j1t 2j0t 2j1t 2j2t 3j0t 3j1t 3j2t 4j0t 4j1t 4j2t)
+	for f in ${fs[@]}; do
+	    for p in ${plots[@]}; do
+		for c in ${cats[@]}; do
+		    python scripts/combinePlotsForAllCategories.py ${p}_${c} ${f};
+		done
+	    done
+	done
+	
+	plots=(nbtags)
+	for f in ${fs[@]}; do
+	    for p in ${plots[@]}; do
+		python scripts/combinePlotsForAllCategories.py ${p} ${f};
+	    done
 	done
 	;;
     WWW )

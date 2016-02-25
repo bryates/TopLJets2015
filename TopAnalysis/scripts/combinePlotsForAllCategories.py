@@ -11,7 +11,7 @@ def doPlot(plotName,ch):
 
     #open the files
     inFiles=[]
-    baseDir='~/work/LJets2015'
+    baseDir='~/work/LJets2015-preapp'
     if ch=='all' or ch=='plus' or ch=='mu':  inFiles.append(ROOT.TFile.Open('%s/analysis_muplus/plots/final_plotter.root'%baseDir))
     if ch=='all' or ch=='plus' or ch=='e':   inFiles.append(ROOT.TFile.Open('%s/analysis_eplus/plots/final_plotter.root'%baseDir))
     if ch=='all' or ch=='minus' or ch=='e':  inFiles.append(ROOT.TFile.Open('%s/analysis_eminus/plots/final_plotter.root'%baseDir))
@@ -93,10 +93,12 @@ def doPlot(plotName,ch):
                  color,
                  isData)
     plot.finalize()
-    plot.show(outDir="./",lumi=2.1)
+    plot.show(outDir="plots/",lumi=2.2)
     #raw_input()
                      
 def main():
+
+    os.system('mkdir -p plots')
 
     plots=sys.argv[1].split(',')
     ch='all'

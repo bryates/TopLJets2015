@@ -89,6 +89,7 @@ void ReadTree(TString filename,
       for(auto& it : lepEffH) it.second->SetDirectory(0);
       fIn->Close();
     }
+
   lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_fromTemplates_withSyst_Final.txt_SF2D.root";
   gSystem->ExpandPathName(lepEffUrl);
   if(!ev.isData)
@@ -301,7 +302,7 @@ void ReadTree(TString filename,
     {
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
-      
+
       //select 1 good lepton
       std::vector<int> tightLeptonsIso, tightLeptonsNonIso, vetoLeptons;
       for(int il=0; il<ev.nl; il++)
@@ -351,7 +352,7 @@ void ReadTree(TString filename,
       
       //no extra isolated leptons
       if(vetoLeptons.size()>0) continue;
-      
+            
       //apply trigger requirement
       if(ev.l_id[lepIdx]==13)
 	{
@@ -362,7 +363,7 @@ void ReadTree(TString filename,
 	{ 
 	  if( ((ev.elTrigger>>0)&0x1)==0 ) continue;
 	}
-  
+
       //select according to the lepton id/charge
       Int_t lid=ev.l_id[lepIdx];
       if(isZ) lid=2100+ev.l_id[lepIdx];
@@ -493,7 +494,7 @@ void ReadTree(TString filename,
 	  if(ev.j_pt[k]<15 || fabs(ev.j_eta[k])>3.0) continue;
 	  alpha=ev.j_pt[k]/(isZ ? dilp4.Pt() : lp4.Pt());
 	}
-      
+
       //event weight
       float wgt(1.0);
       std::vector<float> puWeight(3,1.0),lepTriggerSF(3,1.0),lepSelSF(3,1.0), topPtWgt(3,1.0);
@@ -504,7 +505,7 @@ void ReadTree(TString filename,
 	  if(lid==11 || lid==1100) prefix="e";
 	  if(lepEffH.find(prefix+"_sel")!=lepEffH.end() && !isZ)
 	    {
-	      for(size_t il=0; il<1+0*tightLeptonsIso.size(); il++)
+	      for(UInt_t il=0; il<TMath::Min((UInt_t)1,(UInt_t)tightLeptonsIso.size()); il++)
 		{
 		  Int_t ilIdx=tightLeptonsIso[il];
 		  float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
@@ -529,7 +530,7 @@ void ReadTree(TString filename,
 		  lepTriggerSF[0]*=trigSF; lepTriggerSF[1]*=(trigSF-trigSFUnc); lepTriggerSF[2]*=(trigSF+trigSFUnc);
 		}
 	    }
-	  
+
 	  Int_t ntops(0);
 	  float ptsf(1.0);
 	  for(Int_t igen=0; igen<ev.ngenHardProc; igen++)
