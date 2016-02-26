@@ -633,7 +633,7 @@ void ReadTree(TString filename,
 
 		  //for signal we only consider shapes and acceptance effects as it will be fit
 		  if(isTTbar) 
-		    wgt *= normH->GetBinContent(igen+1)/normH->GetBinContent(1);
+		    newWgt *= normH->GetBinContent(igen+1)/normH->GetBinContent(1);
 
 		  TString tag=catsToFill[icat];	 
 		  all2dPlots["metptshapes_"+tag+"_gen"]->Fill(ev.met_pt[0],igen,newWgt);

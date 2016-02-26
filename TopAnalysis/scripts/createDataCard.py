@@ -266,7 +266,7 @@ def main():
 
         #rate systematics
         rateSysts=[
-            ('lumi_13TeV',       1.046,    'lnN',    []                   ,['Multijetsdata']),
+            ('lumi_13TeV',       1.027,    'lnN',    []                   ,['Multijetsdata']),
             #('DYnorm_th',        1.038,    'lnN',    ['DYl','DYc','DYb']  ,[]),
             #('Wnorm_th',         1.037,    'lnN',    ['Wl' ,'Wc','Wb']    ,[]),
             ('DYnorm_th',        1.038,    'lnN',    ['DY']  ,[]),
@@ -278,7 +278,7 @@ def main():
             ]
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
-            rateSysts.append( ('MultiJetsNorm%s%s'%(jetCat,anCat),  qcdNorm[jetCat][1],                       'lnN',    ['Multijetsdata']    ,[]) )
+            rateSysts.append( ('MultiJetsNorm%s%s'%(jetCat,anCat),  1+qcdNorm[jetCat][1],                       'lnN',    ['Multijetsdata']    ,[]) )
             #rateSysts.append( ('Wnorm%s'%jetCat,          1+ROOT.TMath.Abs(1-wjetsNorm[jetCat][0]), 'lnU',    ['Wl','Wc','Wb']     ,[]) )
         except:
             pass

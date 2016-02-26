@@ -143,7 +143,7 @@ case $WHAT in
 		    -w ${outdir}/analysis_${i}${j}/.wjetsscalefactors.pck \
 		    -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
 		cd ${outdir}/analysis_${i}${j}/datacard;
-		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat
+		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat		
 		chDataCards="${i}${j}=../../analysis_${i}${j}/datacard/datacard.dat ${chDataCards}"
 		if [ "${j}" = "plus" ]; then
 		    plusDataCards="${i}${j}=../../analysis_${i}${j}/datacard/datacard.dat ${plusDataCards}"

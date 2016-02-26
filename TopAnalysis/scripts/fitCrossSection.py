@@ -48,10 +48,10 @@ def prepareFitScript(datacard,POIs,unblind=False):
         if parameter=='r':
             fitScript.write('\n## max likelihood fit\n')
             fitScript.write('echo \"Running MaxLikelihoodFit for r\"\n')
-            fitScript.write('combine workspace.root -M MaxLikelihoodFit -t -1 --expectSignal=1 -m 0 --justFit --robustFit=1\n')
+            fitScript.write('combine workspace.root -M MaxLikelihoodFit -t -1 --expectSignal=1 -m 0\n')
             fitScript.write('mv mlfit.root mlfit_exp.root\n')
             if unblind:
-                fitScript.write('combine workspace.root -M MaxLikelihoodFit -m 0 --justFit --robustFit=1\n')
+                fitScript.write('combine workspace.root -M MaxLikelihoodFit -m 0\n')
                 fitScript.write('mv mlfit.root mlfit_obs.root\n')
                             
         fitScript.write('\n## function of %s\n'%parameter)
@@ -281,7 +281,7 @@ def compareNuisances(resultsSet,output):
 
         #init frames if not yet available
         if frame is None:
-            frame=ROOT.TH1F('frame',';Nuisance parameter;N x #sigma_{pre-fit}',npars,0,npars)
+            frame=ROOT.TH2F('frame',';N x #sigma_{pre-fit}',1,-3,3,npars,0,npars)
             frame.SetDirectory(0)
             
             gr1s.SetMarkerStyle(1)
@@ -289,22 +289,22 @@ def compareNuisances(resultsSet,output):
             gr1s.SetLineColor(ROOT.kGreen-8)
             gr1s.SetFillStyle(1001)
             gr1s.SetFillColor(ROOT.kGreen-8)
-            gr1s.SetPoint(0,0,-1)
-            gr1s.SetPoint(1,npars,-1)
-            gr1s.SetPoint(2,npars,1)
-            gr1s.SetPoint(3,0,1)
-            gr1s.SetPoint(4,0,-1)
+            gr1s.SetPoint(0,-1,0)
+            gr1s.SetPoint(1,-1,npars)
+            gr1s.SetPoint(2,1,npars)
+            gr1s.SetPoint(3,1,0)
+            gr1s.SetPoint(4,-1,0)
             
             gr2s.SetMarkerStyle(1)
             gr2s.SetMarkerColor(ROOT.kYellow-10)
             gr2s.SetLineColor(ROOT.kYellow-10)
             gr2s.SetFillStyle(1001)
             gr2s.SetFillColor(ROOT.kYellow-10)
-            gr2s.SetPoint(0,0,-2)
-            gr2s.SetPoint(1,npars,-2)
-            gr2s.SetPoint(2,npars,2)
-            gr2s.SetPoint(3,0,2)
-            gr2s.SetPoint(4,0,-2)
+            gr2s.SetPoint(0,-2,0)
+            gr2s.SetPoint(1,-2,npars)
+            gr2s.SetPoint(2,2,npars)
+            gr2s.SetPoint(3,2,0)
+            gr2s.SetPoint(4,-2,0)
 
         #save post fit parameter values
         postFitNuisGr[title]=ROOT.TGraphErrors()
@@ -318,24 +318,26 @@ def compareNuisances(resultsSet,output):
             pname=var.GetName()
             if pname=='r': continue
             np=postFitNuisGr[title].GetN()
-            postFitNuisGr[title].SetPoint(np,ipar+0.2+ires*dx,var.getVal())
-            postFitNuisGr[title].SetPointError(np,0,var.getError())
+            postFitNuisGr[title].SetPoint(np,var.getVal(),ipar+0.2+ires*dx)
+            postFitNuisGr[title].SetPointError(np,var.getError(),0)
             if ires==1:
-                frame.GetXaxis().SetBinLabel(ipar+1,pname)
+                frame.GetYaxis().SetBinLabel(ipar+1,'#color[%d]{%s}'%((ipar%2)*10+1,pname))
         inF.Close()
 
-    #show 1D likelihood scan
-    c=ROOT.TCanvas('c','c',1000,500)
-    c.SetTopMargin(0.05)
-    c.SetLeftMargin(0.12)
-    c.SetBottomMargin(0.12)
+    #show nuisances
+    c=ROOT.TCanvas('c','c',500,1000)
+    c.SetTopMargin(0.1)
+    c.SetLeftMargin(0.3)
+    c.SetBottomMargin(0.1)
     c.SetRightMargin(0.05)
+    c.SetGridy(True)
     frame.Draw()
-    frame.GetYaxis().SetRangeUser(-3,3)
+    frame.GetXaxis().SetRangeUser(-3,3)
+    frame.GetYaxis().SetLabelSize(0.025)
     gr2s.Draw('f')
     gr1s.Draw('f')
-    leg=ROOT.TLegend(0.15,0.92,0.6,0.85)
-    leg.SetNColumns(len(resultsSet))
+    leg=ROOT.TLegend(0.12,0.92,0.6,0.95)
+    leg.SetNColumns(len(postFitNuisGr))
     leg.SetTextFont(42)
     leg.SetTextSize(0.035)
     leg.SetBorderSize(0)
@@ -345,16 +347,16 @@ def compareNuisances(resultsSet,output):
         postFitNuisGr[ftitle].Draw('p')
         leg.AddEntry(postFitNuisGr[ftitle],postFitNuisGr[ftitle].GetTitle(),'p')
     leg.Draw()
-
+    
     txt=ROOT.TLatex()
     txt.SetTextFont(42)
     txt.SetTextSize(0.025)
     txt.SetTextColor(ROOT.kGray+3)
-    for delta,title in [(1.0,'1#sigma'),(2,'2#sigma')]:
-        txt.DrawLatex(frame.GetXaxis().GetXmax()-0.5,delta+0.2,title)      
+    for delta,title in [(1.0,'-1#sigma'),(2,'+2#sigma'),(-1,'-1#sigma'),(-2,'-2#sigma')]:
+        txt.DrawLatex(delta-0.2,frame.GetYaxis().GetXmax()+0.5,title)      
 
     drawCMSlabel()
-   
+    c.RedrawAxis()
     c.Modified()
     c.Update()
     for ext in ['png','pdf','C']:
