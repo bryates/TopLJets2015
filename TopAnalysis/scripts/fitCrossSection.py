@@ -109,7 +109,7 @@ def show1DLikelihoodScan(resultsSet,parameter='r',output='./'):
    
     #likelihood scans
     nllGrs={}
-    colors=[1, ROOT.kOrange,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
+    colors=[1, ROOT.kOrange-1,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
     ires=0
     for title,datacard in resultsSet:
         ires+=1
@@ -212,7 +212,7 @@ def show2DLikelihoodScan(resultsSet,parameters):
 
     #likelihood scans
     nllGrs={}
-    colors=[1, ROOT.kOrange,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
+    colors=[1, ROOT.kOrange-1,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
     ires=0
     for title,datacard in resultsSet:
         ires+=1
@@ -241,6 +241,7 @@ def show2DLikelihoodScan(resultsSet,parameters):
                 nllGrs[ftitle][-1].SetFillColor(colors[ires-1])
                 nllGrs[ftitle][-1].SetLineWidth(lwidth)
                 nllGrs[ftitle][-1].SetLineColor(colors[ires-1])
+                nllGrs[ftitle][-1].SetLineWidth(2)
                 nllGrs[ftitle][-1].SetMarkerColor(colors[ires-1])
                             
     #show 2D likelihood scan
@@ -326,6 +327,7 @@ def compareNuisances(resultsSet,output):
         postFitNuisGr[title].SetMarkerStyle(19+ires)
         postFitNuisGr[title].SetMarkerColor(colors[ires-1])
         postFitNuisGr[title].SetLineColor(colors[ires-1])
+        postFitNuisGr[title].SetLineWidth(2)
         postFitNuisGr[title].SetFillStyle(0)
         for ipar in range(npars):
             var=fit_s.floatParsFinal().at(ipar)
