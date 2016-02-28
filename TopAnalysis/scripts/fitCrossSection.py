@@ -50,6 +50,20 @@ def prepareFitScript(datacard,POIs,unblind=False):
             fitScript.write('echo \"Running MaxLikelihoodFit for r\"\n')
             fitScript.write('combine workspace.root -M MaxLikelihoodFit -t -1 --expectSignal=1 -m 0\n')
             fitScript.write('mv mlfit.root mlfit_exp.root\n')
+            
+            fitScript.write('\n## impacts\n')
+            fitScript.write('echo \"To compute expected impacts re-run runCombine.sh uncommenting the appropriate lines\n')
+            fitScript.write('#combineTool.py -M Impacts -d workspace.root -m 0  -t -1 --expectSignal=1 --doInitialFit\n')
+            fitScript.write('#combineTool.py -M Impacts -d workspace.root -m 0  -t -1 --expectSignal=1 --doFits\n')
+            fitScript.write('#combineTool.py -M Impacts -d workspace.root -m 0 -o impacts.json\n')
+            
+            fitScript.write('\n## toys\n')
+            fitScript.write('echo \n"To run toys  re-run runCombine.sh uncommenting the appropriate lines\n')
+            fitScript.write('#rscan=(0.9 1.0 1.1)\n')
+            fitScript.write('#for r in ${rscan[@]}; do\n')
+            fitScript.write('#\t combine workspace.root -M MaxLikelihoodFit -t 100 --expectSignal=${r} -m ${r} --toysFrequentist --noErrors --minos none;\n')
+            fitScript.write('#done\n\n')
+
             if unblind:
                 fitScript.write('combine workspace.root -M MaxLikelihoodFit -m 0\n')
                 fitScript.write('mv mlfit.root mlfit_obs.root\n')
