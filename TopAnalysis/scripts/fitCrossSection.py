@@ -19,7 +19,7 @@ def drawCMSlabel():
     cmsLabel.SetTextSize(0.035)
     cmsLabel.SetNDC()
     cmsLabel.DrawLatex(0.12,0.97,'#bf{CMS} #it{preliminary}')
-    cmsLabel.DrawLatex(0.85,0.97,'#scale[0.8]{(13 TeV)}')
+    cmsLabel.DrawLatex(0.70,0.97,'#scale[0.8]{2.2 fb^{-1} (13 TeV)}')
     cmsLabel.Draw()
 
 """
@@ -95,7 +95,7 @@ def show1DLikelihoodScan(resultsSet,parameter='r',output='./'):
    
     #likelihood scans
     nllGrs={}
-    colors=[ROOT.kMagenta, ROOT.kAzure+4,  ROOT.kMagenta-9, ROOT.kRed+1, ROOT.kBlue-7]
+    colors=[1, ROOT.kOrange,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
     ires=0
     for title,datacard in resultsSet:
         ires+=1
@@ -126,7 +126,7 @@ def show1DLikelihoodScan(resultsSet,parameter='r',output='./'):
             tree=fIn.Get('limit')
             for n in xrange(0,tree.GetEntriesFast()):
                 tree.GetEntry(n)
-                nll=tree.deltaNLL
+                nll=2*tree.deltaNLL
                 if nll>20 : continue
                 npoint=nllGrs[ftitle][-1].GetN()
                 parVal=getattr(tree,parameter)
@@ -182,7 +182,6 @@ def show1DLikelihoodScan(resultsSet,parameter='r',output='./'):
     for ext in ['png','pdf','C']:
         c.SaveAs('%s/nll1dscan_%s.%s'%(output,parameter,ext))
     
-
 """
 2D likelihood scan
 """
@@ -199,7 +198,7 @@ def show2DLikelihoodScan(resultsSet,parameters):
 
     #likelihood scans
     nllGrs={}
-    colors=[ROOT.kMagenta, ROOT.kAzure+4,  ROOT.kRed+1,  ROOT.kMagenta-9, ROOT.kBlue-7]
+    colors=[1, ROOT.kOrange,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
     ires=0
     for title,datacard in resultsSet:
         ires+=1
@@ -266,12 +265,13 @@ compare prefit and postfit nuisances
 """
 def compareNuisances(resultsSet,output):
    
-    colors=[ROOT.kMagenta, ROOT.kAzure+4,  ROOT.kRed+1,  ROOT.kMagenta-9, ROOT.kBlue-7]
+    colors=[1, ROOT.kOrange,  ROOT.kRed+1, ROOT.kMagenta-9, ROOT.kBlue-7]
     ires=0
     frame=None
     gr1s,gr2s=ROOT.TGraph(),ROOT.TGraph()
     postFitNuisGr={}
     dx=1./(len(resultsSet)+2.)
+    fitResSummary=[]
     for title,datacard in resultsSet:
         ires+=1
         dir=os.path.dirname(datacard)
@@ -285,10 +285,10 @@ def compareNuisances(resultsSet,output):
             frame.SetDirectory(0)
             
             gr1s.SetMarkerStyle(1)
-            gr1s.SetMarkerColor(ROOT.kGreen-8)
-            gr1s.SetLineColor(ROOT.kGreen-8)
+            gr1s.SetMarkerColor(19) #ROOT.kGreen-8)
+            gr1s.SetLineColor(19) #ROOT.kGreen-8)
             gr1s.SetFillStyle(1001)
-            gr1s.SetFillColor(ROOT.kGreen-8)
+            gr1s.SetFillColor(19) #ROOT.kGreen-8)
             gr1s.SetPoint(0,-1,0)
             gr1s.SetPoint(1,-1,npars)
             gr1s.SetPoint(2,1,npars)
@@ -296,10 +296,10 @@ def compareNuisances(resultsSet,output):
             gr1s.SetPoint(4,-1,0)
             
             gr2s.SetMarkerStyle(1)
-            gr2s.SetMarkerColor(ROOT.kYellow-10)
-            gr2s.SetLineColor(ROOT.kYellow-10)
+            gr2s.SetMarkerColor(18) #ROOT.kYellow-10)
+            gr2s.SetLineColor(18) #ROOT.kYellow-10)
             gr2s.SetFillStyle(1001)
-            gr2s.SetFillColor(ROOT.kYellow-10)
+            gr2s.SetFillColor(18) #ROOT.kYellow-10)
             gr2s.SetPoint(0,-2,0)
             gr2s.SetPoint(1,-2,npars)
             gr2s.SetPoint(2,2,npars)
@@ -316,7 +316,9 @@ def compareNuisances(resultsSet,output):
         for ipar in range(npars):
             var=fit_s.floatParsFinal().at(ipar)
             pname=var.GetName()
-            if pname=='r': continue
+            if pname=='r': 
+                fitResSummary.append( (title,var.getVal(),var.getErrorHi(),var.getErrorLo()) )
+                continue
             np=postFitNuisGr[title].GetN()
             postFitNuisGr[title].SetPoint(np,var.getVal(),ipar+0.2+ires*dx)
             postFitNuisGr[title].SetPointError(np,var.getError(),0)
@@ -325,7 +327,7 @@ def compareNuisances(resultsSet,output):
         inF.Close()
 
     #show nuisances
-    c=ROOT.TCanvas('c','c',500,1000)
+    c=ROOT.TCanvas('c','c',500,1500)
     c.SetTopMargin(0.1)
     c.SetLeftMargin(0.3)
     c.SetBottomMargin(0.1)
@@ -362,6 +364,14 @@ def compareNuisances(resultsSet,output):
     for ext in ['png','pdf','C']:
         c.SaveAs('%s/nuisances.%s'%(output,ext))
 
+
+    from python.rounding import toLatexRounded
+    print '-'*50
+    print 'Fit results'
+    print '-'*50
+    for res in fitResSummary:
+        print '%15s %3.3f +%3.3f/-%3.3f'% res
+    print '-'*50
         
 """
 main
@@ -376,6 +386,9 @@ def main():
     parser.add_option(      '--POIs',         dest='POIs',         help='parameters of interest', default='r',            type='string')
     parser.add_option(      '--unblind',      dest='unblind',      help='unblind',                action='store_true')
     (opt, args) = parser.parse_args()
+
+    print os.path.dirname(os.path.realpath(sys.argv[0]))
+    sys.path.insert(0, r'%s/../'% os.path.dirname(os.path.realpath(sys.argv[0])) )
 
     POIs=opt.POIs.split(',')
 
