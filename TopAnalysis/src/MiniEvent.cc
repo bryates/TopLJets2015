@@ -17,7 +17,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("ttbar_genId",    &ev.ttbar_genId,    "ttbar_genId/I");
 
   //generator level flag for events in the fiducial region (1l+1j)
-  t->Branch("isFiducial",       &ev.isFiducial,       "isFiducial/O");
+  t->Branch("isFiducial",       &ev.isFiducial,       "isFiducial/I");
 
   //trigger information
   t->Branch("muTrigger",        &ev.muTrigger,        "muTrigger/I");
@@ -30,8 +30,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 
   //lepton information
   t->Branch("nl", &ev.nl, "nl/I");
-  t->Branch("isPromptFinalState",        ev.isPromptFinalState,        "isPromptFinalState[nl]/O");
-  t->Branch("isDirectPromptTauDecayProductFinalState",       ev.isDirectPromptTauDecayProductFinalState,        "isDirectPromptTauDecayProductFinalState[nl]/O");
+  t->Branch("isPromptFinalState",                         ev.isPromptFinalState,        "isPromptFinalState[nl]/O");
+  t->Branch("isDirectPromptTauDecayProductFinalState",    ev.isDirectPromptTauDecayProductFinalState,        "isDirectPromptTauDecayProductFinalState[nl]/O");
   t->Branch("l_id",      ev.l_id,          "l_id[nl]/I");
   t->Branch("l_pid",      ev.l_pid,          "l_pid[nl]/I");
   t->Branch("l_charge",  ev.l_charge,  "l_charge[nl]/I");
@@ -47,18 +47,16 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 
   //jet info
   t->Branch("nj",        &ev.nj,        "nj/I");
-  t->Branch("ngenj",        &ev.ngenj,        "ngenj/I");
+  t->Branch("j_genj",   ev.j_genj,   "j_genj[nj]/F");
   t->Branch("j_area",       ev.j_area,      "j_area[nj]/F");
   t->Branch("j_rawsf",       ev.j_rawsf,      "j_rawsf[nj]/F");
   t->Branch("j_pt",       ev.j_pt,      "j_pt[nj]/F");
   t->Branch("j_eta",      ev.j_eta,     "j_eta[nj]/F");
   t->Branch("j_phi",      ev.j_phi,     "j_phi[nj]/F");
   t->Branch("j_mass",      ev.j_mass,     "j_mass[nj]/F");
-  t->Branch("genj_pt",       ev.genj_pt,      "genj_pt[nj]/F");
-  t->Branch("genj_eta",      ev.genj_eta,     "genj_eta[nj]/F");
-  t->Branch("genj_phi",      ev.genj_phi,     "genj_phi[nj]/F");
-  t->Branch("genj_mass",       ev.genj_mass,      "genj_mass[nj]/F");
   t->Branch("j_csv",      ev.j_csv,     "j_csv[nj]/F");
+  t->Branch("j_csvl",     ev.j_cvsl,     "j_cvsl[nj]/F");
+  t->Branch("j_cvsb",     ev.j_cvsb,     "j_cvsb[nj]/F");
   t->Branch("j_vtxpx",  ev.j_vtxpx, "j_vtxpx[nj]/F");
   t->Branch("j_vtxpy",  ev.j_vtxpy, "j_vtxpy[nj]/F");
   t->Branch("j_vtxpz",  ev.j_vtxpz, "j_vtxpz[nj]/F");
@@ -72,23 +70,29 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
   t->Branch("j_pid",      ev.j_pid,     "j_pid[nj]/I");
 
-  //pf candidates in jets
+  //pf candidates (only charged if outside jets)
   t->Branch("npf",        &ev.npf,      "npf/I");
-  t->Branch("pf_j",       ev.pf_j,     "pf_j[npf]/I");
+  t->Branch("pf_j",       ev.pf_j,      "pf_j[npf]/I");
   t->Branch("pf_id",      ev.pf_id,     "pf_id[npf]/I");
   t->Branch("pf_charge",  ev.pf_charge, "pf_charge[npf]/I");
   t->Branch("pf_px",      ev.pf_px,     "pf_px[npf]/F");
   t->Branch("pf_py",      ev.pf_py,     "pf_py[npf]/F");
   t->Branch("pf_pz",      ev.pf_pz,     "pf_pz[npf]/F");
 
-  //gen particles in gen jets
+  //MET
+  t->Branch("nmet",      &ev.nmet,     "nmet/I");
+  t->Branch("met_pt",    ev.met_pt,    "met_pt[nmet]/F");
+  t->Branch("met_phi",   ev.met_phi,   "met_phi[nmet]/F");
+
+
+  //gen particles (only charged if outside jets)
   t->Branch("ngen",     &ev.ngen,     "ngen/I");
-  t->Branch("g_j",       ev.g_j,      "g_j[ngen]/I");
   t->Branch("g_id",      ev.g_id,     "g_id[ngen]/I");
+  t->Branch("g_genj",    ev.g_genj,   "g_genj[ngen]/I");
   t->Branch("g_charge",  ev.g_charge, "g_charge[ngen]/I");
-  t->Branch("g_px",      ev.g_px,     "g_px[ngen]/F");
-  t->Branch("g_py",      ev.g_py,     "g_py[ngen]/F");
-  t->Branch("g_pz",      ev.g_pz,     "g_pz[ngen]/F");
+  t->Branch("g_pt",      ev.g_pt,     "g_pt[ngen]/F");
+  t->Branch("g_eta",     ev.g_eta,    "g_eta[ngen]/F");
+  t->Branch("g_phi",     ev.g_phi,    "g_phi[ngen]/F");
 
   //gen particles from hard process
   t->Branch("ngenHardProc",     &ev.ngenHardProc,     "ngenHardProc/I");
@@ -98,9 +102,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("ghp_phi",      ev.ghp_phi,     "ghp_phi[ngenHardProc]/F");
   t->Branch("ghp_m",      ev.ghp_m,     "ghp_m[ngenHardProc]/F");
 
-  t->Branch("nmet",      &ev.nmet,     "nmet/I");
-  t->Branch("met_pt",    ev.met_pt,    "met_pt[nmet]/F");
-  t->Branch("met_phi",   ev.met_phi,   "met_phi[nmet]/F");
+  //gen jets
+  t->Branch("ngenj",        &ev.ngenj,        "ngenj/I");
+  t->Branch("genj_pt",       ev.genj_pt,      "genj_pt[ngenj]/F");
+  t->Branch("genj_eta",      ev.genj_eta,     "genj_eta[ngenj]/F");
+  t->Branch("genj_phi",      ev.genj_phi,     "genj_phi[ngenj]/F");
+  t->Branch("genj_mass",       ev.genj_mass,      "genj_mass[ngenj]/F");
 }
 
 //
@@ -142,7 +149,6 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("l_ip3d",               ev.l_ip3d);
   t->SetBranchAddress("l_ip3dsig",            ev.l_ip3dsig);
 
-  t->SetBranchAddress("ngenj",       &ev.ngenj);
   t->SetBranchAddress("nj",          &ev.nj);
   t->SetBranchAddress("j_area",       ev.j_area);
   t->SetBranchAddress("j_rawsf",       ev.j_rawsf);
@@ -150,10 +156,6 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("j_eta",        ev.j_eta);
   t->SetBranchAddress("j_phi",        ev.j_phi);
   t->SetBranchAddress("j_mass",       ev.j_mass);
-  t->SetBranchAddress("genj_pt",      ev.genj_pt);
-  t->SetBranchAddress("genj_eta",     ev.genj_eta);
-  t->SetBranchAddress("genj_phi",     ev.genj_phi);
-  t->SetBranchAddress("genj_mass",    ev.genj_mass);
   t->SetBranchAddress("j_csv",        ev.j_csv);
   t->SetBranchAddress("j_vtxpy",      ev.j_vtxpx);
   t->SetBranchAddress("j_vtxpx",      ev.j_vtxpy);
@@ -172,34 +174,34 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("met_pt",    ev.met_pt);
   t->SetBranchAddress("met_phi",   ev.met_phi);
 
-  if(t->GetBranch("ngenHardProc"))
-    {
-      t->SetBranchAddress("ngenHardProc",     &ev.ngenHardProc);
-      t->SetBranchAddress("ghp_id",      ev.ghp_id);
-      t->SetBranchAddress("ghp_pt",      ev.ghp_pt);
-      t->SetBranchAddress("ghp_eta",      ev.ghp_eta);
-      t->SetBranchAddress("ghp_phi",      ev.ghp_phi);
-      t->SetBranchAddress("ghp_m",      ev.ghp_m);
-    }
 
-  if(t->GetBranch("npf"))
-    {
-      t->SetBranchAddress("npf",        &ev.npf);
-      t->SetBranchAddress("pf_j",       ev.pf_j);
-      t->SetBranchAddress("pf_id",      ev.pf_id);
-      t->SetBranchAddress("pf_charge",  ev.pf_charge);
-      t->SetBranchAddress("pf_px",      ev.pf_px);
-      t->SetBranchAddress("pf_py",      ev.pf_py);
-      t->SetBranchAddress("pf_pz",      ev.pf_pz);
-    }
-  if(t->GetBranch("ngen"))
-    {
-      t->SetBranchAddress("ngen",     &ev.ngen);
-      t->SetBranchAddress("g_j",       ev.g_j);
-      t->SetBranchAddress("g_id",      ev.g_id);
-      t->SetBranchAddress("g_charge",  ev.g_charge);
-      t->SetBranchAddress("g_px",      ev.g_px);
-      t->SetBranchAddress("g_py",      ev.g_py);
-      t->SetBranchAddress("g_pz",      ev.g_pz);
-    }
+  t->SetBranchAddress("npf",        &ev.npf);
+  t->SetBranchAddress("pf_j",       ev.pf_j);
+  t->SetBranchAddress("pf_id",      ev.pf_id);
+  t->SetBranchAddress("pf_charge",  ev.pf_charge);
+  t->SetBranchAddress("pf_px",      ev.pf_px);
+  t->SetBranchAddress("pf_py",      ev.pf_py);
+  t->SetBranchAddress("pf_pz",      ev.pf_pz);
+  
+  //gen level
+  t->SetBranchAddress("ngen",     &ev.ngen);
+  t->SetBranchAddress("g_id",      ev.g_id);
+  t->SetBranchAddress("g_genj",    ev.g_genj);
+  t->SetBranchAddress("g_charge",  ev.g_charge);
+  t->SetBranchAddress("g_pt",      ev.g_pt);
+  t->SetBranchAddress("g_eta",     ev.g_eta);
+  t->SetBranchAddress("g_phi",     ev.g_phi);
+
+  t->SetBranchAddress("ngenHardProc",     &ev.ngenHardProc);
+  t->SetBranchAddress("ghp_id",      ev.ghp_id);
+  t->SetBranchAddress("ghp_pt",      ev.ghp_pt);
+  t->SetBranchAddress("ghp_eta",      ev.ghp_eta);
+  t->SetBranchAddress("ghp_phi",      ev.ghp_phi);
+  t->SetBranchAddress("ghp_m",      ev.ghp_m);
+
+  t->SetBranchAddress("ngenj",       &ev.ngenj);
+  t->SetBranchAddress("genj_pt",      ev.genj_pt);
+  t->SetBranchAddress("genj_eta",     ev.genj_eta);
+  t->SetBranchAddress("genj_phi",     ev.genj_phi);
+  t->SetBranchAddress("genj_mass",    ev.genj_mass);
 }

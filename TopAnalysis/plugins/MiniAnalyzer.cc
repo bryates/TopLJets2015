@@ -171,7 +171,9 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
       TString tag("fidcounter"); tag+=igenjet;
       histContainer_[tag.Data()] = fs->make<TH1F>(tag,    ";Variation;Events", 1000, 0., 1000.); 
     }
-  histContainer_["counter"]   = fs->make<TH1F>("counter",    ";Counter;Events",2,0,2);
+  histContainer_["counter"] = fs->make<TH1F>("counter", ";Counter;Events",2,0,2);
+  histContainer_["pu"]      = fs->make<TH1F>("pu",      ";Pileup observed;Events",100,0,100);
+  histContainer_["putrue"]  = fs->make<TH1F>("putrue",  ";Pileup true;Events",100,0,100);
   for(std::unordered_map<std::string,TH1F*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2();
 
   //create a tree for the selected events
@@ -201,11 +203,49 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     iEvent.getByLabel("prunedGenParticles", genParticles);
     
     //require only one lepton (can be from tau, if tau not from hadron)
-    int nLeptons(0);
-    float lphi(0), leta(0);
+    std::vector<std::pair<float,float> > letaphi;
     for (size_t i = 0; i < genParticles->size(); ++i) 
       {
-	
+	const GenParticle & genIt = (*genParticles)[i];
+	if(!genIt.isPromptFinalState() && !genIt.isDirectPromptTauDecayProductFinalState()) continue;
+	int ID = abs(genIt.pdgId());
+	if(ID!=11 && ID!=13) continue;
+	if(genIt.pt()<25 || fabs(genIt.eta())>2.5) continue;
+	letaphi.push_back(std::pair<float,float>(genIt.eta(),genIt.phi()));
+      }
+    
+    //require 1 jets not overlapping with leptons
+    edm::Handle< std::vector<reco::GenJet> > genJets;
+    iEvent.getByLabel("ak4GenJetsCustom", genJets);
+    std::map<const reco::Candidate *,int> jetConstsMap;
+    for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
+     {
+       if(genJet->pt()<20) continue;
+
+       //cross clean with leptons
+       float minDR(99999.);
+       for(size_t il=0; il<letaphi.size(); il++)
+	 {
+	   minDR=min((float)minDR,
+		     (float)deltaR(genJet->eta(),genJet->phi(),letaphi[il].first,letaphi[il].second));
+	 }
+       if(minDR<0.4) continue;
+
+       //map the gen particles which are clustered in this jet
+       std::vector< const reco::Candidate * > jconst=genJet->getJetConstituentsQuick ();
+       for(size_t ijc=0; ijc <jconst.size(); ijc++)
+	 jetConstsMap[ jconst[ijc] ] = ev_.ngenj;
+       
+       ev_.genj_pt[ev_.ngenj]   = genJet->pt();
+       ev_.genj_eta[ev_.ngenj]  = genJet->eta();
+       ev_.genj_phi[ev_.ngenj]  = genJet->phi();
+       ev_.genj_mass[ev_.ngenj] = genJet->mass();       
+       ev_.ngenj++;
+     }
+    
+    //store final state particles
+    for (size_t i = 0; i < genParticles->size(); ++i)
+      {
 	const GenParticle & genIt = (*genParticles)[i];
 	if(genIt.isHardProcess())
 	  {
@@ -216,32 +256,32 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
 	    ev_.ghp_m[ ev_.ngenHardProc ]   = genIt.mass();
 	    ev_.ngenHardProc++;
 	  }
-	
-	if(!genIt.isPromptFinalState() && !genIt.isDirectPromptTauDecayProductFinalState()) continue;
-	int ID = abs(genIt.pdgId());
-	if(ID!=11 && ID!=13) continue;
-	if(genIt.pt()<20 || fabs(genIt.eta())>2.5) continue;
-	nLeptons++;
-	lphi=genIt.phi();
-	leta=genIt.eta();
+
+	//final state particles
+	if(genIt.status()==1)
+	  {
+	    ev_.g_id[ev_.ngen]     = genIt.pdgId();
+
+	    //check if clustered in jet
+	    ev_.g_genj[ev_.ngen]=-1;
+	    for(std::map<const reco::Candidate *,int>::iterator it=jetConstsMap.begin();
+		it!=jetConstsMap.end();
+		it++)
+	      {
+		if(it->first->pdgId()==genIt.pdgId()) continue;
+		if(deltaR( *(it->first), genIt)>0.01) continue; 
+		ev_.g_genj[ev_.ngen]=it->second;
+		break;
+	      }	    
+	    ev_.g_charge[ev_.ngen] = genIt.charge();
+	    ev_.g_pt[ev_.ngen]     = genIt.pt();
+	    ev_.g_eta[ev_.ngen]    = genIt.eta();
+	    ev_.g_phi[ev_.ngen]    = genIt.phi();
+	    ev_.ngen++;
+	  }
       }
-    if(nLeptons!=1) return 0;
-    
-    //require 1 jets not overlapping with lepton
-    edm::Handle< std::vector<reco::GenJet> > genJets;
-    iEvent.getByLabel("ak4GenJetsCustom", genJets);
-    for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
-     {
-       if(genJet->pt()<20 || fabs(genJet->eta())>2.5) continue;
-       float dR=deltaR(genJet->eta(),genJet->phi(),leta,lphi);
-       if(dR<0.4) continue;
-       ev_.genj_pt[ev_.ngenj]=genJet->pt();
-       ev_.genj_eta[ev_.ngenj]=genJet->eta();
-       ev_.genj_phi[ev_.ngenj]=genJet->phi();
-       ev_.genj_mass[ev_.ngenj]=genJet->mass();
-       ev_.ngenj++;
-     }
-    return ev_.ngenj;
+
+    return letaphi.size();
 }
 
 // ------------ method called for each event  ------------
@@ -273,20 +313,21 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.rho=rho;
 
   //GENERATOR LEVEL INFO
-  ev_.isFiducial = true;  
+  ev_.isFiducial = 0;
+  ev_.ttbar_genId=0; 
   ev_.ttbar_nw=0;
-  ev_.ngenj=0;
-  ev_.ttbar_genId=0;
+  ev_.ngenj=0; 
+  ev_.ngen=0;
   ev_.ngenHardProc=0;
   if(!ev_.isData)
     {
       edm::Handle<int> genTtbarIdHandle;
       iEvent.getByToken(genTtbarIdToken_, genTtbarIdHandle);
       if(genTtbarIdHandle.isValid()) ev_.ttbar_genId=*genTtbarIdHandle;
-
-      Int_t ngenJets = doFiducialAnalysis(iEvent,iSetup);
-      if(ngenJets<1) ev_.isFiducial=false;
-
+      
+      Int_t nleptons = doFiducialAnalysis(iEvent,iSetup);
+      ev_.isFiducial= (nleptons>0 ? ev_.ngenj : -1);
+      
       edm::Handle<GenEventInfoProduct> evt;
       iEvent.getByLabel("generator","", evt);
       if(evt.isValid())
@@ -314,7 +355,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	{
 	  TString tag("fidcounter"); tag+=igenjet;
 	  histContainer_[tag.Data()]->Fill(0.,ev_.ttbar_w[0]);
-	  if(igenjet<=ngenJets)
+	  if(igenjet<=ev_.ngenj && nleptons>0)
 	    {
 	      for(Int_t iw=1; iw<ev_.ttbar_nw; iw++)
 		histContainer_[tag.Data()]->Fill((float)iw,ev_.ttbar_w[iw]);
@@ -329,9 +370,14 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  if ( ipu->getBunchCrossing() != 0 ) continue; // storing detailed PU info only for BX=0
 	  ev_.pu=ipu->getPU_NumInteractions();
 	  ev_.putrue=ipu->getTrueNumInteractions();
+	  histContainer_["pu"]->Fill(ev_.pu);
+	  histContainer_["putrue"]->Fill(ev_.putrue);
 	}
     }
  
+
+  return;
+
   //TRIGGER INFORMATION
   edm::Handle<edm::TriggerResults> h_trigRes;
   iEvent.getByToken(triggerBits_, h_trigRes);
@@ -512,6 +558,8 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;
       ev_.genj_phi[ev_.nj]=genJet ?  genJet->phi() : 0;
       ev_.j_csv[ev_.nj]=j->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      ev_.j_cvsl[ev_.nj]=j->bDiscriminator("pfCombinedCvsLJetTags");
+      ev_.j_cvsb[ev_.nj]=j->bDiscriminator("pfCombinedCvsBJetTags");
       ev_.j_vtxpx[ev_.nj]=j->userFloat("vtxPx");
       ev_.j_vtxpy[ev_.nj]=j->userFloat("vtxPy");
       ev_.j_vtxpz[ev_.nj]=j->userFloat("vtxPz");
@@ -529,21 +577,22 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //save gen/PF candidates for this jet
       if(isCentral)
 	{
-	  if(genJet)
+	  /*
+	    if(genJet)
 	    {
-	      for(size_t igen=0; igen<genJet->numberOfDaughters(); igen++)
-		{
-		  const reco::Candidate*gp=genJet->daughter(igen);
-		  ev_.g_j[ev_.ngen]      = ev_.nj;
-		  ev_.g_id[ev_.ngen]     = gp->pdgId();
-		  ev_.g_charge[ev_.ngen] = gp->charge();
-		  ev_.g_px[ev_.ngen]     = gp->px();
-		  ev_.g_py[ev_.ngen]     = gp->py();
-		  ev_.g_pz[ev_.ngen]     = gp->pz();
-		  ev_.ngen++;
-		}
+	    for(size_t igen=0; igen<genJet->numberOfDaughters(); igen++)
+	    {
+	    const reco::Candidate*gp=genJet->daughter(igen);
+	    ev_.g_j[ev_.ngen]      = ev_.nj;
+	    ev_.g_id[ev_.ngen]     = gp->pdgId();
+	    ev_.g_charge[ev_.ngen] = gp->charge();
+	    ev_.g_px[ev_.ngen]     = gp->px();
+	    ev_.g_py[ev_.ngen]     = gp->py();
+	    ev_.g_pz[ev_.ngen]     = gp->pz();
+	    ev_.ngen++;
 	    }
-
+	    }
+	  */
 	  for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
 	    {
 	      const reco::Candidate *pf=j->daughter(ipf);
