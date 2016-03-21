@@ -39,18 +39,18 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Summer15_25nsV7_MC.db'
-jecTag='Summer15_25nsV7_MC_AK4PFchs'
+jecFile='Fall15_25nsV2_MC.db'
+jecTag='Fall15_25nsV2_MC_AK4PFchs'
 if options.runOnData : 
     jecLevels.append( 'L2L3Residual' )
-    jecFile='Summer15_25nsV7_DATA.db'
-    jecTag='Summer15_25nsV7_DATA_AK4PFchs'
+    jecFile='Fall15_25nsV2_DATA.db'
+    jecTag='Fall15_25nsV2_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag.globaltag = '74X_dataRun2_v2' if options.runOnData else '74X_mcRun2_asymptotic_v4'
+process.GlobalTag.globaltag = '76X_dataRun2_v15' if options.runOnData else '76X_mcRun2_asymptotic_v12'
 
 
 # Set the process options -- Display summary at the end, enable unscheduled execution
@@ -64,7 +64,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(getEOSlslist(directory='/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v3/60000/')
+                            fileNames = cms.untracked.vstring(getEOSlslist(directory='/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/25nsFlat10to25TSG_76X_mcRun2_asymptotic_v11_ext3-v1/30000/')
                                                               )
                             )
 if options.inputDir!='':  
@@ -89,27 +89,41 @@ my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
+
+#PUPPI
+process.load('CommonTools/PileupAlgos/Puppi_cff')
+process.puppi.candName = cms.InputTag('packedPFCandidates')
+process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+
 #analyzer
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
 if options.runOnData:
     print 'Adapting to run on data'
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/DoubleMuon/MINIAOD/PromptReco-v4/000/258/177/00000/00C9FA0D-576D-E511-B810-02163E011D21.root')
-    process.analysis.muTriggersToUse = cms.vstring('IsoMu22_v','IsoTkMu20_v')
-    process.analysis.elTriggersToUse = cms.vstring('Ele23_WPLoose_Gsf_v','Ele27_WPLoose_Gsf_v')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/DoubleMuon/MINIAOD/16Dec2015-v1/10000/F8146472-37A8-E511-9C12-0CC47A4C8E70.root')
 
 if not options.saveTree:
     print 'Summary tree won\'t be saved'
     process.analysis.saveTree=cms.bool(False)
 
+
 if options.runOnData:
-    process.p = cms.Path( process.egmGsfElectronIDSequence
-                          *process.analysis)
-else:
-    from TopLJets2015.TopAnalysis.GenTtbarCategorizer_cfi import defineGenTtbarCategorizerSequence
-    defineGenTtbarCategorizerSequence(process)
-    process.p = cms.Path( process.genTtbarCategorizerSequence
+    process.p = cms.Path( process.puppi
                           *process.egmGsfElectronIDSequence
                           *process.customizeJetToolsSequence
-                          *process.analysis)
-    
+                          *process.analysis
+                          )
+else:
+    process.p = cms.Path( process.puppi
+                          *process.egmGsfElectronIDSequence
+                          *process.customizeJetToolsSequence
+                          *process.analysis
+                          )
+
+#save in edm format
+#process.Out = cms.OutputModule("PoolOutputModule",
+#                               fileName = cms.untracked.string("/tmp/psilva/test.root")
+#                               )    
+
+#process.end = cms.EndPath(process.Out)
+
 print process.p

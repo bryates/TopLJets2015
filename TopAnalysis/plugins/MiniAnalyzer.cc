@@ -104,23 +104,27 @@ private:
   edm::EDGetTokenT<pat::MuonCollection> muonToken_;
   edm::EDGetTokenT<edm::View<pat::Electron>  >  electronToken_;
   edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > qgToken_;
-  edm::EDGetTokenT<pat::METCollection> metToken_, metNoHFToken_, puppiMetToken_;
+  edm::EDGetTokenT<pat::METCollection> metToken_, puppiMetToken_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> generatorToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> generatorevtToken_;
+  edm::EDGetTokenT<LHEEventProduct> generatorlheToken_;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo>> puToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+  edm::EDGetTokenT<std::vector<reco::GenJet>  > genJetsToken_;
+  edm::EDGetTokenT< edm::ValueMap<double> > puppiWeightToken_,puppiWeightNoLepToken_;
 
   //Electron Decisions
   edm::EDGetTokenT<edm::ValueMap<bool> > eleVetoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > eleTightIdFullInfoMapToken_;
-                  
+
   std::unordered_map<std::string,TH1F*> histContainer_;
 
   PFJetIDSelectionFunctor pfjetIDLoose_;
 
   std::vector<std::string> muTriggersToUse_, elTriggersToUse_;
 
-  //ttbar event classifier
-  edm::EDGetTokenT<int> genTtbarIdToken_;
   
   TTree *tree_;
   MiniEvent_t ev_;
@@ -148,17 +152,23 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
   muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-  jetToken_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
-  qgToken_(consumes<edm::ValueMap<float>>(edm::InputTag("QGTagger", "qgLikelihood"))),
+  jetToken_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),  
   metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
-  metNoHFToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("metsnoHF"))),
   puppiMetToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("puppimets"))),
   pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"))),
+  generatorToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+  generatorevtToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator",""))),
+  generatorlheToken_(consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer",""))),
+  puToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"))),
+  genParticleToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
+  genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("slimmedGenJets"))),
+  puppiWeightToken_(consumes< edm::ValueMap<double> >(edm::InputTag("PuppiWithLepton"))),
+  puppiWeightNoLepToken_(consumes< edm::ValueMap<double> >(edm::InputTag("PuppiWithoutLepton"))),
   eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
   eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleTightIdFullInfoMap"))),
   pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ),
-  genTtbarIdToken_(consumes<int>(iConfig.getParameter<edm::InputTag>("genTtbarId"))),
+  
   saveTree_( iConfig.getParameter<bool>("saveTree") )
 {
   //now do what ever initialization is needed
@@ -200,7 +210,7 @@ MiniAnalyzer::~MiniAnalyzer()
 Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     edm::Handle<reco::GenParticleCollection> genParticles;
-    iEvent.getByLabel("prunedGenParticles", genParticles);
+    iEvent.getByToken(genParticleToken_,genParticles);
     
     //require only one lepton (can be from tau, if tau not from hadron)
     std::vector<std::pair<float,float> > letaphi;
@@ -216,7 +226,7 @@ Int_t MiniAnalyzer::doFiducialAnalysis(const edm::Event& iEvent, const edm::Even
     
     //require 1 jets not overlapping with leptons
     edm::Handle< std::vector<reco::GenJet> > genJets;
-    iEvent.getByLabel("ak4GenJetsCustom", genJets);
+    iEvent.getByToken(genJetsToken_,genJets);
     std::map<const reco::Candidate *,int> jetConstsMap;
     for(std::vector<reco::GenJet>::const_iterator genJet=genJets->begin(); genJet!=genJets->end(); genJet++)
      {
@@ -295,17 +305,17 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event(); 
   ev_.isData  = iEvent.isRealData();
-
+  
   //VERTICES
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxToken_, vertices);
   if (vertices->empty()) return; // skip the event if no PV found
   const reco::Vertex &primVtx = vertices->front();
   reco::VertexRef primVtxRef(vertices,0);
-
+ 
   ev_.nvtx=vertices->size();
   if(ev_.nvtx==0) return;
-  
+
   //RHO
   edm::Handle< double > rhoH;
   iEvent.getByToken(rhoToken_,rhoH);
@@ -314,22 +324,18 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //GENERATOR LEVEL INFO
   ev_.isFiducial = 0;
-  ev_.ttbar_genId=0; 
   ev_.ttbar_nw=0;
   ev_.ngenj=0; 
   ev_.ngen=0;
   ev_.ngenHardProc=0;
+  
   if(!ev_.isData)
     {
-      edm::Handle<int> genTtbarIdHandle;
-      iEvent.getByToken(genTtbarIdToken_, genTtbarIdHandle);
-      if(genTtbarIdHandle.isValid()) ev_.ttbar_genId=*genTtbarIdHandle;
-      
-      Int_t nleptons = doFiducialAnalysis(iEvent,iSetup);
+       Int_t nleptons = doFiducialAnalysis(iEvent,iSetup);
       ev_.isFiducial= (nleptons>0 ? ev_.ngenj : -1);
-      
+       
       edm::Handle<GenEventInfoProduct> evt;
-      iEvent.getByLabel("generator","", evt);
+      iEvent.getByToken( generatorToken_,evt);
       if(evt.isValid())
 	{
 	  ev_.ttbar_allmepartons   = evt->nMEPartons();
@@ -340,7 +346,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       histContainer_["counter"]->Fill(1,ev_.ttbar_w[0]);
 
       edm::Handle<LHEEventProduct> evet;
-      iEvent.getByLabel("externalLHEProducer","", evet);    
+      iEvent.getByToken(generatorlheToken_, evet);
       if(evet.isValid())
 	{
 	  double asdd=evet->originalXWGTUP();
@@ -350,7 +356,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	    ev_.ttbar_nw++;
 	  }
 	}
-      
+
       for(Int_t igenjet=0; igenjet<5; igenjet++)
 	{
 	  TString tag("fidcounter"); tag+=igenjet;
@@ -363,7 +369,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	}
 
       edm::Handle<std::vector <PileupSummaryInfo> > PupInfo;
-      iEvent.getByLabel("slimmedAddPileupInfo", PupInfo);
+      iEvent.getByToken(puToken_,PupInfo);
       std::vector<PileupSummaryInfo>::const_iterator ipu;
       for (ipu = PupInfo->begin(); ipu != PupInfo->end(); ++ipu) 
 	{
@@ -376,8 +382,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
  
 
-  return;
-
   //TRIGGER INFORMATION
   edm::Handle<edm::TriggerResults> h_trigRes;
   iEvent.getByToken(triggerBits_, h_trigRes);
@@ -387,8 +391,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.muTrigger=0;
   ev_.elTrigger=0;
   for (unsigned int i=0; i< h_trigRes->size(); i++) 
-    {
-      //std::cout << triggerList[i] << std::endl;
+    {	
       if( !(*h_trigRes)[i].accept() ) continue;
       for(size_t imu=0; imu<muTriggersToUse_.size(); imu++)
 	{
@@ -408,16 +411,19 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //PF candidates
   edm::Handle<pat::PackedCandidateCollection> pfcands;
   iEvent.getByToken(pfToken_,pfcands);
+  edm::Handle< edm::ValueMap<double> > puppiWeight,puppiWeightNoLep;
+  iEvent.getByToken( puppiWeightToken_, puppiWeight);
+  iEvent.getByToken( puppiWeightNoLepToken_, puppiWeightNoLep);
 
   //
   //LEPTON SELECTION
   //
+  int nLeadLeptons(0);
   ev_.nl=0;
 
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
-  Int_t nmu(0);
   for (const pat::Muon &mu : *muons) 
     { 
       //kinematics
@@ -428,8 +434,11 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //ID
       bool isMedium(muon::isMediumMuon(mu));
       bool isTight(muon::isTightMuon(mu,primVtx));
-      if(!((isMedium && mu.pt()>10) || (isTight && mu.pt()>30))) continue;
-      
+      if(!isMedium) continue;
+
+      //count
+      nLeadLeptons+=( isTight && mu.pt()>25);
+
       //save it
       const reco::GenParticle * gen=mu.genLepton(); 
       ev_.isPromptFinalState[ev_.nl] = gen ? gen->isPromptFinalState() : false;
@@ -452,8 +461,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  ev_.l_ip3d[ev_.nl]    = ip3dRes.second.value();
 	  ev_.l_ip3dsig[ev_.nl] = ip3dRes.second.significance();
 	}
-      ev_.nl++;
-      if (isTight && mu.pt()>30) nmu++;
+      ev_.nl++;     
     }
   
   // ELECTRON SELECTION: cf. https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
@@ -482,10 +490,11 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       bool passTightIdExceptIso(true);
       for(size_t icut = 0; icut<fullCutFlowData.cutFlowSize(); icut++)
  	{
-	  //if(icut==9 && fullCutFlowData.getCutResultByIndex(icut) ) passTightIdNoIso=false;
 	  if(icut!=9 && !fullCutFlowData.getCutResultByIndex(icut)) passTightIdExceptIso=false;
 	}
-      if( !((passVetoId && e->pt()>15) || (passTightIdExceptIso && e->pt()>30) ) ) continue;
+
+      //count
+      nLeadLeptons += (passTightIdExceptIso && e->pt()>25);
 
       //save the electron
       const reco::GenParticle * gen=el.genLepton(); 
@@ -515,34 +524,25 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
   //require at least 1 tight lepton in the event
-  bool passLepton((passMuTrigger && nmu>0) || (passElTrigger && nele>0));
-  if(!passLepton) return;
+  if(nLeadLeptons==0) return;
 
-  
   // JETS
   ev_.nj=0;
-  ev_.ngen=0;
   ev_.npf=0;
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(jetToken_,jets);
-  edm::Handle<edm::ValueMap<float> > qgHandle; 
-  iEvent.getByToken(qgToken_, qgHandle);  
-  int ncentralJets(0);
+  std::vector<const reco::Candidate *>clustCands;
   for(auto j = jets->begin();  j != jets->end(); ++j)
     {
       //kinematics
       if(j->pt()<20 || fabs(j->eta())>4.7) continue;
-
+      
       // PF jet ID
       pat::strbitset retpf = pfjetIDLoose_.getBitTemplate();
       retpf.set(false);
       bool passLoose=pfjetIDLoose_( *j, retpf );
       if(!passLoose) continue;
-
-      bool isCentral(false);
-      if(j->pt()>25 && fabs(j->eta())<2.5) isCentral=true;
-      ncentralJets+=isCentral;      
-
+     
       //save jet
       const reco::Candidate *genParton = j->genParton();
       const reco::GenJet *genJet=j->genJet(); 
@@ -552,11 +552,20 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.j_mass[ev_.nj]=j->mass();
       ev_.j_eta[ev_.nj]=j->eta();
       ev_.j_phi[ev_.nj]=j->phi();
-      ev_.j_rawsf[ev_.nj]=
-      ev_.genj_pt[ev_.nj]=genJet ? genJet->pt() : 0;
-      ev_.genj_mass[ev_.nj]=genJet ? genJet->mass() : 0;
-      ev_.genj_eta[ev_.nj]=genJet ? genJet->eta() : 0;
-      ev_.genj_phi[ev_.nj]=genJet ?  genJet->phi() : 0;
+
+      Int_t matchGenJ(-1);
+      if(genJet)
+	{
+	  float minDR(99999.);
+	  for(Int_t igenj=0; igenj<ev_.ngenj; igenj++)   
+	    {
+	      float dR=deltaR(genJet->eta(),genJet->phi(),ev_.genj_eta[igenj],ev_.genj_phi[igenj]);
+	      if(minDR<dR) continue;
+	      minDR=dR;
+	      matchGenJ=igenj;
+	    }
+	}
+      ev_.j_ngj[ev_.nj]=matchGenJ;	
       ev_.j_csv[ev_.nj]=j->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       ev_.j_cvsl[ev_.nj]=j->bDiscriminator("pfCombinedCvsLJetTags");
       ev_.j_cvsb[ev_.nj]=j->bDiscriminator("pfCombinedCvsBJetTags");
@@ -567,59 +576,38 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ev_.j_vtxNtracks[ev_.nj]=j->userFloat("vtxNtracks");
       ev_.j_vtx3DVal[ev_.nj]=j->userFloat("vtx3DVal");
       ev_.j_vtx3DSig[ev_.nj]=j->userFloat("vtx3DSig");
-      ev_.j_puid[ev_.nj]=j->userFloat("pileupJetId:fullDiscriminant");
-      edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jets, j - jets->begin()) );
-      ev_.j_qg[ev_.nj] = (*qgHandle)[jetRef];
+      ev_.j_puid[ev_.nj]=j->userFloat("pileupJetId:fullDiscriminant");      
       ev_.j_flav[ev_.nj]=j->partonFlavour();
       ev_.j_hadflav[ev_.nj]=j->hadronFlavour();
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
-      
-      //save gen/PF candidates for this jet
-      if(isCentral)
-	{
-	  /*
-	    if(genJet)
-	    {
-	    for(size_t igen=0; igen<genJet->numberOfDaughters(); igen++)
-	    {
-	    const reco::Candidate*gp=genJet->daughter(igen);
-	    ev_.g_j[ev_.ngen]      = ev_.nj;
-	    ev_.g_id[ev_.ngen]     = gp->pdgId();
-	    ev_.g_charge[ev_.ngen] = gp->charge();
-	    ev_.g_px[ev_.ngen]     = gp->px();
-	    ev_.g_py[ev_.ngen]     = gp->py();
-	    ev_.g_pz[ev_.ngen]     = gp->pz();
-	    ev_.ngen++;
-	    }
-	    }
-	  */
-	  for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
-	    {
-	      const reco::Candidate *pf=j->daughter(ipf);
-	      ev_.pf_j[ev_.npf]      = ev_.nj;
-	      ev_.pf_id[ev_.npf]     = pf->pdgId();
-	      ev_.pf_charge[ev_.npf] = pf->charge();
-	      ev_.pf_px[ev_.npf]     = pf->px();
-	      ev_.pf_py[ev_.npf]     = pf->py();
-	      ev_.pf_pz[ev_.npf]     = pf->pz();
-	      ev_.npf++;
-	    }
-	}
-      
-      //store jet
       ev_.nj++;
+
+      //save all PF candidates central jet
+      if(fabs(j->eta())>2.5) continue;
+      for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
+	{
+	  const reco::Candidate *pf=j->daughter(ipf);
+	  clustCands.push_back(pf);
+	  if(ev_.npf>=5000) continue;
+	  ev_.pf_j[ev_.npf]           = ev_.nj-1;
+	  ev_.pf_id[ev_.npf]         = pf->pdgId();
+	  ev_.pf_charge[ev_.npf] = pf->charge();
+	  ev_.pf_pt[ev_.npf]         = pf->pt();
+	  ev_.pf_eta[ev_.npf]       = pf->eta();
+	  ev_.pf_phi[ev_.npf]       = pf->phi();
+	  //ev_.pf_puppiWgt[ev_.npf]=(*puppiWeight)[ *pf ];
+	  // ev_.pf_puppiWgtNoLep[ev_.npf]=(*puppiWeightNoLep)[pf];	  
+	  ev_.npf++;
+	}
     }
-  if(ncentralJets==0) return;
-
-
+      
   // MET
-  ev_.nmet=3;
-  for(int i=0; i<3; i++)
+  ev_.nmet=2;
+  for(int i=0; i<2; i++)
     {
         edm::Handle<pat::METCollection> mets;
 	if(i==0) iEvent.getByToken(metToken_, mets);
-	if(i==1) iEvent.getByToken(metNoHFToken_, mets);
-	if(i==2) iEvent.getByToken(puppiMetToken_, mets);
+	if(i==1) iEvent.getByToken(puppiMetToken_, mets);
 	ev_.met_pt[i]=mets->at(0).pt();
 	ev_.met_phi[i]=mets->at(0).phi();
     }

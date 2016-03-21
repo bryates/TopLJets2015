@@ -37,15 +37,6 @@ def customizeJetTools(process,jecLevels,jecFile,jecTag):
 		jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
   	)
 
-	#quark gluon discriminator
-	process.load('RecoJets.JetProducers.QGTagger_cfi')
-	process.QGTagger.srcJets          = cms.InputTag('slimmedJetsReapplyJEC')
-	process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        
-	#process.QGTagger.jec              = cms.string('')
-	process.QGTagger.systematicsLabel = cms.string('')     # Produce systematic smearings (not yet available, keep empty)
-
-	
 	#sequence to include
 	process.customizeJetToolsSequence = cms.Sequence(process.patJetCorrFactorsReapplyJEC 
-							 + process. slimmedJetsReapplyJEC
-							 + process.QGTagger)
+							 + process. slimmedJetsReapplyJEC)

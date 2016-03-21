@@ -8,7 +8,7 @@ struct MiniEvent_t
   Bool_t isData;
   Int_t run,event,lumi;
 
-  Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons,ttbar_genId;
+  Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
   Float_t ttbar_w[500];
   Int_t isFiducial;
 
@@ -22,9 +22,9 @@ struct MiniEvent_t
   Int_t l_id[50],l_charge[50],l_pid[50];
   Float_t l_pt[50],l_eta[50],l_phi[50], l_mass[50], l_miniIso[50], l_chargedHadronIso[50], l_relIso[50], l_ip3d[50], l_ip3dsig[50];
 
-  Int_t nj,j_genj[200];
+  Int_t nj,j_ngj[200];
   Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200],j_rawsf[200];
-  Float_t j_csv[200],j_cvsl[200],j_cvsb[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_qg[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
+  Float_t j_csv[200],j_cvsl[200],j_cvsb[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
   Int_t j_vtxNtracks[200],j_flav[200],j_pid[200],j_hadflav[200];
 
   //met
@@ -34,7 +34,7 @@ struct MiniEvent_t
   //PF candidates
   Int_t npf,pf_j[5000];
   Int_t pf_id[5000],pf_charge[5000];
-  Float_t pf_px[5000],pf_py[5000],pf_pz[5000];
+  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_puppiWgt[5000],pf_puppiWgtNoLep[5000];
 
   //gen level
   Int_t ngen,g_genj[5000];

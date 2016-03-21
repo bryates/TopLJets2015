@@ -8,8 +8,8 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_7_4_16
-cd CMSSW_7_4_16/src
+cmsrel CMSSW_7_6_3
+cd CMSSW_7_6_3/src
 cmsenv
 git clone git@github.com:pfs/TopLJets2015.git
 scram b -j 9
@@ -18,8 +18,8 @@ scram b -j 9
 ## Running ntuple creation
 First time create a symbolic link to the jet energy corrections files
 ```
-ln -s data/Summer15_25nsV6_DATA.db
-ln -s data/Summer15_25nsV6_MC.db
+ln -s data/Fall15_25nsV2_MC.db
+ln -s data/Fall15_25nsV2_DATA.db
 ```
 To run locally the ntuplizer, for testing purposes
 ```

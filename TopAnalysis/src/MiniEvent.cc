@@ -14,7 +14,6 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("ttbar_allmepartons",        &ev.ttbar_allmepartons,        "ttbar_allmepartons/I");
   t->Branch("ttbar_matchmepartons",        &ev.ttbar_matchmepartons,        "ttbar_matchmepartons/I");
   t->Branch("ttbar_w",        ev.ttbar_w,        "ttbar_w[ttbar_nw]/F");
-  t->Branch("ttbar_genId",    &ev.ttbar_genId,    "ttbar_genId/I");
 
   //generator level flag for events in the fiducial region (1l+1j)
   t->Branch("isFiducial",       &ev.isFiducial,       "isFiducial/I");
@@ -47,7 +46,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 
   //jet info
   t->Branch("nj",        &ev.nj,        "nj/I");
-  t->Branch("j_genj",   ev.j_genj,   "j_genj[nj]/F");
+  t->Branch("j_ngj",   ev.j_ngj,   "j_ngj[nj]/I");
   t->Branch("j_area",       ev.j_area,      "j_area[nj]/F");
   t->Branch("j_rawsf",       ev.j_rawsf,      "j_rawsf[nj]/F");
   t->Branch("j_pt",       ev.j_pt,      "j_pt[nj]/F");
@@ -64,8 +63,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_vtxNtracks",  ev.j_vtxNtracks, "j_vtxNtracks[nj]/I");
   t->Branch("j_vtx3DVal",  ev.j_vtx3DVal, "j_vtx3DVal[nj]/F");
   t->Branch("j_vtx3DSig",  ev.j_vtx3DSig, "j_vtx3DSig[nj]/F");
-  t->Branch("j_puid",     ev.j_puid,    "j_puid[nj]/F");
-  t->Branch("j_qg",     ev.j_qg,    "j_qg[nj]/F");
+  t->Branch("j_puid",     ev.j_puid,    "j_puid[nj]/F");  
   t->Branch("j_flav",     ev.j_flav,    "j_flav[nj]/I");
   t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
   t->Branch("j_pid",      ev.j_pid,     "j_pid[nj]/I");
@@ -75,9 +73,11 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_j",       ev.pf_j,      "pf_j[npf]/I");
   t->Branch("pf_id",      ev.pf_id,     "pf_id[npf]/I");
   t->Branch("pf_charge",  ev.pf_charge, "pf_charge[npf]/I");
-  t->Branch("pf_px",      ev.pf_px,     "pf_px[npf]/F");
-  t->Branch("pf_py",      ev.pf_py,     "pf_py[npf]/F");
-  t->Branch("pf_pz",      ev.pf_pz,     "pf_pz[npf]/F");
+  t->Branch("pf_pt",      ev.pf_pt,     "pf_pt[npf]/F");
+  t->Branch("pf_eta",      ev.pf_eta,     "pf_eta[npf]/F");
+  t->Branch("pf_phi",      ev.pf_phi,     "pf_phi[npf]/F");
+  t->Branch("pf_puppiWgt",      ev.pf_puppiWgt,     "pf_puppiWgt[npf]/F");
+  t->Branch("pf_puppiWgtNoLep",      ev.pf_puppiWgtNoLep,     "pf_puppiWgtNoLep[npf]/F");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
@@ -119,7 +119,6 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("ttbar_w",                ev.ttbar_w);
   t->SetBranchAddress("ttbar_allmepartons",    &ev.ttbar_allmepartons);
   t->SetBranchAddress("ttbar_matchmepartons",  &ev.ttbar_matchmepartons);
-  t->SetBranchAddress("ttbar_genId",           &ev.ttbar_genId);
 
   t->SetBranchAddress("run",       &ev.run);
   t->SetBranchAddress("event",     &ev.event);
@@ -164,8 +163,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("j_vtxNtracks", ev.j_vtxNtracks);
   t->SetBranchAddress("j_vtx3DVal",   ev.j_vtx3DVal);
   t->SetBranchAddress("j_vtx3DSig",   ev.j_vtx3DSig);
-  t->SetBranchAddress("j_puid",       ev.j_puid);
-  t->SetBranchAddress("j_qg",         ev.j_qg);
+  t->SetBranchAddress("j_puid",       ev.j_puid);  
   t->SetBranchAddress("j_flav",       ev.j_flav);
   t->SetBranchAddress("j_hadflav",    ev.j_hadflav);
   t->SetBranchAddress("j_pid",         ev.j_pid);
@@ -179,9 +177,11 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("pf_j",       ev.pf_j);
   t->SetBranchAddress("pf_id",      ev.pf_id);
   t->SetBranchAddress("pf_charge",  ev.pf_charge);
-  t->SetBranchAddress("pf_px",      ev.pf_px);
-  t->SetBranchAddress("pf_py",      ev.pf_py);
-  t->SetBranchAddress("pf_pz",      ev.pf_pz);
+  t->SetBranchAddress("pf_pt",      ev.pf_pt);
+  t->SetBranchAddress("pf_eta",      ev.pf_eta);
+  t->SetBranchAddress("pf_phi",      ev.pf_phi);
+  t->SetBranchAddress("pf_puppiWgt",      ev.pf_puppiWgt);
+  t->SetBranchAddress("pf_puppiWgtNoLep",      ev.pf_puppiWgtNoLep);
   
   //gen level
   t->SetBranchAddress("ngen",     &ev.ngen);
