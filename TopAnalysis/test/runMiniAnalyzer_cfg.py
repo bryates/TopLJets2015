@@ -95,12 +95,6 @@ process.load('CommonTools/PileupAlgos/Puppi_cff')
 process.puppi.candName = cms.InputTag('packedPFCandidates')
 process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 
-#pseudo-top
-process.load('TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi')
-process.pseudoTop.leptonMinPt=cms.double(20)
-process.pseudoTop.leptonMaxEta=cms.double(2.5)
-process.pseudoTop.jetMaxEta=cms.double(5.0)
-
 #analyzer
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
 if options.runOnData:
@@ -120,6 +114,12 @@ if options.runOnData:
                           *process.analysis
                           )
 else:
+    #pseudo-top
+    process.load('TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi')
+    process.pseudoTop.leptonMinPt=cms.double(20)
+    process.pseudoTop.leptonMaxEta=cms.double(2.5)
+    process.pseudoTop.jetMaxEta=cms.double(5.0)
+
     process.p = cms.Path( process.puppi
                           *process.egmGsfElectronIDSequence
                           *process.customizeJetToolsSequence
