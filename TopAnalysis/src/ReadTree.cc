@@ -400,7 +400,8 @@ void ReadTree(TString filename,
 
 	  //smear jet energy resolution for MC
 	  //jetDiff -= jp4;
-	  float genJet_pt(ev.genj_pt[k]); 
+	  float genJet_pt(0);
+	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
 	  if(!ev.isData && genJet_pt>0) 
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
@@ -533,11 +534,11 @@ void ReadTree(TString filename,
 
 	  Int_t ntops(0);
 	  float ptsf(1.0);
-	  for(Int_t igen=0; igen<ev.ngenHardProc; igen++)
+	  for(Int_t igen=0; igen<ev.ngtop; igen++)
 	    {
-	      if(abs(ev.ghp_id[igen])!=6) continue;
+	      if(abs(ev.gtop_id[igen])!=6) continue;
 	      ntops++;
-	      ptsf *= TMath::Exp(0.156-0.00137*ev.ghp_pt[igen]);
+	      ptsf *= TMath::Exp(0.156-0.00137*ev.gtop_pt[igen]);
 	    }
 	  if(ptsf>0 && ntops==2)
 	    {
@@ -711,7 +712,8 @@ void ReadTree(TString filename,
 		      jetDiff -= jp4;
 		      
 		      //smear jet energy resolution for MC
-		      float genJet_pt(ev.genj_pt[k]); 
+		      float genJet_pt(0);
+		      if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
 		      if(!ev.isData && genJet_pt>0) 
 			{
 			  std::vector<float> jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),genJet_pt);

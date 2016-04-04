@@ -8,7 +8,7 @@ creates the crab cfg and submits the job
 """
 def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=False):
     
-    jecDB="Summer15_25nsV7_DATA.db" if isData else "Summer15_25nsV7_MC.db"
+    jecDB="Fall15_25nsV2_DATA.db" if isData else "Fall15_25nsV2_MC.db"
     os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/%s' % jecDB)
 
     os.system("rm -rvf %s/*%s* "%(workDir,tag))
@@ -49,7 +49,7 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     config_file.write('config.Site.storageSite = "T2_CH_CERN"\n')
     config_file.close()
     
-    if submit : os.system('crab submit -c %s' % crabConfigFile )
+    if submit : os.system('alias crab=\'/cvmfs/cms.cern.ch/crab3/crab-env-bootstrap.sh\' && crab submit -c %s' % crabConfigFile )
 
 """
 steer the script

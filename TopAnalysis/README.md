@@ -30,8 +30,10 @@ To submit a list of samples, described in a json file to the grid you can use th
 python scripts/submitToGrid.py -j data/samples_Run2015.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
-Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial).
-
+Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#crab_env_bootstrap_sh_script_to)
+```
+alias crab='/cvmfs/cms.cern.ch/crab3/crab-env-bootstrap.sh'
+```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
 python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/5201014 -o /store/cmst3/user/psilva/LJets2015/64217e8
