@@ -42,7 +42,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gpf_charge",  ev.gpf_charge, "gpf_charge[npf]/I");
   t->Branch("gpf_pt",      ev.gpf_pt,     "gpf_pt[npf]/F");
   t->Branch("gpf_eta",     ev.gpf_eta,    "gpf_eta[npf]/F");
-  t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[npfen]/F");
+  t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[npf]/F");
 
 
   //reco level event
