@@ -15,10 +15,6 @@ analysis = cms.EDAnalyzer("MiniAnalyzer",
                           eleVetoIdMap    = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
                           eleTightIdMap   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
                           eleTightIdFullInfoMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
-                          muTriggersToUse = cms.vstring('IsoMu20_v', 'IsoTkMu20_v',
-                                                        'Mu24_eta2p1_v','TkMu24_eta2p1_v',
-                                                        'Mu27_eta2p1_v','TkMu27_eta2p1_v',
-                                                        ),
-                          elTriggersToUse = cms.vstring( 'Ele22_eta2p1_WPLoose_Gsf_v',
-                                                         'Ele23_CaloIdL_TrackIdL_IsoVL_v')
+                          muTriggersToUse = cms.vstring('IsoMu20_v', 'IsoTkMu20_v'),
+                          elTriggersToUse = cms.vstring('Ele22_eta2p1_WPLoose_Gsf_v')
                           )
