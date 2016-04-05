@@ -329,7 +329,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  if(genIt.pt()<0.5 || fabs(genIt.eta())>2.5) continue;
 	  
-	  ev_.gpf_id[ev_.ngpf]     = genIt.pdgId();
+	  ev_.gpf_id[ev_.ngpf]     = abs(genIt.pdgId())*genIt.charge();
 	  ev_.gpf_g[ev_.ngpf]=-1;
 	  for(std::map<const reco::Candidate *,int>::iterator it=jetConstsMap.begin();
 	      it!=jetConstsMap.end();
@@ -340,7 +340,6 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	      ev_.gpf_g[ev_.ngpf]=it->second;
 	      break;
 	    }	    
-	  ev_.gpf_charge[ev_.ngpf] = genIt.charge();
 	  ev_.gpf_pt[ev_.ngpf]     = genIt.pt();
 	  ev_.gpf_eta[ev_.ngpf]    = genIt.eta();
 	  ev_.gpf_phi[ev_.ngpf]    = genIt.phi();
@@ -545,7 +544,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
   // JETS
-  ev_.nj=0; ev_.npf=0;
+  ev_.nj=0; 
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(jetToken_,jets);
   std::vector< std::pair<const reco::Candidate *,int> > clustCands;
@@ -613,6 +612,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
   //PF candidates
+  ev_.npf=0;
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf)
     {
       if(ev_.npf>=5000) continue;
@@ -631,15 +631,15 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  if(pf->charge()==0) continue;
 	  if(pf->fromPV()<2) continue;
+	  if(pf->pt()<0.5 || fabs(pf->eta())>2.5) continue;
+	  if(pf->puppiWeight()<0.01) continue;
 	}
       
-      ev_.pf_id[ev_.npf]        = pf->pdgId();
-      ev_.pf_charge[ev_.npf]    = pf->charge();
-      ev_.pf_pt[ev_.npf]        = pf->pt();
-      ev_.pf_eta[ev_.npf]       = pf->eta();
-      ev_.pf_phi[ev_.npf]       = pf->phi();
-      ev_.pf_puppiWgt[ev_.npf]  = pf->puppiWeight();
-      ev_.pf_puppiWgtNoLep[ev_.npf] = pf->puppiWeightNoLep();      
+      ev_.pf_id[ev_.npf]       = abs(pf->pdgId())*pf->charge();
+      ev_.pf_pt[ev_.npf]       = pf->pt();
+      ev_.pf_eta[ev_.npf]      = pf->eta();
+      ev_.pf_phi[ev_.npf]      = pf->phi();
+      ev_.pf_puppiWgt[ev_.npf] = pf->puppiWeight();      
       ev_.npf++;
     }
 }

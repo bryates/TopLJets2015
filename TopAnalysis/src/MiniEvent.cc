@@ -39,7 +39,6 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("npf",       &ev.npf,       "npf/I");
   t->Branch("gpf_id",      ev.gpf_id,     "gpf_id[npf]/I");
   t->Branch("gpf_g",       ev.gpf_g,     "gpf_g[npf]/I");
-  t->Branch("gpf_charge",  ev.gpf_charge, "gpf_charge[npf]/I");
   t->Branch("gpf_pt",      ev.gpf_pt,     "gpf_pt[npf]/F");
   t->Branch("gpf_eta",     ev.gpf_eta,    "gpf_eta[npf]/F");
   t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[npf]/F");
@@ -96,12 +95,10 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("npf",        &ev.npf,      "npf/I");
   t->Branch("pf_j",       ev.pf_j,      "pf_j[npf]/I");
   t->Branch("pf_id",      ev.pf_id,     "pf_id[npf]/I");
-  t->Branch("pf_charge",  ev.pf_charge, "pf_charge[npf]/I");
   t->Branch("pf_pt",      ev.pf_pt,     "pf_pt[npf]/F");
   t->Branch("pf_eta",      ev.pf_eta,     "pf_eta[npf]/F");
   t->Branch("pf_phi",      ev.pf_phi,     "pf_phi[npf]/F");
   t->Branch("pf_puppiWgt",        ev.pf_puppiWgt,     "pf_puppiWgt[npf]/F");
-  t->Branch("pf_puppiWgtNoLep",   ev.pf_puppiWgtNoLep,     "pf_puppiWgtNoLep[npf]/F");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
@@ -147,8 +144,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   //final state
   t->SetBranchAddress("npf",       &ev.npf);
   t->SetBranchAddress("gpf_id",      ev.gpf_id);
-  t->SetBranchAddress("gpf_g",       ev.gpf_g);
-  t->SetBranchAddress("gpf_charge",  ev.gpf_charge);
+  t->SetBranchAddress("gpf_g",       ev.gpf_g); 
   t->SetBranchAddress("gpf_pt",      ev.gpf_pt);
   t->SetBranchAddress("gpf_eta",     ev.gpf_eta);
   t->SetBranchAddress("gpf_phi",     ev.gpf_phi);
@@ -205,12 +201,10 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("npf",        &ev.npf);
   t->SetBranchAddress("pf_j",       ev.pf_j);
   t->SetBranchAddress("pf_id",      ev.pf_id);
-  t->SetBranchAddress("pf_charge",  ev.pf_charge);
   t->SetBranchAddress("pf_pt",      ev.pf_pt);
   t->SetBranchAddress("pf_eta",      ev.pf_eta);
   t->SetBranchAddress("pf_phi",      ev.pf_phi);
   t->SetBranchAddress("pf_puppiWgt",        ev.pf_puppiWgt);
-  t->SetBranchAddress("pf_puppiWgtNoLep",   ev.pf_puppiWgtNoLep);
 
   //MET
   t->SetBranchAddress("nmet",      &ev.nmet);
