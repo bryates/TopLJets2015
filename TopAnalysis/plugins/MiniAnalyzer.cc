@@ -654,7 +654,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   recAnalysis(iEvent,iSetup);
   
   //save event if at least one lepton at gen or reco level
-  if((ev_.ngleptons==0 && ev_.nl==0) || !saveTree_) return;  
+  if((ev_.ngleptons==0 && ev_.nleptons==0) || !saveTree_) return;  
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event(); 
