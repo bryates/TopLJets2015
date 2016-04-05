@@ -12,7 +12,7 @@ Wrapper to be used when run in parallel
 def RunMethodPacked(args):
     inF,outF,channel,charge,wgtH,flav,runSysts=args
     try:
-        ROOT.ReadTree(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
+        ROOT.RunTop16006(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
     except :
         print 50*'<'
         print "  Problem  (%s) with %s continuing without"%(sys.exc_info()[1],inF)
@@ -43,8 +43,8 @@ def main():
     #compile macro
     ROOT.AutoLibraryLoader.enable()
     ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
-    ROOT.gROOT.LoadMacro('src/ReadTree.cc+')
-    from ROOT import ReadTree
+    ROOT.gROOT.LoadMacro('src/TOP-16-006.cc+')
+    from ROOT import RunTop16006
 
     #parse selection list
     onlyList=[]
@@ -109,7 +109,7 @@ def main():
         print 'launching %d tasks in %d parallel jobs'%(len(task_list),opt.njobs)
         if opt.njobs == 0:
             for inF,outF,channel,charge,wgtH,flav,runSysts in task_list:
-                ROOT.ReadTree(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
+                ROOT.RunTop16006(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
         else:
             from multiprocessing import Pool
             pool = Pool(opt.njobs)

@@ -1,5 +1,5 @@
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
-#include "TopLJets2015/TopAnalysis/interface/ReadTree.h"
+#include "TopLJets2015/TopAnalysis/interface/TOP-16-006.h"
 #include "TopLJets2015/TopAnalysis/interface/TemplatedFitTools.h"
 
 #ifdef __CINT__
@@ -11,7 +11,7 @@
 #pragma link off all typedef;
 #pragma link off all enum;
 
-#pragma link C++ function ReadTree;
+#pragma link C++ function Top16006;
 #pragma link C++ function RunOverSamples;
 #pragma link C++ defined_in "src/TopAnalysisLinkDef.h";
 #pragma link C++ function attachToMiniEventTree;
