@@ -72,6 +72,7 @@ def main():
 
                         os.system('hadd -f %s'%toAdd)
                         os.system('cp %s eos/cms/%s/'%(mergedFileName,newDir))
+                        os.system('rm %s'%mergedFileName)
                         #os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/MergedMiniEvents_%d.root' %(mergedFileName,newDir,ilist))
 
                 #if still needed copy individual files

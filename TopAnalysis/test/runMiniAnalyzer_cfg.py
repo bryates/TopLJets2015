@@ -64,8 +64,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(getEOSlslist(directory='/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/25nsFlat10to25TSG_76X_mcRun2_asymptotic_v11_ext3-v1/30000/')
-                                                              )
+                            fileNames = cms.untracked.vstring(
+        #getEOSlslist(directory='/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/25nsFlat10to25TSG_76X_mcRun2_asymptotic_v11_ext3-v1/30000/')
+        getEOSlslist(directory='/store/mc/RunIIFall15MiniAODv2/TT_TuneEE5C_13TeV-powheg-herwigpp/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000')
+        )
                             )
 if options.inputDir!='':  
     print 'Will process files from',options.inputDir
