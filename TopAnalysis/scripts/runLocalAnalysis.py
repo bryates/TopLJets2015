@@ -41,7 +41,7 @@ def main():
     (opt, args) = parser.parse_args()
 
     #compile macro
-    ROOT.AutoLibraryLoader.enable()
+    ROOT.FWLiteEnabler.enable()
     ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
     ROOT.gROOT.LoadMacro('src/TOP-16-006.cc+')
     from ROOT import RunTop16006
