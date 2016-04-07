@@ -550,11 +550,9 @@ void RunTop16006(TString filename,
 	  //update pileup weights, if found
 	  if(puWgtGr.size())
 	    {
-	      /*
 	      puWeight[0]=puWgtGr[0]->Eval(ev.putrue);  
 	      puWeight[1]=puWgtGr[1]->Eval(ev.putrue); 
 	      puWeight[2]=puWgtGr[2]->Eval(ev.putrue);
-	      */
 	    }
 	  
 	  //update nominal event weight
