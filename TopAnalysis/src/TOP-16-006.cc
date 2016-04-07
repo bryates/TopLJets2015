@@ -424,7 +424,7 @@ void RunTop16006(TString filename,
 
 	  //b-tag
 	  float csv = ev.j_csv[k];	  
-	  bool isBTagged(csv>0.890);
+	  bool isBTagged(csv>0.800);
 	  if(!ev.isData)
 	    {
 	      float jptForBtag(jp4.Pt()>1000. ? 999. : jp4.Pt()), jetaForBtag(fabs(jp4.Eta()));
@@ -550,9 +550,11 @@ void RunTop16006(TString filename,
 	  //update pileup weights, if found
 	  if(puWgtGr.size())
 	    {
+	      /*
 	      puWeight[0]=puWgtGr[0]->Eval(ev.putrue);  
 	      puWeight[1]=puWgtGr[1]->Eval(ev.putrue); 
 	      puWeight[2]=puWgtGr[2]->Eval(ev.putrue);
+	      */
 	    }
 	  
 	  //update nominal event weight
@@ -748,7 +750,7 @@ void RunTop16006(TString filename,
 		      
 		      //b-tag
 		      float csv = ev.j_csv[k];	  
-		      bool isBTagged(csv>0.890);
+		      bool isBTagged(csv>0.800);
 		      if(!ev.isData)
 			{
 			  float jptForBtag(jp4.Pt()>1000. ? 999. : jp4.Pt()), jetaForBtag(fabs(jp4.Eta()));
@@ -852,6 +854,14 @@ void RunTop16006(TString filename,
 std::map<Int_t,Float_t> lumiPerRun()
 {
   std::map<Int_t,Float_t> lumiMap;
+  lumiMap[254231]=   32626.916   ;
+  lumiMap[254232]=   108539.723  ;
+  lumiMap[254790]=  11333305.274 ;
+  lumiMap[254852]=   898963.031  ;
+  lumiMap[254879]=  1798475.919  ;
+  lumiMap[254906]=  1565208.707  ;
+  lumiMap[254907]=  1070993.080  ;
+  lumiMap[254914]=   923324.411  ;
   lumiMap[256630]=  1019427.537  ;
   lumiMap[256673]=    5821.004   ;
   lumiMap[256674]=   97107.612   ;
@@ -870,9 +880,9 @@ std::map<Int_t,Float_t> lumiPerRun()
   lumiMap[257461]=  3273371.101  ;
   lumiMap[257531]=  8952857.360  ;
   lumiMap[257599]=  5277913.939  ;
-  lumiMap[257613]=  80350501.578 ;
+  lumiMap[257613]=  80288701.786 ;
   lumiMap[257614]=   898910.938  ;
-  lumiMap[257645]=  66315220.235 ;
+  lumiMap[257645]=  66251074.200 ;
   lumiMap[257682]=  14059859.130 ;
   lumiMap[257722]=   874139.924  ;
   lumiMap[257723]=  6416461.542  ;
@@ -883,16 +893,16 @@ std::map<Int_t,Float_t> lumiPerRun()
   lumiMap[257816]=  25831347.642 ;
   lumiMap[257819]=  16070065.308 ;
   lumiMap[257968]=  17947956.702 ;
-  lumiMap[257969]=  41763127.477 ;
+  lumiMap[257969]=  41437510.749 ;
   lumiMap[258129]=  6161039.580  ;
   lumiMap[258136]=  3833715.336  ;
   lumiMap[258157]=  4130426.007  ;
-  lumiMap[258158]= 112208420.935 ;
+  lumiMap[258158]= 112150208.043 ;
   lumiMap[258159]=  27041879.753 ;
   lumiMap[258177]= 112357734.179 ;
   lumiMap[258211]=  6899616.879  ;
   lumiMap[258213]=  12447784.863 ;
-  lumiMap[258214]=  16373869.777 ;
+  lumiMap[258214]=  16299123.425 ;
   lumiMap[258215]=   443760.789  ;
   lumiMap[258287]=  14271300.581 ;
   lumiMap[258403]=  16554699.075 ;
@@ -913,7 +923,7 @@ std::map<Int_t,Float_t> lumiPerRun()
   lumiMap[258702]=  31593447.906 ;
   lumiMap[258703]=  33749411.575 ;
   lumiMap[258705]=  8215733.522  ;
-  lumiMap[258706]=  56093496.201 ;
+  lumiMap[258706]=  56015291.210 ;
   lumiMap[258712]=  36912048.837 ;
   lumiMap[258713]=  10868729.417 ;
   lumiMap[258714]=  4462940.479  ;
@@ -922,24 +932,24 @@ std::map<Int_t,Float_t> lumiPerRun()
   lumiMap[258745]=  22816248.664 ;
   lumiMap[258749]=  48011842.080 ;
   lumiMap[258750]=  15311166.469 ;
-  lumiMap[259626]=  11468889.945 ;
+  lumiMap[259626]=  11503939.036 ;
   lumiMap[259637]=  15843833.799 ;
   lumiMap[259681]=  2006428.466  ;
-  lumiMap[259683]=  7661900.888  ;
+  lumiMap[259683]=  7733152.101  ;
   lumiMap[259685]=  55748876.683 ;
-  lumiMap[259686]=  26787974.289 ;
+  lumiMap[259686]=  27125232.494 ;
   lumiMap[259721]=  12400448.429 ;
   lumiMap[259809]=  14370193.633 ;
   lumiMap[259810]=  9903086.201  ;
   lumiMap[259811]=  7470396.336  ;
   lumiMap[259813]=   746162.774  ;
   lumiMap[259817]=   362610.422  ;
-  lumiMap[259818]=  13212055.400 ;
+  lumiMap[259818]=  13130237.492 ;
   lumiMap[259820]=  12560062.290 ;
   lumiMap[259821]=  16180451.962 ;
-  lumiMap[259822]=  32303622.612 ;
-  lumiMap[259861]=  6099480.997  ;
-  lumiMap[259862]=  43744798.711 ;
+  lumiMap[259822]=  32721804.046 ;
+  lumiMap[259861]=  6561060.297  ;
+  lumiMap[259862]=  45860217.938 ;
   lumiMap[259884]=  6731111.093  ;
   lumiMap[259890]=  9701207.990  ;
   lumiMap[259891]=  9603195.320  ;
@@ -949,7 +959,7 @@ std::map<Int_t,Float_t> lumiPerRun()
   lumiMap[260426]=  43930543.476 ;
   lumiMap[260427]=  15969446.707 ;
   lumiMap[260431]=  35126694.498 ;
-  lumiMap[260532]=  69168656.005 ;
+  lumiMap[260532]=  69073584.559 ;
   lumiMap[260533]=  1195476.609  ;
   lumiMap[260534]=  32043973.431 ;
   lumiMap[260536]=  14466413.325 ;
@@ -959,7 +969,8 @@ std::map<Int_t,Float_t> lumiPerRun()
   lumiMap[260576]=  16664531.028 ;
   lumiMap[260577]=  8251536.906  ;
   lumiMap[260593]=  35893405.704 ;
-  lumiMap[260627]= 178937353.997 ; 
+  lumiMap[260627]= 178937353.997 ;
+
   return lumiMap;
 };
 

@@ -3,7 +3,7 @@ import os,sys
 import json
 import commands
 import ROOT
-from SimGeneral.MixingModule.mix_2015_25ns_Startup_PoissonOOTPU_cfi import *
+from SimGeneral.MixingModule.mix_2015_25ns_FallMC_matchData_PoissonOOTPU_cfi import *
 
 """
 steer the script
@@ -52,6 +52,7 @@ def main():
     fOut=ROOT.TFile.Open('$CMSSW_BASE/src/TopLJets2015/TopAnalysis/data/pileupWgts.root','RECREATE')
     for gr in puWgts: gr.Write()
     for gr in puDist: gr.Write()
+    simPuH.Write()
     fOut.Close()
 
 """

@@ -57,7 +57,8 @@ def main():
     
             moveIndividualFiles=True
             if len(file_list)>0:
-                subgroupMerge = int( raw_input('This set has %d files. Merge into groups? (enter 0 if no merging)' % len(file_list)) )
+                #subgroupMerge = int( raw_input('This set has %d files. Merge into groups? (enter 0 if no merging)' % len(file_list)) )
+                subgroupMerge=60 if 'Data' in dsetname else 20 
                 if subgroupMerge>0:
                     moveIndividualFiles=False
 

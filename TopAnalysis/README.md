@@ -36,7 +36,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/5201014 -o /store/cmst3/user/psilva/LJets2015/64217e8
+python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/076fb7a -o /store/cmst3/user/psilva/LJets2015/076fb7a
 ```
 If "--cleanup" is passed, the original crab directories in EOS are removed.
 
@@ -48,7 +48,7 @@ crab report grid/crab_Data13TeV_SingleElectron_2015D_v3
 ``` 
 Then you can merge the json files for the same dataset to get the full list of run/lumi sections to analyse
 ```
-mergeJSON.py grid/crab_Data13TeV_SingleElectron_2015D_v3/results/lumiSummary.json grid/crab_Data13TeV_SingleElectron_2015D_v4/results/lumiSummary.json --output data/SingleElectron_lumiSummary.json
+mergeJSON.py grid/crab_Data13TeV_SingleElectron_2015C/results/processedLumis.json grid/crab_Data13TeV_SingleElectron_2015D/results/processedLumis.json --output data/SingleElectron_lumiSummary.json
 ```
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
@@ -66,7 +66,7 @@ python scripts/saveExpectedBtagEff.py
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```
-python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/64217e8
+python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/076fb7a
 ```
 You're now ready to start locally the analysis.
 
@@ -84,7 +84,7 @@ If "-q queue_name" is appended the jobs are submitted to the batch system instea
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
 If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/64217e8 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/076fb7a -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 ```
 After the jobs have run you can merge the outputs with
 ```
@@ -92,7 +92,7 @@ After the jobs have run you can merge the outputs with
 ```
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2247.5
+python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2267.84
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as

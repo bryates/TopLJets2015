@@ -2,14 +2,14 @@ import ROOT
 from array import array
 from TopLJets2015.TopAnalysis.storeTools import *
 
-csvWP='j_csv>0.890'
-inputDir='/store/cmst3/user/psilva/LJets2015/552ed48/MC13TeV_TTJets'
+csvWP='j_csv>0.800'
+inputDir='/store/cmst3/user/psilva/LJets2015/076fb7a/MC13TeV_TTJets'
 
 #open a ttbar file
 input_list=getEOSlslist(directory=inputDir)
 data=ROOT.TChain('analysis/data')
 #for i in xrange(0,len(input_list)):
-for i in xrange(0,3):
+for i in xrange(0,9):
     data.Add(input_list[i])
 
 print 'Projecting tagging efficiency from ',data.GetEntries(),' events'

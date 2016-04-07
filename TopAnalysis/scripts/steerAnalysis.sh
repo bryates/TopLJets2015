@@ -27,10 +27,10 @@ mass=${4}
 if [[ "${mass}" == "" ]]; then mass=0; fi
 
 queue=8nh
-eosdir=/store/cmst3/user/psilva/LJets2015/64217e8
-outdir=~/work/LJets2015-preapp
-wwwdir=~/www/LJets2015-preapp
-lumi=2247.5
+eosdir=/store/cmst3/user/psilva/LJets2015/076fb7a
+outdir=~/work/LJets2015-arcrev
+wwwdir=~/www/LJets2015-arcrev
+lumi=2267.84
 
 RED='\e[31m'
 NC='\e[0m'
