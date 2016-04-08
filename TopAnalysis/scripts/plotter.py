@@ -118,8 +118,11 @@ class Plot(object):
         p1.cd()
 
         # legend
-        iniy=0.80 if self.wideCanvas else 0.85
-        leg = ROOT.TLegend(0.45, iniy-0.02*max(len(self.mc)-2,0), 0.95, iniy+0.05)
+        iniy=0.80 if self.wideCanvas or noStack else 0.85
+        dy=0.1 if noStack else 0.02
+        ndy=len(self.mc) if noStack else max(len(self.mc)-2,0)
+        leg = ROOT.TLegend(0.45, iniy-dy*ndy, 0.95, iniy+0.05)
+
         leg.SetBorderSize(0)
         leg.SetFillStyle(0)        
         leg.SetTextFont(43)
@@ -131,12 +134,25 @@ class Plot(object):
             leg.AddEntry( self.data, self.data.GetTitle(),'p')
             nlegCols += 1
         for h in self.mc:
+            
+            #compare
+            if noStack:
+                refH=self.mc.values()[0]
+                if refH!=self.mc[h]:
+                    chi2=refH.Chi2Test( self.mc[h], 'WW CHI2')
+                    pval=refH.Chi2Test( self.mc[h], 'WW')     
+                    self.mc[h].SetTitle('#splitline{%s}{#chi^{2}=%3.1f (p-val: %3.3f)}'%(self.mc[h].GetTitle(),chi2,pval))
+                else:
+                    refH.SetLineWidth(2)
+
             leg.AddEntry(self.mc[h], self.mc[h].GetTitle(), 'f')
             nlegCols += 1
         if nlegCols ==0 :
             print '%s is empty'%self.name
             return
-        leg.SetNColumns(ROOT.TMath.Min(nlegCols/2,3))
+
+        if not noStack:
+            leg.SetNColumns(ROOT.TMath.Min(nlegCols/2,3))
 
         # Build the stack to plot from all backgrounds
         totalMC = None
@@ -146,8 +162,9 @@ class Plot(object):
             if noStack:
                 self.mc[h].SetFillStyle(0)
                 self.mc[h].SetLineColor(self.mc[h].GetFillColor())
-
+                
             stack.Add(self.mc[h],'hist')
+            
             try:
                 totalMC.Add(self.mc[h])
             except:
@@ -166,7 +183,9 @@ class Plot(object):
 
         frame = totalMC.Clone('frame') if totalMC is not None else self.dataH.Clone('frame')
         frame.Reset('ICE')
-        if totalMC:
+        if noStack:
+            maxY=stack.GetStack().At(0).GetMaximum()/1.25
+        elif totalMC:
             maxY = totalMC.GetMaximum() 
             if self.dataH:
                 if maxY<self.dataH.GetMaximum():
@@ -175,7 +194,6 @@ class Plot(object):
             maxY=self.dataH.GetMaximum()
 
         frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)
-
 
         frame.SetDirectory(0)
         frame.Reset('ICE')
@@ -198,10 +216,11 @@ class Plot(object):
         txt.SetTextSize(16)
         txt.SetTextAlign(12)
         iniy=0.8 if self.wideCanvas else 0.95
+        inix=0.12 if noStack else 0.18
         if lumi<100:
-            txt.DrawLatex(0.18,iniy,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )
+            txt.DrawLatex(inix,iniy,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )
         else:
-            txt.DrawLatex(0.18,iniy,'#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)' % (lumi/1000.) )
+            txt.DrawLatex(inix,iniy,'#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)' % (lumi/1000.) )
 
         #holds the ratio
         c.cd()

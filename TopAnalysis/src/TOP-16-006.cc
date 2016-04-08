@@ -90,7 +90,7 @@ void RunTop16006(TString filename,
       fIn->Close();
     }
 
-  lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_fromTemplates_withSyst_Final.txt_SF2D.root";
+  lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_76X_18Feb.txt_SF2D.root";
   gSystem->ExpandPathName(lepEffUrl);
   if(!ev.isData)
     {
