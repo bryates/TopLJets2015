@@ -127,7 +127,7 @@ void RunTop16006(TString filename,
     }
 
   //JET ENERGY SCALE: https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Summer15_uncertainties
-  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Summer15_25nsV7_DATA_UncertaintySources_AK4PFchs.txt");
+  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Fall15_25nsV2_DATA_UncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
   //FactorizedJetCorrector *jetCorr=getFactorizedJetEnergyCorrector("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/jectxt",!ev.isData);
   std::vector<TString> jecUncSrcs;
