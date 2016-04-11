@@ -86,10 +86,9 @@ case $WHAT in
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} \
 		--saveLog -o final_plotter.root \
-		--procSF "W":${outdir}/analysis_${i}/.wjetsscalefactors.pck \
-
+		--procSF "W":${outdir}/analysis_${i}/.wjetsscalefactors.pck;
 	done
-	
+
 	a=(z)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";

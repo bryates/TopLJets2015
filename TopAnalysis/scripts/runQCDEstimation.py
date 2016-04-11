@@ -60,7 +60,8 @@ def main():
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
     #ROOT.gROOT.SetBatch(True)
-    ROOT.AutoLibraryLoader.enable()
+    ROOT.FWLiteEnabler.enable()
+    #ROOT.AutoLibraryLoader.enable()
     #ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
     #ROOT.gROOT.LoadMacro('src/TemplatedFitTools.cc+')
     #from ROOT import TemplatedFitTools

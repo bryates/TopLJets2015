@@ -11,15 +11,15 @@ def doPlot(plotName,ch):
 
     #open the files
     inFiles=[]
-    #baseDir='~/work/LJets2015-preapp'
-    #if ch=='all' or ch=='plus' or ch=='mu':  inFiles.append(ROOT.TFile.Open('%s/analysis_muplus/plots/final_plotter.root'%baseDir))
-    #if ch=='all' or ch=='plus' or ch=='e':   inFiles.append(ROOT.TFile.Open('%s/analysis_eplus/plots/final_plotter.root'%baseDir))
-    #if ch=='all' or ch=='minus' or ch=='e':  inFiles.append(ROOT.TFile.Open('%s/analysis_eminus/plots/final_plotter.root'%baseDir))
-    #if ch=='all' or ch=='minus' or ch=='mu': inFiles.append(ROOT.TFile.Open('%s/analysis_muminus/plots/final_plotter.root'%baseDir))
+    baseDir='~/work/LJets2015-arcrev'
+    if ch=='all' or ch=='plus' or ch=='mu':  inFiles.append(ROOT.TFile.Open('%s/analysis_muplus/plots/final_plotter.root'%baseDir))
+    if ch=='all' or ch=='plus' or ch=='e':   inFiles.append(ROOT.TFile.Open('%s/analysis_eplus/plots/final_plotter.root'%baseDir))
+    if ch=='all' or ch=='minus' or ch=='e':  inFiles.append(ROOT.TFile.Open('%s/analysis_eminus/plots/final_plotter.root'%baseDir))
+    if ch=='all' or ch=='minus' or ch=='mu': inFiles.append(ROOT.TFile.Open('%s/analysis_muminus/plots/final_plotter.root'%baseDir))
 
-    baseDir='./'
-    inFiles.append(ROOT.TFile.Open('%s/analysis_mu/plots/plotter.root'%baseDir))
-    inFiles.append(ROOT.TFile.Open('%s/analysis_e/plots/plotter.root'%baseDir))
+    #baseDir='./'
+    #inFiles.append(ROOT.TFile.Open('%s/analysis_mu/plots/plotter.root'%baseDir))
+    #inFiles.append(ROOT.TFile.Open('%s/analysis_e/plots/plotter.root'%baseDir))
 
     plotsPerProc={}
     if plotName=='nbtags':
@@ -96,8 +96,9 @@ def doPlot(plotName,ch):
                  plotsPerProc[key].GetTitle(),
                  color,
                  isData)
-    #plot.finalize()
-    plot.show(outDir="plots/",lumi=2.3,noStack=True,saveTeX=True)
+    plot.finalize()
+    plot.show(outDir="plots/",lumi=2.3)
+    #plot.show(outDir="plots/",lumi=2.3,noStack=True,saveTeX=True)
     #raw_input()
                      
 def main():

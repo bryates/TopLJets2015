@@ -22,7 +22,7 @@ class Plot(object):
         self._garbageList = []
         self.plotformats = ['pdf','png']
         self.savelog = False
-        self.ratiorange = (0.46,1.54)
+        self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData):
         h.SetTitle(title)
@@ -99,11 +99,11 @@ class Plot(object):
         c.cd()
         p1 = None
         if self.dataH:
-            p1=ROOT.TPad('p1','p1',0.0,0.85,1.0,0.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
             p1.SetLeftMargin(0.12)
             p1.SetTopMargin(0.01)
-            p1.SetBottomMargin(0.12)
+            p1.SetBottomMargin(0.01)
         else:
             p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
@@ -113,7 +113,7 @@ class Plot(object):
         p1.Draw()
 
         p1.SetGridx(False)
-        p1.SetGridy(True)
+        p1.SetGridy(False) #True)
         self._garbageList.append(p1)
         p1.cd()
 
@@ -201,8 +201,10 @@ class Plot(object):
         frame.GetYaxis().SetTitleSize(0.045)
         frame.GetYaxis().SetLabelSize(0.04)
         frame.GetYaxis().SetNoExponent()
-        frame.Draw()
         frame.GetYaxis().SetTitleOffset(1.3)
+        frame.GetXaxis().SetTitleSize(0.0)
+        frame.GetXaxis().SetLabelSize(0.0)
+        frame.Draw()
         if totalMC is not None   : 
             if noStack: stack.Draw('nostack same')
             else      : stack.Draw('hist same')
@@ -225,12 +227,12 @@ class Plot(object):
         #holds the ratio
         c.cd()
         if len(self.mc)>0 and self.dataH:
-            p2 = ROOT.TPad('p2','p2',0.0,0.85,1.0,1.0)
+            p2 = ROOT.TPad('p2','p2',0.0,0.0,1.0,0.2)
             p2.Draw()
-            p2.SetBottomMargin(0.01)
+            p2.SetBottomMargin(0.4)
             p2.SetRightMargin(0.05)
             p2.SetLeftMargin(0.12)
-            p2.SetTopMargin(0.05)
+            p2.SetTopMargin(0.01)
             p2.SetGridx(False)
             p2.SetGridy(True)
             self._garbageList.append(p2)
@@ -242,10 +244,10 @@ class Plot(object):
             ratioframe.GetYaxis().SetNdivisions(5)
             ratioframe.GetYaxis().SetLabelSize(0.18)        
             ratioframe.GetYaxis().SetTitleSize(0.2)
-            ratioframe.GetYaxis().SetTitleOffset(0.2)
-            ratioframe.GetXaxis().SetLabelSize(0)
-            ratioframe.GetXaxis().SetTitleSize(0)
-            ratioframe.GetXaxis().SetTitleOffset(0)
+            ratioframe.GetYaxis().SetTitleOffset(0.25)
+            ratioframe.GetXaxis().SetLabelSize(0.15)
+            ratioframe.GetXaxis().SetTitleSize(0.2)
+            ratioframe.GetXaxis().SetTitleOffset(0.8)
             ratioframe.Draw()
 
             try:

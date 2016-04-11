@@ -38,8 +38,9 @@ def main():
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
     #ROOT.gROOT.SetBatch(True)
-    ROOT.AutoLibraryLoader.enable()
-        
+    #ROOT.AutoLibraryLoader.enable()
+    ROOT.FWLiteEnabler.enable()
+
     #open inputs
     fNorm=ROOT.TFile.Open(opt.norm)
     fShape=ROOT.TFile.Open(opt.shape)
