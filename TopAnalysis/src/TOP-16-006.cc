@@ -225,7 +225,7 @@ void RunTop16006(TString filename,
 	  allPlots["metphi_"+tag]     = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
 	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
 	  allPlots["mt_"+tag]         = new TH1F("mt_"+tag,";Transverse Mass [GeV];Events" ,20,0.,200.);
-	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";min Mass(lepton,b) [GeV];Events" ,25,0.,250.);
+	  allPlots["minmlb_"+tag]     = new TH1F("minmlb_"+tag,";Mass(lepton,b) [GeV];Events" ,25,0.,250.);
 	  allPlots["drlb_"+tag]       = new TH1F("drlb_"+tag,";#DeltaR(lepton,b);Events" ,25,0.,6.);
 	  allPlots["passSIP3d_"+tag]  = new TH1F("passSIP3d_"+tag,";Pass SIP3d requirement;Events" ,2,0.,2.);
 	  allPlots["RMPF_"+tag]       = new TH1F("RMPF_"+tag,";R_{MPF};Events" ,20,0.,2.);
@@ -247,7 +247,7 @@ void RunTop16006(TString filename,
 		  all2dPlots["metptshapes_"+tag+"_gen"]                   
 		    = new TH2F("metptshapes_"+tag+"_gen", ";Missing transverse energy [GeV];Events" ,    10,0.,200., nGenSysts,0,nGenSysts);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]               
-		    = new TH2F("minmlbshapes_"+tag+"_gen", ";min Mass(lepton,b) [GeV];Events" , 25,0.,250., nGenSysts,0,nGenSysts);
+		    = new TH2F("minmlbshapes_"+tag+"_gen", ";Mass(lepton,b) [GeV];Events" , 25,0.,250., nGenSysts,0,nGenSysts);
 		  all2dPlots["RMPFshapes_"+tag+"_gen"]               
 		    = new TH2F("RMPFshapes_"+tag+"_gen", ";R_{MPF};Events" , 20,0.,2., nGenSysts,0,nGenSysts);
 		  if(itag==-1) 
@@ -271,7 +271,7 @@ void RunTop16006(TString filename,
 		  all2dPlots["metptshapes_"+tag+"_exp"]                  
 		    = new TH2F("metptshapes_"+tag+"_exp",  ";Missing transverse energy [GeV];Events" ,   10,0.,200., 2*nExpSysts,0,2*nExpSysts);
 		  all2dPlots["minmlbshapes_"+tag+"_exp"]              
-		    = new TH2F("minmlbshapes_"+tag+"_exp", ";min Mass(lepton,b) [GeV];Events" ,25,0.,250., 2*nExpSysts,0,2*nExpSysts);
+		    = new TH2F("minmlbshapes_"+tag+"_exp", ";Mass(lepton,b) [GeV];Events" ,25,0.,250., 2*nExpSysts,0,2*nExpSysts);
 		  all2dPlots["RMPFshapes_"+tag+"_exp"]               
 		    = new TH2F("RMPFshapes_"+tag+"_exp", ";R_{MPF};Events" , 20,0.,2., 2*nExpSysts,0,2*nExpSysts);
 		  if(itag==-1) 
@@ -395,8 +395,8 @@ void RunTop16006(TString filename,
 	  //jp4=updateJES(jp4,ev.j_rawsf[k],ev.j_area[k],ev.rho,ev.nvtx,jetCorr);
 
 	  //cross clean with respect to leptons 
-	  if(jp4.DeltaR(lp4)<0.4) continue;
-	  if(isZ && jp4.DeltaR(l2p4)<0.4)continue;
+	  if(jp4.DeltaR(lp4)<0.5) continue;
+	  if(isZ && jp4.DeltaR(l2p4)<0.5)continue;
 
 	  //smear jet energy resolution for MC
 	  //jetDiff -= jp4;
