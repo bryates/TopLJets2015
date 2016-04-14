@@ -18,7 +18,7 @@ def main():
     (opt, args) = parser.parse_args()
 
     #mount locally EOS
-    eos_cmd = '/afs/cern.ch/project/eos/installation/0.2.41/bin/eos.select'
+    eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
     Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
 
     #loop over samples available

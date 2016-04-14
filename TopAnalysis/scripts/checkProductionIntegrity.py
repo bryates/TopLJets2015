@@ -9,7 +9,7 @@ steer the script
 """
 def main():
 
-    eos_cmd = '/afs/cern.ch/project/eos/installation/0.2.41/bin/eos.select'
+    eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
 
     #configuration
     usage = 'usage: %prog [options]'
