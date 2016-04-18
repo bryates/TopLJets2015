@@ -16,8 +16,10 @@
 "MC13TeV_tW_scaledown":                 [35.6,    0, "/ST_tW_top_5f_scaledown_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v2/MINIAODSIM", "tW scale down",        920, false, false, 1],
 "MC13TeV_tbarW_scaledown":              [35.6,    0, "/ST_tW_antitop_5f_scaledown_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v2/MINIAODSIM", "tW scale down",        920, false, false, 1],
 "MC13TeV_tW_DS":                 [35.6,    0, "/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v2/MINIAODSIM", "tW DS",        920, false, false, 1],
-"MC13TeV_tbarW_DS":                 [35.6,    0, "ST_tW_antitop_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM", "tW DS",        920, false, false, 1],
-"MC13TeV_WJets" :                       [61526.7, 0, "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext4-v1/MINIAODSIM", "W", 797,false,false,1]
+"MC13TeV_tbarW_DS":                 [35.6,    0, "/ST_tW_antitop_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM", "tW DS",        920, false, false, 1],
+"MC13TeV_WJets_madgraph" : [61526.7,  0, "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM", "W", 797,false,false,1],
+"MC13TeV_WJets_ext1" :                       [61526.7, 0, "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM", "W", 797,false,false,1],
+"MC13TeV_WJets_ext2" :                       [61526.7, 0, "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext2-v1/MINIAODSIM", "W", 797,false,false,1]
 }
 
 

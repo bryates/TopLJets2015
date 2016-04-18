@@ -74,12 +74,12 @@ def main():
     #perform a fit to a variable of interest
     nonIsoTemplateSF={}
     qcdNormUnc={}
-    for sel in ['1j','2j','3j','4j']: 
+    for sel in ['0j','1j','2j','3j','4j']: 
 
         #data in the sideband
         extraSel=''
         if sel in ['1j', '2j'] : extraSel='1t'
-        if sel in ['3j','4j']  : extraSel='0t'
+        if sel in ['0j','3j','4j']  : extraSel='0t'
 
         dataNonIso,      sumMCNonIso, _  = getTemplates(fIn=fNonIso, dist='metpt_%s%s'%(sel,extraSel), tag='noniso')
         dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s%s'%(sel,extraSel),    tag='nonisoalt')
@@ -107,7 +107,7 @@ def main():
         #scale factors to apply and relative uncertainty (maximised)
         nonIsoSF=ROOT.TMath.Max(niso-nmciso,0.)/(nnoniso-nmcnoniso)
         nonIsoSFAlt=ROOT.TMath.Max(nisoAlt-nmcisoAlt,0.)/(nnonisoAlt-nmcnonisoAlt)
-        unc=ROOT.TMath.Abs(nonIsoSFAlt/nonIsoSF-1)
+        unc= ROOT.TMath.Abs(nonIsoSFAlt/nonIsoSF-1) if nonIsoSF>0 else 1.0
         
         nonIsoTemplateSF[sel]=(nonIsoSF,unc)
 

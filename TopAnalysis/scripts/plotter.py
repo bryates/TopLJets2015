@@ -118,7 +118,7 @@ class Plot(object):
         p1.cd()
 
         # legend
-        iniy=0.80 if self.wideCanvas or noStack else 0.85
+        iniy=0.9 if self.wideCanvas or noStack else 0.85
         dy=0.1 if noStack else 0.02
         ndy=len(self.mc) if noStack else max(len(self.mc)-2,0)
         leg = ROOT.TLegend(0.45, iniy-dy*ndy, 0.95, iniy+0.05)
@@ -217,7 +217,7 @@ class Plot(object):
         txt.SetTextFont(43)
         txt.SetTextSize(16)
         txt.SetTextAlign(12)
-        iniy=0.8 if self.wideCanvas else 0.95
+        iniy=0.9 if self.wideCanvas else 0.95
         inix=0.12 if noStack else 0.18
         if lumi<100:
             txt.DrawLatex(inix,iniy,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )

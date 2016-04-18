@@ -35,6 +35,15 @@ def main():
                 print 'Ambiguity found @ <publication-name> for <primary-dataset>=%s , bailing out'%dsetname
                 continue
             pub=pubDir.split('/crab_')[-1]
+            pubExt=None
+            try:
+                extSplit=pub.split('_ext')
+                pubExt='ext'+extSplit[1]
+                pub=extSplit[0]
+                print 'Extension will be postfixed with ',pubExt
+            except:
+                print 'Core sample (no extension)'
+                
 
             time_list=getEOSlslist(directory=pubDir,prepend='')
             if len(time_list)!=1:
@@ -66,7 +75,10 @@ def main():
                     split_file_lists = splitFunc( file_list )
                 
                     for ilist in xrange(0,len(split_file_lists)):
-                        mergedFileName='/tmp/MergedMiniEvents_%d.root '%ilist
+                        if pubExt:
+                            mergedFileName='/tmp/MergedMiniEvents_%d_%s.root '%(ilist,pubExt)
+                        else:
+                            mergedFileName='/tmp/MergedMiniEvents_%d.root '%ilist
                         toAdd='%s ' % mergedFileName
                         for f in split_file_lists[ilist]:                            
                             toAdd += 'eos/cms/%s '%f 
@@ -80,7 +92,11 @@ def main():
                 if moveIndividualFiles:
                     for f in file_list : 
                         #os.system('xrdcp  -f %s eos/cms/%s/' % (f, newDir) )
-                        os.system('cp %s eos/cms/%s/' % (f, newDir) )
+                        newF=f
+                        if pubExt:
+                            newF=f.replace('.root','_%s.root'%pubExt)
+
+                        os.system('cp %s eos/cms/%s/%s' % (f, newDir,newF) )
 
             if not opt.nocheck and opt.cleanup : 
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()

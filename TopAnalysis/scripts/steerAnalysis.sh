@@ -2,7 +2,8 @@
 
 WHAT=$1; 
 if [[ "$1" == "" ]]; then 
-    echo "steerAnalysis.sh <SEL/MERGE/PLOT/BKG/FINALPLOT/COMBPLOT/WWW/CinC/SHAPE/GENSTOP> [plotter.root] [signal] [mass]"; 
+    echo "steerAnalysis.sh <SELTEST/SEL/MERGE/PLOT/BKG/FINALPLOT/COMBPLOT/WWW/CinC/SHAPE/GENSTOP> [plotter.root] [signal] [mass]"; 
+    echo "        SELTEST - launches test selection jobs to the batch (inclusive, no syst)"; 
     echo "        SEL     - launches selection jobs to the batch"; 
     echo "        MERGE   - merge the output of the jobs";
     echo "        PLOT    - runs the plotter tool"
@@ -36,6 +37,11 @@ RED='\e[31m'
 NC='\e[0m'
 
 case $WHAT in
+    SELTEST)
+	echo -e "[ ${RED} Submitting inclusive selection for the signal regions ${NC} without syst ]"
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir}/analysis_mu  --ch 13
+	#python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir}/analysis_e   --ch 11 
+	;;
     SEL )
 	echo -e "[ ${RED} Submitting the selection for the signal regions ${NC} ]"
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_muplus   --ch 13   --charge 1
@@ -75,7 +81,7 @@ case $WHAT in
 	    for j in ${b[@]}; do
 		echo -e "[ ${RED} Background estimation for ${i}${j} ${NC} ]"
 		python scripts/runQCDEstimation.py     --iso   ${outdir}/analysis_${i}${j}/plots/plotter.root --noniso ${outdir}/analysis_${i}noniso/plots/plotter.root    --out ${outdir}/analysis_${i}${j}/;
-		python scripts/getWJetsScaleFactors.py --shape ${outdir}/analysis_${i}${j}/plots/plotter.root --norm   ${outdir}/analysis_${i}${j}/plots/syst_plotter.root --out ${outdir}/analysis_${i}${j}/;
+		#python scripts/getWJetsScaleFactors.py --shape ${outdir}/analysis_${i}${j}/plots/plotter.root --norm   ${outdir}/analysis_${i}${j}/plots/syst_plotter.root --out ${outdir}/analysis_${i}${j}/;
 		echo " "
 	    done
 	done
@@ -103,6 +109,7 @@ case $WHAT in
 	for f in ${fs[@]}; do
 	    for p in ${plots[@]}; do
 		for c in ${cats[@]}; do
+		    continue
 		    python scripts/combinePlotsForAllCategories.py ${p}_${c} ${f};
 		done
 	    done
@@ -124,6 +131,9 @@ case $WHAT in
 	    cp ${outdir}/analysis_${i}/plots/*.{png,pdf} ${wwwdir}/${i};
 	    cp test/index.php ${wwwdir}/${i};
 	done
+	mkdir -p ${wwwdir}/comb;
+	cp plots/*.{png,pdf} ${wwwdir}/comb;
+	cp test/index.php ${wwwdir}/comb;
 	;;
     CinC )
 	echo -e "[ ${RED} Creating datacards ${NC} ]"

@@ -47,6 +47,9 @@ void RunTop16006(TString filename,
   //READ TREE FROM FILE
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
+  TH1 *puTrue=(TH1 *)f->Get("analysis/putrue");
+  puTrue->SetDirectory(0);
+  puTrue->Scale(1./puTrue->Integral());
   TTree *t = (TTree*)f->Get("analysis/data");
   attachToMiniEventTree(t,ev);
   Int_t nentries(t->GetEntriesFast());
@@ -68,13 +71,37 @@ void RunTop16006(TString filename,
       TString puWgtUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/pileupWgts.root");
       gSystem->ExpandPathName(puWgtUrl);
       TFile *fIn=TFile::Open(puWgtUrl);
-      if(fIn)
+      for(size_t i=0; i<3; i++)
 	{
-	  puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_nom") );
-	  puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_down") );
-	  puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_up") );
-	  fIn->Close();
+	  TString grName("pu_nom");
+	  if(i==1) grName="pu_down";
+	  if(i==2) grName="pu_up";
+	  TGraph *puData=(TGraph *)fIn->Get(grName);
+	  Float_t totalData=puData->Integral();
+	  TH1 *tmp=(TH1 *)puTrue->Clone("tmp");
+	  for(Int_t xbin=1; xbin<=tmp->GetXaxis()->GetNbins(); xbin++)
+	    {
+	      Float_t yexp=puTrue->GetBinContent(xbin);
+	      Double_t xobs,yobs;
+	      puData->GetPoint(xbin-1,xobs,yobs);
+	      tmp->SetBinContent(xbin, yexp>0 ? yobs/(totalData*yexp) : 0. );
+	    }
+	  TGraph *gr=new TGraph(tmp);
+	  grName.ReplaceAll("pu","puwgts");
+	  gr->SetName(grName);
+	  puWgtGr.push_back( gr );
+	  tmp->Delete();
 	}
+      
+      /*
+	if(fIn)
+	{
+	puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_nom") );
+	puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_down") );
+	puWgtGr.push_back( (TGraph *)fIn->Get("puwgts_up") );
+	fIn->Close();
+	}
+      */
     }
 
   //LEPTON EFFICIENCIES
@@ -202,7 +229,7 @@ void RunTop16006(TString filename,
   std::map<TString, TH1 *> allPlots;
   std::map<TString, TH2 *> all2dPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",2,0,2);
-  for(Int_t ij=1; ij<=4; ij++)
+  for(Int_t ij=0; ij<=4; ij++)
     {
       for(Int_t itag=-1; itag<=2; itag++)
 	{
@@ -220,7 +247,10 @@ void RunTop16006(TString filename,
 	  allPlots["jeta_"+tag]       = new TH1F("jeta_"+tag,";Pseudo-rapidity;Events" ,12,0.,3.);
 	  allPlots["ht_"+tag]         = new TH1F("ht_"+tag,";H_{T} [GeV];Events",40,0,800);
 	  allPlots["csv_"+tag]        = new TH1F("csv_"+tag,";CSV discriminator;Events",100,0,1.0);
+	  allPlots["rho_"+tag]        = new TH1F("rho_"+tag,";#rho [GeV];Events" ,20,0.,50.);
 	  allPlots["nvtx_"+tag]       = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events" ,80,0.,80.);
+	  allPlots["nvtxup_"+tag]     = new TH1F("nvtxup_"+tag,";Vertex multiplicity;Events" ,80,0.,80.);
+	  allPlots["nvtxdn_"+tag]     = new TH1F("nvtxdn_"+tag,";Vertex multiplicity;Events" ,80,0.,80.);
 	  allPlots["metpt_"+tag]      = new TH1F("metpt_"+tag,";Missing transverse energy [GeV];Events" ,10,0.,200.);
 	  allPlots["metphi_"+tag]     = new TH1F("metphi_" + tag,";MET #phi [rad];Events" ,50,-3.2,3.2);
 	  allPlots["mttbar_"+tag]     = new TH1F("mttbar_"+tag,";#sqrt{#hat{s}} [GeV];Events" ,50,0.,1000.);
@@ -568,60 +598,60 @@ void RunTop16006(TString filename,
       catsToFill[1]+= Form("%dt",nBtagsCat);
       allPlots["puwgtctr"]->Fill(0.,puWeight[0]!=0 ? wgt/puWeight[0] : 0.);
       allPlots["puwgtctr"]->Fill(1.,wgt);
-      if(bJets.size()+lightJets.size()>=1)
+      std::map<Int_t,Float_t>::iterator rIt=lumiMap.find(ev.run);	  
+      for(size_t icat=0; icat<2; icat++)
 	{
-	  std::map<Int_t,Float_t>::iterator rIt=lumiMap.find(ev.run);	  
-	  for(size_t icat=0; icat<2; icat++)
+	  TString tag=catsToFill[icat];
+	  if(rIt!=lumiMap.end()) 
 	    {
-	      TString tag=catsToFill[icat];
-	      if(rIt!=lumiMap.end()) 
-		{
-		  Int_t runCtr=std::distance(lumiMap.begin(),rIt);
-		  allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
-		}
+	      Int_t runCtr=std::distance(lumiMap.begin(),rIt);
+	      allPlots["ratevsrun_"+tag]->Fill(runCtr,1.e+6/rIt->second);
+	    }
 
-	      allPlots["lpt_"+tag]->Fill(isZ ? dilp4.Pt() : lp4.Pt(),wgt);
-	      allPlots["leta_"+tag]->Fill(isZ ? dilp4.Eta() : lp4.Eta(),wgt);
-	      allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
-	      allPlots["passSIP3d_"+tag]->Fill(isZPassingSIP3d,wgt);
-	      allPlots["lreliso_"+tag]->Fill(ev.l_relIso[lepIdx],wgt);
-	      allPlots["jpt_"+tag]->Fill(ev.j_pt[leadingJetIdx],wgt);
-	      allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[leadingJetIdx]),wgt);
-	      allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
-	      allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
-	      allPlots["metpt_"+tag]->Fill(ev.met_pt[0],wgt);
-	      allPlots["metphi_"+tag]->Fill(ev.met_phi[0],wgt);
-	      allPlots["mt_"+tag]->Fill(mt,wgt);
-	      allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
-	      allPlots["ht_"+tag]->Fill(htsum,wgt);
-	      allPlots["alpha_"+tag]->Fill(alpha,wgt);
-	      if(alpha<0.3) allPlots["RMPF_"+tag]->Fill(RMPF,wgt);
-	      if(icat==0) allPlots["nbtags_"+tag]->Fill(bJets.size(),wgt);
-	     
-	      if(bJets.size())
-		{
-		  float mlb=(bJets[0]+(isZ ? dilp4 : lp4)).M();		  
-		  float drlb=bJets[0].DeltaR( (isZ ? dilp4 : lp4) );
-		  if(bJets.size()>1){
-		    float mlb2=(bJets[1]+(isZ ? dilp4 : lp4)).M();
-		    float drlb2=bJets[1].DeltaR( (isZ ? dilp4 : lp4) );
-		    if(mlb2<mlb)
+	  allPlots["lpt_"+tag]->Fill(isZ ? dilp4.Pt() : lp4.Pt(),wgt);
+	  allPlots["leta_"+tag]->Fill(isZ ? dilp4.Eta() : lp4.Eta(),wgt);
+	  allPlots["lsip3d_"+tag]->Fill(ev.l_ip3dsig[lepIdx],wgt);
+	  allPlots["passSIP3d_"+tag]->Fill(isZPassingSIP3d,wgt);
+	  allPlots["lreliso_"+tag]->Fill(ev.l_relIso[lepIdx],wgt);
+	  allPlots["jpt_"+tag]->Fill(ev.j_pt[leadingJetIdx],wgt);
+	  allPlots["jeta_"+tag]->Fill(fabs(ev.j_eta[leadingJetIdx]),wgt);
+	  allPlots["csv_"+tag]->Fill(ev.j_csv[ leadingJetIdx ],wgt);
+	  allPlots["nvtx_"+tag]->Fill(ev.nvtx,wgt);
+	  allPlots["nvtxdn_"+tag]->Fill(ev.nvtx,wgt*puWeight[2]/puWeight[0]);
+	  allPlots["nvtxup_"+tag]->Fill(ev.nvtx,wgt*puWeight[2]/puWeight[0]);
+	  allPlots["rho_"+tag]->Fill(ev.rho,wgt);
+	  allPlots["metpt_"+tag]->Fill(ev.met_pt[0],wgt);
+	  allPlots["metphi_"+tag]->Fill(ev.met_phi[0],wgt);
+	  allPlots["mt_"+tag]->Fill(mt,wgt);
+	  allPlots["mttbar_"+tag]->Fill(visSystem.M(),wgt);
+	  allPlots["ht_"+tag]->Fill(htsum,wgt);
+	  allPlots["alpha_"+tag]->Fill(alpha,wgt);
+	  if(alpha<0.3) allPlots["RMPF_"+tag]->Fill(RMPF,wgt);
+	  if(icat==0) allPlots["nbtags_"+tag]->Fill(bJets.size(),wgt);
+	  
+	  if(bJets.size())
+	    {
+	      float mlb=(bJets[0]+(isZ ? dilp4 : lp4)).M();		  
+	      float drlb=bJets[0].DeltaR( (isZ ? dilp4 : lp4) );
+	      if(bJets.size()>1){
+		float mlb2=(bJets[1]+(isZ ? dilp4 : lp4)).M();
+		float drlb2=bJets[1].DeltaR( (isZ ? dilp4 : lp4) );
+		if(mlb2<mlb)
 		      {
 			mlb=mlb2;
 			drlb=drlb2;
 		      }
 		  }
-		  allPlots["minmlb_"+tag]->Fill(mlb,wgt);		 		 
-		  allPlots["drlb_"+tag]->Fill(drlb,wgt);		 		 
-		}	  
-	    }
+	      allPlots["minmlb_"+tag]->Fill(mlb,wgt);		 		 
+	      allPlots["drlb_"+tag]->Fill(drlb,wgt);		 		 
+	    }	  
 	}
-
+      
       //ANALYSIS WITH SYSTEMATICS
       if(!runSysts) continue;
       
       //gen weighting systematics
-      if(bJets.size()+lightJets.size()>=1 && normH)
+      if(normH)
 	{
 	  float mlb(bJets.size() ? (bJets[0]+lp4).M() : 0.);
 	  if(bJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(bJets[1]+lp4).M() );
@@ -631,11 +661,11 @@ void RunTop16006(TString filename,
 	      for(size_t icat=0; icat<2; icat++)
 		{
 		  float newWgt = wgt*ev.ttbar_w[igen]/ev.ttbar_w[0];
-
+		  
 		  //for signal we only consider shapes and acceptance effects as it will be fit
 		  if(isTTbar) 
 		    newWgt *= normH->GetBinContent(igen+1)/normH->GetBinContent(1);
-
+		  
 		  TString tag=catsToFill[icat];	 
 		  all2dPlots["metptshapes_"+tag+"_gen"]->Fill(ev.met_pt[0],igen,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->Fill(mlb,igen,newWgt);
@@ -798,24 +828,22 @@ void RunTop16006(TString filename,
 	      varMet.SetPz(0.); varMet.SetE(varMet.Pt());
 	      // float varmt(computeMT(varlp4,varMet) );
 
-	      if(varBJets.size()+varLightJets.size()<1) continue;
-
 	      //ready to fill histograms
 	      float mlb(varBJets.size() ? (varBJets[0]+varlp4).M() : 0.);
 	      if(varBJets.size()>1) mlb=TMath::Min( (float) mlb, (float)(varBJets[1]+varlp4).M() );
-
+	      
 	      //balancing variable
 	      float varRMPF(0);
 	      TVector2 metT(varMet.Px(),varMet.Py());
 	      TVector2 visT(isZ ? vardilp4.Px() : varlp4.Px(), isZ ? vardilp4.Py() : varlp4.Py());
 	      varRMPF=1.0+(metT*visT)/visT.Mod2();
-	
+	      
 	      //update categories
 	      int nvarJetsCat=TMath::Min((int)(varBJets.size()+varLightJets.size()),(int)4);
 	      int nvarBtagsCat=TMath::Min((int)(varBJets.size()),(int)2);
 	      std::vector<TString> varcatsToFill(2,Form("%dj",nvarJetsCat));
 	      varcatsToFill[1]+= Form("%dt",nvarBtagsCat);
-
+	      
 	      for(size_t icat=0; icat<2; icat++)
                 {
 		  TString tag=varcatsToFill[icat];
@@ -828,7 +856,7 @@ void RunTop16006(TString filename,
 	    }
 	}
     }
-
+  
   //close input file
   f->Close();
 
