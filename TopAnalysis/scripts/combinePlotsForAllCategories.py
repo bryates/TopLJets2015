@@ -87,7 +87,7 @@ def doPlot(plotName,ch):
     plot=Plot('%s%s'%(ch,plotName))    
     plot.savelog=True
     plot.wideCanvas=True if plotName=='nbtags' else False
-    plot.ratiorange=(0.32,1.68)
+    plot.ratiorange=(0.76,1.24)
     plot.plotformats=['root','pdf','png']
     for key in  plotsPerProc:
         isData=True if 'Data' in plotsPerProc[key].GetTitle() else False

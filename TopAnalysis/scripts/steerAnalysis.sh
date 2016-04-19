@@ -81,7 +81,7 @@ case $WHAT in
 	    for j in ${b[@]}; do
 		echo -e "[ ${RED} Background estimation for ${i}${j} ${NC} ]"
 		python scripts/runQCDEstimation.py     --iso   ${outdir}/analysis_${i}${j}/plots/plotter.root --noniso ${outdir}/analysis_${i}noniso/plots/plotter.root    --out ${outdir}/analysis_${i}${j}/;
-		#python scripts/getWJetsScaleFactors.py --shape ${outdir}/analysis_${i}${j}/plots/plotter.root --norm   ${outdir}/analysis_${i}${j}/plots/syst_plotter.root --out ${outdir}/analysis_${i}${j}/;
+		python scripts/getWJetsScaleFactors.py --shape ${outdir}/analysis_${i}${j}/plots/syst_plotter.root --norm   ${outdir}/analysis_${i}${j}/plots/plotter.root --out ${outdir}/analysis_${i}${j}/;
 		echo " "
 	    done
 	done
@@ -105,11 +105,11 @@ case $WHAT in
     COMBPLOT)
 	fs=(e mu plus minus all)
 	plots=(nvtx lpt leta ht mttbar csv minmlb drlb metpt)
+	#plots=(metpt minmlb)
 	cats=(1j 2j 3j 4j 1j0t 1j1t 2j0t 2j1t 2j2t 3j0t 3j1t 3j2t 4j0t 4j1t 4j2t)
 	for f in ${fs[@]}; do
 	    for p in ${plots[@]}; do
-		for c in ${cats[@]}; do
-		    continue
+		for c in ${cats[@]}; do	
 		    python scripts/combinePlotsForAllCategories.py ${p}_${c} ${f};
 		done
 	    done
@@ -149,7 +149,7 @@ case $WHAT in
 		python scripts/createDataCard.py --signal ${signal} \
 		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
 		    -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
-		    -w ${outdir}/analysis_${i}${j}/.wjetsscalefactors.pck \
+		    #-w ${outdir}/analysis_${i}${j}/.wjetsscalefactors.pck \
 		    -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
 		cd ${outdir}/analysis_${i}${j}/datacard;
 		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat		

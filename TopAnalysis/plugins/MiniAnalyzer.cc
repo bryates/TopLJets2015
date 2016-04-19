@@ -101,11 +101,11 @@ private:
   edm::EDGetTokenT<GenEventInfoProduct> generatorToken_;
   edm::EDGetTokenT<GenEventInfoProduct> generatorevtToken_;
   edm::EDGetTokenT<LHEEventProduct> generatorlheToken_;
+  edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_, pseudoTopToken_;
-
-
+  
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
@@ -150,6 +150,7 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   generatorToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
   generatorevtToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator",""))),
   generatorlheToken_(consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer",""))),
+  generatorRunInfoToken_(consumes<LHERunInfoProduct,edm::InRun>({"externalLHEProducer"})),
   puToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"))),  
   genLeptonsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:leptons"))),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
@@ -676,7 +677,8 @@ MiniAnalyzer::endRun(const edm::Run & iRun, edm::EventSetup const & iSetup)
     
     edm::Handle<LHERunInfoProduct> lheruninfo;
     typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
-    iRun.getByLabel( "externalLHEProducer", lheruninfo );
+    iRun.getByToken(generatorRunInfoToken_, lheruninfo );
+    //iRun.getByLabel( "externalLHEProducer", lheruninfo );
     
     LHERunInfoProduct myLHERunInfoProduct = *(lheruninfo.product());
     for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); 
@@ -685,7 +687,7 @@ MiniAnalyzer::endRun(const edm::Run & iRun, edm::EventSetup const & iSetup)
       {
 	std::string tag("generator");
 	if(iter->tag()!="") tag+="_"+iter->tag();
-		
+	
 	std::vector<std::string> lines = iter->lines();
 	std::vector<std::string> prunedLines;
 	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) 
@@ -701,8 +703,9 @@ MiniAnalyzer::endRun(const edm::Run & iRun, edm::EventSetup const & iSetup)
 	  histContainer_[tag]->GetXaxis()->SetBinLabel(iLine+1,prunedLines.at(iLine).c_str());  
       }
   }
-  catch(...){
-    std::cout << "Failed to retrieve LHERunInfoProduct" << std::endl;
+  catch(std::exception &e){
+    std::cout << e.what() << endl
+	      << "Failed to retrieve LHERunInfoProduct" << std::endl;
   }
 }
 

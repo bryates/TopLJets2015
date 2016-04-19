@@ -17,12 +17,12 @@ def main():
     parser.add_option('--shape',  
                       dest='shape',  
                       help='name of the plotter with the sample used for shape',
-                      default='plotter.root',
+                      default='syst_plotter.root',
                       type='string')
     parser.add_option('--norm',  
                       dest='norm',
                       help='name of the plotter with the sample used for normalization',
-                      default='syst_plotter.root',
+                      default='plotter.root',
                       type='string')
     parser.add_option('--out',   
                       dest='outdir',      

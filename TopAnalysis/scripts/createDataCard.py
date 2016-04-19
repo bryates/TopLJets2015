@@ -313,7 +313,7 @@ def main():
             ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True ,  True, False),
             ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True, False),            
             #('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  False,  True, False),
-            ('Hadronizer',      {'tbart'         : ['tbartaMCNLO','tbartaMCNLOHerwig']},                                              False , True, True),
+            ('Hadronizer',      {'tbart'         : ['tbartHerwig']},                                                                 False , True, True),
             
             #QCD SCALES
             ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True, False),            
@@ -370,6 +370,7 @@ def main():
                     ybinUp, ybinDown = -1, -1
                     for ybin in xrange(1,genVarShapes[ iproc ].GetNbinsY()+1):
                         label = genVarShapes[ iproc ].GetYaxis().GetBinLabel(ybin)
+                        if iproc=='W' : print label
                         if procsToApply[iproc][0] in label : ybinDown=ybin
                         if procsToApply[iproc][1] in label : ybinUp=ybin
 
