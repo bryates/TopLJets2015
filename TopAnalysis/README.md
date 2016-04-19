@@ -86,7 +86,11 @@ If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads
 ```
 python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/076fb7a -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 ```
-After the jobs have run you can merge the outputs with
+If you want to suppress the mails sent automatically after job completion please do
+```
+export LSB_JOB_REPORT_MAIL=N
+```
+before submitting the jobs to the batch. After the jobs have run you can merge the outputs with
 ```
 ./scripts/mergeOutputs.py analysis_muplus
 ```
