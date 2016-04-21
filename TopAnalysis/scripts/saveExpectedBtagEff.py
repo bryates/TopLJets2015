@@ -14,8 +14,8 @@ def saveExpectedBtagEff(opt):
     #open a file
     input_list=getEOSlslist(directory=inputDir)
     data=ROOT.TChain('analysis/data')
-    #for i in xrange(0,min(3,len(input_list))):
-    for i in xrange(0,len(input_list)):
+    for i in xrange(0,min(5,len(input_list))):
+    #for i in xrange(0,len(input_list)):
         data.Add(input_list[i])
 
     print 'Projecting tagging efficiency from ',data.GetEntries(),' events'
