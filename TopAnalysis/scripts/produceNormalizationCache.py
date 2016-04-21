@@ -27,23 +27,24 @@ def main():
 
         #sum weight generator level weights
         wgtCounter=None
+        labelH=None
         for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
             fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
-            print f
             if wgtCounter is None:
                 wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
                 wgtCounter.SetDirectory(0)
                 wgtCounter.Reset('ICE')
                 labelH=fIn.Get('analysis/generator_initrwgt')
-                if labelH:
-                    for xbin in range(1,labelH.GetNbinsX()):
-                        label=labelH.GetXaxis().GetBinLabel(xbin)
-                        for tkn in ['<','>',' ','\"','/','weight','=']: label=label.replace(tkn,'')
-                        wgtCounter.GetXaxis().SetBinLabel(xbin+1,label)
+                if labelH : labelH.SetDirectory(0)                
             wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
             fIn.Close()
 
         if wgtCounter is None: continue
+        if labelH:
+            for xbin in range(1,labelH.GetNbinsX()):
+                label=labelH.GetXaxis().GetBinLabel(xbin)
+                for tkn in ['<','>',' ','\"','/','weight','=']: label=label.replace(tkn,'')
+                wgtCounter.GetXaxis().SetBinLabel(xbin+1,label)
 
         #invert to set normalization
         print sample,' initial sum of weights=',wgtCounter.GetBinContent(1)
