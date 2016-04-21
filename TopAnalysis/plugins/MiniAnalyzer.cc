@@ -79,7 +79,7 @@ using namespace pat;
 // class declaration
 //
 
-class MiniAnalyzer : public edm::EDAnalyzer {
+class MiniAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit MiniAnalyzer(const edm::ParameterSet&);
   ~MiniAnalyzer();
@@ -146,7 +146,7 @@ private:
 //
 // constructors and destructor
 //
-MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
+MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :  
   generatorToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
   generatorevtToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator",""))),
   generatorlheToken_(consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer",""))),
@@ -177,6 +177,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
   elTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("elTriggersToUse");
   muTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("muTriggersToUse");
+
+  usesResource("TFileService");
 
   for(Int_t igenjet=0; igenjet<5; igenjet++)
     {

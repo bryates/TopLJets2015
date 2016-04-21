@@ -29,6 +29,7 @@ def main():
         wgtCounter=None
         for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
             fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
+            print f
             if wgtCounter is None:
                 wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
                 wgtCounter.SetDirectory(0)
