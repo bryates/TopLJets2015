@@ -36,12 +36,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gtop_m",     ev.gtop_m,     "gtop_m[ngtop]/F");
 
   //final state
-  t->Branch("npf",       &ev.npf,       "npf/I");
-  t->Branch("gpf_id",      ev.gpf_id,     "gpf_id[npf]/I");
-  t->Branch("gpf_g",       ev.gpf_g,     "gpf_g[npf]/I");
-  t->Branch("gpf_pt",      ev.gpf_pt,     "gpf_pt[npf]/F");
-  t->Branch("gpf_eta",     ev.gpf_eta,    "gpf_eta[npf]/F");
-  t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[npf]/F");
+  t->Branch("ngpf",       &ev.ngpf,       "ngpf/I");
+  t->Branch("gpf_id",      ev.gpf_id,     "gpf_id[ngpf]/I");
+  t->Branch("gpf_g",       ev.gpf_g,     "gpf_g[ngpf]/I");
+  t->Branch("gpf_pt",      ev.gpf_pt,     "gpf_pt[ngpf]/F");
+  t->Branch("gpf_eta",     ev.gpf_eta,    "gpf_eta[ngpf]/F");
+  t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[ngpf]/F");
 
 
   //reco level event
@@ -142,7 +142,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("gtop_m",     ev.gtop_m);
 
   //final state
-  t->SetBranchAddress("npf",       &ev.npf);
+  t->SetBranchAddress("ngpf",       &ev.ngpf);
   t->SetBranchAddress("gpf_id",      ev.gpf_id);
   t->SetBranchAddress("gpf_g",       ev.gpf_g); 
   t->SetBranchAddress("gpf_pt",      ev.gpf_pt);

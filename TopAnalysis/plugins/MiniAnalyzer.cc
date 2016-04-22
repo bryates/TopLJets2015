@@ -41,6 +41,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
@@ -104,8 +105,10 @@ private:
   edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_, pseudoTopToken_;
-  
+  edm::EDGetTokenT<pat::PackedGenParticleCollection> genParticlesToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> pseudoTopToken_;
+
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
@@ -154,7 +157,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   puToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"))),  
   genLeptonsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:leptons"))),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
-  genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
+  genParticlesToken_(consumes<pat::PackedGenParticleCollection>(edm::InputTag("packedGenParticles"))),
+  prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
   pseudoTopToken_(consumes<reco::GenParticleCollection>(edm::InputTag("pseudoTop"))),
 
 
@@ -308,47 +312,53 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
   
   
-  //final state particles and top quarks (lastCopy)
-  ev_.ngtop=0; ev_.ngpf=0;
-  edm::Handle<reco::GenParticleCollection> genParticles;
+  //final state particles 
+  ev_.ngpf=0;
+  edm::Handle<pat::PackedGenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken_,genParticles);
   for (size_t i = 0; i < genParticles->size(); ++i)
     {
-      const GenParticle & genIt = (*genParticles)[i];
+      const pat::PackedGenParticle & genIt = (*genParticles)[i];
 
-      //tops (parton level)
-      if(genIt.isLastCopy() && abs(genIt.pdgId())==6)
-	{
-	  ev_.gtop_id[ ev_.ngtop ]  = genIt.pdgId();
-	  ev_.gtop_pt[ ev_.ngtop ]  = genIt.pt();
-	  ev_.gtop_eta[ ev_.ngtop ] = genIt.eta();
-	  ev_.gtop_phi[ ev_.ngtop ] = genIt.phi();
-	  ev_.gtop_m[ ev_.ngtop ]   = genIt.mass();
-	  ev_.ngtop++;
-	}
+      //this shouldn't be needed according to the workbook
+      //if(genIt.status()!=1) continue;
+      if(genIt.pt()<0.5 || fabs(genIt.eta())>2.5) continue;
       
-      //final state particles
-      if(genIt.status()==1)
+      ev_.gpf_id[ev_.ngpf]     = abs(genIt.pdgId())*genIt.charge();
+      ev_.gpf_g[ev_.ngpf]=-1;
+      for(std::map<const reco::Candidate *,int>::iterator it=jetConstsMap.begin();
+	  it!=jetConstsMap.end();
+	  it++)
 	{
-	  if(genIt.pt()<0.5 || fabs(genIt.eta())>2.5) continue;
-	  
-	  ev_.gpf_id[ev_.ngpf]     = abs(genIt.pdgId())*genIt.charge();
-	  ev_.gpf_g[ev_.ngpf]=-1;
-	  for(std::map<const reco::Candidate *,int>::iterator it=jetConstsMap.begin();
-	      it!=jetConstsMap.end();
-	      it++)
-	    {
-	      if(it->first->pdgId()==genIt.pdgId()) continue;
-	      if(deltaR( *(it->first), genIt)>0.01) continue; 
-	      ev_.gpf_g[ev_.ngpf]=it->second;
-	      break;
-	    }	    
-	  ev_.gpf_pt[ev_.ngpf]     = genIt.pt();
-	  ev_.gpf_eta[ev_.ngpf]    = genIt.eta();
-	  ev_.gpf_phi[ev_.ngpf]    = genIt.phi();
-	  ev_.ngpf++;
+	  if(it->first->pdgId()==genIt.pdgId()) continue;
+	  if(deltaR( *(it->first), genIt)>0.01) continue; 
+	  ev_.gpf_g[ev_.ngpf]=it->second;
+	  break;
 	}
+      ev_.gpf_pt[ev_.ngpf]     = genIt.pt();
+      ev_.gpf_eta[ev_.ngpf]    = genIt.eta();
+      ev_.gpf_phi[ev_.ngpf]    = genIt.phi();
+      ev_.ngpf++;    
     }
+
+  //top quarks (lastCopy)
+  edm::Handle<reco::GenParticleCollection> prunedGenParticles;
+  iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
+  ev_.ngtop=0; 
+  for (size_t i = 0; i < prunedGenParticles->size(); ++i)
+    {
+      const reco::GenParticle & genIt = (*prunedGenParticles)[i];
+      if(abs(genIt.pdgId())!=6) continue;
+      if(!genIt.isLastCopy()) continue;
+
+      ev_.gtop_id[ ev_.ngtop ]  = genIt.pdgId();
+      ev_.gtop_pt[ ev_.ngtop ]  = genIt.pt();
+      ev_.gtop_eta[ ev_.ngtop ] = genIt.eta();
+      ev_.gtop_phi[ ev_.ngtop ] = genIt.phi();
+      ev_.gtop_m[ ev_.ngtop ]   = genIt.mass();
+      ev_.ngtop++;
+    }
+    
 
   //pseudo-tops 
   edm::Handle<reco::GenParticleCollection> pseudoTop;
