@@ -25,8 +25,8 @@ struct MiniEvent_t
   Float_t g_pt[500],g_eta[500],g_phi[500],g_m[500]; 
   Int_t gtop_id[15];
   Float_t gtop_pt[15],gtop_eta[15],gtop_phi[15],gtop_m[15]; 
-  Int_t gpf_id[5000],gpf_g[5000];
-  Float_t gpf_pt[5000],gpf_eta[5000],gpf_phi[5000];
+  Int_t gpf_id[5000],gpf_c[5000],gpf_g[5000];
+  Float_t gpf_pt[5000],gpf_eta[5000],gpf_phi[5000],gpf_m[5000];
 
   //reco level event
   Int_t nvtx;
@@ -48,8 +48,8 @@ struct MiniEvent_t
 
   //PF candidates
   Int_t npf,pf_j[5000];
-  Int_t pf_id[5000];
-  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_puppiWgt[5000];
+  Int_t pf_id[5000],pf_c[5000];
+  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000];
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);
