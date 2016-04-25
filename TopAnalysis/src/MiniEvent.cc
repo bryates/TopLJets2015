@@ -26,6 +26,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("g_pt",      ev.g_pt,     "g_pt[ng]/F");
   t->Branch("g_eta",     ev.g_eta,    "g_eta[ng]/F");
   t->Branch("g_phi",     ev.g_phi,    "g_phi[ng]/F");
+  t->Branch("g_m",       ev.g_m,      "g_m[ng]/F");
 
   //top (lastCopy and pseudo-top)
   t->Branch("ngtop",     &ev.ngtop,      "ngtop/I");
@@ -38,11 +39,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   //final state
   t->Branch("ngpf",       &ev.ngpf,       "ngpf/I");
   t->Branch("gpf_id",      ev.gpf_id,     "gpf_id[ngpf]/I");
-  t->Branch("gpf_g",       ev.gpf_g,     "gpf_g[ngpf]/I");
+  t->Branch("gpf_c",       ev.gpf_c,      "gpf_c[ngpf]/I");
+  t->Branch("gpf_g",       ev.gpf_g,      "gpf_g[ngpf]/I");
   t->Branch("gpf_pt",      ev.gpf_pt,     "gpf_pt[ngpf]/F");
   t->Branch("gpf_eta",     ev.gpf_eta,    "gpf_eta[ngpf]/F");
   t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[ngpf]/F");
-
+  t->Branch("gpf_m",       ev.gpf_m,      "gpf_m[ngpf]/F");
 
   //reco level event
   t->Branch("nvtx",      &ev.nvtx,      "nvtx/I");
@@ -61,7 +63,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_eta",      ev.l_eta,     "l_eta[nl]/F");
   t->Branch("l_phi",      ev.l_phi,     "l_phi[nl]/F");
   t->Branch("l_mass",     ev.l_mass,    "l_mass[nl]/F");
-  t->Branch("l_chargedHadronIso", ev.l_chargedHadronIso, "l_miniIso[nl]/F");
+  t->Branch("l_chargedHadronIso", ev.l_chargedHadronIso, "l_chargedHadronIso[nl]/F");
   t->Branch("l_miniIso",          ev.l_miniIso,          "l_miniIso[nl]/F");
   t->Branch("l_relIso",           ev.l_relIso,           "l_relIso[nl]/F");
   t->Branch("l_ip3d",             ev.l_ip3d,             "l_ip3d[nl]/F");
@@ -92,18 +94,20 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_pid",         ev.j_pid,     "j_pid[nj]/I");
 
   //pf candidates (only charged if outside jets)
-  t->Branch("npf",        &ev.npf,      "npf/I");
-  t->Branch("pf_j",       ev.pf_j,      "pf_j[npf]/I");
-  t->Branch("pf_id",      ev.pf_id,     "pf_id[npf]/I");
-  t->Branch("pf_pt",      ev.pf_pt,     "pf_pt[npf]/F");
-  t->Branch("pf_eta",      ev.pf_eta,     "pf_eta[npf]/F");
-  t->Branch("pf_phi",      ev.pf_phi,     "pf_phi[npf]/F");
-  t->Branch("pf_puppiWgt",        ev.pf_puppiWgt,     "pf_puppiWgt[npf]/F");
+  t->Branch("npf",        &ev.npf,         "npf/I");
+  t->Branch("pf_j",        ev.pf_j,        "pf_j[npf]/I");
+  t->Branch("pf_id",       ev.pf_id,       "pf_id[npf]/I");
+  t->Branch("pf_c",        ev.pf_c,        "pf_c[npf]/I");
+  t->Branch("pf_pt",       ev.pf_pt,       "pf_pt[npf]/F");
+  t->Branch("pf_eta",      ev.pf_eta,      "pf_eta[npf]/F");
+  t->Branch("pf_phi",      ev.pf_phi,      "pf_phi[npf]/F");
+  t->Branch("pf_m",        ev.pf_m,        "pf_m[npf]/F");
+  t->Branch("pf_puppiWgt", ev.pf_puppiWgt, "pf_puppiWgt[npf]/F");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
-  t->Branch("met_pt",    ev.met_pt,    "met_pt[nmet]/F");
-  t->Branch("met_phi",   ev.met_phi,   "met_phi[nmet]/F");
+  t->Branch("met_pt",     ev.met_pt,   "met_pt[nmet]/F");
+  t->Branch("met_phi",    ev.met_phi,  "met_phi[nmet]/F");
 }
 
 //
@@ -132,6 +136,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->SetBranchAddress("g_pt",      ev.g_pt);
   t->SetBranchAddress("g_eta",     ev.g_eta);
   t->SetBranchAddress("g_phi",     ev.g_phi);
+  t->SetBranchAddress("g_m",       ev.g_m);
 
   //top (lastCopy and pseudo-top)
   t->SetBranchAddress("ngtop",     &ev.ngtop);
@@ -144,11 +149,12 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
   //final state
   t->SetBranchAddress("ngpf",       &ev.ngpf);
   t->SetBranchAddress("gpf_id",      ev.gpf_id);
+  t->SetBranchAddress("gpf_c",       ev.gpf_c);
   t->SetBranchAddress("gpf_g",       ev.gpf_g); 
   t->SetBranchAddress("gpf_pt",      ev.gpf_pt);
   t->SetBranchAddress("gpf_eta",     ev.gpf_eta);
   t->SetBranchAddress("gpf_phi",     ev.gpf_phi);
-
+  t->SetBranchAddress("gpf_m",       ev.gpf_m);
 
   //reco level event
   t->SetBranchAddress("nvtx",      &ev.nvtx);
@@ -199,12 +205,14 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev)
 
   //pf candidates (only charged if outside jets)
   t->SetBranchAddress("npf",        &ev.npf);
-  t->SetBranchAddress("pf_j",       ev.pf_j);
-  t->SetBranchAddress("pf_id",      ev.pf_id);
-  t->SetBranchAddress("pf_pt",      ev.pf_pt);
+  t->SetBranchAddress("pf_j",        ev.pf_j);
+  t->SetBranchAddress("pf_id",       ev.pf_id);
+  t->SetBranchAddress("pf_c",        ev.pf_c);
+  t->SetBranchAddress("pf_pt",       ev.pf_pt);
   t->SetBranchAddress("pf_eta",      ev.pf_eta);
   t->SetBranchAddress("pf_phi",      ev.pf_phi);
-  t->SetBranchAddress("pf_puppiWgt",        ev.pf_puppiWgt);
+  t->SetBranchAddress("pf_m",        ev.pf_m);
+  t->SetBranchAddress("pf_puppiWgt", ev.pf_puppiWgt);
 
   //MET
   t->SetBranchAddress("nmet",      &ev.nmet);
