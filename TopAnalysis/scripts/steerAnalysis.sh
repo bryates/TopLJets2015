@@ -28,7 +28,7 @@ mass=${4}
 if [[ "${mass}" == "" ]]; then mass=0; fi
 
 queue=8nh
-eosdir=/store/cmst3/user/psilva/LJets2015/076fb7a
+eosdir=/store/cmst3/user/psilva/LJets2015/aadebef
 outdir=~/work/LJets2015-arcrev
 wwwdir=~/www/LJets2015-arcrev
 lumi=2267.84
