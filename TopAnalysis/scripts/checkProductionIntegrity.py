@@ -114,7 +114,7 @@ def main():
 
             print 'Crab outputs may now be found in %s' % newDir
 
-    Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
     print '-'*50
     print 'All done. In case errors were found check that the crab output structure is '
     print '<outLFNDirBase>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>/<file-name>'
