@@ -1,4 +1,5 @@
 import os
+import ROOT
 import sys
 import optparse
 from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
@@ -92,6 +93,16 @@ def main():
                         for f in split_file_lists[ilist]:                            
                             toAdd += 'eos/cms/%s '%f 
 
+                        finalOutput='eos/cms/%s/%s'%(newDir,mergedFileName.replace('/tmp/',''))
+                        fIn=ROOT.TFile.Open(finalOutput)
+                        try:
+                            if fIn or not fIn.IsZombie():
+                                print '%s already in EOS, skipping'%finalOutput
+                                fIn.Close()
+                                continue
+                        except:
+                            pass
+                        
                         os.system('hadd -f %s'%toAdd)
                         os.system('cp %s eos/cms/%s/'%(mergedFileName,newDir))
                         os.system('rm %s'%mergedFileName)

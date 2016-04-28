@@ -324,7 +324,7 @@ void RunTop16006(TString filename,
   for (Int_t iev=0;iev<nentries;iev++)
     {
       t->GetEntry(iev);
-      if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
+      if(iev%10000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
 
       //select 1 good lepton
       std::vector<int> tightLeptonsIso, tightLeptonsNonIso, vetoLeptons;

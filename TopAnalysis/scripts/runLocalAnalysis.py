@@ -10,7 +10,14 @@ from TopLJets2015.TopAnalysis.storeTools import *
 Wrapper to be used when run in parallel
 """
 def RunMethodPacked(args):
+
     method,inF,outF,channel,charge,wgtH,flav,runSysts=args
+    method=method if method.find('::')<0 else method.split('::')[1]
+    print 'Running ',method,' on ',inF
+    print 'Output file',outF
+    print 'Selection ch=',channel,' charge=',charge,' flavSplit=',flav,' systs=',runSysts
+    if wgtH : print 'Weight histogram is available'
+
     try:
         getattr(ROOT,method)(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
     except :
@@ -41,12 +48,11 @@ def main():
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                                default=0,    type='int')
     (opt, args) = parser.parse_args()
 
-    src,method=opt.method.split('::')
-
     #compile macro
     ROOT.FWLiteEnabler.enable()
     ROOT.gSystem.Load('libTopLJets2015TopAnalysis.so')
-    ROOT.gROOT.LoadMacro('src/%s.cc+'%src)
+    srcCode=opt.method.split('::')[0]
+    ROOT.gROOT.LoadMacro('src/%s.cc+'%srcCode)
     
     #parse selection list
     onlyList=[]
@@ -77,7 +83,7 @@ def main():
             if opt.tag in genWgts:
                 wgtH=genWgts[opt.tag]
         print inF,outF,opt.channel,opt.charge,wgtH,opt.flav,opt.runSysts
-        task_list.append( (method,inF,outF,opt.channel,opt.charge,wgtH,opt.flav,opt.runSysts) )
+        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,wgtH,opt.flav,opt.runSysts) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')
@@ -104,14 +110,13 @@ def main():
                 #    for flav in [0,1,4,5]:
                 #        task_list.append( (method,inF,outF,opt.channel,opt.charge,wgtH,flav,opt.runSysts) )
                 #else:
-                task_list.append( (method,inF,outF,opt.channel,opt.charge,wgtH,0,opt.runSysts) )
+                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,wgtH,0,opt.runSysts) )
 
     #run the analysis jobs
     if opt.queue=='local':
         print 'launching %d tasks in %d parallel jobs'%(len(task_list),opt.njobs)
         if opt.njobs == 0:
-            for method,inF,outF,channel,charge,wgtH,flav,runSysts in task_list:
-                getattr(ROOT,method)(str(inF),str(outF),channel,charge,flav,wgtH,runSysts)
+            for args in task_list: RunMethodPacked(args)
         else:
             from multiprocessing import Pool
             pool = Pool(opt.njobs)
@@ -119,8 +124,8 @@ def main():
     else:
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)
         cmsswBase=os.environ['CMSSW_BASE']
-        for inF,outF,channel,charge,tag,flav,runSysts in task_list:
-            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --tag %s --flav %d' % (cmsswBase,inF,outF,charge,channel,tag,flav)
+        for method,inF,outF,channel,charge,tag,flav,runSysts in task_list:
+            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,tag,flav,method)
             if runSysts : localRun += ' --runSysts'            
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)
             os.system(cmd)
