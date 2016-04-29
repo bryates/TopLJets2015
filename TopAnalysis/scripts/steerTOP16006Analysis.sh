@@ -46,8 +46,8 @@ case $WHAT in
 	echo -e "[ ${RED} Submitting the selection for the signal regions ${NC} ]"
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_muplus   --ch 13   --charge 1
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_muminus  --ch 13   --charge -1
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eplus   --ch 11   --charge 1
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eminus  --ch 11   --charge -1
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eplus   --ch 11   --charge 1 
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eminus  --ch 11   --charge -1 
 	
 	echo -e "[ ${RED} Submitting the selection for the control regions ${NC} ]"
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue}            -o ${outdir}/analysis_munoniso --ch 1300
@@ -87,7 +87,7 @@ case $WHAT in
 	done
 	;;
     FINALPLOT )
-	a=(munoniso enoniso muplus muminus eplus eminus z)
+	a=(munoniso enoniso muplus muminus eplus eminus) # z)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ \
@@ -144,8 +144,10 @@ case $WHAT in
 		python scripts/createDataCard.py --signal ${signal} \
 		    -i ${outdir}/analysis_${i}${j}/plots/${sigplotter} --systInput ${outdir}/analysis_${i}${j}/plots/syst_plotter.root \
 		    -q ${outdir}/analysis_${i}${j}/.qcdscalefactors.pck \
-		    #-w ${outdir}/analysis_${i}${j}/.wjetsscalefactors.pck \
 		    -d nbtags -o ${outdir}/analysis_${i}${j}/datacard;
+
+		    #-w ${outdir}/analysis_${i}${j}/.wjetsscalefactors.pck
+
 		cd ${outdir}/analysis_${i}${j}/datacard;
 		combineCards.py ${i}${j}1j=datacard_1j.dat ${i}${j}2j=datacard_2j.dat ${i}${j}3j=datacard_3j.dat ${i}${j}4j=datacard_4j.dat > datacard.dat		
 		chDataCards="${i}${j}=../../analysis_${i}${j}/datacard/datacard.dat ${chDataCards}"
@@ -199,6 +201,7 @@ case $WHAT in
 		    title="e^{-}";
 		fi
 		echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
+		continue
 		python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${i}${j}/datacard/datacard.dat -o ${outdir}/analysis_${i}${j}/datacard; 
 	    done
 	    
@@ -208,6 +211,7 @@ case $WHAT in
 		    title="e"
 	    fi
 	    echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
+	    continue
             python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${i}/datacard/datacard.dat -o ${outdir}/analysis_${i}/datacard;
 
 	done
@@ -219,12 +223,13 @@ case $WHAT in
                 title="e^{-}/#mu^{-}";
             fi
 	    echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
+	    continue
             python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${j}/datacard/datacard.dat -o ${outdir}/analysis_${j}/datacard;
 	done
 
 	#final combination
 	echo -e "[ ${RED} Running the final ${NC} ]"
-        python scripts/fitCrossSection.py "e/#mu"=${outdir}/analysis/datacard/datacard.dat -o ${outdir}/analysis/datacard;
+        python scripts/fitCrossSection.py "e/#mu"=${outdir}/analysis/datacard/datacard.dat -o ${outdir}/analysis/datacard --unblind;
 
 	;;
     SHAPE )
@@ -310,6 +315,7 @@ case $WHAT in
 		    title="e^{-}";
 		fi
 		echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
+		continue
 		python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${i}${j}/datacard_shape/datacard.dat -o ${outdir}/analysis_${i}${j}/datacard_shape; 
 	    done
 	    
@@ -318,8 +324,8 @@ case $WHAT in
 	    if [ "${i}" = "e" ]; then
 		    title="e"
 	    fi
-	    echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
-            python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${i}/datacard_shape/datacard.dat -o ${outdir}/analysis_${i}/datacard_shape;
+	    #echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
+            #python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${i}/datacard_shape/datacard.dat -o ${outdir}/analysis_${i}/datacard_shape;
 
 	done
 
@@ -329,13 +335,14 @@ case $WHAT in
 	    if [ "${j}" = "minus" ]; then
                 title="e^{-}/#mu^{-}";
             fi
+	    continue
 	    echo -e "[ ${RED} Running the fit for ${title} ${NC} ]"
             python scripts/fitCrossSection.py "${title}"=${outdir}/analysis_${j}/datacard_shape/datacard.dat -o ${outdir}/analysis_${j}/datacard_shape;
 	done
 
 	#final cobmination
 	echo -e "[ ${RED} Running the final ${NC} ]"
-        python scripts/fitCrossSection.py "e/#mu"=${outdir}/analysis/datacard_shape/datacard.dat -o ${outdir}/analysis/datacard_shape;
+        python scripts/fitCrossSection.py "e/#mu"=${outdir}/analysis/datacard_shape/datacard.dat -o ${outdir}/analysis/datacard_shape --unblind;
 
 	;;
     

@@ -278,8 +278,8 @@ void RunTop16006(TString filename,
 		      = new TH2F("nbtagsshapes_"+tag+"_gen", ";Category;Events" , 3, 0.,3.,   nGenSysts,0,nGenSysts);		  
 		  for(Int_t igen=0; igen<nGenSysts; igen++)
 		    {
-		      TString label(normH->GetXaxis()->GetBinLabel(igen+1));
-		      all2dPlots["metptshapes_"+tag+"_gen"]    ->GetYaxis()->SetBinLabel(igen+1,label);
+		      TString label(normH->GetXaxis()->GetBinLabel(igen+3));
+		      all2dPlots["metptshapes_"+tag+"_gen"]  ->GetYaxis()->SetBinLabel(igen+1,label);
 		      all2dPlots["minmlbshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
 		      all2dPlots["RMPFshapes_"+tag+"_gen"]->GetYaxis()->SetBinLabel(igen+1,label);
 		      if(itag!=-1) continue;
@@ -657,8 +657,8 @@ void RunTop16006(TString filename,
 		  
 		  //for signal we only consider shapes and acceptance effects as it will be fit
 		  if(isTTbar) 
-		    newWgt *= normH->GetBinContent(igen+1)/normH->GetBinContent(1);
-		  
+		    newWgt *= normH->GetBinContent(igen+2)/normH->GetBinContent(2);
+
 		  TString tag=catsToFill[icat];	 
 		  all2dPlots["metptshapes_"+tag+"_gen"]->Fill(ev.met_pt[0],igen,newWgt);
 		  all2dPlots["minmlbshapes_"+tag+"_gen"]->Fill(mlb,igen,newWgt);
