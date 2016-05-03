@@ -46,8 +46,8 @@ case $WHAT in
 	echo -e "[ ${RED} Submitting the selection for the signal regions ${NC} ]"
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_muplus   --ch 13   --charge 1
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_muminus  --ch 13   --charge -1
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eplus   --ch 11   --charge 1 
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eminus  --ch 11   --charge -1 
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eplus   --ch 11   --charge 1
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} --runSysts -o ${outdir}/analysis_eminus  --ch 11   --charge -1
 	
 	echo -e "[ ${RED} Submitting the selection for the control regions ${NC} ]"
 	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue}            -o ${outdir}/analysis_munoniso --ch 1300
