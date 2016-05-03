@@ -314,10 +314,14 @@ def main():
             ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True, False),            
             #('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  False,  True, False),
             ('Hadronizer',      {'tbart'         : ['tbartHerwig']},                                                                 False , True, True),
-            
+
+            #tWinterference
+            ('tWttinterf',       {'tW'            : ['tWDS']},                                                                        False , True, True),            
+
             #QCD SCALES
             ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True, False),            
 
+            #Madgraph W+jets
             #('wFactScale',           { 'Wl': ['id3mur1muf0.5','id2mur1muf2'], 
             #                           'Wc': ['id3mur1muf0.5','id2mur1muf2'], 
             #                           'Wb': ['id3mur1muf0.5','id2mur1muf2'] },  False, False),
@@ -328,9 +332,10 @@ def main():
             #                           'Wc': ['id9mur0.5muf0.5','id5mur2muf2'],
             #                           'Wb': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False),
 
-            #('wFactScale',           { 'W': ['id3mur1muf0.5','id2mur1muf2'] },    False, False, False),
-            #('wRenScale',            { 'W': ['id7mur0.5muf1','id4mur2muf1'] },    False, False, False),
-            ('wCombScale',           { 'W': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False, False),
+            #amc@NLO W+jets
+            ('wFactScale',           { 'W': ['id1003muR0.10000E+01muF0.50000E+00','id1002muR0.10000E+01muF0.20000E+01'] },    False, False, False),
+            ('wRenScale',            { 'W': ['id1007muR0.50000E+00muF0.10000E+01','id1004muR0.20000E+01muF0.10000E+01'] },    False, False, False),
+            ('wCombScale',           { 'W': ['id1009muR0.50000E+00muF0.50000E+00','id1005muR0.20000E+01muF0.20000E+01'] },  False, False, False),
 
             ('ttFactScale',          { 'tbart': ['muR1muF0.5hdampmt172.5','muR1muF2hdampmt172.5'] },     False , False, False),
             ('ttRenScale',           { 'tbart': ['muR0.5muF1hdampmt172.5','muR2muF1hdampmt172.5'] },     False , False, False),
@@ -370,7 +375,6 @@ def main():
                     ybinUp, ybinDown = -1, -1
                     for ybin in xrange(1,genVarShapes[ iproc ].GetNbinsY()+1):
                         label = genVarShapes[ iproc ].GetYaxis().GetBinLabel(ybin)
-                        if iproc=='W' : print label
                         if procsToApply[iproc][0] in label : ybinDown=ybin
                         if procsToApply[iproc][1] in label : ybinUp=ybin
 

@@ -70,14 +70,14 @@ def prepareFitScript(datacard,POIs,unblind=False):
                             
         fitScript.write('\n## function of %s\n'%parameter)
         fitScript.write('echo \"Running likelihood scan for %s\"\n'%parameter)
-        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=100 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
+        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=50 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
         fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_%s.root\n'%parameter)
-        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=100 %s %s -m 0 -S 0\n'%(parameter,rangeOpt,poiOpt))
+        fitScript.write('combine workspace.root -M MultiDimFit -P %s -t -1 --expectSignal=1 --algo=grid --points=50 %s %s -m 0 -S 0\n'%(parameter,rangeOpt,poiOpt))
         fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_stat_%s.root\n'%parameter)
         if unblind:
-            fitScript.write('combine workspace.root -M MultiDimFit -P %s --algo=grid --points=200 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
+            fitScript.write('combine workspace.root -M MultiDimFit -P %s --algo=grid --points=50 %s %s -m 0\n'%(parameter,rangeOpt,poiOpt))
             fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_%s.root\n'%parameter)
-            fitScript.write('combine workspace.root -M MultiDimFit -P %s --algo=grid --points=200 %s %s -m 0 -S 0\n'%(parameter,rangeOpt,poiOpt))
+            fitScript.write('combine workspace.root -M MultiDimFit -P %s --algo=grid --points=50 %s %s -m 0 -S 0\n'%(parameter,rangeOpt,poiOpt))
             fitScript.write('mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_stat_%s.root\n'%parameter)
 
     fitScript.write('\n# 2D likelihood scans\n')

@@ -79,7 +79,7 @@ def main():
         #data in the sideband
         extraSel=''
         if sel in ['1j', '2j'] : extraSel='1t'
-        if sel in ['0j','3j','4j']  : extraSel='0t'
+        if sel in ['3j','4j']  : extraSel='0t'
 
         dataNonIso,      sumMCNonIso, _  = getTemplates(fIn=fNonIso, dist='metpt_%s%s'%(sel,extraSel), tag='noniso')
         dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s%s'%(sel,extraSel),    tag='nonisoalt')

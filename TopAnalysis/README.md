@@ -34,11 +34,10 @@ Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki
 ```
 source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
-As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis run 
+As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/checkProductionIntegrity.py -i /store/group/phys_top/psilva/076fb7a -o /store/cmst3/user/psilva/LJets2015/076fb7a
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva/8c1e7c9 -o /store/cmst3/user/psilva/LJets2015/8c1e7c9
 ```
-If "--cleanup" is passed, the original crab directories in EOS are removed.
 
 ## Preparing the analysis 
 
@@ -62,11 +61,13 @@ python scripts/runPileupEstimation.py --json data/SingleElectron_lumiSummary.jso
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
-python scripts/saveExpectedBtagEff.py 
+for i in "" "_herwig" "_scaledown" "_scaleup"; do
+    python scripts/saveExpectedBtagEff.py -i /store/cmst3/user/psilva/LJets2015/8c1e7c9/MC13TeV_TTJets${i} -o data/expTageff${i}.root;
+done
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```
-python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/076fb7a
+python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/8c1e7c9
 ```
 You're now ready to start locally the analysis.
 

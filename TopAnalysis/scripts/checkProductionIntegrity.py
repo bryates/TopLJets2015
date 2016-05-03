@@ -1,4 +1,5 @@
 import os
+import ROOT
 import sys
 import optparse
 from TopLJets2015.TopAnalysis.storeTools import getEOSlslist
@@ -18,11 +19,14 @@ def main():
     parser.add_option('-o', '--outDir',      dest='outDir',      help='output directory with files',              default=None,   type='string')
     parser.add_option('-c', '--cleanup',     dest='cleanup',     help='removes original crab directory',          default =False, action='store_true')
     parser.add_option(      '--nocheck',     dest='nocheck',     help='do not prompt user',                       default=False,  action='store_true')
+    parser.add_option(      '--only',        dest='only',        help='only this tag',                            default=None,   type='string')
     (opt, args) = parser.parse_args()
 
     Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
 
+    #prepare output directory
     if opt.outDir is None: opt.outDir=opt.inDir
+    Popen([eos_cmd, 'mkdir', '/eos/cms/'+opt.outDir],stdout=PIPE).communicate()
 
     dset_list=getEOSlslist(directory=opt.inDir,prepend='')
     for dset in dset_list:
@@ -34,7 +38,14 @@ def main():
             if not 'crab' in pubDir:
                 print 'Ambiguity found @ <publication-name> for <primary-dataset>=%s , bailing out'%dsetname
                 continue
+
+            #select if it doesn't match the required selection
             pub=pubDir.split('/crab_')[-1]
+            if opt.only:
+                if pub!=opt.only: 
+                    continue
+
+            #check if it's an extension
             pubExt=None
             try:
                 extSplit=pub.split('_ext')
@@ -44,7 +55,6 @@ def main():
             except:
                 print 'Core sample (no extension)'
                 
-
             time_list=getEOSlslist(directory=pubDir,prepend='')
             if len(time_list)!=1:
                 print 'Ambiguity found @ <time-stamp> for <primary-dataset>=%s , bailing out'%dsetname
@@ -61,7 +71,7 @@ def main():
             if not opt.nocheck:
                 choice = raw_input('Will move to %s current output directory. [y/n] ?' % newDir ).lower()
                 if not 'y' in choice : continue
-                
+            
             Popen([eos_cmd, 'mkdir', '/eos/cms/'+newDir],stdout=PIPE).communicate()
     
             moveIndividualFiles=True
@@ -83,6 +93,16 @@ def main():
                         for f in split_file_lists[ilist]:                            
                             toAdd += 'eos/cms/%s '%f 
 
+                        finalOutput='eos/cms/%s/%s'%(newDir,mergedFileName.replace('/tmp/',''))
+                        fIn=ROOT.TFile.Open(finalOutput)
+                        try:
+                            if fIn or not fIn.IsZombie():
+                                print '%s already in EOS, skipping'%finalOutput
+                                fIn.Close()
+                                continue
+                        except:
+                            pass
+                        
                         os.system('hadd -f %s'%toAdd)
                         os.system('cp %s eos/cms/%s/'%(mergedFileName,newDir))
                         os.system('rm %s'%mergedFileName)
@@ -105,7 +125,7 @@ def main():
 
             print 'Crab outputs may now be found in %s' % newDir
 
-    Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
     print '-'*50
     print 'All done. In case errors were found check that the crab output structure is '
     print '<outLFNDirBase>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>/<file-name>'
