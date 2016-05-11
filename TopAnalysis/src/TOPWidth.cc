@@ -9,6 +9,7 @@
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/TOP-16-006.h"
+#include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
@@ -36,6 +37,16 @@ void RunTopWidth(TString filename,
 
   bool isTTbar( filename.Contains("_TTJets") );
 
+  //prepare output
+  TopWidthEvent_t twev;
+  TString baseName=gSystem->BaseName(outname); 
+  TString dirName=gSystem->DirName(outname);
+  TFile *fOut=TFile::Open(dirName+"/"+baseName,"RECREATE");
+  fOut->cd();
+  TTree *outT=new TTree("twev","twev");
+  createTopWidthEventTree(outT,twev);
+  outT->SetDirectory(fOut);
+
   //READ TREE FROM FILE
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -46,8 +57,10 @@ void RunTopWidth(TString filename,
   attachToMiniEventTree(t,ev);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
-  cout << "...producing " << outname << " from " << nentries << " events" << endl;
+  bool requireEtriggerOnly(false);
+  if(ev.isData && filename.Contains("SingleElectron")) requireEtriggerOnly=true;
 
+  cout << "...producing " << outname << " from " << nentries << " events" << endl;
 
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
@@ -141,35 +154,18 @@ void RunTopWidth(TString filename,
       TString tag(lfsVec[ilfs]);
       allPlots["nvtx_"+tag]  = new TH1F("nvtx_"+tag,";Vertex multiplicity;Events",30,0,30);
       allPlots["njets_"+tag]  = new TH1F("njets_"+tag,";Jet multiplicity;Events",5,0,5);
-
-      allPlots["mlbwa_"+tag+"_Mlb_min"]  = new TH1F("mlbwa_"+tag+"_Mlb_min",";min Mass(lepton,b) [GeV];Events",70,0,350);
-      allPlots["mlbwa_"+tag+"_Mlb_inc"]  = new TH1F("mlbwa_"+tag+"_Mlb_inc",";inc Mass(lepton,b) [GeV];Events",70,0,350);
-      allPlots["mlbwa_"+tag+"_Mlb_mdr"]  = new TH1F("mlbwa_"+tag+"_Mlb_mdr",";mdr Mass(lepton,b) [GeV];Events",70,0,350);
-      
-      allPlots["mlbwa_"+tag+"_lbmatch_min"]  = new TH1F("mlbwa_"+tag+"_lbmatch_min",";Category;Events",3,0,3);
-      allPlots["mlbwa_"+tag+"_lbmatch_min"]->GetXaxis()->SetBinLabel(1, "correct");
-      allPlots["mlbwa_"+tag+"_lbmatch_min"]->GetXaxis()->SetBinLabel(2, "incorrect");
-      allPlots["mlbwa_"+tag+"_lbmatch_min"]->GetXaxis()->SetBinLabel(3, "mismatch");
-      
-      allPlots["mlbwa_"+tag+"_lbmatch_mdr"]  = new TH1F("mlbwa_"+tag+"_lbmatch_mdr",";Category;Events",3,0,3);
-      allPlots["mlbwa_"+tag+"_lbmatch_mdr"]->GetXaxis()->SetBinLabel(1, "correct");
-      allPlots["mlbwa_"+tag+"_lbmatch_mdr"]->GetXaxis()->SetBinLabel(2, "incorrect");
-      allPlots["mlbwa_"+tag+"_lbmatch_mdr"]->GetXaxis()->SetBinLabel(3, "mismatch");
-      
-      allPlots["mlbwa_"+tag+"_lbmatch_inc"]  = new TH1F("mlbwa_"+tag+"_lbmatch_inc",";Category;Events",3,0,3);
-      allPlots["mlbwa_"+tag+"_lbmatch_inc"]->GetXaxis()->SetBinLabel(1, "correct");
-      allPlots["mlbwa_"+tag+"_lbmatch_inc"]->GetXaxis()->SetBinLabel(2, "incorrect");
-      allPlots["mlbwa_"+tag+"_lbmatch_inc"]->GetXaxis()->SetBinLabel(3, "mismatch");
-      
-      all2dPlots["mlbwa_"+tag+"_Tcmp_min"] = new TH2F("mlbwa_"+tag+"_Tcmp_min", 
-						      "top Mass(lepton,b) [GeV];min mass [GeV]",
-						      70, 0, 350, 75, 0, 375);
-      all2dPlots["mlbwa_"+tag+"_Tcmp_mdr"] = new TH2F("mlbwa_"+tag+"_Tcmp_mdr", 
-						      "top Mass(lepton,b) [GeV];mdr mass [GeV]",
-						      70, 0, 350, 75, 0, 375);
-      all2dPlots["mlbwa_"+tag+"_Tcmp_inc"] = new TH2F("mlbwa_"+tag+"_Tcmp_inc", 
-						      "top Mass(lepton,b) [GeV];inc mass [GeV]",
-						      70, 0, 350, 75, 0, 375);
+      for(int i=0; i<2; i++)
+	{
+	  TString pf(Form("l%d",i));	  
+	  allPlots[pf+"pt_"+tag]  = new TH1F(pf+"pt_"+tag,";Lepton p_{t} [GeV];Events",50,0,250);
+	  allPlots[pf+"eta_"+tag]  = new TH1F(pf+"eta_"+tag,";Lepton pseudo-rapidity;Events",50,0,2.5);
+	}
+      for(int i=0; i<6; i++)
+	{
+	  TString pf(Form("j%d",i));
+	  allPlots[pf+"pt_"+tag]  = new TH1F(pf+"pt_"+tag,";Jet transverse momentum [GeV];Events",50,0,250);
+	  allPlots[pf+"eta_"+tag]  = new TH1F(pf+"eta_"+tag,";Jet pseudo-rapidity;Events",50,0,4.7);
+	}
     }
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
   for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
@@ -178,7 +174,17 @@ void RunTopWidth(TString filename,
   for (Int_t iev=0;iev<nentries;iev++)
     {
       t->GetEntry(iev);
+      resetTopWidthEvent(twev);
       if(iev%10000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
+
+      //account for pu weights and effect on normalization
+      float puWeight(1.0);
+      if(!ev.isData) 
+	{
+	  puWeight=puWgtGr[0]->Eval(ev.putrue);  
+	  allPlots["puwgtctr"]->Fill(0.,1.0);
+	  allPlots["puwgtctr"]->Fill(1.,puWeight);
+	}
 
       //select 1 good lepton
       std::vector<int> tightLeptons,looseLeptons;
@@ -198,7 +204,8 @@ void RunTopWidth(TString filename,
       bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);
 
-      //
+      //decide the channel
+      TString chTag("");
       std::vector<int> selLeptons;
       if(tightLeptons.size()==1 && looseLeptons.size()==0)
 	{
@@ -212,10 +219,9 @@ void RunTopWidth(TString filename,
       if(tightLeptons.size()==1 && looseLeptons.size()>=1)
 	{
 	  selLeptons.push_back(tightLeptons[0]);
-	  selLeptons.push_back(looseLeptons[0]);
+	  selLeptons.push_back(looseLeptons[0]);	  
 	}
       if(selLeptons.size()==0) continue;
-      TString chTag("");
       if(selLeptons.size()==1)
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="E";
@@ -225,7 +231,16 @@ void RunTopWidth(TString filename,
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEleTrigger) chTag="EE";
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMuTrigger) chTag="MM";
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13 && (hasEleTrigger || hasMuTrigger)) chTag="EM";
+	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13)
+	    {
+	      if(tightLeptons.size()>=2 && (hasEleTrigger || hasMuTrigger)) chTag="EM";
+	      if(tightLeptons.size()==1)
+		{
+		  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="EM";
+		  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) chTag="EM";
+		}
+	    }
+	  if(hasMuTrigger && requireEtriggerOnly) chTag="";
 	}
       if(chTag=="") continue;
 
@@ -240,7 +255,8 @@ void RunTopWidth(TString filename,
 	}
 
       //select jets
-      std::vector<TLorentzVector> bJets,lightJets;
+      std::vector<int> genBJetsFlav,genOtherjetsFlav,genBJetsHadFlav,genOtherjetsHadFlav;
+      std::vector<TLorentzVector> bJets,otherjets, genBJets, genOtherjets;
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -265,10 +281,6 @@ void RunTopWidth(TString filename,
 	      jp4 *= jerSmear;
 	    }
 
-	  // re-inforce kinematics cuts
-	  if(jp4.Pt()<30) continue;
-	  if(fabs(jp4.Eta()) > 2.4) continue;
-	  
 	  //b-tag
 	  float csv = ev.j_csv[k];	  
 	  bool isBTagged(csv>0.800);
@@ -299,16 +311,30 @@ void RunTopWidth(TString filename,
 	      myBTagSFUtil.modifyBTagsWithSF(isBTagged,    jetBtagSF,     expEff);
 	    }
 
-	  //save jet
-	  if(isBTagged) bJets.push_back(jp4);
-	  else          lightJets.push_back(jp4);
+	  if(jp4.Pt()<30) continue;
+
+	  Int_t hadFlav=ev.j_hadflav[k];
+	  Int_t flav=ev.j_flav[k];
+	  TLorentzVector gjp4(0,0,0,0);
+	  if(ev.j_g[k]>0)
+	    {
+	      int gidx=ev.j_g[k];
+	      gjp4.SetPtEtaPhiM( ev.g_pt[gidx], ev.g_eta[gidx], ev.g_phi[gidx], ev.g_m[gidx] );
+	    }
+
+	  //save jets 
+	  if(isBTagged && fabs(jp4.Eta()) < 2.4 && bJets.size()<2) 
+	    { bJets.push_back(jp4);     genBJets.push_back(gjp4);     genBJetsFlav.push_back(flav);     genBJetsHadFlav.push_back(hadFlav);    }
+	  else 
+	    { otherjets.push_back(jp4); genOtherjets.push_back(gjp4); genOtherjetsFlav.push_back(flav); genOtherjetsHadFlav.push_back(hadFlav); }
 	}
 
-      //at least 2 b-jets
-      if(bJets.size()<2) continue;
+      //2 b-jets are required 
+      //notice more can be b-tagged but they are put into the other jets category
+      if(bJets.size()!=2) continue;
 
       //event weight
-      float wgt(1.0),puWeight(1.0);
+      float wgt(1.0);
       if(!ev.isData)
 	{
 	  //update lepton selection scale factors, if found
@@ -334,10 +360,6 @@ void RunTopWidth(TString filename,
 		}
 	    }
 
-	  
-	  //pileup weight
-	  puWeight=puWgtGr[0]->Eval(ev.putrue);  
-	  
 	  //update nominal event weight
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
 	  wgt=lepTriggerSF*lepSelSF*puWeight*norm;
@@ -345,21 +367,104 @@ void RunTopWidth(TString filename,
 	}
       
       //nominal selection control histograms
-      allPlots["puwgtctr"]->Fill(0.,puWeight!=0 ? wgt/puWeight : 0.);
-      allPlots["puwgtctr"]->Fill(1.,wgt);
-
       allPlots["nvtx_"+chTag]->Fill(ev.nvtx,wgt);
-      allPlots["njets_"+chTag]->Fill(lightJets.size(),wgt);
+      allPlots["njets_"+chTag]->Fill(otherjets.size(),wgt);
+
+      twev.nl=leptons.size();
+      for(int il=0; il<(int)leptons.size(); il++)
+	{
+	  TString pf(Form("l%d",il));
+	  allPlots[pf+"pt_"+chTag]->Fill(leptons[il].Pt(),wgt);
+	  allPlots[pf+"eta_"+chTag]->Fill(fabs(leptons[il].Eta()),wgt);
+	  twev.l_pt[il]=leptons[il].Pt();
+	  twev.l_eta[il]=leptons[il].Eta();
+	  twev.l_phi[il]=leptons[il].Phi();
+	  twev.l_m[il]=leptons[il].M();
+	  twev.l_id[il]=ev.l_id[ selLeptons[il] ];
+	  for(Int_t ig=0; ig<ev.ng; ig++)
+	    {
+	      if(abs(ev.g_id[ig])!=ev.l_id[ selLeptons[il] ]) continue;
+	      TLorentzVector glp4;
+	      glp4.SetPtEtaPhiM( ev.g_pt[ig], ev.g_eta[ig], ev.g_phi[ig], ev.g_m[ig]);
+	      if(glp4.DeltaR( leptons[il] ) > 0.3) continue;
+	      twev.gl_id[il]=ev.g_id[ig];
+	      twev.gl_pt[il]=ev.g_pt[ig];
+	      twev.gl_eta[il]=ev.g_eta[ig];
+	      twev.gl_phi[il]=ev.g_phi[ig];
+	      twev.gl_m[il]=ev.g_m[ig];
+	    }
+	}
+      
+      twev.nj=bJets.size();
+      for(int ij=0; ij<(int)bJets.size(); ij++)
+	{
+	  TString pf(Form("j%d",ij));
+	  allPlots[pf+"pt_"+chTag]->Fill(bJets[ij].Pt(),wgt);
+	  allPlots[pf+"eta_"+chTag]->Fill(fabs(bJets[ij].Eta()),wgt);
+	  twev.j_pt[ij]=bJets[ij].Pt();
+	  twev.j_eta[ij]=bJets[ij].Eta();
+	  twev.j_phi[ij]=bJets[ij].Phi();
+	  twev.j_m[ij]=bJets[ij].M();
+	  twev.gj_flav[ij]=genBJetsFlav[ij];
+	  twev.gj_hadflav[ij]=genBJetsHadFlav[ij];
+	  twev.gj_pt[ij]=genBJets[ij].Pt();
+	  twev.gj_eta[ij]=genBJets[ij].Eta();
+	  twev.gj_phi[ij]=genBJets[ij].Phi();
+	  twev.gj_m[ij]=genBJets[ij].M();	  
+	}
+      
+      twev.nj+=otherjets.size();
+      for(int ij=0; ij<(int)otherjets.size(); ij++)
+	{
+	  if(ij+2<6)
+	    {
+	      TString pf(Form("j%d",ij+2));
+	      allPlots[pf+"pt_"+chTag]->Fill(otherjets[ij].Pt(),wgt);
+	      allPlots[pf+"eta_"+chTag]->Fill(fabs(otherjets[ij].Eta()),wgt);
+	    }
+	  twev.j_pt[ij+2]=otherjets[ij].Pt();
+	  twev.j_eta[ij+2]=otherjets[ij].Eta();
+	  twev.j_phi[ij+2]=otherjets[ij].Phi();
+	  twev.j_m[ij+2]=otherjets[ij].M();
+	  twev.gj_flav[ij+2]=genOtherjetsFlav[ij];
+	  twev.gj_hadflav[ij+2]=genOtherjetsHadFlav[ij];
+	  twev.gj_pt[ij+2]=genOtherjets[ij].Pt();
+	  twev.gj_eta[ij+2]=genOtherjets[ij].Eta();
+	  twev.gj_phi[ij+2]=genOtherjets[ij].Phi();
+	  twev.gj_m[ij+2]=genOtherjets[ij].M();	  
+	}
+
+      twev.cat=11;
+      if(chTag=="M") twev.cat=13;
+      if(chTag=="MM") twev.cat=13*13;
+      if(chTag=="EM") twev.cat=11*13;
+      if(chTag=="EE") twev.cat=11*11;
+      twev.nw=1;
+      twev.weight[0]=wgt;
+      twev.nt=0;
+      if(ev.ngtop>0)
+	{
+	  for(int i=0; i<ev.ngtop; i++)
+	    {
+	      if(abs(ev.gtop_id[i])!=6) continue;
+	      twev.t_pt[twev.nt]=ev.gtop_pt[i];
+	      twev.t_eta[twev.nt]=ev.gtop_eta[i];
+	      twev.t_phi[twev.nt]=ev.gtop_phi[i];
+	      twev.t_m[twev.nt]=ev.gtop_m[i];
+	      twev.t_id[twev.nt]=ev.gtop_id[i];
+	      twev.nt++;
+	      if(twev.nt>4) break;
+	    }
+	}
+      outT->Fill();
     }
   
   //close input file
   f->Close();
 
   //save histos to file  
-  TString baseName=gSystem->BaseName(outname); 
-  TString dirName=gSystem->DirName(outname);
-  TFile *fOut=TFile::Open(dirName+"/"+baseName,"RECREATE");
   fOut->cd();
+  outT->Write();
   for (auto& it : allPlots)  { 
     it.second->SetDirectory(fOut); it.second->Write(); 
   }
@@ -369,3 +474,59 @@ void RunTopWidth(TString filename,
   fOut->Close();
 }
 
+
+
+//
+void createTopWidthEventTree(TTree *t,TopWidthEvent_t &twev)
+{
+  //event category
+  t->Branch("cat", &twev.cat,"cat/I");
+
+  //event weights
+  t->Branch("nw",  &twev.nw, "nw/I");
+  t->Branch("weight",  twev.weight, "weight[nw]/F");
+
+  //leptons
+  t->Branch("nl",  &twev.nl, "nl/I");
+  t->Branch("l_pt",  twev.l_pt ,  "l_pt[nl]/F");
+  t->Branch("l_eta", twev.l_eta , "l_eta[nl]/F");
+  t->Branch("l_phi", twev.l_phi , "l_phi[nl]/F");
+  t->Branch("l_m",   twev.l_m ,   "l_m[nl]/F");
+  t->Branch("l_id",   twev.l_id ,   "l_id[nl]/I");
+  t->Branch("gl_pt",  twev.gl_pt ,  "gl_pt[nl]/F");
+  t->Branch("gl_eta", twev.gl_eta , "gl_eta[nl]/F");
+  t->Branch("gl_phi", twev.gl_phi , "gl_phi[nl]/F");
+  t->Branch("gl_m",   twev.gl_m ,   "gl_m[nl]/F");
+  t->Branch("gl_id",  twev.gl_id ,  "gl_id[nl]/I");
+
+  //jets
+  t->Branch("nj",  &twev.nj, "nj/I");
+  t->Branch("j_pt",  twev.j_pt ,  "j_pt[nj]/F");
+  t->Branch("j_eta", twev.j_eta , "j_eta[nj]/F");
+  t->Branch("j_phi", twev.j_phi , "j_phi[nj]/F");
+  t->Branch("j_m",   twev.j_m ,   "j_m[nj]/F");
+  t->Branch("gj_pt",  twev.gj_pt ,  "gj_pt[nj]/F");
+  t->Branch("gj_eta", twev.gj_eta , "gj_eta[nj]/F");
+  t->Branch("gj_phi", twev.gj_phi , "gj_phi[nj]/F");
+  t->Branch("gj_m",   twev.gj_m ,   "gj_m[nj]/F");
+  t->Branch("gj_flav",  twev.gj_flav ,  "gj_flav[nj]/I");
+  t->Branch("gj_hadflav",  twev.gj_hadflav ,  "gj_hadflav[nj]/I");
+
+  //mc truth
+  t->Branch("nt",  &twev.nt, "nt/I");
+  t->Branch("t_pt",  twev.t_pt ,  "t_pt[nt]/F");
+  t->Branch("t_eta", twev.t_eta , "t_eta[nt]/F");
+  t->Branch("t_phi", twev.t_phi , "t_phi[nt]/F");
+  t->Branch("t_m",   twev.t_m ,   "t_m[nt]/F");
+  t->Branch("t_id",  twev.t_id ,  "t_id[nt]/I");
+}
+
+//
+void resetTopWidthEvent(TopWidthEvent_t &twev)
+{
+  twev.cat=0;   twev.nw=0;   twev.nl=0;   twev.nj=0;   twev.nt=0;
+  for(int i=0; i<10; i++) twev.weight[i]=0;
+  for(int i=0; i<2; i++) { twev.l_pt[i]=0;   twev.l_eta[i]=0;   twev.l_phi[i]=0;   twev.l_m[i]=0; twev.l_id[i]=0; twev.gl_pt[i]=0;   twev.gl_eta[i]=0;   twev.gl_phi[i]=0;   twev.gl_m[i]=0; twev.gl_id[i]=0; }
+  for(int i=0; i<50; i++) { twev.j_pt[i]=0;   twev.j_eta[i]=0;   twev.j_phi[i]=0;   twev.j_m[i]=0; twev.gj_pt[i]=0;   twev.gj_eta[i]=0;   twev.gj_phi[i]=0;   twev.gj_m[i]=0; twev.gj_flav[i]=0; twev.gj_hadflav[i]=0; } 
+  for(int i=0; i<4; i++) { twev.t_pt[i]=0;   twev.t_eta[i]=0;   twev.t_phi[i]=0;   twev.t_m[i]=0; twev.t_id[i]=0; }
+}
