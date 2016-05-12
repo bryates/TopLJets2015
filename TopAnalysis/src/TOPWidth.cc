@@ -442,6 +442,8 @@ void RunTopWidth(TString filename,
       twev.nw=1;
       twev.weight[0]=wgt;
       twev.nt=0;
+      twev.met_pt=ev.met_pt[0];
+      twev.met_phi=ev.met_phi[0];
       if(ev.ngtop>0)
 	{
 	  for(int i=0; i<ev.ngtop; i++)
@@ -486,6 +488,10 @@ void createTopWidthEventTree(TTree *t,TopWidthEvent_t &twev)
   t->Branch("nw",  &twev.nw, "nw/I");
   t->Branch("weight",  twev.weight, "weight[nw]/F");
 
+  //met
+  t->Branch("met_pt",  &twev.met_pt, "met_pt/F");
+  t->Branch("met_phi",  &twev.met_phi, "met_phi/F");
+
   //leptons
   t->Branch("nl",  &twev.nl, "nl/I");
   t->Branch("l_pt",  twev.l_pt ,  "l_pt[nl]/F");
@@ -525,6 +531,7 @@ void createTopWidthEventTree(TTree *t,TopWidthEvent_t &twev)
 void resetTopWidthEvent(TopWidthEvent_t &twev)
 {
   twev.cat=0;   twev.nw=0;   twev.nl=0;   twev.nj=0;   twev.nt=0;
+  twev.met_pt=0; twev.met_phi=0;
   for(int i=0; i<10; i++) twev.weight[i]=0;
   for(int i=0; i<2; i++) { twev.l_pt[i]=0;   twev.l_eta[i]=0;   twev.l_phi[i]=0;   twev.l_m[i]=0; twev.l_id[i]=0; twev.gl_pt[i]=0;   twev.gl_eta[i]=0;   twev.gl_phi[i]=0;   twev.gl_m[i]=0; twev.gl_id[i]=0; }
   for(int i=0; i<50; i++) { twev.j_pt[i]=0;   twev.j_eta[i]=0;   twev.j_phi[i]=0;   twev.j_m[i]=0; twev.gj_pt[i]=0;   twev.gj_eta[i]=0;   twev.gj_phi[i]=0;   twev.gj_m[i]=0; twev.gj_flav[i]=0; twev.gj_hadflav[i]=0; } 

@@ -14,6 +14,7 @@ struct TopWidthEvent_t
   Int_t gj_flav[50],gj_hadflav[50];
   Float_t t_pt[4],t_eta[4],t_phi[4],t_m[4];
   Int_t t_id[4];
+  Float_t met_pt,met_phi;
 };
 
 void createTopWidthEventTree(TTree *t,TopWidthEvent_t &twev);
