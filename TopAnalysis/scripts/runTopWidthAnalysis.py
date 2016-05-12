@@ -65,6 +65,7 @@ def runTopWidthAnalysis(fileName,outFileName,widthList=[0.5,1,2,4],smMass=172.5,
         nonWgt=puCorrH.GetBinContent(1)
         wgt=puCorrH.GetBinContent(2)
         if wgt>0 : puNormSF=nonWgt/wgt
+        print puNormSF
         fIn.Close()
     tree=ROOT.TChain('twev')
     tree.AddFile(fileName)
