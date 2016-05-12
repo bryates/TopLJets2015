@@ -37,7 +37,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 # global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag.globaltag = '76X_dataRun2_v15' if options.runOnData else '76X_mcRun2_asymptotic_v12'
+process.GlobalTag = GlobalTag(process.GlobalTag, '76X_dataRun2_v15' if options.runOnData else '80X_mcRun2_asymptotic_2016_v3')
 
 #message logger
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -47,8 +47,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 # set input to process
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext4-v1/00000/FED166CC-2ED2-E511-8211-901B0E542962.root')
-                            #'/store/mc/RunIIFall15MiniAODv2/WZJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/FE3FEB9E-1FB8-E511-BA7F-FA163EABF82B.root'
+                            fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv1/TTToSemiLeptonic_13TeV_ScaleDown-powheg/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/067717F2-220A-E611-A553-0090FAA58D84.root')
                             )
 if options.runOnData:
     process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/DoubleMuon/MINIAOD/16Dec2015-v1/10000/FEEA7AEA-12A8-E511-97A6-0025905B860E.root')
@@ -88,8 +87,8 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Fall15_25nsV2_MC.db'
-jecTag='Fall15_25nsV2_MC_AK4PFchs'
+jecFile='Spring16_25nsV1_MC.db'
+jecTag='Spring16_25nsV1_MC_AK4PFchs'
 if options.runOnData : 
     jecLevels.append( 'L2L3Residual' )
     jecFile='Fall15_25nsV2_DATA.db'
