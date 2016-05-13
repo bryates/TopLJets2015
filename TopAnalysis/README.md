@@ -30,7 +30,7 @@ cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.r
 ```
 To submit a list of samples, described in a json file to the grid you can use the following script.
 ```
-python scripts/submitToGrid.py -j data/samples_Run2015.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
+python scripts/submitToGrid.py -j data/samples_Run2016.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
 Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CheatSheet#Environment_setup)
@@ -39,7 +39,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva/8c1e7c9 -o /store/cmst3/user/psilva/LJets2015/8c1e7c9
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva/7e62835 -o /store/cmst3/user/psilva/LJets2016/7e62835
 ```
 
 ## Preparing the analysis 
@@ -65,12 +65,12 @@ python scripts/runPileupEstimation.py --json data/SingleElectron_lumiSummary.jso
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
 for i in "" "_herwig" "_scaledown" "_scaleup"; do
-    python scripts/saveExpectedBtagEff.py -i /store/cmst3/user/psilva/LJets2015/8c1e7c9/MC13TeV_TTJets${i} -o data/expTageff${i}.root;
+    python scripts/saveExpectedBtagEff.py -i /store/cmst3/user/psilva/LJets2016/7e62835/MC13TeV_TTJets${i} -o data/expTageff${i}.root;
 done
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```
-python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/8c1e7c9
+python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2016/7e62835
 ```
 You're now ready to start locally the analysis.
 
@@ -88,7 +88,7 @@ If "-q queue_name" is appended the jobs are submitted to the batch system instea
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
 If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/076fb7a -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2016/7e62835 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 ```
 If you want to suppress the mails sent automatically after job completion please do
 ```
