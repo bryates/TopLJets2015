@@ -28,9 +28,9 @@ mass=${4}
 if [[ "${mass}" == "" ]]; then mass=0; fi
 
 queue=8nh
-eosdir=/store/cmst3/user/psilva/LJets2015/8c1e7c9
-outdir=~/work/LJets2015-arcrev
-wwwdir=~/www/LJets2015-arcrev
+eosdir=/store/cmst3/user/psilva/LJets2016/7e62835
+outdir=~/work/LJets2016
+wwwdir=~/www/LJets2016
 lumi=2267.84
 
 RED='\e[31m'
@@ -65,13 +65,13 @@ case $WHAT in
 	a=(muplus  muminus eplus eminus munoniso enoniso)	
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi} --silent;
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/samples_Run2016.json -l ${lumi} --silent;
 	done
 
 	a=(muplus muminus eplus eminus)
 	for i in ${a[@]}; do
 	    echo -e "[ ${RED} Creating syst plotter for ${i} ${NC} ]";
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root --silent;
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ --puNormSF puwgtctr  -j data/syst_samples_Run2016.json -l ${lumi} -o syst_plotter.root --silent;
 	done
 	;;
     BKG )
@@ -92,7 +92,7 @@ case $WHAT in
 	    echo -e "[ ${RED} Creating plotter for ${i} ${NC} ]";
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}/ \
 		--puNormSF puwgtctr \
-		-j data/samples_Run2015.json -l ${lumi} \
+		-j data/samples_Run2016.json -l ${lumi} \
 		--saveLog -o final_plotter.root;
 	    #--procSF "W":${outdir}/analysis_${i}/.wjetsscalefactors.pck;
 	done
