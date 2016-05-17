@@ -394,11 +394,12 @@ void RunTop16006(TString filename,
       if(ev.l_id[lepIdx]==13)
 	{
 	  if(ev.isData  && (ev.muTrigger & 0x3)==0) continue;
-	  if(!ev.isData && (ev.muTrigger & 0x3)==0) continue;
+	  //if(!ev.isData && (ev.muTrigger & 0x3)==0) continue;
 	}
       if(ev.l_id[lepIdx]==11)
 	{ 
-	  if( ((ev.elTrigger>>0)&0x1)==0 ) continue;
+	  if(ev.isData && ((ev.elTrigger>>0)&0x1)==0 ) continue;
+	  //if(!ev.isData && ((ev.elTrigger>>0)&0x1)==0 ) continue;
 	}
 
       //select according to the lepton id/charge
