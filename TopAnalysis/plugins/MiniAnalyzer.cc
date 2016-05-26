@@ -431,7 +431,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   bool passMuTrigger(ev_.isData ? ev_.muTrigger!=0 : true);
   bool passElTrigger(ev_.isData ? ev_.elTrigger!=0 : true);  
   if(!passMuTrigger && !passElTrigger) return;
- 
+
   //PF candidates
   edm::Handle<pat::PackedCandidateCollection> pfcands;
   iEvent.getByToken(pfToken_,pfcands);

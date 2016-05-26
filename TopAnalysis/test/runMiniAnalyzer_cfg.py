@@ -37,7 +37,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 # global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '76X_dataRun2_v15' if options.runOnData else '80X_mcRun2_asymptotic_2016_v3')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v8' if options.runOnData else '80X_mcRun2_asymptotic_2016_v3')
 
 #message logger
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -50,7 +50,7 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv1/TTToSemiLeptonic_13TeV_ScaleDown-powheg/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/067717F2-220A-E611-A553-0090FAA58D84.root')
                             )
 if options.runOnData:
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2015D/DoubleMuon/MINIAOD/16Dec2015-v1/10000/FEEA7AEA-12A8-E511-97A6-0025905B860E.root')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/158/00000/06277EC1-181A-E611-870F-02163E0145E5.root')
 
 #this make the process crash ?!
 #if options.inputDir!='': 
@@ -90,9 +90,10 @@ jecLevels=['L1FastJet','L2Relative','L3Absolute']
 jecFile='Spring16_25nsV1_MC.db'
 jecTag='Spring16_25nsV1_MC_AK4PFchs'
 if options.runOnData : 
-    jecLevels.append( 'L2L3Residual' )
-    jecFile='Fall15_25nsV2_DATA.db'
-    jecTag='Fall15_25nsV2_DATA_AK4PFchs'
+    print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
+#    jecLevels.append( 'L2L3Residual' )
+#    jecFile='Fall15_25nsV2_DATA.db'
+#    jecTag='Fall15_25nsV2_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 #tfile service
