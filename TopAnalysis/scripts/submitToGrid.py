@@ -8,7 +8,7 @@ creates the crab cfg and submits the job
 """
 def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=False):
     
-    jecDB="Fall15_25nsV2_DATA.db" if isData else "Spring16_25nsV1_MC.db"
+    jecDB="Spring16_25nsV1_MC.db" if isData else "Spring16_25nsV1_MC.db"
     os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/%s' % jecDB)
 
     os.system("rm -rvf %s/*%s* "%(workDir,tag))
@@ -62,7 +62,7 @@ def main():
     parser.add_option('-c', '--cfg',         dest='cfg'   ,      help='cfg to be sent to grid',       default=None,    type='string')
     parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',      default=None,    type='string')
     parser.add_option('-o', '--only',        dest='only'  ,      help='submit only these (csv)',      default=None,    type='string')
-    parser.add_option('-l', '--lumi',        dest='lumiMask',    help='json with list of good lumis', default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-273450_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt')
+    parser.add_option('-l', '--lumi',        dest='lumiMask',    help='json with list of good lumis', default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-273730_13TeV_PromptReco_Collisions16_JSON.txt')
     parser.add_option('-w', '--workDir',     dest='workDir',     help='working directory',            default='grid',  type='string')
     parser.add_option(      '--lfn',         dest='lfn',         help='base lfn to store outputs',    default='/store/group/phys_top/psilva/', type='string')
     parser.add_option('-s', '--submit',      dest='submit',      help='submit jobs',                  default=False,   action='store_true')

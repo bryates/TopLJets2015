@@ -8,8 +8,8 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_8_0_6
-cd CMSSW_8_0_6/src
+cmsrel CMSSW_8_0_8_patch1
+cd CMSSW_8_0_8_patch1/src
 cmsenv
 git clone git@github.com:pfs/TopLJets2015.git
 cd TopLJets2015/TopAnalysis
