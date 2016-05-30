@@ -80,7 +80,7 @@ def main():
         inF=opt.input
         if '/store/' in inF and not 'root:' in inF : inF='root://eoscms//eos/cms'+opt.input        
         outF=opt.output
-        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,runSysts,opt.norm,opt.tag) )
+        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.norm,opt.tag) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')

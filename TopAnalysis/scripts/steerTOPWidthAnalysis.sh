@@ -15,7 +15,7 @@ if [[ "$1" == "" ]]; then
     exit 1; 
 fi
 
-queue=8nh
+queue=2nd
 eosdir=/store/cmst3/user/psilva/LJets2015/7e62835
 outdir=~/work/TopWidth_7e62835
 wwwdir=~/www/TopWidth_7e62835
