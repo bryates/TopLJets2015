@@ -29,7 +29,7 @@ def RunMethodPacked(args):
                                                                                                                       flav)
         if runSysts : cmd += ' --runSysts'
         print cmd
-        #os.system(cmd)
+        os.system(cmd)
     except :
         print 50*'<'
         print "  Problem  (%s) with %s continuing without"%(sys.exc_info()[1],inF)
