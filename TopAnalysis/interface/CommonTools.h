@@ -4,6 +4,9 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
+
+#include "TVector2.h"
 
 enum FlavourSplitting {NOFLAVOURSPLITTING=0, UDSGSPLITTING=1, CSPLITTING=4, BSPLITTING=5 };
 
@@ -12,5 +15,6 @@ Float_t computeMT(TLorentzVector &a, TLorentzVector &b);
 FactorizedJetCorrector *getFactorizedJetEnergyCorrector(TString,bool);
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt);
 float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta);
+std::pair<TVector2, TVector2> getPullVector( MiniEvent_t &ev, int ijet);
 
 #endif

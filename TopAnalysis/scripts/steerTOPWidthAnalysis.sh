@@ -16,10 +16,10 @@ if [[ "$1" == "" ]]; then
 fi
 
 queue=8nh
-eosdir=/store/cmst3/user/psilva/LJets2015/8c1e7c9
-outdir=~/work/TopWidth
-wwwdir=~/www/TopWidth
-lumi=2267.84
+eosdir=/store/cmst3/user/psilva/LJets2015/7e62835
+outdir=~/work/TopWidth_7e62835
+wwwdir=~/www/TopWidth_7e62835
+lumi=589
 
 RED='\e[31m'
 NC='\e[0m'

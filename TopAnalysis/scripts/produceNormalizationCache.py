@@ -2,7 +2,6 @@
 
 import optparse
 import os,sys
-import pickle
 import ROOT
 from subprocess import Popen, PIPE
 
@@ -64,10 +63,12 @@ def main():
     Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
 
     #dump to pickle file
-    cache='%s/src/TopLJets2015/TopAnalysis/data/genweights.pck' % os.environ['CMSSW_BASE']
-    cachefile=open(cache,'w')
-    pickle.dump(genweights, cachefile, pickle.HIGHEST_PROTOCOL)
-    cachefile.close()
+    cache='%s/src/TopLJets2015/TopAnalysis/data/genweights.root' % os.environ['CMSSW_BASE']
+    cachefile=ROOT.TFile.Open(cache,'RECREATE')
+    for sample in genweights:
+        genweights[sample].SetDirectory(cachefile)
+        genweights[sample].Write(sample)
+    cachefile.Close()
     print 'Produced normalization cache @ %s'%cache
 
     #all done here
