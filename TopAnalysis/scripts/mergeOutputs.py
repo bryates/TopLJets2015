@@ -40,6 +40,9 @@ except IndexError:
     print "Need to provide an input directory."
     exit(-1)
 
+noTrees=False
+if len(sys.argv)>2 and sys.argv[2]=='True': noTrees=True
+
 basenames = getBaseNames(inputdir)
 print '-----------------------'
 print 'Will process the following samples:', basenames
@@ -56,7 +59,10 @@ for basename, files in counters.iteritems():
 
     # merging:
     print '... processing', basename
-    cmd = 'hadd -f %s %s' % (target, filenames)
+    if noTrees:
+        cmd = 'hadd -f -T %s %s' % (target, filenames)
+    else:
+        cmd = 'hadd -f %s %s' % (target, filenames)
     os.system(cmd)
 
     # cleanup:

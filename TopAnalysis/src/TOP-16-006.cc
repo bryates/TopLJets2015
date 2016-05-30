@@ -442,7 +442,7 @@ void RunTop16006(TString filename,
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
 	  if(!ev.isData && genJet_pt>0) 
 	    {
-	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),genJet_pt)[0];
 	      jp4 *= jerSmear;
 	    }
 	  //jetDiff += jp4;

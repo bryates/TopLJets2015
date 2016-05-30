@@ -92,6 +92,22 @@ def runTopWidthAnalysis(fileName,outFileName,widthList=[0.5,1,2,4],smMass=172.5,
 
         evWeight=puNormSF*tree.weight[0]
 
+        #preselect the b-jets
+        bjets=[]
+        for ij in xrange(0,tree.nj):
+
+            btagVal=(tree.j_btag[ij] & 0x1)
+            if btagVal==0: continue
+            
+            jp4=ROOT.TLorentzVector()
+            jp4.SetPtEtaPhiM(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij])
+            gjp4=ROOT.TLorentzVector()
+            gjp4.SetPtEtaPhiM(tree.gj_pt[ij],tree.gj_eta[ij],tree.gj_phi[ij],tree.gj_m[ij])
+            bjets.append( (jp4,gjp4) )
+            if len(bjets)==2 : break
+        if len(bjets)!=2: continue
+
+        #pair with the leptons
         for il in xrange(0,tree.nl):
 
             lp4=ROOT.TLorentzVector()
@@ -101,10 +117,7 @@ def runTopWidthAnalysis(fileName,outFileName,widthList=[0.5,1,2,4],smMass=172.5,
             
             for ib in xrange(0,2):
 
-                jp4=ROOT.TLorentzVector()
-                jp4.SetPtEtaPhiM(tree.j_pt[ib],tree.j_eta[ib],tree.j_phi[ib],tree.j_m[ib])
-                gjp4=ROOT.TLorentzVector()
-                gjp4.SetPtEtaPhiM(tree.gj_pt[ib],tree.gj_eta[ib],tree.gj_phi[ib],tree.gj_m[ib])
+                jp4,gjp4 = bjets[ib]
                 
                 mlb=(lp4+jp4).M()
                 mglgb=(glp4+gjp4).M()

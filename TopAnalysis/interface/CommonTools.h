@@ -15,6 +15,12 @@ Float_t computeMT(TLorentzVector &a, TLorentzVector &b);
 FactorizedJetCorrector *getFactorizedJetEnergyCorrector(TString,bool);
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt);
 float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta);
-std::pair<TVector2, TVector2> getPullVector( MiniEvent_t &ev, int ijet);
+
+struct JetPullInfo_t
+{
+  Int_t n,nch;
+  TVector2 pull,chPull;
+};
+JetPullInfo_t getPullVector( MiniEvent_t &ev, int ijet);
 
 #endif

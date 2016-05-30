@@ -54,7 +54,7 @@ void RunTopWidth(TString filename,
   puTrue->SetDirectory(0);
   puTrue->Scale(1./puTrue->Integral());
   TTree *t = (TTree*)f->Get("analysis/data");
-  attachToMiniEventTree(t,ev);
+  attachToMiniEventTree(t,ev,true);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
   bool requireEtriggerOnly(false);
@@ -62,7 +62,7 @@ void RunTopWidth(TString filename,
 
   cout << "...producing " << outname << " from " << nentries << " events" << endl;
 
-  //PILEUP WEIGHTING
+  //PILEUP WEIGHTINGc
   std::vector<TGraph *>puWgtGr;
   if(!ev.isData)
     {
@@ -186,6 +186,17 @@ void RunTopWidth(TString filename,
 	      allPlots[pf+"eta_"+tag]  = new TH1F(pf+"eta_"+tag,";Jet pseudo-rapidity;Events",50,0,4.7);
 	    }
 	}
+      for(int ibj=0; ibj<2; ibj++)
+	{
+	  for(int k=0; k<2; k++)
+	    {
+	      TString pf(Form("b%d",ibj));
+	      if(k>0) pf += "ch";
+	      allPlots[pf+"const_"+tag]     = new TH1F(pf+"const_"+tag,     ";Constituent multiplicity;Events",50,0,50);
+	      allPlots[pf+"pullm_"+tag]     = new TH1F(pf+"pullm_"+tag,     ";Pull magnitude;Events",20,0,0.05);
+	      allPlots[pf+"pullangle_"+tag]   = new TH1F(pf+"pullangle_"+tag,   ";Pull angle [rad];Events",20,-3.16,3.16);
+	    }
+	}
     }
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
   for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
@@ -223,9 +234,10 @@ void RunTopWidth(TString filename,
       //check if triggers have fired
       bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);
-      if(!ev.isData) 
+      if(!ev.isData)
 	{
-	  hasMuTrigger=true; hasEleTrigger=true;
+	  hasMuTrigger=true; 
+	  hasEleTrigger=true;
 	}
 
       //decide the channel
@@ -282,6 +294,7 @@ void RunTopWidth(TString filename,
       std::vector<int> genJetsFlav,genJetsHadFlav, btagStatus;
       std::vector<TLorentzVector> jets,genJets;
       Int_t nbtags=0;
+      std::vector<JetPullInfo_t> bJetPulls;
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -363,13 +376,15 @@ void RunTopWidth(TString filename,
 	    }
 
 	  jets.push_back(jp4);
+	  if(fabs(jp4.Eta())>2.5) { isBTagged=false; isBTaggedUp=false; isBTaggedDown=false; }
 	  int btagStatusWord(isBTagged | (isBTaggedUp<<1) | (isBTaggedDown<<1));
-	  if(fabs(jp4.Eta())>2.5) btagStatusWord=0;
+	  
 	  btagStatus.push_back(btagStatusWord);
 	  genJets.push_back(gjp4);
 	  genJetsFlav.push_back(flav); 
 	  genJetsHadFlav.push_back(hadFlav);
 	  nbtags += isBTagged;
+	  if(isBTagged) bJetPulls.push_back( getPullVector(ev,k) );	  
 	}
       
       //at least two jets in the event are required
@@ -441,7 +456,6 @@ void RunTopWidth(TString filename,
       twev.nj=jets.size();
       for(int ij=0; ij<(int)jets.size(); ij++)
 	{
-	  nbtags += (btagStatus[ij]&0x1);
 	  TString pf(Form("j%d",ij));
 	  if(ij<6)
 	    {
@@ -468,7 +482,21 @@ void RunTopWidth(TString filename,
 	}
       allPlots["njets_"+chTag]->Fill(twev.nj,wgt);
       allPlots["nbtags_"+chTag]->Fill(nbtags,wgt);
-      
+      if(nbtags>1)
+	{
+	  for(Int_t ibj=0; ibj<2; ibj++)
+	    {
+	      TString pf(Form("b%d",ibj));
+	      allPlots[pf+"const_"+chTag]->Fill(bJetPulls[ibj].n,wgt);
+	      allPlots[pf+"pullm_"+chTag]->Fill(bJetPulls[ibj].pull.Mod(),wgt);
+	      allPlots[pf+"pullangle_"+chTag]->Fill(TMath::ATan2(bJetPulls[ibj].pull.Px(),bJetPulls[ibj].pull.Py()),wgt);
+	      allPlots[pf+"chconst_"+chTag]->Fill(bJetPulls[ibj].nch,wgt);
+	      allPlots[pf+"chpullm_"+chTag]->Fill(bJetPulls[ibj].chPull.Mod(),wgt);
+	      allPlots[pf+"chpullangle_"+chTag]->Fill(TMath::ATan2(bJetPulls[ibj].chPull.Px(),bJetPulls[ibj].chPull.Py()),wgt);
+	    }
+	}
+
+
       twev.cat=11;
       if(chTag=="M") twev.cat=13;
       if(chTag=="MM") twev.cat=13*13;

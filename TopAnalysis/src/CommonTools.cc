@@ -3,9 +3,12 @@
 
 
 //
-std::pair<TVector2, TVector2> getPullVector( MiniEvent_t &ev, int ijet)
+JetPullInfo_t getPullVector( MiniEvent_t &ev, int ijet)
 {
-  TVector2 null(0,0);
+  JetPullInfo_t result;
+  result.n=0; result.nch=0;
+  result.pull=TVector2(0,0);
+  result.chPull=TVector2(0,0);
   
   //re-reconstruct the jet direction with the charged tracks
   TLorentzVector jet(0,0,0,0);
@@ -18,7 +21,9 @@ std::pair<TVector2, TVector2> getPullVector( MiniEvent_t &ev, int ijet)
     {
       if(ev.pf_j[idx]!=ijet) continue;
       constituent.SetPtEtaPhiM( ev.pf_pt[idx], ev.pf_eta[idx], ev.pf_phi[idx], ev.pf_m[idx]);
-      bool isCharged(ev.pf_c[idx]!=0);
+      bool isCharged(abs(ev.pf_id[idx])==11 ||
+		     abs(ev.pf_id[idx])==13 ||
+		     abs(ev.pf_id[idx])==211 );
       allConstituents.push_back(std::make_pair(constituent,isCharged) );
       if(isCharged)
 	{
@@ -26,9 +31,12 @@ std::pair<TVector2, TVector2> getPullVector( MiniEvent_t &ev, int ijet)
 	  ++nCharged;      
 	}
     }
+  std::cout << std::endl;
+  result.n=(Int_t) allConstituents.size();
+  result.nch=nCharged;
 
   //stop here if <2 charged
-  if( nCharged < 2 ) return std::make_pair(null,null);
+  if( nCharged < 2 ) return result;
 
   //compute the pull
   double jetPt        = jet.Pt(),        jetPhi=jet.Phi(),                 jetRapidity=jet.Rapidity();
@@ -50,8 +58,10 @@ std::pair<TVector2, TVector2> getPullVector( MiniEvent_t &ev, int ijet)
 	r.Set( constituentRapidity - jetRapidityCharged, TVector2::Phi_mpi_pi( constituentPhi - jetPhiCharged ) );
       pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
     }
-
-  return std::make_pair(pullAll, pullCharged);
+  
+  result.pull=pullAll;
+  result.chPull=pullCharged;
+  return result;
 }
 
 
