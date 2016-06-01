@@ -1,8 +1,9 @@
 #!/bin/bash
 
 WHAT=$1; 
-if [[ "$1" == "" ]]; then 
-    echo "steerTOPWidthAnalysis.sh <SEL/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/PLOT/WWW>";
+ERA=$2
+if [ "$#" -ne 2 ]; then 
+    echo "steerTOPWidthAnalysis.sh <SEL/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/PLOT/WWW> <ERA>";
     echo "        SEL        - launches selection jobs to the batch, output will contain summary trees and control plots"; 
     echo "        MERGESEL   - merge the output of the jobs";
     echo "        PLOTSEL    - runs the plotter tool on the selection";
@@ -11,14 +12,25 @@ if [[ "$1" == "" ]]; then
     echo "        MERGE      - merge the output of the analysis jobs";
     echo "        PLOT       - runs the plotter tool on the analysis outputs";
     echo "        WWW        - moves the analysis plots to an afs-web-based area";
-
+    echo " "
+    echo "        ERA        - 2015/2016";
     exit 1; 
 fi
 
 queue=2nd
-eosdir=/store/cmst3/user/psilva/LJets2015/7e62835
-outdir=~/work/TopWidth_7e62835
-wwwdir=~/www/TopWidth_7e62835
+
+githash=7e62835
+case $ERA in
+    2015)
+	githash=8c1e7c9;
+	;;
+esac
+
+eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
+outdir=~/work/TopWidth_${githash}
+wwwdir=~/www/TopWidth_${githash}
+
+
 lumi=589
 
 RED='\e[31m'
@@ -50,7 +62,7 @@ case $WHAT in
         ;;
     WWW )
         mkdir -p ${wwwdir}/ana
-        cp ${outdir}/plots/*.{png,pdf} ${wwwdir}/ana        
+        cp ${outdir}/analysis/plots/*.{png,pdf} ${wwwdir}/ana        
         cp test/index.php ${wwwdir}/ana
 	;;
 esac
