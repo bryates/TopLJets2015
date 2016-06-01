@@ -44,7 +44,7 @@ case $WHAT in
 	./scripts/mergeOutputs.py ${outdir} True;	
 	;;
     PLOTSEL )
-	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/samples_Run2016.json -l ${lumi};	
+	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/samples_Run${ERA}.json -l ${lumi};	
 	;;
     WWWSEL )
 	mkdir -p ${wwwdir}/sel
@@ -58,7 +58,7 @@ case $WHAT in
 	./scripts/mergeOutputs.py ${outdir}/analysis;
 	;;
     PLOT )
-        python scripts/plotter.py -i ${outdir}/analysis  -j data/samples_Run2016.json -l ${lumi};        
+        python scripts/plotter.py -i ${outdir}/analysis  -j data/samples_Run${ERA}.json -l ${lumi};        
         ;;
     WWW )
         mkdir -p ${wwwdir}/ana
