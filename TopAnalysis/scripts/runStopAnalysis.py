@@ -30,7 +30,7 @@ def runStopAnalysis(fileName,outFileName):
         observablesH['mlb_'+k]=ROOT.TH1F('mlb_'+k,';Mass(lepton,b) [GeV];Events',20,0,250)
         observablesH['dphibb_'+k]=ROOT.TH1F('dphibb_'+k,';#Delta#phi(b,#bar{b}) [rad];Events',20,0,3.15)
         observablesH['dphill_'+k]=ROOT.TH1F('dphill_'+k,';#Delta#phi(l,l) [rad];Events',20,0,3.15)
-        observablesH['dphijj_'+k]=ROOT.TH1F('dphijj_'+k,';#Delta#phi(l,l) [rad];Events',20,0,3.15)
+        observablesH['dphijj_'+k]=ROOT.TH1F('dphijj_'+k,';#Delta#phi(j,j) [rad];Events',20,0,3.15)
     for var in observablesH:
         observablesH[var].SetDirectory(0)
         observablesH[var].Sumw2()
@@ -106,19 +106,19 @@ def runStopAnalysis(fileName,outFileName):
             for isol in xrange(0,len(sols.nunu_s)):
                 top=bjets[0][0]+leptons[1][0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
                 top_=bjets[1][0]+leptons[0][0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
-                allSols.append( (0,top,top_) )
+                allSols.append( (1,top,top_) )
         except numpy.linalg.linalg.LinAlgError :
             pass
 
         #sort solutions by increasing m(ttbar)
         if len(allSols)==0: continue
-        allSols=sorted(allSols, key=lambda sol: (sol[1]+sol[2]).mass() )
+        allSols=sorted(allSols, key=lambda sol: (sol[1]+sol[2]).mass() )        
         l1idx=0 if allSols[0][0]==0 else 1
         l2idx=1 if allSols[0][0]==0 else 0
         observablesH['mlb_'+evcat].Fill((bjets[0][0]+leptons[l1idx][0]).mass(),evWeight)
-        observablesH['mlb_'+evcat].Fill((bjets[0][0]+leptons[l2idx][0]).mass(),evWeight)
+        observablesH['mlb_'+evcat].Fill((bjets[1][0]+leptons[l2idx][0]).mass(),evWeight)
         observablesH['dphibb_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(bjets[0][0],bjets[1][0]),evWeight)
-        observablesH['dphill_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx][0],leptons[l2idx][1]),evWeight)
+        observablesH['dphill_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx][0],leptons[l2idx][0]),evWeight)
         if len(otherjets)>=2:
             observablesH['dphijj_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(otherjets[0][0],otherjets[1][0]),evWeight)
          
