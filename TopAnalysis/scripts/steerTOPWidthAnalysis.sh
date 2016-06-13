@@ -18,11 +18,17 @@ if [ "$#" -ne 2 ]; then
 fi
 
 queue=2nd
-
+queue=local
 githash=7e62835
+lumi=589
+normCache=data/genweights.root
+puCache=data/pileupweights.root
 case $ERA in
     2015)
 	githash=8c1e7c9;
+	lumi=2267.84
+	normCache=data/genweights_2015.root
+	puCache=data/pileupweights_2015.root
 	;;
 esac
 
@@ -31,14 +37,12 @@ outdir=~/work/TopWidth_${githash}
 wwwdir=~/www/TopWidth_${githash}
 
 
-lumi=589
-
 RED='\e[31m'
 NC='\e[0m'
 
 case $WHAT in
     SEL )
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} -m TOPWidth::RunTopWidth --ch 0;
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --norm ${normCache} --puCache ${puCache} -m TOPWidth::RunTopWidth --ch 0;
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	

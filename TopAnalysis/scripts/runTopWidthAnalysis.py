@@ -28,11 +28,20 @@ def weightTopWidth(tmassList,bwigner,targetWidth,origWidth=1.324):
 """
 Analysis loop
 """
-def runTopWidthAnalysis(fileName,outFileName,widthList=[0.5,1,2,4],smMass=172.5,smWidth=1.324):
+def runTopWidthAnalysis(fileName,
+                        outFileName,
+                        widthList=[0.5,1,2,4],
+                        smMass=172.5,
+                        smWidth=1.324,
+                        systs=['','puup','pudn','btagup','btagdn','jerup','jerdn','jesup','jesdn','lesup','lesdn']):
         
     print '....analysing',fileName,'with output @',outFileName
 
-    if 'Data13TeV' in fileName: widthList=[1.0]
+    #check if this is data beforehand
+    isData=False if 'MC13TeV' in fileName else True
+    if isData:
+        widthList=[1.0]
+        systs=['']
 
     #define the relativistic Breit-Wigner function
     bwigner=ROOT.TF1('bwigner',
@@ -46,27 +55,34 @@ def runTopWidthAnalysis(fileName,outFileName,widthList=[0.5,1,2,4],smMass=172.5,
     bwigner.FixParameter(2,smWidth)
 
     #book histograms
-    observablesH={}
-    for i in ['','cor_','wro_']:
-        for j in ['','gen_']:
-            for k in ['E','M','EE','MM','EM']:
-                for w in widthList:
-                    var=i+j+k+'_mlb_%3.1fw'%w
-                    observablesH[var]=ROOT.TH1F(var,';Mass(lepton,b) [GeV];Events',50,0,300)
-                    observablesH[var].SetDirectory(0)
-                    observablesH[var].Sumw2()
+    observablesH={}    
+    for s in systs:
+        for i in ['lowpt','highpt']:
+            for j in ['E','M','EE','MM','EM']:
+                for b in ['1b','2b']:
+                    for w in widthList:
+                        var=s+i+j+b+'_mlb_%3.1fw'%w
+                        observablesH[var]=ROOT.TH1F(var,';Mass(lepton,jet) [GeV];l+j pairs',50,0,300)
+                        if w!=1.0 or len(s)>0 : continue
+                        var=i+j+b+'_pairing'
+                        observablesH[var]=ROOT.TH1F(var,';Pairing;l+j pairs',2,0,2)
+                        observablesH[var].GetXaxis().SetBinLabel(1,'correct')
+                        observablesH[var].GetXaxis().SetBinLabel(2,'wrong')
 
+    for var in observablesH:
+        observablesH[var].SetDirectory(0)
+        observablesH[var].Sumw2()
 
     #open file
     puNormSF=1.0
-    if 'MC13TeV' in fileName:
+    if isData:
         fIn=ROOT.TFile.Open(fileName)
         puCorrH=fIn.Get('puwgtctr')
         nonWgt=puCorrH.GetBinContent(1)
         wgt=puCorrH.GetBinContent(2)
         if wgt>0 : puNormSF=nonWgt/wgt
-        print puNormSF
         fIn.Close()
+
     tree=ROOT.TChain('twev')
     tree.AddFile(fileName)
 
@@ -90,51 +106,82 @@ def runTopWidthAnalysis(fileName,outFileName,widthList=[0.5,1,2,4],smMass=172.5,
         if abs(tree.cat)==11*13 : evcat='EM'
         if abs(tree.cat)==13*13 : evcat='MM'
 
-        evWeight=puNormSF*tree.weight[0]
-
-        #preselect the b-jets
-        bjets=[]
+        #preselect the b-jets (central b-tag, b-tag up, b-tag dn, jer up, jer dn, jes up, jes dn)
+        bjets=( [], [], [], [], [], [], [] )
         for ij in xrange(0,tree.nj):
-
-            btagVal=(tree.j_btag[ij] & 0x1)
-            if btagVal==0: continue
-            
+                        
             jp4=ROOT.TLorentzVector()
             jp4.SetPtEtaPhiM(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij])
-            gjp4=ROOT.TLorentzVector()
-            gjp4.SetPtEtaPhiM(tree.gj_pt[ij],tree.gj_eta[ij],tree.gj_phi[ij],tree.gj_m[ij])
-            bjets.append( (jp4,gjp4) )
-            if len(bjets)==2 : break
-        if len(bjets)!=2: continue
+            
+            #jres=tree.j_jer[ij]
+            #jscale=tree.j_jscale[ij]
 
+            for ibit in xrange(0,3):
+                btagVal=((tree.j_btag[ij] >> ibit) & 0x1)
+                if btagVal!=0:
+                    bjets[ibit].append( (ij,jp4) )
+                
+
+        
         #pair with the leptons
         for il in xrange(0,tree.nl):
 
-            lp4=ROOT.TLorentzVector()
-            lp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
-            glp4=ROOT.TLorentzVector()
-            glp4.SetPtEtaPhiM(tree.gl_pt[il],tree.gl_eta[il],tree.gl_phi[il],tree.gl_m[il])
-            
-            for ib in xrange(0,2):
+            stdlp4=ROOT.TLorentzVector()
+            stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
+            lesScale=1.0
+            if not isData: lesScale=ROOT.getLeptonEnergyScaleUncertainty(tree.l_id[il],lp4.Pt(),lpt.Eta())
 
-                jp4,gjp4 = bjets[ib]
+            for s in systs:
                 
-                mlb=(lp4+jp4).M()
-                mglgb=(glp4+gjp4).M()
+                #event weight
+                evWeight=puNormSF*tree.weight[0]
 
-                assignmentType='wro_'
-                if tree.gl_id[il]!=0 and tree.gj_flav[ib]!=0 and tree.nt>0:
-                    if tree.gl_id[il]*tree.gj_flav[ib]<0 : assignmentType='cor_'
-                for i in ['',assignmentType]:
-                    var=i+''+evcat
+                lp4=ROOT.TLorentzVector(stdlp4)
+
+                #experimental uncertainties
+                ijhyp=0
+                if s=='btagup' : ijhyp=1
+                if s=='btagdn' : ijhyp=2
+                if s=='jerup'  : ijhyp=3
+                if s=='jerdn'  : ijhyp=4
+                if s=='jesup'  : ijhyp=5
+                if s=='jesdn'  : ijhyp=6
+                if s=='lesup'  : lp4 *= (1.0+lesScale)
+                if s=='lesdn'  : lp4 *= (1.0-lesScale)
+                
+                #btag hypothesis
+                nbtags=len(bjets[ijhyp])
+                if nbtags<1 : continue
+                if nbtags>2 : nbtags=2
+                btagcat='1b' if nbtags==1 else '2b'
+                
+                #pileup
+                if s=='puup' : evWeight=puNormSF*tree.weight[1]
+                if s=='pudn' : evWeight=puNormSF*tree.weight[2]
+
+                for ib in xrange(0,nbtags):
+
+                    ij,jp4 = bjets[ijhyp][ib]
+
+                    #check if assignment is correct or not
+                    assignmentType=1
+                    if tree.gl_id[il]!=0 and tree.gj_flav[ij]!=0 and tree.nt>0:
+                        if tree.gl_id[il]*tree.gj_flav[ij]<0 : assignmentType=0
+                
+                    #kinematics of the l,b system
+                    mlb=(lp4+jp4).M()
+                    ptlb=(lp4+jp4).Pt()
+                    ptCat='lowpt' if ptlb<100 else 'highpt'
+                        
+                    #fill histos
                     for w in widthList:
-
-                        var=i+evcat+'_mlb_%3.1fw'%w
+                        var=s+ptCat+evcat+btagcat+'_mlb_%3.1fw'%w
                         observablesH[var].Fill(mlb,evWeight*widthWeight[w])
 
-                        if glp4.Pt()>0 and gjp4.Pt()>0:
-                            var=i+'gen_'+evcat+'_mlb_%3.1fw'%w
-                            observablesH[var].Fill(mglgb,evWeight*widthWeight[w])
+                        #only for standard width and syst variations
+                        if w!=1.0 or len(s)>0 : continue
+                        var=s+ptCat+evcat+btagcat+'_pairing'
+                        observablesH[var].Fill(assignmentType,evWeight*widthWeight[w])
 
          
     #save results

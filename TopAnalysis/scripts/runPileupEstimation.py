@@ -14,6 +14,7 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('--json',      dest='inJson'  ,      help='json file with processed runs',      default=None,    type='string')
+    parser.add_option('--out',       dest='output'  ,      help='output file with weights',           default=None,    type='string')
     parser.add_option('--mbXsec',    dest='mbXsec'  ,      help='minimum bias cross section to use',  default=71300,   type=float)
     parser.add_option('--puJson',    dest='puJson'  ,      help='pileup json file',      
                       default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/PileUp/pileup_latest.txt',
@@ -50,7 +51,7 @@ def main():
     commands.getstatusoutput('rm Pileup.root')
 
     #save pileup weights to file
-    fOut=ROOT.TFile.Open('$CMSSW_BASE/src/TopLJets2015/TopAnalysis/data/pileupWgts.root','RECREATE')
+    fOut=ROOT.TFile.Open(opt.output,'RECREATE')
     for gr in puWgts: gr.Write()
     for gr in puDist: gr.Write()
     simPuH.Write()

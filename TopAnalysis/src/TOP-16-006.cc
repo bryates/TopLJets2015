@@ -32,7 +32,8 @@ void RunTop16006(TString filename,
 		 Int_t chargeSelection, 
 		 FlavourSplitting flavourSplitting,
 		 TH1F *normH, 
-		 Bool_t runSysts)
+		 Bool_t runSysts,
+		 TString era)
 {
 
   bool isTTbar( filename.Contains("_TTJets") );
@@ -61,7 +62,7 @@ void RunTop16006(TString filename,
   std::vector<TGraph *>puWgtGr;
   if(!ev.isData)
     {
-      TString puWgtUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/pileupWgts.root");
+      TString puWgtUrl(era+"/pileupWgts.root"); 
       gSystem->ExpandPathName(puWgtUrl);
       TFile *fIn=TFile::Open(puWgtUrl);
       for(size_t i=0; i<3; i++)
@@ -98,7 +99,7 @@ void RunTop16006(TString filename,
     }
 
   //LEPTON EFFICIENCIES
-  TString lepEffUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/leptonEfficiencies.root");
+  TString lepEffUrl(era+"/muonEfficiencies.root"); 
   gSystem->ExpandPathName(lepEffUrl);
   std::map<TString,TH2 *> lepEffH;
   if(!ev.isData)
@@ -110,7 +111,7 @@ void RunTop16006(TString filename,
       fIn->Close();
     }
 
-  lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_76X_18Feb.txt_SF2D.root";
+  lepEffUrl=era+"/electronEfficiencies.root";
   gSystem->ExpandPathName(lepEffUrl);
   if(!ev.isData)
     {
@@ -121,10 +122,10 @@ void RunTop16006(TString filename,
     }
 
   //B-TAG CALIBRATION
-  TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
+  TString btagUncUrl(era+"/btagSFactors.csv");  
   gSystem->ExpandPathName(btagUncUrl);
   std::vector<BTagCalibrationReader *> sfbReaders, sflReaders;
-  TString btagEffExpUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/expTageff.root");
+  TString btagEffExpUrl(era+"/expTageff.root");
   gSystem->ExpandPathName(btagEffExpUrl);
   std::map<TString, TGraphAsymmErrors *> expBtagEff, expBtagEffPy8;
   BTagSFUtil myBTagSFUtil;
@@ -161,7 +162,7 @@ void RunTop16006(TString filename,
     }
 
   //JET ENERGY SCALE: https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Summer15_uncertainties
-  TString jecUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/Fall15_25nsV2_DATA_UncertaintySources_AK4PFchs.txt");
+  TString jecUncUrl(era+"/jecUncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
   //FactorizedJetCorrector *jetCorr=getFactorizedJetEnergyCorrector("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/jectxt",!ev.isData);
   std::vector<TString> jecUncSrcs;

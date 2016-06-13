@@ -16,5 +16,6 @@ void RunTop16006(TString filename,
 		 Int_t chargeSelection, 
 		 FlavourSplitting flavourSplitting,
 		 TH1F *normH, 
-		 Bool_t runSysts);
+		 Bool_t runSysts,
+		 TString era);
 #endif

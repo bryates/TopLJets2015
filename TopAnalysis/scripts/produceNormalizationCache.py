@@ -14,6 +14,7 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--inDir',       dest='inDir',       help='input directory with files',   default='/store/cmst3/user/psilva/LJets2015/5736a2c',        type='string')
+    parser.add_option('-o', '--output',      dest='cache',       help='output file',                  default='data/era2016/genweights.root',                      type='string')
     (opt, args) = parser.parse_args()
 
     #mount locally EOS
@@ -62,14 +63,13 @@ def main():
     #unmount locally EOS
     Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
 
-    #dump to pickle file
-    cache='%s/src/TopLJets2015/TopAnalysis/data/genweights.root' % os.environ['CMSSW_BASE']
-    cachefile=ROOT.TFile.Open(cache,'RECREATE')
+    #dump to ROOT file    
+    cachefile=ROOT.TFile.Open(opt.cache,'RECREATE')
     for sample in genweights:
         genweights[sample].SetDirectory(cachefile)
         genweights[sample].Write(sample)
     cachefile.Close()
-    print 'Produced normalization cache @ %s'%cache
+    print 'Produced normalization cache @ %s'%opt.cache
 
     #all done here
     exit(0)
