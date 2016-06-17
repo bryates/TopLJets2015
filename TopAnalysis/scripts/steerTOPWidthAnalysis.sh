@@ -3,52 +3,50 @@
 WHAT=$1; 
 ERA=$2
 if [ "$#" -ne 2 ]; then 
-    echo "steerTOPWidthAnalysis.sh <SEL/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/PLOT/WWW> <ERA>";
-    echo "        SEL        - launches selection jobs to the batch, output will contain summary trees and control plots"; 
-    echo "        MERGESEL   - merge the output of the jobs";
-    echo "        PLOTSEL    - runs the plotter tool on the selection";
-    echo "        WWWSEL     - moves the plots to an afs-web-based area";
-    echo "        ANA        - analyze the selected events";
-    echo "        MERGE      - merge the output of the analysis jobs";
-    echo "        PLOT       - runs the plotter tool on the analysis outputs";
-    echo "        WWW        - moves the analysis plots to an afs-web-based area";
+    echo "steerTOPWidthAnalysis.sh <SELDATA/SELMC/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/PLOT/WWW> <ERA>";
+    echo "        SEL{DATA,MC} - launches selection jobs to the batch on DATA or MC, output will contain summary trees and control plots"; 
+    echo "        MERGESEL     - merge the output of the jobs";
+    echo "        PLOTSEL      - runs the plotter tool on the selection";
+    echo "        WWWSEL       - moves the plots to an afs-web-based area";
+    echo "        ANA          - analyze the selected events";
+    echo "        MERGE        - merge the output of the analysis jobs";
+    echo "        PLOT         - runs the plotter tool on the analysis outputs";
+    echo "        WWW          - moves the analysis plots to an afs-web-based area";
     echo " "
-    echo "        ERA        - 2015/2016";
+    echo "        ERA          - era2015/era2016";
     exit 1; 
 fi
 
 queue=2nd
-queue=local
 githash=7e62835
 lumi=589
-normCache=data/genweights.root
-puCache=data/pileupweights.root
 case $ERA in
-    2015)
+    era2015)
 	githash=8c1e7c9;
 	lumi=2267.84
-	normCache=data/genweights_2015.root
-	puCache=data/pileupweights_2015.root
 	;;
 esac
 
 eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
-outdir=~/work/TopWidth_${githash}
-wwwdir=~/www/TopWidth_${githash}
+outdir=~/work/TopWidth_${ERA}
+wwwdir=~/www/TopWidth_${ERA}
 
 
 RED='\e[31m'
 NC='\e[0m'
 
 case $WHAT in
-    SEL )
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --norm ${normCache} --puCache ${puCache} -m TOPWidth::RunTopWidth --ch 0;
+    SELDATA )
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0 --only Data;
+	;;
+    SELMC )
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0 --only ^Data;
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	
 	;;
     PLOTSEL )
-	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/samples_Run${ERA}.json -l ${lumi};	
+	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi};	
 	;;
     WWWSEL )
 	mkdir -p ${wwwdir}/sel
@@ -62,7 +60,8 @@ case $WHAT in
 	./scripts/mergeOutputs.py ${outdir}/analysis;
 	;;
     PLOT )
-        python scripts/plotter.py -i ${outdir}/analysis  -j data/samples_Run${ERA}.json -l ${lumi};        
+        python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/samples.json      -l ${lumi};        
+	python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/syst_samples.json -l ${lumi};        
         ;;
     WWW )
         mkdir -p ${wwwdir}/ana

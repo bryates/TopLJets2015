@@ -8,6 +8,7 @@
 #pragma link C++ defined_in "TopLJets2015/TopAnalysis/interface/TOP-16-006.h";
 #pragma link C++ defined_in "TopLJets2015/TopAnalysis/interface/TOPWidth.h";
 #pragma link C++ defined_in "TopLJets2015/TopAnalysis/interface/CommonTools.h";
+#pragma link C++ defined_in "TopLJets2015/TopAnalysis/interface/Davismt2.h";
 
 
 // Local Variables:

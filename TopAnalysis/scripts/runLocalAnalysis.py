@@ -70,6 +70,10 @@ def main():
     if not '.root' in opt.output:
         os.system('mkdir -p %s'%opt.output)
     
+    #correct location of corrections to be used using cmsswBase, if needed
+    cmsswBase=os.environ['CMSSW_BASE']
+    if not cmsswBase in opt.era : opt.era=cmsswBase+'/src/TopLJets2015/TopAnalysis/data/'+opt.era
+
     #process tasks
     task_list = []
     processedTags=[]
@@ -90,8 +94,16 @@ def main():
             if len(onlyList)>0:
                 processThisTag=False
                 for itag in onlyList:
-                    if itag in tag:
+                    if itag[0]=='^': 
+                        itag=itag[1:]
+                        if itag in tag : 
+                            processThisTag=False
+                            break
+                        else : 
+                            processThisTag=True
+                    elif itag in tag:
                         processThisTag=True
+                        break
                 if not processThisTag : continue
 
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
@@ -110,9 +122,7 @@ def main():
             pool = Pool(opt.njobs)
             pool.map(RunMethodPacked, task_list)
     else:
-        print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)
-        cmsswBase=os.environ['CMSSW_BASE']
-        if not cmsswBase in opt.era : opt.era=cmsswBase+'/src/TopLJets2015/TopAnalysis/'+opt.era
+        print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)        
         for method,inF,outF,channel,charge,flav,runSysts,era,tag in task_list:
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,tag,flav,method)
             if runSysts : localRun += ' --runSysts'            

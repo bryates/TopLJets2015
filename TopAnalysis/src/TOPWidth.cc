@@ -158,7 +158,8 @@ void RunTopWidth(TString filename,
   //jet energy uncertainties
   TString jecUncUrl(era+"/jecUncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
-  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(jecUncUrl.Data());
+  JetCorrectorParameters *jecParam = new JetCorrectorParameters(jecUncUrl.Data(),"Total");
+  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty( *jecParam );
 
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
@@ -516,7 +517,6 @@ void RunTopWidth(TString filename,
 	      allPlots[pf+"chpullangle_"+chTag]->Fill(TMath::ATan2(bJetPulls[ibj].chPull.Px(),bJetPulls[ibj].chPull.Py()),wgt);
 	    }
 	}
-
 
       twev.cat=11;
       if(chTag=="M") twev.cat=13;
