@@ -61,8 +61,8 @@ case $WHAT in
 	./scripts/mergeOutputs.py ${outdir}/analysis;
 	;;
     PLOT )
-        python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/samples.json      -l ${lumi};        
-	python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/syst_samples.json -l ${lumi};        
+        python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/samples.json      -l ${lumi} --onlyData;        
+	python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/syst_samples.json -l ${lumi} --silent;        
         ;;
     WWW )
         mkdir -p ${wwwdir}/ana

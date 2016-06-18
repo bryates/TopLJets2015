@@ -381,6 +381,7 @@ def main():
     parser.add_option(      '--noStack',     dest='noStack',     help='don\'t stack distributions',     default=False,             action='store_true')
     parser.add_option(      '--saveLog',     dest='saveLog' ,    help='save log versions of the plots', default=False,             action='store_true')
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
+    parser.add_option(      '--onlyData',    dest='onlyData' ,   help='only plots containing data',     default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default=41.6,              type=float)
@@ -473,7 +474,10 @@ def main():
     os.system('rm %s/%s'%(outDir,opt.outName))
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
+        skipPlot=False
+        if opt.onlyData and plots[p].dataH is None: skipPlot=True 
+        if opt.silent : skipPlot=True
+        if not skipPlot : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
         plots[p].appendTo('%s/%s'%(outDir,opt.outName))
         plots[p].reset()
 
