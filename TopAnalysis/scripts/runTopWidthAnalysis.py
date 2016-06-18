@@ -30,7 +30,7 @@ Analysis loop
 """
 def runTopWidthAnalysis(fileName,
                         outFileName,
-                        widthList=[0.5,1,2,4],
+                        widthList=[0.5,1,2,3,4],
                         smMass=172.5,
                         smWidth=1.324,
                         systs=['','puup','pudn','btagup','btagdn','jerup','jerdn','jesup','jesdn','lesup','lesdn']):
@@ -94,17 +94,17 @@ def runTopWidthAnalysis(fileName,
 
         if i%100==0 : sys.stdout.write('\r [ %d/100 ] done' %(int(float(100.*i)/float(totalEntries))) )
 
+        #focus on dilepton analysis for the moment
+        if abs(tree.cat)==11 or abs(tree.cat)==13 : continue
+        if abs(tree.cat)==11*11 : evcat='EE'
+        if abs(tree.cat)==11*13 : evcat='EM'
+        if abs(tree.cat)==13*13 : evcat='MM'
+
         #determine weighting factors for the width
         tmassList=[]
         for it in xrange(0,tree.nt): tmassList.append( tree.t_m[it] )
         widthWeight={}
         for w in widthList: widthWeight[w]=weightTopWidth(tmassList,bwigner,w*smWidth,smWidth)
-
-        evcat='E'
-        if abs(tree.cat)==13 : evcat='M'
-        if abs(tree.cat)==11*11 : evcat='EE'
-        if abs(tree.cat)==11*13 : evcat='EM'
-        if abs(tree.cat)==13*13 : evcat='MM'
 
         #preselect the b-jets (central b-tag, b-tag up, b-tag dn, jer up, jer dn, jes up, jes dn)
         bjets=( [], [], [], [], [], [], [] )
@@ -113,14 +113,21 @@ def runTopWidthAnalysis(fileName,
             jp4=ROOT.TLorentzVector()
             jp4.SetPtEtaPhiM(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij])
             
-            #jres=tree.j_jer[ij]
-            #jscale=tree.j_jscale[ij]
-
             for ibit in xrange(0,3):
                 btagVal=((tree.j_btag[ij] >> ibit) & 0x1)
-                if btagVal!=0:
-                    bjets[ibit].append( (ij,jp4) )
+
+                if btagVal==0: continue
+                bjets[ibit].append( (ij,jp4) )
                 
+                if ibit>0: continue
+
+                jres=ROOT.TMath.Abs(1-tree.j_jer[ij])
+                bjets[3].append( (ij,jp4*(1+jres)) )
+                bjets[4].append( (ij,jp4*(1-jres)) )
+                
+                jscale=tree.j_jes[ij]       
+                bjets[5].append( (ij,jp4*(1+jscale)) )
+                bjets[6].append( (ij,jp4*(1-jscale)) )
 
         
         #pair with the leptons
@@ -128,8 +135,7 @@ def runTopWidthAnalysis(fileName,
 
             stdlp4=ROOT.TLorentzVector()
             stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
-            lesScale=1.0
-            if not isData: lesScale=ROOT.getLeptonEnergyScaleUncertainty(tree.l_id[il],lp4.Pt(),lpt.Eta())
+            lscale=tree.l_les[il]
 
             for s in systs:
                 
@@ -146,19 +152,17 @@ def runTopWidthAnalysis(fileName,
                 if s=='jerdn'  : ijhyp=4
                 if s=='jesup'  : ijhyp=5
                 if s=='jesdn'  : ijhyp=6
-                if s=='lesup'  : lp4 *= (1.0+lesScale)
-                if s=='lesdn'  : lp4 *= (1.0-lesScale)
-                
+                if s=='lesup'  : lp4 *= (1.0+lscale)
+                if s=='lesdn'  : lp4 *= (1.0-lscale)
+                if s=='puup'   : evWeight=puNormSF*tree.weight[1]
+                if s=='pudn'   : evWeight=puNormSF*tree.weight[2]
+
                 #btag hypothesis
                 nbtags=len(bjets[ijhyp])
                 if nbtags<1 : continue
                 if nbtags>2 : nbtags=2
                 btagcat='1b' if nbtags==1 else '2b'
                 
-                #pileup
-                if s=='puup' : evWeight=puNormSF*tree.weight[1]
-                if s=='pudn' : evWeight=puNormSF*tree.weight[2]
-
                 for ib in xrange(0,nbtags):
 
                     ij,jp4 = bjets[ijhyp][ib]

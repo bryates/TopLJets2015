@@ -28,6 +28,7 @@ case $ERA in
 esac
 
 eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
+summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 outdir=~/work/TopWidth_${ERA}
 wwwdir=~/www/TopWidth_${ERA}
 
@@ -54,7 +55,7 @@ case $WHAT in
 	cp test/index.php ${wwwdir}/sel
 	;;
     ANA )
-	python scripts/runTopWidthAnalysis.py -i ${outdir}/Chunks -o ${outdir}/analysis -q 8nh;
+	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};
 	;;
     MERGE )
 	./scripts/mergeOutputs.py ${outdir}/analysis;
