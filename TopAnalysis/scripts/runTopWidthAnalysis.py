@@ -56,13 +56,23 @@ def runTopWidthAnalysis(fileName,
 
     #book histograms
     observablesH={}    
-    for s in systs:
-        for i in ['lowpt','highpt']:
-            for j in ['E','M','EE','MM','EM']:
-                for b in ['1b','2b']:
+    for j in ['EE','MM','EM']:
+        for b in ['1b','2b']:
+
+            var=j+b+'_ptlb'
+            observablesH[var]=ROOT.TH1F(var,';p_{T}(lepton,jet) [GeV];l+j pairs',30,0,300)
+            var=j+b+'_met'
+            observablesH[var]=ROOT.TH1F(var,';Missing transverse energy [GeV];Events',30,0,300)
+            var=j+b+'_mll'
+            observablesH[var]=ROOT.TH1F(var,';Dilepton invariant mass [GeV];Events',30,0,300)
+            var=j+b+'_njets'
+            observablesH[var]=ROOT.TH1F(var,';Jet multiplicity;Events',5,0,5)
+
+            for s in systs:
+                for i in ['lowpt','highpt']:
                     for w in widthList:
                         var=s+i+j+b+'_mlb_%3.1fw'%w
-                        observablesH[var]=ROOT.TH1F(var,';Mass(lepton,jet) [GeV];l+j pairs',50,0,300)
+                        observablesH[var]=ROOT.TH1F(var,';Mass(lepton,jet) [GeV];l+j pairs',30,0,300)
                         if w!=1.0 or len(s)>0 : continue
                         var=i+j+b+'_pairing'
                         observablesH[var]=ROOT.TH1F(var,';Pairing;l+j pairs',2,0,2)
@@ -128,14 +138,15 @@ def runTopWidthAnalysis(fileName,
                 jscale=tree.j_jes[ij]       
                 bjets[5].append( (ij,jp4*(1+jscale)) )
                 bjets[6].append( (ij,jp4*(1-jscale)) )
-
         
         #pair with the leptons
-        for il in xrange(0,tree.nl):
+        dilepton=ROOT.TLorentzVector()
+        for il in xrange(0,2):
 
             stdlp4=ROOT.TLorentzVector()
             stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
             lscale=tree.l_les[il]
+            dilepton+=stdlp4
 
             for s in systs:
                 
@@ -176,8 +187,12 @@ def runTopWidthAnalysis(fileName,
                     mlb=(lp4+jp4).M()
                     ptlb=(lp4+jp4).Pt()
                     ptCat='lowpt' if ptlb<100 else 'highpt'
-                        
+                    
                     #fill histos
+                    if s=='': 
+                        var=evcat+btagcat+'_ptlb'
+                        observablesH[var].Fill(ptlb,evWeight)
+
                     for w in widthList:
                         var=s+ptCat+evcat+btagcat+'_mlb_%3.1fw'%w
                         observablesH[var].Fill(mlb,evWeight*widthWeight[w])
@@ -186,6 +201,18 @@ def runTopWidthAnalysis(fileName,
                         if w!=1.0 or len(s)>0 : continue
                         var=s+ptCat+evcat+btagcat+'_pairing'
                         observablesH[var].Fill(assignmentType,evWeight*widthWeight[w])
+                        
+        #global control histos
+        nbtags=len(bjets[0])
+        if nbtags<1 : continue
+        if nbtags>2 : nbtags=2
+        btagcat='1b' if nbtags==1 else '2b'                        
+        var=evcat+btagcat+'_met'
+        observablesH[var].Fill(tree.met_pt,evWeight)
+        var=evcat+btagcat+'_mll'
+        observablesH[var].Fill(dilepton.M(),evWeight)
+        var=evcat+btagcat+'_njets'
+        observablesH[var].Fill(tree.nj,evWeight)
 
          
     #save results
