@@ -66,7 +66,7 @@ def runTopWidthAnalysis(fileName,
             var=j+b+'_mll'
             observablesH[var]=ROOT.TH1F(var,';Dilepton invariant mass [GeV];Events',30,0,300)
             var=j+b+'_njets'
-            observablesH[var]=ROOT.TH1F(var,';Jet multiplicity;Events',5,0,5)
+            observablesH[var]=ROOT.TH1F(var,';Jet multiplicity;Events',6,2,8)
 
             for s in systs:
                 for i in ['lowpt','highpt']:
@@ -139,14 +139,33 @@ def runTopWidthAnalysis(fileName,
                 bjets[5].append( (ij,jp4*(1+jscale)) )
                 bjets[6].append( (ij,jp4*(1-jscale)) )
         
-        #pair with the leptons
+        #build the dilepton
         dilepton=ROOT.TLorentzVector()
+        for il in xrange(0,2):
+            dilepton+=stdlp4
+
+        #global control histos
+        nbtags=len(bjets[0])
+        if nbtags<1 : continue
+        if nbtags>2 : nbtags=2
+        btagcat='1b' if nbtags==1 else '2b'                        
+        var=evcat+btagcat+'_mll'
+        observablesH[var].Fill(dilepton.M(),evWeight)
+
+        #remove Z candidates
+        if ROOT.TMath.Abs(dilepton.M()-91)<15 and (abs(tree.cat)==11*11 or abs(tree.cat)==13*13) : continue
+
+        var=evcat+btagcat+'_met'
+        observablesH[var].Fill(tree.met_pt,evWeight)
+        var=evcat+btagcat+'_njets'
+        observablesH[var].Fill(tree.nj,evWeight)
+
+        #pair with the leptons
         for il in xrange(0,2):
 
             stdlp4=ROOT.TLorentzVector()
             stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
             lscale=tree.l_les[il]
-            dilepton+=stdlp4
 
             for s in systs:
                 
@@ -202,19 +221,6 @@ def runTopWidthAnalysis(fileName,
                         var=s+ptCat+evcat+btagcat+'_pairing'
                         observablesH[var].Fill(assignmentType,evWeight*widthWeight[w])
                         
-        #global control histos
-        nbtags=len(bjets[0])
-        if nbtags<1 : continue
-        if nbtags>2 : nbtags=2
-        btagcat='1b' if nbtags==1 else '2b'                        
-        var=evcat+btagcat+'_met'
-        observablesH[var].Fill(tree.met_pt,evWeight)
-        var=evcat+btagcat+'_mll'
-        observablesH[var].Fill(dilepton.M(),evWeight)
-        var=evcat+btagcat+'_njets'
-        observablesH[var].Fill(tree.nj,evWeight)
-
-         
     #save results
     fOut=ROOT.TFile.Open(outFileName,'RECREATE')
     for var in observablesH: observablesH[var].Write()

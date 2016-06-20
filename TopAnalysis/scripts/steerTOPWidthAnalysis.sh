@@ -17,6 +17,8 @@ if [ "$#" -ne 2 ]; then
     exit 1; 
 fi
 
+export LSB_JOB_REPORT_MAIL=N
+
 queue=2nd
 githash=7e62835
 lumi=589
