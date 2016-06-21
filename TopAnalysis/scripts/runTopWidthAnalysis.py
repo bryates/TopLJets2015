@@ -30,9 +30,7 @@ Analysis loop
 """
 def runTopWidthAnalysis(fileName,
                         outFileName,
-                        widthList=[0.5,1,2,3,4],
-                        smMass=172.5,
-                        smWidth=1.324,
+                        widthList=[0.5,1.0,2.0,3.0,4.0],
                         systs=['','puup','pudn','btagup','btagdn','jerup','jerdn','jesup','jesdn','lesup','lesdn']):
         
     print '....analysing',fileName,'with output @',outFileName
@@ -42,6 +40,11 @@ def runTopWidthAnalysis(fileName,
     if isData:
         widthList=[1.0]
         systs=['']
+
+    smWidth=1.324 # all powheg samples have been generated with the width @ 172.5 GeV
+    smMass=172.5
+    if '169v5' in fileName : smMass=169.5
+    if '175v5' in fileName : smMass=175.5
 
     #define the relativistic Breit-Wigner function
     bwigner=ROOT.TF1('bwigner',
@@ -56,6 +59,16 @@ def runTopWidthAnalysis(fileName,
 
     #book histograms
     observablesH={}    
+
+    #MC truth control histograms
+    for w in widthList:
+        var='tmass_%3.1fw'%w
+        observablesH[var]=ROOT.TH1F(var,';Top quark mass [GeV];Top quarks',100,150,200)
+        for assig in ['cor','wro']:
+            var='%sgenmlbvsmtop_%3.1fw'%(assig,w)
+            observablesH[var]=ROOT.TH2F(var,';Mass(lepton,jet) [GeV];Top mass;l+j pairs',30,0,300,100,150,200)
+
+    #RECO level histograms
     for j in ['EE','MM','EM']:
         for b in ['1b','2b']:
 
@@ -67,7 +80,7 @@ def runTopWidthAnalysis(fileName,
             observablesH[var]=ROOT.TH1F(var,';Dilepton invariant mass [GeV];Events',30,0,300)
             var=j+b+'_njets'
             observablesH[var]=ROOT.TH1F(var,';Jet multiplicity;Events',6,2,8)
-
+            
             for s in systs:
                 for i in ['lowpt','highpt']:
                     for w in widthList:
@@ -110,11 +123,27 @@ def runTopWidthAnalysis(fileName,
         if abs(tree.cat)==11*13 : evcat='EM'
         if abs(tree.cat)==13*13 : evcat='MM'
 
+        #base event weight
+        baseEvWeight=puNormSF*tree.weight[0]
+
         #determine weighting factors for the width
+        tops={}
         tmassList=[]
-        for it in xrange(0,tree.nt): tmassList.append( tree.t_m[it] )
+        for it in xrange(0,tree.nt): 
+            if it>1 : break
+            tid=tree.t_id[it]
+            tops[ tid ] = ROOT.TLorentzVector()
+            tops[ tid ].SetPtEtaPhiM(tree.t_pt[it],tree.t_eta[it],tree.t_phi[it],tree.t_m[it])
+            tmassList.append( tops[tid].M() )
         widthWeight={}
-        for w in widthList: widthWeight[w]=weightTopWidth(tmassList,bwigner,w*smWidth,smWidth)
+        for w in widthList: 
+            widthWeight[w]=weightTopWidth(tmassList,bwigner,w*smWidth,smWidth)
+
+            #paranoid check
+            var='tmass_%3.1fw'%w
+            for mtop in tmassList:
+                observablesH[var].Fill(mtop,baseEvWeight*widthWeight[w])
+
 
         #preselect the b-jets (central b-tag, b-tag up, b-tag dn, jer up, jer dn, jes up, jes dn)
         bjets=( [], [], [], [], [], [], [] )
@@ -138,10 +167,12 @@ def runTopWidthAnalysis(fileName,
                 jscale=tree.j_jes[ij]       
                 bjets[5].append( (ij,jp4*(1+jscale)) )
                 bjets[6].append( (ij,jp4*(1-jscale)) )
-        
+
         #build the dilepton
         dilepton=ROOT.TLorentzVector()
         for il in xrange(0,2):
+            stdlp4=ROOT.TLorentzVector()
+            stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
             dilepton+=stdlp4
 
         #global control histos
@@ -150,15 +181,15 @@ def runTopWidthAnalysis(fileName,
         if nbtags>2 : nbtags=2
         btagcat='1b' if nbtags==1 else '2b'                        
         var=evcat+btagcat+'_mll'
-        observablesH[var].Fill(dilepton.M(),evWeight)
+        observablesH[var].Fill(dilepton.M(),baseEvWeight)
 
         #remove Z candidates
         if ROOT.TMath.Abs(dilepton.M()-91)<15 and (abs(tree.cat)==11*11 or abs(tree.cat)==13*13) : continue
 
         var=evcat+btagcat+'_met'
-        observablesH[var].Fill(tree.met_pt,evWeight)
+        observablesH[var].Fill(tree.met_pt,baseEvWeight)
         var=evcat+btagcat+'_njets'
-        observablesH[var].Fill(tree.nj,evWeight)
+        observablesH[var].Fill(tree.nj,baseEvWeight)
 
         #pair with the leptons
         for il in xrange(0,2):
@@ -167,11 +198,13 @@ def runTopWidthAnalysis(fileName,
             stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
             lscale=tree.l_les[il]
 
+
             for s in systs:
                 
                 #event weight
-                evWeight=puNormSF*tree.weight[0]
-
+                evWeight=baseEvWeight
+                
+                #base lepton kinematics
                 lp4=ROOT.TLorentzVector(stdlp4)
 
                 #experimental uncertainties
@@ -191,18 +224,41 @@ def runTopWidthAnalysis(fileName,
                 nbtags=len(bjets[ijhyp])
                 if nbtags<1 : continue
                 if nbtags>2 : nbtags=2
-                btagcat='1b' if nbtags==1 else '2b'
-                
+                btagcat='1b' if nbtags==1 else '2b'                
                 for ib in xrange(0,nbtags):
 
                     ij,jp4 = bjets[ijhyp][ib]
 
-                    #check if assignment is correct or not
-                    assignmentType=1
-                    if tree.gl_id[il]!=0 and tree.gj_flav[ij]!=0 and tree.nt>0:
+                    #MC truth for this pair
+                    pairFullyMatchedAtGen=True if (tree.gl_id[il]!=0 and abs(tree.gj_flav[ij])==5) else False
+                    assignmentType,tmass,genmlb=1,0.0,0.0
+                    if pairFullyMatchedAtGen and tree.nt>0:
+
+                        #MC truth  kinematkcs
+                        glp4=ROOT.TLorentzVector()
+                        glp4.SetPtEtaPhiM(tree.gl_pt[il],tree.gl_eta[il],tree.gl_phi[il],tree.gl_m[il])
+                        gjp4=ROOT.TLorentzVector()
+                        gjp4.SetPtEtaPhiM(tree.gj_pt[ij],tree.gj_eta[ij],tree.gj_phi[ij],tree.gj_m[ij])
+                        genmlb=(glp4+gjp4).M()
+
+                        #correctness of the assignment can be checked by op. charge
                         if tree.gl_id[il]*tree.gj_flav[ij]<0 : assignmentType=0
-                
-                    #kinematics of the l,b system
+ 
+                        #top mass (parton level)
+                        try:
+                            if tree.gl_id[il]<0 : tmass=tops[6].M()
+                            else                : tmass=tops[-6].M()
+                        except:
+                            pass
+
+                    #save MC truth distribution
+                    if s=='' and pairFullyMatchedAtGen:
+                        for w in widthList:
+                            var='cor' if assignmentType==0 else 'wro'
+                            var+='genmlbvsmtop_%3.1fw'%w
+                            observablesH[var].Fill(genmlb,tmass,baseEvWeight*widthWeight[w])
+
+                    #RECO kinematics of the l,b system
                     mlb=(lp4+jp4).M()
                     ptlb=(lp4+jp4).Pt()
                     ptCat='lowpt' if ptlb<100 else 'highpt'

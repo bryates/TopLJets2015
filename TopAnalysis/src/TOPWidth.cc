@@ -376,7 +376,7 @@ void RunTopWidth(TString filename,
 	  Int_t hadFlav=ev.j_hadflav[k];
 	  Int_t flav=ev.j_flav[k];
 	  TLorentzVector gjp4(0,0,0,0);
-	  if(ev.j_g[k]>0)
+	  if(ev.j_g[k]>=0)
 	    {
 	      int gidx=ev.j_g[k];
 	      gjp4.SetPtEtaPhiM( ev.g_pt[gidx], ev.g_eta[gidx], ev.g_phi[gidx], ev.g_m[gidx] );
@@ -418,6 +418,7 @@ void RunTopWidth(TString filename,
 	      
 	      if(il!=0) continue;
 	      if(prefix=="m") lepTriggerSF=(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
+	      else lepTriggerSF=0.96;
 	    }
 	  
 	  //update nominal event weight
