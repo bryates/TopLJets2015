@@ -3,13 +3,14 @@
 WHAT=$1; 
 ERA=$2
 if [ "$#" -ne 2 ]; then 
-    echo "steerTOPWidthAnalysis.sh <SELDATA/SELMC/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/PLOT/WWW> <ERA>";
+    echo "steerTOPWidthAnalysis.sh <SELDATA/SELMC/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/BKG/PLOT/WWW> <ERA>";
     echo "        SEL{DATA,MC} - launches selection jobs to the batch on DATA or MC, output will contain summary trees and control plots"; 
     echo "        MERGESEL     - merge the output of the jobs";
     echo "        PLOTSEL      - runs the plotter tool on the selection";
     echo "        WWWSEL       - moves the plots to an afs-web-based area";
     echo "        ANA          - analyze the selected events";
     echo "        MERGE        - merge the output of the analysis jobs";
+    echo "        BKG          - estimate DY scale factor from data";
     echo "        PLOT         - runs the plotter tool on the analysis outputs";
     echo "        WWW          - moves the analysis plots to an afs-web-based area";
     echo " "
@@ -62,9 +63,13 @@ case $WHAT in
     MERGE )
 	./scripts/mergeOutputs.py ${outdir}/analysis;
 	;;
+    BKG )
+	python scripts/plotter.py      -i ${outdir}/analysis  -j data/${ERA}/samples.json  -l ${lumi} --onlyData --only mll -o dy_plotter.root;        
+	python scripts/runDYRinRout.py --in ${outdir}/analysis/plots/dy_plotter.root --categs 1b,2b --out ${outdir}/analysis/plots/;
+	;;
     PLOT )
-        python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/samples.json      -l ${lumi} --onlyData;        
-	python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/syst_samples.json -l ${lumi} --silent;        
+        python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/samples.json      -l ${lumi} --onlyData --procSF DY:${outdir}/analysis/plots/.dyscalefactors.pck;        
+	python scripts/plotter.py -i ${outdir}/analysis  -j data/${ERA}/syst_samples.json -l ${lumi} --silent -o syst_plotter.root;        
         ;;
     WWW )
         mkdir -p ${wwwdir}/ana

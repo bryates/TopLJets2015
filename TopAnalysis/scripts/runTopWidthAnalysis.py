@@ -186,7 +186,7 @@ def runTopWidthAnalysis(fileName,
         #remove Z/quarkonia candidates
         if (abs(tree.cat)==11*11 or abs(tree.cat)==13*13) :
             if ROOT.TMath.Abs(dilepton.M()-91)<15 : continue
-            if dilepton.M()<15: continue
+            if dilepton.M()<20: continue
         
         var=evcat+btagcat+'_met'
         observablesH[var].Fill(tree.met_pt,baseEvWeight)
