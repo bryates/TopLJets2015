@@ -76,15 +76,16 @@ def main():
         intErr=ROOT.Double(0)
         for ch in ['EE','MM','EM']:
             data, sumMC, refH  = getTemplates(fIn=fIn, dist='%s%s_mll'%(ch,sel), tag=ch+sel,refName='DY')
+            binMin,binMax=data.GetXaxis().FindBin(20),data.GetNbinsX()+1
             bin1,bin2=data.GetXaxis().FindBin(76),data.GetXaxis().FindBin(106)
 
             nin[ch]=(data.Integral(bin1,bin2),0.)
-            nout[ch]=(data.Integral()-nin[ch][0],0.)
+            nout[ch]=(data.Integral(binMin,binMax)-nin[ch][0],0.)
 
             dyCts=refH.IntegralAndError(bin1,bin2,intErr)
             ndyin[ch]=(dyCts,intErr)
 
-            dyCts=refH.IntegralAndError(1,refH.GetNbinsX(),intErr)-dyCts
+            dyCts=refH.IntegralAndError(binMin,binMax,intErr)-dyCts
             ndyout[ch]=(dyCts,ROOT.TMath.Sqrt(intErr**2-ndyin[ch][1]**2))
 
         #table a la TOP-16-015 
