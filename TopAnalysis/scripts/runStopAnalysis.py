@@ -27,9 +27,14 @@ def runStopAnalysis(fileName,outFileName):
     #book histograms
     observablesH={}
     for k in ['emu','ll']:
-        observablesH['mlb_'+k]=ROOT.TH1F('mlb_'+k,';Mass(lepton,b) [GeV];Events',20,0,250)
         observablesH['dphibb_'+k]=ROOT.TH1F('dphibb_'+k,';#Delta#phi(b,#bar{b}) [rad];Events',20,0,3.15)
+        observablesH['cosbstar_'+k]=ROOT.TH1F('cosbstar_'+k,';cos(#theta*_{b});Events',20,-1,1)
+        observablesH['cosbstarprod_'+k]=ROOT.TH1F('cosbstarprod_'+k,';cos(#theta*_{b_{1}})cos(#theta*_{b_{2}});Events',20,-1,1)
+
         observablesH['dphill_'+k]=ROOT.TH1F('dphill_'+k,';#Delta#phi(l,l) [rad];Events',20,0,3.15)
+        observablesH['coslstar_'+k]=ROOT.TH1F('coslstar_'+k,';cos(#theta*_{l});Events',20,-1,1)
+        observablesH['coslstarprod_'+k]=ROOT.TH1F('coslstarprod_'+k,';cos(#theta*_{l_{1}})cos(#theta*_{l_{2}});Events',20,-1,1)
+
         observablesH['dphijj_'+k]=ROOT.TH1F('dphijj_'+k,';#Delta#phi(j,j) [rad];Events',20,0,3.15)
     for var in observablesH:
         observablesH[var].SetDirectory(0)
@@ -62,27 +67,22 @@ def runStopAnalysis(fileName,outFileName):
 
         evWeight=puNormSF*tree.weight[0]
 
-        #preselect the b-jets
+        #leptons
+        leptons=[]
+        for il in xrange(0,tree.nl):
+            leptons.append( lVec(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il]) )
+        if len(leptons)<2 : continue
+
+        #preselect the b-jets (save always the jet and the gen jet)
         bjets,otherjets=[],[]
         for ij in xrange(0,tree.nj):
 
             btagVal=(tree.j_btag[ij] & 0x1)
             if btagVal!=0 and len(bjets)<2: 
-                bjets.append( (lVec(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij]),
-                               lVec(tree.gj_pt[ij],tree.gj_eta[ij],tree.gj_phi[ij],tree.gj_m[ij]))
-                              )
+                bjets.append( lVec(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij]) )
             else:
-                otherjets.append( (lVec(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij]),
-                                   lVec(tree.gj_pt[ij],tree.gj_eta[ij],tree.gj_phi[ij],tree.gj_m[ij]))
-                                  )        
+                otherjets.append( lVec(tree.j_pt[ij],tree.j_eta[ij],tree.j_phi[ij],tree.j_m[ij]) )
         if len(bjets)!=2: continue
-
-        #leptons
-        leptons=[]
-        for il in xrange(0,tree.nl):
-            leptons.append( (lVec(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il]),
-                             lVec(tree.gl_pt[il],tree.gl_eta[il],tree.gl_phi[il],tree.gl_m[il])) )
-
 
         #met
         metx,mety=tree.met_pt*ROOT.TMath.Cos(tree.met_phi),tree.met_pt*ROOT.TMath.Sin(tree.met_phi)
@@ -90,22 +90,22 @@ def runStopAnalysis(fileName,outFileName):
         #try to solve the kinematics (need to swap bl assignments)
         allSols=[]
         try:
-            sols=doubleNeutrinoSolutions( (bjets[0][0],   bjets[1][0]), 
-                                          (leptons[0][0], leptons[1][0]),
+            sols=doubleNeutrinoSolutions( (bjets[0],   bjets[1]), 
+                                          (leptons[0], leptons[1]),
                                           (metx,mety) )
             for isol in xrange(0,len(sols.nunu_s)):               
-                top=bjets[0][0]+leptons[0][0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
-                top_=bjets[1][0]+leptons[1][0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][1],0.)
+                top=bjets[0]+leptons[0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
+                top_=bjets[1]+leptons[1]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][1],0.)
                 allSols.append( (0,top,top_) )
         except numpy.linalg.linalg.LinAlgError:
             pass        
         try:
-            sols=doubleNeutrinoSolutions( (bjets[0][0],   bjets[1][0]), 
-                                          (leptons[1][0], leptons[0][0]),
+            sols=doubleNeutrinoSolutions( (bjets[0],   bjets[1]), 
+                                          (leptons[1], leptons[0]),
                                           (metx,mety) )
             for isol in xrange(0,len(sols.nunu_s)):
-                top=bjets[0][0]+leptons[1][0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
-                top_=bjets[1][0]+leptons[0][0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
+                top=bjets[0]+leptons[1]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][0],0.)
+                top_=bjets[1]+leptons[0]+convertToPtEtaPhiM(lVec,sols.nunu_s[isol][1],0.)
                 allSols.append( (1,top,top_) )
         except numpy.linalg.linalg.LinAlgError :
             pass
@@ -115,12 +115,28 @@ def runStopAnalysis(fileName,outFileName):
         allSols=sorted(allSols, key=lambda sol: (sol[1]+sol[2]).mass() )        
         l1idx=0 if allSols[0][0]==0 else 1
         l2idx=1 if allSols[0][0]==0 else 0
-        observablesH['mlb_'+evcat].Fill((bjets[0][0]+leptons[l1idx][0]).mass(),evWeight)
-        observablesH['mlb_'+evcat].Fill((bjets[1][0]+leptons[l2idx][0]).mass(),evWeight)
-        observablesH['dphibb_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(bjets[0][0],bjets[1][0]),evWeight)
-        observablesH['dphill_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx][0],leptons[l2idx][0]),evWeight)
+ 
+        #setup the Lorentz transformations to the top/anti-top rest frames
+        topBoost, top_Boost = allSols[0][1].BoostToCM(), allSols[0][2].BoostToCM()
+
+        #measure b-jet angles
+        cosb1 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(bjets[0],topBoost), allSols[0][1] ) )
+        cosb2 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(bjets[1],top_Boost), allSols[0][2] ) )
+        observablesH['dphibb_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1]),evWeight)
+        observablesH['cosbstar_'+evcat].Fill(cosb1,evWeight)
+        observablesH['cosbstar_'+evcat].Fill(cosb2,evWeight)
+        observablesH['cosbstarprod_'+evcat].Fill(cosb1*cosb2,evWeight)
+
+        #measure leptonic angles
+        cosl1 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(leptons[l1idx],topBoost), allSols[0][1] ) )
+        cosl2 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(leptons[l2idx],top_Boost), allSols[0][2] ) )
+        observablesH['dphill_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx],leptons[l2idx]),evWeight)
+        observablesH['coslstar_'+evcat].Fill(cosl1,evWeight)
+        observablesH['coslstar_'+evcat].Fill(cosl2,evWeight)
+        observablesH['coslstarprod_'+evcat].Fill(cosl1*cosl2,evWeight)
+
         if len(otherjets)>=2:
-            observablesH['dphijj_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(otherjets[0][0],otherjets[1][0]),evWeight)
+            observablesH['dphijj_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(otherjets[0],otherjets[1]),evWeight)
          
     #save results
     fOut=ROOT.TFile.Open(outFileName,'RECREATE')
