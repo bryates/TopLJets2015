@@ -30,7 +30,7 @@ Analysis loop
 """
 def runTopWidthAnalysis(fileName,
                         outFileName,
-                        widthList=[0.5,1.0,2.0,3.0,4.0],
+                        widthList=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0],
                         systs=['','puup','pudn','btagup','btagdn','jerup','jerdn','jesup','jesdn','lesup','lesdn']):
         
     print '....analysing',fileName,'with output @',outFileName
@@ -70,6 +70,10 @@ def runTopWidthAnalysis(fileName,
 
     #RECO level histograms
     for j in ['EE','MM','EM']:
+        var=j+'_evcount'
+        observablesH[var]=ROOT.TH1F(var,';Category;Events',2,0,2)
+        observablesH[var].GetXaxis().SetBinLabel(1,'=1b')
+        observablesH[var].GetXaxis().SetBinLabel(2,'#geq2b')
         for b in ['1b','2b']:
 
             var=j+b+'_ptlb'
@@ -177,21 +181,25 @@ def runTopWidthAnalysis(fileName,
 
         #global control histos
         nbtags=len(bjets[0])
-        if nbtags<1 : continue
         if nbtags>2 : nbtags=2
         btagcat='1b' if nbtags==1 else '2b'                        
-        var=evcat+btagcat+'_mll'
-        observablesH[var].Fill(dilepton.M(),baseEvWeight)
+
+        if nbtags>0:
+            var=evcat+btagcat+'_mll'
+            observablesH[var].Fill(dilepton.M(),baseEvWeight)
 
         #remove Z/quarkonia candidates
         if abs(tree.cat)==11*11 or abs(tree.cat)==13*13:
             if ROOT.TMath.Abs(dilepton.M()-91)<15 : continue
             if dilepton.M()<20: continue
         
-        var=evcat+btagcat+'_met'
-        observablesH[var].Fill(tree.met_pt,baseEvWeight)
-        var=evcat+btagcat+'_njets'
-        observablesH[var].Fill(tree.nj,baseEvWeight)
+        if nbtags>0:
+            var=evcat+"_evcount"
+            observablesH[var].Fill(nbtags-1)
+            var=evcat+btagcat+'_met'
+            observablesH[var].Fill(tree.met_pt,baseEvWeight)
+            var=evcat+btagcat+'_njets'
+            observablesH[var].Fill(tree.nj,baseEvWeight)
 
         #pair with the leptons
         for il in xrange(0,2):
@@ -199,7 +207,6 @@ def runTopWidthAnalysis(fileName,
             stdlp4=ROOT.TLorentzVector()
             stdlp4.SetPtEtaPhiM(tree.l_pt[il],tree.l_eta[il],tree.l_phi[il],tree.l_m[il])
             lscale=tree.l_les[il]
-
 
             for s in systs:
                 

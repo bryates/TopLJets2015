@@ -48,19 +48,36 @@ pdf=ROOT.RooMomentMorphND('widmorphpdf','widmorphpdf',
 pdf.useHorizontalMorphing(False)
 getattr(ws,'import')(pdf,ROOT.RooCmdArg()) 
 
+dpdfdalpha=pdf.derivative(ws.var('alpha'))
+dpdfdbeta=pdf.derivative(ws.var('beta'))
+
+
+ws.var('alpha').setVal(0.0)
+ws.var('beta').setVal(1.0)
+
+lsSensitivities={'alpha':ROOT.TGraph(),
+                 'beta':ROOT.TGraph()}
+for x in xrange(0,330,30):
+    ws.var('x').setVal(x)
+    f=pdf.getVal()
+    dfda=dpdfdalpha.getVal()
+    dfdb=dpdfdbeta.getVal()
+    if f==0 : continue
+    np=lsSensitivities['alpha'].GetN()
+    lsSensitivities['alpha'].SetPoint(np,x,(1/f)*(dfda**2))
+    lsSensitivities['beta'].SetPoint(np,x,(1/f)*(dfdb**2))
+
 c= ROOT.TCanvas("c","c",500,500)
 frame = ws.var("x").frame()
-
-ws.pdf("highptEM2b_mlb_1.0w_m1755_pdf").plotOn(frame, ROOT.RooFit.LineColor(ROOT.kGray),   ROOT.RooFit.LineStyle(ROOT.kSolid))
-ws.var('alpha').setVal((1.0-widths[0])/(widths[-1]-widths[0]))
-ws.var('beta').setVal((172.5-masses[0][0])/(masses[-1][0]-masses[0][0]))
-
-ws.var('alpha').setVal(0)
-ws.var('beta').setVal(2.0)
-
+ws.pdf("highptEM2b_mlb_1.0w_m1725_pdf").plotOn(frame, ROOT.RooFit.LineColor(ROOT.kGray),   ROOT.RooFit.LineStyle(ROOT.kSolid))
 ws.pdf('widmorphpdf').plotOn(frame,ROOT.RooFit.LineStyle(ROOT.kDashed))
-
 frame.Draw()
+lsSensitivities['alpha'].SetLineColor(ROOT.kRed)
+lsSensitivities['alpha'].SetLineWidth(2)
+lsSensitivities['alpha'].Draw('c')
+lsSensitivities['beta'].SetLineColor(ROOT.kAzure+3)
+lsSensitivities['beta'].SetLineWidth(2)
+lsSensitivities['beta'].Draw('c')
 c.Modified()
 c.Update()
 raw_input()
