@@ -21,8 +21,8 @@ scram b -j 8
 ## Running ntuple creation
 First time create a symbolic link to the jet energy corrections files
 ```
-ln -s data/Spring16_25nsV1_MC.db
-ln -s data/Fall15_25nsV2_DATA.db
+ln -s data/era2016/Spring16_25nsV3_DATA.db
+ln -s data/era2016/Spring16_25nsV3_MC.db
 ```
 To run locally the ntuplizer, for testing purposes
 ```

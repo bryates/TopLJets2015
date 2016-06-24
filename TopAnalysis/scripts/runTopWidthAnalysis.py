@@ -195,7 +195,7 @@ def runTopWidthAnalysis(fileName,
         
         if nbtags>0:
             var=evcat+"_evcount"
-            observablesH[var].Fill(nbtags-1)
+            observablesH[var].Fill(nbtags-1,baseEvWeight)
             var=evcat+btagcat+'_met'
             observablesH[var].Fill(tree.met_pt,baseEvWeight)
             var=evcat+btagcat+'_njets'
