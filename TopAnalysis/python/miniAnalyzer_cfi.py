@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 analysis = cms.EDAnalyzer("MiniAnalyzer",
                           saveTree        = cms.bool(True),
+                          savePF          = cms.bool(True),
                           triggerBits     = cms.InputTag("TriggerResults","","HLT"),
                           prescales       = cms.InputTag("patTrigger"),
                           rho             = cms.InputTag("fixedGridRhoFastjetAll"),

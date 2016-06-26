@@ -77,7 +77,8 @@ def main():
             moveIndividualFiles=True
             if len(file_list)>0:
                 #subgroupMerge = int( raw_input('This set has %d files. Merge into groups? (enter 0 if no merging)' % len(file_list)) )
-                subgroupMerge=60 if 'Data' in dsetname else 20 
+                subgroupMerge=100 if 'Data' in dsetname else 40 
+                if 'TTJets' in dsetname : subgroupMerge=25
                 if subgroupMerge>0:
                     moveIndividualFiles=False
 
@@ -103,7 +104,7 @@ def main():
                         except:
                             pass
                         
-                        os.system('hadd -f %s'%toAdd)
+                        os.system('hadd -f -k %s'%toAdd)
                         os.system('cp %s eos/cms/%s/'%(mergedFileName,newDir))
                         os.system('rm %s'%mergedFileName)
                         #os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/MergedMiniEvents_%d.root' %(mergedFileName,newDir,ilist))

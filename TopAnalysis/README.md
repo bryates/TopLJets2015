@@ -30,7 +30,7 @@ cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.r
 ```
 To submit a list of samples, described in a json file to the grid you can use the following script.
 ```
-python scripts/submitToGrid.py -j data/samples_Run2016.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
+python scripts/submitToGrid.py -j data/era2016/samples.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn my_output_directory_in_eos -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
 Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CheatSheet#Environment_setup)
@@ -39,7 +39,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva/7e62835 -o /store/cmst3/user/psilva/LJets2015/7e62835
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva/f423545 -o /store/cmst3/user/psilva/LJets2016/f423545
 ```
 
 ## Preparing the analysis 

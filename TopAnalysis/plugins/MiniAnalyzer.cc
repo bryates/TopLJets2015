@@ -129,7 +129,7 @@ private:
 
   std::vector<std::string> muTriggersToUse_, elTriggersToUse_;
 
-  bool saveTree_;
+  bool saveTree_,savePF_;
   TTree *tree_;
   MiniEvent_t ev_;
 
@@ -172,7 +172,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
   eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleTightIdFullInfoMap"))),
   pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ),  
-  saveTree_( iConfig.getParameter<bool>("saveTree") )
+  saveTree_( iConfig.getParameter<bool>("saveTree") ),
+  savePF_( iConfig.getParameter<bool>("savePF") )
 {
   //now do what ever initialization is needed
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -340,15 +341,16 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.ngpf++;    
     }
 
-  //top quarks (lastCopy)
+  //top or stop quarks (lastCopy)
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
   ev_.ngtop=0; 
   for (size_t i = 0; i < prunedGenParticles->size(); ++i)
     {
       const reco::GenParticle & genIt = (*prunedGenParticles)[i];
-      if(abs(genIt.pdgId())!=6) continue;
-      if(!genIt.isLastCopy()) continue;
+      int absid=abs(genIt.pdgId());
+      if(absid!=6 && absid!=1000006 && absid!=1000022) continue;
+      if(!genIt.isLastCopy()) continue;      
 
       ev_.gtop_id[ ev_.ngtop ]  = genIt.pdgId();
       ev_.gtop_pt[ ev_.ngtop ]  = genIt.pt();
@@ -673,6 +675,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event(); 
   ev_.isData  = iEvent.isRealData();
+  if(!savePF_) { ev_.ngpf=0; ev_.npf=0; }
   tree_->Fill();
 }
 

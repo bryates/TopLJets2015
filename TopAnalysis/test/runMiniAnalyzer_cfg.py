@@ -22,6 +22,11 @@ options.register('saveTree', True,
                  VarParsing.varType.bool,
                  "save summary tree"
                  )
+options.register('savePF', True,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 'save PF candidates'
+                 )
 options.parseArguments()
 
 process = cms.Process("MiniAnalysis")
@@ -44,10 +49,13 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = ''
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
+
 # set input to process
+from TopLJets2015.TopAnalysis.Compressed_T2tt_cfi import *
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv1/TTToSemiLeptonic_13TeV_ScaleDown-powheg/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/067717F2-220A-E611-A553-0090FAA58D84.root')
+                            #fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv1/TTToSemiLeptonic_13TeV_ScaleDown-powheg/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/067717F2-220A-E611-A553-0090FAA58D84.root')
+                            fileNames = cms.untracked.vstring(Compressed_T2tt)
                             )
 if options.runOnData:
     process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/158/00000/0A7BD549-131A-E611-8287-02163E0134FC.root')
@@ -65,6 +73,9 @@ process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
 if not options.saveTree:
     print 'Summary tree won\'t be saved'
     process.analysis.saveTree=cms.bool(False)
+if not options.savePF:
+    print 'Summary PF info won\'t be saved'
+    process.analysis.savePF=cms.bool(False)
 
 #pseudo-top
 if not options.runOnData:
