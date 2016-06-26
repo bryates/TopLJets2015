@@ -3,8 +3,8 @@
 WHAT=$1; 
 ERA=$2
 if [ "$#" -ne 2 ]; then 
-    echo "steerTOPWidthAnalysis.sh <SELDATA/SELMC/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/BKG/PLOT/WWW> <ERA>";
-    echo "        SEL{DATA,MC} - launches selection jobs to the batch on DATA or MC, output will contain summary trees and control plots"; 
+    echo "steerTOPWidthAnalysis.sh <SEL/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/BKG/PLOT/WWW> <ERA>";
+    echo "        SEL          - launches selection jobs to the batch, output will contain summary trees and control plots"; 
     echo "        MERGESEL     - merge the output of the jobs";
     echo "        PLOTSEL      - runs the plotter tool on the selection";
     echo "        WWWSEL       - moves the plots to an afs-web-based area";
@@ -21,16 +21,17 @@ fi
 export LSB_JOB_REPORT_MAIL=N
 
 queue=2nd
-githash=7e62835
-lumi=589
+githash=f423545
+lumi=3977.28
+eosdir=/store/cmst3/user/psilva/LJets2016/${githash}
 case $ERA in
     era2015)
 	githash=8c1e7c9;
 	lumi=2267.84
+	eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
 	;;
 esac
 
-eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 outdir=~/work/TopWidth_${ERA}
 wwwdir=~/www/TopWidth_${ERA}
@@ -38,13 +39,9 @@ wwwdir=~/www/TopWidth_${ERA}
 
 RED='\e[31m'
 NC='\e[0m'
-
 case $WHAT in
-    SELDATA )
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0 --only Data;
-	;;
-    SELMC )
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0 --only ^Data;
+    SEL )
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0;
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	

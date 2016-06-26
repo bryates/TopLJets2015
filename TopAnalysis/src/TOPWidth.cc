@@ -36,6 +36,13 @@ void RunTopWidth(TString filename,
 		 TString era)
 {
 
+  if(filename.Contains("SingleElectron") ||
+     filename.Contains("SingleMuon"))
+    {
+      cout << "Bailing out from analysing " << filename << endl;
+      return;
+    }
+
   bool isTTbar( filename.Contains("_TTJets") );
 
   //prepare output
@@ -58,8 +65,12 @@ void RunTopWidth(TString filename,
   attachToMiniEventTree(t,ev,true);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
-  bool requireEtriggerOnly(false);
-  if(ev.isData && filename.Contains("SingleElectron")) requireEtriggerOnly=true;
+  bool requireEETriggers(false);
+  if(ev.isData && filename.Contains("DoubleEG"))       requireEETriggers=true;
+  bool requireMMTriggers(false);
+  if(ev.isData && filename.Contains("DoubleMuon"))     requireMMTriggers=true;
+  bool requireEMTriggers(false);
+  if(ev.isData && filename.Contains("MuonEG"))         requireEMTriggers=true;
 
   cout << "...producing " << outname << " from " << nentries << " events" << endl;
 
@@ -166,7 +177,7 @@ void RunTopWidth(TString filename,
   std::map<TString, TH2 *> all2dPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",2,0,2);
 
-  std::vector<TString> lfsVec = { "E", "EE", "EM", "MM", "M" }; 
+  std::vector<TString> lfsVec = { "EE", "EM", "MM" };
   for(size_t ilfs=0; ilfs<lfsVec.size(); ilfs++)   
     { 
       TString tag(lfsVec[ilfs]);
@@ -225,77 +236,47 @@ void RunTopWidth(TString filename,
 	}
 
       //select good leptons
-      std::vector<int> tightLeptons,looseLeptons;
+      std::vector<TLorentzVector> leptons;
+      std::vector<int> selLeptons;
       for(int il=0; il<ev.nl; il++)
 	{
-	  bool passTightKin(ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.1);
-	  bool passLooseKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.5);
+	  bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.5);
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
 	  float relIso(ev.l_relIso[il]);
 	  bool passTightIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
-	  bool passLooseIso(  ev.l_id[il]==13 ? relIso<0.25 : (ev.l_pid[il] & 0x1) );
-	  if(passTightKin && passTightId && passTightIso) tightLeptons.push_back(il);
-	  else if(passLooseKin && passLooseIso)           looseLeptons.push_back(il);
+	  if(passTightKin && passTightId && passTightIso) 
+	    {
+	      selLeptons.push_back(il);
+	      TLorentzVector lp4;
+	      lp4.SetPtEtaPhiM(ev.l_pt[il],ev.l_eta[il],ev.l_phi[il],ev.l_mass[il]);
+	      leptons.push_back(lp4);
+	    }
 	}
       
       //check if triggers have fired
-      bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
-      bool hasEleTrigger((ev.elTrigger & 0x1)!=0);
+      bool hasEETrigger(((ev.elTrigger>>3)&0x3)!=0);
+      bool hasMMTrigger(((ev.muTrigger>>3)&0x3)!=0);
+      bool hasEMTrigger(((ev.elTrigger>>5)&0x3)!=0);
       if(!ev.isData)
-	{
-	  hasMuTrigger=true; 
-	  hasEleTrigger=true;
+	{	 
+	  hasEETrigger=true;
+	  hasMMTrigger=true;
+	  hasEMTrigger=true;
 	}
-
+      else
+	{
+	  if(requireEETriggers && !hasEETrigger) continue;
+	  if(requireMMTriggers && !hasMMTrigger) continue;
+	  if(requireEMTriggers && !hasEMTrigger) continue;
+	}
+      
       //decide the channel
       TString chTag("");
-      std::vector<int> selLeptons;
-      if(tightLeptons.size()==1 && looseLeptons.size()==0)
-	{
-	  selLeptons.push_back( tightLeptons[0] );
-	}
-      if(tightLeptons.size()>=2)
-	{
-	  selLeptons.push_back(tightLeptons[0]);
-	  selLeptons.push_back(tightLeptons[1]);
-	}
-      if(tightLeptons.size()==1 && looseLeptons.size()>=1)
-	{
-	  selLeptons.push_back(tightLeptons[0]);
-	  selLeptons.push_back(looseLeptons[0]);	  
-	}
-      if(selLeptons.size()==0) continue;
-      if(selLeptons.size()==1)
-	{
-	  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="E";
-	  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger)  chTag="M";
-	}
-      if(selLeptons.size()==2)
-	{
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEleTrigger) chTag="EE";
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMuTrigger) chTag="MM";
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13)
-	    {
-	      if(tightLeptons.size()>=2 && (hasEleTrigger || hasMuTrigger)) chTag="EM";
-	      if(tightLeptons.size()==1)
-		{
-		  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="EM";
-		  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) chTag="EM";
-		}
-	    }
-	  if(hasMuTrigger && requireEtriggerOnly) chTag="";
-	}
+      if(selLeptons.size()<2) continue;
+      if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13      && hasEMTrigger) chTag="EM";
+      else if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMMTrigger) chTag="MM";
+      else if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEETrigger) chTag="EE";
       if(chTag=="") continue;
-
-      //save lepton kinematics
-      std::vector<TLorentzVector> leptons;
-      for(size_t il=0; il<selLeptons.size(); il++)
-	{
-	  int lepIdx=selLeptons[il];
-	  TLorentzVector lp4;
-	  lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
-	  leptons.push_back(lp4);
-	}
 
       //select jets
       std::vector<int> genJetsFlav,genJetsHadFlav, btagStatus;
@@ -371,8 +352,10 @@ void RunTopWidth(TString filename,
 	      myBTagSFUtil.modifyBTagsWithSF(isBTaggedDown,  jetBtagSFDown,  expEff);
 	    }
 
+	  //consider only jets above 30 GeV
 	  if(jp4.Pt()<30) continue;
 
+	  //mc truth for this jet
 	  Int_t hadFlav=ev.j_hadflav[k];
 	  Int_t flav=ev.j_flav[k];
 	  TLorentzVector gjp4(0,0,0,0);
@@ -414,13 +397,23 @@ void RunTopWidth(TString filename,
 	      float ptForEff=TMath::Max(TMath::Min(float(leptons[il].Pt()),maxPtForEff),minPtForEff);
 	      Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
 		  		  
-	      lepSelSF=(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
-	      
-	      if(il!=0) continue;
-	      if(prefix=="m") lepTriggerSF=(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
-	      else lepTriggerSF=0.96;
+	      lepSelSF=(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));	      
 	    }
-	  
+	 
+	  //https://indico.cern.ch/event/539804/contributions/2196937/attachments/1291290/1923328/TopTriggers2016v2.pdf
+	  if(era.Contains("2015"))
+	    {
+	      if(chTag=="EE") lepTriggerSF=0.930;
+	      if(chTag=="MM") lepTriggerSF=0.894;
+	      if(chTag=="EM") lepTriggerSF=0.931;
+	    }
+	  else
+	    {
+	      if(chTag=="EE") lepTriggerSF=0.93;
+              if(chTag=="MM") lepTriggerSF=0.87;
+              if(chTag=="EM") lepTriggerSF=0.88;
+	    }
+ 
 	  //update nominal event weight
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
 	  wgt=lepTriggerSF*lepSelSF*puWeight*norm;
@@ -430,8 +423,8 @@ void RunTopWidth(TString filename,
       //nominal selection control histograms
       allPlots["nvtx_"+chTag]->Fill(ev.nvtx,wgt);
 
-      twev.nl=leptons.size();
-      for(int il=0; il<(int)leptons.size(); il++)
+      twev.nl=TMath::Min(2,(int)leptons.size());
+      for(int il=0; il<twev.nl; il++)
 	{
 	  TString pf(Form("l%d",il));
 	  allPlots[pf+"pt_"+chTag]->Fill(leptons[il].Pt(),wgt);
@@ -519,8 +512,6 @@ void RunTopWidth(TString filename,
 	    }
 	}
 
-      twev.cat=11;
-      if(chTag=="M") twev.cat=13;
       if(chTag=="MM") twev.cat=13*13;
       if(chTag=="EM") twev.cat=11*13;
       if(chTag=="EE") twev.cat=11*11;
@@ -540,14 +531,15 @@ void RunTopWidth(TString filename,
 	{
 	  for(int i=0; i<ev.ngtop; i++)
 	    {
-	      if(abs(ev.gtop_id[i])!=6) continue;
+	      int absid(abs(ev.gtop_id[i]));
+	      if(absid!=6 && absid!=1000006 && absid!=1000022) continue;
 	      twev.t_pt[twev.nt]=ev.gtop_pt[i];
 	      twev.t_eta[twev.nt]=ev.gtop_eta[i];
 	      twev.t_phi[twev.nt]=ev.gtop_phi[i];
 	      twev.t_m[twev.nt]=ev.gtop_m[i];
 	      twev.t_id[twev.nt]=ev.gtop_id[i];
 	      twev.nt++;
-	      if(twev.nt>4) break;
+	      if(twev.nt>10) break;
 	    }
 	}
       outT->Fill();

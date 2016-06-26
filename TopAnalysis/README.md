@@ -47,31 +47,30 @@ python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva
 Correction and uncertainty files are stored under data by era directories (e.g. data/era2015, data/era2016) in order no to mix different periods.
 After ntuples are processed start by creating the json files with the list of runs/luminosity sections processed, e.g. as:
 ```
-crab report grid/crab_Data13TeV_SingleElectron_2015D_v3
+crab report grid/crab_Data13TeV_DoubleMuon_2016B
 ``` 
 Then you can merge the json files for the same dataset to get the full list of run/lumi sections to analyse
 ```
-mergeJSON.py grid/crab_Data13TeV_SingleElectron_2015C/results/processedLumis.json grid/crab_Data13TeV_SingleElectron_2015D/results/processedLumis.json --output data/era2015/SingleElectron_lumiSummary.json
+mergeJSON.py grid/crab_Data13TeV_DoubleMuon_2016B/results/processedLumis.json grid/crab_Data13TeV_DoubleMuon_2015B/results/processedLumis.json --output data/era2016/Data13TeV_DoubleMuon_lumis.json
 ```
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
-brilcalc lumi --normtag ~lumipro/public/normtag_file/moriond16_normtag.json -i data/era2015/SingleElectron_lumiSummary.json
+export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.0.3/bin:$PATH
+brilcalc lumi -b "STABLE BEAMS" -i data/era2016/Data13TeV_DoubleMuon_lumis.json
 ```
 Use the table which is printed out to update the "lumiPerRun" method in ReadTree.cc.
 That will be used to monitor the event yields per run in order to identify outlier runs.
 * Pileup weighting. To update the pileup distributions run the script below. It will store the data pileup distributions for different min.bias cross section in data/pileupWgts.root
 ```
-python scripts/runPileupEstimation.py --json data/era2015/SingleElectron_lumiSummary.json --out data/era2015/pileupWgts.root
+python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_DoubleMuon_lumis.json --out data/era2016/pileupWgts.root
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
-for i in "" "_herwig" "_scaledown" "_scaleup"; do
-    python scripts/saveExpectedBtagEff.py -i /store/cmst3/user/psilva/LJets2015/8c1e7c9/MC13TeV_TTJets${i} -o data/era2015/expTageff${i}.root;
-done
+python scripts/saveExpectedBtagEff.py -i /store/cmst3/user/psilva/LJets2016/f423545/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root;
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```
-python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2015/8c1e7c9 -o data/era2015/genweights.root
+python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2016/f423545 -o data/era2016/genweights.root
 ```
 You're now ready to start locally the analysis.
 
@@ -101,7 +100,7 @@ before submitting the jobs to the batch. After the jobs have run you can merge t
 ```
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/   -j data/samples_Run2015.json                           -l 2267.84
+python scripts/plotter.py -i analysis_muplus/   -j data/era2016/samples.json  -l 3977.28
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as
