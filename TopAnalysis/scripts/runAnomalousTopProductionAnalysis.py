@@ -23,9 +23,9 @@ def stopChiFilter(tree,filtArgs):
     weight=-1.0
     mstop,mchi0=0,0
     for i in xrange(0,tree.nt):
-        if abs(tree.t_id[i])==100006 : mstop=tree.t_id[i]
-        if abs(tree.t_id[i])==100022 : mchi0=tree.t_id[i]
-    if mstop==float(filtArgs[0]) and mstop==float(filtArgs[1]): weight=1.0
+        if abs(tree.t_id[i])==1000006 : mstop=tree.t_m[i]
+        if abs(tree.t_id[i])==1000022 : mchi0=tree.t_m[i]
+    if mstop==float(filtArgs[0]) and mchi0==float(filtArgs[1]): weight=1.0
     return weight
 
 
@@ -162,6 +162,11 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         observablesH['ht_'+evcat].Fill(bjets[0].pt()+bjets[1].pt()+leptons[0].pt()+leptons[1].pt()+tree.met_pt,evWeight)
 
     #save results
+    if filterName:
+        postfix=outFileName.split('_')[-1]
+        outFileName=outFileName.replace(postfix,'%s_%s'%(filterName,postfix))
+        outFileName=outFileName.replace('=','_')
+        outFileName=outFileName.replace(',','_')
     fOut=ROOT.TFile.Open(outFileName,'RECREATE')
     for var in observablesH: 
         observablesH[var].Write()
