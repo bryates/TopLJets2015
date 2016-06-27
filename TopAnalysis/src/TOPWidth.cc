@@ -254,9 +254,9 @@ void RunTopWidth(TString filename,
 	}
       
       //check if triggers have fired
-      bool hasEETrigger(((ev.elTrigger>>3)&0x3)!=0);
-      bool hasMMTrigger(((ev.muTrigger>>3)&0x3)!=0);
-      bool hasEMTrigger(((ev.elTrigger>>5)&0x3)!=0);
+      bool hasEETrigger(((ev.elTrigger>>2)&0x3)!=0);
+      bool hasMMTrigger(((ev.muTrigger>>2)&0x3)!=0);
+      bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);
       if(!ev.isData)
 	{	 
 	  hasEETrigger=true;

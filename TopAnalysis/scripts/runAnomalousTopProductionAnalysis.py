@@ -16,17 +16,31 @@ def convertToPtEtaPhiM(lVec,xyz,m=0.):
     p4=ROOT.TLorentzVector(xyz[0],xyz[1],xyz[2],en)
     return lVec(p4.Pt(),p4.Eta(),p4.Phi(),p4.M())
 
+"""
+stop quark/chi0 filter the arguments are the masses to filter out
+"""
+def stopChiFilter(tree,filtArgs):
+    weight=-1.0
+    mstop,mchi0=0,0
+    for i in xrange(0,tree.nt):
+        if abs(tree.t_id[i])==100006 : mstop=tree.t_id[i]
+        if abs(tree.t_id[i])==100022 : mchi0=tree.t_id[i]
+    if mstop==float(filtArgs[0]) and mstop==float(filtArgs[1]): weight=1.0
+    return weight
+
 
 """
 Analysis loop
 """
-def runStopAnalysis(fileName,outFileName):
+def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         
     print '....analysing',fileName,'with output @',outFileName
 
     #book histograms
     observablesH={}
     for k in ['emu','ll']:
+        observablesH['ht_'+k]=ROOT.TH1F('ht_'+k,';H_{T} [GeV];Events',20,0,1000)
+
         observablesH['dphibb_'+k]=ROOT.TH1F('dphibb_'+k,';#Delta#phi(b,#bar{b}) [rad];Events',20,0,3.15)
         observablesH['cosbstar_'+k]=ROOT.TH1F('cosbstar_'+k,';cos(#theta*_{b});Events',20,-1,1)
         observablesH['cosbstarprod_'+k]=ROOT.TH1F('cosbstarprod_'+k,';cos(#theta*_{b_{1}})cos(#theta*_{b_{2}});Events',20,-1,1)
@@ -61,6 +75,12 @@ def runStopAnalysis(fileName,outFileName):
         tree.GetEntry(i)
 
         if i%100==0 : sys.stdout.write('\r [ %d/100 ] done' %(int(float(100.*i)/float(totalEntries))) )
+
+        filtWeight=1.0
+        if filterName:
+            filtFunc,filtArgs=filterName.split('=')
+            filtWeight=globals()[filtFunc](tree,filtArgs.split(','))
+            if filtWeight<0 : continue
 
         if abs(tree.cat)<100 : continue
         evcat = 'emu' if abs(tree.cat)==11*13 else 'll'
@@ -138,6 +158,9 @@ def runStopAnalysis(fileName,outFileName):
         if len(otherjets)>=2:
             observablesH['dphijj_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(otherjets[0],otherjets[1]),evWeight)
          
+        #other control variables
+        observablesH['ht_'+evcat].Fill(bjets[0].pt()+bjets[1].pt()+leptons[0].pt()+leptons[1].pt()+tree.met_pt,evWeight)
+
     #save results
     fOut=ROOT.TFile.Open(outFileName,'RECREATE')
     for var in observablesH: 
@@ -148,10 +171,10 @@ def runStopAnalysis(fileName,outFileName):
 """
 Wrapper for when the analysis is run in parallel
 """
-def runStopAnalysisPacked(args):
+def runAnomalousTopProductionAnalysisPacked(args):
     try:
-        fileNames,outFileName=args
-        runStopAnalysis(fileNames,outFileName)
+        fileNames,outFileName,filterName=args
+        runAnomalousTopProductionAnalysis(fileNames,outFileName,filterName)
     except : # ReferenceError:
         print 50*'<'
         print "  Problem with", name, "continuing without"
@@ -187,7 +210,7 @@ def createAnalysisTasks(opt):
                 if filtTag in tag:
                     processThis=True
             if not processThis : continue
-        tasklist.append((filename,'%s/%s'%(opt.output,baseFileName)))
+        tasklist.append((filename,'%s/%s'%(opt.output,baseFileName),opt.filter))
 
     #loop over tasks
     if opt.queue=='local':
@@ -195,14 +218,15 @@ def createAnalysisTasks(opt):
             print ' Submitting jobs in %d threads' % opt.jobs
             import multiprocessing as MP
             pool = MP.Pool(opt.jobs)
-            pool.map(runStopAnalysisPacked,tasklist)
+            pool.map(runAnomalousTopProductionAnalysisPacked,tasklist)
         else:
-            for fileName,outFileName in tasklist:
-                runStopAnalysis(fileName,outFileName)
+            for fileName,outFileName,filterName in tasklist:
+                runAnomalousTopProductionAnalysis(fileName,outFileName,filterName)
     else:
         cmsswBase=os.environ['CMSSW_BASE']
-        for fileName,_ in tasklist:
-            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runStopAnalysis.py -i %s -o %s -q local'%(cmsswBase,fileName,opt.output)
+        for fileName,_,filterName in tasklist:
+            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runAnomalousTopProductionAnalysis.py -i %s -o %s -q local'%(cmsswBase,fileName,opt.output)
+            if filterName : localRun+=' --filter %s'%filterName
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)
             print cmd
             os.system(cmd)
@@ -217,6 +241,10 @@ def main():
                           dest='input',   
                           default='/afs/cern.ch/user/p/psilva/work/Stop',
                           help='input directory with the files [default: %default]')
+	parser.add_option('-f', '--filter',
+                          dest='filter',   
+                          default=None,
+                          help='apply this filter function')
 	parser.add_option('--jobs',
                           dest='jobs', 
                           default=1,
