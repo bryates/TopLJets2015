@@ -11,7 +11,7 @@ widths=[1.0,2.0,3.0,4.0]
 masses=[(169.5,'~/work/TopWidth_era2015/analysis/plots/syst_plotter.root','t#bar{t} m=169.5'),
         (172.5,'~/work/TopWidth_era2015/analysis/plots/plotter.root',     't#bar{t}'),
         (175.5,'~/work/TopWidth_era2015/analysis/plots/syst_plotter.root','t#bar{t} m=175.5')]
-        
+
 widthDim=ROOT.RooBinning(len(widths)-1,0,len(widths)-1)
 massDim=ROOT.RooBinning(len(masses)-1,0,len(masses)-1)
 refGrid=ROOT.RooMomentMorphND.Grid(widthDim,massDim)
@@ -31,13 +31,13 @@ for ch in ['EM']:
                     name='%s_m%d'%(dirname,int(10*mass))
                     data=ROOT.RooDataHist(name,name,ROOT.RooArgList(ws.var("x")),h)
                     pdf=ROOT.RooHistPdf(name+"_pdf",name+"_pdf",ROOT.RooArgSet(ws.var("x")),data)
-                    getattr(ws,'import')(pdf,ROOT.RooCmdArg()) 
+                    getattr(ws,'import')(pdf,ROOT.RooCmdArg())
 
                     #add pdf to the grid
                     print 'Adding',pdf.GetName(),'@ (',iwid,imass,')'
                     refGrid.addPdf(ws.pdf(pdf.GetName()),iwid,imass)
                 fIn.Close()
-                    
+
 ws.factory('alpha[0,3]')
 ws.factory('beta[0,3]')
 pdf=ROOT.RooMomentMorphND('widmorphpdf','widmorphpdf',
@@ -46,7 +46,7 @@ pdf=ROOT.RooMomentMorphND('widmorphpdf','widmorphpdf',
                           refGrid,
                           ROOT.RooMomentMorphND.Linear)
 pdf.useHorizontalMorphing(False)
-getattr(ws,'import')(pdf,ROOT.RooCmdArg()) 
+getattr(ws,'import')(pdf,ROOT.RooCmdArg())
 
 dpdfdalpha=pdf.derivative(ws.var('alpha'))
 dpdfdbeta=pdf.derivative(ws.var('beta'))
@@ -54,6 +54,11 @@ dpdfdbeta=pdf.derivative(ws.var('beta'))
 
 ws.var('alpha').setVal(0.0)
 ws.var('beta').setVal(1.0)
+
+outfile=ROOT.TFile("test.root","RECREATE")
+outfile.cd()
+ws.Write()
+outfile.Close()
 
 lsSensitivities={'alpha':ROOT.TGraph(),
                  'beta':ROOT.TGraph()}
