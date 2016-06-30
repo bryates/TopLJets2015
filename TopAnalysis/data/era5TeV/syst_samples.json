@@ -1,0 +1,7 @@
+{
+"MCTTHerwig_v1"  :           [69,    0, "/TT_TuneEE5C_5020GeV-powheg-herwigpp/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "t#bar{t} (HW++)",          920, true, false, 1],
+"MCTTScaleUp_v2"  :          [69,    0, "/TT_TuneCUETP8M1_5020GeV-powheg-scaleup-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "t#bar{t} (PS up)",          920, true, false, 1],
+"MCTTScaleDown_v2"  :        [69,    0, "/TT_TuneCUETP8M1_5020GeV-powheg-scaledown-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "t#bar{t} (PS down)",          920, true, false, 1]
+}
+
+
