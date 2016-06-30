@@ -35,11 +35,15 @@ void Run5TeVAnalysis(TString inFileName,
 
   bool isMC(false);
   if(inFileName.Contains("/MC")) isMC=true;
+
+  float totalEvtNorm(1.0);
+  if(isMC && normH) totalEvtNorm=1./normH->GetBinContent(1);
   if(!isMC) runSysts=false;
   std::cout << "Will process " << inFileName << " and save the results in " << outFileName << endl
 	    << "Sample will be treated as MC=" << isMC <<  std::endl
 	    << "Systematics will be run=" << runSysts << std::endl
-	    << "Corrections to be retrieved from era=" << era << std::endl;
+	    << "Corrections to be retrieved from era=" << era << std::endl
+	    << "Total normalization factor=" << totalEvtNorm << std::endl;
 
   std::map<TString, TGraphAsymmErrors *> expBtagEff;
   BTagSFUtil myBTagSFUtil;
@@ -113,7 +117,6 @@ void Run5TeVAnalysis(TString inFileName,
       it->second->SetDirectory(0);
     }
 
-  Float_t totalEvtNorm(0);
   for(Int_t fileIter = 0; fileIter < nFiles; fileIter++){
 
     TString inF(inFileNames_p->at(fileIter));
@@ -277,7 +280,6 @@ void Run5TeVAnalysis(TString inFileName,
 	//assign an event weight
 	float evWeight(1.0);
 	if(isMC && ttbar_w_p->size()) evWeight=ttbar_w_p->at(0);
-	totalEvtNorm+=evWeight;
 	
 	//select good muons
 	//cf. details in https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2

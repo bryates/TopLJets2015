@@ -17,17 +17,26 @@ sourcedir=/store/cmst3/group/hintt/LJets5TeV/
 outdir=~/work/TopLJets5TeV
 wwwdir=~/www/TopLJets5TeV
 lumi=26.0
+data=/store/cmst3/group/hintt/mverweij/PP5TeV/data/SingleMuHighPt/crab_FilteredSingleMuHighPt_v3/160425_163333/merge/HiForest_0.root
 
 RED='\e[31m'
 NC='\e[0m'
 case $WHAT in
+    PREPARE )
+	python scripts/produceNormalizationCache.py -i ${sourcedir} -o data/era5TeV/genweights.root  --HiForest;
+	python scripts/saveExpectedBtagEff.py       -i ${sourcedir} -o data/era5TeV/expTageff.root   --HiForest; 
+	;;
     SELTEST )
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mu   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
+	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mu/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
 	;;
     SEL )
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_muplus   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --charge 1  --runSysts;
+	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_muplus/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --charge 1;
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_muminus  --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --charge -1 --runSysts;
+	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_muminus/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --charge -1;
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_munoniso --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 1300; 
+	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_munoniso/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 1300;
 	;;
     MERGETEST )
 	./scripts/mergeOutputs.py ${outdir}/analysis_mu;
@@ -39,7 +48,7 @@ case $WHAT in
 	done
 	;;
     PLOTTEST )
-	python scripts/plotter.py -i ${outdir}/analysis_mu -j data/era5TeV/samples.json      -l ${lumi};	
+	python scripts/plotter.py -i ${outdir}/analysis_mu -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
 	;;
     PLOT )
 	a=(muplus muminus munoniso )
