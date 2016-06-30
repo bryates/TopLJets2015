@@ -208,7 +208,7 @@ void Run5TeVAnalysis(TString inFileName,
     Float_t jtm[maxJets]; 
     Float_t discr_csvV2[maxJets];
     Float_t refpt[maxJets];
-    Float_t refparton_flavor[maxJets];
+    Int_t refparton_flavor[maxJets];
     jetTree_p->SetBranchStatus("*", 0);
     jetTree_p->SetBranchStatus("nref", 1);
     jetTree_p->SetBranchStatus("jtpt", 1);
