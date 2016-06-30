@@ -1,15 +1,9 @@
 #!/bin/bash
 
 WHAT=$1; 
-if [[ "$1" == "" ]]; then 
+ERA=$2;
+if [ "$#" -ne 2 ]; then 
     echo "steerTOPWidthAnalysis.sh <SEL/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/PLOT/WWW>";
-    echo "        SEL        - launches selection jobs to the batch, output will contain summary trees and control plots"; 
-    echo "        MERGESEL   - merge the output of the jobs";
-    echo "        PLOTSEL    - runs the plotter tool on the selection";
-    echo "        WWWSEL     - moves the plots to an afs-web-based area";
-    echo "        ANA        - analyze the selected events";
-    echo "        MERGE      - merge the output of the analysis jobs";
-    echo "        PLOT       - runs the plotter tool on the analysis outputs";
     echo "        WORKSPACE       - create a workspace with the TopHypoTest model";
     echo "        SCAN            - scans the likelihood";
     echo "        CLs             - calculates CLs using higgs_combine";
@@ -18,20 +12,20 @@ if [[ "$1" == "" ]]; then
     echo "        QUANTILES       - plots the quantiles chart for all distributions, by lepton final state";
     echo "        <above>_M       - with <above> one of the commands above (past 'PLOT'), run over merged datacards"; 
     echo "        WWW             - moves the analysis plots to an afs-web-based area";
-
+    echo " "
+    echo "        ERA          - era2015/era2016";
     exit 1; 
 fi
 
-queue=8nh
-eosdir=/store/cmst3/user/psilva/LJets2015/8c1e7c9
-eosdatadir=/store/cmst3/user/psilva/LJets2015/13c9e4c
-outdir=~/work/TopWidth_era2015/
-cardsdir=~/work/TopWidth_era2015/datacards
-wwwdir=~/www/TopWidth_era2015/ana
+outdir=~/work/TopWidth_${ERA}/
+cardsdir=~/work/TopWidth_${ERA}/datacards
+wwwdir=~/www/TopWidth_${ERA}/
 lumi=2267.84
 
-lfs=(E EE EM MM M)
-wid=(0p5w 2p0w 4p0w)
+lfs=(EE EM MM)
+wid=(0p5w 1p0w 1p5w 2p0w 2p5w 3p0w 3p5w 4p0w 4p5w 5p0w)
+cat=(1b 2b)
+lbCat=(highpt lowpt)
 
 RED='\e[31m'
 NC='\e[0m'
@@ -40,37 +34,6 @@ CMSSW_7_4_7dir=~/CMSSW_7_4_7/src/
 CMSSW_7_6_3dir=~/CMSSW_8_0_8_patch1/src/
 
 case $WHAT in
-    SEL )
-        cd ${CMSSW_7_6_3dir}
-	    #python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} -m TOPWidth::RunTopWidth --ch 0 --only MC;
-	    python scripts/runLocalAnalysis.py -i ${eosdatadir} -q ${queue} -o ${outdir} -m TOPWidth::RunTopWidth --ch 0 --only Data;
-	;;
-    MERGESEL )
-        cd ${CMSSW_7_6_3dir}
-	    ./scripts/mergeOutputs.py ${outdir} True;	
-	;;
-    PLOTSEL )
-        cd ${CMSSW_7_6_3dir}
-    	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/samples_Run2015.json -l ${lumi};	
-	;;
-    WWWSEL )
-	    mkdir -p ${wwwdir}/sel
-    	cp ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel
-    	cp test/index.php ${wwwdir}/sel
-	;;
-    ANA )
-        cd ${CMSSW_7_6_3dir}/TopLJets2015/TopAnalysis/
-	    python scripts/runTopWidthAnalysis.py -i ${outdir}/Chunks -o ${outdir}/analysis -q 8nh;
-	;;
-    MERGE )
-        cd ${CMSSW_7_6_3dir}/TopLJets2015/TopAnalysis/
-	    ./scripts/mergeOutputs.py ${outdir}/analysis;
-	;;
-    PLOT )
-        cd ${CMSSW_7_6_3dir}/TopLJets2015/TopAnalysis/
-        python scripts/plotter.py -i ${outdir}/analysis  -j data/samples_Run2015.json -l ${lumi};        
-        python scripts/plotter.py -i ${outdir}/analysis  -j data/syst_samples_Run2015.json -l ${lumi} -o syst_plotter.root;        
-        ;;
     SHAPES )
         cd ${CMSSW_7_6_3dir}/TopLJets2015/TopAnalysis/
         python test/TopWidthAnalysis/createShapesFromPlotter.py \
@@ -82,115 +45,143 @@ case $WHAT in
         cd ${CMSSW_7_4_7dir}
         for twid in ${wid[*]}
         do
-            mcmd="python ${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/scripts/combineCards.py "
-            for tlfs in ${lfs[*]}
+            # for a given width, merge all
+            allcmd="python ${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/scripts/combineCards.py "
+            for tlbCat in ${lbCat[*]}
             do
-                mcmd="${mcmd} ${tlfs}=${cardsdir}/datacard__${twid}_${tlfs}.dat "
+                # for a given width and lbcat, merge all
+                lbccmd="python ${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/scripts/combineCards.py "
+                for tlfs in ${lfs[*]}
+                do
+                    # for a given width, lfs, and lbcat, merge all
+                    lfscmd="python ${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/scripts/combineCards.py "
+                    for tCat in ${cat[*]}
+                    do
+                        allcmd="${allcmd} ${tlbCat}${tlfs}${tCat}=${cardsdir}/datacard__${twid}_${tlbCat}${tlfs}${tCat}.dat "
+                        lbccmd="${lbccmd} ${tlbCat}${tlfs}${tCat}=${cardsdir}/datacard__${twid}_${tlbCat}${tlfs}${tCat}.dat "
+                        lfscmd="${lfscmd} ${tlbCat}${tlfs}${tCat}=${cardsdir}/datacard__${twid}_${tlbCat}${tlfs}${tCat}.dat "
+                    done
+                    echo $lfscmd
+                    echo " "
+                    lfscmd="${lfscmd} > ${cardsdir}/datacard__${twid}_${tlbCat}${tlfs}.dat"
+                done
+                echo $lbccmd
+                echo " "
+                lbccmd="${lbccmd} > ${cardsdir}/datacard__${twid}_${tlbCat}.dat"
             done
 
-            echo $mcmd
+            echo $allcmd
             echo " "
-            mcmd="${mcmd} > ${cardsdir}/datacard__${twid}.dat"
+            allcmd="${allcmd} > ${cardsdir}/datacard__${twid}.dat"
+            lfscmd="${lfscmd} > ${cardsdir}/datacard__${twid}.dat"
             
-            eval $mcmd
+            eval $allcmd
+            eval $lbccmd
+            eval $lfscmd
         done
-    ;;
-    WORKSPACE_M )
-        cd ${CMSSW_7_4_7dir}
-        mkdir ${outdir}
-            for twid in ${wid[*]}
-            do
-                echo "Creating workspace for ${twid}" 
-	            text2workspace.py ${cardsdir}/datacard__${twid}.dat -P \
-                     HiggsAnalysis.CombinedLimit.TopHypoTest:twoHypothesisTest \
-                     -m 172.5 --PO verbose --PO altSignal=${twid} --PO muFloating \
-                     -o ${outdir}/${twid}.root
-            done
-    ;;
-    SCAN_M )
-        cd ${outdir}
-            for twid in ${wid[*]}
-            do
-	             combine ${outdir}/${twid}.root -M MultiDimFit \
-                     -m 172.5 -P x --floatOtherPOI=1 --algo=grid --points=200 \
-                     -t -1 --expectSignal=1 --setPhysicsModelParameters x=0,r=1 \
-                     -n x0_scan_Asimov_${twid}
-            done
-    ;;
-    CLs_M )
-        cd ${outdir}
-            for twid in ${wid[*]}
-            do
-                 combine ${twid}.root -M HybridNew --seed 8192 --saveHybridResult \
-                      -m 172.5  --testStat=TEV --singlePoint 1 -T 500 -i 2 --fork 6 \
-                      --clsAcc 0 --fullBToys  --generateExt=1 --generateNuis=0 \
-                      --expectedFromGrid 0.5 -n x_pre-fit_exp_${twid} \
-                      &> ${outdir}/x_pre-fit_exp__${twid}.log
-            done
-    ;;
-    TOYS_M )
-        cd ${CMSSW_7_4_7dir}
-        cd ${outdir}
-            for twid in ${wid[*]}
-            do
-                 cd ${outdir}
-                 root -l -q -b higgsCombinex_pre-fit_exp_${twid}.HybridNew.mH172.5.8192.quant0.500.root \
-                   "${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTreeTopWid.cxx(\"x_pre-fit_exp__${twid}.qvals.root\",172.5,1,\"x\",1000,\"\",\"${twid}\")"
-            done
     ;;
     WORKSPACE )
         cd ${CMSSW_7_4_7dir}
         mkdir ${outdir}
-        for tlfs in ${lfs[*]}
+        for twid in ${wid[*]}
         do
-            for twid in ${wid[*]}
+            for tlfs in ${lfs[*]}
             do
-                echo "Creating workspace for ${twid}${tlfs}" 
-	            text2workspace.py ${cardsdir}/datacard__${twid}_${tlfs}.dat -P \
-                     HiggsAnalysis.CombinedLimit.TopHypoTest:twoHypothesisTest \
-                     -m 172.5 --PO verbose --PO altSignal=${twid} --PO muFloating \
-                     -o ${outdir}/${twid}_${tlfs}.root
+                for tlbCat in ${lbCat[*]}
+                do
+                    for tcat in ${cat[*]}
+                    do
+                        echo "Creating workspace for ${twid}${tlfs}" 
+                        text2workspace.py ${cardsdir}/datacard__${twid}_${tlfs}.dat -P \
+                            HiggsAnalysis.CombinedLimit.TopHypoTest:twoHypothesisTest \
+                            -m 172.5 --PO verbose --PO altSignal=${twid} --PO muFloating \
+                            -o ${outdir}/${twid}_${tlfs}.root
+                    done
+                done
             done
+            
+            # All datacards
+            echo "Creating workspace for ${twid}" 
+            text2workspace.py ${cardsdir}/datacard__${twid}.dat -P \
+                HiggsAnalysis.CombinedLimit.TopHypoTest:twoHypothesisTest \
+                -m 172.5 --PO verbose --PO altSignal=${twid} --PO muFloating \
+                -o ${outdir}/${twid}.root
         done
     ;;
     SCAN )
         cd ${outdir}
-        for tlfs in ${lfs[*]}
+        for twid in ${wid[*]}
         do
-            for twid in ${wid[*]}
+            for tlfs in ${lfs[*]}
             do
-	             combine ${outdir}/${twid}_${tlfs}.root -M MultiDimFit \
-                     -m 172.5 -P x --floatOtherPOI=1 --algo=grid --points=200 \
-                     -t -1 --expectSignal=1 --setPhysicsModelParameters x=0,r=1 \
-                     -n x0_scan_Asimov_${twid}_${tlfs}
+                for tlbCat in ${lbCat[*]}
+                do
+                    for tcat in ${cat[*]}
+                    do
+                        combine ${outdir}/${twid}_${tlfs}.root -M MultiDimFit \
+                            -m 172.5 -P x --floatOtherPOI=1 --algo=grid --points=200 \
+                            -t -1 --expectSignal=1 --setPhysicsModelParameters x=0,r=1 \
+                            -n x0_scan_Asimov_${twid}_${tlfs}
+                    done
+                done
             done
+
+            # All datacards
+            combine ${outdir}/${twid}.root -M MultiDimFit \
+                -m 172.5 -P x --floatOtherPOI=1 --algo=grid --points=200 \
+                -t -1 --expectSignal=1 --setPhysicsModelParameters x=0,r=1 \
+                -n x0_scan_Asimov_${twid}
         done
     ;;
     CLs )
         cd ${outdir}
-        for tlfs in ${lfs[*]}
+        for twid in ${wid[*]}
         do
-            for twid in ${wid[*]}
+            for tlfs in ${lfs[*]}
             do
-                 combine ${outdir}/${twid}_${tlfs}.root -M HybridNew --seed 8192 --saveHybridResult \
-                      -m 172.5  --testStat=TEV --singlePoint 1 -T 500 -i 2 --fork 6 \
-                      --clsAcc 0 --fullBToys  --generateExt=1 --generateNuis=0 \
-                      --expectedFromGrid 0.5 -n x_pre-fit_exp_${twid}_${tlfs} \
-                      &> ${outdir}/x_pre-fit_exp_${twid}_${tlfs}.log
+                for tlbCat in ${lbCat[*]}
+                do
+                    for tcat in ${cat[*]}
+                    do
+                        combine ${outdir}/${twid}_${tlfs}.root -M HybridNew --seed 8192 --saveHybridResult \
+                            -m 172.5  --testStat=TEV --singlePoint 1 -T 500 -i 2 --fork 6 \
+                            --clsAcc 0 --fullBToys  --generateExt=1 --generateNuis=0 \
+                            --expectedFromGrid 0.5 -n x_pre-fit_exp_${twid}_${tlfs} \
+                            &> ${outdir}/x_pre-fit_exp_${twid}_${tlfs}.log
+                    done
+                done
             done
+
+            # All datacards
+            combine ${twid}.root -M HybridNew --seed 8192 --saveHybridResult \
+                -m 172.5  --testStat=TEV --singlePoint 1 -T 500 -i 2 --fork 6 \
+                --clsAcc 0 --fullBToys  --generateExt=1 --generateNuis=0 \
+                --expectedFromGrid 0.5 -n x_pre-fit_exp_${twid} \
+                &> ${outdir}/x_pre-fit_exp__${twid}.log
         done
     ;;
     TOYS )
         cd ${CMSSW_7_4_7dir}
         cd ${outdir}
-        for tlfs in ${lfs[*]}
+        for twid in ${wid[*]}
         do
-            for twid in ${wid[*]}
+            for tlfs in ${lfs[*]}
             do
-                 cd ${outdir}
-                 root -l -q -b higgsCombinex_pre-fit_exp_${twid}_${tlfs}.HybridNew.mH172.5.8192.quant0.500.root \
-                   "${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTreeTopWid.cxx(\"x_pre-fit_exp_${twid}_${tlfs}.qvals.root\",172.5,1,\"x\",1000,\"${tlfs}\",\"${twid}\")"
+                for tlbCat in ${lbCat[*]}
+                do
+                    for tcat in ${cat[*]}
+                    do
+                        cd ${outdir}
+                        # each lfs datacard
+                        root -l -q -b higgsCombinex_pre-fit_exp_${twid}_${tlfs}.HybridNew.mH172.5.8192.quant0.500.root \
+                            "${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTreeTopWid.cxx(\"x_pre-fit_exp_${twid}_${tlfs}.qvals.root\",172.5,1,\"x\",1000,\"${tlfs}\",\"${twid}\")"
+                    done
+                done
             done
+            
+            # All datacards
+            root -l -q -b higgsCombinex_pre-fit_exp_${twid}.HybridNew.mH172.5.8192.quant0.500.root \
+                "${CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTreeTopWid.cxx(\"x_pre-fit_exp__${twid}.qvals.root\",172.5,1,\"x\",1000,\"\",\"${twid}\")"
         done
     ;;
     QUANTILES )
@@ -205,11 +196,11 @@ case $WHAT in
             lfsStr="${lfsStr},${tlfs}"
           fi
         done
+        
         python ${CMSSW_7_6_3dir}/TopLJets2015/TopAnalysis/test/TopWidAnalysis/getQuantilesPlot.py \
                -i ${outdir}/ -o ${outdir}/ --lfs ${lfsStr} 
-    ;;
-    QUANTILES_M )
-        cd ${outdir}
+        
+        # All datacards
         python ${CMSSW_7_6_3dir}/TopLJets2015/TopAnalysis/test/TopWidAnalysis/getQuantilesPlot.py \ 
                -i ${outdir}/ -o ${outdir}/
     ;;

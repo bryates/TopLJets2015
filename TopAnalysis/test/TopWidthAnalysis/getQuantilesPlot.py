@@ -10,11 +10,15 @@ parser = OptionParser(
     epilog="Collects quantiles information from signal statistics output and turns it into a nice TGraph and LaTeX table. Format of .txt files is stats__<wid>_<lfs>.txt"
     )
 parser.add_option("-i",    type="string", dest="indir"  , default="./"            ,   help="directory to look for stats files in")
-parser.add_option("--wid", type="string", dest="widList", default="0p5w,2p0w,4p0w",   help="a list of widths to look for in stats filenames")
+parser.add_option("--wid", type="string", dest="widList", default="0p5w,2p0w,3p0w,4p0w",   help="a list of widths to look for in stats filenames")
 parser.add_option("--lfs", type="string", dest="lfsList", default=""              ,   help="a list of lepton final states to look for in stats filenames")
 parser.add_option("-o",    type="string", dest="outdir" , default="./"   ,   help="the base filename for the quantiles plot")
+parser.add_option("--axisOverwrite", type="string", dest="aoverList" , default=""   ,   help="Axis labels to use if desired")
 
 (options, args) = parser.parse_args()
+
+# get axis labels from axis overwrite
+axisLabels=options.aoverList.split(',')
 
 # get lists to loop over
 rawWidList=options.widList.split(',')
@@ -22,6 +26,9 @@ rawLfsList=options.lfsList.split(',')
 
 # create base arrays for eventual tgraph
 nPoints = 2*len(rawLfsList)*len(rawWidList)
+if len(axisLabels) > 0 and len(axisLabels)*2 != nPoints :
+    print "ERROR: axisOverwrite does not write the correct number of labels! Exiting..."
+    quit()
 
 x    =ROOT.TVector(nPoints)
 y    =ROOT.TVector(nPoints)
@@ -140,6 +147,8 @@ i=0
 for wid,lfs in [(wid,lfs) for wid in rawWidList for lfs in rawLfsList]:
     bin_index = xax.FindBin(0.5+i)
     label = "%s %s"%(wid,lfs)
+    if options.aoverList != "" and len(axisLabels) == nPoints/2 :
+        label = axisLabels[i].replace('_',' ');
     xax.SetBinLabel(bin_index,label)
     i+=1
 
@@ -160,5 +169,5 @@ leg.Draw()
 # save plots
 c.Modified()
 c.Update()
-c.SaveAs(options.outdir+options.lfsList.replace(',','')+"quantiles.pdf")
-c.SaveAs(options.outdir+options.lfsList.replace(',','')+"quantiles.png")
+c.SaveAs(options.outdir+"quantiles.pdf")
+c.SaveAs(options.outdir+"quantiles.png")

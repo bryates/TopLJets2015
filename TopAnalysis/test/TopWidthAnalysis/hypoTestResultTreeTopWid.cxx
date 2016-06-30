@@ -116,6 +116,7 @@ void hypoTestResultTreeTopWid(TString fOutName, double mass, double rValue=1.0,
     // Get x position where toy histograms approximately intersect
     TF1 *gnull = new TF1("gnull","gaus");
     TF1 *galt  = new TF1("galt", "gaus");
+
     hnullstat->Fit(gnull); 
      haltstat->Fit(galt); 
 
@@ -124,17 +125,20 @@ void hypoTestResultTreeTopWid(TString fOutName, double mass, double rValue=1.0,
     double xint = ginter->GetMinimumX();
     int intbin  = gnull->GetXaxis()->FindBin(xint);
 
+    std::cout << " - intersection x   is " << xint   << std::endl;
+    std::cout << " - intersection bin is " << intbin << std::endl;
+
     // get separation by integrating toy histograms,
     // normalize by total # toys
     std::cout << " - getting separation... " << std::endl;
     double separation = 0;
     if(hnullstat->GetMean() <= haltstat->GetMean()) {
-        separation = haltstat->Integral(0,intbin-1)
-                             + hnullstat->Integral(intbin+1,100)
+        separation = haltstat->Integral(haltstat->GetMinimumBin(),intbin-1)
+                             + hnullstat->Integral(intbin+1,hnullstat->GetMaximumBin())
                              + (hnullstat->GetBinContent(intbin) + haltstat->GetBinContent(intbin))/2;
     } else {
-        separation = hnullstat->Integral(0,intbin-1)
-                             + haltstat->Integral(intbin+1,100)
+        separation = hnullstat->Integral(hnullstat->GetMinimumBin(),intbin-1)
+                             + haltstat->Integral(intbin+1,haltstat->GetMaximumBin())
                              + (hnullstat->GetBinContent(intbin) + haltstat->GetBinContent(intbin))/2;
     }
 
@@ -150,7 +154,7 @@ void hypoTestResultTreeTopWid(TString fOutName, double mass, double rValue=1.0,
     std::cout << " - reading lep file... " << std::endl;
     RooStats::HypoTestResult *res = readLepFile(toyDir,rValue);
     std::cout << " - read lep file... " << std::endl;
-    // FOR UNBLIND
+    // FOR UNBLIND TODO: check bObs
     //double clsObs = res->CLs(), clsObsErr = res->CLsError();
     //double clsbObs = res->CLsplusb(), clsbObsErr = res->CLsplusbError();
     std::cout << " - got CLs... " << std::endl;
