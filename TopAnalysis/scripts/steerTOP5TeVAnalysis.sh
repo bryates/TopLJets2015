@@ -12,7 +12,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 
-queue=local
+queue=8nh
 sourcedir=/store/cmst3/group/hintt/LJets5TeV/
 outdir=~/work/TopLJets5TeV
 wwwdir=~/www/TopLJets5TeV
@@ -21,8 +21,9 @@ lumi=26.0
 RED='\e[31m'
 NC='\e[0m'
 case $WHAT in
-    SELTEST)
+    SELTEST )
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mu   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
+	;;
     SEL )
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_muplus   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --charge 1  --runSysts;
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_muminus  --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --charge -1 --runSysts;
