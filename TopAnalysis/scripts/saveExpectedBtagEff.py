@@ -38,7 +38,9 @@ def saveExpectedBtagEff(opt):
     ptVar='j_pt'
     if opt.HiForest:
         flavConds=[('b',"abs(refparton_flavorForB)==5"),
-                   ('others',"abs(refparton_flavorForB)!=4")]
+                   ('c',"abs(refparton_flavorForB)==4"),
+                   ('udsg',"abs(refparton_flavorForB)!=5 && abs(refparton_flavorForB)!=4")
+                   ]
         ptVar='jtpt'
     for flav,cond in flavConds:
         print '\t computing for',flav,cond

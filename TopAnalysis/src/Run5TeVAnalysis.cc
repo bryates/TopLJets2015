@@ -6,6 +6,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TGraphAsymmErrors.h"
+#include "TSystem.h"
 
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 #include "TopLJets2015/TopAnalysis/interface/Run5TeVAnalysis.h"
@@ -34,8 +35,10 @@ void Run5TeVAnalysis(TString inFileName,
 
   bool isMC(false);
   if(inFileName.Contains("/MC")) isMC=true;
+  if(!isMC) runSysts=false;
   std::cout << "Will process " << inFileName << " and save the results in " << outFileName << endl
 	    << "Sample will be treated as MC=" << isMC <<  std::endl
+	    << "Systematics will be run=" << runSysts << std::endl
 	    << "Corrections to be retrieved from era=" << era << std::endl;
 
   std::map<TString, TGraphAsymmErrors *> expBtagEff;
@@ -43,25 +46,32 @@ void Run5TeVAnalysis(TString inFileName,
   if(isMC)
     { 
       TString btagEffExpUrl(era+"/expTageff.root");
+      gSystem->ExpandPathName(era+"/expTageff.root");   
       TFile *beffIn=TFile::Open(btagEffExpUrl);
       expBtagEff["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
-      expBtagEff["others"]=(TGraphAsymmErrors *)beffIn->Get("others");
+      expBtagEff["c"]=(TGraphAsymmErrors *)beffIn->Get("c");
+      expBtagEff["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
       beffIn->Close();
+      cout << "Read " << expBtagEff.size() << " b-tag efficiency expectations from " << btagEffExpUrl << endl;
     }
- 
+
   std::vector<TString>* inFileNames_p = new std::vector<TString>;
   inFileNames_p->push_back(inFileName);
   const Int_t nFiles = (Int_t)inFileNames_p->size();
-
+  
   //book histograms
   std::map<TString,TH1 *> histos;
   for(int ij=1; ij<=4; ij++)
     {
       TString pf(Form("%dj",ij));
-      histos["lpt_"+pf]  = new TH1F("lpt_"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
-      histos["leta_"+pf] = new TH1F("leta_"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.1);
-      histos["ht_"+pf]   = new TH1F("ht_"+pf,";H_{T} [GeV];Events",20.,0.,300.);
-    }
+      histos["lpt_"+pf]    = new TH1F("lpt_"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
+      histos["leta_"+pf]   = new TH1F("leta_"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.1);
+      histos["ht_"+pf]     = new TH1F("ht_"+pf,";H_{T} [GeV];Events",20.,0.,500.);
+      histos["metpt_"+pf]  = new TH1F("metpt_"+pf,";Missing transverse energy [GeV];Events" ,10,0.,200.);
+      histos["metphi_"+pf] = new TH1F("metphi_" + pf,";MET #phi [rad];Events" ,50,-3.2,3.2);
+      histos["mt_"+pf]     = new TH1F("mt_"+pf,";Transverse Mass [GeV];Events" ,20,0.,200.);
+   }
+
   histos["njnb"] = new TH1F("njnb",";Category;Events" ,11,0.,11.);
   histos["njnb"]->GetXaxis()->SetBinLabel(1,"1j,0b");
   histos["njnb"]->GetXaxis()->SetBinLabel(2,"1j,1b");
@@ -74,7 +84,7 @@ void Run5TeVAnalysis(TString inFileName,
   histos["njnb"]->GetXaxis()->SetBinLabel(9,"4j,0b");
   histos["njnb"]->GetXaxis()->SetBinLabel(10,"4j,1b");
   histos["njnb"]->GetXaxis()->SetBinLabel(11,"4j,2b");
-  
+
   Int_t nSysts(0);
   if(isMC)
     {
@@ -82,10 +92,11 @@ void Run5TeVAnalysis(TString inFileName,
       nSysts=sizeof(expSysts)/sizeof(TString);
       histos["njnbshapes_exp"]=new TH2F("njnbshapes_exp",";Category;Systematic uncertainty;Events",11,0,11,nSysts,0,nSysts);
       for(int i=0; i<nSysts; i++)
-	histos["njnb_exp"]->GetYaxis()->SetBinLabel(i+1,expSysts[i]);
+	histos["njnbshapes_exp"]->GetYaxis()->SetBinLabel(i+1,expSysts[i]);
+      
       histos["njnbshapes_gen"]=new TH2F("njnbshapes_gen",";Category;Systematic uncertainty;Events",11,0,11,500,0,500);
       for(int i=0; i<500;i++)
-	histos["njnb_exp"]->GetYaxis()->SetBinLabel(i+1,Form("genUnc%d",i));
+	histos["njnbshapes_gen"]->GetYaxis()->SetBinLabel(i+1,Form("genUnc%d",i));
       for(int xbin=1; xbin<=histos["njnb"]->GetXaxis()->GetNbins(); xbin++)
 	{
 	  histos["njnbshapes_exp"]->GetXaxis()->SetBinLabel(xbin,histos["njnb"]->GetXaxis()->GetBinLabel(xbin));
@@ -102,7 +113,6 @@ void Run5TeVAnalysis(TString inFileName,
       it->second->SetDirectory(0);
     }
 
-
   Float_t totalEvtNorm(0);
   for(Int_t fileIter = 0; fileIter < nFiles; fileIter++){
 
@@ -114,6 +124,21 @@ void Run5TeVAnalysis(TString inFileName,
     TTree* jetTree_p = (TTree*)inFile_p->Get("ak4PFJetAnalyzer/t");
     TTree* hiTree_p = (TTree*)inFile_p->Get("hiEvtAnalyzer/HiTree");
     TTree* hltTree_p = (TTree*)inFile_p->Get("hltanalysis/HltTree");
+    TTree *pfCand_p  = (TTree *)inFile_p->Get("pfcandAnalyzer/pfTree");
+    
+    //PF candidates
+    std::vector<int> *pfId_p=0;
+    std::vector<float> *pfPt_p=0,*pfEta_p=0,*pfPhi_p=0,*pfEnergy_p=0;
+    pfCand_p->SetBranchStatus("pfId",     1);
+    pfCand_p->SetBranchStatus("pfPt",     1);
+    pfCand_p->SetBranchStatus("pfEta",    1);
+    pfCand_p->SetBranchStatus("pfPhi",    1);
+    pfCand_p->SetBranchStatus("pfEnergy", 1);
+    pfCand_p->SetBranchAddress("pfId",     &pfId_p);
+    pfCand_p->SetBranchAddress("pfPt",     &pfPt_p);
+    pfCand_p->SetBranchAddress("pfEta",    &pfEta_p);
+    pfCand_p->SetBranchAddress("pfPhi",    &pfPhi_p);
+    pfCand_p->SetBranchAddress("pfEnergy", &pfEnergy_p);
 
     //muon variables
     std::vector<float>* muPt_p = 0;
@@ -201,7 +226,7 @@ void Run5TeVAnalysis(TString inFileName,
     jetTree_p->SetBranchAddress("discr_csvV2", discr_csvV2);
     jetTree_p->SetBranchAddress("refpt", refpt);
     jetTree_p->SetBranchAddress("refparton_flavorForB", refparton_flavor);
-
+  
     //event variables
     UInt_t run_, lumi_;
     ULong64_t evt_;
@@ -221,7 +246,7 @@ void Run5TeVAnalysis(TString inFileName,
     hiTree_p->SetBranchAddress("hiBin", &hiBin_);
     hiTree_p->SetBranchAddress("vz", &vz_);
     hiTree_p->SetBranchAddress("ttbar_w",&ttbar_w_p);
-
+  
     //trigger
     int trig = 0;
     std::string triggerName;
@@ -230,27 +255,30 @@ void Run5TeVAnalysis(TString inFileName,
     hltTree_p->SetBranchAddress(triggerName.data(),&trig);
     
     Int_t nEntries = (Int_t)lepTree_p->GetEntries();
-    Int_t entryDiv = ((Int_t)(nEntries/1000));
     
     std::cout << "Analysing " << nEntries << " events isMC=" << isMC
 	      << " trigger=" << triggerName << endl;
-    
+
     for(Int_t entry = 0; entry < nEntries; entry++)
       {
-	if(entry%entryDiv == 0 && nEntries >= 10000) 
-	  std::cout << "Entry # " << entry << "/" << nEntries << std::endl;
-      
+	if(entry%1000==0)
+	  {
+	    printf("\r [%d/%d] done",entry,nEntries);
+	    cout << flush;
+	  }
+
 	//readout this event
 	lepTree_p->GetEntry(entry);
 	jetTree_p->GetEntry(entry);
 	hiTree_p->GetEntry(entry);
 	hltTree_p->GetEntry(entry);
+	pfCand_p->GetEntry(entry);
 
 	//assign an event weight
 	float evWeight(1.0);
 	if(isMC && ttbar_w_p->size()) evWeight=ttbar_w_p->at(0);
 	totalEvtNorm+=evWeight;
-
+	
 	//select good muons
 	//cf. details in https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
 	std::vector<TLorentzVector> tightMuons,looseMuons,tightMuonsNonIso;
@@ -288,7 +316,7 @@ void Run5TeVAnalysis(TString inFileName,
 	      }
 	    else if(passLooseKin && passLooseId && passLooseIso) looseMuons.push_back( p4 );
 	  }
-
+  
 	//select the muon
 	if(channelSelection==1300)
 	  {
@@ -375,12 +403,26 @@ void Run5TeVAnalysis(TString inFileName,
 		    nBtagsVar[2]+=passCSVM;
 		    nBtagsVar[3]+=passCSVM;
 		  }
+		else if(abs(refparton_flavor[jetIter])==4)
+		  {
+		    float expEff    = expBtagEff["c"]->Eval(jptforBtag); 
+		    bool passCSVMUp(passCSVM);
+		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.1,expEff);	
+		    nBtagsVar[0]+=passCSVMUp;
+
+		    bool passCSVMDn(passCSVM);
+		    myBTagSFUtil.modifyBTagsWithSF(passCSVMDn,0.9,expEff);	
+		    nBtagsVar[1]+=passCSVMDn;
+
+		    nBtagsVar[2]+=passCSVM;
+		    nBtagsVar[3]+=passCSVM;
+		  }
 		else
 		  {
 		    nBtagsVar[0]+=passCSVM;
 		    nBtagsVar[1]+=passCSVM;
 		    
-		    float expEff    = expBtagEff["others"]->Eval(jptforBtag); 
+		    float expEff    = expBtagEff["udsg"]->Eval(jptforBtag); 
 		    bool passCSVMUp(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.3,expEff);	
 		    nBtagsVar[2]+=passCSVMUp;
@@ -391,16 +433,35 @@ void Run5TeVAnalysis(TString inFileName,
 		  }		
 	      }
 	  }
-      
+
+
+	//raw MET (noHF)
+	TLorentzVector rawMET(0,0,0,0);	
+	for(size_t ipf=0; ipf<pfId_p->size(); ipf++)
+	  {
+	    if(TMath::Abs(pfEta_p->at(ipf))>3.0) continue;
+	    rawMET += TLorentzVector(-pfPt_p->at(ipf)*TMath::Cos(pfPhi_p->at(ipf)),
+				     -pfPt_p->at(ipf)*TMath::Sin(pfPhi_p->at(ipf)),
+				     0,
+				     0);
+	  }
+
+	//transverse mass
+	float mt(computeMT(tightMuons[0],rawMET));
+
+
 	//control plots for the nominal distribution
+	Int_t binToFill(0);
 	if(njets>0)
 	  {
 	    TString pf(Form("%dj",TMath::Min(4,njets)));
 	    histos["lpt_"+pf]->Fill(tightMuons[0].Pt(),evWeight);
 	    histos["leta_"+pf]->Fill(fabs(tightMuons[0].Eta()),evWeight);
 	    histos["ht_"+pf]->Fill(htsum,evWeight);
-	   
-	    Int_t binToFill(0);
+	    histos["metpt_"+pf]->Fill(rawMET.Pt(),evWeight);
+	    histos["metphi_"+pf]->Fill(rawMET.Phi(),evWeight);
+	    histos["mt_"+pf]->Fill(mt,evWeight);
+
 	    if(njets==1 && nBtags ==1) binToFill=1;
 	    if(njets==2 && nBtags ==0) binToFill=2;
 	    if(njets==2 && nBtags ==1) binToFill=3;
@@ -412,48 +473,48 @@ void Run5TeVAnalysis(TString inFileName,
 	    if(njets>=4 && nBtags ==1) binToFill=9;
 	    if(njets>=4 && nBtags >=2) binToFill=10;
 	    histos["njnb"]->Fill(binToFill,evWeight);      
+	  }
+	
+	if(!isMC || !runSysts) continue;
+
+	//theory uncertainties (by matrix-element weighting)
+	for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
+	  {
+	    float newWeight( ttbar_w_p->at(igs) );
+	    ((TH2 *)histos["njnb_gen"])->Fill(binToFill,igs,newWeight);
+	  }
+	
+	//experimental uncertainties
+	for(Int_t ies=0; ies<nSysts; ies++)
+	  {
+	    float newWeight(evWeight);
+	    Int_t njets_i(njets), nBtags_i(nBtags);
+	    if(ies==0) nBtags_i=nBtagsVar[0];
+	    if(ies==1) nBtags_i=nBtagsVar[1];
+	    if(ies==2) nBtags_i=nBtagsVar[2];
+	    if(ies==3) nBtags_i=nBtagsVar[3];
+	    if(ies==4) njets_i=njetsVar[0];
+	    if(ies==5) njets_i=njetsVar[1];
+	    if(ies==6) njets_i=njetsVar[2];
+	    if(ies==7) njets_i=njetsVar[3];
+	    if(ies==8) newWeight *= 1.03;
+	    if(ies==9) newWeight *= 0.97;
 	    
-	    if(!isMC || !runSysts) continue;
+	    if(njets_i==0) continue;
 
-	    //theory uncertainties (by matrix-element weighting)
-	    for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
-	      {
-		float newWeight( ttbar_w_p->at(igs) );
-		((TH2 *)histos["njnb_gen"])->Fill(binToFill,igs,newWeight);
-	      }
-
-	    //experimental uncertainties
-	    for(Int_t ies=0; ies<nSysts; ies++)
-	      {
-		float newWeight(evWeight);
-		Int_t njets_i(njets), nBtags_i(nBtags);
-		if(ies==0) nBtags_i=nBtagsVar[0];
-		if(ies==1) nBtags_i=nBtagsVar[1];
-		if(ies==2) nBtags_i=nBtagsVar[2];
-		if(ies==3) nBtags_i=nBtagsVar[3];
-		if(ies==4) njets_i=njetsVar[0];
-		if(ies==5) njets_i=njetsVar[1];
-		if(ies==6) njets_i=njetsVar[2];
-		if(ies==7) njets_i=njetsVar[3];
-		if(ies==8) newWeight *= 1.03;
-		if(ies==9) newWeight *= 0.97;
-
-		//decide which bin to fill
-		Int_t binToFill(0);
-		if(njets_i==1 && nBtags_i ==1) binToFill=1;
-		if(njets_i==2 && nBtags_i ==0) binToFill=2;
-		if(njets_i==2 && nBtags_i ==1) binToFill=3;
-		if(njets_i==2 && nBtags_i >=2) binToFill=4;
-		if(njets_i==3 && nBtags_i ==0) binToFill=5;
-		if(njets_i>=3 && nBtags_i ==1) binToFill=6;
-		if(njets_i>=3 && nBtags_i >=2) binToFill=7;
-		if(njets_i>=4 && nBtags_i ==0) binToFill=8;
-		if(njets_i>=4 && nBtags_i ==1) binToFill=9;
-		if(njets_i>=4 && nBtags_i >=2) binToFill=10;
-		((TH2 *)histos["njnb_exp"])->Fill(binToFill,ies,newWeight);
-	      }
-
-	      
+	    //decide which bin to fill
+	    Int_t varbinToFill(0);
+	    if(njets_i==1 && nBtags_i ==1) varbinToFill=1;
+	    if(njets_i==2 && nBtags_i ==0) varbinToFill=2;
+	    if(njets_i==2 && nBtags_i ==1) varbinToFill=3;
+	    if(njets_i==2 && nBtags_i >=2) varbinToFill=4;
+	    if(njets_i==3 && nBtags_i ==0) varbinToFill=5;
+	    if(njets_i>=3 && nBtags_i ==1) varbinToFill=6;
+	    if(njets_i>=3 && nBtags_i >=2) varbinToFill=7;
+	    if(njets_i>=4 && nBtags_i ==0) varbinToFill=8;
+	    if(njets_i>=4 && nBtags_i ==1) varbinToFill=9;
+	    if(njets_i>=4 && nBtags_i >=2) varbinToFill=10;
+	    ((TH2 *)histos["njnb_exp"])->Fill(varbinToFill,ies,newWeight);
 	  }
       }
     
