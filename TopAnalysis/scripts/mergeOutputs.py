@@ -15,7 +15,7 @@ def getBaseNames(dirname):
         filename, ext = os.path.splitext(item)
         if not ext == '.root': continue
         try:
-            if not ('MC13TeV' in filename or 'Data13TeV' in filename) : continue
+            #if not ('MC13TeV' in filename or 'Data13TeV' in filename) : continue
             basename, number = filename.rsplit('_',1)
             print basename,number
             if not number == 'missing' and not isint(number):
