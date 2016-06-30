@@ -5,8 +5,11 @@
 #include "TLorentzVector.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TGraphAsymmErrors.h"
 
+#include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 #include "TopLJets2015/TopAnalysis/interface/Run5TeVAnalysis.h"
+#include "TopLJets2015/TopAnalysis/interface/TOP-16-006.h"
 
 #include <string>
 #include <vector>
@@ -35,7 +38,17 @@ void Run5TeVAnalysis(TString inFileName,
 	    << "Sample will be treated as MC=" << isMC <<  std::endl
 	    << "Corrections to be retrieved from era=" << era << std::endl;
 
-
+  std::map<TString, TGraphAsymmErrors *> expBtagEff;
+  BTagSFUtil myBTagSFUtil;
+  if(isMC)
+    { 
+      TString btagEffExpUrl(era+"/expTageff.root");
+      TFile *beffIn=TFile::Open(btagEffExpUrl);
+      expBtagEff["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
+      expBtagEff["others"]=(TGraphAsymmErrors *)beffIn->Get("others");
+      beffIn->Close();
+    }
+ 
   std::vector<TString>* inFileNames_p = new std::vector<TString>;
   inFileNames_p->push_back(inFileName);
   const Int_t nFiles = (Int_t)inFileNames_p->size();
@@ -65,7 +78,7 @@ void Run5TeVAnalysis(TString inFileName,
   Int_t nSysts(0);
   if(isMC)
     {
-      TString expSysts[]={"btagup","btagdn","othertagup","othertagdn","jesup","jesdn","leffup","leffdn","jerup","jerdn"};
+      TString expSysts[]={"btagup","btagdn","othertagup","othertagdn","jesup","jesdn","jerup","jerdn","leffup","leffdn"};
       nSysts=sizeof(expSysts)/sizeof(TString);
       histos["njnbshapes_exp"]=new TH2F("njnbshapes_exp",";Category;Systematic uncertainty;Events",11,0,11,nSysts,0,nSysts);
       for(int i=0; i<nSysts; i++)
@@ -163,12 +176,14 @@ void Run5TeVAnalysis(TString inFileName,
     
     //jet variables
     const int maxJets = 5000;
-    Int_t           nref;
-    Float_t         jtpt[maxJets]; 
-    Float_t         jteta[maxJets];
-    Float_t         jtphi[maxJets];
-    Float_t         jtm[maxJets]; 
-    Float_t         discr_csvV2[maxJets]; 
+    Int_t   nref;
+    Float_t jtpt[maxJets]; 
+    Float_t jteta[maxJets];
+    Float_t jtphi[maxJets];
+    Float_t jtm[maxJets]; 
+    Float_t discr_csvV2[maxJets];
+    Float_t refpt[maxJets];
+    Float_t refparton_flavor[maxJets];
     jetTree_p->SetBranchStatus("*", 0);
     jetTree_p->SetBranchStatus("nref", 1);
     jetTree_p->SetBranchStatus("jtpt", 1);
@@ -176,13 +191,17 @@ void Run5TeVAnalysis(TString inFileName,
     jetTree_p->SetBranchStatus("jteta", 1);
     jetTree_p->SetBranchStatus("jtm", 1);
     jetTree_p->SetBranchStatus("discr_csvV2", 1);
+    jetTree_p->SetBranchStatus("refpt", 1);
+    jetTree_p->SetBranchStatus("refparton_flavor", 1);
     jetTree_p->SetBranchAddress("nref", &nref);
     jetTree_p->SetBranchAddress("jtpt", jtpt);
     jetTree_p->SetBranchAddress("jtphi", jtphi);
     jetTree_p->SetBranchAddress("jteta", jteta);
     jetTree_p->SetBranchAddress("jtm", jtm);
     jetTree_p->SetBranchAddress("discr_csvV2", discr_csvV2);
-    
+    jetTree_p->SetBranchAddress("refpt", refpt);
+    jetTree_p->SetBranchAddress("refparton_flavorForB", refparton_flavor);
+
     //event variables
     UInt_t run_, lumi_;
     ULong64_t evt_;
@@ -303,19 +322,74 @@ void Run5TeVAnalysis(TString inFileName,
 	
 	//jet counting
 	Int_t njets(0),nBtags(0),htsum(0);
+	std::vector<Int_t> njetsVar(4,0),nBtagsVar(4,0);
 	for(Int_t jetIter = 0; jetIter < nref; jetIter++)
 	  {
-	    if(jtpt[jetIter]<30) continue;
-	    if(TMath::Abs(jteta[jetIter])>2.4) continue;
-
 	    //cross clean with trigger muon
 	    TLorentzVector jp4(0,0,0,0);
 	    jp4.SetPtEtaPhiM(jtpt[jetIter],jteta[jetIter],jtphi[jetIter],jtm[jetIter]);
 	    if(jp4.DeltaR(tightMuons[0])<0.4) continue;
 
+	    //in tracker region
+	    if(TMath::Abs(jp4.Eta())>2.4) continue;
+
+	    if(isMC)
+	      {
+		std::vector<float> jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),refpt[jetIter]);
+		TLorentzVector rawjp4(jp4);
+		jp4 *= jerSmear[0];
+
+		//JES varied selections
+		if(jp4.Pt()>30./(1+0.028)) njetsVar[0]++;
+		if(jp4.Pt()>30./(1-0.028)) njetsVar[1]++;
+
+		//JER variations
+		if(rawjp4.Pt()>30./jerSmear[1]) njetsVar[2]++;
+		if(rawjp4.Pt()>30./jerSmear[2]) njetsVar[3]++;
+	      }
+	    
+	    //nominal selection
+	    if(jp4.Pt()<30) continue;
 	    ++njets;
 	    htsum+=jp4.Pt();
-	    if(discr_csvV2[jetIter]>0.8) ++nBtags;
+
+	    bool passCSVM(discr_csvV2[jetIter]>0.8);
+
+	    if(passCSVM) ++nBtags;
+	    
+	    //b-tagging variations
+	    if(isMC)
+	      {
+		float jptforBtag(jp4.Pt()>1000. ? 999. : jp4.Pt());
+		if(abs(refparton_flavor[jetIter])==5)
+		  {
+		    float expEff    = expBtagEff["b"]->Eval(jptforBtag); 
+		    bool passCSVMUp(passCSVM);
+		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.1,expEff);	
+		    nBtagsVar[0]+=passCSVMUp;
+
+		    bool passCSVMDn(passCSVM);
+		    myBTagSFUtil.modifyBTagsWithSF(passCSVMDn,0.9,expEff);	
+		    nBtagsVar[1]+=passCSVMDn;
+
+		    nBtagsVar[2]+=passCSVM;
+		    nBtagsVar[3]+=passCSVM;
+		  }
+		else
+		  {
+		    nBtagsVar[0]+=passCSVM;
+		    nBtagsVar[1]+=passCSVM;
+		    
+		    float expEff    = expBtagEff["others"]->Eval(jptforBtag); 
+		    bool passCSVMUp(passCSVM);
+		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.3,expEff);	
+		    nBtagsVar[2]+=passCSVMUp;
+		    
+		    bool passCSVMDn(passCSVM);
+		    myBTagSFUtil.modifyBTagsWithSF(passCSVMDn,0.7,expEff);	
+		    nBtagsVar[3]+=passCSVMDn;
+		  }		
+	      }
 	  }
       
 	//control plots for the nominal distribution
@@ -339,14 +413,47 @@ void Run5TeVAnalysis(TString inFileName,
 	    if(njets>=4 && nBtags >=2) binToFill=10;
 	    histos["njnb"]->Fill(binToFill,evWeight);      
 	    
-	    if(isMC)
+	    if(!isMC || !runSysts) continue;
+
+	    //theory uncertainties (by matrix-element weighting)
+	    for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
 	      {
-		for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
-		  {
-		    float newWeight( ttbar_w_p->at(igs) );
-		    ((TH2 *)histos["njnb_gen"])->Fill(binToFill,igs,newWeight);
-		  }
+		float newWeight( ttbar_w_p->at(igs) );
+		((TH2 *)histos["njnb_gen"])->Fill(binToFill,igs,newWeight);
 	      }
+
+	    //experimental uncertainties
+	    for(Int_t ies=0; ies<nSysts; ies++)
+	      {
+		float newWeight(evWeight);
+		Int_t njets_i(njets), nBtags_i(nBtags);
+		if(ies==0) nBtags_i=nBtagsVar[0];
+		if(ies==1) nBtags_i=nBtagsVar[1];
+		if(ies==2) nBtags_i=nBtagsVar[2];
+		if(ies==3) nBtags_i=nBtagsVar[3];
+		if(ies==4) njets_i=njetsVar[0];
+		if(ies==5) njets_i=njetsVar[1];
+		if(ies==6) njets_i=njetsVar[2];
+		if(ies==7) njets_i=njetsVar[3];
+		if(ies==8) newWeight *= 1.03;
+		if(ies==9) newWeight *= 0.97;
+
+		//decide which bin to fill
+		Int_t binToFill(0);
+		if(njets_i==1 && nBtags_i ==1) binToFill=1;
+		if(njets_i==2 && nBtags_i ==0) binToFill=2;
+		if(njets_i==2 && nBtags_i ==1) binToFill=3;
+		if(njets_i==2 && nBtags_i >=2) binToFill=4;
+		if(njets_i==3 && nBtags_i ==0) binToFill=5;
+		if(njets_i>=3 && nBtags_i ==1) binToFill=6;
+		if(njets_i>=3 && nBtags_i >=2) binToFill=7;
+		if(njets_i>=4 && nBtags_i ==0) binToFill=8;
+		if(njets_i>=4 && nBtags_i ==1) binToFill=9;
+		if(njets_i>=4 && nBtags_i >=2) binToFill=10;
+		((TH2 *)histos["njnb_exp"])->Fill(binToFill,ies,newWeight);
+	      }
+
+	      
 	  }
       }
     

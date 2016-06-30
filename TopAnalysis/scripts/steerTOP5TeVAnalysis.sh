@@ -12,7 +12,7 @@ fi
 
 
 queue=local
-sourcedir=/store/cmst3/user/psilva/LJets5TeV
+sourcedir=/store/cmst3/group/hintt/LJets5TeV/
 outdir=~/work/TopLJets5TeV
 wwwdir=~/www/TopLJets5TeV
 
