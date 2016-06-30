@@ -52,6 +52,7 @@ case $WHAT in
 	mkdir -p ${wwwdir}/analysis_mu
         cp ${outdir}/analysis_mu/plots/*.{png,pdf} ${wwwdir}/analysis_mu
         cp test/index.php ${wwwdir}/analysis_mu
+	;;
     WWW )
 	a=(muplus muminus munoniso )
 	for i in ${a[@]}; do
