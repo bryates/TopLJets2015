@@ -65,17 +65,28 @@ void Run5TeVAnalysis(TString inFileName,
   
   //book histograms
   std::map<TString,TH1 *> histos;
-  for(int ij=1; ij<=4; ij++)
+  histos["jpt_Hien"]    = new TH1F("jpt_Hien",";Transverse momentum [GeV];Events",20.,0.,200.);
+  histos["jeta_Hien"]   = new TH1F("jeta_Hien",";Pseudo-rapidity [GeV];Events",20.,0.,2.5);
+  histos["njets_Hien"]   = new TH1F("njets_Hien",";Jet multiplicity;Events",6,0,6);
+  histos["ht_Hien"]   = new TH1F("ht_Hien",";H_{T} [GeV];Events",20.,0.,500.);
+  for(int ij=0; ij<=4; ij++)
     {
-      TString pf(Form("%dj",ij));
-      histos["lpt_"+pf]    = new TH1F("lpt_"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
-      histos["leta_"+pf]   = new TH1F("leta_"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.1);
-      histos["ht_"+pf]     = new TH1F("ht_"+pf,";H_{T} [GeV];Events",20.,0.,500.);
-      histos["metpt_"+pf]  = new TH1F("metpt_"+pf,";Missing transverse energy [GeV];Events" ,10,0.,200.);
-      histos["metphi_"+pf] = new TH1F("metphi_" + pf,";MET #phi [rad];Events" ,50,-3.2,3.2);
-      histos["mt_"+pf]     = new TH1F("mt_"+pf,";Transverse Mass [GeV];Events" ,20,0.,200.);
+      TString pf(Form("_%dj",ij));
+      if(ij==0) pf="";
+      histos["lpt"+pf]    = new TH1F("lpt"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
+      histos["leta"+pf]   = new TH1F("leta"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.1);
+      if(ij>0)
+	{
+	  histos["jpt"+pf]    = new TH1F("jpt"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
+	  histos["jeta"+pf]   = new TH1F("jeta"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.5);
+	}
+      histos["ht"+pf]     = new TH1F("ht"+pf,";H_{T} [GeV];Events",20.,0.,500.);
+      histos["metpt"+pf]  = new TH1F("metpt"+pf,";Missing transverse energy [GeV];Events" ,10,0.,200.);
+      histos["metphi"+pf] = new TH1F("metphi" + pf,";MET #phi [rad];Events" ,50,-3.2,3.2);
+      histos["mt"+pf]     = new TH1F("mt"+pf,";Transverse Mass [GeV];Events" ,20,0.,200.);
    }
 
+  histos["njets"] = new TH1F("njets",";Jet multiplicity;Events" ,5,1.,6.);
   histos["njnb"] = new TH1F("njnb",";Category;Events" ,11,0.,11.);
   histos["njnb"]->GetXaxis()->SetBinLabel(1,"1j,0b");
   histos["njnb"]->GetXaxis()->SetBinLabel(2,"1j,1b");
@@ -235,6 +246,7 @@ void Run5TeVAnalysis(TString inFileName,
     ULong64_t evt_;
     Int_t hiBin_;
     Float_t vz_;
+    Float_t weight;
     std::vector<float> *ttbar_w_p=0;
     hiTree_p->SetBranchStatus("*", 0);
     hiTree_p->SetBranchStatus("run", 1);
@@ -242,12 +254,14 @@ void Run5TeVAnalysis(TString inFileName,
     hiTree_p->SetBranchStatus("lumi", 1);
     hiTree_p->SetBranchStatus("hiBin", 1);
     hiTree_p->SetBranchStatus("vz", 1);
+    hiTree_p->SetBranchStatus("weight", 1);
     hiTree_p->SetBranchStatus("ttbar_w",1);
     hiTree_p->SetBranchAddress("run", &run_);
     hiTree_p->SetBranchAddress("evt", &evt_);
     hiTree_p->SetBranchAddress("lumi", &lumi_);
     hiTree_p->SetBranchAddress("hiBin", &hiBin_);
     hiTree_p->SetBranchAddress("vz", &vz_);
+    hiTree_p->SetBranchAddress("weight", &weight);
     hiTree_p->SetBranchAddress("ttbar_w",&ttbar_w_p);
   
     //trigger
@@ -279,8 +293,9 @@ void Run5TeVAnalysis(TString inFileName,
 
 	//assign an event weight
 	float evWeight(1.0);
-	if(isMC && ttbar_w_p->size()) evWeight=ttbar_w_p->at(0);
-	
+	if(isMC && ttbar_w_p->size()) evWeight = ttbar_w_p->at(0);
+	//if(isMC) evWeight=weight;
+
 	//select good muons
 	//cf. details in https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
 	std::vector<TLorentzVector> tightMuons,looseMuons,tightMuonsNonIso;
@@ -289,7 +304,7 @@ void Run5TeVAnalysis(TString inFileName,
 	for(Int_t muIter = 0; muIter < nMu; muIter++)
 	  {
 	    bool passLooseKin( muPt_p->at(muIter) > 15. && TMath::Abs(muEta_p->at(muIter))<2.4);
-	    bool passTightKin( muPt_p->at(muIter) > 30. && TMath::Abs(muEta_p->at(muIter))<2.1);
+	    bool passTightKin( muPt_p->at(muIter) > 25. && TMath::Abs(muEta_p->at(muIter))<2.1);
 	    bool passLooseId(true);
 	    bool passTightId( passLooseId
 			      && muChi2NDF_p->at(muIter) < 10
@@ -353,6 +368,7 @@ void Run5TeVAnalysis(TString inFileName,
 	//jet counting
 	Int_t njets(0),nBtags(0),htsum(0);
 	std::vector<Int_t> njetsVar(4,0),nBtagsVar(4,0);
+	std::vector<TLorentzVector> selJets;
 	for(Int_t jetIter = 0; jetIter < nref; jetIter++)
 	  {
 	    //cross clean with trigger muon
@@ -380,6 +396,7 @@ void Run5TeVAnalysis(TString inFileName,
 	    
 	    //nominal selection
 	    if(jp4.Pt()<30) continue;
+	    selJets.push_back(jp4);
 	    ++njets;
 	    htsum+=jp4.Pt();
 
@@ -450,15 +467,36 @@ void Run5TeVAnalysis(TString inFileName,
 
 	//transverse mass
 	float mt(computeMT(tightMuons[0],rawMET));
-
+	float Wpt=(tightMuons[0]+rawMET).Pt();
 
 	//control plots for the nominal distribution
 	Int_t binToFill(0);
+	histos["lpt"]->Fill(tightMuons[0].Pt(),evWeight);
+	histos["leta"]->Fill(fabs(tightMuons[0].Eta()),evWeight);
+	histos["ht"]->Fill(htsum,evWeight);
+	histos["metpt"]->Fill(rawMET.Pt(),evWeight);
+	histos["metphi"]->Fill(rawMET.Phi(),evWeight);
+	histos["mt"]->Fill(mt,evWeight);    
+
+	//Hien's selection
+	if(rawMET.Pt()>30 && tightMuons[0].Pt()>25 && mt>50 && Wpt>40)
+	  {
+	    histos["njets_Hien"]->Fill(njets,evWeight);
+	    histos["ht_Hien"]->Fill(htsum,evWeight);
+	    if(njets)
+	      {
+		histos["jpt_Hien"]->Fill(selJets[0].Pt(),evWeight);
+		histos["jeta_Hien"]->Fill(fabs(selJets[0].Eta()),evWeight);
+	      }
+	  }
+
 	if(njets>0)
 	  {
 	    TString pf(Form("%dj",TMath::Min(4,njets)));
 	    histos["lpt_"+pf]->Fill(tightMuons[0].Pt(),evWeight);
 	    histos["leta_"+pf]->Fill(fabs(tightMuons[0].Eta()),evWeight);
+	    histos["jpt_"+pf]->Fill(selJets[0].Pt(),evWeight);
+	    histos["jeta_"+pf]->Fill(fabs(selJets[0].Eta()),evWeight);
 	    histos["ht_"+pf]->Fill(htsum,evWeight);
 	    histos["metpt_"+pf]->Fill(rawMET.Pt(),evWeight);
 	    histos["metphi_"+pf]->Fill(rawMET.Phi(),evWeight);
@@ -475,6 +513,7 @@ void Run5TeVAnalysis(TString inFileName,
 	    if(njets>=4 && nBtags ==1) binToFill=9;
 	    if(njets>=4 && nBtags >=2) binToFill=10;
 	    histos["njnb"]->Fill(binToFill,evWeight);      
+	    if(nBtags>0) histos["njets"]->Fill(njets,evWeight);
 	  }
 	
 	if(!isMC || !runSysts) continue;

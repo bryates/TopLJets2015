@@ -51,7 +51,8 @@ def main():
                 for i in xrange(0,hiTree.GetEntriesFast()):
                     hiTree.GetEntry(i)
                     try:
-                        wgtCounter.Fill(0,getattr(hiTree,'ttbar_w')[0])
+                        wgtVal=getattr(hiTree,'ttbar_w')[0]
+                        wgtCounter.Fill(0,wgtVal)
                     except:
                         wgtCounter.Fill(0,1)
             fIn.Close()
