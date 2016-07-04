@@ -30,8 +30,8 @@ case $WHAT in
 	;;
     SELTEST )
 	queue=local
-	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mutest   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --only Pythia8;
-	#python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mutest/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
+	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mutest   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
+	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mutest/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
 	;;
     SEL )
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mu   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --runSysts;
@@ -49,8 +49,8 @@ case $WHAT in
 	done
 	;;
     PLOTTEST )
-	#python scripts/plotter.py -i ${outdir}/analysis_mutest -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
-	python scripts/plotter.py -i ${outdir}/analysis_mutest -j data/era5TeV/Wsamples.json      -l ${lumi} --saveLog --noStack;	
+	python scripts/plotter.py -i ${outdir}/analysis_mutest -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
+	#python scripts/plotter.py -i ${outdir}/analysis_mutest -j data/era5TeV/Wsamples.json      -l ${lumi} --saveLog --noStack;	
 	;;
     PLOT )
 	a=(mu munoniso)
