@@ -49,13 +49,15 @@ def topRadiusFilter(tree,filtArgs):
     #require at least two b-jets and two leptons
     if len(bjets)<2 or len(leptons)<2 : return 1.0
 
-    #angle between bb,ll in laboratory frame
-    dphibb=ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1])
-    xbin=filtArgs[0].GetXaxis().FindBin(dphibb)
-    dphill=ROOT.Math.VectorUtil.DeltaPhi(leptons[0],leptons[1])
-    ybin=filtArgs[0].GetXaxis().FindBin(dphill)
+    #angle between bb
+    #dphibb=ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1])
+    #xbin=filtArgs[0].GetXaxis().FindBin(dphibb)
 
-    return filtArgs[0].GetBinContent(xbin,ybin)
+    #angle between ll in laboratory frame
+    dphill=ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(leptons[0],leptons[1]))
+    xbin=filtArgs[0].GetXaxis().FindBin(dphill)
+
+    return filtArgs[0].GetBinContent(xbin)
 
 
 """
@@ -100,18 +102,19 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
     filtFunc,filtArgs=None,None
     if filterName:
         filtFunc,filtArgsList=filterName.split('=')
-        if filtFunc='topRadiusFilter':
+        if filtFunc=='topRadiusFilter':
             args=filtArgsList.split(',')
+            bsmUrl,smUrl,distName=args
 
             #get the target distribution
-            bsmFile=ROOT.TFile.Open(args[0])
-            weightH=ROOT.TFile.Get('dphillbb')
+            bsmFile=ROOT.TFile.Open(bsmUrl)
+            weightH=bsmFile.Get(distName)
             weightH.SetDirectory(0)
             bsmFile.Close()
 
             #get the SM distribution 
-            smFile=ROOT.TFile.Open(args[1])
-            weightH.Divide(ROOT.TFile.Get('dphillbb'))
+            smFile=ROOT.TFile.Open(smUrl)
+            weightH.Divide(smFile.Get(distName))
             smFile.Close()
 
             filtArgs=[weightH]
