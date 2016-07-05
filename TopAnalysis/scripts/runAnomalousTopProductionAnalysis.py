@@ -46,14 +46,15 @@ def topRadiusFilter(tree,filtArgs):
         if abs(tree.t_id[i])==5 : bjets.append(p4)
         if abs(tree.t_id[i])==11 or abs(tree.t_id[i])==13: leptons.append(p4)
 
-    #require at least two b-jets and two leptons
-    if len(bjets)<2 or len(leptons)<2 : return 1.0
+    #require at least two b-jets and two leptons    
 
     #angle between bb
+    # if len(bjets)<2 : return 1.0 
     #dphibb=ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1])
     #xbin=filtArgs[0].GetXaxis().FindBin(dphibb)
 
     #angle between ll in laboratory frame
+    if len(leptons)<2 : return 1.0
     dphill=ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(leptons[0],leptons[1]))
     xbin=filtArgs[0].GetXaxis().FindBin(dphill)
 
@@ -116,7 +117,6 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
             smFile=ROOT.TFile.Open(smUrl)
             weightH.Divide(smFile.Get(distName))
             smFile.Close()
-
             filtArgs=[weightH]
         else:
             filtArgs=filtArgsList.split(',')
@@ -197,7 +197,7 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         #measure b-jet angles
         cosb1 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(bjets[0],topBoost), allSols[0][1] ) )
         cosb2 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(bjets[1],top_Boost), allSols[0][2] ) )
-        observablesH['dphibb_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1]),evWeight)
+        observablesH['dphibb_'+evcat].Fill(ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1])),evWeight)
         observablesH['cosbstar_'+evcat].Fill(cosb1,evWeight)
         observablesH['cosbstar_'+evcat].Fill(cosb2,evWeight)
         observablesH['cosbstarprod_'+evcat].Fill(cosb1*cosb2,evWeight)
@@ -205,7 +205,7 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         #measure leptonic angles
         cosl1 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(leptons[l1idx],topBoost), allSols[0][1] ) )
         cosl2 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(leptons[l2idx],top_Boost), allSols[0][2] ) )
-        observablesH['dphill_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx],leptons[l2idx]),evWeight)
+        observablesH['dphill_'+evcat].Fill(ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx],leptons[l2idx])),evWeight)
         observablesH['coslstar_'+evcat].Fill(cosl1,evWeight)
         observablesH['coslstar_'+evcat].Fill(cosl2,evWeight)
         observablesH['coslstarprod_'+evcat].Fill(cosl1*cosl2,evWeight)
