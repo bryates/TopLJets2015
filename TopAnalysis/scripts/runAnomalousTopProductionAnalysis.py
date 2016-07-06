@@ -30,6 +30,38 @@ def stopChiFilter(tree,filtArgs):
 
 
 """
+top radius filter
+"""
+def topRadiusFilter(tree,filtArgs):
+
+    if len(filtArgs)==0 : return 1.0
+    if filtArgs[0] is None : return 1.0
+
+    #select the b-jets and leptons at generator level
+    bjets=[]
+    leptons=[]
+    lVec = ROOT.Math.LorentzVector(ROOT.Math.PtEtaPhiM4D('double'))
+    for i in xrange(0,tree.nt):
+        p4=lVec(tree.t_pt[i],tree.t_eta[i],tree.t_phi[i],tree.t_m[i])
+        if abs(tree.t_id[i])==5 : bjets.append(p4)
+        if abs(tree.t_id[i])==11 or abs(tree.t_id[i])==13: leptons.append(p4)
+
+    #require at least two b-jets and two leptons    
+
+    #angle between bb
+    # if len(bjets)<2 : return 1.0 
+    #dphibb=ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1])
+    #xbin=filtArgs[0].GetXaxis().FindBin(dphibb)
+
+    #angle between ll in laboratory frame
+    if len(leptons)<2 : return 1.0
+    dphill=ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(leptons[0],leptons[1]))
+    xbin=filtArgs[0].GetXaxis().FindBin(dphill)
+
+    return filtArgs[0].GetBinContent(xbin)
+
+
+"""
 Analysis loop
 """
 def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
@@ -67,6 +99,29 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
     tree=ROOT.TChain('twev')
     tree.AddFile(fileName)
 
+    #if some filtering has to be applied, specialize it
+    filtFunc,filtArgs=None,None
+    if filterName:
+        filtFunc,filtArgsList=filterName.split('=')
+        if filtFunc=='topRadiusFilter':
+            args=filtArgsList.split(',')
+            bsmUrl,smUrl,distName=args
+
+            #get the target distribution
+            bsmFile=ROOT.TFile.Open(bsmUrl)
+            weightH=bsmFile.Get(distName)
+            weightH.SetDirectory(0)
+            bsmFile.Close()
+
+            #get the SM distribution 
+            smFile=ROOT.TFile.Open(smUrl)
+            weightH.Divide(smFile.Get(distName))
+            smFile.Close()
+            filtArgs=[weightH]
+        else:
+            filtArgs=filtArgsList.split(',')
+                                   
+
     #loop over events in the tree and fill histos
     totalEntries=tree.GetEntries()
     lVec = ROOT.Math.LorentzVector(ROOT.Math.PtEtaPhiM4D('double')) 
@@ -77,15 +132,15 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         if i%100==0 : sys.stdout.write('\r [ %d/100 ] done' %(int(float(100.*i)/float(totalEntries))) )
 
         filtWeight=1.0
-        if filterName:
-            filtFunc,filtArgs=filterName.split('=')
-            filtWeight=globals()[filtFunc](tree,filtArgs.split(','))
+        if filtFunc and filtArgs:
+            filtWeight=globals()[filtFunc](tree,filtArgs)
             if filtWeight<0 : continue
+            
 
         if abs(tree.cat)<100 : continue
         evcat = 'emu' if abs(tree.cat)==11*13 else 'll'
 
-        evWeight=puNormSF*tree.weight[0]
+        evWeight=puNormSF*tree.weight[0]*filtWeight
 
         #leptons
         leptons=[]
@@ -142,7 +197,7 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         #measure b-jet angles
         cosb1 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(bjets[0],topBoost), allSols[0][1] ) )
         cosb2 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(bjets[1],top_Boost), allSols[0][2] ) )
-        observablesH['dphibb_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1]),evWeight)
+        observablesH['dphibb_'+evcat].Fill(ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(bjets[0],bjets[1])),evWeight)
         observablesH['cosbstar_'+evcat].Fill(cosb1,evWeight)
         observablesH['cosbstar_'+evcat].Fill(cosb2,evWeight)
         observablesH['cosbstarprod_'+evcat].Fill(cosb1*cosb2,evWeight)
@@ -150,7 +205,7 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         #measure leptonic angles
         cosl1 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(leptons[l1idx],topBoost), allSols[0][1] ) )
         cosl2 = ROOT.TMath.Cos( ROOT.Math.VectorUtil.Angle( ROOT.Math.VectorUtil.boost(leptons[l2idx],top_Boost), allSols[0][2] ) )
-        observablesH['dphill_'+evcat].Fill(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx],leptons[l2idx]),evWeight)
+        observablesH['dphill_'+evcat].Fill(ROOT.TMath.Abs(ROOT.Math.VectorUtil.DeltaPhi(leptons[l1idx],leptons[l2idx])),evWeight)
         observablesH['coslstar_'+evcat].Fill(cosl1,evWeight)
         observablesH['coslstar_'+evcat].Fill(cosl2,evWeight)
         observablesH['coslstarprod_'+evcat].Fill(cosl1*cosl2,evWeight)

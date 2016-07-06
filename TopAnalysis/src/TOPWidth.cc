@@ -537,7 +537,20 @@ void RunTopWidth(TString filename,
 	      twev.t_eta[twev.nt]=ev.gtop_eta[i];
 	      twev.t_phi[twev.nt]=ev.gtop_phi[i];
 	      twev.t_m[twev.nt]=ev.gtop_m[i];
-	      twev.t_id[twev.nt]=ev.gtop_id[i];
+	      twev.t_id[twev.nt]=ev.gtop_id[i];	     
+	      twev.nt++;
+	      if(twev.nt>10) break;
+	    }
+
+	  for(Int_t ig=0; ig<ev.ng; ig++)
+	    {
+	      int absid=abs(ev.g_id[ig]);
+	      if(absid!=5 && absid!=13 && absid!=11) continue;
+	      twev.t_pt[twev.nt]=ev.g_pt[ig];
+	      twev.t_eta[twev.nt]=ev.g_eta[ig];
+	      twev.t_phi[twev.nt]=ev.g_phi[ig];
+	      twev.t_m[twev.nt]=ev.g_m[ig];
+	      twev.t_id[twev.nt]=ev.g_id[ig];	     
 	      twev.nt++;
 	      if(twev.nt>10) break;
 	    }
@@ -623,5 +636,5 @@ void resetTopWidthEvent(TopWidthEvent_t &twev)
   for(int i=0; i<10; i++) twev.weight[i]=0;
   for(int i=0; i<2; i++) { twev.l_pt[i]=0;   twev.l_eta[i]=0;   twev.l_phi[i]=0;   twev.l_m[i]=0; twev.l_id[i]=0; twev.l_les[i]=0; twev.gl_pt[i]=0;   twev.gl_eta[i]=0;   twev.gl_phi[i]=0;   twev.gl_m[i]=0; twev.gl_id[i]=0; }
   for(int i=0; i<50; i++) { twev.j_pt[i]=0;   twev.j_eta[i]=0;   twev.j_phi[i]=0;   twev.j_m[i]=0; twev.j_btag[i]=0; twev.j_jer[i]=0; twev.j_jes[i]=0; twev.gj_pt[i]=0;   twev.gj_eta[i]=0;   twev.gj_phi[i]=0;   twev.gj_m[i]=0; twev.gj_flav[i]=0; twev.gj_hadflav[i]=0; } 
-  for(int i=0; i<4; i++) { twev.t_pt[i]=0;   twev.t_eta[i]=0;   twev.t_phi[i]=0;   twev.t_m[i]=0; twev.t_id[i]=0; }
+  for(int i=0; i<10; i++) { twev.t_pt[i]=0;   twev.t_eta[i]=0;   twev.t_phi[i]=0;   twev.t_m[i]=0; twev.t_id[i]=0; }
 }

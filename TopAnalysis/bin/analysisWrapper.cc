@@ -3,6 +3,7 @@
 #include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
 #include "TopLJets2015/TopAnalysis/interface/TOP-16-006.h"
 #include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
+#include "TopLJets2015/TopAnalysis/interface/Run5TeVAnalysis.h"
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -57,9 +58,10 @@ int main(int argc, char* argv[])
   if(normH==0)
     {
       cout << "Check normalization file genweights.root in era=" << era 
-	   << " and tag (" << normTag << ")" << endl;
+	   << " and tag (" << normTag << ")" << endl
+	   << "Will run without any" << endl;
       printHelp();
-      return -1;
+      //return -1;
     }
   
   //check input/output
@@ -73,6 +75,7 @@ int main(int argc, char* argv[])
   //check method to run
   if(method=="TOP-16-006::RunTop16006")    RunTop16006(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   else if(method=="TOPWidth::RunTopWidth") RunTopWidth(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
+  else if(method=="Run5TeVAnalysis::Run5TeVAnalysis") Run5TeVAnalysis(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   else
     {
       cout << "Check method=" << method <<endl;

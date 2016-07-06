@@ -14,6 +14,7 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--inDir',       dest='inDir',       help='input directory with files',   default='/store/cmst3/user/psilva/LJets2015/5736a2c',        type='string')
+    parser.add_option(      '--HiForest',    dest='HiForest',    help='flag if these are HiForest',   default=False, action='store_true')
     parser.add_option('-o', '--output',      dest='cache',       help='output file',                  default='data/era2016/genweights.root',                      type='string')
     (opt, args) = parser.parse_args()
 
@@ -30,17 +31,30 @@ def main():
         labelH=None
         for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
             fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
-            if wgtCounter is None:
-                try:
-                    wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
-                except:
-                    print 'Check eos/cms/%s/%s/%s probably corrupted?' % (opt.inDir,sample,f )
-                    continue
-                wgtCounter.SetDirectory(0)
-                wgtCounter.Reset('ICE')
+            if not opt.HiForest:
+                if wgtCounter is None:
+                    try:
+                        wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
+                    except:
+                        print 'Check eos/cms/%s/%s/%s probably corrupted?' % (opt.inDir,sample,f )
+                        continue
+                    wgtCounter.SetDirectory(0)
+                    wgtCounter.Reset('ICE')
                 labelH=fIn.Get('analysis/generator_initrwgt')
                 if labelH : labelH.SetDirectory(0)                
-            wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
+                wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
+            else:
+                if wgtCounter is None:
+                    wgtCounter=ROOT.TH1F('genwgts','genwgts',1,0,1)
+                    wgtCounter.SetDirectory(0)
+                hiTree=fIn.Get('hiEvtAnalyzer/HiTree')
+                for i in xrange(0,hiTree.GetEntriesFast()):
+                    hiTree.GetEntry(i)
+                    try:
+                        wgtVal=getattr(hiTree,'ttbar_w')[0]
+                        wgtCounter.Fill(0,wgtVal)
+                    except:
+                        wgtCounter.Fill(0,1)
             fIn.Close()
 
         if wgtCounter is None: continue

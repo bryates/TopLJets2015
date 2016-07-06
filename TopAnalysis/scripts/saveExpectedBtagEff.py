@@ -8,12 +8,12 @@ import sys
 """
 def saveExpectedBtagEff(opt):
 
-    csvWP='j_csv>%f'%opt.csv
+    csvWP='discr_csvV2>%f'%opt.csv if opt.HiForest else 'j_csv>%f'%opt.csv
     inputDir=opt.input
     
     #open a file
     input_list=getEOSlslist(directory=inputDir)
-    data=ROOT.TChain('analysis/data')
+    data=ROOT.TChain('ak4PFJetAnalyzer/t') if opt.HiForest else ROOT.TChain('analysis/data') 
     for i in xrange(0,min(5,len(input_list))):
     #for i in xrange(0,len(input_list)):
         data.Add(input_list[i])
@@ -31,16 +31,23 @@ def saveExpectedBtagEff(opt):
 
 
     #count number of tagged jets
-    for flav,cond in [('b',"abs(j_hadflav)==5"),
-                      ('c',"abs(j_hadflav)==4"),
-                      ('udsg','abs(j_hadflav)!=5 && abs(j_hadflav)!=4'),
-                      ('pu','abs(j_hadflav)!=5 && abs(j_hadflav)!=4 && abs(j_g)<0')]:
-
+    flavConds=[('b',"abs(j_hadflav)==5"),
+              ('c',"abs(j_hadflav)==4"),
+              ('udsg','abs(j_hadflav)!=5 && abs(j_hadflav)!=4'),
+              ('pu','abs(j_hadflav)!=5 && abs(j_hadflav)!=4 && abs(j_g)<0')]
+    ptVar='j_pt'
+    if opt.HiForest:
+        flavConds=[('b',"abs(refparton_flavorForB)==5"),
+                   ('c',"abs(refparton_flavorForB)==4"),
+                   ('udsg',"abs(refparton_flavorForB)!=5 && abs(refparton_flavorForB)!=4")
+                   ]
+        ptVar='jtpt'
+    for flav,cond in flavConds:
         print '\t computing for',flav,cond
         preTagH.Reset('ICE')
         tagH.Reset('ICE')
-        data.Draw("j_pt >> preTagH",cond,'goff')
-        data.Draw('j_pt >> tagH',cond + ' && ' + csvWP,'goff')
+        data.Draw("%s >> preTagH"%ptVar,cond,'goff')
+        data.Draw('%s >> tagH'%ptVar,cond + ' && ' + csvWP,'goff')
         effgrs.append(ROOT.TGraphAsymmErrors())
         effgrs[-1].SetName(flav)
         effgrs[-1].Divide(tagH,preTagH)
@@ -59,9 +66,10 @@ def main():
     #configuration
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option('-i', '--in',       dest='input',    help='input directory with files',  default='/store/cmst3/user/psilva/LJets2015/076fb7a/MC13TeV_TTJets', type='string')
-    parser.add_option('-o', '--out',      dest='output',   help='output file',                 default='data/expTageff.root',                                       type='string')
-    parser.add_option(      '--csv',      dest='csv',      help='csv cut',                     default=0.800,                                                       type=float)
+    parser.add_option(      '--HiForest',  dest='HiForest', help='use HiForest trees',          default=False, action='store_true')
+    parser.add_option('-i', '--in',        dest='input',    help='input directory with files',  default='/store/cmst3/user/psilva/LJets2015/076fb7a/MC13TeV_TTJets', type='string')
+    parser.add_option('-o', '--out',       dest='output',   help='output file',                 default='data/expTageff.root',                                       type='string')
+    parser.add_option(      '--csv',       dest='csv',      help='csv cut',                     default=0.800,                                                       type=float)
     (opt, args) = parser.parse_args()
 
     saveExpectedBtagEff(opt)
