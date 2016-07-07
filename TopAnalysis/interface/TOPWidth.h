@@ -1,6 +1,12 @@
 #ifndef _topwidth_h_
 #define _topwidth_h_
 
+#include "TH1.h"
+#include "TString.h"
+#include "TFile.h"
+
+#include <map>
+
 struct TopWidthEvent_t
 {
   Int_t cat,nw,nl,nj,nt;
@@ -20,6 +26,7 @@ struct TopWidthEvent_t
 
 void createTopWidthEventTree(TTree *t,TopWidthEvent_t &twev);
 void resetTopWidthEvent(TopWidthEvent_t &twev);
+void addGenScanCounters(std::map<TString, TH1 *> &plotColl,TFile *fIn);
 void RunTopWidth(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 

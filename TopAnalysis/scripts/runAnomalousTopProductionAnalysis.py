@@ -100,7 +100,7 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
     tree.AddFile(fileName)
 
     #if some filtering has to be applied, specialize it
-    filtFunc,filtArgs=None,None
+    filtFunc,filtArgs,filtNormRwgt=None,None,1.0
     if filterName:
         filtFunc,filtArgsList=filterName.split('=')
         if filtFunc=='topRadiusFilter':
@@ -118,9 +118,12 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
             weightH.Divide(smFile.Get(distName))
             smFile.Close()
             filtArgs=[weightH]
-        else:
+        elif filtFunc=='stopChiFilter':
             filtArgs=filtArgsList.split(',')
-                                   
+            fIn=ROOT.TFile.Open(fileName)
+            key='mstop_%d_mchi0_%d'%(int(10*float(filtArgs[0])),int(10*float(filtArgs[1])))
+            filtNormRwgt=fIn.Get(key).GetBinContent(1)
+            fIn.Close()
 
     #loop over events in the tree and fill histos
     totalEntries=tree.GetEntries()
@@ -140,7 +143,7 @@ def runAnomalousTopProductionAnalysis(fileName,outFileName,filterName):
         if abs(tree.cat)<100 : continue
         evcat = 'emu' if abs(tree.cat)==11*13 else 'll'
 
-        evWeight=puNormSF*tree.weight[0]*filtWeight
+        evWeight=puNormSF*tree.weight[0]*filtWeight*filtNormRwgt
 
         #leptons
         leptons=[]

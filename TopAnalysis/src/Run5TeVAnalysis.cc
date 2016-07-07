@@ -37,7 +37,7 @@ void Run5TeVAnalysis(TString inFileName,
   if(inFileName.Contains("/MC")) isMC=true;
 
   float totalEvtNorm(1.0);
-  if(isMC && normH) totalEvtNorm=1./normH->GetBinContent(1);
+  if(isMC && normH) totalEvtNorm=normH->GetBinContent(1);
   if(!isMC) runSysts=false;
   std::cout << "Will process " << inFileName << " and save the results in " << outFileName << endl
 	    << "Sample will be treated as MC=" << isMC <<  std::endl
@@ -293,7 +293,11 @@ void Run5TeVAnalysis(TString inFileName,
 
 	//assign an event weight
 	float evWeight(1.0);
-	if(isMC && ttbar_w_p->size()) evWeight = ttbar_w_p->at(0);
+	if(isMC)
+	  {
+	    if(ttbar_w_p->size()) evWeight = ttbar_w_p->at(0);
+	    evWeight *= totalEvtNorm;
+	  }
 	//if(isMC) evWeight=weight;
 
 	//select good muons
@@ -316,7 +320,7 @@ void Run5TeVAnalysis(TString inFileName,
 			    && muTrkLayers_p->at(muIter)>5);
 	    float relIso=(muPFChIso_p->at(muIter)+TMath::Max(muPFPhoIso_p->at(muIter)+muPFNeuIso_p->at(muIter)-0.5*muPFPUIso_p->at(muIter),0.))/muPt_p->at(muIter);
 	    bool passTightIso( relIso<0.15);
-	    bool passLooseIso( relIso<0.2);
+	    bool passLooseIso( relIso<0.25);
 	    
 	    //save muon if good
 	    TLorentzVector p4(0,0,0,0);
@@ -358,7 +362,7 @@ void Run5TeVAnalysis(TString inFileName,
 	for(Int_t eleIter = 0; eleIter < nEle; eleIter++)
 	  {
 	    
-	    if(TMath::Abs(eleEta_p->at(eleIter)) < 20)  continue;
+	    if(TMath::Abs(elePt_p->at(eleIter)) < 20)  continue;
 	    if(TMath::Abs(eleEta_p->at(eleIter)) > 2.5) continue;
 	    if(eleIDVeto_p->at(eleIter)==0) continue;
 	    nLooseEle++;
@@ -366,7 +370,8 @@ void Run5TeVAnalysis(TString inFileName,
 	if(nLooseEle>0) continue;
 	
 	//jet counting
-	Int_t njets(0),nBtags(0),htsum(0);
+	Int_t njets(0),nBtags(0);
+	Float_t htsum(0);
 	std::vector<Int_t> njetsVar(4,0),nBtagsVar(4,0);
 	std::vector<TLorentzVector> selJets;
 	for(Int_t jetIter = 0; jetIter < nref; jetIter++)
@@ -488,6 +493,7 @@ void Run5TeVAnalysis(TString inFileName,
 		histos["jpt_Hien"]->Fill(selJets[0].Pt(),evWeight);
 		histos["jeta_Hien"]->Fill(fabs(selJets[0].Eta()),evWeight);
 	      }
+	    cout << njets << " " << htsum << " " << evWeight << endl;
 	  }
 
 	if(njets>0)
@@ -570,7 +576,6 @@ void Run5TeVAnalysis(TString inFileName,
       it!=histos.end();
       it++)
     {
-      if(isMC && totalEvtNorm>0) it->second->Scale(1./totalEvtNorm);
       it->second->SetDirectory(outFile_p);
       it->second->Write();
     }

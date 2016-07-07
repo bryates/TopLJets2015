@@ -133,6 +133,9 @@ private:
   TTree *tree_;
   MiniEvent_t ev_;
 
+  //a counter for generator level scans (e.g. sms scans)
+  std::map<TString, float>  genScanCounter_;
+
   edm::Service<TFileService> fs;
 };
 
@@ -345,6 +348,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
   ev_.ngtop=0; 
+  float mStop(-1),mNeutralino(-1);
   for (size_t i = 0; i < prunedGenParticles->size(); ++i)
     {
       const reco::GenParticle & genIt = (*prunedGenParticles)[i];
@@ -352,12 +356,23 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(absid!=6 && absid!=1000006 && absid!=1000022) continue;
       if(!genIt.isLastCopy()) continue;      
 
+      if(absid==1000006) mStop=genIt.mass();
+      if(absid==1000022) mNeutralino=genIt.mass();
+
       ev_.gtop_id[ ev_.ngtop ]  = genIt.pdgId();
       ev_.gtop_pt[ ev_.ngtop ]  = genIt.pt();
       ev_.gtop_eta[ ev_.ngtop ] = genIt.eta();
       ev_.gtop_phi[ ev_.ngtop ] = genIt.phi();
       ev_.gtop_m[ ev_.ngtop ]   = genIt.mass();
       ev_.ngtop++;
+    }
+
+  //check if this is a SMS scan
+  if(mStop>0 && mNeutralino>0)
+    {
+      TString key(Form("mstop_%d_mchi0_%d",int(10*mStop),int(10*mNeutralino)));
+      if(genScanCounter_.find(key)==genScanCounter_.end()) genScanCounter_[key]=0.;
+      genScanCounter_[key]+=ev_.ttbar_w[0];
     }
     
 
@@ -693,7 +708,16 @@ MiniAnalyzer::endRun(const edm::Run& iRun,
   try{
 
     cout << "[MiniAnalyzer::endRun]" << endl;
-    
+
+    //save histograms with the counts per point in the gen scan (if available)
+    for(auto it=genScanCounter_.begin(); it!=genScanCounter_.end(); it++)
+      {
+	TString key(it->first);
+	float counts(it->second);
+	histContainer_[key.Data()]=fs->make<TH1F>(key,key,1,0,1);
+	histContainer_[key.Data()]->SetBinContent(1,counts);
+      }
+
     edm::Handle<LHERunInfoProduct> lheruninfo;
     typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
     iRun.getByToken(generatorRunInfoToken_, lheruninfo );

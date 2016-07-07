@@ -1,5 +1,7 @@
 {
-"MCWJetsPythia8"    :    [7053,  0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [Pythia8]",     824,false,false,1],
+"MCWJetsToLNu0J_v1" :    [18850, 0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W",   824,false,false,1],
+"MCWJetsToLNu1J_v1" :    [2556,  0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W",  824,false,false,1],
+"MCWJetsToLNu2J_v1" :    [52,    0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W",   824,false,false,1],
 "MCWWTo2L2Nu_v2" :            [1.77,  0, "/WWTo2L2Nu_TuneCUETP8M1_5020GeV-powheg/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "Multiboson",        815, false, false, 1],
 "MCWZTo3LNU_v2" :             [1.21,  0, "/WZTo3LNU_NNPDF30_TuneCUETP8M1_5020GeV-powheg/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "Multiboson",        815, false, false, 1],
 "MCSTtWantitop_v2" :          [3.04,  0, "/ST_tbarW_5020GeV_antitop-powheg-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "tW",        865, false, false, 1],

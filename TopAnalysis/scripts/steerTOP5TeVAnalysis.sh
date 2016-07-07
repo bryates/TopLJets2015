@@ -30,8 +30,8 @@ case $WHAT in
 	;;
     SELTEST )
 	queue=local
-	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mutest   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
-	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mutest/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
+	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mutest   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --only 2J;
+	#python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mutest/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
 	;;
     SEL )
 	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mu   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --runSysts;

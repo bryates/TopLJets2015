@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "TMath.h"
+#include "TKey.h"
 
 using namespace std;
 
@@ -174,6 +175,7 @@ void RunTopWidth(TString filename,
 
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
+  addGenScanCounters(allPlots,f);
   std::map<TString, TH2 *> all2dPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",2,0,2);
 
@@ -637,4 +639,20 @@ void resetTopWidthEvent(TopWidthEvent_t &twev)
   for(int i=0; i<2; i++) { twev.l_pt[i]=0;   twev.l_eta[i]=0;   twev.l_phi[i]=0;   twev.l_m[i]=0; twev.l_id[i]=0; twev.l_les[i]=0; twev.gl_pt[i]=0;   twev.gl_eta[i]=0;   twev.gl_phi[i]=0;   twev.gl_m[i]=0; twev.gl_id[i]=0; }
   for(int i=0; i<50; i++) { twev.j_pt[i]=0;   twev.j_eta[i]=0;   twev.j_phi[i]=0;   twev.j_m[i]=0; twev.j_btag[i]=0; twev.j_jer[i]=0; twev.j_jes[i]=0; twev.gj_pt[i]=0;   twev.gj_eta[i]=0;   twev.gj_phi[i]=0;   twev.gj_m[i]=0; twev.gj_flav[i]=0; twev.gj_hadflav[i]=0; } 
   for(int i=0; i<10; i++) { twev.t_pt[i]=0;   twev.t_eta[i]=0;   twev.t_phi[i]=0;   twev.t_m[i]=0; twev.t_id[i]=0; }
+}
+
+//
+void addGenScanCounters(std::map<TString, TH1 *> &plotColl,TFile *fIn)
+{
+  TH1 *normH=(TH1 *)fIn->Get("analysis/fidcounter0");
+  TIter nextkey( fIn->GetDirectory("analysis")->GetListOfKeys() );
+  TKey *key;
+  while ( (key = (TKey*)nextkey())) {    
+    TObject *obj = key->ReadObj();
+    TString name(obj->GetName());
+    if(!name.Contains("mstop")) continue;
+    plotColl[name]=(TH1 *)obj->Clone();
+    plotColl[name]->SetDirectory(0);
+    if(normH) plotColl[name]->SetBinContent(1,normH->GetBinContent(1)/plotColl[name]->GetBinContent(1));
+  }
 }
