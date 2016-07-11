@@ -62,63 +62,45 @@ void Run5TeVAnalysis(TString inFileName,
   std::vector<TString>* inFileNames_p = new std::vector<TString>;
   inFileNames_p->push_back(inFileName);
   const Int_t nFiles = (Int_t)inFileNames_p->size();
+
+  Int_t nSysts(0);
+  TString expSysts[]={"btagup","btagdn","othertagup","othertagdn","jesup","jesdn","jerup","jerdn","leffup","leffdn"};
   
   //book histograms
   std::map<TString,TH1 *> histos;
-  histos["jpt_Hien"]    = new TH1F("jpt_Hien",";Transverse momentum [GeV];Events",20.,0.,200.);
-  histos["jeta_Hien"]   = new TH1F("jeta_Hien",";Pseudo-rapidity [GeV];Events",20.,0.,2.5);
-  histos["njets_Hien"]   = new TH1F("njets_Hien",";Jet multiplicity;Events",6,0,6);
-  histos["ht_Hien"]   = new TH1F("ht_Hien",";H_{T} [GeV];Events",20.,0.,500.);
-  for(int ij=0; ij<=4; ij++)
-    {
-      TString pf(Form("_%dj",ij));
-      if(ij==0) pf="";
-      histos["lpt"+pf]    = new TH1F("lpt"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
-      histos["leta"+pf]   = new TH1F("leta"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.1);
-      if(ij>0)
-	{
-	  histos["jpt"+pf]    = new TH1F("jpt"+pf,";Transverse momentum [GeV];Events",20.,0.,200.);
-	  histos["jeta"+pf]   = new TH1F("jeta"+pf,";Pseudo-rapidity [GeV];Events",20.,0.,2.5);
-	}
-      histos["ht"+pf]     = new TH1F("ht"+pf,";H_{T} [GeV];Events",20.,0.,500.);
-      histos["metpt"+pf]  = new TH1F("metpt"+pf,";Missing transverse energy [GeV];Events" ,10,0.,200.);
-      histos["metphi"+pf] = new TH1F("metphi" + pf,";MET #phi [rad];Events" ,50,-3.2,3.2);
-      histos["mt"+pf]     = new TH1F("mt"+pf,";Transverse Mass [GeV];Events" ,20,0.,200.);
-   }
+  histos["lpt"]  = new TH1F("lpt",";Transverse momentum [GeV];Events",20.,0.,200.);
+  histos["leta"] = new TH1F("leta",";Pseudo-rapidity;Events",20.,0.,2.1);
+  histos["mt"]   = new TH1F("mt",";Transverse Mass [GeV];Events" ,20,0.,200.);
+  histos["metpt"]= new TH1F("metpt",";Missing transverse energy [GeV];Events" ,20,0.,200.);
 
-  histos["njets"] = new TH1F("njets",";Jet multiplicity;Events" ,5,1.,6.);
-  histos["njnb"] = new TH1F("njnb",";Category;Events" ,11,0.,11.);
-  histos["njnb"]->GetXaxis()->SetBinLabel(1,"1j,0b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(2,"1j,1b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(3,"2j,0b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(4,"2j,1b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(5,"2j,2b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(6,"3j,0b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(7,"3j,1b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(8,"3j,2b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(9,"4j,0b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(10,"4j,1b");
-  histos["njnb"]->GetXaxis()->SetBinLabel(11,"4j,2b");
-
-  Int_t nSysts(0);
-  if(isMC)
+  for(int ij=0; ij<=2; ij++)
     {
-      TString expSysts[]={"btagup","btagdn","othertagup","othertagdn","jesup","jesdn","jerup","jerdn","leffup","leffdn"};
-      nSysts=sizeof(expSysts)/sizeof(TString);
-      histos["njnbshapes_exp"]=new TH2F("njnbshapes_exp",";Category;Systematic uncertainty;Events",11,0,11,nSysts,0,nSysts);
-      for(int i=0; i<nSysts; i++)
-	histos["njnbshapes_exp"]->GetYaxis()->SetBinLabel(i+1,expSysts[i]);
-      
-      histos["njnbshapes_gen"]=new TH2F("njnbshapes_gen",";Category;Systematic uncertainty;Events",11,0,11,500,0,500);
-      for(int i=0; i<500;i++)
-	histos["njnbshapes_gen"]->GetYaxis()->SetBinLabel(i+1,Form("genUnc%d",i));
-      for(int xbin=1; xbin<=histos["njnb"]->GetXaxis()->GetNbins(); xbin++)
+      TString pf(Form("%db",ij));
+      histos["lpt_"+pf]    = new TH1F("lpt_"+pf,";Transverse momentum [GeV];Events",10.,0.,200.);
+      histos["leta_"+pf]   = new TH1F("leta_"+pf,";Pseudo-rapidity;Events",10.,0.,2.1);
+      histos["jpt_"+pf]    = new TH1F("jpt_"+pf,";Transverse momentum [GeV];Events",10.,0.,200.);
+      histos["jeta_"+pf]   = new TH1F("jeta_"+pf,";Pseudo-rapidity;Events",10.,0.,2.5);
+      histos["ht_"+pf]     = new TH1F("ht_"+pf,";H_{T} [GeV];Events",10.,0.,800.);
+      histos["metpt_"+pf]  = new TH1F("metpt_"+pf,";Missing transverse energy [GeV];Events" ,10,0.,200.);
+      histos["metphi_"+pf] = new TH1F("metphi_" + pf,";MET #phi [rad];Events" ,10,-3.2,3.2);
+      histos["mt_"+pf]     = new TH1F("mt_"+pf,";Transverse Mass [GeV];Events" ,10,0.,200.);
+      histos["mjj_"+pf]    = new TH1F("mjj_"+pf,";Mass(j,j') [GeV];Events" ,15,0.,200.);
+      histos["mlb_"+pf]    = new TH1F("mlb_"+pf,";Mass(l,b) [GeV];Events" ,15,0.,250.);
+      histos["njets_"+pf]  = new TH1F("njets_"+pf,";Jet multiplicity;Events" ,6,2.,8.);
+
+      if(isMC && runSysts)
 	{
-	  histos["njnbshapes_exp"]->GetXaxis()->SetBinLabel(xbin,histos["njnb"]->GetXaxis()->GetBinLabel(xbin));
-	  histos["njnbshapes_gen"]->GetXaxis()->SetBinLabel(xbin,histos["njnb"]->GetXaxis()->GetBinLabel(xbin));
+	  nSysts=sizeof(expSysts)/sizeof(TString);
+	  histos["mjjshapes_"+pf+"_exp"]=new TH2F("mjjshapes_"+pf+"_exp",";Mass(j,j');Systematic uncertainty;Events",10,0,200,nSysts,0,nSysts);
+	  for(int i=0; i<nSysts; i++)
+	    histos["mjjshapes_"+pf+"_exp"]->GetYaxis()->SetBinLabel(i+1,expSysts[i]);
+	  
+	  histos["mjjshapes_"+pf+"_gen"]=new TH2F("mjjshapes_"+pf+"_gen",";Mass(j,j') [GeV];Systematic uncertainty;Events",10,0,200,500,0,500);
+	  for(int i=0; i<500;i++)
+	    histos["mjjshapes_"+pf+"_gen"]->GetYaxis()->SetBinLabel(i+1,Form("genUnc%d",i));
 	}
     }
-      
+
   //prepare histograms
   for(std::map<TString,TH1 *>::iterator it=histos.begin();
       it!=histos.end();
@@ -298,7 +280,6 @@ void Run5TeVAnalysis(TString inFileName,
 	    if(ttbar_w_p->size()) evWeight = ttbar_w_p->at(0);
 	    evWeight *= totalEvtNorm;
 	  }
-	//if(isMC) evWeight=weight;
 
 	//select good muons
 	//cf. details in https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
@@ -342,7 +323,7 @@ void Run5TeVAnalysis(TString inFileName,
 	if(channelSelection==1300)
 	  {
 	    if(tightMuons.size()!=0 || looseMuons.size()!=0) continue;
-	    if(tightMuonsNonIso.size()!=1) continue;
+	    if(tightMuonsNonIso.size()==0) continue;
 	    tightMuons=tightMuonsNonIso;
 	  }
 	if(channelSelection==13)
@@ -368,200 +349,192 @@ void Run5TeVAnalysis(TString inFileName,
 	    nLooseEle++;
 	  }
 	if(nLooseEle>0) continue;
+
+	//raw MET (noHF)
+	TLorentzVector rawMET(0,0,0,0);	
+	for(size_t ipf=0; ipf<pfId_p->size(); ipf++)
+	  {
+	    Float_t abseta=TMath::Abs(pfEta_p->at(ipf));
+	    if(abseta>3.0) continue;
+	    rawMET += TLorentzVector(-pfPt_p->at(ipf)*TMath::Cos(pfPhi_p->at(ipf)),
+				     -pfPt_p->at(ipf)*TMath::Sin(pfPhi_p->at(ipf)),
+				     0,
+				     0);
+	  }
+	
+	//transverse mass
+	float mt(computeMT(tightMuons[0],rawMET));
 	
 	//jet counting
-	Int_t njets(0),nBtags(0);
-	Float_t htsum(0);
-	std::vector<Int_t> njetsVar(4,0),nBtagsVar(4,0);
-	std::vector<TLorentzVector> selJets;
+	typedef std::vector<TLorentzVector> JetColl_t;
+	std::vector<JetColl_t> bJets(9),lightJets(9);
 	for(Int_t jetIter = 0; jetIter < nref; jetIter++)
 	  {
 	    //cross clean with trigger muon
 	    TLorentzVector jp4(0,0,0,0);
 	    jp4.SetPtEtaPhiM(jtpt[jetIter],jteta[jetIter],jtphi[jetIter],jtm[jetIter]);
 	    if(jp4.DeltaR(tightMuons[0])<0.4) continue;
-
+	    
 	    //in tracker region
 	    if(TMath::Abs(jp4.Eta())>2.4) continue;
 
+	    //systematic variations
+	    Int_t jflav(abs(refparton_flavor[jetIter]));	    
+	    bool passCSVM(discr_csvV2[jetIter]>0.8),passCSVMUp(passCSVM),passCSVMDn(passCSVM);	    
+	    std::vector<float> jerSmear(3,1.0),jesScaleUnc(3,1.0);
 	    if(isMC)
 	      {
-		std::vector<float> jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),refpt[jetIter]);
+		//jet energy resolution smearing	
+		if(refpt[jetIter]>0) jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),refpt[jetIter]);
 		TLorentzVector rawjp4(jp4);
 		jp4 *= jerSmear[0];
 
-		//JES varied selections
-		if(jp4.Pt()>30./(1+0.028)) njetsVar[0]++;
-		if(jp4.Pt()>30./(1-0.028)) njetsVar[1]++;
+		jesScaleUnc[1]=1.028;
+		jesScaleUnc[2]=0.972;
 
-		//JER variations
-		if(rawjp4.Pt()>30./jerSmear[1]) njetsVar[2]++;
-		if(rawjp4.Pt()>30./jerSmear[2]) njetsVar[3]++;
-	      }
-	    
-	    //nominal selection
-	    if(jp4.Pt()<30) continue;
-	    selJets.push_back(jp4);
-	    ++njets;
-	    htsum+=jp4.Pt();
-
-	    bool passCSVM(discr_csvV2[jetIter]>0.8);
-
-	    if(passCSVM) ++nBtags;
-	    
-	    //b-tagging variations
-	    if(isMC)
-	      {
+		//b-tagging
 		float jptforBtag(jp4.Pt()>1000. ? 999. : jp4.Pt());
-		if(abs(refparton_flavor[jetIter])==5)
+		if(jflav==5)
 		  {
 		    float expEff    = expBtagEff["b"]->Eval(jptforBtag); 
-		    bool passCSVMUp(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.1,expEff);	
-		    nBtagsVar[0]+=passCSVMUp;
-
-		    bool passCSVMDn(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMDn,0.9,expEff);	
-		    nBtagsVar[1]+=passCSVMDn;
-
-		    nBtagsVar[2]+=passCSVM;
-		    nBtagsVar[3]+=passCSVM;
 		  }
-		else if(abs(refparton_flavor[jetIter])==4)
+		else if(jflav==4)
 		  {
 		    float expEff    = expBtagEff["c"]->Eval(jptforBtag); 
-		    bool passCSVMUp(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.1,expEff);	
-		    nBtagsVar[0]+=passCSVMUp;
-
-		    bool passCSVMDn(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMDn,0.9,expEff);	
-		    nBtagsVar[1]+=passCSVMDn;
-
-		    nBtagsVar[2]+=passCSVM;
-		    nBtagsVar[3]+=passCSVM;
 		  }
 		else
 		  {
-		    nBtagsVar[0]+=passCSVM;
-		    nBtagsVar[1]+=passCSVM;
-		    
 		    float expEff    = expBtagEff["udsg"]->Eval(jptforBtag); 
-		    bool passCSVMUp(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMUp,1.3,expEff);	
-		    nBtagsVar[2]+=passCSVMUp;
-		    
-		    bool passCSVMDn(passCSVM);
 		    myBTagSFUtil.modifyBTagsWithSF(passCSVMDn,0.7,expEff);	
-		    nBtagsVar[3]+=passCSVMDn;
 		  }		
 	      }
+
+	    if(jp4.Pt()>30)
+	      {
+		//nominal selection
+		if(passCSVM) bJets[0].push_back(jp4);
+		else         lightJets[0].push_back(jp4);
+
+		//b-tag up/down
+		if(jflav==5 || jflav==4)
+		  {
+		    if(passCSVMUp) bJets[1].push_back(jp4);
+		    else           lightJets[1].push_back(jp4);
+		    if(passCSVMDn) bJets[2].push_back(jp4);
+		    else           lightJets[2].push_back(jp4);
+		  }
+
+		//mistag up/down
+		else
+		  {
+		    if(passCSVMUp) bJets[3].push_back(jp4);
+		    else           lightJets[3].push_back(jp4);
+		    if(passCSVMDn) bJets[4].push_back(jp4);
+		    else           lightJets[4].push_back(jp4);
+		  }
+	      }
+	    
+	    for(size_t ivar=0; ivar<2; ivar++)
+	      {
+		//JES varied selections
+		TLorentzVector jesVarP4(jp4); jesVarP4*=jesScaleUnc[ivar+1];
+		if(jesVarP4.Pt()>30)
+		  {
+		    if(passCSVM) bJets[5+ivar].push_back(jesVarP4);
+		    else         lightJets[5+ivar].push_back(jesVarP4);
+		  }
+
+		//JER varied selections
+		TLorentzVector jerVarP4(jp4); jerVarP4*=jerSmear[ivar+1];     
+		if(jerVarP4.Pt())
+		  {
+		    if(passCSVM) bJets[7+ivar].push_back(jerVarP4);
+		    else         lightJets[7+ivar].push_back(jerVarP4);
+		  }
+	      }	   	    
 	  }
-
-
-	//raw MET (noHF)
-	TLorentzVector rawMET(0,0,0,0);	
-	for(size_t ipf=0; ipf<pfId_p->size(); ipf++)
-	  {
-	    if(TMath::Abs(pfEta_p->at(ipf))>3.0) continue;
-	    rawMET += TLorentzVector(-pfPt_p->at(ipf)*TMath::Cos(pfPhi_p->at(ipf)),
-				     -pfPt_p->at(ipf)*TMath::Sin(pfPhi_p->at(ipf)),
-				     0,
-				     0);
-	  }
-
-	//transverse mass
-	float mt(computeMT(tightMuons[0],rawMET));
-	float Wpt=(tightMuons[0]+rawMET).Pt();
-
-	//control plots for the nominal distribution
-	Int_t binToFill(0);
+	
 	histos["lpt"]->Fill(tightMuons[0].Pt(),evWeight);
 	histos["leta"]->Fill(fabs(tightMuons[0].Eta()),evWeight);
-	histos["ht"]->Fill(htsum,evWeight);
+	histos["mt"]->Fill(mt,evWeight);
 	histos["metpt"]->Fill(rawMET.Pt(),evWeight);
-	histos["metphi"]->Fill(rawMET.Phi(),evWeight);
-	histos["mt"]->Fill(mt,evWeight);    
 
-	//Hien's selection
-	if(rawMET.Pt()>30 && tightMuons[0].Pt()>25 && mt>50 && Wpt>40)
+	//
+	for(Int_t ivar=0; ivar<=nSysts; ivar++)
 	  {
-	    histos["njets_Hien"]->Fill(njets,evWeight);
-	    histos["ht_Hien"]->Fill(htsum,evWeight);
-	    if(njets)
-	      {
-		histos["jpt_Hien"]->Fill(selJets[0].Pt(),evWeight);
-		histos["jeta_Hien"]->Fill(fabs(selJets[0].Eta()),evWeight);
-	      }
-	    cout << njets << " " << htsum << " " << evWeight << endl;
-	  }
+	    Int_t jetIdx(0);
+	    if(ivar>=1 && ivar<=8) jetIdx=ivar;
 
-	if(njets>0)
-	  {
-	    TString pf(Form("%dj",TMath::Min(4,njets)));
-	    histos["lpt_"+pf]->Fill(tightMuons[0].Pt(),evWeight);
-	    histos["leta_"+pf]->Fill(fabs(tightMuons[0].Eta()),evWeight);
-	    histos["jpt_"+pf]->Fill(selJets[0].Pt(),evWeight);
-	    histos["jeta_"+pf]->Fill(fabs(selJets[0].Eta()),evWeight);
-	    histos["ht_"+pf]->Fill(htsum,evWeight);
-	    histos["metpt_"+pf]->Fill(rawMET.Pt(),evWeight);
-	    histos["metphi_"+pf]->Fill(rawMET.Phi(),evWeight);
-	    histos["mt_"+pf]->Fill(mt,evWeight);
-
-	    if(njets==1 && nBtags ==1) binToFill=1;
-	    if(njets==2 && nBtags ==0) binToFill=2;
-	    if(njets==2 && nBtags ==1) binToFill=3;
-	    if(njets==2 && nBtags >=2) binToFill=4;
-	    if(njets==3 && nBtags ==0) binToFill=5;
-	    if(njets>=3 && nBtags ==1) binToFill=6;
-	    if(njets>=3 && nBtags >=2) binToFill=7;
-	    if(njets>=4 && nBtags ==0) binToFill=8;
-	    if(njets>=4 && nBtags ==1) binToFill=9;
-	    if(njets>=4 && nBtags >=2) binToFill=10;
-	    histos["njnb"]->Fill(binToFill,evWeight);      
-	    if(nBtags>0) histos["njets"]->Fill(njets,evWeight);
-	  }
-	
-	if(!isMC || !runSysts) continue;
-
-	//theory uncertainties (by matrix-element weighting)
-	for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
-	  {
-	    float newWeight( ttbar_w_p->at(igs) );
-	    ((TH2 *)histos["njnb_gen"])->Fill(binToFill,igs,newWeight);
-	  }
-	
-	//experimental uncertainties
-	for(Int_t ies=0; ies<nSysts; ies++)
-	  {
-	    float newWeight(evWeight);
-	    Int_t njets_i(njets), nBtags_i(nBtags);
-	    if(ies==0) nBtags_i=nBtagsVar[0];
-	    if(ies==1) nBtags_i=nBtagsVar[1];
-	    if(ies==2) nBtags_i=nBtagsVar[2];
-	    if(ies==3) nBtags_i=nBtagsVar[3];
-	    if(ies==4) njets_i=njetsVar[0];
-	    if(ies==5) njets_i=njetsVar[1];
-	    if(ies==6) njets_i=njetsVar[2];
-	    if(ies==7) njets_i=njetsVar[3];
-	    if(ies==8) newWeight *= 1.03;
-	    if(ies==9) newWeight *= 0.97;
+	    //require at least two light jet acompanying the lepton
+	    Int_t nljets(lightJets[jetIdx].size());
+	    Int_t nbtags(bJets[jetIdx].size());
+	    Int_t njets(nljets+nbtags);
+	    if(nljets<2) continue;
+	    TString pf(Form("%db",TMath::Min(nbtags,2)));
 	    
-	    if(njets_i==0) continue;
+	    //jet-related quantities
+	    Float_t mjj( (lightJets[jetIdx][0]+lightJets[jetIdx][1]).M() );
+	    Float_t htsum(0);
+	    for(Int_t ij=0; ij<nbtags; ij++) htsum += bJets[jetIdx][ij].Pt();
+	    for(Int_t ij=0; ij<nljets; ij++) htsum += lightJets[jetIdx][ij].Pt();
 
-	    //decide which bin to fill
-	    Int_t varbinToFill(0);
-	    if(njets_i==1 && nBtags_i ==1) varbinToFill=1;
-	    if(njets_i==2 && nBtags_i ==0) varbinToFill=2;
-	    if(njets_i==2 && nBtags_i ==1) varbinToFill=3;
-	    if(njets_i==2 && nBtags_i >=2) varbinToFill=4;
-	    if(njets_i==3 && nBtags_i ==0) varbinToFill=5;
-	    if(njets_i>=3 && nBtags_i ==1) varbinToFill=6;
-	    if(njets_i>=3 && nBtags_i >=2) varbinToFill=7;
-	    if(njets_i>=4 && nBtags_i ==0) varbinToFill=8;
-	    if(njets_i>=4 && nBtags_i ==1) varbinToFill=9;
-	    if(njets_i>=4 && nBtags_i >=2) varbinToFill=10;
-	    ((TH2 *)histos["njnb_exp"])->Fill(varbinToFill,ies,newWeight);
+	    Float_t mlb( (tightMuons[0]+lightJets[jetIdx][0]).M() );
+	    if(nbtags>0)
+	      {
+		mlb=(tightMuons[0]+bJets[jetIdx][0]).M();
+		if(nbtags>1)
+		  {
+		    mlb=TMath::Min( mlb, Float_t((tightMuons[0]+bJets[jetIdx][1]).M()) );
+		  }
+	      }
+
+	    //update event weight if needed
+	    Float_t iweight(evWeight);
+	    if(ivar==9)  iweight*=1.03;
+	    if(ivar==10) iweight*=1.03;
+	  
+	    //fill histos
+	    if(ivar==0)
+	      {
+		histos["lpt_"+pf]->Fill(tightMuons[0].Pt(),iweight);
+		histos["leta_"+pf]->Fill(fabs(tightMuons[0].Eta()),iweight);
+		histos["ht_"+pf]->Fill(htsum,iweight);
+		histos["mjj_"+pf]->Fill(mjj,iweight);
+		histos["mlb_"+pf]->Fill(mlb,iweight);
+	       
+		if(runSysts)
+		  {
+		    //theory uncertainties (by matrix-element weighting)
+		    for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
+		      {
+			float newWeight( ttbar_w_p->at(igs)/ttbar_w_p->at(0) );
+			((TH2 *)histos["mjjshapes_"+pf+"_gen"])->Fill(mjj,igs,newWeight*iweight);
+		      }
+		  }
+		histos["metpt_"+pf]->Fill(rawMET.Pt(),iweight);
+		histos["metphi_"+pf]->Fill(rawMET.Phi(),iweight);
+		histos["mt_"+pf]->Fill(mt,iweight);    
+		if(nbtags)
+		  {
+		    histos["jpt_"+pf]->Fill(bJets[jetIdx][0].Pt(),iweight);
+		    histos["jeta_"+pf]->Fill(fabs(bJets[jetIdx][0].Eta()),iweight);
+		  }
+		else
+		  {
+		    histos["jpt_"+pf]->Fill(lightJets[jetIdx][0].Pt(),iweight);
+		    histos["jeta_"+pf]->Fill(fabs(lightJets[jetIdx][0].Eta()),iweight);
+		  }
+		histos["njets_"+pf]->Fill(njets,iweight);
+	      }
+	    else if (runSysts)
+	      {
+		((TH2 *)histos["mjjshapes_"+pf+"_exp"])->Fill(mjj,ivar,iweight);
+	      }
 	  }
       }
     

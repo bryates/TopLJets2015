@@ -51,8 +51,8 @@ def main():
     parser.add_option('--iso',          dest='iso',          help='plotter file with the iso selection',        default=None,       type='string')
     parser.add_option('--noniso',       dest='noniso',       help='plotter file with the non iso selection',    default=None,       type='string')
     parser.add_option('--out',          dest='outdir',       help='output directory',                           default='./',       type='string')
+    parser.add_option('--sels',         dest='sels',         help='selections',                                 default='0j,1j,2j,3j,4j',       type='string')
     (opt, args) = parser.parse_args()
-
     #prepare output
     os.system('mkdir -p %s'%opt.outdir)
 
@@ -74,23 +74,29 @@ def main():
     #perform a fit to a variable of interest
     nonIsoTemplateSF={}
     qcdNormUnc={}
-    for sel in ['0j','1j','2j','3j','4j']: 
+    sels=opt.sels.split(',')
+    for sel in sels: 
 
         #data in the sideband
         extraSel=''
         if sel in ['1j', '2j'] : extraSel='1t'
-        if sel in ['3j','4j']  : extraSel='0t'
+        if sel in ['3j','4j']  :
+            extraSel='0t'
+            if 'enoniso' in opt.noniso: extraSel='1t'
 
-        dataNonIso,      sumMCNonIso, _  = getTemplates(fIn=fNonIso, dist='metpt_%s%s'%(sel,extraSel), tag='noniso')
-        dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt_%s%s'%(sel,extraSel),    tag='nonisoalt')
+        postfix='_%s%s'%(sel,extraSel)
+        if sel=='' : postfix=''
+
+        dataNonIso,      sumMCNonIso, _  = getTemplates(fIn=fNonIso, dist='metpt%s'%postfix, tag='noniso')
+        dataNonIsoAlt, sumMCNonIsoAlt, _ = getTemplates(fIn=fNonIso, dist='mt%s'%postfix,    tag='nonisoalt')
 
         #data in the signal region
-        dataIso,    sumMCIso, _     = getTemplates(fIn=fIso,    dist='metpt_%s%s'%(sel,extraSel),  tag='iso')
-        dataIsoAlt, sumMCIsoAlt, _  = getTemplates(fIn=fIso,    dist='mt_%s%s'%(sel,extraSel),     tag='isoalt')
+        dataIso,    sumMCIso, _     = getTemplates(fIn=fIso,    dist='metpt%s'%postfix,  tag='iso')
+        dataIsoAlt, sumMCIsoAlt, _  = getTemplates(fIn=fIso,    dist='mt%s'%postfix,     tag='isoalt')
 
         #normalized QCD template below the MT cut
-        bin0           = 1
-        binN           = dataNonIso.GetXaxis().FindBin(50.)
+        bin0           = 0
+        binN           = dataNonIso.GetXaxis().FindBin(20.)
         niso           = dataIso.Integral(bin0,binN)
         nmciso         = sumMCIso.Integral(bin0,binN)
         nnoniso        = dataNonIso.Integral(bin0,binN)
@@ -98,7 +104,7 @@ def main():
 
         #normalized QCD template above the Alt cut
         bin0         = 0
-        binN         = dataNonIsoAlt.GetXaxis().FindBin(50.0)
+        binN         = dataNonIsoAlt.GetXaxis().FindBin(20.0)
         nisoAlt      = dataIsoAlt.Integral(bin0,binN)
         nmcisoAlt    = sumMCIsoAlt.Integral(bin0,binN)
         nnonisoAlt   = dataNonIsoAlt.Integral(bin0,binN)
@@ -108,7 +114,8 @@ def main():
         nonIsoSF=ROOT.TMath.Max(niso-nmciso,0.)/(nnoniso-nmcnoniso)
         nonIsoSFAlt=ROOT.TMath.Max(nisoAlt-nmcisoAlt,0.)/(nnonisoAlt-nmcnonisoAlt)
         unc= ROOT.TMath.Abs(nonIsoSFAlt/nonIsoSF-1) if nonIsoSF>0 else 1.0
-        
+        print sel,niso,nmciso,nnoniso,nmcnoniso
+
         nonIsoTemplateSF[sel]=(nonIsoSF,unc)
 
         #free mem
@@ -119,6 +126,9 @@ def main():
 
     fIso.Close()
 
+    print nonIsoTemplateSF
+    raw_input()
+
     #produce the QCD templates
     fOut=ROOT.TFile.Open('%s/Data_QCDMultijets.root'%(opt.outdir),'RECREATE')
     for distKey in fNonIso.GetListOfKeys():
@@ -126,6 +136,7 @@ def main():
 
         if 'iso' in dist or 'ratevsrun' in dist: continue
         category=dist.split('_')[-1][:2]    
+        if dist.find('_')<0 : category=''
         dataNonIso, sumMCNonIso,_ = getTemplates(fIn=fNonIso, dist=dist, tag=dist)
 
         #do not subtract anything in the CR

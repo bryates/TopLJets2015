@@ -55,7 +55,7 @@ from TopLJets2015.TopAnalysis.Compressed_T2tt_cfi import *
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
                             #fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv1/TTToSemiLeptonic_13TeV_ScaleDown-powheg/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/067717F2-220A-E611-A553-0090FAA58D84.root')
-                            fileNames = cms.untracked.vstring(Compressed_T2tt),
+                            fileNames = cms.untracked.vstring(Compressed_T2tt_2),
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck') 
                             )
 if options.runOnData:

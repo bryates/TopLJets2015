@@ -1,8 +1,9 @@
 {
-"MCWJetsToLNu0J_v1" :    [18850, 0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx]",   1,false,false,1],
-"MCWJetsToLNu1J_v1" :    [2556,  0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx]",   1,false,false,1],
-"MCWJetsToLNu2J_v1" :    [52,    0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx]",   1,false,false,1],
-"MCWJetsPythia8"    :    [7053,  0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [Pythia8]",       2,false,false,1]
+"MCWJetsToLNu_v2"   :    [21159, 0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx inc]", 1,false,false,1],
+"MCWJetsToLNu0J_v1" :    [18850, 0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx exc]", 2,false,false,1],
+"MCWJetsToLNu1J_v1" :    [2556,  0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx exc]", 2,false,false,1],
+"MCWJetsToLNu2J_v1" :    [52,    0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [amc@NLOFxFx exc]", 2,false,false,1],
+"MCWJetsPythia8"    :    [7053,  0, "/WJetsToLNu_TuneCUETP8M1_5020GeV-amcatnloFXFX-pythia8/HINppWinter16DR-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/AODSIM", "W [Pythia8]",         3,false,false,1]
 }
 
 

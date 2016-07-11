@@ -18,7 +18,7 @@ queue=8nh
 sourcedir=/store/cmst3/group/hintt/LJets5TeV/
 outdir=~/work/LJets-5TeV
 wwwdir=~/www/LJets-5TeV
-lumi=26.0
+lumi=26
 data=/store/cmst3/group/hintt/mverweij/PP5TeV/data/SingleMuHighPt/crab_FilteredSingleMuHighPt_v3/160425_163333/merge/HiForest_0.root
 
 RED='\e[31m'
@@ -28,19 +28,11 @@ case $WHAT in
 	python scripts/produceNormalizationCache.py -i ${sourcedir}                -o data/era5TeV/genweights.root  --HiForest;
 	python scripts/saveExpectedBtagEff.py       -i ${sourcedir}/MCTTNominal_v2 -o data/era5TeV/expTageff.root   --HiForest; 
 	;;
-    SELTEST )
-	queue=local
-	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mutest   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --only 2J;
-	#python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mutest/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
-	;;
     SEL )
-	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mu   --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --runSysts;
+	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_mu                                --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13 --runSysts;
 	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_mu/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 13;
-	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_munoniso --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 1300; 
+	python scripts/runLocalAnalysis.py -i ${sourcedir} -q ${queue} -o ${outdir}/analysis_munoniso                          --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 1300;
 	python scripts/runLocalAnalysis.py -i ${data}      -q ${queue} -o ${outdir}/analysis_munoniso/FilteredSingleMuHighPt_v3.root --era era5TeV -m Run5TeVAnalysis::Run5TeVAnalysis --ch 1300;
-	;;
-    MERGETEST )
-	./scripts/mergeOutputs.py ${outdir}/analysis_mutest;
 	;;
     MERGE )
 	a=(mu munoniso)
@@ -48,21 +40,18 @@ case $WHAT in
 	    ./scripts/mergeOutputs.py ${outdir}/analysis_${i};
 	done
 	;;
-    PLOTTEST )
-	python scripts/plotter.py -i ${outdir}/analysis_mutest -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
-	#python scripts/plotter.py -i ${outdir}/analysis_mutest -j data/era5TeV/Wsamples.json      -l ${lumi} --saveLog --noStack;	
-	;;
     PLOT )
 	a=(mu munoniso)
 	for i in ${a[@]}; do
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/samples.json      -l ${lumi};	
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/Wsamples.json     -l ${lumi} --saveLog --noStack;	
+	    mkdir ~/${outdir}/analysis_${i}/wplots;
+	    mv ~/${outdir}/analysis_${i}/plots/* ~/${outdir}/analysis_${i}/wplots/;
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/syst_samples.json -l ${lumi} -o syst_ploter.root --silent;	
 	done
 	;;
-    WWWTEST )
-	mkdir -p ${wwwdir}/analysis_mutest
-        cp ${outdir}/analysis_mutest/plots/*.{png,pdf} ${wwwdir}/analysis_mutest
-        cp test/index.php ${wwwdir}/analysis_mutest
+    BKG )
+	python scripts/runQCDEstimation.py     --iso   ${outdir}/analysis_mu/plots/plotter.root --noniso ${outdir}/analysis_munoniso/plots/plotter.root    --out ${outdir}/analysis_mu/ --sels  ,0b,1b,2b;
 	;;
     WWW )
 	a=(mu munoniso)
