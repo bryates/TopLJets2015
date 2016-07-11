@@ -84,18 +84,18 @@ void Run5TeVAnalysis(TString inFileName,
       histos["metpt_"+pf]  = new TH1F("metpt_"+pf,";Missing transverse energy [GeV];Events" ,10,0.,200.);
       histos["metphi_"+pf] = new TH1F("metphi_" + pf,";MET #phi [rad];Events" ,10,-3.2,3.2);
       histos["mt_"+pf]     = new TH1F("mt_"+pf,";Transverse Mass [GeV];Events" ,10,0.,200.);
-      histos["mjj_"+pf]    = new TH1F("mjj_"+pf,";Mass(j,j') [GeV];Events" ,15,0.,200.);
+      histos["mjj_"+pf]    = new TH1F("mjj_"+pf,";Mass(j,j') [GeV];Events" ,16,0.,200.);
       histos["mlb_"+pf]    = new TH1F("mlb_"+pf,";Mass(l,b) [GeV];Events" ,15,0.,250.);
       histos["njets_"+pf]  = new TH1F("njets_"+pf,";Jet multiplicity;Events" ,6,2.,8.);
 
       if(isMC && runSysts)
 	{
 	  nSysts=sizeof(expSysts)/sizeof(TString);
-	  histos["mjjshapes_"+pf+"_exp"]=new TH2F("mjjshapes_"+pf+"_exp",";Mass(j,j');Systematic uncertainty;Events",10,0,200,nSysts,0,nSysts);
+	  histos["mjjshapes_"+pf+"_exp"]=new TH2F("mjjshapes_"+pf+"_exp",";Mass(j,j');Systematic uncertainty;Events",16,0,200,nSysts,0,nSysts);
 	  for(int i=0; i<nSysts; i++)
 	    histos["mjjshapes_"+pf+"_exp"]->GetYaxis()->SetBinLabel(i+1,expSysts[i]);
 	  
-	  histos["mjjshapes_"+pf+"_gen"]=new TH2F("mjjshapes_"+pf+"_gen",";Mass(j,j') [GeV];Systematic uncertainty;Events",10,0,200,500,0,500);
+	  histos["mjjshapes_"+pf+"_gen"]=new TH2F("mjjshapes_"+pf+"_gen",";Mass(j,j') [GeV];Systematic uncertainty;Events",16,0,200,500,0,500);
 	  for(int i=0; i<500;i++)
 	    histos["mjjshapes_"+pf+"_gen"]->GetYaxis()->SetBinLabel(i+1,Form("genUnc%d",i));
 	}
@@ -213,7 +213,7 @@ void Run5TeVAnalysis(TString inFileName,
     jetTree_p->SetBranchStatus("jtm", 1);
     jetTree_p->SetBranchStatus("discr_csvV2", 1);
     jetTree_p->SetBranchStatus("refpt", 1);
-    jetTree_p->SetBranchStatus("refparton_flavor", 1);
+    jetTree_p->SetBranchStatus("refparton_flavorForB", 1);
     jetTree_p->SetBranchAddress("nref", &nref);
     jetTree_p->SetBranchAddress("jtpt", jtpt);
     jetTree_p->SetBranchAddress("jtphi", jtphi);
@@ -420,22 +420,64 @@ void Run5TeVAnalysis(TString inFileName,
 		if(passCSVM) bJets[0].push_back(jp4);
 		else         lightJets[0].push_back(jp4);
 
-		//b-tag up/down
+		//tag variations affect differently depending on the flavour
 		if(jflav==5 || jflav==4)
 		  {
-		    if(passCSVMUp) bJets[1].push_back(jp4);
-		    else           lightJets[1].push_back(jp4);
-		    if(passCSVMDn) bJets[2].push_back(jp4);
-		    else           lightJets[2].push_back(jp4);
+		    if(passCSVMUp)
+		      {
+			bJets[1].push_back(jp4);
+		      }
+		    else
+		      {
+			lightJets[1].push_back(jp4);
+		      }
+		    if(passCSVMDn) 
+		      {
+			bJets[2].push_back(jp4);
+		      }
+		    else
+		      {
+			lightJets[2].push_back(jp4);
+		      }
+		    if(passCSVM)   
+		      {
+			bJets[3].push_back(jp4);
+			bJets[4].push_back(jp4);
+		      }
+		    else      
+		      {
+			lightJets[3].push_back(jp4);
+			lightJets[4].push_back(jp4);
+		      }
 		  }
-
-		//mistag up/down
 		else
 		  {
-		    if(passCSVMUp) bJets[3].push_back(jp4);
-		    else           lightJets[3].push_back(jp4);
-		    if(passCSVMDn) bJets[4].push_back(jp4);
-		    else           lightJets[4].push_back(jp4);
+		    if(passCSVM)   
+		      {
+			bJets[1].push_back(jp4);
+			bJets[2].push_back(jp4);
+		      }
+		    else      
+		      {
+			lightJets[1].push_back(jp4);
+			lightJets[2].push_back(jp4);
+		      }
+		    if(passCSVMUp) 
+		      {
+			bJets[3].push_back(jp4);
+		      }
+		    else
+		      {
+			lightJets[3].push_back(jp4);
+		      }
+		    if(passCSVMDn) 
+		      {
+			bJets[4].push_back(jp4);
+		      }
+		    else
+		      {
+			lightJets[4].push_back(jp4);
+		      }
 		  }
 	      }
 	    
@@ -450,13 +492,13 @@ void Run5TeVAnalysis(TString inFileName,
 		  }
 
 		//JER varied selections
-		TLorentzVector jerVarP4(jp4); jerVarP4*=jerSmear[ivar+1];     
-		if(jerVarP4.Pt())
+		TLorentzVector jerVarP4(jp4); jerVarP4*=jerSmear[ivar+1]/jerSmear[0];     
+		if(jerVarP4.Pt()>30)
 		  {
 		    if(passCSVM) bJets[7+ivar].push_back(jerVarP4);
 		    else         lightJets[7+ivar].push_back(jerVarP4);
 		  }
-	      }	   	    
+	      }
 	  }
 	
 	histos["lpt"]->Fill(tightMuons[0].Pt(),evWeight);
@@ -474,6 +516,7 @@ void Run5TeVAnalysis(TString inFileName,
 	    Int_t nljets(lightJets[jetIdx].size());
 	    Int_t nbtags(bJets[jetIdx].size());
 	    Int_t njets(nljets+nbtags);
+	    
 	    if(nljets<2) continue;
 	    TString pf(Form("%db",TMath::Min(nbtags,2)));
 	    
@@ -533,7 +576,7 @@ void Run5TeVAnalysis(TString inFileName,
 	      }
 	    else if (runSysts)
 	      {
-		((TH2 *)histos["mjjshapes_"+pf+"_exp"])->Fill(mjj,ivar,iweight);
+		((TH2 *)histos["mjjshapes_"+pf+"_exp"])->Fill(mjj,ivar-1,iweight);
 	      }
 	  }
       }

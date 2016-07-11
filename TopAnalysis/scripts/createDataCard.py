@@ -6,95 +6,8 @@ import commands
 import getpass
 import pickle
 
-"""
-test if variation is significant enough i.e. if sum_{bins} |var-nom| > tolerance
-"""
-def acceptVariationForDataCard(nomH,upH,downH,tol=1e-2):
-    diffUp,diffDown=0,0
-    for xbin in xrange(1,nomH.GetNbinsX()):
-        val,valUp,valDown=nomH.GetBinContent(xbin),upH.GetBinContent(xbin),downH.GetBinContent(xbin)
-        diffUp+=ROOT.TMath.Abs(valUp-val)
-        diffDown+=ROOT.TMath.Abs(valDown-val)
-    accept = True if (diffUp>tol or diffDown>tol) else False
-    return accept
-
-"""
-in case of multiple signals, remove others
-"""
-def filterShapeList(exp,signalList,rawSignalList):
-    newExp={}
-    for key in exp:
-
-        matchFound=False
-        for rawKey in rawSignalList:
-            if rawKey in key:
-                matchFound=True
-        if matchFound and not key in signalList : continue
-
-        newExp[key]=exp[key]
-    return newExp
-
-
-"""
-get distributions from file
-"""
-def getDistsFrom(directory,keyFilter=''):
-    obs=None
-    exp={}
-    dirName=directory.GetName()
-    for key in directory.GetListOfKeys():
-        if len(keyFilter)>0 and key.GetName()!='%s_%s'%(dirName,keyFilter) : continue
-        obj=directory.Get(key.GetName())
-        if not obj.InheritsFrom('TH1') : continue
-        if obj.GetName()==dirName : 
-            obs=obj.Clone('data_obs')
-            obs.SetDirectory(0)
-        else : 
-            newName=obj.GetName().split(dirName+'_')[-1]
-            for token in ['+','-','*',' ','#','{','(',')','}','@']:
-                newName=newName.replace(token,'')
-            exp[newName]=obj.Clone(newName)
-            exp[newName].SetDirectory(0)
-            if exp[newName].InheritsFrom('TH2'):
-                for xbin in xrange(1,exp[newName].GetNbinsX()+1):
-                    for ybin in xrange(1,exp[newName].GetNbinsY()+1):
-                        binContent=exp[newName].GetBinContent(xbin,ybin)
-                        if binContent>0: continue
-                        newBinContent=ROOT.TMath.Max(ROOT.TMath.Abs(binContent),1e-3)
-                        exp[newName].SetBinContent(xbin,ybin,newBinContent)
-                        exp[newName].SetBinError(xbin,ybin,newBinContent)
-            else:
-                for xbin in xrange(1,exp[newName].GetNbinsX()+1):
-                    binContent=exp[newName].GetBinContent(xbin)
-                    if binContent>0: continue
-                    newBinContent=ROOT.TMath.Max(ROOT.TMath.Abs(binContent),1e-3)
-                    exp[newName].SetBinContent(xbin,newBinContent)
-                    exp[newName].SetBinError(xbin,newBinContent)
-    return obs,exp
-
-"""
-save distributions to file
-"""
-def saveToShapesFile(outFile,shapeColl,directory=''):
-    fOut=ROOT.TFile.Open(outFile,'UPDATE')
-    if len(directory)==0:
-        fOut.cd()     
-    else:
-        outDir=fOut.mkdir(directory)
-        outDir.cd()
-    for key in shapeColl:
-        #remove bin labels  
-        shapeColl[key].GetXaxis().Clear()
-
-        #convert to TH1D (projections are TH1D)
-        if not shapeColl[key].InheritsFrom('TH1D') :
-            h=ROOT.TH1D()
-            shapeColl[key].Copy(h)
-            shapeColl[key]=h
-
-        shapeColl[key].Write(key,ROOT.TObject.kOverwrite)
-    fOut.Close()
-
+from TopLJets2015.TopAnalysis.dataCardTools import *
+from TopLJets2015.TopAnalysis.xsecSystSpecs import *
 
 """
 steer the script
@@ -108,6 +21,7 @@ def main():
     parser.add_option(      '--systInput',      dest='systInput',   help='input plotter for systs from alternative samples',   default=None,          type='string')
     parser.add_option('-d', '--dist',           dest='dist',        help='distribution',                                       default='nbtags',      type='string')
     parser.add_option('-s', '--signal',         dest='signal',      help='signal (csv)',                                       default='tbart',       type='string')
+    parser.add_option(      '--specs',          dest='specs',       help='specifications [%default]',                          default='TOP-16-006',       type='string')
     parser.add_option('-m', '--mass',           dest='mass',        help='signal mass',                                        default=0,             type=float)
     parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',                                   default='1j,2j,3j,4j', type='string')
     parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file',                             default=None,          type='string')
@@ -154,6 +68,9 @@ def main():
     for cat in catList:
 
         print 'Initiating %s datacard for %s'%(opt.dist,cat)
+
+        #get syst specifications
+        rateSysts,sampleSysts=xsecSystSpecs(opt.specs)
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
@@ -265,17 +182,6 @@ def main():
             datacard.write('\n')
 
         #rate systematics
-        rateSysts=[
-            ('lumi_13TeV',       1.027,    'lnN',    []                   ,['Multijetsdata']),
-            #('DYnorm_th',        1.038,    'lnN',    ['DYl','DYc','DYb']  ,[]),
-            #('Wnorm_th',         1.037,    'lnN',    ['Wl' ,'Wc','Wb']    ,[]),
-            ('DYnorm_th',        1.038,    'lnN',    ['DY']  ,[]),
-            ('Wnorm_th',         1.037,    'lnN',    ['W']   ,[]),
-            ('tWnorm_th',        1.054,    'lnN',    ['tW']               ,[]),
-            ('tnorm_th',         1.044,    'lnN',    ['tch']              ,[]),
-            ('VVnorm_th',        1.20,     'lnN',    ['Multiboson']       ,[]),
-            ('tbartVnorm_th',    1.30,     'lnN',    ['tbartV']           ,[]),
-            ]
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
             rateSysts.append( ('MultiJetsNorm%s%s'%(jetCat,anCat),  1+qcdNorm[jetCat][1],                       'lnN',    ['Multijetsdata']    ,[]) )
@@ -307,44 +213,10 @@ def main():
 
         #generator level systematics 
         if systfIn is None: continue
-        sampleSysts=[
-
-            #ttbar modelling
-            ('Mtop',            {'tbart'         : ['tbartm=169.5','tbartm=175.5'],  'tW':['tWm=169.5','tWm=175.5'] },                True ,  True, False),
-            ('ttPartonShower',  {'tbart'         : ['tbartscaledown','tbartscaleup']},                                                False , True, False),            
-            #('NLOgenerator',    {'tbart'         : ['tbartaMCNLO']},                                                                  False,  True, False),
-            ('Hadronizer',      {'tbart'         : ['tbartHerwig']},                                                                 False , True, True),
-
-            #tWinterference
-            ('tWttinterf',       {'tW'            : ['tWDS']},                                                                        False , True, True),            
-
-            #QCD SCALES
-            ('tWscale',         {'tW'            : ['tWscaledown','tWscaleup']},                                                      False , True, False),            
-
-            #Madgraph W+jets
-            #('wFactScale',           { 'Wl': ['id3mur1muf0.5','id2mur1muf2'], 
-            #                           'Wc': ['id3mur1muf0.5','id2mur1muf2'], 
-            #                           'Wb': ['id3mur1muf0.5','id2mur1muf2'] },  False, False),
-            #('wRenScale',            { 'Wl': ['id7mur0.5muf1','id4mur2muf1'],  
-            #                           'Wc': ['id7mur0.5muf1','id4mur2muf1'],  
-            #                           'Wb': ['id7mur0.5muf1','id4mur2muf1'] },  False, False),
-            #('wCombScale',           { 'Wl': ['id9mur0.5muf0.5','id5mur2muf2'], 
-            #                           'Wc': ['id9mur0.5muf0.5','id5mur2muf2'],
-            #                           'Wb': ['id9mur0.5muf0.5','id5mur2muf2'] },  False, False),
-
-            #amc@NLO W+jets
-            ('wFactScale',           { 'W': ['id1003muR0.10000E+01muF0.50000E+00','id1002muR0.10000E+01muF0.20000E+01'] },    False, False, False),
-            ('wRenScale',            { 'W': ['id1007muR0.50000E+00muF0.10000E+01','id1004muR0.20000E+01muF0.10000E+01'] },    False, False, False),
-            ('wCombScale',           { 'W': ['id1009muR0.50000E+00muF0.50000E+00','id1005muR0.20000E+01muF0.20000E+01'] },  False, False, False),
-
-            ('ttFactScale',          { 'tbart': ['muR1muF0.5hdampmt172.5','muR1muF2hdampmt172.5'] },     False , False, False),
-            ('ttRenScale',           { 'tbart': ['muR0.5muF1hdampmt172.5','muR2muF1hdampmt172.5'] },     False , False, False),
-            ('ttCombScale',          { 'tbart': ['muR0.5muF0.5hdampmt172.5','muR2muF2hdampmt172.5'] },   False , False, False),
-            ]
 
         _,genVarShapes = getDistsFrom(directory=fIn.Get('%sshapes_%s_gen'%(opt.dist,cat)))
         genVarShapes=filterShapeList(genVarShapes,signalList,rawSignalList)
-        _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))
+        _,altExp       = getDistsFrom(directory=systfIn.Get('%s_%s'%(opt.dist,cat)))        
         if signalList[0]!=rawSignalList[0]:
             altExp=filterShapeList(altExp,signalList,rawSignalList)
         for systVar, procsToApply, normalize, useAltShape, projectRelToNom in sampleSysts:

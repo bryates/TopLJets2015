@@ -126,9 +126,6 @@ def main():
 
     fIso.Close()
 
-    print nonIsoTemplateSF
-    raw_input()
-
     #produce the QCD templates
     fOut=ROOT.TFile.Open('%s/Data_QCDMultijets.root'%(opt.outdir),'RECREATE')
     for distKey in fNonIso.GetListOfKeys():

@@ -7,7 +7,7 @@ if [ "$#" -ne 1 ]; then
     echo "        MERGE        - merge the output of the jobs";
     echo "        PLOT         - runs the plotter tool on the selection";
     echo "        WWW          - moves the plots to an afs-web-based area";    
-    echo "        The previous step can be called with *TEST to run a simplified version of the analysis without charge selection/systematics"
+    echo "        FIT          - run the cross section fit"
     exit 1; 
 fi
 
@@ -18,7 +18,7 @@ queue=8nh
 sourcedir=/store/cmst3/group/hintt/LJets5TeV/
 outdir=~/work/LJets-5TeV
 wwwdir=~/www/LJets-5TeV
-lumi=26
+lumi=27.9
 data=/store/cmst3/group/hintt/mverweij/PP5TeV/data/SingleMuHighPt/crab_FilteredSingleMuHighPt_v3/160425_163333/merge/HiForest_0.root
 
 RED='\e[31m'
@@ -47,7 +47,7 @@ case $WHAT in
 	    mkdir ~/${outdir}/analysis_${i}/wplots;
 	    mv ~/${outdir}/analysis_${i}/plots/* ~/${outdir}/analysis_${i}/wplots/;
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/syst_samples.json -l ${lumi} -o syst_ploter.root --silent;	
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/syst_samples.json -l ${lumi} -o syst_plotter.root --silent;	
 	done
 	;;
     BKG )
@@ -60,5 +60,17 @@ case $WHAT in
 	    cp ${outdir}/analysis_${i}/plots/*.{png,pdf} ${wwwdir}/analysis_${i}
 	    cp test/index.php ${wwwdir}/analysis_${i}
 	done
+	;;
+    FIT )
+	echo -e "[ ${RED} Creating datacards ${NC} ]"
+	python scripts/createDataCard.py \
+	    -i ${outdir}/analysis_mu/plots/plotter.root \
+	    --systInput ${outdir}/analysis_mu/plots/syst_plotter.root \
+            -q ${outdir}/analysis_mu/.qcdscalefactors.pck \
+	    -o ${outdir}/analysis_mu/datacard \
+	    --specs TOP-16-015 \
+	    --signal tbart \
+            -d mjj \
+	    -c 0b,1b,2b;
 	;;
 esac
