@@ -42,7 +42,7 @@ NC='\e[0m'
 case $WHAT in
     SEL )
 	queue=local
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0 --only Compressed;
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0;
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	
