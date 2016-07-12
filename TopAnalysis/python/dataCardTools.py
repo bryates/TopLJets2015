@@ -102,7 +102,7 @@ def acceptVariationForDataCard(nomH,upH,downH,tol=1e-2):
 """
 in case of multiple signals, remove others
 """
-def filterShapeList(exp,signalList,rawSignalList):
+def filterShapeList(exp,signalList,rawSignalList,signalSub=None):
     newExp={}
     for key in exp:
 
@@ -110,6 +110,12 @@ def filterShapeList(exp,signalList,rawSignalList):
         for rawKey in rawSignalList:
             if rawKey in key:
                 matchFound=True
+                try:
+                    exp[key].Add(exp[signalSub],-1)
+                    print 'Subtracted',signalSub,'from',key
+                except:
+                    pass
+                        
         if matchFound and not key in signalList : continue
 
         newExp[key]=exp[key]
@@ -134,6 +140,9 @@ def getDistsFrom(directory,keyFilter=''):
             newName=obj.GetName().split(dirName+'_')[-1]
             for token in ['+','-','*',' ','#','{','(',')','}','@']:
                 newName=newName.replace(token,'')
+            newName=newName.replace('=','eq')
+            newName=newName.replace('.','p')
+
             exp[newName]=obj.Clone(newName)
             exp[newName].SetDirectory(0)
             if exp[newName].InheritsFrom('TH2'):

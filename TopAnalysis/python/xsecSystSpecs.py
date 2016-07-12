@@ -83,6 +83,10 @@ def xsecSystSpecs(analysis='TOP-16-006'):
             ('wCombScale',           { 'W': ['genUnc5','genUnc9'] },   False, False, False),
             ]
 
+    if analysis=='TopRadius':
+        rateSysts=[]
+        sampleSysts=[]
+
 
     #return specifications
     return rateSysts,sampleSysts

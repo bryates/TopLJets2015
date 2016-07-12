@@ -21,6 +21,7 @@ def main():
     parser.add_option(      '--systInput',      dest='systInput',   help='input plotter for systs from alternative samples',   default=None,          type='string')
     parser.add_option('-d', '--dist',           dest='dist',        help='distribution',                                       default='nbtags',      type='string')
     parser.add_option('-s', '--signal',         dest='signal',      help='signal (csv)',                                       default='tbart',       type='string')
+    parser.add_option('--signalSub',            dest='signalSub',   help='subtract this component out of signal',              default=None,          type='string')
     parser.add_option(      '--specs',          dest='specs',       help='specifications [%default]',                          default='TOP-16-006',       type='string')
     parser.add_option('-m', '--mass',           dest='mass',        help='signal mass',                                        default=0,             type=float)
     parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',                                   default='1j,2j,3j,4j', type='string')
@@ -74,7 +75,7 @@ def main():
 
         #nomimal expectations
         obs,exp=getDistsFrom(directory=fIn.Get('%s_%s'%(opt.dist,cat)))
-        exp=filterShapeList(exp,signalList,rawSignalList)
+        exp=filterShapeList(exp,signalList,rawSignalList,opt.signalSub)
 
         #prepare output ROOT file
         outFile='%s/shapes_%s.root'%(opt.output,cat)
@@ -130,37 +131,38 @@ def main():
         saveToShapesFile(outFile,nomShapes,'nom')
 
         #experimental systematics
-        _,expVarShapes=getDistsFrom(directory=fIn.Get('%sshapes_%s_exp'%(opt.dist,cat)))
-        expVarShapes=filterShapeList(expVarShapes,signalList,rawSignalList)
-        nExpSysts=expVarShapes[signalList[0]].GetNbinsY()/2
-        for isyst in xrange(1,nExpSysts+1):
+        try:
+            _,expVarShapes=getDistsFrom(directory=fIn.Get('%sshapes_%s_exp'%(opt.dist,cat)))
+            expVarShapes=filterShapeList(expVarShapes,signalList,rawSignalList)
+            nExpSysts=expVarShapes[signalList[0]].GetNbinsY()/2
+            for isyst in xrange(1,nExpSysts+1):
             
-            #test which variations are significant
-            bwList={}
-            ybin=2*(isyst-1)+1
-            systVar=''
-            upShapes,downShapes={},{}
-            for proc in exp:
+                #test which variations are significant
+                bwList={}
+                ybin=2*(isyst-1)+1
+                systVar=''
+                upShapes,downShapes={},{}
+                for proc in exp:
 
-                if proc in expVarShapes:
+                    if proc in expVarShapes:
                     
-                    systVarDown = expVarShapes[proc].GetYaxis().GetBinLabel(ybin)
-                    systVarUp   = expVarShapes[proc].GetYaxis().GetBinLabel(ybin+1)
-                    systVar     = systVarUp[:-2]
-
-                    downShapeH  = expVarShapes[proc].ProjectionX('%s%dDown'%(proc,isyst), ybin,   ybin)
-                    upShapeH    = expVarShapes[proc].ProjectionX('%s%dUp'%(proc,isyst),   ybin+1, ybin+1)
-
-                    bwList[proc]     = acceptVariationForDataCard(nomH=exp[proc], upH=upShapeH, downH=downShapeH)
-                    if not bwList[proc]: continue
-
-                    downShapes[proc] = downShapeH
-                    upShapes[proc]   = upShapeH
+                        systVarDown = expVarShapes[proc].GetYaxis().GetBinLabel(ybin)
+                        systVarUp   = expVarShapes[proc].GetYaxis().GetBinLabel(ybin+1)
+                        systVar     = systVarUp[:-2]
                     
-            #test if at least one process has been white listed
-            if len(upShapes)+len(downShapes)==0:
-                print '\t skipping',systVar,'for %s'%cat
-                continue
+                        downShapeH  = expVarShapes[proc].ProjectionX('%s%dDown'%(proc,isyst), ybin,   ybin)
+                        upShapeH    = expVarShapes[proc].ProjectionX('%s%dUp'%(proc,isyst),   ybin+1, ybin+1)
+
+                        bwList[proc]     = acceptVariationForDataCard(nomH=exp[proc], upH=upShapeH, downH=downShapeH)
+                        if not bwList[proc]: continue
+                        
+                        downShapes[proc] = downShapeH
+                        upShapes[proc]   = upShapeH
+                    
+                #test if at least one process has been white listed
+                if len(upShapes)+len(downShapes)==0:
+                    print '\t skipping',systVar,'for %s'%cat
+                    continue
 
             #export to shapes file
             saveToShapesFile(outFile,downShapes,systVar+'Down')
@@ -181,7 +183,10 @@ def main():
                     datacard.write('%15s'%'-')
             datacard.write('\n')
 
-        #rate systematics
+        except:
+            pass
+
+        #rate systematics for QCD
         try:
             jetCat=cat[:-2] if cat.endswith('t') else cat
             rateSysts.append( ('MultiJetsNorm%s%s'%(jetCat,anCat),  1+qcdNorm[jetCat][1],                       'lnN',    ['Multijetsdata']    ,[]) )
