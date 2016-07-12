@@ -60,10 +60,10 @@ def xsecSystSpecs(analysis='TOP-16-006'):
 
         rateSysts=[
             ('lumi_5TeV',        1.040,    'lnN',    []                   ,['Multijetsdata']),
-            ('DYnorm_th',        1.038,    'lnN',    ['DY']  ,[]),
+            ('DYnorm',           1.30,     'lnN',    ['DY']  ,[]),
             ('Wnorm_th',         1.037,    'lnN',    ['W']   ,[]),
-            ('tWnorm_th',        1.054,    'lnN',    ['tW']               ,[]),
-            ('VVnorm_th',        1.20,     'lnN',    ['Multiboson']       ,[])
+            ('tWnorm',           1.30,     'lnN',    ['tW']               ,[]),
+            ('VVnorm',           1.30,     'lnN',    ['Multiboson']       ,[])
             ]
 
         sampleSysts=[

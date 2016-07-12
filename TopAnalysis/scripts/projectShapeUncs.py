@@ -71,13 +71,13 @@ def projectShapeUncs(url,proc,systList):
     c.Modified()
     c.Update()
     outName=os.path.splitext( os.path.basename(url) )[0]
-    c.SaveAs('%s_%s_unc.pdf'%(outName,key))
-    raw_input()
-    
+    for ext in ['pdf','png']:
+        c.SaveAs('%s_%s_unc.%s'%(outName,key,ext))
     fIn.Close()
 
 def main():
 
+    ROOT.gROOT.SetBatch(True)
     url = sys.argv[1]
     systList=sys.argv[2]
     proc='tbart' if len(sys.argv)<4 else sys.argv[3]

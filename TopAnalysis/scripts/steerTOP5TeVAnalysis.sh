@@ -2,9 +2,10 @@
 
 WHAT=$1; 
 if [ "$#" -ne 1 ]; then 
-    echo "steerTOP5TeVAnalysis.sh <SEL/MERGE/PLOT/WWW>";
+    echo "steerTOP5TeVAnalysis.sh <SEL/MERGE/BKG/PLOT/WWW>";
     echo "        SEL          - selects data and MC";
     echo "        MERGE        - merge the output of the jobs";
+    echo "        BKG          - runs the background estimation from sidebands";
     echo "        PLOT         - runs the plotter tool on the selection";
     echo "        WWW          - moves the plots to an afs-web-based area";    
     echo "        FIT          - run the cross section fit"
@@ -40,19 +41,28 @@ case $WHAT in
 	    ./scripts/mergeOutputs.py ${outdir}/analysis_${i};
 	done
 	;;
+    BKG )
+	a=(mu munoniso)
+        for i in ${a[@]}; do
+	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/samples.json      -l ${lumi} --silent;
+	done
+	python scripts/runQCDEstimation.py \
+	    --iso    ${outdir}/analysis_mu/plots/plotter.root \
+	    --noniso ${outdir}/analysis_munoniso/plots/plotter.root \
+	    --out    ${outdir}/analysis_mu/ \
+	    --sels  ,0b,1b,2b;
+	;;
     PLOT )
 	a=(mu munoniso)
 	for i in ${a[@]}; do
-	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/Wsamples.json     -l ${lumi} --saveLog --noStack;	
-	    mkdir ~/${outdir}/analysis_${i}/wplots;
-	    mv ~/${outdir}/analysis_${i}/plots/* ~/${outdir}/analysis_${i}/wplots/;
+	    #python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/Wsamples.json     -l ${lumi} --saveLog --noStack;	
+	    #mkdir ~/${outdir}/analysis_${i}/wplots;
+	    #mv ~/${outdir}/analysis_${i}/plots/* ~/${outdir}/analysis_${i}/wplots/;
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/samples.json      -l ${lumi} --saveLog;	
 	    python scripts/plotter.py -i ${outdir}/analysis_${i}  -j data/era5TeV/syst_samples.json -l ${lumi} -o syst_plotter.root --silent;	
 	done
 	;;
-    BKG )
-	python scripts/runQCDEstimation.py     --iso   ${outdir}/analysis_mu/plots/plotter.root --noniso ${outdir}/analysis_munoniso/plots/plotter.root    --out ${outdir}/analysis_mu/ --sels  ,0b,1b,2b;
-	;;
+
     WWW )
 	a=(mu munoniso)
 	for i in ${a[@]}; do
@@ -72,5 +82,15 @@ case $WHAT in
 	    --signal tbart \
             -d mjj \
 	    -c 0b,1b,2b;
+	
+	a=(0b 1b 2b)
+	for i in ${a[@]}; do
+	    python scripts/projectShapeUncs.py ${outdir}/analysis_mu/datacard/shapes_${i}.root btag,othertag,jes,jer;
+	    python scripts/projectShapeUncs.py ${outdir}/analysis_mu/datacard/shapes_${i}.root ttPartonShower,Hadronizer,ttFactScale,ttRenScale,ttCombScale;
+	    python scripts/projectShapeUncs.py ${outdir}/analysis_mu/datacard/shapes_${i}.root wFactScale,wRenScale,wCombScale W;
+	done
+	mkdir -p ${wwwdir}/shapes
+	mv *.{png,pdf} ${wwwdir}/shapes;
+	cp test/index.php ${wwwdir}/shapes;
 	;;
 esac
