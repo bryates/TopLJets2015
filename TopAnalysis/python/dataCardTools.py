@@ -165,7 +165,7 @@ def getDistsFrom(directory,keyFilter=''):
 """
 save distributions to file
 """
-def saveToShapesFile(outFile,shapeColl,directory=''):
+def saveToShapesFile(outFile,shapeColl,directory='',rebin=0):
     fOut=ROOT.TFile.Open(outFile,'UPDATE')
     if len(directory)==0:
         fOut.cd()     
@@ -182,5 +182,11 @@ def saveToShapesFile(outFile,shapeColl,directory=''):
             shapeColl[key].Copy(h)
             shapeColl[key]=h
 
+        #rebin final shape, if required
+        if rebin!=0: shapeColl[key].Rebin(rebin)
+
+        #save to file
         shapeColl[key].Write(key,ROOT.TObject.kOverwrite)
+
+    #all done here
     fOut.Close()

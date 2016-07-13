@@ -35,6 +35,8 @@ void Run5TeVAnalysis(TString inFileName,
 
   bool isMC(false);
   if(inFileName.Contains("/MC")) isMC=true;
+  bool isTTJets(false);
+  if(inFileName.Contains("/MCTTNominal")) isTTJets=true;
 
   float totalEvtNorm(1.0);
   if(isMC && normH) totalEvtNorm=normH->GetBinContent(1);
@@ -555,8 +557,16 @@ void Run5TeVAnalysis(TString inFileName,
 		    //theory uncertainties (by matrix-element weighting)
 		    for(size_t igs=0; igs<ttbar_w_p->size(); igs++)
 		      {
-			float newWeight( ttbar_w_p->at(igs)/ttbar_w_p->at(0) );
-			((TH2 *)histos["mjjshapes_"+pf+"_gen"])->Fill(mjj,igs,newWeight*iweight);
+			float newWeight( iweight );
+			if(isTTJets && normH && normH->GetBinContent(igs+1))
+			  {
+			    newWeight *= (ttbar_w_p->at(igs)/ttbar_w_p->at(0)) * ( normH->GetBinContent(1)/normH->GetBinContent(igs+1));
+			  }
+			else
+			  {
+			    newWeight *= (ttbar_w_p->at(igs)/ttbar_w_p->at(0));
+			  }
+			((TH2 *)histos["mjjshapes_"+pf+"_gen"])->Fill(mjj,igs,newWeight);
 		      }
 		  }
 		histos["metpt_"+pf]->Fill(rawMET.Pt(),iweight);

@@ -73,14 +73,14 @@ def xsecSystSpecs(analysis='TOP-16-006'):
             ('Hadronizer',      {'tbart': ['tbartHW']},                 False , True, True),
 
             #QCD scales for ttbar
-            ('ttFactScale',          { 'tbart': ['genUnc2','genUnc3'] }, True, False, False),
-            ('ttRenScale',           { 'tbart': ['genUnc4','genUnc7'] }, True, False, False),
-            ('ttCombScale',          { 'tbart': ['genUnc5','genUnc9'] }, True, False, False),
+            ('ttFactScale',          { 'tbart': ['genUnc1','genUnc2'] }, True, False, False),
+            ('ttRenScale',           { 'tbart': ['genUnc3','genUnc6'] }, True, False, False),
+            ('ttCombScale',          { 'tbart': ['genUnc4','genUnc8'] }, True, False, False),
 
             #QCD scales for W+jets
-            ('wFactScale',           { 'W': ['genUnc2','genUnc3'] },   False, False, False),
-            ('wRenScale',            { 'W': ['genUnc4','genUnc7'] },   False, False, False),
-            ('wCombScale',           { 'W': ['genUnc5','genUnc9'] },   False, False, False),
+            ('wFactScale',           { 'W': ['genUnc1','genUnc2'] },   False, False, False),
+            ('wRenScale',            { 'W': ['genUnc3','genUnc6'] },   False, False, False),
+            ('wCombScale',           { 'W': ['genUnc4','genUnc8'] },   False, False, False),
             ]
 
     if analysis=='TopRadius':

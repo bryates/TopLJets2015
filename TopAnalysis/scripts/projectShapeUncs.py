@@ -21,6 +21,7 @@ def projectShapeUncs(url,proc,systList):
     nomH.SetFillStyle(0)
     nomH.Draw('hist')
     nomH.GetYaxis().SetTitleOffset(1.2)
+    nomH.GetYaxis().SetRangeUser(1e-3,nomH.GetMaximum()*2.0)
 
     leg= ROOT.TLegend(0.65,0.5,0.85,0.95)
     leg.SetFillStyle(0)

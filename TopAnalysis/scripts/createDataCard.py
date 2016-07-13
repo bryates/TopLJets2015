@@ -28,6 +28,7 @@ def main():
     parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file',                             default=None,          type='string')
     parser.add_option('-w', '--wjets',          dest='wjets',       help='wjets normalization file',                           default=None,          type='string')
     parser.add_option('-o', '--output',         dest='output',      help='output directory',                                   default='datacards',   type='string')
+    parser.add_option(      '--rebin',          dest='rebin',       help='histogram rebin factor',                             default=0,             type=int)
     (opt, args) = parser.parse_args()
 
     rawSignalList=opt.signal.split(',')
@@ -128,7 +129,7 @@ def main():
 
         nomShapes=exp.copy()
         nomShapes['data_obs']=obs
-        saveToShapesFile(outFile,nomShapes,'nom')
+        saveToShapesFile(outFile,nomShapes,'nom',opt.rebin)
 
         #experimental systematics
         try:
@@ -163,26 +164,26 @@ def main():
                 if len(upShapes)+len(downShapes)==0:
                     print '\t skipping',systVar,'for %s'%cat
                     continue
+ 
+                #export to shapes file                
+                saveToShapesFile(outFile,downShapes,systVar+'Down',opt.rebin)
+                saveToShapesFile(outFile,upShapes,systVar+'Up',opt.rebin)
 
-            #export to shapes file
-            saveToShapesFile(outFile,downShapes,systVar+'Down')
-            saveToShapesFile(outFile,upShapes,systVar+'Up')
-
-            #write to datacard
-            datacard.write('%32s shape'%systVar)        
-            for sig in signalList: 
-                if sig in bwList and bwList[sig]:
-                    datacard.write('%15s'%'1') 
-                else:
-                    datacard.write('%15s'%'-')
-            for proc in exp: 
-                if proc in signalList: continue
-                if proc in bwList and bwList[proc] :
-                    datacard.write('%15s'%'1')
-                else:
-                    datacard.write('%15s'%'-')
-            datacard.write('\n')
-
+                #write to datacard
+                datacard.write('%32s shape'%systVar)        
+                for sig in signalList: 
+                    if sig in bwList and bwList[sig]:
+                        datacard.write('%15s'%'1') 
+                    else:
+                        datacard.write('%15s'%'-')
+                for proc in exp: 
+                    if proc in signalList: continue
+                    if proc in bwList and bwList[proc] :
+                        datacard.write('%15s'%'1')
+                    else:
+                        datacard.write('%15s'%'-')
+                datacard.write('\n')
+                        
         except:
             pass
 
@@ -252,12 +253,12 @@ def main():
                     ybinUp, ybinDown = -1, -1
                     for ybin in xrange(1,genVarShapes[ iproc ].GetNbinsY()+1):
                         label = genVarShapes[ iproc ].GetYaxis().GetBinLabel(ybin)
-                        if procsToApply[iproc][0] in label : ybinDown=ybin
-                        if procsToApply[iproc][1] in label : ybinUp=ybin
+                        if procsToApply[iproc][0] in label and ybinDown<0 : ybinDown=ybin
+                        if procsToApply[iproc][1] in label and ybinUp<0   : ybinUp=ybin
 
                     downH = genVarShapes[ iproc ].ProjectionX('%s%sDown'%(iproc,systVar), ybinDown, ybinDown)
                     upH   = genVarShapes[ iproc ].ProjectionX('%s%sUp'%(iproc,systVar),   ybinUp,   ybinUp)
-                
+
                 # use do down/up x nom to generate the variation, then mirror it
                 if projectRelToNom:
                     ratioH=downH.Clone()
@@ -285,8 +286,8 @@ def main():
             if len(upShapes)==0 : continue
 
             #export to shapes file
-            saveToShapesFile(outFile,downShapes,systVar+'Down')
-            saveToShapesFile(outFile,upShapes,systVar+'Up')
+            saveToShapesFile(outFile,downShapes,systVar+'Down',opt.rebin)
+            saveToShapesFile(outFile,upShapes,systVar+'Up',opt.rebin)
 
             #write to datacard
             datacard.write('%32s shape'%systVar)
@@ -325,11 +326,11 @@ def main():
 
             _,qcdShapesUp = getDistsFrom(directory=fIn.Get('%s_%s_QCD%sUp'%(opt.dist,cat,jetCat)))
             qcdShapesUp['Multijetsdata'].Scale( qcdExp/qcdShapesUp['Multijetsdata'].Integral() ) 
-            saveToShapesFile(outFile,qcdShapesUp,systName+'Up')
+            saveToShapesFile(outFile,qcdShapesUp,systName+'Up',opt.rebin)
 
             _,qcdShapesDown = getDistsFrom(directory=fIn.Get('%s_%s_QCD%sDown'%(opt.dist,cat,jetCat)))
             qcdShapesDown['Multijetsdata'].Scale( qcdExp/qcdShapesDown['Multijetsdata'].Integral() ) 
-            saveToShapesFile(outFile,qcdShapesDown,systName+'Down')
+            saveToShapesFile(outFile,qcdShapesDown,systName+'Down',opt.rebin)
 
         #all done
         datacard.close()

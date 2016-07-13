@@ -45,14 +45,16 @@ def main():
                 wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
             else:
                 if wgtCounter is None:
-                    wgtCounter=ROOT.TH1F('genwgts','genwgts',1,0,1)
+                    wgtCounter=ROOT.TH1F('genwgts','genwgts',500,0,500)
                     wgtCounter.SetDirectory(0)
                 hiTree=fIn.Get('hiEvtAnalyzer/HiTree')
                 for i in xrange(0,hiTree.GetEntriesFast()):
                     hiTree.GetEntry(i)
                     try:
-                        wgtVal=getattr(hiTree,'ttbar_w')[0]
-                        wgtCounter.Fill(0,wgtVal)
+                        ttbar_w=getattr(hiTree,'ttbar_w')
+                        for ibin in xrange(0,ttbar_w.size()):
+                            wgtCounter.Fill(ibin,ttbar_w[ibin])
+                        if ttbar_w.size()==0: raise ValueError('simple count required')
                     except:
                         wgtCounter.Fill(0,1)
             fIn.Close()
