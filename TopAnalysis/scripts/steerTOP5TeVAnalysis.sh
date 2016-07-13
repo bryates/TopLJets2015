@@ -1,7 +1,8 @@
 #!/bin/bash
 
 WHAT=$1; 
-if [ "$#" -ne 1 ]; then 
+UNBLIND=$2
+if [ "$#" -lt 1 ]; then 
     echo "steerTOP5TeVAnalysis.sh <SEL/MERGE/BKG/PLOT/WWW/PREPAREFIT/FIT>";
     echo "        SEL          - selects data and MC";
     echo "        MERGE        - merge the output of the jobs";
@@ -9,7 +10,7 @@ if [ "$#" -ne 1 ]; then
     echo "        PLOT         - runs the plotter tool on the selection";
     echo "        WWW          - moves the plots to an afs-web-based area";    
     echo "        PREPAREFIT   - create datacards for the fit"
-    echo "        FIT          - run the cross section fit (may need a special CMSSW release to use combine)"
+    echo "        FIT          - run the cross section fit (may need a special CMSSW release to use combine) if 1 is passed as well it will unblind"
     exit 1; 
 fi
 
@@ -103,6 +104,39 @@ case $WHAT in
 	cp test/index.php ${wwwdir}/shapes;
 	;;
     FIT )
-	echo "[ ${RED} $CMSSW_BASE will be used - make sure combine is compatible and is installed ${NC} ]"
+	echo -e "[ ${RED} $CMSSW_BASE will be used - make sure combine is compatible and is installed ${NC} ]"
+	cd ${outdir}/analysis_mu/datacard;
+	combineCards.py m0b=datacard_0b.dat m1b=datacard_1b.dat m2b=datacard_2b.dat > datacard.dat;
+	text2workspace.py datacard.dat -m 0 -o workspace.root
+        
+        #expected
+
+	combine workspace.root -M MultiDimFit --redefineSignalPOIs btag -P btag -t -1 --expectSignal=1 --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0;
+	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_btag.root
+
+	combine workspace.root -M MultiDimFit -P r -t -1 --expectSignal=1 --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0;
+	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_r.root
+
+        combine workspace.root -M MultiDimFit --algo=grid --points=2500 -m 0 -t -1 \
+	    --redefineSignalPOIs r,btag -P r -P btag  --setPhysicsModelParameterRanges btag=-2,2:r=0,2 \
+	    --expectSignal=1;
+	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_rvsbtag.root;
+
+	#observed...
+	if [ "${UNBLIND}" == "1" ]; then
+	    echo -e "[ ${RED} will unblind the results now ${NC}]";
+
+	    combine workspace.root -M MultiDimFit --redefineSignalPOIs btag -P btag --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0;
+	    mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_btag.root
+
+	    combine workspace.root -M MultiDimFit -P r --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0;
+	    mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_r.root
+	    
+            combine workspace.root -M MultiDimFit --algo=grid --points=2500 -m 0 \
+		--redefineSignalPOIs r,btag -P r -P btag  --setPhysicsModelParameterRanges btag=-2,2:r=0,2;
+	    mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_rvsbtag.root;
+	fi
+
+	cd -
 	;;
 esac
