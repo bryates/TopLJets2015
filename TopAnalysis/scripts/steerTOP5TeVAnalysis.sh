@@ -91,6 +91,7 @@ case $WHAT in
 	    --signal tbart \
             -d mjj \
 	    -c 0b,1b,2b \
+	    --addBinByBin 0.3 \
 	    --rebin 2;
 	
 	a=(0b 1b 2b)
@@ -110,13 +111,20 @@ case $WHAT in
 	text2workspace.py datacard.dat -m 0 -o workspace.root
         
         #expected
-
-	combine workspace.root -M MultiDimFit --redefineSignalPOIs btag -P btag -t -1 --expectSignal=1 --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0;
-	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_btag.root
-
-	combine workspace.root -M MultiDimFit -P r -t -1 --expectSignal=1 --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0;
+	commonOpts="-t -1 --expectSignal=1 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0";
+	combine workspace.root -M MaxLikelihoodFit ${commonOpts};
+	mv mlfit.root mlfit_exp.root
+	combine workspace.root -M MultiDimFit ${commonOpts} --algo=grid --points=100;
 	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_r.root
+	combine workspace.root -M MultiDimFit ${commonOpts} --algo=grid --points=100 -S 0;
+	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_stat_r.root
 
+	commonOpts="--redefineSignalPOIs btag -P btag --expectSignal=1 --algo=grid --points=100 --setPhysicsModelParameterRanges btag=-2,2:r=0,2 -m 0";	
+	combine workspace.root -M MultiDimFit ${commonOpts};
+	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_btag.root
+	combine workspace.root -M MultiDimFit ${commonOpts} -S 0;
+	mv higgsCombineTest.MultiDimFit.mH0.root exp_plr_scan_stat_btag.root
+	
         combine workspace.root -M MultiDimFit --algo=grid --points=2500 -m 0 -t -1 \
 	    --redefineSignalPOIs r,btag -P r -P btag  --setPhysicsModelParameterRanges btag=-2,2:r=0,2 \
 	    --expectSignal=1;
@@ -136,7 +144,10 @@ case $WHAT in
 		--redefineSignalPOIs r,btag -P r -P btag  --setPhysicsModelParameterRanges btag=-2,2:r=0,2;
 	    mv higgsCombineTest.MultiDimFit.mH0.root obs_plr_scan_rvsbtag.root;
 	fi
-
 	cd -
+	;;
+    SHOWFIT )
+	cardsDir=${outdir}/analysis_mu/datacard;
+	python scripts/fitSummaryPlots.py "#mu"=${cardsDir}/datacard.dat --POIs r,btag --label "27.9 pb^{-1} (5.02 TeV)" -o ${cardsDir};
 	;;
 esac

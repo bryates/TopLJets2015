@@ -27,8 +27,9 @@ def main():
     parser.add_option('-c', '--cat',            dest='cat',         help='categories (csv)',                                   default='1j,2j,3j,4j', type='string')
     parser.add_option('-q', '--qcd',            dest='qcd',         help='qcd normalization file',                             default=None,          type='string')
     parser.add_option('-w', '--wjets',          dest='wjets',       help='wjets normalization file',                           default=None,          type='string')
-    parser.add_option('-o', '--output',         dest='output',      help='output directory',                                   default='datacards',   type='string')
+    parser.add_option('--addBinByBin',          dest='addBinByBin', help='add bin-by-bin stat uncertainties @ threshold',      default=-1,            type=float)
     parser.add_option(      '--rebin',          dest='rebin',       help='histogram rebin factor',                             default=0,             type=int)
+    parser.add_option('-o', '--output',         dest='output',      help='output directory',                                   default='datacards',   type='string')
     (opt, args) = parser.parse_args()
 
     rawSignalList=opt.signal.split(',')
@@ -130,6 +131,49 @@ def main():
         nomShapes=exp.copy()
         nomShapes['data_obs']=obs
         saveToShapesFile(outFile,nomShapes,'nom',opt.rebin)
+
+        #MC stats systematics for bins with large stat uncertainty
+        if opt.addBinByBin>0:
+            for proc in exp:
+
+                #qcd is handled separately
+                if proc=='Multijetsdata' : continue
+
+                finalNomShape=exp[proc].Clone('tmp')
+                if opt.rebin>0 : finalNomShape.Rebin(opt.rebin)
+                for xbin in xrange(1,finalNomShape.GetXaxis().GetNbins()+1):
+                    val,unc=finalNomShape.GetBinContent(xbin),finalNomShape.GetBinError(xbin)
+                    if val==0 : continue
+                    if ROOT.TMath.Abs(unc/val)<opt.addBinByBin: continue
+
+                    binShapes={}
+                    systVar='%sbin%d%s'%(proc,xbin,cat)
+
+                    binShapes[proc]=finalNomShape.Clone('%sUp'%systVar)
+                    binShapes[proc].SetBinContent(xbin,val+unc)
+                    saveToShapesFile(outFile,binShapes,binShapes[proc].GetName(),False)
+
+                    binShapes[proc]=finalNomShape.Clone('%sDown'%systVar)
+                    binShapes[proc].SetBinContent(xbin,ROOT.TMath.Max(val-unc,1e-3))
+                    saveToShapesFile(outFile,binShapes,binShapes[proc].GetName(),False)
+                    
+                    #write to datacard
+                    datacard.write('%32s shape'%systVar)        
+                    for sig in signalList: 
+                        if proc==sig:
+                            datacard.write('%15s'%'1') 
+                        else:
+                            datacard.write('%15s'%'-')
+                    for iproc in exp: 
+                        if iproc in signalList: continue
+                        if iproc==proc:
+                            datacard.write('%15s'%'1')
+                        else:
+                            datacard.write('%15s'%'-')
+                    datacard.write('\n')
+
+                finalNomShape.Delete()
+                    
 
         #experimental systematics
         try:
