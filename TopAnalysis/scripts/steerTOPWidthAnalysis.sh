@@ -20,9 +20,10 @@ fi
 
 export LSB_JOB_REPORT_MAIL=N
 
-queue=2nd
-githash=f423545
-lumi=3977.28
+queue=8nh
+githash=121d8f2
+#lumi=3977.28
+lumi=11400
 eosdir=/store/cmst3/user/psilva/LJets2016/${githash}
 case $ERA in
     era2015)
@@ -33,22 +34,23 @@ case $ERA in
 esac
 
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
-outdir=~/work/TopWidth_${ERA}
-wwwdir=~/www/TopWidth_${ERA}
+#outdir=~/work/TopWidth_${ERA}
+outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_8_patch1/src/TopLJets2015/TopAnalysis/LJets2015/2016
+wwwdir=~/www/Top2016/2016
 
 
 RED='\e[31m'
 NC='\e[0m'
 case $WHAT in
     SEL )
-	queue=local
-	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOPWidth::RunTopWidth --ch 0;
+	python scripts/runLocalAnalysis.py -i ${eosdir} -q ${queue} -o ${outdir} --era ${ERA} -m TOP::RunTop --ch 0;
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	
 	;;
     PLOTSEL )
-	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi};	
+	#python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi};	
+        python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )
 	mkdir -p ${wwwdir}/sel

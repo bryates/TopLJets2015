@@ -12,15 +12,16 @@ Wrapper to be used when run in parallel
 def RunMethodPacked(args):
 
 
-    method,inF,outF,channel,charge,flav,runSysts,era,tag=args
+    method,inF,outF,channel,charge,flav,runSysts,era,tag,debug=args
     print 'Running ',method,' on ',inF
     print 'Output file',outF
     print 'Selection ch=',channel,' charge=',charge,' flavSplit=',flav,' systs=',runSysts
     print 'Normalization applied from tag=',tag
     print 'Corrections will be retrieved for era=',era
+    if debug : print 'Verbose mode'
 
     try:
-        cmd='analysisWrapper --era %s --normTag %s --in %s --out %s --method %s --charge %d --channel %d --flav %d '%(era,
+        cmd='analysisWrapper --era %s --normTag %s --in %s --out %s --method %s --charge %d --channel %d --flav %d' %(era,
                                                                                                                       tag,
                                                                                                                       inF,
                                                                                                                       outF,
@@ -29,6 +30,7 @@ def RunMethodPacked(args):
                                                                                                                       channel,
                                                                                                                       flav)
         if runSysts : cmd += ' --runSysts'
+        if debug : cmd += ' --verbose'
         print cmd
         os.system(cmd)
     except :
@@ -57,6 +59,7 @@ def main():
     parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag  [%default]',                    default=None,       type='string')
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                                default=0,    type='int')
+    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,       action='store_true')
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -80,8 +83,9 @@ def main():
     if '.root' in opt.input:
         inF=opt.input
         if '/store/' in inF and not 'root:' in inF : inF='root://eoscms//eos/cms'+opt.input        
+        print inF
         outF=opt.output
-        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.tag) )
+        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.tag,opt.debug) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')
@@ -110,7 +114,7 @@ def main():
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
-                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,tag) )
+                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,tag,opt.debug) )
 
     #run the analysis jobs
     if opt.queue=='local':
@@ -123,8 +127,8 @@ def main():
             pool.map(RunMethodPacked, task_list)
     else:
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)        
-        for method,inF,outF,channel,charge,flav,runSysts,era,tag in task_list:
-            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,tag,flav,method)
+        for method,inF,outF,channel,charge,flav,runSysts,era,tag,debug in task_list:
+            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --tag %s --flav %d --method %s --verbose %s' % (cmsswBase,inF,outF,charge,channel,era,tag,flav,method,debug)
             if runSysts : localRun += ' --runSysts'            
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)
             os.system(cmd)

@@ -35,4 +35,13 @@ void RunTopWidth(TString filename,
 		 TH1F *normH, 
 		 Bool_t runSysts,
 		 TString era);
+void RunTop(TString filename,
+		 TString outname,
+		 Int_t channelSelection, 
+		 Int_t chargeSelection, 
+		 FlavourSplitting flavourSplitting,
+		 TH1F *normH, 
+		 Bool_t runSysts,
+		 TString era,
+                 Bool_t debug);
 #endif
