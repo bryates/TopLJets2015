@@ -245,7 +245,9 @@ void RunTop(TString filename,
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events" ,20,0.,20.);
 */
     //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.01 GeV" ,18,2.5,3.4);
-    allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.5 GeV" ,20,0,10);
+    //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.5 GeV" ,20,0,10);
+    allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 20 MeV" ,100,2,4);
+    allPlots["massJPsiK"+tag+cut+weight]     = new TH1F("massJPsiK"+tag+cut+weight,";M_{llk};Events / 15 MeV" ,100,4.5,6);
     allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{D^{0}};Events / 0.01 GeV" ,30,1.7,2.0);
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 0.01" ,30,1.7,2.0);
      allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 0.01 GeV" ,20,1.7,2.0);
@@ -323,7 +325,7 @@ void RunTop(TString filename,
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
-      bool hasEETrigger(((ev.elTrigger>>2)&0x3)!=0);
+      bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0 || ((ev.elTrigger>>4)&0x1)!=0);
       bool hasMMTrigger(((ev.muTrigger>>2)&0x3)!=0);
       bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);
       bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
@@ -470,8 +472,7 @@ void RunTop(TString filename,
       int nbjets(0),ncjets(0),nljets(0);//,leadingJetIdx(-wgt);
       std::vector<int> resolvedJetIdx;
       std::vector<TLorentzVector> resolvedJetP4;
-      std::vector<Jet> bJetsVec;
-      std::vector<Jet> JetsVec;
+      std::vector<Jet> bJetsVec, allJetsVec;
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -556,9 +557,19 @@ void RunTop(TString filename,
 	  //save jet
 	  if(isBTagged) bJets.push_back(jp4);
 	  else          lightJets.push_back(jp4);
-          Jet *tmpj = new Jet(jp4, csv);
-          if(isBTagged) bJetsVec.push_back(*tmpj);
-          else JetsVec.push_back(*tmpj);
+
+          Jet tmpj(jp4, csv, k);
+	  for(int ipf = 0; ipf < ev.npf; ipf++) {
+	    if(ev.pf_j[ipf] != k) continue;
+	    if(ev.pf_c[ipf]==0) continue;
+	    TLorentzVector tkP4(0,0,0,0);
+	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
+	    tmpj.addTrack(tkP4,ev.pf_id[ipf]);
+	  }
+	  tmpj.sortTracksByPt();
+
+          if(isBTagged) bJetsVec.push_back(tmpj);
+          allJetsVec.push_back(tmpj);
 	}
 
       
@@ -612,6 +623,11 @@ void RunTop(TString filename,
 	}
       if(debug) cout << "Lepton scale factors" << endl;
 
+      //sort by Pt
+      sort(bJetsVec.begin(),    bJetsVec.end(),   sortJetsByPt);
+      sort(allJetsVec.begin(),  allJetsVec.end(), sortJetsByPt);
+
+      if(bJetsVec.size()==0) continue;
       for(size_t il=0; il<leptons.size(); il++) {
         for(size_t ij=0; ij<bJets.size(); ij++) {
 	  TLorentzVector jp4;
@@ -739,7 +755,7 @@ void RunTop(TString filename,
       allPlots["npf"+chTag+"_lep"+"_no_weight"]->Fill(ev.npf,1);
       allPlots["nevt"+chTag+"_lep"]->Fill(1,wgt);
       allPlots["nevt_all_lep"]->Fill(1,wgt);
-      float lpt(0), bpt(0);
+      //float lpt(0), bpt(0);
       //int pfid = 0;
       /*
       //Track candidates
@@ -756,208 +772,46 @@ void RunTop(TString filename,
       }
       */
 
-      // Sort jets with CSV by pT
-      vector<tuple<int,float,float>> jetPt; // jetindex,csv,pT
-      for(int ij = 0; ij < ev.nj; ij++)
-        jetPt.push_back(std::make_tuple(ev.pf_j[ij],ev.j_csv[ij],ev.j_pt[ij]));
-      std::sort(jetPt.begin(), jetPt.end(), sortJetCSVTuple);
- 
-      for(int it = 0; it < ev.nl; it++)
-        lpt = ev.l_pt[it] > lpt ? ev.l_pt[it] : lpt;
-      lpt = leptons[0].Pt();
-      allPlots["lp_pt"+chTag+"_lep"]->Fill(lpt,wgt);
-      allPlots["lp_pt"+chTag+"_lep"+"_no_weight"]->Fill(lpt,1);
-      for(unsigned int it = 0; it < jetPt.size(); it++) {
-        if(get<1>(jetPt.at(it)) < 0.8) continue;
-        bpt = get<2>(jetPt.at(it)) > bpt ? get<2>(jetPt.at(it)) : bpt;
-      }
-      allPlots["bj_pt"+chTag+"_lep"]->Fill(bpt,wgt);
-      allPlots["bj_pt"+chTag+"_lep"+"_no_weight"]->Fill(bpt,1);
+      //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
+      sort(allJetsVec.begin(),    allJetsVec.end(),     sortJetsByCSV);
+      for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
+        if(ij > 1) continue;
+        if(allJetsVec[ij].getCSV()<0.460) continue;
 
-      // Charm resonance stuff:
-      float maxcsv[2] = {-wgt, -wgt};
-      vector<int> maxind = {-1, -1};
-      for(unsigned int k = 0; k < jetPt.size(); k++) {
-        //if(ev.pf_pt[k] < 10) continue;
-        if(get<1>(jetPt.at(k)) >= maxcsv[1]) {
-          if(get<0>(jetPt.at(k)) >= maxcsv[0]) {
-            maxcsv[0] = get<1>(jetPt.at(k));
-            maxind[0] = k;
-          }
-          else {
-            maxcsv[1] = get<1>(jetPt.at(k));
-            maxind[1] = k;
-          }
-        }
-      }
-      if(maxind[0] < 0 && maxind[1] < 0) {
-      // no jets with csv > 0 found, use hardest two jets
-        maxind[0] = 0;
-        maxind[1] = 1;
-      }
-      else if(maxind[0] >=0 && maxind[1] < 0) {
-      // only 1 get, set second to (next) hardest
-        if(maxind[0] == 0) maxind[1] = 1;
-        else maxind[1] = 0; //hardest
-      }
-      if(maxind[0] == maxind[1]) maxind.pop_back(); //prevent double counting
-
-      for(auto jetindex : maxind) {
-        //int jetindex = maxind[0];
-        if(jetindex < 0) continue;
-
-        if(jetindex == maxind[0]) {
-          allPlots["npf"+chTag+"_csv"]->Fill(ev.npf,wgt);
-          allPlots["npf"+chTag+"_csv"+"_no_weight"]->Fill(ev.npf,1);
-          allPlots["nevt"+chTag+"_csv"]->Fill(1,wgt);
-          allPlots["nevt_all_csv"]->Fill(1,wgt);
-        }
-        /*
-        //Track candidates
-        for(int it = 0; it < ev.npf; it++) {
-          if(ev.pf_j[it] != jetindex) continue;
-          if(ev.pf_pt[it] > pfpt) {
-            pfpt = ev.pf_pt[it];
-            //pfid = ev.pf_id[it];
-            }
-          if(abs(ev.pf_id[it]) == 211)
-            allPlots["bj_pt"+chTag+"_csv"]->Fill(ev.pf_pt[it],wgt);
-          else if(abs(ev.pf_id[it]) == 13 || abs(ev.pf_id[it]) == 11)
-            allPlots["lp_pt"+chTag+"_csv"]->Fill(ev.pf_pt[it],wgt);
-        
-        }
-        */
-        //for(int it = 0; it < ev.nl; it++)
-        //  lpt = ev.l_pt[it] > lpt ? ev.l_pt[it] : lpt;
-        if(jetindex == maxind[0]) {
-          lpt = leptons[0].Pt();
-          allPlots["lp_pt"+chTag+"_csv"]->Fill(lpt,wgt);
-          allPlots["lp_pt"+chTag+"_csv"+"_no_weight"]->Fill(lpt,1);
-        }
-        //for(unsigned int it = 0; it < jetPt.size(); it++)
-        //  bpt = get<2>(jetPt.at(it)) > bpt ? get<2>(jetPt.at(it)) : bpt;
-        if(jetindex == maxind[0]) {
-          bpt = bJets[0].Pt();
-          allPlots["bj_pt"+chTag+"_csv"]->Fill(bpt,wgt);
-          allPlots["bj_pt"+chTag+"_csv"+"_no_weight"]->Fill(bpt,1);
-          allPlots["bj_pt_all_csv"]->Fill(bpt,wgt);
-        }
-        /*
-        if(abs(pfid) == 211)
-          allPlots["bj_pt"+chTag+"_csv"]->Fill(pfpt,wgt);
-        else if(abs(pfid) == 13 || abs(pfid) == 11)
-          allPlots["lp_pt"+chTag+"_csv"]->Fill(pfpt,wgt);
-        */
-
-        if(debug) cout << "l or ll" << endl;
-        TLorentzVector p_track1, p_track2;
-        const float gMassMu = 0.1057;
-        int nstart = firstTrackIndex(jetindex,&jetPt);
-        allPlots["nstart"+chTag]->Fill(nstart,wgt);
-        allPlots["pfid"+chTag]->Fill(ev.pf_id[nstart],wgt);
-
-        vector<tuple<int,int,float>> tracks; //PF track index, jet index, PF track pT
-        for(int i = 0; i < ev.npf; i++) {
-          if(ev.pf_j[i] != jetindex) continue;
-          tracks.push_back(std::make_tuple(i,ev.pf_j[i],ev.pf_pt[i]));
-        }
-        std::sort(tracks.begin(), tracks.end(), sortJetTuple);
-        if(debug) {
-          cout << "Printing PF tracks" << endl;
-          for(int i = 0; i < (int)tracks.size(); i++)
-            cout << "jetindex=" << get<1>(tracks.at(i)) << " pT=" << get<2>(tracks.at(i)) << endl;
-          cout << "Printing PF tracks DONE!" << endl;
-        }
+        std::vector<IdTrack> &tracks = allJetsVec[ij].getTracks();
 
         //J/Psi
         if(debug) cout << "starting J/Psi" << endl;
-        for(int i = 0; i < (int)tracks.size(); i++) {
-          int tk1 = get<0>(tracks.at(i));
-          //if(ev.pf_j[tk1] != jetindex) continue;
-          //allPlots["lep_pt"+chTag+"_csv"]->Fill(ev.pf_pt[i],wgt);
-          allPlots["pfid"+chTag+"_csv"]->Fill(ev.pf_id[tk1],wgt);
-          /*
-          //Track candidates
-          if(abs(ev.pf_id[i]) == 211)
-            allPlots["nbj"+chTag+"_csv"]->Fill(1,wgt);
-          */
-          if(abs(ev.pf_id[tk1]) != 13 && abs(ev.pf_id[tk1]) != 11) continue;
-          if(abs(ev.pf_id[tk1]) == 11) continue; //FIXME
-          allPlots["nlp"+chTag+"_csv"]->Fill(1,wgt);
-          allPlots["nlp"+chTag+"_csv"+"_no_weight"]->Fill(1,1);
-          allPlots["nlp_all_csv"]->Fill(1,wgt);
-          for(int j = 0; j < (int)tracks.size(); j++) {
-            int tk2 = get<0>(tracks.at(j));
-            if(ev.pf_j[tk2] != ev.pf_j[tk1]) continue;
-            /*
-            if(abs(ev.pf_id[i]) !== abs(ev.pf_id[i])) continue;
-            if(ev.pf_id[i]*ev.pf_id[j] > 0) continue; // e^+e^- or mu^+mu^-
-            */
-            if(abs(ev.pf_id[tk2]) == 211) {
-              allPlots["nbj"+chTag+"_jpsi"]->Fill(1,wgt);
-              allPlots["nbj"+chTag+"_jpsi"+"_no_weight"]->Fill(1,1);
-              allPlots["nbj_all_jpsi"]->Fill(1,wgt);
-              for(unsigned int it = 0; it < jetPt.size(); it++) {
-                if(get<1>(jetPt.at(it)) < 0.8) continue;
-                bpt = get<2>(jetPt.at(it)) > bpt ? get<2>(jetPt.at(it)) : bpt;
-              }
-              allPlots["bj_pt"+chTag+"_jpsi"]->Fill(bpt,wgt);
-              allPlots["bj_pt_all_jpsi"]->Fill(bpt,wgt);
+        float gMassMu(0.1057),gMassK(0.4937);//,gMassPi(0.1396);
+        std::vector<TLorentzVector> pfmuCands,kaonCands;
+        for(size_t itk = 0; itk < tracks.size(); itk++) {
+          if(abs(tracks[itk].second) == 13) {
+            TLorentzVector muP4;
+            muP4.SetPtEtaPhiM(tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassMu);
+            pfmuCands.push_back(muP4);
+          }
+          if(abs(tracks[itk].second) == 211) {
+            TLorentzVector kP4;
+            kP4.SetPtEtaPhiM( tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassK);
+            kaonCands.push_back(kP4);
+          }
+    
+          if(pfmuCands.size()>1) {
+            float mass12((pfmuCands[0] + pfmuCands[1]).M());
+            float mass123( kaonCands.size()>0 ? (pfmuCands[0]+pfmuCands[1]+kaonCands[0]).M() : -1);
+            allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
+	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
+            if(mass123 > 0) {
+              allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
+              allPlots["massJPsiK_all"]->Fill(mass123,wgt);
             }
-            if(ev.pf_id[tk1] != -ev.pf_id[tk2]) continue; // e^+e^- or mu^+mu^-
-
-            //allPlots["lep_pt"+chTag+"_jpsi"]->Fill(ev.pf_pt[j],wgt);
-            allPlots["pfid"+chTag+"_jpsi"]->Fill(ev.pf_id[tk1],wgt);
-            allPlots["pfid"+chTag+"_jpsi"]->Fill(ev.pf_id[tk2],wgt);
-            allPlots["nlp"+chTag+"_jpsi"]->Fill(1,wgt);
-            allPlots["nlp"+chTag+"_jpsi"+"_no_weight"]->Fill(1,1);
-            allPlots["nlp_all_jpsi"]->Fill(1,wgt);
-            allPlots["npf"+chTag+"_jpsi"]->Fill(ev.npf,wgt);
-            allPlots["npf"+chTag+"_jpsi"+"_no_weight"]->Fill(ev.npf,1);
-            allPlots["nevt"+chTag+"_jpsi"]->Fill(1,wgt);
-            allPlots["nevt_all_jpsi"]->Fill(1,wgt);
-            /*
-            for(int it = 0; it < ev.nl; it++)
-              lpt = ev.l_pt[it] > lpt ? ev.l_pt[it] : lpt;
-            */
-            lpt = leptons[0].Pt();
-            allPlots["lp_pt"+chTag+"_jpsi"]->Fill(lpt,wgt);
-            allPlots["lp_pt"+chTag+"_jpsi"+"_no_weight"]->Fill(lpt,1);
-            allPlots["lp_pt_all_jpsi"]->Fill(lpt,wgt);
-
-            float trackmass = gMassMu;
-            //if(abs(ev.pf_id[tk1]*ev.pf_id[tk2]) == 121) trackmass = 0.;
-            if(abs(ev.pf_id[tk1]) == 11) trackmass = 0.;
-            /*
-            cout << "Pt" << ev.pf_pt[tk1] << endl;
-            cout << "eta" << ev.pf_eta[tk1] << endl;
-            cout << "phi" << ev.pf_phi[tk1] << endl << endl;
-            cout << "Pt" << ev.pf_pt[tk2] << endl;
-            cout << "eta" << ev.pf_eta[tk2] << endl;
-            cout << "phi" << ev.pf_phi[tk2] << endl << endl;
-            */
-            p_track1.SetPtEtaPhiM(ev.pf_pt[tk1], ev.pf_eta[tk1], ev.pf_phi[tk1], trackmass);
-            /*
-            double pt4[4];
-            p_track1.GetXYZT(pt4);
-            cout << "(" << pt4[0] << "," << pt4[1] << "," << pt4[2] << "," << pt4[3] << ")" << endl;
-            */
-            p_track2.SetPtEtaPhiM(ev.pf_pt[tk2], ev.pf_eta[tk2], ev.pf_phi[tk2], trackmass);
-
-            float mass12 = (p_track1+p_track2).M();
-            //cout <<  mass12 << endl;
-            //if(mass12>2.5 && mass12<3.5) {
-              allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
-              allPlots["massJPsi"+chTag+"_no_weight"]->Fill(mass12,1);
-              allPlots["massJPsi_all"]->Fill(mass12,wgt);
-              allPlots["massJPsi_all_no_weight"]->Fill(mass12,1);
-            //}
           }
         }
         if(debug) cout << "J/Psi DONE" << endl;
         continue; //FIXME
 
         //D0 and D* 
+        /*
         if(debug) cout << "Starting D0 and D*" << endl;
         nstart = firstTrackIndex(jetindex,&tracks);
         if((tracks.size() - nstart) < 3) continue;
@@ -966,12 +820,6 @@ void RunTop(TString filename,
           for(int j = i+1; j < nstart+2; j++) {
             int tk1 = get<0>(tracks.at(i));
             int tk2 = get<0>(tracks.at(j));
-            /*
-            int tk1 = i;
-            int tk2 = j;
-            */
-            //if(ev.pf_j[tk1] != jetindex) continue;
-            //if(ev.pf_j[tk2] != jetindex) continue;
 
             allPlots["npf"+chTag+"_meson"]->Fill(ev.npf,wgt);
             allPlots["npf"+chTag+"_meson_no_weight"]->Fill(ev.npf,1);
@@ -1078,6 +926,7 @@ void RunTop(TString filename,
             }
           }
         if(debug) cout << "D0 and D* DONE" << endl;
+        */
       }
 
     }
