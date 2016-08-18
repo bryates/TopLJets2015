@@ -775,6 +775,7 @@ void RunTop(TString filename,
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
       sort(allJetsVec.begin(),    allJetsVec.end(),     sortJetsByCSV);
       for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
+
         if(ij > 1) continue;
         if(allJetsVec[ij].getCSV()<0.460) continue;
 
