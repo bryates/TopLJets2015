@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     else if(arg.find("--normTag")!=string::npos && i+1<argc)  { normTag=argv[i+1]; i++;}
     else if(arg.find("--era")!=string::npos && i+1<argc)      { era=argv[i+1]; i++;}
     else if(arg.find("--method")!=string::npos && i+1<argc)   { method=argv[i+1]; i++;}
-    else if(arg.find("--verbose")!=string::npos )             { verbose=true;  }
+    else if(arg.find("--verbose True")!=string::npos )        { verbose=true;  }
   }
 
   //open normalization file

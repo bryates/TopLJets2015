@@ -82,9 +82,9 @@ Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) 
 
 /*
 Jet::Jet(TLorentzVector p4, float csv, int idx) {
-  p4 = p4_;
-  csv = csv_;
-  idx = idx_;
+  p4_ = p4;
+  csv_ = csv;
+  idx_ = idx;
 }
 */
 

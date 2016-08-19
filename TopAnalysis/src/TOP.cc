@@ -291,7 +291,7 @@ void RunTop(TString filename,
 
       //select 1 good lepton
       //cout << "entering lepton selection" << endl;
-      std::vector<int> tightLeptonsNonIso, vetoLeptons;
+      //std::vector<int> tightLeptonsNonIso, vetoLeptons;
       std::vector<int> tightLeptons,looseLeptons;
       for(int il=0; il<ev.nl; il++)
 	{
@@ -399,7 +399,7 @@ void RunTop(TString filename,
       Bool_t isZ(false);//,isZPassingSIP3d(false);
       TLorentzVector l1p4,l2p4,dilp4;
       if(tightLeptons.size()==1)                                       lepIdx=tightLeptons[0];
-      else if (tightLeptons.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
+      //else if (tightLeptons.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
       else if(tightLeptons.size()==2)
 	{	  
           if(debug) cout << "di-lepton" << endl;
@@ -421,7 +421,7 @@ void RunTop(TString filename,
       if(lepIdx<0) continue;
       
       //no extra isolated leptons
-      if(vetoLeptons.size()>0) continue;
+      //if(vetoLeptons.size()>0) continue;
       
       //apply trigger requirement
       /*
@@ -481,8 +481,6 @@ void RunTop(TString filename,
 	  //jp4=updateJES(jp4,ev.j_rawsf[k],ev.j_area[k],ev.rho,ev.nvtx,jetCorr);
 
 	  //cross clean with respect to leptons 
-	  //if(jp4.DeltaR(lp4)<0.5) continue;
-	  //if(isZ && jp4.DeltaR(l2p4)<0.5)continue;
           bool overlapsWithLepton(false);
           for(size_t il=0; il<leptons.size(); il++) {
             if(jp4.DeltaR(leptons[il])>0.4) continue;
@@ -509,7 +507,7 @@ void RunTop(TString filename,
 	  resolvedJetP4.push_back(jp4);
 
 	  //require back-to-back configuration with Z
-	  //if(isZ && jp4.DeltaPhi(dilp4)<2.7) continue;
+	  if(isZ && jp4.DeltaPhi(dilp4)<2.7) continue; //FIXME
 
 	  // re-inforce kinematics cuts
 	  if(jp4.Pt()<30) continue;
@@ -701,7 +699,7 @@ void RunTop(TString filename,
         }
         if(isZ) continue;
         if(dilp4.M() < 10) continue; // && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) continue;
-        //if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() < 40) continue;
+        if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() < 40) continue; //FIXME
         doubleLep = true;
         allPlots["nj"+chTag]->Fill(lightJets.size(),wgt);
         allPlots["nbj"+chTag]->Fill(bJets.size(),wgt);

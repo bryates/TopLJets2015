@@ -59,7 +59,7 @@ def main():
     parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag  [%default]',                    default=None,       type='string')
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                                default=0,    type='int')
-    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,       action='store_true')
+    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=None,       action='store_true')
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -76,6 +76,7 @@ def main():
     #correct location of corrections to be used using cmsswBase, if needed
     cmsswBase=os.environ['CMSSW_BASE']
     if not cmsswBase in opt.era : opt.era=cmsswBase+'/src/TopLJets2015/TopAnalysis/data/'+opt.era
+    era=opt.era
 
     #process tasks
     task_list = []
