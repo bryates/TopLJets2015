@@ -325,11 +325,15 @@ void RunTop(TString filename,
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
-      bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0 || ((ev.elTrigger>>4)&0x1)!=0);
-      bool hasMMTrigger(((ev.muTrigger>>2)&0x3)!=0);
+      //bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0 || ((ev.elTrigger>>4)&0x1)!=0); //FIXME
+      bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0 || ((ev.elTrigger>>3)&0x1)!=0);
+      //bool hasMMTrigger(((ev.muTrigger>>2)&0x3)!=0); //FIXME
+      bool hasMMTrigger(((ev.muTrigger>>4)&0x3)!=0);
       bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);
-      bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
-      bool hasEleTrigger((ev.elTrigger & 0x1)!=0);
+      //bool hasMuTrigger((ev.muTrigger & 0x3)!=0); //FIXME
+      bool hasMuTrigger((ev.muTrigger & 0x3)!=0 || ((ev.muTrigger>>2) & 0x3)!=0);
+      //bool hasEleTrigger((ev.elTrigger & 0x1)!=0); //FIXME
+      bool hasEleTrigger((ev.elTrigger & 0x1)!=0 || (ev.elTrigger & 0x2)!=0);
       if(!ev.isData)
 	{	 
 	  hasMuTrigger=true;

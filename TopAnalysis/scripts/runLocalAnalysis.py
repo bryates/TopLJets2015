@@ -59,7 +59,7 @@ def main():
     parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag  [%default]',                    default=None,       type='string')
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                                default=0,    type='int')
-    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=None,       action='store_true')
+    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,       action='store_true')
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -129,7 +129,8 @@ def main():
     else:
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)        
         for method,inF,outF,channel,charge,flav,runSysts,era,tag,debug in task_list:
-            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --tag %s --flav %d --method %s --verbose %s' % (cmsswBase,inF,outF,charge,channel,era,tag,flav,method,debug)
+            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,tag,flav,method)
+            if debug : localrun += ' --verbose %s' % (debug)
             if runSysts : localRun += ' --runSysts'            
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)
             os.system(cmd)
