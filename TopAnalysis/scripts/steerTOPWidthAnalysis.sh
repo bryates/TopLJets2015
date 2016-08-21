@@ -55,6 +55,7 @@ case $WHAT in
     WWWSEL )
 	mkdir -p ${wwwdir}/sel
 	cp ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel
+	rm ${wwwdir}/sel/*no_weight*.{png,pdf}
 	cp test/index.php ${wwwdir}/sel
 	;;
     ANA )
