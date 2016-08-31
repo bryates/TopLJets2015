@@ -10,6 +10,7 @@
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/TOP-16-006.h"
 #include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
+#include "TopLJets2015/TopAnalysis/interface/LeptonEfficiencyWrapper.h"
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 
 #include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
@@ -83,6 +84,7 @@ void RunTop(TString filename,
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
+  EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
@@ -125,9 +127,11 @@ void RunTop(TString filename,
   //TString lepEffUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/leptonEfficiencies.root");
   //TString lepEffUrl(era+"/leptonEfficiencies.root");
   //FIXME
-  TString lepEffUrl(era+"/muonEfficiencies.root");
-  gSystem->ExpandPathName(lepEffUrl);
-  std::map<TString,TH2 *> lepEffH;
+  //TString lepEffUrl(era+"/muonEfficiencies.root");
+  //gSystem->ExpandPathName(lepEffUrl);
+  //std::map<TString,TH2 *> lepEffH;
+  LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era);
+  /*
   if(!ev.isData)
     {
       TFile *fIn=TFile::Open(lepEffUrl);
@@ -136,9 +140,11 @@ void RunTop(TString filename,
       for(auto& it : lepEffH) it.second->SetDirectory(0);
       fIn->Close();
     }
+  */
 
   //lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_76X_18Feb.txt_SF2D.root";
   //lepEffUrl=era+"/CutBasedID_TightWP_76X_18Feb.txt_SF2D.root";
+  /*
   lepEffUrl=era+"/electronEfficiencies.root";
   gSystem->ExpandPathName(lepEffUrl);
   if(!ev.isData)
@@ -148,6 +154,7 @@ void RunTop(TString filename,
       for(auto& it : lepEffH) it.second->SetDirectory(0);
       fIn->Close();
     }
+  */
 
   //B-TAG CALIBRATION
   //TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
@@ -279,10 +286,10 @@ void RunTop(TString filename,
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
 
       //account for pu weights and effect on normalization
-      float puWeight(1.0);
+      //float puWeight(1.0);
       if(!ev.isData) 
 	{
-	  puWeight=puWgtGr[0]->Eval(ev.putrue);  
+	  //puWeight=puWgtGr[0]->Eval(ev.putrue);  
           /*
 	  allPlots["puwgtctr"]->Fill(0.,1.0);
 	  allPlots["puwgtctr"]->Fill(1.,puWeight);
@@ -573,11 +580,29 @@ void RunTop(TString filename,
       
       //event weight
       //float wgt(1.0);
+      std::vector<float> puWgts(3,1.0),topPtWgts(2,1.0);
       if(debug) cout << "Lepton scale factors" << endl;
       if(!ev.isData)
 	{
 	  //update lepton selection scale factors, if found
-	  float lepTriggerSF(1.0),lepSelSF(1.0);
+	  //float lepTriggerSF(1.0),lepSelSF(1.0);
+          //FIXME
+
+	  //account for pu weights and effect on normalization
+	  //allPlots["puwgtctr"]->Fill(0.,1.0);
+	    for(size_t iwgt=0; iwgt<3; iwgt++)
+	      {
+	        puWgts[iwgt]=puWgtGr[iwgt]->Eval(ev.putrue);  
+	        allPlots["puwgtctr"]->Fill(iwgt+1,puWgts[iwgt]);
+	      }
+	  //trigger/id+iso efficiency corrections
+	  triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
+	  for(size_t il=0; il<2; il++) {
+	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(selLeptons[il],leptons[il].Pt(),leptons[il].Eta());
+	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
+	    lepSelCorrWgt.first *= selSF.first;
+	   }
+          /*
 	  for(UInt_t il=0; il<leptons.size(); il++)
 	    {
 	      TString prefix(abs(ev.l_id[il])==11 ? "e" : "m");
@@ -598,8 +623,10 @@ void RunTop(TString filename,
 		
 		}
 	    }
+          */
 	  
 	  //https://indico.cern.ch/event/539804/contributions/2196937/attachments/1291290/1923328/TopTriggers2016v2.pdf
+	  /*
 	  if(era.Contains("2015"))
 	    {
 	      if(chTag=="EE") lepTriggerSF=0.930;
@@ -612,10 +639,12 @@ void RunTop(TString filename,
               if(chTag=="MM") lepTriggerSF=0.87;
               if(chTag=="EM") lepTriggerSF=0.88;
 	    }
+          */
 
 	  //update nominal event weight
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
-	  wgt=lepTriggerSF*lepSelSF*puWeight*norm;
+	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
+	  wgt=triggerCorrWgt.first*triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
           //wgt=1.0;
 	}
