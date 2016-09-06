@@ -17,7 +17,6 @@ class Plot(object):
         self.name = name
         self.wideCanvas = True if 'ratevsrun' in self.name else False
         self.mc = {}
-        self.spimpose={}
         self.dataH = None
         self.data = None
         self._garbageList = []
@@ -25,7 +24,7 @@ class Plot(object):
         self.savelog = False
         self.ratiorange = (0.76,1.24)
 
-    def add(self, h, title, color, isData,spImpose):
+    def add(self, h, title, color, isData):
         h.SetTitle(title)
         if isData:
             try:
@@ -43,24 +42,17 @@ class Plot(object):
                 self._garbageList.append(h)
         else:
             try:
-                if spImpose : self.spimpose[title].Add(h)
-                else        : self.mc[title].Add(h)
+                self.mc[title].Add(h)
             except:
-                h.SetName('%s_%s' % (h.GetName(), title ) )
-                h.SetDirectory(0)
-                h.SetMarkerStyle(1)
-                h.SetMarkerColor(color)
-                if spImpose : 
-                    self.spimpose[title]=h
-                    h.SetFillStyle(0)
-                    h.SetLineColor(color)
-                    h.SetLineWidth(2)
-                else : 
-                    h.SetLineColor(ROOT.kBlack)
-                    h.SetLineWidth(1)
-                    h.SetFillColor(color)
-                    h.SetFillStyle(1001)
-                    self.mc[title]=h
+                self.mc[title]=h
+                self.mc[title].SetName('%s_%s' % (self.mc[title].GetName(), title ) )
+                self.mc[title].SetDirectory(0)
+                self.mc[title].SetMarkerStyle(1)
+                self.mc[title].SetMarkerColor(color)
+                self.mc[title].SetLineColor(ROOT.kBlack)
+                self.mc[title].SetLineWidth(1)
+                self.mc[title].SetFillColor(color)
+                self.mc[title].SetFillStyle(1001)
                 self._garbageList.append(h)
 
     def finalize(self):
@@ -73,8 +65,6 @@ class Plot(object):
             outDir.cd()
         for m in self.mc :
             self.mc[m].Write(self.mc[m].GetName(), ROOT.TObject.kOverwrite)
-        for m in self.spimpose:
-            self.spimpose[m].Write(self.spimpose[m].GetName(), ROOT.TObject.kOverwrite)
         if self.dataH :
             self.dataH.Write(self.dataH.GetName(), ROOT.TObject.kOverwrite)
         if self.data :
@@ -218,9 +208,6 @@ class Plot(object):
         if totalMC is not None   : 
             if noStack: stack.Draw('nostack same')
             else      : stack.Draw('hist same')
-        for m in self.spimpose:
-            self.spimpose[m].Draw('histsame')
-            leg.AddEntry(self.spimpose[m],self.spimpose[m].GetTitle(),'l')
         if self.data is not None : self.data.Draw('p')
 
 
@@ -389,13 +376,11 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
-    parser.add_option(      '--signalJson',  dest='signalJson',  help='signal json list',               default=None,              type='string')
     parser.add_option('-i', '--inDir',       dest='inDir' ,      help='input directory',                default=None,              type='string')
     parser.add_option('-o', '--outName',     dest='outName' ,    help='name of the output file',        default='plotter.root',    type='string')
     parser.add_option(      '--noStack',     dest='noStack',     help='don\'t stack distributions',     default=False,             action='store_true')
     parser.add_option(      '--saveLog',     dest='saveLog' ,    help='save log versions of the plots', default=False,             action='store_true')
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
-    parser.add_option(      '--onlyData',    dest='onlyData' ,   help='only plots containing data',     default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default=41.6,              type=float)
@@ -408,16 +393,6 @@ def main():
     jsonFile = open(opt.json,'r')
     samplesList=json.load(jsonFile,encoding='utf-8').items()
     jsonFile.close()
-
-    #read list of signal samples
-    signalSamplesList=None
-    try:
-        jsonFile = open(opt.signalJson,'r')
-        signalSamplesList=json.load(jsonFile,encoding='utf-8').items()
-        jsonFile.close()
-    except:
-        pass
-
 
     #proc SF
     procSF={}
@@ -436,60 +411,58 @@ def main():
     #read plots 
     plots={}
     report=''
-    for slist,isSignal in [ (samplesList,False),(signalSamplesList,True) ]:
-        if slist is None: continue
-        for tag,sample in slist: 
-            xsec=sample[0]
-            isData=sample[1]
-            doFlavourSplitting=sample[6]
-            subProcs=[(tag,sample[3],sample[4])]
-            if doFlavourSplitting:
-                subProcs=[]
-                for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
-                    subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+3*len(subProcs)))
-            for sp in subProcs:
+    for tag,sample in samplesList: 
+        xsec=sample[0]
+        isData=sample[1]
+        doFlavourSplitting=sample[6]
+        subProcs=[(tag,sample[3],sample[4])]
+        if doFlavourSplitting:
+            subProcs=[]
+            for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
+                subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+3*len(subProcs)))
+        for sp in subProcs:
 
-                fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
-                if not fIn : continue
+            fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
+            if not fIn : continue
 
-                #fix pileup weighting normalization
-                puNormSF=1
-                if opt.puNormSF and not isData:
-                    puCorrH=fIn.Get(opt.puNormSF)
-                    nonWgt=puCorrH.GetBinContent(1)
-                    wgt=puCorrH.GetBinContent(2)
-                    if wgt>0 :
-                        puNormSF=nonWgt/wgt
-                        if puNormSF>1.3 or puNormSF<0.7 : 
-                            puNormSF=1
-                            report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                        else :
-                            report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
+            #fix pileup weighting normalization
+            puNormSF=1
+            if opt.puNormSF and not isData:
+                puCorrH=fIn.Get(opt.puNormSF)
+                nonWgt=puCorrH.GetBinContent(1)
+                wgt=puCorrH.GetBinContent(2)
+                if wgt>0 :
+                    puNormSF=nonWgt/wgt
+                    if puNormSF>1.3 or puNormSF<0.7 : 
+                        puNormSF=1
+                        report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                    else :
+                        report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
 
-                try:
-                    for tkey in fIn.GetListOfKeys():
-                        key=tkey.GetName()
-                        keep=False if len(onlyList)>0 else True
-                        for pname in onlyList: 
-                            if pname in key: keep=True
-                        if not keep: continue
-                        obj=fIn.Get(key)
-                        if not obj.InheritsFrom('TH1') : continue
-                        if not isData and not '(data)' in sp[1]: 
-                            sfVal=1.0
-                            for procToScale in procSF:
-                                if sp[1]==procToScale:
-                                    #if procToScale in sp[1]:
-                                    for pcat in procSF[procToScale]:                                    
-                                        if pcat not in key: continue
-                                        sfVal=procSF[procToScale][pcat][0]
-                                     #print 'Applying scale factor for ',sp[1],key,sfVal
-                            obj.Scale(xsec*opt.lumi*puNormSF*sfVal)                    
-                        if opt.rebin>1:  obj.Rebin(opt.rebin)
-                        if not key in plots : plots[key]=Plot(key)
-                        plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],spImpose=isSignal)
-                except:
-                    pass
+            try:
+                for tkey in fIn.GetListOfKeys():
+                    key=tkey.GetName()
+                    keep=False if len(onlyList)>0 else True
+                    for pname in onlyList: 
+                        if pname in key: keep=True
+                    if not keep: continue
+                    obj=fIn.Get(key)
+                    if not obj.InheritsFrom('TH1') : continue
+                    if not isData and not '(data)' in sp[1]: 
+                        sfVal=1.0
+                        for procToScale in procSF:
+                            if sp[1]==procToScale:
+                            #if procToScale in sp[1]:
+                                for pcat in procSF[procToScale]:                                    
+                                    if pcat not in key: continue
+                                    sfVal=procSF[procToScale][pcat][0]
+                                #print 'Applying scale factor for ',sp[1],key,sfVal
+                        obj.Scale(xsec*opt.lumi*puNormSF*sfVal)                    
+                    if opt.rebin>1:  obj.Rebin(opt.rebin)
+                    if not key in plots : plots[key]=Plot(key)
+                    plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
+            except:
+                pass
 
     #show plots
     ROOT.gStyle.SetOptTitle(0)
@@ -500,10 +473,7 @@ def main():
     os.system('rm %s/%s'%(outDir,opt.outName))
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
-        skipPlot=False
-        if opt.onlyData and plots[p].dataH is None: skipPlot=True 
-        if opt.silent : skipPlot=True
-        if not skipPlot : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
         plots[p].appendTo('%s/%s'%(outDir,opt.outName))
         plots[p].reset()
 

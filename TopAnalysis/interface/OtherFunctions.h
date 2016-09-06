@@ -93,6 +93,7 @@ Jet::~Jet() {};
 void Jet::addTrack(TLorentzVector p4, int pfid) { trks_.push_back( IdTrack(p4,pfid) ); }
 TLorentzVector &Jet::getVec() { return p4_; }
 float &Jet::getCSV() { return csv_; }
+int &Jet::getJetIndex() { return idx_; }
 std::vector<IdTrack> &Jet::getTracks() { return trks_; }
 
 bool sortJetsByPt(Jet i, Jet j)  { return i.getVec().Pt() > j.getVec().Pt(); }

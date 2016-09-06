@@ -1,6 +1,5 @@
 {
-"MC13TeV_TTJets_dilpowheg"     : [88.26,   0, "/TTTo2L2Nu_13TeV-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/MINIAODSIM", "t#bar{t}",          920, true, false, 1],
-"MC13TeV_TTJets_ljpowheg"      : [365.45,  0, "/TTToSemiLeptonic_13TeV-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v2/MINIAODSIM", "t#bar{t}",          920, true, false, 1],
+"MC13TeV_TTJets_powheg" :               [832,    0, "/TT_TuneCUETP8M1_13TeV-powheg-pythia8/RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3_ext3-v1/MINIAODSIM", "t#bar{t}", 920, true,false,1],
 "MC13TeV_TTWToLNu" :    [0.2043, 0, "/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "t#bar{t}+V", 602,false,false,1],
 "MC13TeV_TTWToQQ" :     [0.4062, 0, "/TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "t#bar{t}+V", 602,false,false,1],
 "MC13TeV_TTZToQQ"   :   [0.5297, 0, "/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "t#bar{t}+V", 602, false,false,1 ],
@@ -10,8 +9,8 @@
 "MC13TeV_WWTo2L2Nu" :    [12.178, 0, "/WWTo2L2Nu_13TeV-powheg/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "Multiboson",        815, false, false, 1],
 "MC13TeV_WZ" :          [47.13,  0, "/WZ_TuneCUETP8M1_13TeV-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "Multiboson",        815, false, false, 1],
 "MC13TeV_WJets" :                       [61526.7, 0, "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "W", 797,false,false,1],
-"MC13TeV_SingleTbar_tW_nohad" :  [35.85,     0, "/ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM", "tW",        865, false, false, 1],
-"MC13TeV_SingleT_tW_nohad"    :  [35.85,     0, "/ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM", "tW",        865, false, false, 1],
+"MC13TeV_SingleTbar_tW_nohad" :  [35.6,     0, "/ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM", "tW",        865, false, false, 1],
+"MC13TeV_SingleT_tW_nohad"    :  [35.6,     0, "/ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM", "tW",        865, false, false, 1],
 "MC13TeV_SingleTbar_t" :   [26.38,    0, "/ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "t-ch",        864, false, false, 1],
 "MC13TeV_SingleT_t" :   [44.33,    0, "/ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v3/MINIAODSIM", "t-ch",        864, false, false, 1],
 "MC13TeV_DY50toInf" :      [6025.0,   0, "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv1-PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM", "DY",        41, false, false, 1],

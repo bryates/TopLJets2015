@@ -23,7 +23,8 @@ export LSB_JOB_REPORT_MAIL=N
 queue=8nh
 githash=8db9ad6
 #lumi=3977.28
-lumi=12900.0
+lumi=12868.66
+lumiUnc=0.062
 eosdir=/store/cmst3/user/psilva/LJets2016/${githash}
 case $ERA in
     era2015)
@@ -49,13 +50,18 @@ case $WHAT in
 	./scripts/mergeOutputs.py ${outdir} True;	
 	;;
     PLOTSEL )
-	#python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi};	
-        python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
+	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi} --saveLog;# --mcUnc ${lumiUnc};	
+        #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )
 	mkdir -p ${wwwdir}/sel
 	cp ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel
 	rm ${wwwdir}/sel/*no_weight*.{png,pdf}
+	mv ${wwwdir}/sel/*_mm*.{png,pdf} ${wwwdir}/sel/mumu/
+	mv ${wwwdir}/sel/*_m*.{png,pdf} ${wwwdir}/sel/mu/
+	mv ${wwwdir}/sel/*_ee*.{png,pdf} ${wwwdir}/sel/ee/
+	mv ${wwwdir}/sel/*_em*.{png,pdf} ${wwwdir}/sel/em/
+	mv ${wwwdir}/sel/*_e*.{png,pdf} ${wwwdir}/sel/e/
 	cp test/index.php ${wwwdir}/sel
 	;;
     ANA )

@@ -84,7 +84,6 @@ void RunTop(TString filename,
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
-  EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
@@ -217,6 +216,7 @@ void RunTop(TString filename,
   
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
+  allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
   //addGenScanCounters(allPlots,f); FIXME
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_jpsi", "_csv", "_meson" };
@@ -244,9 +244,6 @@ void RunTop(TString filename,
 /*
     allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events" ,20,2.,4.);
     allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{jj};Events" ,20,1.,3.);
-    allPlots["masslep"+tag+cut+weight]     = new TH1F("masslep"+tag+cut+weight,";M_{K#pi};Events" ,20,0.,10.);
-    allPlots["massmu"+tag+cut+weight]     = new TH1F("massmu"+tag+cut+weight,";M_{K#pi};Events" ,20,0.,10.);
-    allPlots["masse"+tag+cut+weight]     = new TH1F("masse"+tag+cut+weight,";M_{K#pi};Events" ,20,0.,10.);
     allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K#pi};Events" ,20,1.,3.);
     allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K#pi};Events" ,20,1.,3.);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events" ,20,0.,20.);
@@ -257,10 +254,10 @@ void RunTop(TString filename,
     allPlots["massJPsiK"+tag+cut+weight]     = new TH1F("massJPsiK"+tag+cut+weight,";M_{llk};Events / 15 MeV" ,100,4.5,6);
     allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{D^{0}};Events / 0.01 GeV" ,30,1.7,2.0);
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 0.01" ,30,1.7,2.0);
-     allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 0.01 GeV" ,20,1.7,2.0);
+     allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 0.01 GeV" ,30,1.7,2.0);
     allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 0.01 GeV" ,30,1.7,2.0);
-    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K#pi};Events / 0.05 GeV" ,6,1.7,2.);
-    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K#pi};Events / 0.05 GeV" ,6,1.7,2.);
+    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^-#pi^+#pi^+}-M_{K^-#pi^+};Events / 0.35 MeV" ,100,0.135,0.17);
+    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^-#pi^+#pi^+}-M_{K^-#pi^+};Events / 0.35 MeV" ,100,0.135,0.17);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 0.1 GeV / 0.01" ,30,1.7,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 10 GeV", 15, 0,150);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
@@ -581,6 +578,7 @@ void RunTop(TString filename,
       //event weight
       //float wgt(1.0);
       std::vector<float> puWgts(3,1.0),topPtWgts(2,1.0);
+      EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
       if(debug) cout << "Lepton scale factors" << endl;
       if(!ev.isData)
 	{
@@ -589,18 +587,25 @@ void RunTop(TString filename,
           //FIXME
 
 	  //account for pu weights and effect on normalization
-	  //allPlots["puwgtctr"]->Fill(0.,1.0);
+	  allPlots["puwgtctr"]->Fill(0.,1.0);
+	  if(debug) cout << "getting puWgts" << endl;
 	    for(size_t iwgt=0; iwgt<3; iwgt++)
 	      {
 	        puWgts[iwgt]=puWgtGr[iwgt]->Eval(ev.putrue);  
 	        allPlots["puwgtctr"]->Fill(iwgt+1,puWgts[iwgt]);
 	      }
+	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
+          if(debug) cout << "calling trigger function" << endl;
 	  triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
-	  for(size_t il=0; il<2; il++) {
+          if(debug) cout << "calling trigger function DONE!" << endl;
+	  for(size_t il=0; il<selLeptons.size(); il++) {
 	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(selLeptons[il],leptons[il].Pt(),leptons[il].Eta());
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
+            if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
+            if(debug) cout << "selSF=" << selSF.first << endl;
 	    lepSelCorrWgt.first *= selSF.first;
+            //if(lepSelCorrWgt.first < 0.7) lepSelCorrWgt.first = selSF.first;
 	   }
           /*
 	  for(UInt_t il=0; il<leptons.size(); il++)
@@ -644,11 +649,13 @@ void RunTop(TString filename,
 	  //update nominal event weight
 	  float norm( normH ? normH->GetBinContent(1) : 1.0);
 	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
-	  wgt=triggerCorrWgt.first*triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
+	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
+          if(debug) cout << "weight=" << wgt << endl;
+          if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
           //wgt=1.0;
 	}
-      if(debug) cout << "Lepton scale factors" << endl;
+      if(debug) cout << "Lepton scale factors DONE!" << endl;
 
       //sort by Pt
       sort(bJetsVec.begin(),    bJetsVec.end(),   sortJetsByPt);
@@ -836,19 +843,22 @@ void RunTop(TString filename,
           }
         }
         if(debug) cout << "J/Psi DONE" << endl;
-        continue; //FIXME
+        //continue; //FIXME
 
         //D0 and D* 
-        /*
         if(debug) cout << "Starting D0 and D*" << endl;
-        nstart = firstTrackIndex(jetindex,&tracks);
-        if((tracks.size() - nstart) < 3) continue;
-        for(int i = nstart; i < nstart+2; i++)
-        //for(int i = 0; i < 3; i++)
-          for(int j = i+1; j < nstart+2; j++) {
-            int tk1 = get<0>(tracks.at(i));
-            int tk2 = get<0>(tracks.at(j));
+        //nstart = firstTrackIndex(jetindex,&tracks);
+        //if((tracks.size() - nstart) < 3) continue;
+        int jetindex = allJetsVec[ij].getJetIndex();
+        if(tracks.size() < 3) continue;
+        for(size_t i = 0; i < 3; i++)
+          for(size_t j = i+1; j < i+2; j++) {
+            /*
+            int tk1 = get<2>(tracks.at(i));
+            int tk2 = get<2>(tracks.at(j));
+            */
 
+            /*
             allPlots["npf"+chTag+"_meson"]->Fill(ev.npf,wgt);
             allPlots["npf"+chTag+"_meson_no_weight"]->Fill(ev.npf,1);
             for(unsigned int it = 0; it < jetPt.size(); it++)
@@ -858,73 +868,85 @@ void RunTop(TString filename,
             allPlots["pfid"+chTag+"_meson"]->Fill(ev.pf_id[tk1],wgt);
             allPlots["nbj"+chTag+"_meson"]->Fill(1,wgt);
             allPlots["nbj"+chTag+"_meson_no_weight"]->Fill(1,1);
+            */
 
             //opposite sign
-            if(ev.pf_id[tk1]*ev.pf_id[tk2] != -211*211) continue;
+            //if(ev.pf_id[tk1]*ev.pf_id[tk2] != -211*211) continue;
+            if(tracks[i].second*tracks[j].second != -211*211) continue;
 
             const float gMassK  = 0.4937;
             const float gMassPi = 0.1396;
           
-            p_track1.SetPtEtaPhiM(ev.pf_pt[tk1], ev.pf_eta[tk1], ev.pf_phi[tk1], gMassPi);
-            p_track2.SetPtEtaPhiM(ev.pf_pt[tk2], ev.pf_eta[tk2], ev.pf_phi[tk2], gMassK);
+            //p_track1.SetPtEtaPhiM(ev.pf_pt[tk1], ev.pf_eta[tk1], ev.pf_phi[tk1], gMassPi);
+            //p_track2.SetPtEtaPhiM(ev.pf_pt[tk2], ev.pf_eta[tk2], ev.pf_phi[tk2], gMassK);
+            TLorentzVector p_track1, p_track2;
+            p_track1.SetPtEtaPhiM(tracks[i].first.Pt(), tracks[i].first.Eta(), tracks[i].first.Phi(), gMassPi);
+            p_track2.SetPtEtaPhiM(tracks[j].first.Pt(), tracks[j].first.Eta(), tracks[j].first.Phi(), gMassK);
+            if(debug) cout << tracks[i].first.Pt() << " " << tracks[i].first.Eta() << " " << tracks[i].first.Phi() << " " << gMassPi << endl;
+            if(debug) cout << tracks[j].first.Pt() << " " << tracks[j].first.Eta() << " " << tracks[j].first.Phi() << " " << gMassK << endl << endl;
             float mass12 = (p_track1+p_track2).M();
+            if(debug) cout << mass12 << endl;
             allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
             allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2), 1);
 
-            //if (mass12>1.65 && mass12<2.0)
-            if (mass12>1.7 && mass12<2.0) {
+            if (mass12>1.65 && mass12<2.0) {
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
+              allPlots["massD0_all"]->Fill(mass12,wgt);
               allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,1);
             }
 
             //looking for lepton
             if(debug) cout << "third lepton" << endl;
             //for(int tk3 = 0; tk3 < ev.npf; tk3++)
-            for(int k = 0; k < (int)tracks.size(); k++) {
-              int tk3 = get<0>(tracks.at(k));
+            for(size_t k = 0; k < tracks.size(); k++) {
+              //int tk3 = get<2>(tracks.at(k));
               //if(ev.pf_j[tk3] != jetindex) continue;
-              if(tk3 == tk1) continue;
-              if(tk3 == tk2) continue;
+              //if(tk3 == tk1) continue;
+              //if(tk3 == tk2) continue;
+              if(k == i) continue;
+              if(k == j) continue;
               if(debug) cout << "third lepton possible" << endl;
             
-              if(abs(ev.pf_id[tk3]) != 13 && abs(ev.pf_id[tk3]) != 11) continue;
+              if(abs(tracks[k].second) != 13 && abs(tracks[k].second) != 11) continue;
               if(debug) cout << "third lepton found" << endl;
 
-              if(ev.pf_id[tk2]/abs(ev.pf_id[tk2]) == -ev.pf_id[tk3]/abs(ev.pf_id[tk3])) {
+              if(tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second)) {
                 //Kaon and lepton have same charge
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
-                allPlots["masslep"+chTag]->Fill(mass12,wgt);
-                allPlots["masslep"+chTag+"_no_weight"]->Fill(mass12,1);
+                allPlots["massD0_lep"+chTag]->Fill(mass12,wgt);
+                allPlots["massD0_lep"+chTag+"_no_weight"]->Fill(mass12,1);
 
-                if(abs(ev.pf_id[tk3]) == 13)
-                  allPlots["massmu"+chTag]->Fill(mass12,wgt);
-                if(abs(ev.pf_id[tk3]) == 11)
-                  allPlots["masse"+chTag]->Fill(mass12,wgt);
-                if(abs(ev.pf_id[tk3]) == 13)
-                  allPlots["massmu"+chTag+"_no_weight"]->Fill(mass12,1);
-                if(abs(ev.pf_id[tk3]) == 11)
-                  allPlots["masse"+chTag+"_no_weight"]->Fill(mass12,1);
+                if(abs(tracks[k].second) == 13)
+                  allPlots["massD0_mu"+chTag]->Fill(mass12,wgt);
+                if(abs(tracks[k].second) == 11)
+                  allPlots["massD0_e"+chTag]->Fill(mass12,wgt);
+                if(abs(tracks[k].second) == 13)
+                  allPlots["massD0_mu"+chTag+"_no_weight"]->Fill(mass12,1);
+                if(abs(tracks[k].second) == 11)
+                  allPlots["massD0_e"+chTag+"_no_weight"]->Fill(mass12,1);
 
               }
             }
             //looking for pion
             if(debug) cout << "D*->pi+D0" << endl;
             //for(int tk3 = 0; tk3 < ev.npf; tk3++)
-            for(int k = 0; k < (int)tracks.size(); k++) {
-              int tk3 = get<0>(tracks.at(k));
+            for(size_t k = 0; k < tracks.size(); k++) {
+              //int tk3 = get<2>(tracks.at(k));
               //if(ev.pf_j[tk3] != jetindex) continue;
-              if(tk3 == tk1) continue;
-              if(tk3 == tk2) continue;
+              //if(tk3 == tk1) continue;
+              //if(tk3 == tk2) continue;
+              if(k == i) continue;
+              if(k == j) continue;
 
-              if(abs(ev.pf_id[tk3]) != 211) continue;
+              if(abs(tracks[k].second) != 211) continue;
               if(debug) cout << "Pion found" << endl;
 
               TLorentzVector p_track3, p_cand;
-              p_track3.SetPtEtaPhiM(ev.pf_pt[tk3], ev.pf_eta[tk3], ev.pf_phi[tk3], gMassPi);
+              p_track3.SetPtEtaPhiM(tracks[k].first.Pt(), tracks[k].first.Eta(), tracks[k].first.Phi(), gMassK);
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
               allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),1);
-              if( ev.pf_id[tk2]/abs(ev.pf_id[tk2]) == -ev.pf_id[tk3]/abs(ev.pf_id[tk3]) ) {
+              if( tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second) ) {
                 // Kaon and pion have opposite charges
                 // I.e. correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
@@ -954,7 +976,6 @@ void RunTop(TString filename,
             }
           }
         if(debug) cout << "D0 and D* DONE" << endl;
-        */
       }
 
     }
