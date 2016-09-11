@@ -55,14 +55,21 @@ case $WHAT in
 	;;
     WWWSEL )
 	mkdir -p ${wwwdir}/sel
-	cp ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel
+	cp -p  ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel
 	rm ${wwwdir}/sel/*no_weight*.{png,pdf}
-	mv ${wwwdir}/sel/*_mm*.{png,pdf} ${wwwdir}/sel/mumu/
-	mv ${wwwdir}/sel/*_m*.{png,pdf} ${wwwdir}/sel/mu/
+	mv ${wwwdir}/sel/*_log.{png,pdf} ${wwwdir}/sel/log/
 	mv ${wwwdir}/sel/*_ee*.{png,pdf} ${wwwdir}/sel/ee/
 	mv ${wwwdir}/sel/*_em*.{png,pdf} ${wwwdir}/sel/em/
 	mv ${wwwdir}/sel/*_e*.{png,pdf} ${wwwdir}/sel/e/
-	cp test/index.php ${wwwdir}/sel
+	mv ${wwwdir}/sel/*_mm*.{png,pdf} ${wwwdir}/sel/mumu/
+	mv ${wwwdir}/sel/*_m*.{png,pdf} ${wwwdir}/sel/mu/
+	cp -p test/index.php ${wwwdir}/sel
+	cp -p test/index.php ${wwwdir}/sel/log/
+	cp -p test/index.php ${wwwdir}/sel/ee/
+	cp -p test/index.php ${wwwdir}/sel/e/
+	cp -p test/index.php ${wwwdir}/sel/em/
+	cp -p test/index.php ${wwwdir}/sel/mumu/
+	cp -p test/index.php ${wwwdir}/sel/mu/
 	;;
     ANA )
 	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};
