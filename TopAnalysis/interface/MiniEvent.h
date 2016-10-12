@@ -49,7 +49,7 @@ struct MiniEvent_t
   //PF candidates
   Int_t npf,pf_j[5000];
   Int_t pf_id[5000],pf_c[5000];
-  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000];
+  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000];
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);

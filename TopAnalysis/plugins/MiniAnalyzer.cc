@@ -672,6 +672,11 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.pf_m[ev_.npf]        = pf->mass();
       ev_.pf_puppiWgt[ev_.npf] = pf->puppiWeight();      
       ev_.npf++;
+
+      ev_.pf_dxy[ev_.npf]      = pf->dxy();
+      ev_.pf_dxyE[ev_.npf]     = pf->dxyError();
+      ev_.pf_dz[ev_.npf]       = pf->dz();
+      ev_.pf_dzE[ev_.npf]      = pf->dzError();
     }
 }
 

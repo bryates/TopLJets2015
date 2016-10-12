@@ -103,6 +103,10 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_phi",      ev.pf_phi,      "pf_phi[npf]/F");
   t->Branch("pf_m",        ev.pf_m,        "pf_m[npf]/F");
   t->Branch("pf_puppiWgt", ev.pf_puppiWgt, "pf_puppiWgt[npf]/F");
+  t->Branch("pf_dxy",      ev.pf_dxy,      "pf_dxy[npf]/F");
+  t->Branch("pf_dxyE",     ev.pf_dxyE,     "pf_dxyE[npf]/F");
+  t->Branch("pf_dz",       ev.pf_dz,       "pf_dz[npf]/F");
+  t->Branch("pf_dzE",      ev.pf_dzE,      "pf_dzE[npf]/F");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
