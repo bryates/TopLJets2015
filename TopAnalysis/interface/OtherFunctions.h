@@ -91,6 +91,7 @@ float pfTrack::getDxy() { return dxy_ ; }
 float pfTrack::getDxyE() { return dxyE_ ; }
 float pfTrack::getDz() { return dz_ ; }
 float pfTrack::getDzE() { return dzE_ ; }
+TLorentzVector &pfTrack::getVec() { return vec_ ; }
 void pfTrack::setPfid(int pfid) { pfid_ = pfid ; }
 
 //typedef std::pair<TLorentzVector,int> IdTrack;

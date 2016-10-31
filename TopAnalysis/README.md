@@ -8,21 +8,34 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_8_0_8_patch1
-cd CMSSW_8_0_8_patch1/src
+cmsrel CMSSW_8_0_11 
+cd CMSSW_8_0_11/src 
 cmsenv
+git cms-init
+#EGM smearer
+git remote add -f -t ecal_smear_fix_80X emanueledimarco https://github.com/emanueledimarco/cmssw.git
+git cms-addpkg EgammaAnalysis/ElectronTools
+git checkout -b from-52f192a 52f192a
+cd EgammaAnalysis/ElectronTools/data
+git clone -b ICHEP2016_v2 https://github.com/ECALELFS/ScalesSmearings.git
+cd -
+#Pseudo-top producer with Markus fix
+git cms-addpkg  TopQuarkAnalysis/TopEventProducers
+https://raw.githubusercontent.com/intrepid42/cmssw/4336e8182cab054c8383d7b4eb6622c046952711/TopQuarkAnalysis/TopEventProducers/src/PseudoTopProducer.cc
+#analysis code
+cd-
 git clone git@github.com:pfs/TopLJets2015.git
 cd TopLJets2015/TopAnalysis
 git checkout 80x_dev
 scram b -j 8
-
 ```
 
 ## Running ntuple creation
 First time create a symbolic link to the jet energy corrections files
 ```
-ln -s data/era2016/Spring16_25nsV3_DATA.db
-ln -s data/era2016/Spring16_25nsV3_MC.db
+ln -s data/era2016/Spring16_25nsV6_DATA.db
+ln -s data/era2016/Spring16_25nsV6_MC.db
+ln -s data/era2016/RoccoR_13tev.txt 
 ```
 To run locally the ntuplizer, for testing purposes
 ```
@@ -39,7 +52,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/psilva/f423545 -o /store/cmst3/user/psilva/LJets2016/f423545
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/91504d7 -o /store/user/byates/LJets2016/8db9ad6
 ```
 
 ## Preparing the analysis 
@@ -51,12 +64,12 @@ crab report grid/crab_Data13TeV_DoubleMuon_2016B
 ``` 
 Then you can merge the json files for the same dataset to get the full list of run/lumi sections to analyse
 ```
-mergeJSON.py grid/crab_Data13TeV_DoubleMuon_2016B/results/processedLumis.json grid/crab_Data13TeV_DoubleMuon_2015B/results/processedLumis.json --output data/era2016/Data13TeV_DoubleMuon_lumis.json
+mergeJSON.py grid/crab_Data13TeV_DoubleMuon_2016B/results/processedLumis.json grid/crab_Data13TeV_DoubleMuon_2015C/results/processedLumis.json grid/crab_Data13TeV_DoubleMuon_2015D/results/processedLumis.json --output data/era2016/Data13TeV_DoubleMuon_lumis.json
 ```
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.0.3/bin:$PATH
-brilcalc lumi -b "STABLE BEAMS" -i data/era2016/Data13TeV_DoubleMuon_lumis.json
+brilcalc lumi --normtag /afs/cern.ch/user/l/lumipro/public/normtag_file/normtag_DATACERT.json -i data/era2016/Data13TeV_DoubleMuon_lumis.json
 ```
 Use the table which is printed out to update the "lumiPerRun" method in ReadTree.cc.
 That will be used to monitor the event yields per run in order to identify outlier runs.
@@ -66,11 +79,14 @@ python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_DoubleMuon_l
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
-python scripts/saveExpectedBtagEff.py -i /store/cmst3/user/psilva/LJets2016/f423545/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root;
+for i in "_powheg" "_herwig" "_scaledown" "_scaleup"; do
+    python scripts/saveExpectedBtagEff.py -i /store/user/byates/LJets2016/8db9ad6/MC13TeV_TTJets${i} -o data/era2016/expTageff${i}.root;
+done
+mv data/era2016/expTageff_powheg.root data/era2016/expTageff.root
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```
-python scripts/produceNormalizationCache.py -i /store/cmst3/user/psilva/LJets2016/f423545 -o data/era2016/genweights.root
+python scripts/produceNormalizationCache.py -i /store/user/byates/LJets2016/8db9ad6 -o data/era2016/genweights.root
 ```
 You're now ready to start locally the analysis.
 
@@ -88,7 +104,7 @@ If "-q queue_name" is appended the jobs are submitted to the batch system instea
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
 If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
 ```
-python scripts/runLocalAnalysis.py -i /store/cmst3/user/psilva/LJets2015/7e62835 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
+python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 ```
 If you want to suppress the mails sent automatically after job completion please do
 ```
@@ -100,7 +116,7 @@ before submitting the jobs to the batch. After the jobs have run you can merge t
 ```
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/   -j data/era2016/samples.json  -l 3977.28
+python scripts/plotter.py -i analysis_muplus/   -j data/era2016/samples.json  -l 12870
 ```
 After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
 The script will also produce the QCD templates using the data from the sideband region. It runs as

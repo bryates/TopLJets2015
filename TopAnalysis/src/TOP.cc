@@ -269,8 +269,8 @@ void RunTop(TString filename,
     allPlots["pf_dz"+tag+cut+weight] = new TH1F("pf_dz"+tag+cut+weight,";d_{z};Events / 10 #mum", 100, 0, 0.1);
     allPlots["pf_dxyE"+tag+cut+weight] = new TH1F("pf_dxyE"+tag+cut+weight,";#sigma(d_{xy});Events / 10 #mum", 100, 0, 0.1);
     allPlots["pf_dzE"+tag+cut+weight] = new TH1F("pf_dzE"+tag+cut+weight,";#sigma(d_{z});Events / 10 #mum", 100, 0, 0.1);
-    allPlots["pf_dxy_sig"+tag+cut+weight] = new TH1F("pf_dxy_sig"+tag+cut+weight,";d_{xy};Events / 10 #mum", 100, 0, 0.1);
-    allPlots["pf_dz_sig"+tag+cut+weight] = new TH1F("pf_dz_sig"+tag+cut+weight,";d_{z};Events / 10 #mum", 100, 0, 0.1);
+    allPlots["pf_dxy_sig"+tag+cut+weight] = new TH1F("pf_dxy_significance"+tag+cut+weight,";d_{xy};Events / 0.3", 100, 0, 30);
+    allPlots["pf_dz_sig"+tag+cut+weight] = new TH1F("pf_dz_significance"+tag+cut+weight,";d_{z};Events / 0.3", 100, 0, 30);
 
   }
   }
@@ -839,34 +839,41 @@ void RunTop(TString filename,
         //J/Psi
         if(debug) cout << "starting J/Psi" << endl;
         const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
-        std::vector<TLorentzVector> pfmuCands,kaonCands;
+        //std::vector<TLorentzVector> pfmuCands,kaonCands;
+        std::vector<pfTrack> pfmuCands,kaonCands;
         for(size_t itk = 0; itk < tracks.size(); itk++) {
           if(abs(tracks[itk].second) == 13) {
             TLorentzVector muP4;
             muP4.SetPtEtaPhiM(tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassMu);
-            pfmuCands.push_back(muP4);
+            pfTrack pfmu(muP4, ev.pf_dxy[itk], ev.pf_dxyE[itk], ev.pf_dz[itk], ev.pf_dzE[itk], ev.pf_id[itk]);
+            //pfmuCands.push_back(muP4);
+            pfmuCands.push_back(pfmu);
           }
           if(abs(tracks[itk].second) == 211) {
             TLorentzVector kP4;
             kP4.SetPtEtaPhiM( tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassK);
-            kaonCands.push_back(kP4);
+            pfTrack pfk(kP4, ev.pf_dxy[itk], ev.pf_dxyE[itk], ev.pf_dz[itk], ev.pf_dzE[itk], ev.pf_id[itk]);
+            //kaonCands.push_back(kP4);
+            kaonCands.push_back(pfk);
           }
         }
     
           if(pfmuCands.size()>1) {
-            float mass12((pfmuCands[0] + pfmuCands[1]).M());
-            float mass123( kaonCands.size()>0 ? (pfmuCands[0]+pfmuCands[1]+kaonCands[0]).M() : -1);
+            float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
+            float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);
             allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
             for(int itk = 0; itk < 2; itk++) {
               if(mass12<2.9 || mass12>3.3) continue;
-              allPlots["pf_dxy"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDxy()),wgt);
-              allPlots["pf_dz"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDz()),wgt);
-              allPlots["pf_dxyE"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDxyE()),wgt);
-              allPlots["pf_dzE"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDzE()),wgt);
-              allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDz())/abs(tracks[itk].first.getDzE()),wgt);
-              allPlots["pf_dxy_sig"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDxy())/abs(tracks[itk].first.getDxyE()),wgt);
-              allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDz())/abs(tracks[itk].first.getDzE()),wgt);
+              for(int i = 0; i < 2; i++) {
+                allPlots["pf_dxy"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy()),wgt);
+                allPlots["pf_dz"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz()),wgt);
+                allPlots["pf_dxyE"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
+                allPlots["pf_dzE"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDzE()),wgt);
+                allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+                allPlots["pf_dxy_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
+                allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+              }
             }
 
             if(filename.Contains("_WJets"))
@@ -955,7 +962,7 @@ void RunTop(TString filename,
               if(debug) cout << "third lepton found" << endl;
 
               if(tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second)) {
-                //Kaon and lepton have opposite charge
+                //Kaon and lepton have same charge
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
                 allPlots["massD0_lep"+chTag]->Fill(mass12,wgt);
