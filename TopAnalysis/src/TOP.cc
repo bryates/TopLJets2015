@@ -265,6 +265,12 @@ void RunTop(TString filename,
     allPlots["pflp_pt"+tag+cut+weight] = new TH1F("pflp_pt"+tag+cut+weight,";PF lepton P_{T} [GeV];Events / 0.2 GeV", 15, 0,3);
     allPlots["massZ"+tag+cut+weight]     = new TH1F("massZ_control"+tag+cut+weight,";M_{ll};Events / 1.0 GeV" ,30,81,111);
     allPlots["nevt"+tag+cut+weight]     = new TH1F("nevt"+tag+cut+weight,";N_{events};Events" ,1,1.,2.);
+    allPlots["pf_dxy"+tag+cut+weight] = new TH1F("pf_dxy"+tag+cut+weight,";d_{xy};Events / 10 #mum", 100, 0, 0.1);
+    allPlots["pf_dz"+tag+cut+weight] = new TH1F("pf_dz"+tag+cut+weight,";d_{z};Events / 10 #mum", 100, 0, 0.1);
+    allPlots["pf_dxyE"+tag+cut+weight] = new TH1F("pf_dxyE"+tag+cut+weight,";#sigma(d_{xy});Events / 10 #mum", 100, 0, 0.1);
+    allPlots["pf_dzE"+tag+cut+weight] = new TH1F("pf_dzE"+tag+cut+weight,";#sigma(d_{z});Events / 10 #mum", 100, 0, 0.1);
+    allPlots["pf_dxy_sig"+tag+cut+weight] = new TH1F("pf_dxy_sig"+tag+cut+weight,";d_{xy};Events / 10 #mum", 100, 0, 0.1);
+    allPlots["pf_dz_sig"+tag+cut+weight] = new TH1F("pf_dz_sig"+tag+cut+weight,";d_{z};Events / 10 #mum", 100, 0, 0.1);
 
   }
   }
@@ -565,7 +571,13 @@ void RunTop(TString filename,
 	    if(ev.pf_c[ipf]==0) continue;
 	    TLorentzVector tkP4(0,0,0,0);
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
-	    tmpj.addTrack(tkP4,ev.pf_id[ipf]);
+            pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf]);
+	    //tmpj.addTrack(tkP4,ev.pf_id[ipf]);
+	    tmpj.addTrack(pftk,ev.pf_id[ipf]);
+	    tmpj.addTrack(ipf);
+	    tmpj.addDxy(ev.pf_dxy[ipf], ev.pf_dxyE[ipf]);
+	    tmpj.addDz(ev.pf_dz[ipf], ev.pf_dzE[ipf]);
+            allPlots["pf_dxy_all"]->Fill(ev.pf_dxy[ipf],wgt);
 	  }
 	  tmpj.sortTracksByPt();
 
@@ -839,22 +851,33 @@ void RunTop(TString filename,
             kP4.SetPtEtaPhiM( tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassK);
             kaonCands.push_back(kP4);
           }
+        }
     
           if(pfmuCands.size()>1) {
             float mass12((pfmuCands[0] + pfmuCands[1]).M());
             float mass123( kaonCands.size()>0 ? (pfmuCands[0]+pfmuCands[1]+kaonCands[0]).M() : -1);
             allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
+            for(int itk = 0; itk < 2; itk++) {
+              if(mass12<2.9 || mass12>3.3) continue;
+              allPlots["pf_dxy"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDxy()),wgt);
+              allPlots["pf_dz"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDz()),wgt);
+              allPlots["pf_dxyE"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDxyE()),wgt);
+              allPlots["pf_dzE"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDzE()),wgt);
+              allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDz())/abs(tracks[itk].first.getDzE()),wgt);
+              allPlots["pf_dxy_sig"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDxy())/abs(tracks[itk].first.getDxyE()),wgt);
+              allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(tracks[itk].first.getDz())/abs(tracks[itk].first.getDzE()),wgt);
+            }
+
             if(filename.Contains("_WJets"))
               cout << endl << mass12 << " " << wgt << endl;
-            pfmuCands.clear();
+            //pfmuCands.clear();
             if(mass123 > 0) {
               allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
               allPlots["massJPsiK_all"]->Fill(mass123,wgt);
-              kaonCands.clear();
+              //kaonCands.clear();
             }
           }
-        }
         if(debug) cout << "J/Psi DONE" << endl;
         //continue; //FIXME
 
@@ -864,7 +887,7 @@ void RunTop(TString filename,
         //if((tracks.size() - nstart) < 3) continue;
         int jetindex = allJetsVec[ij].getJetIndex();
         if(tracks.size() < 3) continue;
-        size_t tmax = 3;
+        size_t tmax = 4;
         tmax = tracks.size() >= tmax ? tmax : tracks.size();
         for(size_t i = 0; i < tmax; i++)
           //for(size_t j = i+1; j < i+2; j++)
@@ -946,7 +969,6 @@ void RunTop(TString filename,
                   allPlots["massD0_mu"+chTag+"_no_weight"]->Fill(mass12,1);
                 if(abs(tracks[k].second) == 11)
                   allPlots["massD0_e"+chTag+"_no_weight"]->Fill(mass12,1);
-
               }
             }
             //looking for pion
@@ -971,7 +993,7 @@ void RunTop(TString filename,
                 // Kaon and pion have opposite charges
                 // I.e. correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
-                
+
                 p_cand = p_track1+p_track2+p_track3;
                 allPlots["massDs"+chTag]->Fill(p_cand.M(), wgt);
                 allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(), 1);
@@ -994,6 +1016,13 @@ void RunTop(TString filename,
                       allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
                       allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
                       allPlots["massDsmD0_all"]->Fill(deltam, wgt);
+                      if(deltam<0.14 || deltam>0.15) continue;
+                      allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxy()),wgt);
+                      allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDz()),wgt);
+                      allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxyE()),wgt);
+                      allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDzE()),wgt);
+                      allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxy())/abs(tracks[j].first.getDxyE()),wgt);
+                      allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDz())/abs(tracks[j].first.getDzE()),wgt);
                   }
                 }
               }

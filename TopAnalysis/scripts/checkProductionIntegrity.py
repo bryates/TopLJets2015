@@ -63,7 +63,9 @@ def main():
 
             out_list=[]
             count_list=getEOSlslist(directory=time_list[0],prepend='')
-            for count in count_list: out_list += getEOSlslist(directory=count,prepend='')
+            for count in count_list: 
+                if '/merge' in count and  'group/hintt' in count : continue
+                out_list += getEOSlslist(directory=count,prepend='')
             file_list=[x for x in out_list if '.root' in x]
 
             newDir='%s/%s' % (opt.outDir,pub)        
@@ -77,9 +79,10 @@ def main():
             moveIndividualFiles=True
             if len(file_list)>0:
                 #subgroupMerge = int( raw_input('This set has %d files. Merge into groups? (enter 0 if no merging)' % len(file_list)) )
-                subgroupMerge=100 if 'Data' in dsetname else 40 
-                if 'TTJets' in dsetname : subgroupMerge=25
-                if '/store/cmst3/group/hintt' in opt.inDir: subgroupMerge=10 if '/data' in dsetname else 3
+                subgroupMerge=100 if 'Data' in dsetname else 40
+                if 'TTJets' in pub : subgroupMerge=25
+                if '/store/cmst3/group/hintt' in opt.inDir: 
+                    subgroupMerge=10 if '/data' in dsetname else 3
 
                 if subgroupMerge>0:
                     moveIndividualFiles=False

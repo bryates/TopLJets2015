@@ -222,6 +222,11 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("pf_phi",      ev.pf_phi);
       t->SetBranchAddress("pf_m",        ev.pf_m);
       t->SetBranchAddress("pf_puppiWgt", ev.pf_puppiWgt);
+
+      t->SetBranchAddress("pf_dxy",      ev.pf_dxy);
+      t->SetBranchAddress("pf_dxyE",     ev.pf_dxyE);
+      t->SetBranchAddress("pf_dz",       ev.pf_dz);
+      t->SetBranchAddress("pf_dzE",      ev.pf_dzE);
     }
 
   //MET
