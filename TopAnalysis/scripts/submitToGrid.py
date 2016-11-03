@@ -8,7 +8,8 @@ creates the crab cfg and submits the job
 """
 def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=False):
     
-    jecDB="Spring16_25nsV6_DATA.db" if isData else "Spring16_25nsV6_MC.db"
+    #jecDB="Spring16_25nsV6_DATA.db" if isData else "Spring16_25nsV6_MC.db"
+    jecDB="Spring16_25nsV3_DATA.db" if isData else "Spring16_25nsV3_MC.db"
     os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/era2016/%s' % jecDB)
 
     muCorFile='RoccoR_13tev.txt'
@@ -32,7 +33,8 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     config_file.write('config.JobType.psetName = "'+cfg+'"\n')
     config_file.write('config.JobType.disableAutomaticOutputCollection = False\n')
     config_file.write('config.JobType.pyCfgParams = [\'runOnData=%s\']\n' % bool(isData))    
-    config_file.write('config.JobType.inputFiles = [\'%s\',\'%s\']\n'%(jecDB,muCorFile))
+    config_file.write('config.JobType.inputFiles = [\'%s\']\n'%jecDB)
+    #config_file.write('config.JobType.inputFiles = [\'%s\',\'%s\']\n'%(jecDB,muCorFile))
     config_file.write('\n')
     config_file.write('config.section_("Data")\n')
     config_file.write('config.Data.inputDataset = "%s"\n' % dataset)
@@ -50,6 +52,7 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     config_file.write('\n')
     config_file.write('config.section_("Site")\n')
     config_file.write('config.Site.storageSite = "T2_CH_CERN"\n')
+    #config_file.write('config.JobType.allowUndistributedCMSSW = True\n')
     config_file.close()
     
     if submit : os.system('alias crab=\'/cvmfs/cms.cern.ch/crab3/crab-env-bootstrap.sh\' && crab submit -c %s' % crabConfigFile )
@@ -65,6 +68,7 @@ def main():
     parser.add_option('-c', '--cfg',         dest='cfg'   ,      help='cfg to be sent to grid',       default=None,    type='string')
     parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',      default=None,    type='string')
     parser.add_option('-o', '--only',        dest='only'  ,      help='submit only these (csv)',      default=None,    type='string')
+    parser.add_option(      '--skip',        dest='skip'  ,      help='skip all these (csv)',         default=None,    type='string')
     parser.add_option('-l', '--lumi',        dest='lumiMask',    help='json with list of good lumis', default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON.txt')
     parser.add_option('-w', '--workDir',     dest='workDir',     help='working directory',            default='grid',  type='string')
     parser.add_option(      '--lfn',         dest='lfn',         help='base lfn to store outputs',    default='/store/group/phys_top/psilva/', type='string')
@@ -85,6 +89,12 @@ def main():
     except:
         pass
 
+    skipList=[]
+    try:
+        skipList=opt.skip.split(',')
+    except:
+        pass
+
     #submit jobs
     os.system("mkdir -p %s" % opt.workDir)
     for tag,sample in samplesList: 
@@ -92,6 +102,9 @@ def main():
         for filtTag in onlyList:
             if filtTag in tag :
                 submit=True
+        for filtTag in skipList:
+            if filtTag in tag :
+                submit=False
         if not submit : continue
         submitProduction(tag=tag,
                          lfnDirBase=lfnDirBase,
