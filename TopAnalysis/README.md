@@ -33,8 +33,8 @@ scram b -j 8
 ## Running ntuple creation
 First time create a symbolic link to the jet energy corrections files
 ```
-ln -s data/era2016/Spring16_25nsV6_DATA.db
-ln -s data/era2016/Spring16_25nsV6_MC.db
+ln -s data/era2016/Spring16_25nsV3_DATA.db
+ln -s data/era2016/Spring16_25nsV3_MC.db
 ln -s data/era2016/RoccoR_13tev.txt 
 ```
 To run locally the ntuplizer, for testing purposes
@@ -52,7 +52,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/b8bbb55 -o /store/user/byates/LJets2016/8db9ad6
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/57c69da -o /store/user/byates/LJets2016/8db9ad6
 ```
 
 ## Preparing the analysis 
