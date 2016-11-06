@@ -41,7 +41,7 @@ def main():
             pub=pubDir.split('/crab_')[-1]
             #if not 'V4' in pub : continue
 
-            if 'Data13TeV' in pub : continue
+            #if 'Data13TeV' in pub : continue
 
             localMerge='python scripts/checkProductionIntegrity.py -i %s -o %s --nocheck --only %s'%(opt.inDir,opt.outDir,pub)
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localMerge)
