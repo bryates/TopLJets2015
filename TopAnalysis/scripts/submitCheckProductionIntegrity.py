@@ -17,9 +17,7 @@ def main():
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--inDir',      dest='inDir',       help='input directory with files',               default=None,   type='string')
     parser.add_option('-o', '--outDir',     dest='outDir',      help='output directory with files',              default=None,   type='string')
-    parser.add_option('-c', '--cleanup',    dest='cleanup',     help='removes original crab directory',          default =False, action='store_true')
     parser.add_option('-q', '--queue',      dest='queue',       help='batch queue',                              default='2nd',  type='string')
-    parser.add_option(      '--only',       dest='only',        help='only this tag',                            default=None,   type='string')
     (opt, args) = parser.parse_args()
 
     Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
@@ -32,6 +30,8 @@ def main():
     for dset in dset_list:
         dsetname=dset.split('/')[-1]
 
+        #if not 'pp_TuneCUETP8M1_Hydjet_Min_Bias' : continue
+
         pub_list=getEOSlslist(directory=dset,prepend='')
         for pubDir in pub_list:
 
@@ -39,22 +39,15 @@ def main():
                 print 'Ambiguity found @ <publication-name> for <primary-dataset>=%s , bailing out'%dsetname
                 continue
             pub=pubDir.split('/crab_')[-1]
-            onlyList=[]
+            #if not 'V4' in pub : continue
 
-            if opt.only:
-                if pub!=opt.only: #or pub not in opt.only:
-                    continue
-
-
-            #if 'Data13TeV' in pub : continue
+            if 'Data13TeV' in pub : continue
 
             localMerge='python scripts/checkProductionIntegrity.py -i %s -o %s --nocheck --only %s'%(opt.inDir,opt.outDir,pub)
-            if opt.cleanup :
-                localMerge += ' --cleanup'
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localMerge)
             os.system(cmd)
 
-    #Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
+    Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
 
 """
 for execution from another script

@@ -100,13 +100,17 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Spring16_25nsV3_MC.db'
-jecTag='Spring16_25nsV3_MC_AK4PFchs'
+jecFile='Spring16_25nsV6_MC.db'
+jecTag='Spring16_25nsV6_MC_AK4PFchs'
+#jecFile='Spring16_25nsV3_MC.db'
+#jecTag='Spring16_25nsV3_MC_AK4PFchs'
 if options.runOnData : 
     print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
     jecLevels.append( 'L2L3Residual' )
-    jecFile='Spring16_25nsV3_DATA.db'
-    jecTag='Spring16_25nsV3_DATA_AK4PFchs'
+    jecFile='Spring16_25nsV6_DATA.db'
+    jecTag='Spring16_25nsV6_DATA_AK4PFchs'
+    #jecFile='Spring16_25nsV3_DATA.db'
+    #jecTag='Spring16_25nsV3_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 #tfile service

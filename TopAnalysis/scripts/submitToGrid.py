@@ -8,8 +8,8 @@ creates the crab cfg and submits the job
 """
 def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=False):
     
-    #jecDB="Spring16_25nsV6_DATA.db" if isData else "Spring16_25nsV6_MC.db"
-    jecDB="Spring16_25nsV3_DATA.db" if isData else "Spring16_25nsV3_MC.db"
+    jecDB="Spring16_25nsV6_DATA.db" if isData else "Spring16_25nsV6_MC.db"
+    #jecDB="Spring16_25nsV3_DATA.db" if isData else "Spring16_25nsV3_MC.db"
     os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/era2016/%s' % jecDB)
 
     muCorFile='RoccoR_13tev.txt'
@@ -33,8 +33,8 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     config_file.write('config.JobType.psetName = "'+cfg+'"\n')
     config_file.write('config.JobType.disableAutomaticOutputCollection = False\n')
     config_file.write('config.JobType.pyCfgParams = [\'runOnData=%s\']\n' % bool(isData))    
-    config_file.write('config.JobType.inputFiles = [\'%s\']\n'%jecDB)
-    #config_file.write('config.JobType.inputFiles = [\'%s\',\'%s\']\n'%(jecDB,muCorFile))
+    #config_file.write('config.JobType.inputFiles = [\'%s\']\n'%jecDB)
+    config_file.write('config.JobType.inputFiles = [\'%s\',\'%s\']\n'%(jecDB,muCorFile))
     config_file.write('\n')
     config_file.write('config.section_("Data")\n')
     config_file.write('config.Data.inputDataset = "%s"\n' % dataset)
@@ -71,7 +71,7 @@ def main():
     parser.add_option(      '--skip',        dest='skip'  ,      help='skip all these (csv)',         default=None,    type='string')
     parser.add_option('-l', '--lumi',        dest='lumiMask',    help='json with list of good lumis', default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON.txt')
     parser.add_option('-w', '--workDir',     dest='workDir',     help='working directory',            default='grid',  type='string')
-    parser.add_option(      '--lfn',         dest='lfn',         help='base lfn to store outputs',    default='/store/group/phys_top/psilva/', type='string')
+    parser.add_option(      '--lfn',         dest='lfn',         help='base lfn to store outputs',    default='/store/group/phys_top/byates/', type='string')
     parser.add_option('-s', '--submit',      dest='submit',      help='submit jobs',                  default=False,   action='store_true')
     (opt, args) = parser.parse_args()
 

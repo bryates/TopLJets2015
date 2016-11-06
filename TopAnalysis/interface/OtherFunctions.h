@@ -110,6 +110,7 @@ class Jet {
   void addDz(int idx);
   TLorentzVector &getVec();
   float &getCSV();
+  float getPt();
   int &getJetIndex();
   int &getIndex(int idx);
   float &getDxy(int idx);
@@ -153,6 +154,7 @@ void Jet::addDxy(float dxy, float dxyE) { dxy_.push_back( dxy ) ; dxyE_.push_bac
 void Jet::addDz(float dz, float dzE) { dz_.push_back( dz ) ; dzE_.push_back( dzE) ; }
 TLorentzVector &Jet::getVec() { return p4_; }
 float &Jet::getCSV() { return csv_; }
+float Jet::getPt() { return p4_.Pt(); }
 int &Jet::getJetIndex() { return idx_; }
 int &Jet::getIndex(int idx) { return index_[idx]; }
 float &Jet::getDxy(int idx) { return dxy_[idx]; }
