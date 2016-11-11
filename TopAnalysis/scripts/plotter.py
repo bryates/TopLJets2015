@@ -25,6 +25,13 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData):
+        ## hack to fix impact parameter range (cm -> um) ##
+        if "pf_" in h.GetName() and "significance" not in h.GetName():
+            h.GetXaxis().Set(100,0,1000)
+            tmptitle = h.GetXaxis().GetTitle()
+            tmptitle = tmptitle.replace("cm","#mum")
+            h.GetXaxis().SetTitle(tmptitle)
+
         h.SetTitle(title)
         if isData:
             try:

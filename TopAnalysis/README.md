@@ -52,7 +52,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/f0f52c9 -o /store/user/byates/LJets2015/8db9ad6
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/65ee28f -o /store/user/byates/LJets2015/8db9ad6
 ```
 
 ## Preparing the analysis 

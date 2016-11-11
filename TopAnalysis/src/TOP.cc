@@ -580,7 +580,6 @@ void RunTop(TString filename,
 	    tmpj.addDxy(ev.pf_dxy[ipf], ev.pf_dxyE[ipf]);
 	    tmpj.addDz(ev.pf_dz[ipf], ev.pf_dzE[ipf]);
             */
-            allPlots["pf_dxy_all"]->Fill(ev.pf_dxy[ipf],wgt);
 	  }
 	  tmpj.sortTracksByPt();
 
@@ -844,6 +843,13 @@ void RunTop(TString filename,
               allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
               allPlots["pf_dxy_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
               allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+              allPlots["pf_dxy_all"]->Fill(abs(pfmuCands[i].getDxy()),wgt);
+              allPlots["pf_dz_all"]->Fill(abs(pfmuCands[i].getDz()),wgt);
+              allPlots["pf_dxyE_all"]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
+              allPlots["pf_dzE_all"]->Fill(abs(pfmuCands[i].getDzE()),wgt);
+              allPlots["pf_dz_sig_all"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+              allPlots["pf_dxy_sig_all"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
+              allPlots["pf_dz_sig_all"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
             }
           }
 
@@ -958,6 +964,12 @@ void RunTop(TString filename,
                       allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDzE()),wgt);
                       allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxy())/abs(tracks[j].first.getDxyE()),wgt);
                       allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDz())/abs(tracks[j].first.getDzE()),wgt);
+                      allPlots["pf_dxy_all"]->Fill(abs(tracks[j].first.getDxy()),wgt);
+                      allPlots["pf_dz_all"]->Fill(abs(tracks[j].first.getDz()),wgt);
+                      allPlots["pf_dxyE_all"]->Fill(abs(tracks[j].first.getDxyE()),wgt);
+                      allPlots["pf_dzE_all"]->Fill(abs(tracks[j].first.getDzE()),wgt);
+                      allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[j].first.getDxy())/abs(tracks[j].first.getDxyE()),wgt);
+                      allPlots["pf_dz_sig_all"]->Fill(abs(tracks[j].first.getDz())/abs(tracks[j].first.getDzE()),wgt);
                       allPlots["nevt"+chTag+"_meson"]->Fill(1,wgt);
                   }
                 }
@@ -980,29 +992,11 @@ void RunTop(TString filename,
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   fOut->cd();
   if(debug) cout << "writing histograms" << endl;
-/*
-  for(auto it : lfsVec) {
-    it.Remove(0,1);
-    fOut->mkdir(it);
-  }
-*/
-
-/*
-  allPlots["pf_dxy_all"]->GetXaxis()->Set(100,0,1000);
-  allPlots["pf_dxy_all"]->GetXaxis()->SetTitle("d_{xy} [#mum]");
-  allPlots["pf_dxy_jpsi"]->GetXaxis()->Set(100,0,1000);
-  allPlots["pf_dxy_jpsi"]->GetXaxis()->SetTitle("d_{xy} [#mum]");
-  allPlots["pf_dxy_meson"]->GetXaxis()->Set(100,0,1000);
-  allPlots["pf_dxy_meson"]->GetXaxis()->SetTitle("d_{xy} [#mum]");
-*/
 
   for (auto& it : allPlots)  { 
     if(debug) cout << it.second->GetName() << endl;
     if(debug) cout << it.second->GetEntries() << endl;
-/*
-    TString dir = it.first;
-    dir.Remove(0,dir.Last('_')+1);
-*/
+
     //fOut->cd( dir );
     it.second->SetDirectory(fOut); it.second->Write(); 
     fOut->cd();
