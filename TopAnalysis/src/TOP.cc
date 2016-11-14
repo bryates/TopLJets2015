@@ -302,21 +302,19 @@ void RunTop(TString filename,
       //select 1 good lepton
       //cout << "entering lepton selection" << endl;
       //std::vector<int> tightLeptonsNonIso, vetoLeptons;
-      std::vector<int> tightLeptons,looseLeptons;
+      std::vector<int> tightLeptons,vetoLeptons;
       for(int il=0; il<ev.nl; il++)
 	{
           //cout << "in lepton selection" << endl;
-	  //bool passTightKin(ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.1);
-	  bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.5);
-	  //bool passVetoKin(ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5); //FIXME from 7_6_x
+	  bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4); // TOP mu cut for dilep
 	  float relIso(ev.l_relIso[il]);
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
-	  //bool passTightIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 ); //FIXME from 7_6_x
-	  bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 ); //FIXME from 7_6_x
+	  bool passIso( ev.l_id[il]==13 ? relIso<0.25 : (ev.l_pid[il]>>1)&0x1 ); // TOP mu cut for dilep
 	  //bool passNonIso(relIso>0.4); //FIXME from 7_6_x
 	  //if( ev.l_id[il]==11 && (passIso || relIso<0.4) ) passNonIso=false; //FIXME from 7_6_x
 
 	  //bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); //FIXME from 7_6_x
+          bool passVetoKin(  ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5); // TOP veto
 
 	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
 	  //if(channelSelection==21) passSIP3d=true;
@@ -331,6 +329,7 @@ void RunTop(TString filename,
 	      //else if(passNonIso) tightLeptonsNonIso.push_back(il); //FIXME from 7_6_x
 	    }
 	  //else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
+	  else if(passVetoKin) vetoLeptons.push_back(il); //FIXME from 7_6_x
 	}
       if(debug) cout << "lepton selection DONE" << endl;
 
@@ -361,21 +360,29 @@ void RunTop(TString filename,
       if(debug) cout << "decide channel" << endl;
       TString chTag("");
       std::vector<int> selLeptons;
-      if(tightLeptons.size()==1 )//&& looseLeptons.size()==0)
+      bool passTightKin,passIso;
+      if(tightLeptons.size()==1 )
 	{
-	  selLeptons.push_back( tightLeptons[0] );
-          if(debug) cout << "found 1 tight lepton" << endl;
+          //** Tighter cuts for lepton + jets **
+          if(ev.l_id[tightLeptons[0]]==13) { // muon + jets
+	    passTightKin = (ev.l_pt[tightLpetons[0]] > 26 && fabs(ev.l_eta[il])<2.1); // TOP mu cut for dilep
+            passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+          }
+          if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
+            passTightKin = if(ev.l_pt[selLeptons[0]] > 30); //from TOP-15-005
+            passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+          }
+          //************************************
+          if(pasTightKin && passIso) {
+	    selLeptons.push_back( tightLeptons[0] );
+            if(debug) cout << "found 1 tight lepton" << endl;
+          }
 	}
       if(tightLeptons.size()>=2)
 	{
 	  selLeptons.push_back(tightLeptons[0]);
 	  selLeptons.push_back(tightLeptons[1]);
           if(debug) cout << "found 2 tight leptons" << endl;
-	}
-      if(tightLeptons.size()==1 && looseLeptons.size()>=1)
-	{
-	  selLeptons.push_back(tightLeptons[0]);
-	  selLeptons.push_back(looseLeptons[0]);	  
 	}
       if(debug) if(selLeptons.size()==0) cout << "NO LEPTONS!!" << endl;
       if(selLeptons.size()==0) continue;
@@ -431,7 +438,7 @@ void RunTop(TString filename,
       if(lepIdx<0) continue;
       
       //no extra isolated leptons
-      //if(vetoLeptons.size()>0) continue;
+      if(vetoLeptons.size()>0) continue;
       
       //apply trigger requirement
       /*
