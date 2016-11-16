@@ -301,7 +301,7 @@ void RunTop(TString filename,
 
       //select 1 good lepton
       //cout << "entering lepton selection" << endl;
-      //std::vector<int> tightLeptonsNonIso, vetoLeptons;
+      //std::vector<int> tightLeptonsNonIso;
       std::vector<int> tightLeptons,vetoLeptons;
       for(int il=0; il<ev.nl; il++)
 	{
@@ -309,11 +309,11 @@ void RunTop(TString filename,
 	  bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4); // TOP mu cut for dilep
 	  float relIso(ev.l_relIso[il]);
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
-	  bool passIso( ev.l_id[il]==13 ? relIso<0.25 : (ev.l_pid[il]>>1)&0x1 ); // TOP mu cut for dilep
+	  bool passIso( ev.l_id[il]==13 ? relIso<0.25 : (ev.l_pid[il]>>1)&0x1 ); // TOP mu cut for dilep FIXME
 	  //bool passNonIso(relIso>0.4); //FIXME from 7_6_x
 	  //if( ev.l_id[il]==11 && (passIso || relIso<0.4) ) passNonIso=false; //FIXME from 7_6_x
 
-	  //bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); //FIXME from 7_6_x
+	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); //FIXME from 7_6_x
           bool passVetoKin(  ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5); // TOP veto
 
 	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
@@ -328,8 +328,7 @@ void RunTop(TString filename,
 	      if(passIso)         tightLeptons.push_back(il);
 	      //else if(passNonIso) tightLeptonsNonIso.push_back(il); //FIXME from 7_6_x
 	    }
-	  //else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
-	  else if(passVetoKin) vetoLeptons.push_back(il); //FIXME from 7_6_x
+	  else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
 	}
       if(debug) cout << "lepton selection DONE" << endl;
 
@@ -360,20 +359,20 @@ void RunTop(TString filename,
       if(debug) cout << "decide channel" << endl;
       TString chTag("");
       std::vector<int> selLeptons;
-      bool passTightKin,passIso;
+      bool passTightKin(false),passIso(false);
       if(tightLeptons.size()==1 )
 	{
           //** Tighter cuts for lepton + jets **
           if(ev.l_id[tightLeptons[0]]==13) { // muon + jets
-	    passTightKin = (ev.l_pt[tightLpetons[0]] > 26 && fabs(ev.l_eta[il])<2.1); // TOP mu cut for dilep
+	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for dilep
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
           }
           if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
-            passTightKin = if(ev.l_pt[selLeptons[0]] > 30); //from TOP-15-005
+            passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
           }
           //************************************
-          if(pasTightKin && passIso) {
+          if(passTightKin && passIso) {
 	    selLeptons.push_back( tightLeptons[0] );
             if(debug) cout << "found 1 tight lepton" << endl;
           }
@@ -965,18 +964,18 @@ void RunTop(TString filename,
                       allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
                       allPlots["massDsmD0_all"]->Fill(deltam, wgt);
                       if(deltam<0.14 || deltam>0.15) continue;
-                      allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxy()),wgt);
-                      allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDz()),wgt);
-                      allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxyE()),wgt);
-                      allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDzE()),wgt);
-                      allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDxy())/abs(tracks[j].first.getDxyE()),wgt);
-                      allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[j].first.getDz())/abs(tracks[j].first.getDzE()),wgt);
-                      allPlots["pf_dxy_all"]->Fill(abs(tracks[j].first.getDxy()),wgt);
-                      allPlots["pf_dz_all"]->Fill(abs(tracks[j].first.getDz()),wgt);
-                      allPlots["pf_dxyE_all"]->Fill(abs(tracks[j].first.getDxyE()),wgt);
-                      allPlots["pf_dzE_all"]->Fill(abs(tracks[j].first.getDzE()),wgt);
-                      allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[j].first.getDxy())/abs(tracks[j].first.getDxyE()),wgt);
-                      allPlots["pf_dz_sig_all"]->Fill(abs(tracks[j].first.getDz())/abs(tracks[j].first.getDzE()),wgt);
+                      allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy()),wgt);
+                      allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz()),wgt);
+                      allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
+                      allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDzE()),wgt);
+                      allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
+                      allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
+                      allPlots["pf_dxy_all"]->Fill(abs(tracks[k].first.getDxy()),wgt);
+                      allPlots["pf_dz_all"]->Fill(abs(tracks[k].first.getDz()),wgt);
+                      allPlots["pf_dxyE_all"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
+                      allPlots["pf_dzE_all"]->Fill(abs(tracks[k].first.getDzE()),wgt);
+                      allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
+                      allPlots["pf_dz_sig_all"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
                       allPlots["nevt"+chTag+"_meson"]->Fill(1,wgt);
                   }
                 }

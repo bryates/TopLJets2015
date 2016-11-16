@@ -672,17 +672,10 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.pf_m[ev_.npf]        = pf->mass();
       ev_.pf_puppiWgt[ev_.npf] = pf->puppiWeight();      
 
-      //pf->setVertex(primVtx.position());
-      ev_.pf_dxy[ev_.npf]      = -999;
-      ev_.pf_dxyE[ev_.npf]     = -999;
-      ev_.pf_dz[ev_.npf]       = -999;
-      ev_.pf_dzE[ev_.npf]      = -999;
-      if(ev_.pf_j[ev_.npf]!=-1) {
-        ev_.pf_dxy[ev_.npf]      = pf->dxy(primVtx.position());
-        ev_.pf_dxyE[ev_.npf]     = pf->dxyError();
-        ev_.pf_dz[ev_.npf]       = pf->dz(primVtx.position());
-        ev_.pf_dzE[ev_.npf]      = pf->dzError();
-      }
+      ev_.pf_dxy[ev_.npf]      = pf->dxy(primVtx.position());
+      ev_.pf_dxyE[ev_.npf]     = pf->dxyError();
+      ev_.pf_dz[ev_.npf]       = pf->dz(primVtx.position());
+      ev_.pf_dzE[ev_.npf]      = pf->dzError();
 
       ev_.npf++;
     }
