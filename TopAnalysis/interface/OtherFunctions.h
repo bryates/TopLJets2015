@@ -58,6 +58,7 @@ class pfTrack {
 
  public:
   pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid);
+  pfTrack(TLorentzVector p4, int pfid);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -81,6 +82,8 @@ class pfTrack {
 };
 
 pfTrack::pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid) : vec_(p4), dxy_(dxy), dxyE_(dxyE), dz_(dz), dzE_(dzE), pfid_(pfid)
+{ }
+pfTrack::pfTrack(TLorentzVector p4, int pfid) : vec_(p4), dxy_(0), dxyE_(0), dz_(0), dzE_(0), pfid_(pfid)
 { }
 pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }

@@ -18,6 +18,7 @@ def main():
     parser.add_option('-i', '--inDir',      dest='inDir',       help='input directory with files',               default=None,   type='string')
     parser.add_option('-o', '--outDir',     dest='outDir',      help='output directory with files',              default=None,   type='string')
     parser.add_option('-q', '--queue',      dest='queue',       help='batch queue',                              default='2nd',  type='string')
+    parser.add_option(      '--only',        dest='only',        help='only this tag',                            default=None,   type='string')
     (opt, args) = parser.parse_args()
 
     Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
@@ -40,6 +41,9 @@ def main():
                 continue
             pub=pubDir.split('/crab_')[-1]
             #if not 'V4' in pub : continue
+            if opt.only:
+                if pub not in opt.only: 
+                    continue
 
             #if 'Data13TeV' in pub : continue
 

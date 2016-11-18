@@ -659,9 +659,9 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(ev_.pf_j[ev_.npf]==-1)
 	{
 	  if(pf->charge()==0) continue;
-	  if(pf->fromPV()<2) continue;
+	  if(pf->fromPV()<2 && fabs(pf->pdgId())!=13) continue;
 	  if(pf->pt()<0.5 || fabs(pf->eta())>2.5) continue;
-	  if(pf->puppiWeight()<0.01) continue;
+	  if(pf->puppiWeight()<0.01 && fabs(pf->pdgId())!=13) continue;
 	}
       
       ev_.pf_id[ev_.npf]       = pf->pdgId();

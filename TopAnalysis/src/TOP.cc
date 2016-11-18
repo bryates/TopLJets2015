@@ -250,12 +250,12 @@ void RunTop(TString filename,
     //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.5 GeV" ,20,0,10);
     allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 18 MeV" ,50,2.5,3.4);
     allPlots["massJPsiK"+tag+cut+weight]     = new TH1F("massJPsiK"+tag+cut+weight,";M_{llk};Events / 15 MeV" ,100,4.5,6);
-    allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{D^{0}};Events / 6 MeV" ,50,1.7,2.0);
-    allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 6 MeV" ,50,1.7,2.0);
-    allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 6 MeV" ,50,1.7,2.0);
-    allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 6 MeV" ,50,1.7,2.0);
-    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.6 MeV" ,50,0.14,0.17);
-    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.6 MeV" ,50,0.14,0.17);
+    allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{D^{0}};Events / 3 MeV" ,100,1.7,2.0);
+    allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
+    allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
+    allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
+    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,100,0.14,0.17);
+    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,100,0.14,0.17);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
@@ -367,7 +367,7 @@ void RunTop(TString filename,
 	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for dilep
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
           }
-          if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
+          else if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
           }
@@ -587,7 +587,6 @@ void RunTop(TString filename,
 	    tmpj.addDz(ev.pf_dz[ipf], ev.pf_dzE[ipf]);
             */
 	  }
-	  tmpj.sortTracksByPt();
 
           if(isBTagged) bJetsVec.push_back(tmpj);
           else lightJetsVec.push_back(tmpj);
@@ -621,10 +620,14 @@ void RunTop(TString filename,
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
           if(debug) cout << "calling trigger function" << endl;
-	  triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
+          std::vector<int> pdgIds;
+          for(size_t ilp = 0; ilp < selLeptons.size(); ilp++)
+            pdgIds.push_back(ev.l_id[selLeptons[ilp]]);
+	  //triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
+	  triggerCorrWgt=lepEffH.getTriggerCorrection(pdgIds,leptons);
           if(debug) cout << "calling trigger function DONE!" << endl;
 	  for(size_t il=0; il<selLeptons.size(); il++) {
-	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(selLeptons[il],leptons[il].Pt(),leptons[il].Eta());
+	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(ev.l_id[selLeptons[il]],leptons[il].Pt(),leptons[il].Eta());
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
             if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
             if(debug) cout << "selSF=" << selSF.first << endl;
@@ -822,7 +825,6 @@ void RunTop(TString filename,
           }
           if(abs(tracks[itk].second) == 211) {
             TLorentzVector kP4;
-            kP4.SetPtEtaPhiM( tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassK );
             pfTrack pfk(kP4, tracks[itk].first.getDxy(), tracks[itk].first.getDxyE(), tracks[itk].first.getDz(), tracks[itk].first.getDzE(), tracks[itk].second);
             kaonCands.push_back(pfk);
           }
@@ -885,8 +887,8 @@ void RunTop(TString filename,
             TLorentzVector p_track1, p_track2;
             p_track1.SetPtEtaPhiM(tracks[i].first.Pt(), tracks[i].first.Eta(), tracks[i].first.Phi(), gMassPi);
             p_track2.SetPtEtaPhiM(tracks[j].first.Pt(), tracks[j].first.Eta(), tracks[j].first.Phi(), gMassK);
-            if(debug) cout << tracks[i].first.Pt() << " " << tracks[i].first.Eta() << " " << tracks[i].first.Phi() << " " << gMassPi << endl;
-            if(debug) cout << tracks[j].first.Pt() << " " << tracks[j].first.Eta() << " " << tracks[j].first.Phi() << " " << gMassK << endl << endl;
+            if(debug) cout << i << ": " << tracks[i].first.Pt() << " " << tracks[i].first.Eta() << " " << tracks[i].first.Phi() << " " << gMassPi << endl;
+            if(debug) cout << j << ": " << tracks[j].first.Pt() << " " << tracks[j].first.Eta() << " " << tracks[j].first.Phi() << " " << gMassK << endl << endl;
             float mass12 = (p_track1+p_track2).M();
             if(debug) cout << mass12 << endl;
             allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
@@ -938,6 +940,7 @@ void RunTop(TString filename,
 
               TLorentzVector p_track3, p_cand;
               p_track3.SetPtEtaPhiM(tracks[k].first.Pt(), tracks[k].first.Eta(), tracks[k].first.Phi(), gMassPi);
+              if(debug) cout << k << ": " << tracks[k].first.Pt() << " " << tracks[k].first.Eta() << " " << tracks[k].first.Phi() << " " << gMassPi << endl;
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
               allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),1);
               if( tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second) ) {
@@ -955,6 +958,8 @@ void RunTop(TString filename,
                   p_jet.SetPtEtaPhiM(ev.j_pt[jetindex], ev.j_eta[jetindex], ev.j_phi[jetindex], 0.);
 
                   float deltam = p_cand.M() - mass12;
+                  if(filename.Contains("_WJets"))
+                    cout << endl << deltam << " " << wgt << endl;
 
                   allPlots["massDsmD0loose"+chTag]->Fill(deltam, wgt);
                   allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam, 1);
@@ -964,6 +969,7 @@ void RunTop(TString filename,
                       allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
                       allPlots["massDsmD0_all"]->Fill(deltam, wgt);
                       if(deltam<0.14 || deltam>0.15) continue;
+/*
                       allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy()),wgt);
                       allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz()),wgt);
                       allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
@@ -976,6 +982,7 @@ void RunTop(TString filename,
                       allPlots["pf_dzE_all"]->Fill(abs(tracks[k].first.getDzE()),wgt);
                       allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
                       allPlots["pf_dz_sig_all"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
+*/
                       allPlots["nevt"+chTag+"_meson"]->Fill(1,wgt);
                   }
                 }
