@@ -28,6 +28,17 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("g_phi",     ev.g_phi,    "g_phi[ng]/F");
   t->Branch("g_m",       ev.g_m,      "g_m[ng]/F");
 
+  //gen level J/Psi
+  t->Branch("ngjpsi",      &ev.ngjpsi, "ngjpsi/I");
+  t->Branch("gjpsi_mu_pt",  ev.gjpsi_mu_pt, "gjpsi_mu_pt[ngjpsi]/F");
+  t->Branch("gjpsi_mu_eta", ev.gjpsi_mu_eta, "gjpsi_mu_eta[ngjpsi]/F");
+  t->Branch("gjpsi_mu_phi", ev.gjpsi_mu_phi, "gjpsi_mu_phi[ngjpsi]/F");
+  t->Branch("gjpsi_pt",     ev.gjpsi_pt, "gjpsi_pt[ngjpsi]/F");
+  t->Branch("gjpsi_eta",    ev.gjpsi_eta, "gjpsi_eta[ngjpsi]/F");
+  t->Branch("gjpsi_phi",    ev.gjpsi_phi, "gjpsi_phi[ngjpsi]/F");
+  t->Branch("gjpsi_m",      ev.gjpsi_m, "gjpsi_m[ngjpsi]/F");
+  t->Branch("gjpsi_mu_dR",  ev.gjpsi_mu_dR, "gjpsi_mu_dR[ngjpsi]/F");
+
   //top (lastCopy and pseudo-top)
   t->Branch("ngtop",     &ev.ngtop,      "ngtop/I");
   t->Branch("gtop_id",    ev.gtop_id,    "gtop_id[ngtop]/I");
@@ -162,6 +173,17 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("gpf_phi",     ev.gpf_phi);
       t->SetBranchAddress("gpf_m",       ev.gpf_m);
     }
+
+  //gen level J/Psi
+  t->SetBranchAddress("ngjpsi",      &ev.ngjpsi);
+  t->SetBranchAddress("gjpsi_mu_pt",  ev.gjpsi_mu_pt);
+  t->SetBranchAddress("gjpsi_mu_eta", ev.gjpsi_mu_eta);
+  t->SetBranchAddress("gjpsi_mu_phi", ev.gjpsi_mu_phi);
+  t->SetBranchAddress("gjpsi_pt",     ev.gjpsi_pt);
+  t->SetBranchAddress("gjpsi_eta",    ev.gjpsi_eta);
+  t->SetBranchAddress("gjpsi_phi",    ev.gjpsi_phi);
+  t->SetBranchAddress("gjpsi_m",      ev.gjpsi_m);
+  t->SetBranchAddress("gjpsi_mu_dR",  ev.gjpsi_mu_dR);
 
   //reco level event
   t->SetBranchAddress("nvtx",      &ev.nvtx);

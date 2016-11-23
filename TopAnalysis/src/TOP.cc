@@ -165,7 +165,7 @@ void RunTop(TString filename,
   gSystem->ExpandPathName(btagEffExpUrl);
   std::map<TString, TGraphAsymmErrors *> expBtagEff, expBtagEffPy8;
   BTagSFUtil myBTagSFUtil;
-  float wgt(1.0);
+  //float wgt(1.0);
   if(!ev.isData)
     {
       BTagCalibration btvcalib("csvv2", btagUncUrl.Data());
@@ -248,14 +248,14 @@ void RunTop(TString filename,
 */
     //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.01 GeV" ,18,2.5,3.4);
     //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.5 GeV" ,20,0,10);
-    allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 18 MeV" ,50,2.5,3.4);
+    allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 36 MeV" ,25,2.5,3.4);
     allPlots["massJPsiK"+tag+cut+weight]     = new TH1F("massJPsiK"+tag+cut+weight,";M_{llk};Events / 15 MeV" ,100,4.5,6);
     allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{D^{0}};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
-    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,100,0.14,0.17);
-    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,100,0.14,0.17);
+    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,50,0.14,0.17);
+    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,50,0.14,0.17);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
@@ -286,7 +286,7 @@ void RunTop(TString filename,
     {
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
-      allPlots["nevt_all"]->Fill(1,wgt);
+      allPlots["nevt_all"]->Fill(1,1);
 
       //account for pu weights and effect on normalization
       //float puWeight(1.0);
@@ -307,9 +307,11 @@ void RunTop(TString filename,
 	{
           //cout << "in lepton selection" << endl;
 	  bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4); // TOP mu cut for dilep
+
 	  float relIso(ev.l_relIso[il]);
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
 	  bool passIso( ev.l_id[il]==13 ? relIso<0.25 : (ev.l_pid[il]>>1)&0x1 ); // TOP mu cut for dilep FIXME
+	  
 	  //bool passNonIso(relIso>0.4); //FIXME from 7_6_x
 	  //if( ev.l_id[il]==11 && (passIso || relIso<0.4) ) passNonIso=false; //FIXME from 7_6_x
 
@@ -319,9 +321,9 @@ void RunTop(TString filename,
 	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
 	  //if(channelSelection==21) passSIP3d=true;
 	  if( ev.l_id[il] == 13 )
-            allPlots["relIso_m"]->Fill(relIso,wgt);
+            allPlots["relIso_m"]->Fill(relIso,1);
           else if( ev.l_id[il] == 11)
-            allPlots["relIso_e"]->Fill(relIso,wgt);
+            allPlots["relIso_e"]->Fill(relIso,1);
 
 	  if(passTightKin && passTightId)// && passSIP3d)
 	    {
@@ -397,8 +399,8 @@ void RunTop(TString filename,
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13)
 	    {
 	      //if(tightLeptons.size()>=2 && (hasEleTrigger || hasMuTrigger)) chTag="em";
-	      if(tightLeptons.size()>=2 && (hasEMTrigger)) chTag="em";
-	      if(tightLeptons.size()==1)
+	      if(selLeptons.size()>=2 && (hasEMTrigger)) chTag="em";
+	      if(selLeptons.size()==1)
 		{
 		  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="em";
 		  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) chTag="em";
@@ -414,23 +416,23 @@ void RunTop(TString filename,
       Int_t lepIdx=-1;
       Bool_t isZ(false);//,isZPassingSIP3d(false);
       TLorentzVector l1p4,l2p4,dilp4;
-      if(tightLeptons.size()==1)                                       lepIdx=tightLeptons[0];
-      //else if (tightLeptons.size()==0 && tightLeptonsNonIso.size()==1) lepIdx=tightLeptonsNonIso[0];
-      else if(tightLeptons.size()==2)
+      if(selLeptons.size()==1)                                       lepIdx=selLeptons[0];
+      //else if (selLeptons.size()==0 && selLeptonsNonIso.size()==1) lepIdx=selLeptonsNonIso[0];
+      else if(selLeptons.size()==2)
 	{	  
           if(debug) cout << "di-lepton" << endl;
-	  l1p4.SetPtEtaPhiM(ev.l_pt[tightLeptons[0]],ev.l_eta[tightLeptons[0]],ev.l_phi[tightLeptons[0]],ev.l_mass[tightLeptons[0]]);
-	  l2p4.SetPtEtaPhiM(ev.l_pt[tightLeptons[1]],ev.l_eta[tightLeptons[1]],ev.l_phi[tightLeptons[1]],ev.l_mass[tightLeptons[1]]);
+	  l1p4.SetPtEtaPhiM(ev.l_pt[selLeptons[0]],ev.l_eta[selLeptons[0]],ev.l_phi[selLeptons[0]],ev.l_mass[selLeptons[0]]);
+	  l2p4.SetPtEtaPhiM(ev.l_pt[selLeptons[1]],ev.l_eta[selLeptons[1]],ev.l_phi[selLeptons[1]],ev.l_mass[selLeptons[1]]);
 	  dilp4=l1p4+l2p4;
-	  if(ev.l_id[tightLeptons[0]]==ev.l_id[tightLeptons[1]]          && 
-	     ev.l_charge[tightLeptons[0]]*ev.l_charge[tightLeptons[1]]<0 && 
+	  if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]]          && 
+	     ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]]<0 && 
 	     fabs(dilp4.M()-91)<10) //&& 
 	     //dilp4.Pt()>30)
 	    { 
 	      isZ=true; 
 	      //isZPassingSIP3d=(ev.l_ip3dsig[0]<4 && ev.l_ip3dsig[1]<4);
 	    }
-	  lepIdx=tightLeptons[0];
+	  lepIdx=selLeptons[0];
           if(debug) cout << "di-lepton DONE" << endl;
 	}
 
@@ -507,17 +509,13 @@ void RunTop(TString filename,
 
 	  //smear jet energy resolution for MC
 	  //jetDiff -= jp4;
-          /*
 	  float genJet_pt(0);
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
-          */
-          /*
 	  if(!ev.isData && genJet_pt>0) 
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
 	      jp4 *= jerSmear;
 	    }
-          */
 	  //jetDiff += jp4;
 	  resolvedJetIdx.push_back(k);
 	  resolvedJetP4.push_back(jp4);
@@ -587,6 +585,7 @@ void RunTop(TString filename,
 	    tmpj.addDz(ev.pf_dz[ipf], ev.pf_dzE[ipf]);
             */
 	  }
+          tmpj.sortTracksByPt();
 
           if(isBTagged) bJetsVec.push_back(tmpj);
           else lightJetsVec.push_back(tmpj);
@@ -599,7 +598,7 @@ void RunTop(TString filename,
 
       
       //event weight
-      //float wgt(1.0);
+      float wgt(1.0);
       std::vector<float> puWgts(3,1.0),topPtWgts(2,1.0);
       EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
       if(debug) cout << "Lepton scale factors" << endl;
@@ -626,6 +625,7 @@ void RunTop(TString filename,
 	  //triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
 	  triggerCorrWgt=lepEffH.getTriggerCorrection(pdgIds,leptons);
           if(debug) cout << "calling trigger function DONE!" << endl;
+          // ** selLeptons contains only ev_l position, leptons contains p4 **
 	  for(size_t il=0; il<selLeptons.size(); il++) {
 	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(ev.l_id[selLeptons[il]],leptons[il].Pt(),leptons[il].Eta());
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
@@ -680,6 +680,11 @@ void RunTop(TString filename,
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
+          if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
+          for(size_t il = 0; il < leptons.size(); il++) {
+            if(!filename.Contains("_WJets")) continue;
+            cout << "pT: " << leptons[il].Pt() << endl;
+          }
           //wgt=1.0;
 	}
       if(debug) cout << "Lepton scale factors DONE!" << endl;
@@ -958,32 +963,37 @@ void RunTop(TString filename,
                   p_jet.SetPtEtaPhiM(ev.j_pt[jetindex], ev.j_eta[jetindex], ev.j_phi[jetindex], 0.);
 
                   float deltam = p_cand.M() - mass12;
-                  if(filename.Contains("_WJets"))
-                    cout << endl << deltam << " " << wgt << endl;
 
                   allPlots["massDsmD0loose"+chTag]->Fill(deltam, wgt);
                   allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam, 1);
                   allPlots["massDsmD0loose_all"]->Fill(deltam, wgt);
                   if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
-                      allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
-                      allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
-                      allPlots["massDsmD0_all"]->Fill(deltam, wgt);
-                      if(deltam<0.14 || deltam>0.15) continue;
+                    if(filename.Contains("_WJets")) {
+                      cout << endl << deltam << " " << wgt << endl;
+                      cout << "pi1: " << p_track1.Pt() << endl;
+                      cout << "K: " << p_track2.Pt() << endl;
+                      cout << "pi2: " << p_track3.Pt() << endl;
+                    }
+
+                    allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
+                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
+                    allPlots["massDsmD0_all"]->Fill(deltam, wgt);
+                    if(deltam<0.14 || deltam>0.15) continue;
 /*
-                      allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy()),wgt);
-                      allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz()),wgt);
-                      allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
-                      allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDzE()),wgt);
-                      allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
-                      allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
-                      allPlots["pf_dxy_all"]->Fill(abs(tracks[k].first.getDxy()),wgt);
-                      allPlots["pf_dz_all"]->Fill(abs(tracks[k].first.getDz()),wgt);
-                      allPlots["pf_dxyE_all"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
-                      allPlots["pf_dzE_all"]->Fill(abs(tracks[k].first.getDzE()),wgt);
-                      allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
-                      allPlots["pf_dz_sig_all"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
+                    allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy()),wgt);
+                    allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz()),wgt);
+                    allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
+                    allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDzE()),wgt);
+                    allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
+                    allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
+                    allPlots["pf_dxy_all"]->Fill(abs(tracks[k].first.getDxy()),wgt);
+                    allPlots["pf_dz_all"]->Fill(abs(tracks[k].first.getDz()),wgt);
+                    allPlots["pf_dxyE_all"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
+                    allPlots["pf_dzE_all"]->Fill(abs(tracks[k].first.getDzE()),wgt);
+                    allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
+                    allPlots["pf_dz_sig_all"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
 */
-                      allPlots["nevt"+chTag+"_meson"]->Fill(1,wgt);
+                    allPlots["nevt"+chTag+"_meson"]->Fill(1,wgt);
                   }
                 }
               }
