@@ -344,9 +344,56 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.ngpf++;    
     }
 
-  //top or stop quarks (lastCopy)
+  //J/Psi decay
+  ev_.ngjpsi=0;
+  //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
+  for(size_t i = 0; i < prunedGenParticles->size(); i++) {
+    const reco::GenParticle &genIt = (*prunedGenParticles)[i];
+    int absid=abs(genIt.pdgId());
+    if(absid!=443) continue;
+    if(genIt.numberOfDaughters()!=2) continue;
+    if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13) continue;
+    cout << "daughter found" << endl;
+    bool JPsiDaughter = false;
+    for(size_t ipf=0; ipf<genIt.numberOfDaughters(); ipf++) {
+      cout << "loading daughter" << endl;
+      const reco::Candidate *daug=genIt.daughter(ipf);
+      if(abs(daug->pdgId())==13) JPsiDaughter = true;
+      else continue;
+      cout << "daugther is muon: pT, eta, phi" << endl;
+      cout << daug->pt() << ", ";
+      cout << daug->eta() << ", ";
+      cout << daug->phi() << endl;
+      ev_.gjpsi_mu_pt[ev_.ngjpsi] = daug->pt();
+      ev_.gjpsi_mu_eta[ev_.ngjpsi] = daug->eta();
+      ev_.gjpsi_mu_phi[ev_.ngjpsi] = daug->phi();
+      /*
+      ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
+      ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
+      ev_.gjpsi_mu_dz[ev_.ngjpsi]  = daug->dz(primVtx.position());
+      ev_.gjpsi_mu_dzE[ev_.ngjpsi]  = daug->dzE();
+      */
+    }
+    if(!JPsiDaughter) continue;
+    cout << "J/Psi: pT, eta, phi, M" << endl;
+    cout << genIt.pt() << ", ";
+    cout << genIt.eta() << ", ";
+    cout << genIt.phi() << ", ";
+    cout << genIt.mass() << endl;
+    ev_.gjpsi_pt[ev_.ngjpsi]     = genIt.pt();
+    ev_.gjpsi_eta[ev_.ngjpsi]    = genIt.eta();
+    ev_.gjpsi_phi[ev_.ngjpsi]    = genIt.phi();
+    ev_.gjpsi_m[ev_.ngjpsi]      = genIt.mass();
+    ev_.gjpsi_mu_dR[ev_.ngjpsi]  = reco::deltaR(genIt.daughter(0)->eta(),genIt.daughter(0)->phi(),genIt.daughter(1)->eta(),genIt.daughter(1)->phi());
+    cout << ev_.gjpsi_mu_dR[ev_.ngjpsi] << endl;
+    ev_.ngjpsi++;
+  }
+
+  //top or stop quarks (lastCopy)
+  //edm::Handle<reco::GenParticleCollection> prunedGenParticles;
+  //iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
   ev_.ngtop=0; 
   float mStop(-1),mNeutralino(-1);
   for (size_t i = 0; i < prunedGenParticles->size(); ++i)
