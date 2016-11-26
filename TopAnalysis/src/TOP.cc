@@ -709,14 +709,14 @@ void RunTop(TString filename,
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[ij],ev.j_eta[ij],ev.j_phi[ij],ev.j_mass[ij]);
           allPlots["dR"+chTag]->Fill(jp4.DeltaR(leptons[il]),wgt);
-          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),1);
+          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),norm);
         }
         for(size_t ij=0; ij<lightJets.size(); ij++) {
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[ij],ev.j_eta[ij],ev.j_phi[ij],ev.j_mass[ij]);
           allPlots["dR"+chTag]->Fill(jp4.DeltaR(leptons[il]),wgt);
           allPlots["dR_all"]->Fill(jp4.DeltaR(leptons[il]),wgt);
-          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),1);
+          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),norm);
         }
       }
 
@@ -739,25 +739,25 @@ void RunTop(TString filename,
         singleLep = true;
         allPlots["nj"+chTag]->Fill(lightJetsVec.size(),wgt);
         allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
-        allPlots["nj"+chTag+"_no_weight"]->Fill(lightJetsVec.size(),1);
-        allPlots["nbj"+chTag+"_no_weight"]->Fill(bJetsVec.size(),1);
+        allPlots["nj"+chTag+"_no_weight"]->Fill(lightJetsVec.size(),norm);
+        allPlots["nbj"+chTag+"_no_weight"]->Fill(bJetsVec.size(),norm);
         allPlots["nj_all"]->Fill(lightJetsVec.size(),wgt);
         allPlots["nbj_all"]->Fill(bJetsVec.size(),wgt);
         allPlots["nlp"+chTag]->Fill(selLeptons.size(),wgt);
-        allPlots["nlp"+chTag+"_no_weight"]->Fill(selLeptons.size(),1);
+        allPlots["nlp"+chTag+"_no_weight"]->Fill(selLeptons.size(),norm);
         allPlots["nevt"+chTag]->Fill(1,wgt);
         std::sort(leptons.begin(), leptons.end(), VecSort);
         allPlots["lp_pt"+chTag]->Fill(leptons[0].Pt(),wgt);
-        allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),1);
+        allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),norm);
         allPlots["lp_pt_all"]->Fill(leptons[0].Pt(),wgt);
         allPlots["j_pt"+chTag]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
         allPlots["bj_pt"+chTag]->Fill(bJetsVec[0].getVec().Pt(),wgt);
         allPlots["j_pt_all"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
         allPlots["bj_pt_all"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
         allPlots["MET"+chTag]->Fill(ev.met_pt[0],wgt);
-        allPlots["j_pt"+chTag+"_no_weight"]->Fill(lightJetsVec[0].getVec().Pt(),1);
-        allPlots["bj_pt"+chTag+"_no_weight"]->Fill(bJetsVec[0].getVec().Pt(),1);
-        allPlots["MET"+chTag+"_no_weight"]->Fill(ev.met_pt[0],1);
+        allPlots["j_pt"+chTag+"_no_weight"]->Fill(lightJetsVec[0].getVec().Pt(),norm);
+        allPlots["bj_pt"+chTag+"_no_weight"]->Fill(bJetsVec[0].getVec().Pt(),norm);
+        allPlots["MET"+chTag+"_no_weight"]->Fill(ev.met_pt[0],norm);
         for(int i = 0; i < ev.npf; i++) {
           allPlots["pfid"+chTag]->Fill(ev.pf_id[i],wgt);
         }
@@ -765,7 +765,7 @@ void RunTop(TString filename,
       else if(selLeptons.size() == 2 && bJets.size() >= 1 && lightJetsVec.size() > 1) {
         if(isZ) {
           allPlots["massZ"+chTag]->Fill(dilp4.M(),wgt);
-          allPlots["massZ"+chTag+"_no_weight"]->Fill(dilp4.M(),1);
+          allPlots["massZ"+chTag+"_no_weight"]->Fill(dilp4.M(),norm);
         }
         if(isZ) continue;
         if(dilp4.M() < 10) continue; // && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) continue;
@@ -776,24 +776,24 @@ void RunTop(TString filename,
         allPlots["ndilp"+chTag]->Fill(selLeptons.size(),wgt);
         allPlots["dilp_pt"+chTag]->Fill(dilp4.Pt(),wgt);
         allPlots["dilp_m"+chTag]->Fill(dilp4.M(),wgt);
-        allPlots["nj"+chTag+"_no_weight"]->Fill(lightJetsVec.size(),1);
-        allPlots["nbj"+chTag+"_no_weight"]->Fill(bJetsVec.size(),1);
-        allPlots["ndilp"+chTag+"_no_weight"]->Fill(selLeptons.size(),1);
-        allPlots["dilp_pt"+chTag+"_no_weight"]->Fill(dilp4.Pt(),1);
-        allPlots["dilp_m"+chTag+"_no_weight"]->Fill(dilp4.M(),1);
+        allPlots["nj"+chTag+"_no_weight"]->Fill(lightJetsVec.size(),norm);
+        allPlots["nbj"+chTag+"_no_weight"]->Fill(bJetsVec.size(),norm);
+        allPlots["ndilp"+chTag+"_no_weight"]->Fill(selLeptons.size(),norm);
+        allPlots["dilp_pt"+chTag+"_no_weight"]->Fill(dilp4.Pt(),norm);
+        allPlots["dilp_m"+chTag+"_no_weight"]->Fill(dilp4.M(),norm);
         std::sort(leptons.begin(), leptons.end(), VecSort);
         allPlots["lp_pt"+chTag]->Fill(leptons[0].Pt(),wgt);
         allPlots["l2p_pt"+chTag]->Fill(leptons[1].Pt(),wgt);
-        allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),1);
-        allPlots["l2p_pt"+chTag+"_no_weight"]->Fill(leptons[1].Pt(),1);
+        allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),norm);
+        allPlots["l2p_pt"+chTag+"_no_weight"]->Fill(leptons[1].Pt(),norm);
         allPlots["j_pt"+chTag]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
         allPlots["bj_pt"+chTag]->Fill(bJetsVec[0].getVec().Pt(),wgt);
-        allPlots["j_pt"+chTag+"_no_weight"]->Fill(lightJetsVec[0].getVec().Pt(),1);
-        allPlots["bj_pt"+chTag+"_no_weight"]->Fill(bJetsVec[0].getVec().Pt(),1);
+        allPlots["j_pt"+chTag+"_no_weight"]->Fill(lightJetsVec[0].getVec().Pt(),norm);
+        allPlots["bj_pt"+chTag+"_no_weight"]->Fill(bJetsVec[0].getVec().Pt(),norm);
         allPlots["MET"+chTag]->Fill(ev.met_pt[0],wgt);
         allPlots["charge"+chTag]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt);
-        allPlots["MET"+chTag+"_no_weight"]->Fill(ev.met_pt[0],1);
-        allPlots["charge"+chTag+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],1);
+        allPlots["MET"+chTag+"_no_weight"]->Fill(ev.met_pt[0],norm);
+        allPlots["charge"+chTag+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
         for(int i = 0; i < ev.npf; i++) {
           allPlots["pfid"+chTag]->Fill(ev.pf_id[i],wgt);
         }
@@ -804,7 +804,7 @@ void RunTop(TString filename,
       if(!singleLep && !doubleLep) continue;
 
       allPlots["npf"+chTag+"_lep"]->Fill(ev.npf,wgt);
-      allPlots["npf"+chTag+"_lep"+"_no_weight"]->Fill(ev.npf,1);
+      allPlots["npf"+chTag+"_lep"+"_no_weight"]->Fill(ev.npf,norm);
       allPlots["nevt"+chTag+"_lep"]->Fill(1,wgt);
       allPlots["nevt_all_lep"]->Fill(1,wgt);
 
@@ -901,12 +901,12 @@ void RunTop(TString filename,
             float mass12 = (p_track1+p_track2).M();
             if(debug) cout << mass12 << endl;
             allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
-            allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),1);
+            allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
 
             if (mass12>1.65 && mass12<2.0) {
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
               allPlots["massD0_all"]->Fill(mass12,wgt);
-              allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,1);
+              allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,norm);
               allPlots["nbj"+chTag+"_meson"]->Fill(1,wgt);
             }
 
@@ -926,16 +926,16 @@ void RunTop(TString filename,
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
                 allPlots["massD0_lep"+chTag]->Fill(mass12,wgt);
-                allPlots["massD0_lep"+chTag+"_no_weight"]->Fill(mass12,1);
+                allPlots["massD0_lep"+chTag+"_no_weight"]->Fill(mass12,norm);
 
                 if(abs(tracks[k].second) == 13)
                   allPlots["massD0_mu"+chTag]->Fill(mass12,wgt);
                 if(abs(tracks[k].second) == 11)
                   allPlots["massD0_e"+chTag]->Fill(mass12,wgt);
                 if(abs(tracks[k].second) == 13)
-                  allPlots["massD0_mu"+chTag+"_no_weight"]->Fill(mass12,1);
+                  allPlots["massD0_mu"+chTag+"_no_weight"]->Fill(mass12,norm);
                 if(abs(tracks[k].second) == 11)
-                  allPlots["massD0_e"+chTag+"_no_weight"]->Fill(mass12,1);
+                  allPlots["massD0_e"+chTag+"_no_weight"]->Fill(mass12,norm);
               }
             }
             //looking for pion
@@ -951,7 +951,7 @@ void RunTop(TString filename,
               p_track3.SetPtEtaPhiM(tracks[k].first.Pt(), tracks[k].first.Eta(), tracks[k].first.Phi(), gMassPi);
               if(debug) cout << k << ": " << tracks[k].first.Pt() << " " << tracks[k].first.Eta() << " " << tracks[k].first.Phi() << " " << gMassPi << endl;
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
-              allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),1);
+              allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),norm);
               if( tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second) ) {
                 // Kaon and pion have opposite charges
                 // I.e. correct mass assumption
@@ -959,7 +959,7 @@ void RunTop(TString filename,
 
                 p_cand = p_track1+p_track2+p_track3;
                 allPlots["massDs"+chTag]->Fill(p_cand.M(), wgt);
-                allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),1);
+                allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),norm);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);
 
                 if(abs(mass12-1.864) < 0.10) { // mass window cut
@@ -969,7 +969,7 @@ void RunTop(TString filename,
                   float deltam = p_cand.M() - mass12;
 
                   allPlots["massDsmD0loose"+chTag]->Fill(deltam, wgt);
-                  allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam,1);
+                  allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam,norm);
                   allPlots["massDsmD0loose_all"]->Fill(deltam, wgt);
                   if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
                     if(filename.Contains("_WJets")) {
@@ -980,7 +980,7 @@ void RunTop(TString filename,
                     }
 
                     allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
-                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
+                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, norm);
                     allPlots["massDsmD0_all"]->Fill(deltam, wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
 /*
