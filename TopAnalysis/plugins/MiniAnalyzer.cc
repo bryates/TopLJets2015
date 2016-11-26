@@ -346,6 +346,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
   //J/Psi decay
   ev_.ngjpsi=0;
+  int jpsi_index=0; 
   //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
@@ -369,6 +370,8 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gjpsi_mu_pt[ev_.ngjpsi] = daug->pt();
       ev_.gjpsi_mu_eta[ev_.ngjpsi] = daug->eta();
       ev_.gjpsi_mu_phi[ev_.ngjpsi] = daug->phi();
+      ev_.gjpsi_mu_jpsi_index[ev_.ngjpsi] = jpsi_index;
+      cout << jpsi_index << endl;
       /*
       ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
       ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
@@ -388,7 +391,10 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     ev_.gjpsi_m[ev_.ngjpsi]      = genIt.mass();
     ev_.gjpsi_mu_dR[ev_.ngjpsi]  = reco::deltaR(genIt.daughter(0)->eta(),genIt.daughter(0)->phi(),genIt.daughter(1)->eta(),genIt.daughter(1)->phi());
     cout << ev_.gjpsi_mu_dR[ev_.ngjpsi] << endl;
+    cout << jpsi_index << endl;
+    ev_.gjpsi_index[ev_.ngjpsi] = jpsi_index;
     ev_.ngjpsi++;
+    jpsi_index++;
   }
 
   //top or stop quarks (lastCopy)
@@ -711,6 +717,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(pf->puppiWeight()<0.01 && fabs(pf->pdgId())!=13) continue;
 	}
       
+      ev_.pf_fromPV[ev_.npf]   = pf->fromPV();
       ev_.pf_id[ev_.npf]       = pf->pdgId();
       ev_.pf_c[ev_.npf]        = pf->charge();
       ev_.pf_pt[ev_.npf]       = pf->pt();

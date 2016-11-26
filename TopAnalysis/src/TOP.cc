@@ -254,8 +254,8 @@ void RunTop(TString filename,
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
-    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,50,0.14,0.17);
-    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.3 MeV" ,50,0.14,0.17);
+    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.6 MeV" ,25,0.14,0.17);
+    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.6 MeV" ,25,0.14,0.17);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
@@ -277,6 +277,8 @@ void RunTop(TString filename,
   }
     allPlots["relIso_m"] = new TH1F("relIso_m",";relIso;Events / 0.05", 20,0,1.);
     allPlots["relIso_e"] = new TH1F("relIso_e",";relIso;Events / 0.05", 20,0,1.);
+    allPlots["nevt_iso"] = new TH1F("nevt_iso",";After Isolation;Events", 1,0,1.);
+    allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,0,1.);
 
 
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
@@ -437,9 +439,11 @@ void RunTop(TString filename,
 	}
 
       if(lepIdx<0) continue;
+      allPlots["nevt_iso"]->Fill(1);
       
       //no extra isolated leptons
       if(vetoLeptons.size()>0) continue;
+      allPlots["nevt_veto"]->Fill(1);
       
       //apply trigger requirement
       /*
@@ -680,11 +684,13 @@ void RunTop(TString filename,
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
-          if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
+          //if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
+          /*
           for(size_t il = 0; il < leptons.size(); il++) {
             if(!filename.Contains("_WJets")) continue;
             cout << "pT: " << leptons[il].Pt() << endl;
           }
+          */
           //wgt=1.0;
 	}
       if(debug) cout << "Lepton scale factors DONE!" << endl;
@@ -897,7 +903,7 @@ void RunTop(TString filename,
             float mass12 = (p_track1+p_track2).M();
             if(debug) cout << mass12 << endl;
             allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
-            allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2), 1);
+            allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),1);
 
             if (mass12>1.65 && mass12<2.0) {
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
@@ -955,7 +961,7 @@ void RunTop(TString filename,
 
                 p_cand = p_track1+p_track2+p_track3;
                 allPlots["massDs"+chTag]->Fill(p_cand.M(), wgt);
-                allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(), 1);
+                allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),1);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);
 
                 if(abs(mass12-1.864) < 0.10) { // mass window cut
@@ -965,7 +971,7 @@ void RunTop(TString filename,
                   float deltam = p_cand.M() - mass12;
 
                   allPlots["massDsmD0loose"+chTag]->Fill(deltam, wgt);
-                  allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam, 1);
+                  allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam,1);
                   allPlots["massDsmD0loose_all"]->Fill(deltam, wgt);
                   if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
                     if(filename.Contains("_WJets")) {
@@ -976,7 +982,7 @@ void RunTop(TString filename,
                     }
 
                     allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
-                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
+                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam,1);
                     allPlots["massDsmD0_all"]->Fill(deltam, wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
 /*

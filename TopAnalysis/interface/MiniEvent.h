@@ -27,8 +27,8 @@ struct MiniEvent_t
   Float_t gtop_pt[15],gtop_eta[15],gtop_phi[15],gtop_m[15]; 
   Int_t gpf_id[5000],gpf_c[5000],gpf_g[5000];
   Float_t gpf_pt[5000],gpf_eta[5000],gpf_phi[5000],gpf_m[5000];
-  Float_t gjpsi_pt[5000],gjpsi_eta[5000],gjpsi_phi[5000],gjpsi_m[5000],gjpsi_mu_dR[5000];
-  Float_t gjpsi_mu_pt[5000],gjpsi_mu_eta[5000],gjpsi_mu_phi[5000],gjpsi_mu_m[5000],gjpsi_mu_dxy[5000],gjpsi_mu_dxyE[5000],gjpsi_mu_dz[5000],gjpsi_mu_dzE[5000];
+  Float_t gjpsi_pt[5000],gjpsi_eta[5000],gjpsi_phi[5000],gjpsi_m[5000],gjpsi_mu_dR[5000],gjpsi_index[5000];
+  Float_t gjpsi_mu_pt[5000],gjpsi_mu_eta[5000],gjpsi_mu_phi[5000],gjpsi_mu_m[5000],gjpsi_mu_jpsi_index[5000],gjpsi_mu_dxy[5000],gjpsi_mu_dxyE[5000],gjpsi_mu_dz[5000],gjpsi_mu_dzE[5000];
 
   //reco level event
   Int_t nvtx;
@@ -50,7 +50,7 @@ struct MiniEvent_t
 
   //PF candidates
   Int_t npf,pf_j[5000];
-  Int_t pf_id[5000],pf_c[5000];
+  Int_t pf_id[5000],pf_c[5000],pf_fromPV[5000];
   Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000];
 };
 
