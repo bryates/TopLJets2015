@@ -371,7 +371,6 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gjpsi_mu_eta[ev_.ngjpsi] = daug->eta();
       ev_.gjpsi_mu_phi[ev_.ngjpsi] = daug->phi();
       ev_.gjpsi_mu_jpsi_index[ev_.ngjpsi] = jpsi_index;
-      cout << jpsi_index << endl;
       /*
       ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
       ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
@@ -395,6 +394,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     ev_.gjpsi_index[ev_.ngjpsi] = jpsi_index;
     ev_.ngjpsi++;
     jpsi_index++;
+    ev_.ngjpsi++;
   }
 
   //top or stop quarks (lastCopy)

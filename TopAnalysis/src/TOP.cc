@@ -684,13 +684,11 @@ void RunTop(TString filename,
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
-          //if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
-          /*
+          if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
           for(size_t il = 0; il < leptons.size(); il++) {
             if(!filename.Contains("_WJets")) continue;
             cout << "pT: " << leptons[il].Pt() << endl;
           }
-          */
           //wgt=1.0;
 	}
       if(debug) cout << "Lepton scale factors DONE!" << endl;
@@ -982,7 +980,7 @@ void RunTop(TString filename,
                     }
 
                     allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
-                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam,1);
+                    allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, 1);
                     allPlots["massDsmD0_all"]->Fill(deltam, wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
 /*
