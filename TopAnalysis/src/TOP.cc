@@ -603,6 +603,7 @@ void RunTop(TString filename,
       
       //event weight
       float wgt(1.0);
+      float norm(1.0);
       std::vector<float> puWgts(3,1.0),topPtWgts(2,1.0);
       EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
       if(debug) cout << "Lepton scale factors" << endl;
@@ -678,7 +679,8 @@ void RunTop(TString filename,
           */
 
 	  //update nominal event weight
-	  float norm( normH ? normH->GetBinContent(1) : 1.0);
+	  //float norm( normH ? normH->GetBinContent(1) : 1.0);
+	  norm =  normH ? normH->GetBinContent(1) : 1.0;
 	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
@@ -876,6 +878,11 @@ void RunTop(TString filename,
             allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
             allPlots["massJPsiK_all"]->Fill(mass123,wgt);
           }
+          /*
+          if(mass123 > 0) kaonCands.erase(kaonCands.begin());
+          pfmuCands.erase(pfmuCands.begin()+1);
+          pfmuCands.erase(pfmuCands.begin());
+          */
         }
         if(debug) cout << "J/Psi DONE" << endl;
         //continue; //FIXME
@@ -901,12 +908,12 @@ void RunTop(TString filename,
             float mass12 = (p_track1+p_track2).M();
             if(debug) cout << mass12 << endl;
             allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
-            allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
+            //allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
 
             if (mass12>1.65 && mass12<2.0) {
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
               allPlots["massD0_all"]->Fill(mass12,wgt);
-              allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,norm);
+              //allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,norm);
               allPlots["nbj"+chTag+"_meson"]->Fill(1,wgt);
             }
 
