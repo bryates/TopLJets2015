@@ -369,10 +369,11 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       cout << daug->eta() << ", ";
       cout << daug->phi() << endl;
       */
-      ev_.gjpsi_mu_pt[ipf] = daug->pt();
-      ev_.gjpsi_mu_eta[ipf] = daug->eta();
-      ev_.gjpsi_mu_phi[ipf] = daug->phi();
-      ev_.gjpsi_mu_jpsi_index[ipf] = jpsi_index;
+      //2*ev_.ngjpsi to account for 2 duaghters per J/Psi
+      ev_.gjpsi_mu_pt[2*ev_.ngjpsi+ipf] = daug->pt();
+      ev_.gjpsi_mu_eta[2*ev_.ngjpsi+ipf] = daug->eta();
+      ev_.gjpsi_mu_phi[2*ev_.ngjpsi+ipf] = daug->phi();
+      ev_.gjpsi_mu_jpsi_index[2*ev_.ngjpsi+ipf] = jpsi_index;
       /*
       ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
       ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
