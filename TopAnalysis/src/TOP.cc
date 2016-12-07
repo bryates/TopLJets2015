@@ -82,6 +82,9 @@ void RunTop(TString filename,
   bool requireEMTriggers(false);
   if(ev.isData && filename.Contains("MuonEG"))         requireEMTriggers=true;
 
+  //Initialize muon rochester corrections
+  rochcor2016 *rochcor_ = new rochcor2016(2016);
+
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
   //PILEUP WEIGHTING
@@ -491,7 +494,6 @@ void RunTop(TString filename,
 	  lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
           if(ev.isData && ev.l_id[lepIdx]==13) {
             //muon rochester corrections
-            rochcor2016 *rochcor_ = new rochcor2016(2016);
             float qter(1.0);
             rochcor_->momcor_data(lp4, ev.l_charge[lepIdx], 0, qter);
           }
