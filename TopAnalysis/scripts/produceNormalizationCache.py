@@ -29,6 +29,7 @@ def main():
         #sum weight generator level weights
         wgtCounter=None
         labelH=None
+        Nnet=None
         for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
             fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
             if not opt.HiForest:
@@ -42,6 +43,11 @@ def main():
                     wgtCounter.Reset('ICE')
                 labelH=fIn.Get('analysis/generator_initrwgt')
                 if labelH : labelH.SetDirectory(0)                
+                #if 'MC13TeV' in sample:
+                    #tree=fIn.Get('analysis/data')
+                    #Nall=tree.Draw('ttbar_w[0]','','goff')
+                    #Nneg=tree.Draw('ttbar_w[0]','ttbar_w[0]<0','goff')
+                    #Nnet=Nall - 2*Nneg
                 wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
             else:
                 if wgtCounter is None:
@@ -68,6 +74,7 @@ def main():
 
         #invert to set normalization
         print sample,' initial sum of weights=',wgtCounter.GetBinContent(1)
+        #print Nnet
         for xbin in xrange(1,wgtCounter.GetNbinsX()+1):
             val=wgtCounter.GetBinContent(xbin)
             if val==0: continue

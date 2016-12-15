@@ -58,6 +58,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "TopLJets2015/TopAnalysis/interface/rochcor2016.h"
+
 #include "TLorentzVector.h"
 #include "TH1.h"
 #include "TH1F.h"
@@ -125,6 +127,9 @@ private:
 
   std::unordered_map<std::string,TH1F*> histContainer_;
 
+  //muon rochester corrections
+  rochcor2016 *rochcor_;
+
   PFJetIDSelectionFunctor pfjetIDLoose_;
 
   std::vector<std::string> muTriggersToUse_, elTriggersToUse_;
@@ -183,6 +188,9 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   elTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("elTriggersToUse");
   muTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("muTriggersToUse");
 
+  //start the rochester correction tool
+  rochcor_=new rochcor2016(2016);
+ 
   //  usesResource("TFileService");
 
   for(Int_t igenjet=0; igenjet<5; igenjet++)
@@ -519,6 +527,23 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(muonToken_, muons);
   for (const pat::Muon &mu : *muons) 
     { 
+      //correct the 4-momentum
+      TLorentzVector p4;
+      p4.SetPtEtaPhiM(mu.pt(),mu.eta(),mu.phi(),mu.mass());
+      float qter(1.0);
+      try {
+        if(iEvent.isRealData()) {
+	  rochcor_->momcor_data(p4, mu.charge(), 0, qter);
+        }
+        else {
+          int ntrk=mu.innerTrack()->hitPattern().trackerLayersWithMeasurement();
+	rochcor_->momcor_data(p4, mu.charge(), ntrk, qter);
+        }
+      }
+      catch(...) {
+        //probably no inner track...
+      }
+
       //kinematics
       bool passPt( mu.pt() > 10 );
       bool passEta(fabs(mu.eta()) < 2.4 );

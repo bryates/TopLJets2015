@@ -83,7 +83,7 @@ void RunTop(TString filename,
   if(ev.isData && filename.Contains("MuonEG"))         requireEMTriggers=true;
 
   //Initialize muon rochester corrections
-  rochcor2016 *rochcor_ = new rochcor2016(2016);
+  //rochcor2016 *rochcor_ = new rochcor2016(2016);
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
@@ -255,7 +255,7 @@ void RunTop(TString filename,
 */
     //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.01 GeV" ,18,2.5,3.4);
     //allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{J/#Psi};Events / 0.5 GeV" ,20,0,10);
-    allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 36 MeV" ,25,2.5,3.4);
+    allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 18 MeV" ,50,2.5,3.4);
     allPlots["massJPsiK"+tag+cut+weight]     = new TH1F("massJPsiK"+tag+cut+weight,";M_{llk};Events / 15 MeV" ,100,4.5,6);
     allPlots["massD0"+tag+cut+weight]     = new TH1F("massD0"+tag+cut+weight,";M_{D^{0}};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
@@ -315,11 +315,11 @@ void RunTop(TString filename,
       for(int il=0; il<ev.nl; il++)
 	{
           //cout << "in lepton selection" << endl;
-	  bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4); // TOP mu cut for dilep
+	  bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && ev.l_relIso[il]<0.25)
+               || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && ev.l_relIso[il]<0.0893) || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5
+               && ev.l_relIso[il]<0.121)) && abs(ev.l_id[il])==11)); // TOP mu cut for dilep
 
-	  float relIso(ev.l_relIso[il]);
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
-	  bool passIso( ev.l_id[il]==13 ? relIso<0.25 : (ev.l_pid[il]>>1)&0x1 ); // TOP mu cut for dilep FIXME
 	  
 	  //bool passNonIso(relIso>0.4); //FIXME from 7_6_x
 	  //if( ev.l_id[il]==11 && (passIso || relIso<0.4) ) passNonIso=false; //FIXME from 7_6_x
@@ -337,7 +337,7 @@ void RunTop(TString filename,
 
 	  if(passTightKin && passTightId)// && passSIP3d)
 	    {
-	      if(passIso)         tightLeptons.push_back(il);
+	      tightLeptons.push_back(il);
 	      //else if(passNonIso) tightLeptonsNonIso.push_back(il); //FIXME from 7_6_x
 	    }
 	  else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
@@ -345,9 +345,9 @@ void RunTop(TString filename,
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
-      bool hasEETrigger(((ev.elTrigger>>1)&0x1)!=0 || ((ev.elTrigger>>4)&0x1)!=0);
+      bool hasEETrigger(((ev.elTrigger>>2)&0x3)!=0);// || ((ev.elTrigger>>4)&0x1)!=0);
       bool hasMMTrigger(((ev.muTrigger>>2)&0x3)!=0);
-      bool hasEMTrigger(((ev.elTrigger>>2)&0x3)!=0);
+      bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);
       bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);
       if(!ev.isData)
@@ -389,6 +389,8 @@ void RunTop(TString filename,
             if(debug) cout << "found 1 tight lepton" << endl;
           }
           //USE VETO HERE
+          //no extra isolated leptons
+          //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
 	}
       if(tightLeptons.size()>=2)
 	{
@@ -450,8 +452,7 @@ void RunTop(TString filename,
       if(lepIdx<0) continue;
       allPlots["nevt_iso"]->Fill(1);
       
-      //no extra isolated leptons
-      if(selLeptons.size()==1 && vetoLeptons.size()>0) continue; //veto only on lep+jets
+      if(vetoLeptons.size()>0) continue; //veto only on lep+jets
       allPlots["nevt_veto"]->Fill(1);
       
       //apply trigger requirement
@@ -492,11 +493,13 @@ void RunTop(TString filename,
 	  int lepIdx=selLeptons[il];
 	  TLorentzVector lp4;
 	  lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
+          /*
           if(ev.isData && ev.l_id[lepIdx]==13) {
             //muon rochester corrections
             float qter(1.0);
             rochcor_->momcor_data(lp4, ev.l_charge[lepIdx], 0, qter);
           }
+          */
 	  leptons.push_back(lp4);
 	}
 
@@ -594,12 +597,15 @@ void RunTop(TString filename,
 	    if(ev.pf_c[ipf]==0) continue;
 	    TLorentzVector tkP4(0,0,0,0);
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
-            if(ev.isData && abs(ev.pf_id[lepIdx])==13) {
-              //muon rochester corrections
-              rochcor2016 *rochcor_ = new rochcor2016(2016);
-              float qter(1.0);
+            //muon rochester corrections
+            /*
+            rochcor2016 *rochcor_ = new rochcor2016(2016);
+            float qter(1.0);
+            if(ev.isData && abs(ev.pf_id[ipf])==13)
               rochcor_->momcor_data(tkP4, ev.pf_c[ipf], 0, qter);
-            }
+            else if(!ev.isData && abs(ev.pf_id[ipf])==13)
+              rochcor_->momcor_mc(tkP4, ev.pf_c[ipf], 0, qter);
+            */
             pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf]);
 	    //tmpj.addTrack(tkP4,ev.pf_id[ipf]);
 	    tmpj.addTrack(pftk,ev.pf_id[ipf]);
@@ -614,10 +620,6 @@ void RunTop(TString filename,
           if(isBTagged) bJetsVec.push_back(tmpj);
           else lightJetsVec.push_back(tmpj);
           allJetsVec.push_back(tmpj);
-          /*
-          if(isBTagged) allPlots["csv"+chTag]->Fill(csv,wgt);
-          if(isBTagged) allPlots["csv_all"]->Fill(csv,wgt);
-          */
 	}
 
       
@@ -657,46 +659,7 @@ void RunTop(TString filename,
             if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
             if(debug) cout << "selSF=" << selSF.first << endl;
 	    lepSelCorrWgt.first *= selSF.first;
-            //if(lepSelCorrWgt.first < 0.7) lepSelCorrWgt.first = selSF.first;
 	   }
-          /*
-	  for(UInt_t il=0; il<leptons.size(); il++)
-	    {
-	      TString prefix(abs(ev.l_id[il])==11 ? "e" : "m");
-	      float minEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmin() ), maxEtaForEff( lepEffH[prefix+"_sel"]->GetXaxis()->GetXmax()-0.01 );
-	      float etaForEff=TMath::Max(TMath::Min(float(fabs(leptons[il].Eta())),maxEtaForEff),minEtaForEff);
-	      Int_t etaBinForEff=lepEffH[prefix+"_sel"]->GetXaxis()->FindBin(etaForEff);
-	      
-	      float minPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmin() ), maxPtForEff( lepEffH[prefix+"_sel"]->GetYaxis()->GetXmax()-0.01 );
-	      float ptForEff=TMath::Max(TMath::Min(float(leptons[il].Pt()),maxPtForEff),minPtForEff);
-	      Int_t ptBinForEff=lepEffH[prefix+"_sel"]->GetYaxis()->FindBin(ptForEff);
-		  		  
-	      lepSelSF=(lepEffH[prefix+"_sel"]->GetBinContent(etaBinForEff,ptBinForEff));
-	      
-	      if(il!=0) continue;
-	      if(prefix=="m")
-		{
-		  lepTriggerSF=(lepEffH[prefix+"_trig"]->GetBinContent(etaBinForEff,ptBinForEff));
-		
-		}
-	    }
-          */
-	  
-	  //https://indico.cern.ch/event/539804/contributions/2196937/attachments/1291290/1923328/TopTriggers2016v2.pdf
-	  /*
-	  if(era.Contains("2015"))
-	    {
-	      if(chTag=="EE") lepTriggerSF=0.930;
-	      if(chTag=="MM") lepTriggerSF=0.894;
-	      if(chTag=="EM") lepTriggerSF=0.931;
-	    }
-	  else
-	    {
-	      if(chTag=="EE") lepTriggerSF=0.93;
-              if(chTag=="MM") lepTriggerSF=0.87;
-              if(chTag=="EM") lepTriggerSF=0.88;
-	    }
-          */
 
 	  //update nominal event weight
 	  //float norm( normH ? normH->GetBinContent(1) : 1.0);
@@ -805,7 +768,7 @@ void RunTop(TString filename,
           allPlots["massZ"+chTag+"_no_weight"]->Fill(dilp4.M(),norm);
         }
         if(isZ) continue;
-        if(dilp4.M() < 10) continue; // && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) continue;
+        if(dilp4.M() < 20) continue;
         if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() < 40) continue; //FIXME
         doubleLep = true;
         //allPlots["nj"+chTag]->Fill(lightJetsVec.size(),wgt);
