@@ -54,20 +54,15 @@ void RunTop(TString filename,
   if(debug) cout << "in RunTop" << endl;
 
   bool isTTbar( filename.Contains("_TTJets") );
-  //bool debug(false);
-  //bool isData( filename.Contains("Data") ? true : false);
   
   //READ TREE FROM FILE
   MiniEvent_t ev;
-  //TopWidthEvent_t ev;
   TFile *f = TFile::Open(filename);
-  //TTree *t = (TTree*)f->Get("twev");
   TH1 *puTrue=(TH1 *)f->Get("analysis/putrue");
   puTrue->SetDirectory(0);
   puTrue->Scale(1./puTrue->Integral());
   TTree *t = (TTree*)f->Get("analysis/data");
   attachToMiniEventTree(t,ev,true);
-  //createTopWidthEventTree(t,ev);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
   if(ev.isData) runSysts=false;
@@ -82,9 +77,6 @@ void RunTop(TString filename,
   bool requireEMTriggers(false);
   if(ev.isData && filename.Contains("MuonEG"))         requireEMTriggers=true;
 
-  //Initialize muon rochester corrections
-  //rochcor2016 *rochcor_ = new rochcor2016(2016);
-
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
   //PILEUP WEIGHTING
@@ -92,12 +84,9 @@ void RunTop(TString filename,
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
-      //TString puWgtUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data"+era+"/pileupWgts.root");
       TString puWgtUrl(era+"/pileupWgts.root");
       gSystem->ExpandPathName(puWgtUrl);
       TFile *fIn=TFile::Open(puWgtUrl);
-      //TGraph *puData=(TGraph *)fIn->Get(grName);
-      //Float_t totalData=puData->Integral();
       for(size_t i=0; i<3; i++)
 	{
 	  TString grName("pu_nom");
@@ -128,49 +117,17 @@ void RunTop(TString filename,
     if(debug) cout << "loading pileup weight DONE" << endl;
 
   //LEPTON EFFICIENCIES
-  //TString lepEffUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/leptonEfficiencies.root");
-  //TString lepEffUrl(era+"/leptonEfficiencies.root");
-  //FIXME
-  //TString lepEffUrl(era+"/muonEfficiencies.root");
-  //gSystem->ExpandPathName(lepEffUrl);
-  //std::map<TString,TH2 *> lepEffH;
   LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era);
-  /*
-  if(!ev.isData)
-    {
-      TFile *fIn=TFile::Open(lepEffUrl);
-      lepEffH["m_sel"]=(TH2 *)fIn->Get("m_sel");
-      lepEffH["m_trig"]=(TH2 *)fIn->Get("m_trig");      
-      for(auto& it : lepEffH) it.second->SetDirectory(0);
-      fIn->Close();
-    }
-  */
 
-  //lepEffUrl="${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CutBasedID_TightWP_76X_18Feb.txt_SF2D.root";
-  //lepEffUrl=era+"/CutBasedID_TightWP_76X_18Feb.txt_SF2D.root";
-  /*
-  lepEffUrl=era+"/electronEfficiencies.root";
-  gSystem->ExpandPathName(lepEffUrl);
-  if(!ev.isData)
-    {
-      TFile *fIn=TFile::Open(lepEffUrl);
-      lepEffH["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D");
-      for(auto& it : lepEffH) it.second->SetDirectory(0);
-      fIn->Close();
-    }
-  */
 
   //B-TAG CALIBRATION
-  //TString btagUncUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/CSVv2.csv");
   TString btagUncUrl(era+"/btagSFactors.csv");
   gSystem->ExpandPathName(btagUncUrl);
   std::vector<BTagCalibrationReader *> sfbReaders, sflReaders;
-  //TString btagEffExpUrl("${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/expTageff.root");
   TString btagEffExpUrl(era+"/expTageff.root");
   gSystem->ExpandPathName(btagEffExpUrl);
   std::map<TString, TGraphAsymmErrors *> expBtagEff, expBtagEffPy8;
   BTagSFUtil myBTagSFUtil;
-  //float wgt(1.0);
   if(!ev.isData)
     {
       BTagCalibration btvcalib("csvv2", btagUncUrl.Data());
@@ -183,9 +140,6 @@ void RunTop(TString filename,
       sflReaders.push_back( new BTagCalibrationReader(&btvcalib, BTagEntry::OP_MEDIUM, "incl", "up") );
       
       TFile *beffIn=TFile::Open(btagEffExpUrl);
-      //expBtagEff["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
-      //expBtagEff["c"]=(TGraphAsymmErrors *)beffIn->Get("c");
-      //expBtagEff["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
       expBtagEffPy8["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
       expBtagEffPy8["c"]=(TGraphAsymmErrors *)beffIn->Get("c");
       expBtagEffPy8["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
@@ -205,24 +159,17 @@ void RunTop(TString filename,
       expBtagEff["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
       beffIn->Close();
 
-      //wgt=1.0;
-      //float norm( normH ? normH->GetBinContent(1) : 1.0);
-      //wgt=norm;//lepTriggerSF[0]*lepSelSF[0]*puWeight[0]*norm;
     }
 
-  //JET ENERGY SCALE: https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Summer15_uncertainties
   //jet energy uncertainties
   TString jecUncUrl(era+"/jecUncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
-  //JetCorrectorParameters *jecParam = new JetCorrectorParameters(jecUncUrl.Data(),"Total");
-  //JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty( *jecParam );
   
   //LIST OF SYSTEMATICS
   
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
-  //addGenScanCounters(allPlots,f); FIXME
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -261,8 +208,8 @@ void RunTop(TString filename,
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
-    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.6 MeV" ,25,0.14,0.17);
-    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K^{-}#pi^{+}#pi^{+}} - M_{K^{-}#pi^{+}};Events / 0.6 MeV" ,25,0.14,0.17);
+    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.6 MeV" ,25,0.14,0.17);
+    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.6 MeV" ,25,0.14,0.17);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
@@ -297,33 +244,18 @@ void RunTop(TString filename,
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       allPlots["nevt_all"]->Fill(1,1);
 
-      //account for pu weights and effect on normalization
-      //float puWeight(1.0);
-      if(!ev.isData) 
-	{
-	  //puWeight=puWgtGr[0]->Eval(ev.putrue);  
-          /*
-	  allPlots["puwgtctr"]->Fill(0.,1.0);
-	  allPlots["puwgtctr"]->Fill(1.,puWeight);
-          */
-	}
-
-      //select 1 good lepton
-      //cout << "entering lepton selection" << endl;
-      //std::vector<int> tightLeptonsNonIso;
       std::vector<int> tightLeptons,vetoLeptons;
       for(int il=0; il<ev.nl; il++)
 	{
           //cout << "in lepton selection" << endl;
-	  bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && ev.l_relIso[il]<0.25)
-               || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && ev.l_relIso[il]<0.0893) || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5
-               && ev.l_relIso[il]<0.121)) && abs(ev.l_id[il])==11)); // TOP mu cut for dilep
+          float relIso = ev.l_relIso[il];
+	  bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && relIso<0.25) //muons
+               || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && relIso<0.0893)  //electrons small eta
+                  || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.121)) //electrons medium eta
+                  && abs(ev.l_id[il])==11)); // TOP mu cut for dilep
 
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
 	  
-	  //bool passNonIso(relIso>0.4); //FIXME from 7_6_x
-	  //if( ev.l_id[il]==11 && (passIso || relIso<0.4) ) passNonIso=false; //FIXME from 7_6_x
-
           //Check veto here, but ONLY for lep+jets
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); //FIXME from 7_6_x
           bool passVetoKin(  ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5); // TOP veto
@@ -345,11 +277,11 @@ void RunTop(TString filename,
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
-      bool hasEETrigger(((ev.elTrigger>>2)&0x3)!=0);// || ((ev.elTrigger>>4)&0x1)!=0);
-      bool hasMMTrigger(((ev.muTrigger>>2)&0x3)!=0);
-      bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);
-      bool hasMuTrigger((ev.muTrigger & 0x3)!=0);
-      bool hasEleTrigger((ev.elTrigger & 0x1)!=0);
+      bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      bool hasMMTrigger(((ev.muTrigger>>4)&0x3)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v && HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+      bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);                              //HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v
+      bool hasMuTrigger((ev.muTrigger & 0x3)!=0);                                 //HLT_IsoMu20_v && HLT_IsoTkMu20_v
+      bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
       if(!ev.isData)
 	{	 
 	  hasMuTrigger=true;
