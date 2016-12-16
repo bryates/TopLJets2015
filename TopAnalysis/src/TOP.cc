@@ -280,7 +280,7 @@ void RunTop(TString filename,
       bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       bool hasMMTrigger(((ev.muTrigger>>4)&0x3)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v && HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
       bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);                              //HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v
-      bool hasMuTrigger((ev.muTrigger & 0x3)!=0);                                 //HLT_IsoMu20_v && HLT_IsoTkMu20_v
+      bool hasMuTrigger(((ev.muTrigger>>2)&0x3)!=0);                              //HLT_IsoMu22_v && HLT_IsoTkMu22_v
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
       if(!ev.isData)
 	{	 
@@ -322,7 +322,7 @@ void RunTop(TString filename,
           }
           //USE VETO HERE
           //no extra isolated leptons
-          //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
+          if(vetoLeptons.size()>0) continue; //veto only on lep+jets
 	}
       if(tightLeptons.size()>=2)
 	{
