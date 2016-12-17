@@ -180,6 +180,8 @@ void RunTop(TString filename,
     TString tag(lfsVec[i]);
     TString cut(cutVec[j]);
     TString weight(wgtVec[k]);
+    allPlots["lp_pt_iso"+tag+cut+weight] = new TH1F("lp_pt_iso"+tag+cut+weight,";Lepton P_{T} [GeV] after cleaning;Events / 10 GeV", 20, 0,200);
+    allPlots["lp_pt_veto"+tag+cut+weight] = new TH1F("lp_pt_veto"+tag+cut+weight,";Lepton P_{T} [GeV] after veto;Events / 10 GeV", 20, 0,200);
     allPlots["lp_pt"+tag+cut+weight] = new TH1F("lp_pt"+tag+cut+weight,";Leading Lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["l2p_pt"+tag+cut+weight] = new TH1F("l2p_pt"+tag+cut+weight,";Sub-leading Lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["dilp_pt"+tag+cut+weight] = new TH1F("dilp_pt"+tag+cut+weight,";Lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
@@ -280,7 +282,8 @@ void RunTop(TString filename,
       bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       bool hasMMTrigger(((ev.muTrigger>>4)&0x3)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v && HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
       bool hasEMTrigger(((ev.elTrigger>>4)&0x3)!=0);                              //HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v
-      bool hasMuTrigger(((ev.muTrigger>>2)&0x3)!=0);                              //HLT_IsoMu22_v && HLT_IsoTkMu22_v
+      bool hasMuTrigger(((ev.muTrigger>>2)&0x1)!=0);                              //HLT_IsoMu22_v
+      hasMuTrigger |= (((ev.muTrigger>>3)&0x1)!=0);                              //HLT_IsoTkMu22_v
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
       if(!ev.isData)
 	{	 
@@ -310,10 +313,16 @@ void RunTop(TString filename,
           if(ev.l_id[tightLeptons[0]]==13) { // muon + jets
 	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for dilep
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+	    allPlots["lp_pt_iso_m"]->Fill(ev.l_pt[tightLeptons[0]]);
+            if(vetoLeptons.size()==0)
+              allPlots["lp_pt_veto_m"]->Fill(ev.l_pt[tightLeptons[0]]);
           }
           else if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+            allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]]);
+            if(vetoLeptons.size()==0)
+              allPlots["lp_pt_veto_e"]->Fill(ev.l_pt[tightLeptons[0]]);
           }
 
           if(passTightKin && passIso) {
@@ -356,6 +365,9 @@ void RunTop(TString filename,
       if(chTag=="") continue;
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
+
+      for(size_t i = 0; i < selLeptons.size() && selLeptons.size()>1; i++)
+        allPlots["lp_pt_iso"+chTag]->Fill(ev.l_pt[selLeptons[i]]);
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Int_t lepIdx=-1;
