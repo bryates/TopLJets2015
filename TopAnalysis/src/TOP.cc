@@ -396,7 +396,7 @@ void RunTop(TString filename,
       if(lepIdx<0) continue;
       allPlots["nevt_iso"]->Fill(1);
       
-      if(vetoLeptons.size()>0) continue; //veto only on lep+jets
+      //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
       allPlots["nevt_veto"]->Fill(1);
       
       //apply trigger requirement
