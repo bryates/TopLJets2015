@@ -830,13 +830,16 @@ void RunTop(TString filename,
           if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) continue;
           float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
           float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);
+          if(mass12<3.0 || mass12>3.2) continue;
           allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	  allPlots["massJPsi_all"]->Fill(mass12,wgt);
           allPlots["nbj"+chTag+"_jpsi"]->Fill(1,wgt);
           allPlots["bj_pt"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getVec().Pt(),wgt);
+          allPlots["lp_pt"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
+          allPlots["lp_pt_low"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
           allPlots["csv"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getCSV(),wgt);
           allPlots["nevt"+chTag+"_jpsi"]->Fill(1,wgt);
-           if(mass12<3.0 || mass12>3.2) continue;
+
           for(int itk = 0; itk < 2; itk++) {
 
             for(int i = 0; i < 2; i++) {
@@ -974,6 +977,8 @@ void RunTop(TString filename,
                     allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
                     allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, norm);
                     allPlots["massDsmD0_all"]->Fill(deltam, wgt);
+                    allPlots["lp_pt"+chTag+"_meson"]->Fill(leptons[0].Pt(),wgt);
+                    allPlots["lp_pt_low"+chTag+"_meson"]->Fill(leptons[0].Pt(),wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
 /*
                     allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy()),wgt);
