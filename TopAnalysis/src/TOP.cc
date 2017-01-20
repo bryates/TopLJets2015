@@ -225,10 +225,10 @@ void RunTop(TString filename,
     allPlots["pflp_pt"+tag+cut+weight] = new TH1F("pflp_pt"+tag+cut+weight,";PF lepton P_{T} [GeV];Events / 0.2 GeV", 15, 0,3);
     allPlots["massZ"+tag+cut+weight]     = new TH1F("massZ_control"+tag+cut+weight,";M_{ll};Events / 1.0 GeV" ,30,81,111);
     allPlots["nevt"+tag+cut+weight]     = new TH1F("nevt"+tag+cut+weight,";N_{events};Events" ,1,1.,2.);
-    allPlots["pf_dxy"+tag+cut+weight] = new TH1F("pf_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 20 #mum", 100, 0, 0.1);
-    allPlots["pf_dz"+tag+cut+weight] = new TH1F("pf_dz"+tag+cut+weight,";d_{z} [cm];Events / 20 #mum", 100, 0, 0.1);
-    allPlots["pf_dxyE"+tag+cut+weight] = new TH1F("pf_dxyE"+tag+cut+weight,";#sigma(d_{xy}) [cm];Events / 20 #mum", 100, 0, 0.1);
-    allPlots["pf_dzE"+tag+cut+weight] = new TH1F("pf_dzE"+tag+cut+weight,";#sigma(d_{z}) [cm];Events / 20 #mum", 100, 0, 0.1);
+    allPlots["pf_dxy"+tag+cut+weight] = new TH1F("pf_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 0.01 #mum", 10, 0, 0.1);
+    allPlots["pf_dz"+tag+cut+weight] = new TH1F("pf_dz"+tag+cut+weight,";d_{z} [cm];Events / 0.01 #mum", 10, 0, 0.1);
+    allPlots["pf_dxyE"+tag+cut+weight] = new TH1F("pf_dxyE"+tag+cut+weight,";#sigma(d_{xy}) [cm];Events / 0.01 #mum", 10, 0, 0.1);
+    allPlots["pf_dzE"+tag+cut+weight] = new TH1F("pf_dzE"+tag+cut+weight,";#sigma(d_{z}) [cm];Events / 0.01 #mum", 10, 0, 0.1);
     allPlots["pf_dxy_sig"+tag+cut+weight] = new TH1F("pf_dxy_significance"+tag+cut+weight,";d_{xy};Events / 0.3", 100, 0, 30);
     allPlots["pf_dz_sig"+tag+cut+weight] = new TH1F("pf_dz_significance"+tag+cut+weight,";d_{z};Events / 0.3", 100, 0, 30);
 
@@ -830,7 +830,7 @@ void RunTop(TString filename,
           if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) continue;
           float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
           float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);
-          if(mass12<3.0 || mass12>3.2) continue;
+
           allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	  allPlots["massJPsi_all"]->Fill(mass12,wgt);
           allPlots["nbj"+chTag+"_jpsi"]->Fill(1,wgt);
@@ -839,6 +839,8 @@ void RunTop(TString filename,
           allPlots["lp_pt_low"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
           allPlots["csv"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getCSV(),wgt);
           allPlots["nevt"+chTag+"_jpsi"]->Fill(1,wgt);
+
+          if(mass12<3.0 || mass12>3.2) continue;
 
           for(int itk = 0; itk < 2; itk++) {
 
@@ -947,7 +949,7 @@ void RunTop(TString filename,
               if(debug) cout << k << ": " << tracks[k].first.Pt() << " " << tracks[k].first.Eta() << " " << tracks[k].first.Phi() << " " << gMassPi << endl;
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
               allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),norm);
-              if( tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second) ) {
+              if( tracks[j].second/abs(tracks[j].second) == tracks[k].second/abs(tracks[k].second) ) {
                 // Kaon and pion have opposite charges
                 // I.e. correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
