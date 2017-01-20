@@ -268,10 +268,12 @@ void RunTop(TString filename,
 
 	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
 	  //if(channelSelection==21) passSIP3d=true;
+	  /*
 	  if( ev.l_id[il] == 13 )
             allPlots["relIso_m"]->Fill(relIso,1);
           else if( ev.l_id[il] == 11)
             allPlots["relIso_e"]->Fill(relIso,1);
+          */
 
 	  if(passTightKin && passTightId)// && passSIP3d)
 	    {
@@ -315,9 +317,10 @@ void RunTop(TString filename,
 	{
           //** Tighter cuts for lepton + jets **
           if(ev.l_id[tightLeptons[0]]==13) { // muon + jets
-	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for dilep
+	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for lep+jets
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
 	    allPlots["lp_pt_iso_m"]->Fill(ev.l_pt[tightLeptons[0]]);
+            allPlots["relIso_m"]->Fill(ev.l_relIso[tightLeptons[0]],1);
             if(vetoLeptons.size()==0)
               allPlots["lp_pt_veto_m"]->Fill(ev.l_pt[tightLeptons[0]]);
           }
@@ -325,6 +328,7 @@ void RunTop(TString filename,
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
             allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]]);
+            allPlots["relIso_e"]->Fill(ev.l_relIso[tightLeptons[0]],1);
             if(vetoLeptons.size()==0)
               allPlots["lp_pt_veto_e"]->Fill(ev.l_pt[tightLeptons[0]]);
           }
@@ -618,6 +622,8 @@ void RunTop(TString filename,
 	  if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
           allPlots["lp_pt_iso"+chTag]->Scale(wgt);
           allPlots["lp_pt_veto"+chTag]->Scale(wgt);
+          allPlots["relIso_m"]->Scale(wgt);
+          allPlots["relIso_e"]->Scale(wgt);
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
           if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
