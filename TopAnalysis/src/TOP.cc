@@ -236,7 +236,7 @@ void RunTop(TString filename,
 
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
   //for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
-  //Normalize to XSec and Lumi
+  //Normalize to XSec and lumi
   float norm =  normH ? normH->GetBinContent(1) : 1.0;
 
   //LOOP OVER EVENTS
@@ -667,6 +667,7 @@ void RunTop(TString filename,
       //simple fill
       bool singleLep(false);
       bool doubleLep(false);
+      bool minJets(false);
       if(debug) cout << "sorting jets" << endl;
       std::sort(lightJets.begin(), lightJets.end(), VecSort);
       std::sort(bJets.begin(), bJets.end(), VecSort);
@@ -720,6 +721,7 @@ void RunTop(TString filename,
       //Require exactly 1 lepton
       if(selLeptons.size() == 1) {
         if(debug) cout << "single lepton" << endl;
+        singleLep = true;
         allPlots["lp_pt"+chTag+"_lep"]->Fill(leptons[0].Pt(),wgt);
         allPlots["lp_pt"+chTag+"_lep_no_weight"]->Fill(leptons[0].Pt(),norm);
 
@@ -729,7 +731,7 @@ void RunTop(TString filename,
         //Require at least 1 b-tagged and at least 2 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 2) {
           if(debug) cout << "jet reqirements" << endl;
-          singleLep = true;
+          minJets = true;
           std::sort(leptons.begin(), leptons.end(), VecSort);
           allPlots["lp_pt"+chTag+"_lepjets"]->Fill(leptons[0].Pt(),wgt);
           //allPlots["lp_pt"+chTag+"_lepjets_no_weight"]->Fill(leptons[0].Pt(),norm);
@@ -742,6 +744,7 @@ void RunTop(TString filename,
       //Require exactly 2 leptons
       else if(selLeptons.size() == 2) {
         if(debug) cout << "dilepton" << endl;
+        doubleLep = true;
         //Z control plot
         if(isZ) {
           allPlots["massZ"+chTag+"_lep"]->Fill(dilp4.M(),wgt);
@@ -779,7 +782,7 @@ void RunTop(TString filename,
           if(dilp4.M() < 20) continue;
           //Require same falvor dilepton MET > 40 GeV
           if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() < 40) continue; //FIXME
-          doubleLep = true;
+          minJets = true;
           allPlots["ndilp"+chTag+"_lepjets"]->Fill(selLeptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lepjets"]->Fill(dilp4.Pt(),wgt);
           allPlots["dilp_m"+chTag+"_lepjets"]->Fill(dilp4.M(),wgt);
@@ -802,20 +805,22 @@ void RunTop(TString filename,
 
       //Require lep+jets or dilepton
       if(!singleLep && !doubleLep) continue;
+      if(debug) cout << "passed lep requirements" << endl;
 
       allPlots["npf"+chTag+"_lep"]->Fill(ev.npf,wgt);
-      allPlots["npf"+chTag+"_lep"+"_no_weight"]->Fill(ev.npf,norm);
+      //allPlots["npf"+chTag+"_lep"+"_no_weight"]->Fill(ev.npf,norm);
       allPlots["nevt"+chTag+"_lep"]->Fill(1,wgt);
       allPlots["nevt_all_lep"]->Fill(1,wgt);
 
       allPlots["nj"+chTag+"_lep"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lep"]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag+"_lep"]->Fill(bJetsVec.size(),wgt);
-      allPlots["nj"+chTag+"_lep"+"_no_weight"]->Fill(lightJetsVec.size(),norm);
-      allPlots["nbj"+chTag+"_lep"+"_no_weight"]->Fill(bJetsVec.size(),norm);
+      //allPlots["nj"+chTag+"_lep"+"_no_weight"]->Fill(lightJetsVec.size(),norm);
+      //allPlots["nbj"+chTag+"_lep"+"_no_weight"]->Fill(bJetsVec.size(),norm);
       allPlots["nlp"+chTag+"_lep"]->Fill(selLeptons.size(),wgt);
-      allPlots["nlp"+chTag+"_lep"+"_no_weight"]->Fill(selLeptons.size(),norm);
+      //allPlots["nlp"+chTag+"_lep"+"_no_weight"]->Fill(selLeptons.size(),norm);
 
+      if(lightJetsVec.size() > 0 and bJetsVec.size() > 0) {
       allPlots["j_pt"+chTag+"_lep"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
       allPlots["lj_pt"+chTag+"_lep"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
       allPlots["bj_pt"+chTag+"_lep"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
@@ -824,6 +829,35 @@ void RunTop(TString filename,
         float csv = allJetsVec.at(ij).getCSV();
         allPlots["csv"+chTag+"_lep"]->Fill(csv,wgt);
         allPlots["csv_all_lep"]->Fill(csv,wgt);
+      }
+      }
+
+
+      //Require b-tagged and light jets
+      if(!minJets) continue;
+      if(debug) cout << "passed jet requirements" << endl;
+
+      allPlots["npf"+chTag+"_lepjets"]->Fill(ev.npf,wgt);
+      allPlots["npf"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.npf,norm);
+      allPlots["nevt"+chTag+"_lepjets"]->Fill(1,wgt);
+      allPlots["nevt_all_lepjets"]->Fill(1,wgt);
+
+      allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
+      allPlots["nlj"+chTag+"_lepjets"]->Fill(lightJetsVec.size(),wgt);
+      allPlots["nbj"+chTag+"_lepjets"]->Fill(bJetsVec.size(),wgt);
+      //allPlots["nj"+chTag+"_lepjets"+"_no_weight"]->Fill(lightJetsVec.size(),norm);
+      //allPlots["nbj"+chTag+"_lepjets"+"_no_weight"]->Fill(bJetsVec.size(),norm);
+      allPlots["nlp"+chTag+"_lepjets"]->Fill(selLeptons.size(),wgt);
+      //allPlots["nlp"+chTag+"_lepjets"+"_no_weight"]->Fill(selLeptons.size(),norm);
+
+      allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
+      allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
+      allPlots["bj_pt"+chTag+"_lepjets"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
+
+      for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
+        float csv = allJetsVec.at(ij).getCSV();
+        allPlots["csv"+chTag+"_lepjets"]->Fill(csv,wgt);
+        allPlots["csv_all_lepjets"]->Fill(csv,wgt);
       }
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
