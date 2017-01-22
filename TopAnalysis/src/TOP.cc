@@ -230,8 +230,8 @@ void RunTop(TString filename,
   }
     allPlots["relIso_m"] = new TH1F("relIso_m",";relIso;Events / 0.05", 20,0,1.);
     allPlots["relIso_e"] = new TH1F("relIso_e",";relIso;Events / 0.05", 20,0,1.);
-    allPlots["nevt_iso"] = new TH1F("nevt_iso",";After Isolation;Events", 1,0,1.);
-    allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,0,1.);
+    allPlots["nevt_iso"] = new TH1F("nevt_iso",";After Isolation;Events", 1,1.,2.);
+    allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,1.,2.);
 
 
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
@@ -400,7 +400,7 @@ void RunTop(TString filename,
 	}
 
       if(lepIdx<0) continue;
-      allPlots["nevt_iso"]->Fill(1),norm;
+      allPlots["nevt_iso"]->Fill(1,norm);
       
       //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
       allPlots["nevt_veto"]->Fill(1,norm);
