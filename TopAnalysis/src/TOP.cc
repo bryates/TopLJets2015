@@ -236,14 +236,14 @@ void RunTop(TString filename,
 
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
   //for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
-  //Normalize to XSec and lumi
-  float norm =  normH ? normH->GetBinContent(1) : 1.0;
 
   //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
+      //Normalize to XSec and lumi
+      float norm =  normH ? normH->GetBinContent(1) : 1.0;
       allPlots["nevt_all"]->Fill(1,norm);
 
       std::vector<int> tightLeptons,vetoLeptons;
@@ -400,10 +400,10 @@ void RunTop(TString filename,
 	}
 
       if(lepIdx<0) continue;
-      allPlots["nevt_iso"]->Fill(1);
+      allPlots["nevt_iso"]->Fill(1),norm;
       
       //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
-      allPlots["nevt_veto"]->Fill(1);
+      allPlots["nevt_veto"]->Fill(1,norm);
       
       //apply trigger requirement
       /*
@@ -613,6 +613,7 @@ void RunTop(TString filename,
 
 	  //update nominal event weight
 	  //float norm( normH ? normH->GetBinContent(1) : 1.0);
+          norm =  normH ? normH->GetBinContent(1) : 1.0;
 	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
