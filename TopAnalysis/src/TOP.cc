@@ -256,9 +256,10 @@ void RunTop(TString filename,
 	  bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && relIso<0.25) //muons
                || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && relIso<0.0893)  //electrons small eta
                   || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.121)) //electrons medium eta
-                  && abs(ev.l_id[il])==11)); // TOP mu cut for dilep
+                  && abs(ev.l_id[il])==11) // TOP mu cut for dilep
+                  && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660
 
-	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1);
+	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
 	  
           //Check veto here, but ONLY for lep+jets
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); //FIXME from 7_6_x
