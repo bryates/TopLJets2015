@@ -243,7 +243,9 @@ void RunTop(TString filename,
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       //Normalize to XSec and lumi
-      float norm =  normH ? normH->GetBinContent(1) : 1.0;
+      float norm(1.0);
+      if(!ev.isData)
+        norm =  normH ? normH->GetBinContent(1) : 1.0;
       allPlots["nevt_all"]->Fill(1,norm);
 
       std::vector<int> tightLeptons,vetoLeptons;
@@ -372,8 +374,10 @@ void RunTop(TString filename,
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
 
+      /*
       for(size_t i = 0; i < selLeptons.size() && selLeptons.size()>1; i++)
         allPlots["lp_pt_iso"+chTag]->Fill(ev.l_pt[selLeptons[i]],norm);
+      */
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Int_t lepIdx=-1;
@@ -613,9 +617,18 @@ void RunTop(TString filename,
 
 	  //update nominal event weight
 	  //float norm( normH ? normH->GetBinContent(1) : 1.0);
-          norm =  normH ? normH->GetBinContent(1) : 1.0;
+          //norm =  normH ? normH->GetBinContent(1) : 1.0;
 	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
+          /*
+          allPlots["nevt_all"]->Scale(wgt);
+          allPlots["nevt_iso"]->Scale(wgt);
+          allPlots["nevt_veto"]->Scale(wgt);
+          allPlots["lp_pt_iso_m"]->Scale(wgt);
+          allPlots["lp_pt_veto_e"]->Scale(wgt);
+          allPlots["relIso_m"]->Scale(wgt);
+          allPlots["relIso_e"]->Scale(wgt);
+          */
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
 	  if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
           if(debug) cout << "weight=" << wgt << endl;
