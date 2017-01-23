@@ -256,14 +256,14 @@ void RunTop(TString filename,
 	  bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && relIso<0.25) //muons
                || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && relIso<0.0893)  //electrons small eta
                   || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.121)) //electrons medium eta
-                  && abs(ev.l_id[il])==11) // TOP mu cut for dilep
-                  && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660
+                  && abs(ev.l_id[il])==11 // TOP mu cut for dilep
+                  && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660))); //remove ECAL 1.4442<|eta|<1.5660
 
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
 	  
           //Check veto here, but ONLY for lep+jets
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.25 : true); //FIXME from 7_6_x
-          bool passVetoKin(  ev.l_pt[il]>10 && fabs(ev.l_eta[il])<2.5); // TOP veto
+          bool passVetoKin(  ev.l_pt[il]>15 && fabs(ev.l_eta[il])<2.5); // TOP veto 10->15
 
 	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
 	  //if(channelSelection==21) passSIP3d=true;
@@ -407,7 +407,7 @@ void RunTop(TString filename,
       if(lepIdx<0) continue;
       allPlots["nevt_iso"]->Fill(1,norm);
       
-      //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
+      if(vetoLeptons.size()>0) continue; //veto only on lep+jets
       allPlots["nevt_veto"]->Fill(1,norm);
       
       //apply trigger requirement
@@ -621,24 +621,10 @@ void RunTop(TString filename,
           //norm =  normH ? normH->GetBinContent(1) : 1.0;
 	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
-          /*
-          allPlots["nevt_all"]->Scale(wgt);
-          allPlots["nevt_iso"]->Scale(wgt);
-          allPlots["nevt_veto"]->Scale(wgt);
-          allPlots["lp_pt_iso_m"]->Scale(wgt);
-          allPlots["lp_pt_veto_e"]->Scale(wgt);
-          allPlots["relIso_m"]->Scale(wgt);
-          allPlots["relIso_e"]->Scale(wgt);
-          */
 	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
 	  if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
-          if(filename.Contains("_WJets")) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl << "ttbar_w[0]=" << ev.ttbar_w[0] << endl << "wgt=" << wgt << endl;
-          for(size_t il = 0; il < leptons.size(); il++) {
-            if(!filename.Contains("_WJets")) continue;
-            cout << "pT: " << leptons[il].Pt() << endl;
-          }
           //wgt=1.0;
 	}
       if(debug) cout << "Lepton scale factors DONE!" << endl;
@@ -687,7 +673,7 @@ void RunTop(TString filename,
       std::sort(lightJets.begin(), lightJets.end(), VecSort);
       std::sort(bJets.begin(), bJets.end(), VecSort);
       if(debug) cout << "starting simple plots" << endl;
-      allPlots["nevt"+chTag]->Fill(1,wgt);
+      allPlots["nevt"+chTag]->Fill(1,norm);
       allPlots["nj"+chTag]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
@@ -824,8 +810,8 @@ void RunTop(TString filename,
 
       allPlots["npf"+chTag+"_lep"]->Fill(ev.npf,wgt);
       //allPlots["npf"+chTag+"_lep"+"_no_weight"]->Fill(ev.npf,norm);
-      allPlots["nevt"+chTag+"_lep"]->Fill(1,wgt);
-      allPlots["nevt_all_lep"]->Fill(1,wgt);
+      allPlots["nevt"+chTag+"_lep"]->Fill(1,norm);
+      allPlots["nevt_all_lep"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lep"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lep"]->Fill(lightJetsVec.size(),wgt);
@@ -854,8 +840,8 @@ void RunTop(TString filename,
 
       allPlots["npf"+chTag+"_lepjets"]->Fill(ev.npf,wgt);
       allPlots["npf"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.npf,norm);
-      allPlots["nevt"+chTag+"_lepjets"]->Fill(1,wgt);
-      allPlots["nevt_all_lepjets"]->Fill(1,wgt);
+      allPlots["nevt"+chTag+"_lepjets"]->Fill(1,norm);
+      allPlots["nevt_all_lepjets"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lepjets"]->Fill(lightJetsVec.size(),wgt);
@@ -881,7 +867,7 @@ void RunTop(TString filename,
         if(ij > 1) continue;
         if(ij == 0) {
           //allPlots["nbj"+chTag+"_csv"]->Fill(1,wgt);
-          allPlots["nevt"+chTag+"_csv"]->Fill(1,wgt);
+          allPlots["nevt"+chTag+"_csv"]->Fill(1,norm);
           allPlots["j_pt"+chTag+"_csv"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
           allPlots["lj_pt"+chTag+"_csv"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
           allPlots["bj_pt"+chTag+"_csv"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
@@ -920,7 +906,7 @@ void RunTop(TString filename,
           allPlots["lp_pt"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
           allPlots["lp_pt_low"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
           allPlots["csv"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getCSV(),wgt);
-          allPlots["nevt"+chTag+"_jpsi"]->Fill(1,wgt);
+          allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
 
           if(mass12<3.0 || mass12>3.2) continue;
 
@@ -944,8 +930,6 @@ void RunTop(TString filename,
             }
           }
 
-          if(filename.Contains("_WJets"))
-            cout << endl << mass12 << " " << wgt << endl;
           if(mass123 > 0) {
             allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
             allPlots["massJPsiK_all"]->Fill(mass123,wgt);
@@ -1051,12 +1035,6 @@ void RunTop(TString filename,
                   allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam,norm);
                   allPlots["massDsmD0loose_all"]->Fill(deltam, wgt);
                   if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
-                    if(filename.Contains("_WJets")) {
-                      cout << endl << deltam << " " << wgt << endl;
-                      cout << "pi1: " << p_track1.Pt() << endl;
-                      cout << "K: " << p_track2.Pt() << endl;
-                      cout << "pi2: " << p_track3.Pt() << endl;
-                    }
 
                     allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
                     allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, norm);
@@ -1078,7 +1056,7 @@ void RunTop(TString filename,
                     allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
                     allPlots["pf_dz_sig_all"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
 */
-                    allPlots["nevt"+chTag+"_meson"]->Fill(1,wgt);
+                    allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                   }
                 }
               }
