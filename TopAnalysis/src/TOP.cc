@@ -267,12 +267,6 @@ void RunTop(TString filename,
 
 	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
 	  //if(channelSelection==21) passSIP3d=true;
-	  /*
-	  if( ev.l_id[il] == 13 )
-            allPlots["relIso_m"]->Fill(relIso,1);
-          else if( ev.l_id[il] == 11)
-            allPlots["relIso_e"]->Fill(relIso,1);
-          */
 
 	  if(passTightKin && passTightId)// && passSIP3d)
 	    {
@@ -340,7 +334,7 @@ void RunTop(TString filename,
           }
           //USE VETO HERE
           //no extra isolated leptons
-          if(vetoLeptons.size()>0) continue; //veto only on lep+jets
+          //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
 	}
       if(tightLeptons.size()>=2)
 	{
@@ -359,26 +353,12 @@ void RunTop(TString filename,
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEETrigger) chTag="ee";
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMMTrigger) chTag="mm";
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13)
-	    {
-	      //if(tightLeptons.size()>=2 && (hasEleTrigger || hasMuTrigger)) chTag="em";
-	      if(selLeptons.size()>=2 && (hasEMTrigger)) chTag="em";
-	      if(selLeptons.size()==1)
-		{
-		  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="em";
-		  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) chTag="em";
-		}
-	    }
+	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13 && hasEMTrigger) chTag="em";
 	  if(hasMuTrigger && requireEletriggerOnly) chTag="";
 	}
       if(chTag=="") continue;
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
-
-      /*
-      for(size_t i = 0; i < selLeptons.size() && selLeptons.size()>1; i++)
-        allPlots["lp_pt_iso"+chTag]->Fill(ev.l_pt[selLeptons[i]],norm);
-      */
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Int_t lepIdx=-1;
@@ -410,30 +390,6 @@ void RunTop(TString filename,
       if(vetoLeptons.size()>0) continue; //veto only on lep+jets
       allPlots["nevt_veto"]->Fill(1,norm);
       
-      //apply trigger requirement
-      /*
-      if(ev.l_id[lepIdx]==13)
-	{
-	  if(ev.isData  && (ev.muTrigger & 0x3)==0) continue;
-	  if(!ev.isData && (ev.muTrigger & 0x3)==0) continue;
-	}
-      if(ev.l_id[lepIdx]==11)
-	{ 
-	  if( ((ev.elTrigger>>0)&0x1)==0 ) continue;
-	}
-
-      //select according to the lepton id/charge
-      Int_t lid=ev.l_id[lepIdx];
-      if(isZ) lid=2100+ev.l_id[lepIdx];
-      else if(tightLeptonsNonIso.size()==1) lid=100*ev.l_id[lepIdx];
-      if(channelSelection!=0)
-	{
-	  if(channelSelection==21) { if(!isZ) continue; }
-	  else                     { if(lid!=channelSelection) continue; }
-	}
-      if(chargeSelection!=0  && ev.l_charge[lepIdx]!=chargeSelection) continue;
-      */
-
       //lepton kinematics
       if(debug) cout << "checking lepton kinematics" << endl;
       TLorentzVector lp4;
@@ -552,23 +508,9 @@ void RunTop(TString filename,
 	    if(ev.pf_c[ipf]==0) continue;
 	    TLorentzVector tkP4(0,0,0,0);
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
-            //muon rochester corrections
-            /*
-            rochcor2016 *rochcor_ = new rochcor2016(2016);
-            float qter(1.0);
-            if(ev.isData && abs(ev.pf_id[ipf])==13)
-              rochcor_->momcor_data(tkP4, ev.pf_c[ipf], 0, qter);
-            else if(!ev.isData && abs(ev.pf_id[ipf])==13)
-              rochcor_->momcor_mc(tkP4, ev.pf_c[ipf], 0, qter);
-            */
             pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf]);
 	    //tmpj.addTrack(tkP4,ev.pf_id[ipf]);
 	    tmpj.addTrack(pftk,ev.pf_id[ipf]);
-            /*
-	    tmpj.addTrack(ipf);
-	    tmpj.addDxy(ev.pf_dxy[ipf], ev.pf_dxyE[ipf]);
-	    tmpj.addDz(ev.pf_dz[ipf], ev.pf_dzE[ipf]);
-            */
 	  }
           tmpj.sortTracksByPt();
 
@@ -684,14 +626,12 @@ void RunTop(TString filename,
       allPlots["nlp"+chTag]->Fill(selLeptons.size(),wgt);
       allPlots["nlp"+chTag+"_no_weight"]->Fill(selLeptons.size(),norm);
 
-      /*
       if(leptons.size() > 0) {
-        allPlots["lp_pt_low"+chTag+"_lep"]->Fill(leptons[0].Pt(),wgt);
-        allPlots["lp_pt"+chTag+"_lep"]->Fill(leptons[0].Pt(),wgt);
-        allPlots["lp_pt"+chTag+"_lep_no_weight"]->Fill(leptons[0].Pt(),norm);
+        allPlots["lp_pt_low"+chTag]->Fill(leptons[0].Pt(),wgt);
+        allPlots["lp_pt"+chTag]->Fill(leptons[0].Pt(),wgt);
+        allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),norm);
         allPlots["lp_pt_all"]->Fill(leptons[0].Pt(),wgt);
       }
-      */
 
       if(isZ) {
         allPlots["massZ"+chTag]->Fill(dilp4.M(),wgt);
@@ -846,10 +786,7 @@ void RunTop(TString filename,
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lepjets"]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag+"_lepjets"]->Fill(bJetsVec.size(),wgt);
-      //allPlots["nj"+chTag+"_lepjets"+"_no_weight"]->Fill(lightJetsVec.size(),norm);
-      //allPlots["nbj"+chTag+"_lepjets"+"_no_weight"]->Fill(bJetsVec.size(),norm);
       allPlots["nlp"+chTag+"_lepjets"]->Fill(selLeptons.size(),wgt);
-      //allPlots["nlp"+chTag+"_lepjets"+"_no_weight"]->Fill(selLeptons.size(),norm);
 
       allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
       allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
@@ -934,11 +871,6 @@ void RunTop(TString filename,
             allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
             allPlots["massJPsiK_all"]->Fill(mass123,wgt);
           }
-          /*
-          if(mass123 > 0) kaonCands.erase(kaonCands.begin());
-          pfmuCands.erase(pfmuCands.begin()+1);
-          pfmuCands.erase(pfmuCands.begin());
-          */
         }
         if(debug) cout << "J/Psi DONE" << endl;
         //continue; //FIXME
@@ -1042,20 +974,6 @@ void RunTop(TString filename,
                     allPlots["lp_pt"+chTag+"_meson"]->Fill(leptons[0].Pt(),wgt);
                     allPlots["lp_pt_low"+chTag+"_meson"]->Fill(leptons[0].Pt(),wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
-/*
-                    allPlots["pf_dxy"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy()),wgt);
-                    allPlots["pf_dz"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz()),wgt);
-                    allPlots["pf_dxyE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
-                    allPlots["pf_dzE"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDzE()),wgt);
-                    allPlots["pf_dxy_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
-                    allPlots["pf_dz_sig"+chTag+"_meson"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
-                    allPlots["pf_dxy_all"]->Fill(abs(tracks[k].first.getDxy()),wgt);
-                    allPlots["pf_dz_all"]->Fill(abs(tracks[k].first.getDz()),wgt);
-                    allPlots["pf_dxyE_all"]->Fill(abs(tracks[k].first.getDxyE()),wgt);
-                    allPlots["pf_dzE_all"]->Fill(abs(tracks[k].first.getDzE()),wgt);
-                    allPlots["pf_dxy_sig_all"]->Fill(abs(tracks[k].first.getDxy())/abs(tracks[k].first.getDxyE()),wgt);
-                    allPlots["pf_dz_sig_all"]->Fill(abs(tracks[k].first.getDz())/abs(tracks[k].first.getDzE()),wgt);
-*/
                     allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                   }
                 }
