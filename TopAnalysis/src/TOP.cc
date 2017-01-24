@@ -572,7 +572,7 @@ void RunTop(TString filename,
           //norm =  normH ? normH->GetBinContent(1) : 1.0;
 	  //wgt=lepTriggerSF*lepSelSF*puWeight*norm;
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
-	  if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
+	  //if(ev.ttbar_nw>0) wgt*=ev.ttbar_w[0];
 	  //if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
