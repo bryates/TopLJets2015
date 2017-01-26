@@ -289,9 +289,8 @@ void RunTop(TString filename,
       //check if triggers have fired
       //bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
-      //bool hasMMTrigger(((ev.muTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
-      //hasMMTrigger |= ((ev.muTrigger>>5)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
-      bool hasMMTrigger(((ev.muTrigger>>5)&0x1)!=0);                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+      bool hasMMTrigger(((ev.muTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
+      hasMMTrigger |= ((ev.muTrigger>>5)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
       bool hasEMTrigger(((ev.elTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v 
                                                                                   //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v  recommended by TOP PAG)
                                                                                   //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
@@ -362,12 +361,16 @@ void RunTop(TString filename,
       if(selLeptons.size()==1)
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) chTag="e";
-	  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger)  chTag="m";
+	  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) {
+            if(requireMutriggerOnly || !ev.isData) chTag="m";
+          }
 	}
       if(selLeptons.size()==2)
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEETrigger) chTag="ee";
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMMTrigger) chTag="mm";
+	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMMTrigger) {
+            if(requireMMTriggers || !ev.isData) chTag="mm";
+          }
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13 && hasEMTrigger) chTag="em";
 	  if(hasMuTrigger && requireEletriggerOnly) chTag="";
 	}
@@ -541,6 +544,8 @@ void RunTop(TString filename,
 	  //trigger/id+iso efficiency corrections
           if(debug) cout << "calling trigger function" << endl;
           std::vector<int> pdgIds; //vector of IDs for trigger correction function
+          for(size_t ilp = 0; ilp < selLeptons.size(); ilp++)
+            pdgIds.push_back(ev.l_id[selLeptons[ilp]]);
 	  //triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
 	  triggerCorrWgt=lepEffH.getTriggerCorrection(pdgIds,leptons); //FIXME
           if(debug) cout << "calling trigger function DONE!" << endl;
