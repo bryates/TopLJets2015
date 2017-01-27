@@ -288,19 +288,27 @@ void RunTop(TString filename,
 
       //check if triggers have fired
       //bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
-      bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      //Dielectron
+      bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);                              //HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      //Dimuon
       bool hasMMTrigger(((ev.muTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
       hasMMTrigger |= ((ev.muTrigger>>5)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+      //Electron Muon (ME as well)
       bool hasEMTrigger(((ev.elTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v 
                                                                                   //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v  recommended by TOP PAG)
                                                                                   //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
+      //Muon Electron part
       hasEMTrigger |= ((ev.elTrigger>>5)&0x1)!=0;                                 //HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v
                                                                                   //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
                                                                                   //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v 
                                                                                   //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
+      //Single muon
       bool hasMuTrigger(((ev.muTrigger>>2)&0x1)!=0);                              //HLT_IsoMu22_v (24 recommended by TOP PAG)
       hasMuTrigger |= (((ev.muTrigger>>3)&0x1)!=0);                               //HLT_IsoTkMu22_v
+      //Single electorn
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
+
+      //No trigger requirement for MC
       if(!ev.isData)
 	{	 
 	  hasMuTrigger=true;
@@ -361,22 +369,22 @@ void RunTop(TString filename,
       if(selLeptons.size()==1)
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) {
-            if(requireEletriggerOnly || !ev.isData) chTag="e";
+            if(requireEletriggerOnly || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
           }
 	  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) {
-            if(requireMutriggerOnly || !ev.isData) chTag="m";
+            if(requireMutriggerOnly || !ev.isData) chTag="m"; //Ensure SingleMuon if data
           }
 	}
       if(selLeptons.size()==2)
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEETrigger) {
-            if(requireEMTriggers || !ev.isData) chTag="ee";
+            if(requireEETriggers || !ev.isData) chTag="ee"; //Ensure DoubleEG if data
           }
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMMTrigger) {
-            if(requireMMTriggers || !ev.isData) chTag="mm";
+            if(requireMMTriggers || !ev.isData) chTag="mm"; //Ensure DoubleMuon if data
           }
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13 && hasEMTrigger) {
-            if(requireEMTriggers || !ev.isData) chTag="em";
+            if(requireEMTriggers || !ev.isData) chTag="em"; //Ensure MuonEG if data
           }
 	  if(hasMuTrigger && requireEletriggerOnly) chTag="";
 	}
@@ -398,8 +406,7 @@ void RunTop(TString filename,
 	  dilp4=l1p4+l2p4;
 	  if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]]          && 
 	     ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]]<0 && 
-	     fabs(dilp4.M()-91)<15) //&& 
-	     //dilp4.Pt()>30)
+	     fabs(dilp4.M()-91)<15)
 	    { 
 	      isZ=true; 
 	      //isZPassingSIP3d=(ev.l_ip3dsig[0]<4 && ev.l_ip3dsig[1]<4);
@@ -424,13 +431,6 @@ void RunTop(TString filename,
 	  int lepIdx=selLeptons[il];
 	  TLorentzVector lp4;
 	  lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
-          /*
-          if(ev.isData && ev.l_id[lepIdx]==13) {
-            //muon rochester corrections
-            float qter(1.0);
-            rochcor_->momcor_data(lp4, ev.l_charge[lepIdx], 0, qter);
-          }
-          */
 	  leptons.push_back(lp4);
 	}
 
