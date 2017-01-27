@@ -370,13 +370,13 @@ void RunTop(TString filename,
       if(selLeptons.size()==2)
 	{
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11 && hasEETrigger) {
-            if(requireMMTriggers || !ev.isData) chTag="ee";
+            if(requireEMTriggers || !ev.isData) chTag="ee";
           }
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13 && hasMMTrigger) {
             if(requireMMTriggers || !ev.isData) chTag="mm";
           }
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13 && hasEMTrigger) {
-            if(requireMMTriggers || !ev.isData) chTag="em";
+            if(requireEMTriggers || !ev.isData) chTag="em";
           }
 	  if(hasMuTrigger && requireEletriggerOnly) chTag="";
 	}
