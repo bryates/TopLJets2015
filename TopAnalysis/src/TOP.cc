@@ -221,6 +221,7 @@ void RunTop(TString filename,
     allPlots["nevt"+tag+cut+weight]     = new TH1F("nevt"+tag+cut+weight,";N_{events};Events" ,1,1.,2.);
     allPlots["weight"+tag+cut+weight]     = new TH1F("weight"+tag+cut+weight,";N_{events};Events/ 1.0" ,20,0.,2.);
     allPlots["norm"+tag+cut+weight]     = new TH1F("norm"+tag+cut+weight,";N_{events};Events / 1.0" ,2,0.,2.);
+    allPlots["nvtx"+tag+cut+weight]     = new TH1F("nvtx"+tag+cut+weight,";N_{events};Events / 1.0" ,50,0.,50.);
     allPlots["chi2"+tag+cut+weight] = new TH1F("normchi2"+tag+cut+weight,";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["lp_dxy"+tag+cut+weight] = new TH1F("lp_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
     allPlots["lp_dz"+tag+cut+weight] = new TH1F("lp_dz"+tag+cut+weight,";d_{z} [cm];Events / 0.01 #mum", 50, 0, 0.5);
@@ -240,6 +241,8 @@ void RunTop(TString filename,
     allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,1.,2.);
     allPlots["norm_iso"] = new TH1F("norm_iso",";After Isolation;Events / 1.0", 20,0,2.);
     allPlots["norm_veto"] = new TH1F("norm_veto",";After Veto;Events / 1.0", 20,0.,2.);
+    allPlots["nvtx_iso"]     = new TH1F("nvtx_iso",";N_{events};Events / 1.0" ,50,0.,50.);
+    allPlots["nvtx_veto"]     = new TH1F("nvtx_veto",";N_{events};Events / 1.0" ,50,0.,50.);
     allPlots["chi2_iso"] = new TH1F("normchi2_iso",";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["chi2_veto"] = new TH1F("normchi2_veto",";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["lp_dxy_iso"] = new TH1F("lp_dxy_iso",";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
@@ -265,6 +268,7 @@ void RunTop(TString filename,
       }
       allPlots["nevt_all"]->Fill(1,norm);
       allPlots["norm_all"]->Fill(norm,norm);
+      allPlots["nvtx_all"]->Fill(ev.nvtx,norm);
 
       //Basic lepton kinematics
       std::vector<int> tightLeptons,vetoLeptons;
@@ -436,11 +440,13 @@ void RunTop(TString filename,
       if(lepIdx<0) continue;
       allPlots["nevt_iso"]->Fill(1,norm);
       allPlots["norm_iso"]->Fill(norm,norm);
+      allPlots["nvtx_iso"]->Fill(ev.nvtx,norm);
       
       //USE VETO HERE
       if(vetoLeptons.size()>0) continue; //veto only on lep+jets
       allPlots["nevt_veto"]->Fill(1,norm);
       allPlots["norm_veto"]->Fill(norm,norm);
+      allPlots["nvtx_veto"]->Fill(ev.nvtx,norm);
       
       //save lepton kinematics
       std::vector<TLorentzVector> leptons;
@@ -639,6 +645,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag]->Fill(1,norm);
       allPlots["weight"+chTag]->Fill(wgt,norm);
       allPlots["norm"+chTag]->Fill(norm,norm);
+      allPlots["nvtx"+chTag]->Fill(ev.nvtx,norm);
       allPlots["nj"+chTag]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
@@ -779,6 +786,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag+"_lep"]->Fill(1,norm);
       allPlots["weight"+chTag+"_lep"]->Fill(wgt,norm);
       allPlots["norm"+chTag+"_lep"]->Fill(norm,norm);
+      allPlots["nvtx"+chTag+"_lep"]->Fill(ev.nvtx,norm);
       allPlots["nevt_all_lep"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lep"]->Fill(allJetsVec.size(),wgt);
@@ -811,6 +819,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag+"_lepjets"]->Fill(1,norm);
       allPlots["weight"+chTag+"_lepjets"]->Fill(wgt,norm);
       allPlots["norm"+chTag+"_lepjets"]->Fill(norm,norm);
+      allPlots["nvtx"+chTag+"_lepjets"]->Fill(ev.nvtx,norm);
       allPlots["nevt_all_lepjets"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
@@ -837,6 +846,7 @@ void RunTop(TString filename,
           allPlots["nevt"+chTag+"_csv"]->Fill(1,norm);
           allPlots["weight"+chTag+"_csv"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_csv"]->Fill(norm,norm);
+          allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,norm);
           allPlots["j_pt"+chTag+"_csv"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
           allPlots["lj_pt"+chTag+"_csv"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
           allPlots["bj_pt"+chTag+"_csv"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
@@ -878,6 +888,7 @@ void RunTop(TString filename,
           allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
           allPlots["weight"+chTag+"_jpsi"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_jpsi"]->Fill(norm,norm);
+          allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,norm);
 
           if(mass12<3.0 || mass12>3.2) continue;
 
@@ -1011,6 +1022,7 @@ void RunTop(TString filename,
                     allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                     allPlots["weight"+chTag+"_meson"]->Fill(wgt,norm);
                     allPlots["norm"+chTag+"_meson"]->Fill(norm,norm);
+                    allPlots["nvtx"+chTag+"_meson"]->Fill(ev.nvtx,norm);
                   }
                 }
               }
