@@ -584,7 +584,9 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  ev_.l_ip3d[ev_.nl]    = ip3dRes.second.value();
 	  ev_.l_ip3dsig[ev_.nl] = ip3dRes.second.significance();
 	}   
-      //ev_.l_chi2norm[ev_.nl]=mu.normChi2();
+      ev_.l_chi2norm[ev_.nl]=mu.globalTrack()->normalizedChi2();
+      ev_.l_dxy[ev_.nl]=mu.muonBestTrack()->dxy(primVtx.position());
+      ev_.l_dz[ev_.nl]=mu.muonBestTrack()->dz(primVtx.position());
       ev_.nl++;    
       ev_.nleptons += ( isTight && mu.pt()>25); 
     }

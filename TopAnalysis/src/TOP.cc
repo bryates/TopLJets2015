@@ -217,9 +217,13 @@ void RunTop(TString filename,
     allPlots["dR"+tag+cut+weight] = new TH1F("dR"+tag+cut+weight,";dR;Events / 0.05", 20,0.0,1.);
     allPlots["pflp_pt"+tag+cut+weight] = new TH1F("pflp_pt"+tag+cut+weight,";PF lepton P_{T} [GeV];Events / 0.2 GeV", 15, 0,3);
     allPlots["massZ"+tag+cut+weight]     = new TH1F("massZ_control"+tag+cut+weight,";M_{ll};Events / 1.0 GeV" ,30,81,111);
+    allPlots["chargeZ"+tag+cut+weight]     = new TH1F("chargeZ_control"+tag+cut+weight,";M_{ll};Events / 1.0 GeV" ,5,-2,2);
     allPlots["nevt"+tag+cut+weight]     = new TH1F("nevt"+tag+cut+weight,";N_{events};Events" ,1,1.,2.);
     allPlots["weight"+tag+cut+weight]     = new TH1F("weight"+tag+cut+weight,";N_{events};Events/ 1.0" ,20,0.,2.);
     allPlots["norm"+tag+cut+weight]     = new TH1F("norm"+tag+cut+weight,";N_{events};Events / 1.0" ,2,0.,2.);
+    allPlots["chi2"+tag+cut+weight] = new TH1F("normchi2"+tag+cut+weight,";#chi^2/n.d.o.f.;Events", 10,0.,10.);
+    allPlots["lp_dxy"+tag+cut+weight] = new TH1F("lp_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
+    allPlots["lp_dz"+tag+cut+weight] = new TH1F("lp_dz"+tag+cut+weight,";d_{z} [cm];Events / 0.01 #mum", 50, 0, 0.5);
     allPlots["pf_dxy"+tag+cut+weight] = new TH1F("pf_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 0.02 #mum", 20, 0, 0.1);
     allPlots["pf_dz"+tag+cut+weight] = new TH1F("pf_dz"+tag+cut+weight,";d_{z} [cm];Events / 0.02 #mum", 20, 0, 0.1);
     allPlots["pf_dxyE"+tag+cut+weight] = new TH1F("pf_dxyE"+tag+cut+weight,";#sigma(d_{xy}) [cm];Events / 0.02 #mum", 20, 0, 0.1);
@@ -236,6 +240,12 @@ void RunTop(TString filename,
     allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,1.,2.);
     allPlots["norm_iso"] = new TH1F("norm_iso",";After Isolation;Events / 1.0", 20,0,2.);
     allPlots["norm_veto"] = new TH1F("norm_veto",";After Veto;Events / 1.0", 20,0.,2.);
+    allPlots["chi2_iso"] = new TH1F("normchi2_iso",";#chi^2/n.d.o.f.;Events", 10,0.,10.);
+    allPlots["chi2_veto"] = new TH1F("normchi2_veto",";#chi^2/n.d.o.f.;Events", 10,0.,10.);
+    allPlots["lp_dxy_iso"] = new TH1F("lp_dxy_iso",";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
+    allPlots["lp_dxy_veto"] = new TH1F("lp_dxy_veto",";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
+    allPlots["lp_dz_iso"] = new TH1F("lp_dz_iso",";d_{z} [cm];Events / 0.01 #mum", 50, 0, 0.5);
+    allPlots["lp_dz_veto"] = new TH1F("lp_dz_veto",";d_{z} [cm];Events / 0.01 #mum", 50, 0, 0.5);
 
 
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
@@ -267,6 +277,7 @@ void RunTop(TString filename,
                   || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.121)) //electrons medium eta
                   && abs(ev.l_id[il])==11 // TOP mu cut for dilep
                   && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660))); //remove ECAL 1.4442<|eta|<1.5660
+          //passTightKin &= (abs(ev.l_id[il])==13 && ev.l_dxy[il]<0.2 && ev.l_dz[il]<0.5); //muon impact parameters
 
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
 	  
@@ -339,8 +350,15 @@ void RunTop(TString filename,
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
 	    allPlots["lp_pt_iso_m"]->Fill(ev.l_pt[tightLeptons[0]],norm);
             allPlots["relIso_m"]->Fill(ev.l_relIso[tightLeptons[0]],norm);
-            if(vetoLeptons.size()==0)
+            //allPlots["chi2_iso"]->Fill(ev.l_chi2norm[tightLeptons[0]],norm);
+            //allPlots["dxy_iso"]->Fill(ev.l_dxy[tightLeptons[0]],norm);
+            //allPlots["dz_iso"]->Fill(ev.l_dz[tightLeptons[0]],norm);
+            if(vetoLeptons.size()==0) {
               allPlots["lp_pt_veto_m"]->Fill(ev.l_pt[tightLeptons[0]],norm);
+              //allPlots["chi2_veto"]->Fill(ev.l_chi2norm[tightLeptons[0]],norm);
+              //allPlots["dxy_veto"]->Fill(ev.l_dxy[tightLeptons[0]],norm);
+              //allPlots["dz_veto"]->Fill(ev.l_dz[tightLeptons[0]],norm);
+            }
           }
           else if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
@@ -696,8 +714,11 @@ void RunTop(TString filename,
           allPlots["massZ"+chTag+"_lep"]->Fill(dilp4.M(),wgt);
           allPlots["massZ"+chTag+"_lep_no_weight"]->Fill(dilp4.M(),norm);
         }
+        if(abs(dilp4.M()-91)<15)
+          allPlots["chargeZ"+chTag]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt); 
         //Exclude Z and low mass and require same falvor dilepton MET > 40 GeV
-        if(!isZ && dilp4.M() > 20 && (ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() > 40)) {
+        if(!isZ && dilp4.M() > 20 &&
+          ((ev.l_id[selLeptons[0]]!=ev.l_id[selLeptons[1]]) || (ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() > 40))) {
           allPlots["ndilp"+chTag+"_lep"]->Fill(selLeptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lep"]->Fill(dilp4.Pt(),wgt);
           allPlots["dilp_m"+chTag+"_lep"]->Fill(dilp4.M(),wgt);

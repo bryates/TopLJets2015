@@ -82,6 +82,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_ip3d",             ev.l_ip3d,             "l_ip3d[nl]/F");
   t->Branch("l_ip3dsig",          ev.l_ip3dsig,          "l_ip3dsig[nl]/F");
   t->Branch("l_chi2norm",         ev.l_chi2norm,         "l_chi2norm[nl]/F");
+  t->Branch("l_dxy",                ev.l_dxy,                "dxy[nl]/F");
+  t->Branch("l_dz",                 ev.l_dz,                 "dz[nl]/F");
 
   //jet info
   t->Branch("nj",        &ev.nj,        "nj/I");
@@ -214,6 +216,8 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("l_ip3d",             ev.l_ip3d);
   t->SetBranchAddress("l_ip3dsig",          ev.l_ip3dsig);
   t->SetBranchAddress("l_chi2norm",         ev.l_chi2norm);
+  t->SetBranchAddress("l_dxy",              ev.l_dxy);
+  t->SetBranchAddress("l_dz",               ev.l_dz);
 
   //jet info
   t->SetBranchAddress("nj",        &ev.nj);
