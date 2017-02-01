@@ -700,7 +700,7 @@ void RunTop(TString filename,
         allPlots["MET"+chTag+"_lep"]->Fill(ev.met_pt[0],wgt);
         allPlots["MET"+chTag+"_lep_no_weight"]->Fill(ev.met_pt[0],norm);
         //Require at least 1 b-tagged and at least 2 light jets
-        if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 2) {
+        if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
           if(debug) cout << "jet reqirements" << endl;
           minJets = true;
           std::sort(leptons.begin(), leptons.end(), VecSort);
@@ -724,7 +724,7 @@ void RunTop(TString filename,
         if(abs(dilp4.M()-91)<15)
           allPlots["chargeZ"+chTag]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt); 
         //Exclude Z and low mass and require same falvor dilepton MET > 40 GeV
-        if(!isZ && dilp4.M() > 20 &&
+        if(!isZ && (dilp4.M() > 20 && ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) &&
           ((ev.l_id[selLeptons[0]]!=ev.l_id[selLeptons[1]]) || (ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() > 40))) {
           allPlots["ndilp"+chTag+"_lep"]->Fill(selLeptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lep"]->Fill(dilp4.Pt(),wgt);
@@ -743,7 +743,7 @@ void RunTop(TString filename,
           allPlots["charge"+chTag+"_lep"+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
         }
         //Require at least 1 b-tagged and at least 2 light jets
-        if(bJetsVec.size() >= 1 && lightJetsVec.size() > 1) {
+        if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
           if(debug) cout << "jet reqirements" << endl;
           //Z control plot
           if(isZ) {
@@ -753,7 +753,7 @@ void RunTop(TString filename,
           //Exclude Z mass
           if(isZ) continue;
           //Exclude low mass (M < 20 GeV)
-          if(dilp4.M() < 20) continue;
+          if(dilp4.M() < 20 && ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) continue;
           //Require same falvor dilepton MET > 40 GeV
           if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() < 40) continue; //FIXME
           minJets = true;
