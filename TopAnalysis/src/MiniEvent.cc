@@ -82,8 +82,15 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_ip3d",             ev.l_ip3d,             "l_ip3d[nl]/F");
   t->Branch("l_ip3dsig",          ev.l_ip3dsig,          "l_ip3dsig[nl]/F");
   t->Branch("l_chi2norm",         ev.l_chi2norm,         "l_chi2norm[nl]/F");
-  t->Branch("l_dxy",                ev.l_dxy,                "dxy[nl]/F");
-  t->Branch("l_dz",                 ev.l_dz,                 "dz[nl]/F");
+  t->Branch("l_dxy",              ev.l_dxy,              "dxy[nl]/F");
+  t->Branch("l_dxyE",             ev.l_dxyE,             "dxyE[nl]/F");
+  t->Branch("l_dz",               ev.l_dz,               "dz[nl]/F");
+  t->Branch("l_global",           ev.l_global,           "global[nl]/I");
+  t->Branch("l_pf",               ev.l_pf,               "pf[nl]/I");
+  t->Branch("l_nValTrackerHits",  ev.l_nValTrackerHits,  "nValTrackerHits[nl]/F");
+  t->Branch("l_globalTrackNumberOfValidHits",                 ev.l_globalTrackNumberOfValidHits,                 "globalTrackNumberOfValidHits[nl]/F");
+  t->Branch("l_nValPixelHits",    ev.l_nValPixelHits,    "nValPixelHits[nl]/F");
+
 
   //jet info
   t->Branch("nj",        &ev.nj,        "nj/I");
@@ -124,6 +131,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_dxyE",     ev.pf_dxyE,     "pf_dxyE[npf]/F");
   t->Branch("pf_dz",       ev.pf_dz,       "pf_dz[npf]/F");
   t->Branch("pf_dzE",      ev.pf_dzE,      "pf_dzE[npf]/F");
+  t->Branch("pf_highPurity",      ev.pf_highPurity,      "pf_highPurity[npf]/I");
+  t->Branch("pf_quality",      ev.pf_quality,      "pf_quality[npf]/I");
+  t->Branch("pf_muon",   ev.pf_muon,   "pf_muon[npf]/I");
+  t->Branch("pf_standAloneMuon",   ev.pf_standAloneMuon,   "pf_standAloneMuon[npf]/I");
+  t->Branch("pf_globalMuon",   ev.pf_globalMuon,   "pf_globalMuon[npf]/I");
+  t->Branch("pf_trackerMuon",   ev.pf_trackerMuon,   "pf_trackerMuon[npf]/I");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
@@ -218,6 +231,11 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("l_chi2norm",         ev.l_chi2norm);
   t->SetBranchAddress("l_dxy",              ev.l_dxy);
   t->SetBranchAddress("l_dz",               ev.l_dz);
+  t->SetBranchAddress("l_global",           ev.l_global);
+  t->SetBranchAddress("l_pf",               ev.l_pf);
+  t->SetBranchAddress("l_nValTrackerHits",  ev.l_nValTrackerHits);
+  t->SetBranchAddress("l_globalTrackNumberOfValidHits",               ev.l_globalTrackNumberOfValidHits);
+  t->SetBranchAddress("l_nValPixelHits",    ev.l_nValPixelHits);
 
   //jet info
   t->SetBranchAddress("nj",        &ev.nj);
@@ -261,6 +279,12 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("pf_dxyE",     ev.pf_dxyE);
       t->SetBranchAddress("pf_dz",       ev.pf_dz);
       t->SetBranchAddress("pf_dzE",      ev.pf_dzE);
+      t->SetBranchAddress("pf_highPurity",      ev.pf_highPurity);
+      t->SetBranchAddress("pf_quality",      ev.pf_quality);
+      t->SetBranchAddress("pf_muon",       ev.pf_muon);
+      t->SetBranchAddress("pf_standAloneMuon",       ev.pf_standAloneMuon);
+      t->SetBranchAddress("pf_globalMuon",       ev.pf_globalMuon);
+      t->SetBranchAddress("pf_trackerMuon",       ev.pf_trackerMuon);
     }
 
   //MET

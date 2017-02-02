@@ -288,23 +288,22 @@ void RunTop(TString filename,
           //Check veto here, but ONLY for lep+jets (later on in code)
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.24 : true); //FIXME from 7_6_x
           bool passVetoKin(  ev.l_pt[il]>15 && fabs(ev.l_eta[il])<2.4); // TOP veto 10->15
-
-	  //bool passSIP3d(ev.l_ip3dsig[il]<4);
-	  //if(channelSelection==21) passSIP3d=true;
+          //bool passVetoId(ev.l_id[il]==13 ? (ev.l_pid[il]>>2)&0x1 : (ev.l_pid[il])&0x1); //muon isLoose or electron VetoId
 
 	  if(passTightKin && passTightId)// && passSIP3d)
 	    {
 	      tightLeptons.push_back(il);
-	      //else if(passNonIso) tightLeptonsNonIso.push_back(il); //FIXME from 7_6_x
 	    }
 	  else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
+	  //else if(passVetoKin && passVetoIso && passVetoId) vetoLeptons.push_back(il); //FIXME after CRAB
 	}
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
       //bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //Dielectron
-      bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);                              //HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      //bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);                              //HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //Dimuon
       bool hasMMTrigger(((ev.muTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
       hasMMTrigger |= ((ev.muTrigger>>5)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
@@ -431,7 +430,6 @@ void RunTop(TString filename,
 	     fabs(dilp4.M()-91)<15)
 	    { 
 	      isZ=true; 
-	      //isZPassingSIP3d=(ev.l_ip3dsig[0]<4 && ev.l_ip3dsig[1]<4);
 	    }
 	  lepIdx=selLeptons[0];
           if(debug) cout << "di-lepton DONE" << endl;
@@ -462,8 +460,6 @@ void RunTop(TString filename,
       Float_t htsum(0);
       TLorentzVector jetDiff(0,0,0,0);
       int nbjets(0),ncjets(0),nljets(0);//,leadingJetIdx(-wgt);
-      std::vector<int> resolvedJetIdx;
-      std::vector<TLorentzVector> resolvedJetP4;
       std::vector<Jet> bJetsVec, lightJetsVec, allJetsVec;
       for (int k=0; k<ev.nj;k++)
 	{
@@ -491,8 +487,6 @@ void RunTop(TString filename,
 	      jp4 *= jerSmear;
 	    }
 	  //jetDiff += jp4;
-	  resolvedJetIdx.push_back(k);
-	  resolvedJetP4.push_back(jp4);
 
 	  // re-inforce kinematics cuts
 	  if(jp4.Pt()<30) continue;
@@ -742,7 +736,7 @@ void RunTop(TString filename,
           allPlots["MET"+chTag+"_lep"+"_no_weight"]->Fill(ev.met_pt[0],norm);
           allPlots["charge"+chTag+"_lep"+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
         }
-        //Require at least 1 b-tagged and at least 2 light jets
+        //Require at least 1 b-tagged and at least 1 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
           if(debug) cout << "jet reqirements" << endl;
           //Z control plot

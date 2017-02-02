@@ -586,9 +586,35 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  ev_.l_ip3d[ev_.nl]    = ip3dRes.second.value();
 	  ev_.l_ip3dsig[ev_.nl] = ip3dRes.second.significance();
 	}   
-      ev_.l_chi2norm[ev_.nl]=mu.globalTrack()->normalizedChi2();
-      ev_.l_dxy[ev_.nl]=mu.muonBestTrack()->dxy(primVtx.position());
-      ev_.l_dz[ev_.nl]=mu.muonBestTrack()->dz(primVtx.position());
+      if(mu.outerTrack().isNonnull()) {
+        ev_.l_dxy[ev_.nl]=mu.dB();
+        ev_.l_dxyE[ev_.nl]=mu.edB();
+      }
+      if(mu.innerTrack().isNonnull()) {
+        cout << "inner dB" << endl;
+        ev_.l_dxy[ev_.nl]=mu.dB();
+        ev_.l_dxyE[ev_.nl]=mu.edB();
+        cout << "inner dz" << endl;
+        ev_.l_dz[ev_.nl]=mu.innerTrack()->dz(primVtx.position());
+        cout << "inner isGlobal" << endl;
+        ev_.l_global[ev_.nl]=mu.isGlobalMuon();
+        cout << "inner isPF" << endl;
+        ev_.l_pf[ev_.nl]=mu.isPFMuon();
+        cout << "inner Chi2" << endl;
+        cout << ev_.l_chi2norm[ev_.nl] << endl;
+        ev_.l_nValTrackerHits[ev_.nl] = mu.innerTrack()->hitPattern().numberOfValidTrackerHits();
+        ev_.l_nValPixelHits[ev_.nl] = mu.innerTrack()->hitPattern().numberOfValidPixelHits();
+      }
+
+      if (mu.globalTrack().isNonnull()) {
+        ev_.l_chi2norm[ev_.nl]=mu.normChi2();
+        cout << ev_.l_chi2norm[ev_.nl] << endl << endl;
+        cout << "global isGlobal" << endl;
+        ev_.l_global[ev_.nl]=mu.isGlobalMuon();
+        cout << "global isGlobal" << endl;
+        ev_.l_pf[ev_.nl]=mu.isPFMuon();
+        ev_.l_globalTrackNumberOfValidHits[ev_.nl] = mu.globalTrack()->hitPattern().numberOfValidMuonHits();
+      }
       ev_.nl++;    
       ev_.nleptons += ( isTight && mu.pt()>25); 
     }
@@ -763,6 +789,17 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.pf_dxyE[ev_.npf]     = pf->dxyError();
       ev_.pf_dz[ev_.npf]       = pf->dz(primVtx.position());
       ev_.pf_dzE[ev_.npf]      = pf->dzError();
+
+      ev_.pf_highPurity[ev_.npf] = pf->trackHighPurity();
+      ev_.pf_quality[ev_.npf] = -1;
+      /*
+      for(int iq = 0; iq <= 7; iq++)
+        ev_.pf_quality[ev_.npf] |= (pf->pseudoTrack().quality(iq))<<iq;
+      */
+      ev_.pf_muon[ev_.npf] = pf->isMuon();
+      ev_.pf_standAloneMuon[ev_.npf] = pf->isStandAloneMuon();
+      ev_.pf_globalMuon[ev_.npf] = pf->isGlobalMuon();
+      ev_.pf_trackerMuon[ev_.npf] = pf->isTrackerMuon();
 
       ev_.npf++;
     }

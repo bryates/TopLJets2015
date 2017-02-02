@@ -38,7 +38,9 @@ struct MiniEvent_t
   Bool_t isPromptFinalState[50], isDirectPromptTauDecayProductFinalState[50];
   Int_t l_id[50],l_charge[50],l_pid[50],l_g[200];
   Float_t l_pt[50],l_eta[50],l_phi[50], l_mass[50], l_miniIso[50], l_chargedHadronIso[50], l_relIso[50], l_ip3d[50], l_ip3dsig[50];
-  Float_t l_chi2norm[50], l_dxy[50], l_dz[50];
+  Float_t l_chi2norm[50], l_dxy[50], l_dxyE[50], l_dz[50];
+  Bool_t l_global[50], l_pf[50];
+  Float_t l_nValTrackerHits[50], l_globalTrackNumberOfValidHits[50], l_nValPixelHits[50];
 
   Int_t nj;
   Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200],j_rawsf[200];
@@ -51,8 +53,9 @@ struct MiniEvent_t
 
   //PF candidates
   Int_t npf,pf_j[5000];
-  Int_t pf_id[5000],pf_c[5000],pf_fromPV[5000];
+  Int_t pf_id[5000],pf_c[5000],pf_fromPV[5000],pf_quality[5000];
   Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000];
+  Bool_t pf_highPurity[5000],pf_muon[5000],pf_standAloneMuon[5000],pf_globalMuon[5000],pf_trackerMuon[5000];
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);
