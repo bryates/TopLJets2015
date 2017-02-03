@@ -370,6 +370,7 @@ void RunTop(TString filename,
           else if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             // passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+            passIso = ( (ev.l_pid[tightLeptons[0]]>>1)&0x1 );
             // Use same iso as di-lepton
             allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
             allPlots["relIso_e"]->Fill(ev.l_relIso[tightLeptons[0]],norm);
