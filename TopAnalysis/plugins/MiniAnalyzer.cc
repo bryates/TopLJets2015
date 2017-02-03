@@ -792,10 +792,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
       ev_.pf_highPurity[ev_.npf] = pf->trackHighPurity();
       ev_.pf_quality[ev_.npf] = -1;
-      /*
-      for(int iq = 0; iq <= 7; iq++)
-        ev_.pf_quality[ev_.npf] |= (pf->pseudoTrack().quality(iq))<<iq;
-      */
+      ev_.pf_quality[ev_.npf] = pf->pseudoTrack().qualityMask();
       ev_.pf_muon[ev_.npf] = pf->isMuon();
       ev_.pf_standAloneMuon[ev_.npf] = pf->isStandAloneMuon();
       ev_.pf_globalMuon[ev_.npf] = pf->isGlobalMuon();
