@@ -90,6 +90,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_nValTrackerHits",  ev.l_nValTrackerHits,  "nValTrackerHits[nl]/F");
   t->Branch("l_globalTrackNumberOfValidHits",                 ev.l_globalTrackNumberOfValidHits,                 "globalTrackNumberOfValidHits[nl]/F");
   t->Branch("l_nValPixelHits",    ev.l_nValPixelHits,    "nValPixelHits[nl]/F");
+  t->Branch("l_pixelLayerWithMeasurement",    ev.l_pixelLayerWithMeasurement,    "pixelLayerWithMeasurement[nl]/F");
+  t->Branch("l_nMatchedStations",    ev.l_nMatchedStations,    "nMatchedStations[nl]/F");
+  t->Branch("l_trackerLayersWithMeasurement",    ev.l_trackerLayersWithMeasurement,    "trackerLayersWithMeasurement[nl]/F");
+  t->Branch("l_validFraction",               ev.l_validFraction,               "pf[nl]/I");
+  t->Branch("l_chi2LocalPosition",               ev.l_chi2LocalPosition,               "pf[nl]/I");
+  t->Branch("l_trkKink",               ev.l_trkKink,               "pf[nl]/I");
 
 
   //jet info
@@ -236,6 +242,12 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("l_nValTrackerHits",  ev.l_nValTrackerHits);
   t->SetBranchAddress("l_globalTrackNumberOfValidHits",               ev.l_globalTrackNumberOfValidHits);
   t->SetBranchAddress("l_nValPixelHits",    ev.l_nValPixelHits);
+  t->SetBranchAddress("l_pixelLayerWithMeasurement",    ev.l_pixelLayerWithMeasurement);
+  t->SetBranchAddress("l_nMatchedStations",    ev.l_nMatchedStations);
+  t->SetBranchAddress("l_trackerLayersWithMeasurement",    ev.l_trackerLayersWithMeasurement);
+  t->SetBranchAddress("l_validFraction",               ev.l_validFraction);
+  t->SetBranchAddress("l_chi2LocalPosition",               ev.l_chi2LocalPosition);
+  t->SetBranchAddress("l_trkKink",               ev.l_trkKink);
 
   //jet info
   t->SetBranchAddress("nj",        &ev.nj);

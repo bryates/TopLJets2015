@@ -40,7 +40,7 @@ struct MiniEvent_t
   Float_t l_pt[50],l_eta[50],l_phi[50], l_mass[50], l_miniIso[50], l_chargedHadronIso[50], l_relIso[50], l_ip3d[50], l_ip3dsig[50];
   Float_t l_chi2norm[50], l_dxy[50], l_dxyE[50], l_dz[50];
   Bool_t l_global[50], l_pf[50];
-  Float_t l_nValTrackerHits[50], l_globalTrackNumberOfValidHits[50], l_nValPixelHits[50];
+  Float_t l_nValTrackerHits[50], l_globalTrackNumberOfValidHits[50], l_nValPixelHits[50], l_nMatchedStations[50], l_pixelLayerWithMeasurement[50], l_trackerLayersWithMeasurement[50], l_validFraction[50], l_chi2LocalPosition[50], l_trkKink[50];
 
   Int_t nj;
   Float_t j_pt[200],j_eta[200],j_phi[200],j_mass[200],j_area[200],j_rawsf[200];

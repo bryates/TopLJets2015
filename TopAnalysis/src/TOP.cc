@@ -221,6 +221,7 @@ void RunTop(TString filename,
     allPlots["nevt"+tag+cut+weight]     = new TH1F("nevt"+tag+cut+weight,";N_{events};Events" ,1,1.,2.);
     allPlots["weight"+tag+cut+weight]     = new TH1F("weight"+tag+cut+weight,";N_{events};Events/ 1.0" ,20,0.,2.);
     allPlots["norm"+tag+cut+weight]     = new TH1F("norm"+tag+cut+weight,";N_{events};Events / 1.0" ,2,0.,2.);
+    allPlots["relIso"+tag+cut+weight] = new TH1F("relIso"+tag+cut+weight,";relIso;Events / 0.05", 20,0,1.);
     allPlots["nvtx"+tag+cut+weight]     = new TH1F("nvtx"+tag+cut+weight,";N_{events};Events / 1.0" ,50,0.,50.);
     allPlots["chi2"+tag+cut+weight] = new TH1F("normchi2"+tag+cut+weight,";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["lp_dxy"+tag+cut+weight] = new TH1F("lp_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
@@ -276,21 +277,26 @@ void RunTop(TString filename,
 	{
           //cout << "in lepton selection" << endl;
           float relIso = ev.l_relIso[il];
-	  bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && relIso<0.25) //muons
-               || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && relIso<0.0893)  //electrons small eta
-                  || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.121)) //electrons medium eta
-                  && abs(ev.l_id[il])==11 // TOP mu cut for dilep
-                  && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660))); //remove ECAL 1.4442<|eta|<1.5660
+	  //bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && relIso<0.25) //muons
+          //     || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && relIso<0.25)  //electrons small eta
+          //        || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.25)) //electrons medium eta
+          //        && abs(ev.l_id[il])==11 // TOP mu cut for dilep
+          //        && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660))); //remove ECAL 1.4442<|eta|<1.5660
+          bool muonTightKin(abs(ev.l_id[il])==13 && ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4);
+          bool eleTightKin(abs(ev.l_id[il])==11 && ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.4 && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660
+          //bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4);
+          bool passTightKin(muonTightKin || eleTightKin);
           //passTightKin &= (abs(ev.l_id[il])==13 && ev.l_dxy[il]<0.2 && ev.l_dz[il]<0.5); //muon impact parameters
 
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
+          bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  
           //Check veto here, but ONLY for lep+jets (later on in code)
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.24 : true); //FIXME from 7_6_x
           bool passVetoKin(  ev.l_pt[il]>15 && fabs(ev.l_eta[il])<2.4); // TOP veto 10->15
           //bool passVetoId(ev.l_id[il]==13 ? (ev.l_pid[il]>>2)&0x1 : (ev.l_pid[il])&0x1); //muon isLoose or electron VetoId
 
-	  if(passTightKin && passTightId)// && passSIP3d)
+	  if(passTightKin && passTightId && passIso)// && passSIP3d)
 	    {
 	      tightLeptons.push_back(il);
 	    }
@@ -365,7 +371,8 @@ void RunTop(TString filename,
           }
           else if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
-            passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+            // passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
+            // Use same iso as di-lepton
             allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
             allPlots["relIso_e"]->Fill(ev.l_relIso[tightLeptons[0]],norm);
             if(vetoLeptons.size()==0)
@@ -655,6 +662,7 @@ void RunTop(TString filename,
         allPlots["lp_pt"+chTag]->Fill(leptons[0].Pt(),wgt);
         allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),norm);
         allPlots["lp_pt_all"]->Fill(leptons[0].Pt(),wgt);
+        allPlots["relIso"+chTag]->Fill(ev.l_relIso[selLeptons[0]],wgt);
       }
 
       if(isZ) {
@@ -693,6 +701,7 @@ void RunTop(TString filename,
         allPlots["lp_pt_all_lep"]->Fill(leptons[0].Pt(),wgt);
         allPlots["MET"+chTag+"_lep"]->Fill(ev.met_pt[0],wgt);
         allPlots["MET"+chTag+"_lep_no_weight"]->Fill(ev.met_pt[0],norm);
+        allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
         //Require at least 1 b-tagged and at least 2 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
           if(debug) cout << "jet reqirements" << endl;
@@ -703,6 +712,7 @@ void RunTop(TString filename,
 
           allPlots["lp_pt_all_lepjets"]->Fill(leptons[0].Pt(),wgt);
           allPlots["MET"+chTag+"_lepjets"]->Fill(ev.met_pt[0],wgt);
+          allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
           //allPlots["MET"+chTag+"_lepjets__no_weight"]->Fill(ev.met_pt[0],norm);
         }
       }
@@ -735,6 +745,8 @@ void RunTop(TString filename,
           allPlots["charge"+chTag+"_lep"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt);
           allPlots["MET"+chTag+"_lep"+"_no_weight"]->Fill(ev.met_pt[0],norm);
           allPlots["charge"+chTag+"_lep"+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
+          allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
+          allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[1]],wgt);
         }
         //Require at least 1 b-tagged and at least 1 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
@@ -766,6 +778,8 @@ void RunTop(TString filename,
           allPlots["charge"+chTag+"_lepjets"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt);
           allPlots["MET"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.met_pt[0],norm);
           allPlots["charge"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
+          allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
+          allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[1]],wgt);
         }
       }
       if(debug) cout << "simple plots DONE" << endl;

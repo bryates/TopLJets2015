@@ -591,29 +591,29 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
         ev_.l_dxyE[ev_.nl]=mu.edB();
       }
       if(mu.innerTrack().isNonnull()) {
-        cout << "inner dB" << endl;
         ev_.l_dxy[ev_.nl]=mu.dB();
         ev_.l_dxyE[ev_.nl]=mu.edB();
-        cout << "inner dz" << endl;
         ev_.l_dz[ev_.nl]=mu.innerTrack()->dz(primVtx.position());
-        cout << "inner isGlobal" << endl;
         ev_.l_global[ev_.nl]=mu.isGlobalMuon();
-        cout << "inner isPF" << endl;
         ev_.l_pf[ev_.nl]=mu.isPFMuon();
-        cout << "inner Chi2" << endl;
-        cout << ev_.l_chi2norm[ev_.nl] << endl;
         ev_.l_nValTrackerHits[ev_.nl] = mu.innerTrack()->hitPattern().numberOfValidTrackerHits();
         ev_.l_nValPixelHits[ev_.nl] = mu.innerTrack()->hitPattern().numberOfValidPixelHits();
+        ev_.l_nMatchedStations[ev_.nl] = mu.numberOfMatchedStations();
+        ev_.l_pixelLayerWithMeasurement[ev_.nl]    = mu.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+        ev_.l_trackerLayersWithMeasurement[ev_.nl] = mu.innerTrack()->hitPattern().trackerLayersWithMeasurement();
+
+        //Medium
+        ev_.l_validFraction[ev_.nl] = mu.innerTrack()->validFraction();
+        ev_.l_chi2LocalPosition[ev_.nl] = mu.combinedQuality().chi2LocalPosition;
+        ev_.l_trkKink[ev_.nl] = mu.combinedQuality().trkKink;
       }
 
       if (mu.globalTrack().isNonnull()) {
         ev_.l_chi2norm[ev_.nl]=mu.normChi2();
-        cout << ev_.l_chi2norm[ev_.nl] << endl << endl;
-        cout << "global isGlobal" << endl;
         ev_.l_global[ev_.nl]=mu.isGlobalMuon();
-        cout << "global isGlobal" << endl;
         ev_.l_pf[ev_.nl]=mu.isPFMuon();
         ev_.l_globalTrackNumberOfValidHits[ev_.nl] = mu.globalTrack()->hitPattern().numberOfValidMuonHits();
+        ev_.l_nMatchedStations[ev_.nl] = mu.numberOfMatchedStations();
       }
       ev_.nl++;    
       ev_.nleptons += ( isTight && mu.pt()>25); 
