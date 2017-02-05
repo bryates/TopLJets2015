@@ -287,6 +287,7 @@ void RunTop(TString filename,
           //passTightKin &= (abs(ev.l_id[il])==13 && ev.l_dxy[il]<0.2 && ev.l_dz[il]<0.5); //muon impact parameters
 
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
+	  //bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron FIXME Moriond17
           bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  
           //Check veto here, but ONLY for lep+jets (later on in code)
@@ -371,6 +372,7 @@ void RunTop(TString filename,
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             // passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
             passIso = ( (ev.l_pid[tightLeptons[0]]>>1)&0x1 );
+            //passIso = ( (ev.l_pid[tightLeptons[0]])&0x1 ); //Moriond17
             // Use same iso as di-lepton
             allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
             allPlots["relIso_e"]->Fill(ev.l_relIso[tightLeptons[0]],norm);

@@ -574,7 +574,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.l_eta[ev_.nl]=mu.eta();
       ev_.l_phi[ev_.nl]=mu.phi();
       ev_.l_mass[ev_.nl]=mu.mass();
-      ev_.l_pid[ev_.nl]=(isMedium | (isTight<<1) | (isLoose<<2) | (isSoft<<3));
+      ev_.l_pid[ev_.nl]=(isTight | (isMedium<<1) | (isLoose<<2) | (isSoft<<3));
       ev_.l_chargedHadronIso[ev_.nl]=mu.pfIsolationR04().sumChargedHadronPt;
       ev_.l_miniIso[ev_.nl]=getMiniIsolation(pfcands,&mu,0.05,0.2, 10., false);
       ev_.l_relIso[ev_.nl]=(mu.pfIsolationR04().sumChargedHadronPt + max(0., mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5*mu.pfIsolationR04().sumPUPt))/mu.pt();
