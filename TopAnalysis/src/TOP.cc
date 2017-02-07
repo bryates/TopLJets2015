@@ -506,7 +506,7 @@ void RunTop(TString filename,
 	  //b-tag
 	  if(debug) cout << "Starting b-tagging" << endl;
 	  float csv = ev.j_csv[k];	  
-	  bool isBTagged(csv>0.800);
+	  bool isBTagged(csv>0.8484);
 	  if(!ev.isData)
 	    {
 	      float jptForBtag(jp4.Pt()>1000. ? 999. : jp4.Pt()), jetaForBtag(fabs(jp4.Eta()));
