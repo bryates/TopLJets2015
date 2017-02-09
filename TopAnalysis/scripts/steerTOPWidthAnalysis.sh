@@ -22,8 +22,8 @@ export LSB_JOB_REPORT_MAIL=N
 
 queue=8nh
 githash=8db9ad6
-#lumi=3977.28
-lumi=12868.66
+#lumi=12868.66
+lumi=36569.89
 lumiUnc=0.062
 #eosdir=/store/cmst3/user/psilva/LJets2016/${githash}
 eosdir=/store/user/byates/LJets2015/${githash}
