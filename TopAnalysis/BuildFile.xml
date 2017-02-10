@@ -3,6 +3,7 @@
 <use name="rootrflx"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="TopQuarkAnalysis/TopTools"/>
 <Flags CXXFLAGS="-ggdb"/>

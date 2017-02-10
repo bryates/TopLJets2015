@@ -7,6 +7,13 @@
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 
 #include "TVector2.h"
+#include "TGraph.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TString.h"
+
+#include <vector>
 
 enum FlavourSplitting {NOFLAVOURSPLITTING=0, UDSGSPLITTING=1, CSPLITTING=4, BSPLITTING=5 };
 

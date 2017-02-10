@@ -1,6 +1,8 @@
 #ifndef _topwidth_h_
 #define _topwidth_h_
 
+#include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
+
 #include "TH1.h"
 #include "TString.h"
 #include "TFile.h"
