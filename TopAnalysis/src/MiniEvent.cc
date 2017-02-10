@@ -85,17 +85,17 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("l_dxy",              ev.l_dxy,              "dxy[nl]/F");
   t->Branch("l_dxyE",             ev.l_dxyE,             "dxyE[nl]/F");
   t->Branch("l_dz",               ev.l_dz,               "dz[nl]/F");
-  t->Branch("l_global",           ev.l_global,           "global[nl]/I");
-  t->Branch("l_pf",               ev.l_pf,               "pf[nl]/I");
+  t->Branch("l_global",           ev.l_global,           "global[nl]/O");
+  t->Branch("l_pf",               ev.l_pf,               "pf[nl]/O");
   t->Branch("l_nValTrackerHits",  ev.l_nValTrackerHits,  "nValTrackerHits[nl]/F");
   t->Branch("l_globalTrackNumberOfValidHits",                 ev.l_globalTrackNumberOfValidHits,                 "globalTrackNumberOfValidHits[nl]/F");
   t->Branch("l_nValPixelHits",    ev.l_nValPixelHits,    "nValPixelHits[nl]/F");
   t->Branch("l_pixelLayerWithMeasurement",    ev.l_pixelLayerWithMeasurement,    "pixelLayerWithMeasurement[nl]/F");
   t->Branch("l_nMatchedStations",    ev.l_nMatchedStations,    "nMatchedStations[nl]/F");
   t->Branch("l_trackerLayersWithMeasurement",    ev.l_trackerLayersWithMeasurement,    "trackerLayersWithMeasurement[nl]/F");
-  t->Branch("l_validFraction",               ev.l_validFraction,               "pf[nl]/I");
-  t->Branch("l_chi2LocalPosition",               ev.l_chi2LocalPosition,               "pf[nl]/I");
-  t->Branch("l_trkKink",               ev.l_trkKink,               "pf[nl]/I");
+  t->Branch("l_validFraction",               ev.l_validFraction,               "pf[nl]/F");
+  t->Branch("l_chi2LocalPosition",               ev.l_chi2LocalPosition,               "pf[nl]/F");
+  t->Branch("l_trkKink",               ev.l_trkKink,               "pf[nl]/F");
 
 
   //jet info
@@ -137,12 +137,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_dxyE",     ev.pf_dxyE,     "pf_dxyE[npf]/F");
   t->Branch("pf_dz",       ev.pf_dz,       "pf_dz[npf]/F");
   t->Branch("pf_dzE",      ev.pf_dzE,      "pf_dzE[npf]/F");
-  t->Branch("pf_highPurity",      ev.pf_highPurity,      "pf_highPurity[npf]/I");
+  t->Branch("pf_highPurity",      ev.pf_highPurity,      "pf_highPurity[npf]/O");
   t->Branch("pf_quality",      ev.pf_quality,      "pf_quality[npf]/I");
-  t->Branch("pf_muon",   ev.pf_muon,   "pf_muon[npf]/I");
-  t->Branch("pf_standAloneMuon",   ev.pf_standAloneMuon,   "pf_standAloneMuon[npf]/I");
-  t->Branch("pf_globalMuon",   ev.pf_globalMuon,   "pf_globalMuon[npf]/I");
-  t->Branch("pf_trackerMuon",   ev.pf_trackerMuon,   "pf_trackerMuon[npf]/I");
+  t->Branch("pf_muon",   ev.pf_muon,   "pf_muon[npf]/O");
+  t->Branch("pf_standAloneMuon",   ev.pf_standAloneMuon,   "pf_standAloneMuon[npf]/O");
+  t->Branch("pf_globalMuon",   ev.pf_globalMuon,   "pf_globalMuon[npf]/O");
+  t->Branch("pf_trackerMuon",   ev.pf_trackerMuon,   "pf_trackerMuon[npf]/O");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
