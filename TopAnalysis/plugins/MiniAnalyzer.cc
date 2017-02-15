@@ -365,17 +365,17 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     int absid=abs(genIt.pdgId());
     if(absid!=443 && absid!=421) continue;
     if(genIt.numberOfDaughters()!=2) continue;
-    //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13) continue;
-    //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321) continue;
+    if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
+       genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321) continue;
     //cout << "daughter found" << endl;
     bool JPsiDaughter = false;
     bool D0Daughter = false;
     for(size_t ipf=0; ipf<genIt.numberOfDaughters(); ipf++) {
       //cout << "loading daughter" << endl;
       const reco::Candidate *daug=genIt.daughter(ipf);
-      if(abs(daug->pdgId())==13) JPsiDaughter = true; //proably redundant
-      else if(abs(daug->pdgId())==211) D0Daughter = true; //proably redundant
-      else if(abs(daug->pdgId())==321) D0Daughter = true; //proably redundant
+      if(abs(daug->pdgId())==13 && absid==443) JPsiDaughter = true;
+      else if(abs(daug->pdgId())==211 && absid==421) D0Daughter = true;
+      else if(abs(daug->pdgId())==321 && absid==421) D0Daughter = true;
       else continue;
       /*
       if(JPsiDaughter) cout << "J/Psi" << endl;
@@ -407,7 +407,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     cout << genIt.phi() << ", ";
     cout << genIt.mass() << endl;
     */
-    //ev_.gmeson_id[ev_.ngjpsi]     = genIt.pdgId();
+    ev_.gmeson_id[ev_.ngmeson]     = genIt.pdgId();
     ev_.gmeson_pt[ev_.ngmeson]     = genIt.pt();
     ev_.gmeson_eta[ev_.ngmeson]    = genIt.eta();
     ev_.gmeson_phi[ev_.ngmeson]    = genIt.phi();
