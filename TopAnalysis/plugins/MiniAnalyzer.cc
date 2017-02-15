@@ -353,35 +353,45 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
   //J/Psi decay
+  //Meson decay (J/Psi or D0)
   ev_.ngjpsi=0;
-  int jpsi_index=0; 
+  ev_.ngmeson=0;
+  int meson_index=0; 
   //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
   for(size_t i = 0; i < prunedGenParticles->size(); i++) {
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
-    if(absid!=443) continue;
+    if(absid!=443 && absid!=421) continue;
     if(genIt.numberOfDaughters()!=2) continue;
-    if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13) continue;
+    //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13) continue;
+    //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321) continue;
     //cout << "daughter found" << endl;
     bool JPsiDaughter = false;
+    bool D0Daughter = false;
     for(size_t ipf=0; ipf<genIt.numberOfDaughters(); ipf++) {
       //cout << "loading daughter" << endl;
       const reco::Candidate *daug=genIt.daughter(ipf);
       if(abs(daug->pdgId())==13) JPsiDaughter = true; //proably redundant
+      else if(abs(daug->pdgId())==211) D0Daughter = true; //proably redundant
+      else if(abs(daug->pdgId())==321) D0Daughter = true; //proably redundant
       else continue;
       /*
+      if(JPsiDaughter) cout << "J/Psi" << endl;
+      else if(D0Daughter) cout << "D0" << endl;
       cout << "daugther is muon: pT, eta, phi" << endl;
+      cout << daug->pdgId() << endl;
       cout << daug->pt() << ", ";
       cout << daug->eta() << ", ";
       cout << daug->phi() << endl;
       */
       //2*ev_.ngjpsi to account for 2 duaghters per J/Psi
-      ev_.gjpsi_mu_pt[2*ev_.ngjpsi+ipf] = daug->pt();
-      ev_.gjpsi_mu_eta[2*ev_.ngjpsi+ipf] = daug->eta();
-      ev_.gjpsi_mu_phi[2*ev_.ngjpsi+ipf] = daug->phi();
-      ev_.gjpsi_mu_jpsi_index[2*ev_.ngjpsi+ipf] = jpsi_index;
+      ev_.gmeson_daug_id[2*ev_.ngmeson+ipf] = daug->pdgId();
+      ev_.gmeson_daug_pt[2*ev_.ngmeson+ipf] = daug->pt();
+      ev_.gmeson_daug_eta[2*ev_.ngmeson+ipf] = daug->eta();
+      ev_.gmeson_daug_phi[2*ev_.ngmeson+ipf] = daug->phi();
+      ev_.gmeson_daug_meson_index[2*ev_.ngmeson+ipf] = meson_index;
       /*
       ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
       ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
@@ -389,7 +399,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gjpsi_mu_dzE[ev_.ngjpsi]  = daug->dzE();
       */
     }
-    if(!JPsiDaughter) continue;
+    if(!JPsiDaughter && !D0Daughter) continue;
     /*
     cout << "J/Psi: pT, eta, phi, M" << endl;
     cout << genIt.pt() << ", ";
@@ -397,15 +407,16 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     cout << genIt.phi() << ", ";
     cout << genIt.mass() << endl;
     */
-    ev_.gjpsi_pt[ev_.ngjpsi]     = genIt.pt();
-    ev_.gjpsi_eta[ev_.ngjpsi]    = genIt.eta();
-    ev_.gjpsi_phi[ev_.ngjpsi]    = genIt.phi();
-    ev_.gjpsi_m[ev_.ngjpsi]      = genIt.mass();
-    ev_.gjpsi_mu_dR[ev_.ngjpsi]  = reco::deltaR(genIt.daughter(0)->eta(),genIt.daughter(0)->phi(),genIt.daughter(1)->eta(),genIt.daughter(1)->phi());
-    ev_.gjpsi_index[ev_.ngjpsi] = jpsi_index;
-    ev_.ngjpsi++;
-    jpsi_index++;
-    ev_.ngjpsi++;
+    //ev_.gmeson_id[ev_.ngjpsi]     = genIt.pdgId();
+    ev_.gmeson_pt[ev_.ngmeson]     = genIt.pt();
+    ev_.gmeson_eta[ev_.ngmeson]    = genIt.eta();
+    ev_.gmeson_phi[ev_.ngmeson]    = genIt.phi();
+    ev_.gmeson_m[ev_.ngmeson]      = genIt.mass();
+    ev_.gmeson_daug_dR[ev_.ngmeson]  = reco::deltaR(genIt.daughter(0)->eta(),genIt.daughter(0)->phi(),genIt.daughter(1)->eta(),genIt.daughter(1)->phi());
+    ev_.gmeson_index[ev_.ngmeson] = meson_index;
+    if(JPsiDaughter) ev_.ngjpsi++;
+    ev_.ngmeson++;
+    meson_index++;
   }
 
   //top or stop quarks (lastCopy)

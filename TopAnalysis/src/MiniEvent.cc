@@ -29,17 +29,20 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("g_m",       ev.g_m,      "g_m[ng]/F");
 
   //gen level J/Psi
-  t->Branch("ngjpsi",      &ev.ngjpsi, "ngjpsi/I");
-  t->Branch("gjpsi_mu_pt",  ev.gjpsi_mu_pt, "gjpsi_mu_pt[ngjpsi]/F");
-  t->Branch("gjpsi_mu_eta", ev.gjpsi_mu_eta, "gjpsi_mu_eta[ngjpsi]/F");
-  t->Branch("gjpsi_mu_phi", ev.gjpsi_mu_phi, "gjpsi_mu_phi[ngjpsi]/F");
-  t->Branch("gjpsi_pt",     ev.gjpsi_pt, "gjpsi_pt[ngjpsi]/F");
-  t->Branch("gjpsi_eta",    ev.gjpsi_eta, "gjpsi_eta[ngjpsi]/F");
-  t->Branch("gjpsi_phi",    ev.gjpsi_phi, "gjpsi_phi[ngjpsi]/F");
-  t->Branch("gjpsi_m",      ev.gjpsi_m, "gjpsi_m[ngjpsi]/F");
-  t->Branch("gjpsi_mu_dR",  ev.gjpsi_mu_dR, "gjpsi_mu_dR[ngjpsi]/F");
-  t->Branch("gjpsi_index",  ev.gjpsi_index, "gjpsi_index[ngjpsi]/F");
-  t->Branch("gjpsi_mu_jpsi_index",  ev.gjpsi_mu_jpsi_index, "gjpsi_mu_jpsi_index[ngjpsi]/F");
+  t->Branch("ngjpsi",       &ev.ngjpsi, "ngjpsi/I");
+  t->Branch("ngmeson",      &ev.ngmeson, "ngmeson/I");
+  t->Branch("gmeson_daug_id",  ev.gmeson_daug_id, "gmeson_daug_id[ngmeson]/I");
+  t->Branch("gmeson_daug_pt",  ev.gmeson_daug_pt, "gmeson_daug_pt[ngmeson]/F");
+  t->Branch("gmeson_daug_eta", ev.gmeson_daug_eta, "gmeson_daug_eta[ngmeson]/F");
+  t->Branch("gmeson_daug_phi", ev.gmeson_daug_phi, "gmeson_daug_phi[ngmeson]/F");
+  t->Branch("gmeson_id",     ev.gmeson_id, "gmeson_id[ngmeson]/I");
+  t->Branch("gmeson_pt",     ev.gmeson_pt, "gmeson_pt[ngmeson]/F");
+  t->Branch("gmeson_eta",    ev.gmeson_eta, "gmeson_eta[ngmeson]/F");
+  t->Branch("gmeson_phi",    ev.gmeson_phi, "gmeson_phi[ngmeson]/F");
+  t->Branch("gmeson_m",      ev.gmeson_m, "gmeson_m[ngmeson]/F");
+  t->Branch("gmeson_daug_dR",  ev.gmeson_daug_dR, "gmeson_daug_dR[ngmeson]/F");
+  t->Branch("gmeson_index",  ev.gmeson_index, "gmeson_index[ngmeson]/F");
+  t->Branch("gmeson_daug_meson_index",  ev.gmeson_daug_meson_index, "gmeson_daug_meson_index[ngmeson]/F");
 
   //top (lastCopy and pseudo-top)
   t->Branch("ngtop",     &ev.ngtop,      "ngtop/I");
@@ -200,17 +203,20 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
     }
 
   //gen level J/Psi
-  t->SetBranchAddress("ngjpsi",      &ev.ngjpsi);
-  t->SetBranchAddress("gjpsi_mu_pt",  ev.gjpsi_mu_pt);
-  t->SetBranchAddress("gjpsi_mu_eta", ev.gjpsi_mu_eta);
-  t->SetBranchAddress("gjpsi_mu_phi", ev.gjpsi_mu_phi);
-  t->SetBranchAddress("gjpsi_pt",     ev.gjpsi_pt);
-  t->SetBranchAddress("gjpsi_eta",    ev.gjpsi_eta);
-  t->SetBranchAddress("gjpsi_phi",    ev.gjpsi_phi);
-  t->SetBranchAddress("gjpsi_m",      ev.gjpsi_m);
-  t->SetBranchAddress("gjpsi_mu_dR",  ev.gjpsi_mu_dR);
-  t->SetBranchAddress("gjpsi_index",  ev.gjpsi_index);
-  t->SetBranchAddress("gjpsi_mu_jpsi_index",  ev.gjpsi_mu_jpsi_index);
+  t->SetBranchAddress("ngjpsi",       &ev.ngmeson);
+  t->SetBranchAddress("ngmeson",      &ev.ngmeson);
+  t->SetBranchAddress("gmeson_daug_id",  ev.gmeson_daug_id);
+  t->SetBranchAddress("gmeson_daug_pt",  ev.gmeson_daug_pt);
+  t->SetBranchAddress("gmeson_daug_eta", ev.gmeson_daug_eta);
+  t->SetBranchAddress("gmeson_daug_phi", ev.gmeson_daug_phi);
+  t->SetBranchAddress("gmeson_id",     ev.gmeson_id);
+  t->SetBranchAddress("gmeson_pt",     ev.gmeson_pt);
+  t->SetBranchAddress("gmeson_eta",    ev.gmeson_eta);
+  t->SetBranchAddress("gmeson_phi",    ev.gmeson_phi);
+  t->SetBranchAddress("gmeson_m",      ev.gmeson_m);
+  t->SetBranchAddress("gmeson_daug_dR",  ev.gmeson_daug_dR);
+  t->SetBranchAddress("gmeson_index",  ev.gmeson_index);
+  t->SetBranchAddress("gmeson_daug_meson_index",  ev.gmeson_daug_meson_index);
 
   //reco level event
   t->SetBranchAddress("nvtx",      &ev.nvtx);
