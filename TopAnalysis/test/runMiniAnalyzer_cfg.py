@@ -52,14 +52,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 # set input to process
 from TopLJets2015.TopAnalysis.Compressed_T2tt_cfi import *
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source = cms.Source("PoolSource",
-                            #fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv1/TTToSemiLeptonic_13TeV_ScaleDown-powheg/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/067717F2-220A-E611-A553-0090FAA58D84.root')
-                            fileNames = cms.untracked.vstring(Compressed_T2tt_2),
+                            fileNames = cms.untracked.vstring('/store/mc/RunIISummer16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/0693E0E7-97BE-E611-B32F-0CC47A78A3D8.root'),
+                            #fileNames = cms.untracked.vstring(Compressed_T2tt_2),
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck') 
                             )
 if options.runOnData:
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/158/00000/0A7BD549-131A-E611-8287-02163E0134FC.root')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016G/MuonEG/MINIAOD/23Sep2016-v1/50000/A2AAED1F-F18F-E611-A51D-002590D0AFBA.root')
     #/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/158/00000/06277EC1-181A-E611-870F-02163E0145E5.root')
 
 #this make the process crash ?!
@@ -68,6 +69,34 @@ if options.runOnData:
 #    print 'Will process files from',options.inputDir
 #    process.source.fileNames=cms.untracked.vstring(getEOSlslist(directory=options.inputDir))
 
+
+######### Skim Filter
+process.selectedMuons = cms.EDFilter("CandPtrSelector",
+                                     src = cms.InputTag("slimmedMuons"),
+                                     cut = cms.string("pt>9.8 && abs(eta)<2.4"))
+
+process.selectedElectrons = cms.EDFilter("CandPtrSelector",
+                                         src = cms.InputTag("slimmedElectrons"),
+                                         cut = cms.string("pt>9.8 && abs(eta)<2.5"))
+
+process.selectedJets = cms.EDFilter("CandPtrSelector",
+                                         src = cms.InputTag("slimmedJets"),
+                                         cut = cms.string("pt>20 && abs(eta)<2.5"))
+
+process.allLeps = cms.EDProducer("CandViewMerger",
+                                 src = cms.VInputTag(
+                                                        cms.InputTag("selectedElectrons"),
+                                                        cms.InputTag("selectedMuons")))
+
+process.countLeps = cms.EDFilter("CandViewCountFilter",
+                                 src = cms.InputTag("allLeps"),
+                                 minNumber = cms.uint32(1))
+
+process.countJets = cms.EDFilter("CandViewCountFilter",
+                                 src = cms.InputTag("selectedJets"),
+                                 minNumber = cms.uint32(1))
+
+process.preYieldFilter = cms.Sequence(process.selectedMuons+process.selectedElectrons+process.allLeps+process.countLeps+process.selectedJets+process.countJets)
 
 #analysis
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
@@ -119,6 +148,8 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 if options.runOnData:
-    process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
-    process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
+    process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
+    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)

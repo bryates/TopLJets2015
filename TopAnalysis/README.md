@@ -60,7 +60,10 @@ python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates
 Correction and uncertainty files are stored under data by era directories (e.g. data/era2015, data/era2016) in order no to mix different periods.
 After ntuples are processed start by creating the json files with the list of runs/luminosity sections processed, e.g. as:
 ```
-crab report grid/crab_Data13TeV_DoubleMuon_2016B
+a=(`find grid/ -maxdepth 1 | grep crab_Data `)
+for i in ${a[@]}; do
+    crab report ${i}; 
+done
 ``` 
 Then you can merge the json files for the same dataset to get the full list of run/lumi sections to analyse
 ```
@@ -68,7 +71,7 @@ mergeJSON.py grid/crab_Data13TeV_DoubleMuon_2016B/results/processedLumis.json gr
 ```
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
-export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.0.3/bin:$PATH
+export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 brilcalc lumi --normtag /afs/cern.ch/user/l/lumipro/public/normtag_file/normtag_DATACERT.json -i data/era2016/Data13TeV_DoubleMuon_lumis.json
 ```
 Use the table which is printed out to update the "lumiPerRun" method in ReadTree.cc.
