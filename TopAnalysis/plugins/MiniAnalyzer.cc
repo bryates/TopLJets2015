@@ -807,7 +807,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(ev_.npf>=5000) continue;
       int npf = ev_.npf;
       if(!(fabs(pf->pdgId())==13 || std::any_of(pfCand.begin(), pfCand.end(),
-                                    [&npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
+                                    [npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
 
       ev_.pf_j[ev_.npf] = -1;
       for(size_t i=0; i<clustCands.size(); i++)
