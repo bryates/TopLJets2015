@@ -53,7 +53,7 @@ struct MiniEvent_t
   Float_t met_pt[10],met_phi[10];
 
   //PF candidates
-  Int_t npf,nmu,pf_j[5000],pf_jnpf[5000];
+  Int_t npf,nmu,pf_j[5000],pf_jnpf[5000],pf_jnhppf[5000];
   Int_t pf_id[5000],pf_c[5000],pf_fromPV[5000],pf_quality[5000];
   Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000];
   Bool_t pf_highPurity[5000],pf_muon[5000],pf_standAloneMuon[5000],pf_globalMuon[5000],pf_trackerMuon[5000];

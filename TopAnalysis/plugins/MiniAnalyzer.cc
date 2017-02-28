@@ -776,12 +776,10 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
     if(fabs(pf->pdgId())==13) continue;
     ev_.pf_j[ev_.npf] = -1;
-    ev_.pf_jnpf[ev_.npf] = 0;
     for(size_t i=0; i<clustCands.size(); i++) {
       if(pf->pdgId()!=clustCands[i].first->pdgId()) continue;
       if(deltaR(*pf,*(clustCands[i].first))>0.01) continue;
       ev_.pf_j[ev_.npf]=clustCands[i].second;
-      ev_.pf_jnpf[ev_.npf]++;
       break;
     }
 
@@ -794,8 +792,10 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     pfCand.push_back(std::pair<int,double>(ev_.npf,pf->pt()));
-
+    ev_.pf_jnpf[ev_.pf_j[ev_.npf]]++;
+    if(pf->trackHighPurity()) ev_.pf_jnhppf[ev_.pf_j[ev_.npf]]++;
     ev_.npf++;
+
   }
 
   sort(pfCand.begin(),pfCand.end(), pfSort);

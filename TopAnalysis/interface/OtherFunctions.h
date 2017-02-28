@@ -170,6 +170,7 @@ bool sortJetsByPt(Jet i, Jet j)  { return i.getVec().Pt() > j.getVec().Pt(); }
 bool sortJetsByCSV(Jet i, Jet j) { return i.getCSV() > j.getCSV(); }
 bool sortIdTracksByPt(IdTrack i, IdTrack j)  { return i.first.Pt() > j.first.Pt(); }
 
-void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), sortIdTracksByPt); }
+//void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), sortIdTracksByPt); }
+void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), [](IdTrack i, IdTrack j) { return i.first.Pt() > j.first.Pt() ; } ); }
 
 #endif
