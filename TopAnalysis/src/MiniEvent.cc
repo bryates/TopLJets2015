@@ -128,6 +128,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   //pf candidates (only charged if outside jets)
   t->Branch("npf",        &ev.npf,         "npf/I");
   t->Branch("pf_j",        ev.pf_j,        "pf_j[npf]/I");
+  t->Branch("pf_jnpf",     ev.pf_jnpf,     "pf_jnpf[npf]/I");
   t->Branch("pf_id",       ev.pf_id,       "pf_id[npf]/I");
   t->Branch("pf_fromPV",   ev.pf_fromPV,   "pf_fromPV[npf]/I");
   t->Branch("pf_c",        ev.pf_c,        "pf_c[npf]/I");
@@ -284,6 +285,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
     {
       t->SetBranchAddress("npf",        &ev.npf);
       t->SetBranchAddress("pf_j",        ev.pf_j);
+      t->SetBranchAddress("pf_jnpf",     ev.pf_jnpf);
       t->SetBranchAddress("pf_id",       ev.pf_id);
       t->SetBranchAddress("pf_fromPV",   ev.pf_fromPV);
       t->SetBranchAddress("pf_c",        ev.pf_c);

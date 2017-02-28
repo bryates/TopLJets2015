@@ -82,6 +82,9 @@ using namespace pat;
 // class declaration
 //
 
+// For PF skimming
+bool pfSort(pat::PackedCandidate pf1, pat::PackedCandidate pf2) { return pf1.pt() > pf2.pt(); }
+
 class MiniAnalyzer : public edm::EDAnalyzer {
 public:
   explicit MiniAnalyzer(const edm::ParameterSet&);
@@ -764,9 +767,60 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
   //PF candidates
+  //Skim
+  //Save all muons an 6 hardest others
+  ev_.npf=0;
+  std::vector<pat::PackedCandidate> *pfMu(0),*pfOther(0),*pfCands(0);
+  for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf) {
+    if(ev_.npf>=5000) continue;
+
+    cout << "jet stuff" << endl;
+    ev_.pf_j[ev_.npf] = -1;
+    ev_.pf_jnpf[ev_.npf] = 0;
+    for(size_t i=0; i<clustCands.size(); i++) {
+      if(pf->pdgId()!=clustCands[i].first->pdgId()) continue;
+      if(deltaR(*pf,*(clustCands[i].first))>0.01) continue;
+      ev_.pf_j[ev_.npf]=clustCands[i].second;
+      ev_.pf_jnpf[ev_.npf]++;
+      break;
+    }
+
+    //extra requirements for unclustered PF candidates
+    if(ev_.pf_j[ev_.npf]==-1) {
+      if(pf->charge()==0) continue;
+      if(pf->fromPV()<2 && fabs(pf->pdgId())!=13) continue;
+      if(pf->pt()<0.5 || fabs(pf->eta())>2.5) continue;
+      if(pf->puppiWeight()<0.01 && fabs(pf->pdgId())!=13) continue;
+    }
+
+    cout << "push stuff" << endl;
+    pat::PackedCandidate p= *pf->clone();
+    if(fabs(pf->pdgId())==13)
+      pfMu->push_back(p);
+    else
+      pfOther->push_back(p);
+
+    ev_.npf++;
+  }
+
+  cout << "sorting PF cands" << endl;
+  sort(pfOther->begin(),pfOther->end(), pfSort);
+  cout << "truncating non muon cands" << endl;
+  pfOther->resize(6); //keep only 6 hardest non muon PF candidates
+  pfCands->reserve(pfMu->size() + pfOther->size());
+  cout << "combining pfMu and pfOther" << endl;
+  pfCands->insert(pfCands->end(), pfMu->begin(), pfMu->end());
+  pfCands->insert(pfCands->end(), pfOther->begin(), pfOther->end());
+
   ev_.npf=0;
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf)
+  //for(size_t ipf = 0; ipf < pfCands->size(); ipf++)
     {
+      /*
+      cout << "using pfCands" << endl;
+      pat::PackedCandidate* pf = pfCands->at(ipf);
+      cout << "using pfCands at " << ipf << endl;
+      */
       if(ev_.npf>=5000) continue;
 
       ev_.pf_j[ev_.npf] = -1;
