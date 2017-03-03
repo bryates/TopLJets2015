@@ -273,8 +273,8 @@ void RunTop(TString filename,
           bool passTightKin(muonTightKin || eleTightKin);
           //passTightKin &= (abs(ev.l_id[il])==13 && ev.l_dxy[il]<0.2 && ev.l_dz[il]<0.5); //muon impact parameters
 
-	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
-	  //bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron FIXME Moriond17
+	  //bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
+	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron FIXME Moriond17
           bool passIso( ev.l_id[il]==13 ? relIso<0.1 : (ev.l_pid[il]>>1)&0x1 );
 	  
           //Check veto here, but ONLY for lep+jets (later on in code)
@@ -294,23 +294,22 @@ void RunTop(TString filename,
       //check if triggers have fired
       //bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //Dielectron
-      bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      bool hasEETrigger(((ev.elTrigger>>6)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);                              //HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //Dimuon
-      bool hasMMTrigger(((ev.muTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
-      hasMMTrigger |= ((ev.muTrigger>>5)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+      bool hasMMTrigger(((ev.muTrigger>>6)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
+      hasMMTrigger |= ((ev.muTrigger>>7)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
       //Electron Muon (ME as well)
-      bool hasEMTrigger(((ev.elTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v 
-                                                                                  //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v  recommended by TOP PAG)
-                                                                                  //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
+      bool hasEMTrigger(((ev.elTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v
+
       //Muon Electron part
-      hasEMTrigger |= ((ev.elTrigger>>5)&0x1)!=0;                                 //HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v
-                                                                                  //(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
-                                                                                  //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v 
-                                                                                  //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
+      hasEMTrigger |= ((ev.elTrigger>>7)&0x1)!=0;                                 //HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v
+      hasEMTrigger |= ((ev.elTrigger>>9)&0x1)!=0;                                 //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v 
+      hasEMTrigger |= ((ev.elTrigger>>10)&0x1)!=0;                                //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
       //Single muon
-      bool hasMuTrigger(((ev.muTrigger>>2)&0x1)!=0);                              //HLT_IsoMu22_v (24 recommended by TOP PAG)
-      hasMuTrigger |= (((ev.muTrigger>>3)&0x1)!=0);                               //HLT_IsoTkMu22_v
+      bool hasMuTrigger(((ev.muTrigger)&0x1)!=0);                              //HLT_IsoMu24_v
+      //bool hasMuTrigger(((ev.muTrigger>>2)&0x1)!=0);                              //HLT_IsoMu22_v (24 recommended by TOP PAG)
+      //hasMuTrigger |= (((ev.muTrigger>>3)&0x1)!=0);                               //HLT_IsoTkMu22_v
       //Single electorn
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
 
