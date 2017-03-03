@@ -52,7 +52,7 @@ source /cvmfs/cms.cern.ch/crab3/crab.sh
 ```
 As soon as ntuple production starts to finish, to move from crab output directories to a simpler directory structure which can be easily parsed by the local analysis runThe merging can be run locally if needed by using the checkProductionIntegrity.py script
 ```
-python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/e7b8136 -o /store/user/byates/LJets2015/8db9ad6
+python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates/c8d08d0 -o /store/user/byates/LJets2015/8db9ad6
 ```
 
 ## Preparing the analysis 
@@ -79,13 +79,11 @@ That will be used to monitor the event yields per run in order to identify outli
 * Pileup weighting. To update the pileup distributions run the script below. It will store the data pileup distributions for different min.bias cross section in data/pileupWgts.root
 ```
 python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_DoubleMuon_lumis.json --out data/era2016/pileupWgts.root
+python scripts/runPileupEstimation.py --json /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt --out data/era2016/pileupWgts.root
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
-for i in "_powheg" "_herwig" "_scaledown" "_scaleup"; do
-    python scripts/saveExpectedBtagEff.py -i /store/user/byates/LJets2015/8db9ad6/MC13TeV_TTJets${i} -o data/era2016/expTageff${i}.root;
-done
-mv data/era2016/expTageff_powheg.root data/era2016/expTageff.root
+python scripts/saveExpectedBtagEff.py -i /store/cmst3/group/top/ReReco2016/f016290/MC13TeV_TTJets -o data/era2016/expTageff.root;
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```

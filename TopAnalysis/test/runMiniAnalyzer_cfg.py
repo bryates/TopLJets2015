@@ -133,15 +133,11 @@ from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
 jecFile='Summer16_23Sep2016V4_MC.db'
 jecTag='Summer16_23Sep2016V4_MC_AK4PFchs'
-#jecFile='Spring16_25nsV3_MC.db'
-#jecTag='Spring16_25nsV3_MC_AK4PFchs'
 if options.runOnData : 
     print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
     jecLevels.append( 'L2L3Residual' )
     jecFile='Summer16_23Sep2016AllV4_DATA.db'
     jecTag='Summer16_23Sep2016AllV4_DATA_AK4PFchs'
-    #jecFile='Spring16_25nsV3_DATA.db'
-    #jecTag='Spring16_25nsV3_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 #tfile service
@@ -151,7 +147,5 @@ process.TFileService = cms.Service("TFileService",
 
 if options.runOnData:
     process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
-    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
     process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
-    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
