@@ -37,7 +37,7 @@ esac
 
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}
-outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_11/src/TopLJets2015/TopAnalysis/LJets2015/2016
+outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016
 wwwdir=~/www/Top2016/2016
 
 

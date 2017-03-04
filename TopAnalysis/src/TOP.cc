@@ -292,26 +292,32 @@ void RunTop(TString filename,
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
-      //bool hasEETrigger(((ev.elTrigger>>3)&0x1)!=0 || ((ev.elTrigger>>2)&0x1)!=0);//HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v || HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //Dielectron
-      bool hasEETrigger(((ev.elTrigger>>6)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+      bool hasEETrigger(((ev.elTrigger>>4)&0x1)!=0);                             //HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v
+      hasEETrigger |= (((ev.elTrigger>>5)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
       //bool hasEETrigger(((ev.elTrigger>>2)&0x1)!=0);                              //HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+
       //Dimuon
-      bool hasMMTrigger(((ev.muTrigger>>6)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
-      hasMMTrigger |= ((ev.muTrigger>>7)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+      bool hasMMTrigger(((ev.muTrigger>>5)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
+      hasMMTrigger |= ((ev.muTrigger>>6)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+
       //Electron Muon (ME as well)
-      bool hasEMTrigger(((ev.elTrigger>>4)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v
+      bool hasEMTrigger(((ev.elTrigger>>6)&0x1)!=0);                              //HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v
 
       //Muon Electron part
-      hasEMTrigger |= ((ev.elTrigger>>7)&0x1)!=0;                                 //HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v
-      hasEMTrigger |= ((ev.elTrigger>>9)&0x1)!=0;                                 //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v 
-      hasEMTrigger |= ((ev.elTrigger>>10)&0x1)!=0;                                //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v recommended by TOP PAG)
+      hasEMTrigger |= ((ev.elTrigger>>7)&0x1)!=0;                                 //HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_v
+      hasEMTrigger |= ((ev.elTrigger>>8)&0x1)!=0;                                 //HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_DZ_v
+      hasEMTrigger |= ((ev.elTrigger>>9)&0x1)!=0;                                 //HLT_Mu12_TrkIsoVVL_Ele23_CaloId_LTrrackIDL_IsoVL_DZ_v
+
       //Single muon
-      bool hasMuTrigger(((ev.muTrigger)&0x1)!=0);                              //HLT_IsoMu24_v
-      //bool hasMuTrigger(((ev.muTrigger>>2)&0x1)!=0);                              //HLT_IsoMu22_v (24 recommended by TOP PAG)
-      //hasMuTrigger |= (((ev.muTrigger>>3)&0x1)!=0);                               //HLT_IsoTkMu22_v
+      bool hasMuTrigger(((ev.muTrigger)&0x1)!=0);                                 //HLT_IsoMu24_v
+      hasMuTrigger |= (((ev.muTrigger>>1)&0x1)!=0);                               //HLT_IsoTkMu24_v
+
       //Single electorn
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
+      //hasEleTrigger |= (((ev.elTrigger>>1) & 0x1)!=0);                            //HLT_Ele32_WPTight_Gsf_v
+      hasEleTrigger |= (((ev.elTrigger>>2) & 0x1)!=0);                            //HLT_Ele32_eta2p1_WPTight_Gsf_v
+      hasEleTrigger |= (((ev.elTrigger>>3) & 0x1)!=0);                            //HLT_Ele25_eta2p1_WPTight_Gsf_v
 
       //No trigger requirement for MC
       if(!ev.isData)

@@ -43,24 +43,24 @@ void LeptonEfficiencyWrapper::init(TString era)
   else
     {
       era_=2016;
-      TString lepEffUrl(era+"/SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root");
+      TString lepEffUrl(era+"/EfficienciesAndSF_BCDEF.root");
       gSystem->ExpandPathName(lepEffUrl);
       TFile *fIn=TFile::Open(lepEffUrl);
-      lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093/efficienciesDATA/abseta_pt_DATA")->Clone();
+      lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 
-      lepEffUrl=era+"/MuonID_Z_RunBCD_prompt80X_7p65.root";
+      lepEffUrl=era+"/MuonID_BCDEF.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
-      lepEffH_["m_sel"]=(TH2 *)fIn->Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/abseta_pt_ratio")->Clone();
+      lepEffH_["m_sel"]=(TH2 *)fIn->Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio")->Clone();
       lepEffH_["m_sel"]->SetDirectory(0);
       fIn->Close();
 
-      lepEffUrl=era+"/MuonIso_Z_RunBCD_prompt80X_7p65.root";
+      lepEffUrl=era+"/MuonIso_BCDEF.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
-      TH2 *isoH=(TH2 *)fIn->Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/abseta_pt_ratio");
+      TH2 *isoH=(TH2 *)fIn->Get("TightISO_TightID_pt_eta/abseta_pt_ratio");
       for(Int_t xbin=1; xbin<=(lepEffH_["m_sel"])->GetNbinsX(); xbin++)
 	for(Int_t ybin=1; ybin<=(lepEffH_["m_sel"])->GetNbinsY(); ybin++)
 	  {
@@ -72,7 +72,7 @@ void LeptonEfficiencyWrapper::init(TString era)
 	  }
       fIn->Close();
       
-      lepEffUrl=era+"/egammaEff_tight_SF2D.root";
+      lepEffUrl=era+"/egammaEff_tight_EGM2D.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D")->Clone();
