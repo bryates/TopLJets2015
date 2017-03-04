@@ -275,19 +275,19 @@ void RunTop(TString filename,
 
 	  //bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron FIXME Moriond17
-          bool passIso( ev.l_id[il]==13 ? relIso<0.1 : (ev.l_pid[il]>>1)&0x1 );
+          bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
 	  
           //Check veto here, but ONLY for lep+jets (later on in code)
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.24 : true); //FIXME from 7_6_x
           bool passVetoKin(  ev.l_pt[il]>15 && fabs(ev.l_eta[il])<2.4); // TOP veto 10->15
-          //bool passVetoId(ev.l_id[il]==13 ? (ev.l_pid[il]>>2)&0x1 : (ev.l_pid[il])&0x1); //muon isLoose or electron VetoId
+          bool passVetoId(ev.l_id[il]==13 ? (ev.l_pid[il]>>2)&0x1 : (ev.l_pid[il])&0x1); //muon isLoose or electron VetoId
 
 	  if(passTightKin && passTightId && passIso)// && passSIP3d)
 	    {
 	      tightLeptons.push_back(il);
 	    }
-	  else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
-	  //else if(passVetoKin && passVetoIso && passVetoId) vetoLeptons.push_back(il); //FIXME after CRAB
+	  //else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
+	  else if(passVetoKin && passVetoIso && passVetoId) vetoLeptons.push_back(il); //FIXME after CRAB
 	}
       if(debug) cout << "lepton selection DONE" << endl;
 
@@ -364,7 +364,6 @@ void RunTop(TString filename,
             passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
             // passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
             passIso = ( (ev.l_pid[tightLeptons[0]]>>1)&0x1 );
-            //passIso = ( (ev.l_pid[tightLeptons[0]])&0x1 ); //Moriond17
             // Use same iso as di-lepton
             allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
             allPlots["relIso_e"]->Fill(ev.l_relIso[tightLeptons[0]],norm);

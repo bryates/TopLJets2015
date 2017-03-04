@@ -771,10 +771,15 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   //Save all muons an 6 hardest others
   ev_.npf=0;
   std::vector<pair<int,double>> pfCand;
+  std::map<int,pair<int,int>> nPFJet; //pf_j, nMu, nKPi;
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf) {
     if(ev_.npf>=5000) continue;
 
-    if(fabs(pf->pdgId())==13) continue;
+    std::pair<int,int> mupik = std::pair<int,int>(0,0);
+    if(fabs(pf->pdgId())==13) mupik.first++;
+    else if(fabs(pf->pdgId())==211) mupik.second++;
+    else continue;
+
     ev_.pf_j[ev_.npf] = -1;
     for(size_t i=0; i<clustCands.size(); i++) {
       if(pf->pdgId()!=clustCands[i].first->pdgId()) continue;
@@ -791,6 +796,11 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(pf->puppiWeight()<0.01 && fabs(pf->pdgId())!=13) continue;
     }
 
+    if(nPFJet.find(ev_.pf_j[ev_.npf]) != nPFJet.end()) {
+      nPFJet[ev_.pf_j[ev_.npf]].first += mupik.first;
+      nPFJet[ev_.pf_j[ev_.npf]].second += mupik.second;
+    }
+    else nPFJet[ev_.pf_j[ev_.npf]] = mupik;
     pfCand.push_back(std::pair<int,double>(ev_.npf,pf->pt()));
     ev_.pf_jnpf[ev_.pf_j[ev_.npf]]++;
     if(pf->trackHighPurity()) ev_.pf_jnhppf[ev_.pf_j[ev_.npf]]++;
@@ -806,8 +816,8 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     {
       if(ev_.npf>=5000) continue;
       int npf = ev_.npf;
-      if(!(fabs(pf->pdgId())==13 || std::any_of(pfCand.begin(), pfCand.end(),
-                                    [npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
+      //if(!(fabs(pf->pdgId())==13 || std::any_of(pfCand.begin(), pfCand.end(),
+      //                              [npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
 
       ev_.pf_j[ev_.npf] = -1;
       for(size_t i=0; i<clustCands.size(); i++)
@@ -818,6 +828,11 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  break;
 	}
 
+      //only save jets with 2+ mu (+/- 13) or 2+ K/pi (+/- 211)
+      if(ev_.pf_j[ev_.npf]>=0 &&
+        (nPFJet[ev_.pf_j[ev_.npf]].first < 2 ||
+         nPFJet[ev_.pf_j[ev_.npf]].second < 2)) continue;
+      
       //extra requirements for unclustered PF candidates
       if(ev_.pf_j[ev_.npf]==-1)
 	{
