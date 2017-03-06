@@ -834,11 +834,6 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(ev_.pf_j[ev_.npf]>=0 &&
         (nPFJet[ev_.pf_j[ev_.npf]].first < 2 &&
          nPFJet[ev_.pf_j[ev_.npf]].second < 2)) continue;
-      /*
-      cout << "jet " << ev_.pf_j[ev_.npf] << endl;
-      cout << "mu " << nPFJet[ev_.pf_j[ev_.npf]].first << endl;
-      cout << "pi/K " << nPFJet[ev_.pf_j[ev_.npf]].second << endl;
-      */
       
       //extra requirements for unclustered PF candidates
       if(ev_.pf_j[ev_.npf]==-1)
