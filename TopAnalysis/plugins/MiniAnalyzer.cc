@@ -775,11 +775,6 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf) {
     if(ev_.npf>=5000) continue;
 
-    std::pair<int,int> mupik = std::pair<int,int>(0,0);
-    if(fabs(pf->pdgId())==13) mupik.first++;
-    else if(fabs(pf->pdgId())==211) mupik.second++;
-    else continue;
-
     ev_.pf_j[ev_.npf] = -1;
     for(size_t i=0; i<clustCands.size(); i++) {
       if(pf->pdgId()!=clustCands[i].first->pdgId()) continue;
@@ -789,16 +784,21 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     //extra requirements for unclustered PF candidates
-    if(ev_.pf_j[ev_.npf]==-1) {
-      if(pf->charge()==0) continue;
-      if(pf->fromPV()<2 && fabs(pf->pdgId())!=13) continue;
-      if(pf->pt()<0.5 || fabs(pf->eta())>2.5) continue;
-      if(pf->puppiWeight()<0.01 && fabs(pf->pdgId())!=13) continue;
-    }
+    if(ev_.pf_j[ev_.npf]==-1) continue;
+
+    std::pair<int,int> mupik = std::pair<int,int>(0,0);
+    if(fabs(pf->pdgId())==13) mupik.first++;
+    else if(fabs(pf->pdgId())==211) mupik.second++;
+    else continue;
 
     if(nPFJet.find(ev_.pf_j[ev_.npf]) != nPFJet.end()) {
       nPFJet[ev_.pf_j[ev_.npf]].first += mupik.first;
       nPFJet[ev_.pf_j[ev_.npf]].second += mupik.second;
+      /*
+      cout << "jet " << ev_.pf_j[ev_.npf] << endl;
+      cout << "mu " << nPFJet[ev_.pf_j[ev_.npf]].first << endl;
+      cout << "pi/K " << nPFJet[ev_.pf_j[ev_.npf]].second << endl;
+      */
     }
     else nPFJet[ev_.pf_j[ev_.npf]] = mupik;
     pfCand.push_back(std::pair<int,double>(ev_.npf,pf->pt()));
@@ -827,11 +827,18 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  ev_.pf_j[ev_.npf]=clustCands[i].second;
 	  break;
 	}
+      if(ev_.pf_j[ev_.npf]==-1) continue;
 
       //only save jets with 2+ mu (+/- 13) or 2+ K/pi (+/- 211)
+
       if(ev_.pf_j[ev_.npf]>=0 &&
-        (nPFJet[ev_.pf_j[ev_.npf]].first < 2 ||
+        (nPFJet[ev_.pf_j[ev_.npf]].first < 2 &&
          nPFJet[ev_.pf_j[ev_.npf]].second < 2)) continue;
+      /*
+      cout << "jet " << ev_.pf_j[ev_.npf] << endl;
+      cout << "mu " << nPFJet[ev_.pf_j[ev_.npf]].first << endl;
+      cout << "pi/K " << nPFJet[ev_.pf_j[ev_.npf]].second << endl;
+      */
       
       //extra requirements for unclustered PF candidates
       if(ev_.pf_j[ev_.npf]==-1)
@@ -839,7 +846,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(pf->charge()==0) continue;
 	  if(pf->fromPV()<2 && fabs(pf->pdgId())!=13) continue;
 	  if(pf->pt()<0.5 || fabs(pf->eta())>2.5) continue;
-	  if(pf->puppiWeight()<0.01 && fabs(pf->pdgId())!=13) continue;
+	  if(pf->puppiWeight()<0.01) continue; // && fabs(pf->pdgId())!=13) continue;
 	}
       
       ev_.pf_fromPV[ev_.npf]   = pf->fromPV();

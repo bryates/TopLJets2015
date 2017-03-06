@@ -955,6 +955,7 @@ void RunTop(TString filename,
               allPlots["massD0_all"]->Fill(mass12,wgt);
               //allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,norm);
               allPlots["nbj"+chTag+"_meson"]->Fill(1,wgt);
+              //cout << ev.event << " " << iev << " " << jetindex << endl;
             }
 
             //looking for lepton
