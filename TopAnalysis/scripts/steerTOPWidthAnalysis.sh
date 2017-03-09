@@ -33,18 +33,18 @@ eosdir=/store/user/byates/LJets2015/${githash}
 case $ERA in
     era2015)
 	githash=8c1e7c9;
-	lumi=2267.84
+	lumi=2267.84;
 	eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
 	;;
 esac
 case $RUN in
     BCDEF)
-        lumi=19593.983 #SingleMuon_BCDEF
+        lumi=19593.983; #SingleMuon_BCDEF
     ;;
 esac
 case $RUN in
     BCD)
-        lumi=12520.600
+        lumi=12605.523;
     ;;
 esac
 
