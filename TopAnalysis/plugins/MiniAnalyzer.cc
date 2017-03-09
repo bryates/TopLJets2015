@@ -815,7 +815,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf)
     {
       if(ev_.npf>=5000) continue;
-      int npf = ev_.npf;
+      //int npf = ev_.npf;
       //if(!(fabs(pf->pdgId())==13 || std::any_of(pfCand.begin(), pfCand.end(),
       //                              [npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
 
@@ -830,12 +830,14 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(ev_.pf_j[ev_.npf]==-1) continue;
 
       //only save jets with 2+ mu (+/- 13) or 2+ K/pi (+/- 211)
-
+      if(ev_.pf_id[ev_.npf])
       if(ev_.pf_j[ev_.npf]>=0 &&
         (nPFJet[ev_.pf_j[ev_.npf]].first < 2 &&
          nPFJet[ev_.pf_j[ev_.npf]].second < 2)) continue;
       
       //extra requirements for unclustered PF candidates
+      //ONLY save mu/pi/K
+      //if(fabs(ev_.pf_id[ev_.npf])!=13 && fabs(ev_.pf_id[ev_.npf])!=211) continue;
       if(ev_.pf_j[ev_.npf]==-1)
 	{
 	  if(pf->charge()==0) continue;
@@ -843,6 +845,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(pf->pt()<0.5 || fabs(pf->eta())>2.5) continue;
 	  if(pf->puppiWeight()<0.01) continue; // && fabs(pf->pdgId())!=13) continue;
 	}
+      if(ev_.pf_j[ev_.npf]==-1) continue; // skip unclustered PF candidates
       
       ev_.pf_fromPV[ev_.npf]   = pf->fromPV();
       ev_.pf_id[ev_.npf]       = pf->pdgId();

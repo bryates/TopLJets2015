@@ -87,9 +87,6 @@ def main():
                 if subgroupMerge>0:
                     moveIndividualFiles=False
 
-                    splitFunc = lambda A, n=subgroupMerge: [A[i:i+n] for i in range(0, len(A), n)]
-                    split_file_lists = splitFunc( file_list )
-                
                     for ilist in xrange(0,len(split_file_lists)):
                         if pubExt:
                             mergedFileName='/tmp/MergedMiniEvents_%d_%s.root '%(ilist,pubExt)

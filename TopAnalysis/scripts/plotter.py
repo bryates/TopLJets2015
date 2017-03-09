@@ -393,6 +393,7 @@ def main():
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default=41.6,              type=float)
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
+    parser.add_option(      '--run',         dest='run',         help='plot only in run',               default="BCDEFGH",         type='string')
     parser.add_option(      '--puNormSF',    dest='puNormSF',    help='Use this histogram to correct pu weight normalization', default=None, type='string')
     parser.add_option(      '--procSF',      dest='procSF',      help='Use this to scale a given process component e.g. "W":.wjetscalefactors.pck,"DY":dyscalefactors.pck', default=None, type='string')
     (opt, args) = parser.parse_args()
@@ -420,6 +421,11 @@ def main():
     plots={}
     report=''
     for tag,sample in samplesList: 
+        splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
+        split_run = splitRun( opt.run )
+        if 'Data' in tag:
+            if not any(run in tag for run in split_run): continue
+
         xsec=sample[0]
         isData=sample[1]
         doFlavourSplitting=sample[6]
@@ -449,6 +455,7 @@ def main():
 
             try:
                 for tkey in fIn.GetListOfKeys():
+
                     key=tkey.GetName()
                     keep=False if len(onlyList)>0 else True
                     for pname in onlyList: 

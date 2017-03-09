@@ -49,6 +49,7 @@ void RunTop(TString filename,
 		 TH1F *normH, 
 		 Bool_t runSysts,
                  TString era,
+                 //TString run,
                  Bool_t debug=false)
 {
   if(debug) cout << "in RunTop" << endl;
@@ -65,7 +66,7 @@ void RunTop(TString filename,
   attachToMiniEventTree(t,ev,true);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
-  if(ev.isData) runSysts=false;
+  //if(ev.isData) runSysts=false;
   bool requireEletriggerOnly(false);
   if(ev.isData && filename.Contains("SingleElectron")) requireEletriggerOnly=true;
   bool requireMutriggerOnly(false);
@@ -76,6 +77,20 @@ void RunTop(TString filename,
   if(ev.isData && filename.Contains("DoubleMuon"))     requireMMTriggers=true;
   bool requireEMTriggers(false);
   if(ev.isData && filename.Contains("MuonEG"))         requireEMTriggers=true;
+
+  /*
+  bool inRange(false);
+  for(int i = 0; i < run.Length(); i++) {
+    if(ev.isData && filename.Contains((TString("2016").Append(run[i])))) {
+      inRange = true;
+      break;
+    }
+  }
+  if(ev.isData && !inRange) {
+    cout << "Data not in range " << run;
+    return;
+  }
+  */
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
@@ -262,21 +277,13 @@ void RunTop(TString filename,
 	{
           //cout << "in lepton selection" << endl;
           float relIso = ev.l_relIso[il];
-	  //bool passTightKin((ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4 && abs(ev.l_id[il])==13 && relIso<0.25) //muons
-          //     || (ev.l_pt[il]>30 && ((fabs(ev.l_eta[il])<1.479 && relIso<0.25)  //electrons small eta
-          //        || (fabs(ev.l_eta[il])>1.479 && fabs(ev.l_eta[il])<2.5 && relIso<0.25)) //electrons medium eta
-          //        && abs(ev.l_id[il])==11 // TOP mu cut for dilep
-          //        && (fabs(ev.l_eta[il]<1.4442) && fabs(ev.l_eta[il])>1.5660))); //remove ECAL 1.4442<|eta|<1.5660
           bool muonTightKin(abs(ev.l_id[il])==13 && ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4);
-          bool eleTightKin(abs(ev.l_id[il])==11 && ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.4 && (fabs(ev.l_eta[il]<1.4442) || fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660
-          //bool passTightKin(ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4);
+          bool eleTightKin(abs(ev.l_id[il])==11 && ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.4 && (fabs(ev.l_eta[il]<1.4442) || fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660 FIXME ECAL gap already in miniAnalyzer
           bool passTightKin(muonTightKin || eleTightKin);
-          //passTightKin &= (abs(ev.l_id[il])==13 && ev.l_dxy[il]<0.2 && ev.l_dz[il]<0.5); //muon impact parameters
 
-	  //bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il]>>1)&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
-	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron FIXME Moriond17
+	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
           bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
-	  
+ 
           //Check veto here, but ONLY for lep+jets (later on in code)
 	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.24 : true); //FIXME from 7_6_x
           bool passVetoKin(  ev.l_pt[il]>15 && fabs(ev.l_eta[il])<2.4); // TOP veto 10->15
@@ -286,8 +293,7 @@ void RunTop(TString filename,
 	    {
 	      tightLeptons.push_back(il);
 	    }
-	  //else if(passVetoKin && passVetoIso) vetoLeptons.push_back(il); //FIXME from 7_6_x
-	  else if(passVetoKin && passVetoIso && passVetoId) vetoLeptons.push_back(il); //FIXME after CRAB
+	  else if(passVetoKin && passVetoIso && passVetoId) vetoLeptons.push_back(il);
 	}
       if(debug) cout << "lepton selection DONE" << endl;
 
