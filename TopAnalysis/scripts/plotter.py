@@ -460,6 +460,9 @@ def main():
                     keep=False if len(onlyList)>0 else True
                     for pname in onlyList: 
                         if pname in key: keep=True
+                    #hack to ignore WJets in D meson mass plots FIXME
+                    if "massD" in key and "WJets" in tag:
+                        keep=False
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
