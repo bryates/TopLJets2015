@@ -9,14 +9,14 @@
 using namespace std;
 
 //
-LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era)
+LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod)
 {
   if(isData) return;
-  init(era);
+  init(era,runPeriod);
 }
 
 //
-void LeptonEfficiencyWrapper::init(TString era)
+void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 {
   //2015 dataset
   if(era.Contains("era2015"))
@@ -43,21 +43,21 @@ void LeptonEfficiencyWrapper::init(TString era)
   else
     {
       era_=2016;
-      TString lepEffUrl(era+"/EfficienciesAndSF_BCDEF.root");
+      TString lepEffUrl(era+"/EfficienciesAndSF_"+runPeriod+".root");
       gSystem->ExpandPathName(lepEffUrl);
       TFile *fIn=TFile::Open(lepEffUrl);
       lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 
-      lepEffUrl=era+"/MuonID_BCDEF.root";
+      lepEffUrl=era+"/MuonID_"+runPeriod+".root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
       lepEffH_["m_sel"]=(TH2 *)fIn->Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio")->Clone();
       lepEffH_["m_sel"]->SetDirectory(0);
       fIn->Close();
 
-      lepEffUrl=era+"/MuonIso_BCDEF.root";
+      lepEffUrl=era+"/MuonIso_"+runPeriod+".root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
       TH2 *isoH=(TH2 *)fIn->Get("TightISO_TightID_pt_eta/abseta_pt_ratio");

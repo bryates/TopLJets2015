@@ -12,16 +12,18 @@ Wrapper to be used when run in parallel
 def RunMethodPacked(args):
 
 
-    method,inF,outF,channel,charge,flav,runSysts,era,tag,debug=args
+    method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug=args
     print 'Running ',method,' on ',inF
     print 'Output file',outF
     print 'Selection ch=',channel,' charge=',charge,' flavSplit=',flav,' systs=',runSysts
     print 'Normalization applied from tag=',tag
     print 'Corrections will be retrieved for era=',era
+    print 'Run period',runPeriod
     if debug : print 'Verbose mode'
 
     try:
-        cmd='analysisWrapper --era %s --normTag %s --in %s --out %s --method %s --charge %d --channel %d --flav %d' %(era,
+        cmd='analysisWrapper --era %s --runPeriod %s --normTag %s --in %s --out %s --method %s --charge %d --channel %d --flav %d' %(era,
+                                                                                                                      runPeriod,
                                                                                                                       tag,
                                                                                                                       inF,
                                                                                                                       outF,
@@ -55,7 +57,8 @@ def main():
     parser.add_option(      '--flav',        dest='flav',        help='split according to heavy flavour content  [%default]',   default=0,          type=int)
     parser.add_option(      '--ch',          dest='channel',     help='channel  [%default]',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge  [%default]',                                     default=0,          type=int)
-    parser.add_option(      '--era',         dest='era',         help='era to use for corrections/uncertainties  [%default]',   default='era2016',       type='string')
+    parser.add_option(      '--era',         dest='era',         help='era to use for corrections/uncertainties  [%default]',   default='era2016',  type='string')
+    parser.add_option(      '--runPeriod',   dest='runPeriod',   help='peirod to use for corrections/uncertainties  [%default]',default='BCDEF',    type='string')
     parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag  [%default]',                    default=None,       type='string')
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                                default=0,    type='int')
@@ -86,7 +89,7 @@ def main():
         if '/store/' in inF and not 'root:' in inF : inF='root://eoscms//eos/cms'+opt.input        
         print inF
         outF=opt.output
-        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.tag,opt.debug) )
+        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,opt.tag,opt.debug) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')
@@ -110,12 +113,16 @@ def main():
                         processThisTag=True
                         break
                 if not processThisTag : continue
+            splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
+            split_run = splitRun( opt.runPeriod )
+            if 'Data' in tag:
+                if not any(run in tag for run in split_run): continue
 
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
-                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,tag,opt.debug) )
+                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,tag,opt.debug) )
 
     #run the analysis jobs
     if opt.queue=='local':
@@ -128,8 +135,8 @@ def main():
             pool.map(RunMethodPacked, task_list)
     else:
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),opt.queue)        
-        for method,inF,outF,channel,charge,flav,runSysts,era,tag,debug in task_list:
-            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,tag,flav,method)
+        for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug in task_list:
+            localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
             if debug : localrun += ' --verbose %s' % (debug)
             if runSysts : localRun += ' --runSysts'            
             cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)

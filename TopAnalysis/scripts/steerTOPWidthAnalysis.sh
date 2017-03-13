@@ -37,16 +37,22 @@ case $ERA in
 	eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
 	;;
 esac
-case $RUN in
-    BCDEF)
-        lumi=19593.983; #SingleMuon_BCDEF
-    ;;
-esac
-case $RUN in
-    BCD)
-        lumi=12605.523;
-    ;;
-esac
+lumi=`jq -r '.Data13TeV_SingleMuon_'$RUN'[0]' data/era2016/lumi.json`
+#case $RUN in
+    #BCDEF)
+        #lumi=19593.811; #SingleMuon_BCDEF
+    #;;
+#esac
+#case $RUN in
+    #GH)
+        #lumi=16146.178;
+    #;;
+#esac
+#case $RUN in
+    #BCD)
+        #lumi=12605.523;
+    #;;
+#esac
 
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}
@@ -58,8 +64,7 @@ RED='\e[31m'
 NC='\e[0m'
 case $WHAT in
     SEL )
-	python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} -m TOP::RunTop --ch 0;
-	#python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --run ${RUN} -m TOP::RunTop --ch 0;
+	python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	

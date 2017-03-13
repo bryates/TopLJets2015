@@ -49,7 +49,7 @@ void RunTop(TString filename,
 		 TH1F *normH, 
 		 Bool_t runSysts,
                  TString era,
-                 //TString run,
+                 TString runPeriod,
                  Bool_t debug=false)
 {
   if(debug) cout << "in RunTop" << endl;
@@ -132,7 +132,7 @@ void RunTop(TString filename,
     if(debug) cout << "loading pileup weight DONE" << endl;
 
   //LEPTON EFFICIENCIES
-  LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era);
+  LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod);
 
 
   //B-TAG CALIBRATION
