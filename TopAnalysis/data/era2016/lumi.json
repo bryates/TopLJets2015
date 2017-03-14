@@ -1,0 +1,10 @@
+{
+"Data13TeV_SingleMuon":       {"BCDEFGH": 35740.161,
+                               "BCDEF": 19593.811,
+                               "BCD": 12605.351,
+                               "GH": 16146.178},
+"Data13TeV_DoubleMuon":       {"BCDEFGH": 35862.452,
+                               "BCDEF": 19716.274,
+                               "GH":16146.178}
+
+}
