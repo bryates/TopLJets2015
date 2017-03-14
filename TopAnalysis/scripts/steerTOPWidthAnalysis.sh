@@ -37,7 +37,7 @@ case $ERA in
 	eosdir=/store/cmst3/user/psilva/LJets2015/${githash}
 	;;
 esac
-lumi=`jq -r '.Data13TeV_SingleMuon_'$RUN'[0]' data/era2016/lumi.json`
+lumi=`jq -r '.Data13TeV_SingleMuon["'$RUN'"]' data/era2016/lumi.json`
 #case $RUN in
     #BCDEF)
         #lumi=19593.811; #SingleMuon_BCDEF
