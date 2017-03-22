@@ -22,6 +22,7 @@ class Plot(object):
         self._garbageList = []
         self.plotformats = ['pdf','png']
         self.savelog = False
+        #self.noPU = False
         self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData):
@@ -279,6 +280,8 @@ class Plot(object):
         c.Update()
 
         #save
+        #if self.noPU: 
+            #self.name += "_noPU"
         for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
         if self.savelog:
             p1.cd()
@@ -463,6 +466,7 @@ def main():
                     #hack to ignore WJets in D meson mass plots FIXME
                     if "massD" in key and "WJets" in tag:
                         keep=False
+                    keep=False if "WJets" in tag else True
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
@@ -491,6 +495,7 @@ def main():
     os.system('rm %s/%s'%(outDir,opt.outName))
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
+        #if not opt.puNormSF    : plots[p].noPU=True
         if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
         plots[p].appendTo('%s/%s'%(outDir,opt.outName))
         plots[p].reset()

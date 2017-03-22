@@ -41,6 +41,7 @@
     <h1><?php echo getcwd(); ?></h1>
     <?php
     $has_subs = true;
+    $dir = array("Iso","Veto","Lep","LepJets","CSV","JPsi","Meson");
     foreach (glob("*") as $filename) {
         if (is_dir($filename) && !preg_match("/^\..*|.*private.*/", $filename)) {
             $has_subs = true;
@@ -52,9 +53,14 @@
         print "<h2>Directories</h2>\n";
         print "<a href=\"../\">[parent]</a> ";
         foreach (glob("*") as $filename) {
-            if (is_dir($filename) && ($_SERVER['PHP_AUTH_USER'] == 'stiegerb' || !preg_match("/^\..*|.*private.*/", $filename))) {
+            if (is_dir($filename) && ($_SERVER['PHP_AUTH_USER'] == 'byates' || !preg_match("/^\..*|.*private.*/", $filename)) && !in_array($filename,$dir)) {
                 print " <a href=\"$filename\">[$filename]</a>";
             }
+        }
+        foreach ($dir as $key => $filename) {
+            if(!is_dir($filename)) continue;
+            if ($filename == "Meson") $key--;
+            print " <a href=\"$filename\">[".($key+1)."_$filename]</a>";
         }
         print "</div>";
     }

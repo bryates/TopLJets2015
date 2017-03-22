@@ -100,6 +100,10 @@ void RunTop(TString filename,
     {
       if(debug) cout << "loading pileup weight" << endl;
       TString puWgtUrl(era+"/pileupWgts.root");
+      if(runPeriod.Contains("BCDEF"))
+        puWgtUrl = era+"/pileupWgtsBCDEF.root";
+      else if(runPeriod.Contains("GH"))
+        puWgtUrl = era+"/pileupWgtsGH.root";
       gSystem->ExpandPathName(puWgtUrl);
       TFile *fIn=TFile::Open(puWgtUrl);
       for(size_t i=0; i<3; i++)
@@ -355,7 +359,6 @@ void RunTop(TString filename,
 	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for lep+jets
             passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
 	    allPlots["lp_pt_iso_m"]->Fill(ev.l_pt[tightLeptons[0]],norm);
-            allPlots["relIso_m"]->Fill(ev.l_relIso[tightLeptons[0]],norm);
             //allPlots["chi2_iso"]->Fill(ev.l_chi2norm[tightLeptons[0]],norm);
             //allPlots["dxy_iso"]->Fill(ev.l_dxy[tightLeptons[0]],norm);
             //allPlots["dz_iso"]->Fill(ev.l_dz[tightLeptons[0]],norm);
@@ -372,7 +375,6 @@ void RunTop(TString filename,
             passIso = ( (ev.l_pid[tightLeptons[0]]>>1)&0x1 );
             // Use same iso as di-lepton
             allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
-            allPlots["relIso_e"]->Fill(ev.l_relIso[tightLeptons[0]],norm);
             if(vetoLeptons.size()==0)
               allPlots["lp_pt_veto_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
           }

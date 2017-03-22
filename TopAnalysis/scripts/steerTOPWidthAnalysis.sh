@@ -71,32 +71,33 @@ case $WHAT in
 	;;
     PLOTSEL )
 	#python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi} --saveLog;# --mcUnc ${lumiUnc};	
+	#python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
 	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr  -j data/${ERA}/samples.json -l ${lumi} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
         #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )
-	mkdir -p ${wwwdir}/sel/${RUN}
-	mkdir -p ${wwwdir}/sel/${RUN}/log
-	mkdir -p ${wwwdir}/sel/${RUN}/ee
-	mkdir -p ${wwwdir}/sel/${RUN}/e
-	mkdir -p ${wwwdir}/sel/${RUN}/em
-	mkdir -p ${wwwdir}/sel/${RUN}/mumu
-	mkdir -p ${wwwdir}/sel/${RUN}/mu
-	cp -p  ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel/${RUN}/
-	rm ${wwwdir}/sel/${RUN}/*no_weight*.{png,pdf}
-	mv ${wwwdir}/sel/${RUN}/*_log.{png,pdf} ${wwwdir}/sel/${RUN}/log/
-	mv ${wwwdir}/sel/${RUN}/*_ee*.{png,pdf} ${wwwdir}/sel/${RUN}/ee/
-	mv ${wwwdir}/sel/${RUN}/*_em*.{png,pdf} ${wwwdir}/sel/${RUN}/em/
-	mv ${wwwdir}/sel/${RUN}/*_e*.{png,pdf} ${wwwdir}/sel/${RUN}/e/
-	mv ${wwwdir}/sel/${RUN}/*_mm*.{png,pdf} ${wwwdir}/sel/${RUN}/mumu/
-	mv ${wwwdir}/sel/${RUN}/*_m*.{png,pdf} ${wwwdir}/sel/${RUN}/mu/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/log/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/ee/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/e/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/em/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/mumu/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/mu/
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}/log
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}/ee
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}/e
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}/em
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}/mumu
+	mkdir -p ${wwwdir}/sel/noWJets/${RUN}/mu
+	cp -p  ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/
+	rm ${wwwdir}/sel/noWJets/${RUN}/*no_weight*.{png,pdf}
+	mv ${wwwdir}/sel/noWJets/${RUN}/*_log.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/log/
+	mv ${wwwdir}/sel/noWJets/${RUN}/*_ee*.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/ee/
+	mv ${wwwdir}/sel/noWJets/${RUN}/*_em*.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/em/
+	mv ${wwwdir}/sel/noWJets/${RUN}/*_e*.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/e/
+	mv ${wwwdir}/sel/noWJets/${RUN}/*_mm*.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/mumu/
+	mv ${wwwdir}/sel/noWJets/${RUN}/*_m*.{png,pdf} ${wwwdir}/sel/noWJets/${RUN}/mu/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/log/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/ee/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/e/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/em/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/mumu/
+	cp -p test/index.php ${wwwdir}/sel/noWJets/${RUN}/mu/
 	;;
     ANA )
 	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};
