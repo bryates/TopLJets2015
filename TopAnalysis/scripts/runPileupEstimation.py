@@ -17,7 +17,7 @@ def main():
     parser.add_option('--out',       dest='output'  ,      help='output file with weights',           default=None,    type='string')
     parser.add_option('--mbXsec',    dest='mbXsec'  ,      help='minimum bias cross section to use',  default=69200,   type=float)
     parser.add_option('--puJson',    dest='puJson'  ,      help='pileup json file',      
-                      default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt',
+                      default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/PileUp/pileup_latest.txt',
                       type='string')
     (opt, args) = parser.parse_args()
     

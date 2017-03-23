@@ -99,11 +99,7 @@ void RunTop(TString filename,
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
-      TString puWgtUrl(era+"/pileupWgts.root");
-      if(runPeriod.Contains("BCDEF"))
-        puWgtUrl = era+"/pileupWgtsBCDEF.root";
-      else if(runPeriod.Contains("GH"))
-        puWgtUrl = era+"/pileupWgtsGH.root";
+      TString puWgtUrl(era+"/pileupWgts"+runPeriod+".root");
       gSystem->ExpandPathName(puWgtUrl);
       TFile *fIn=TFile::Open(puWgtUrl);
       for(size_t i=0; i<3; i++)
