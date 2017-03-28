@@ -39,8 +39,7 @@ def main():
     MINBIASXSEC={'nom':opt.mbXsec,'up':opt.mbXsec*1.05,'down':opt.mbXsec*0.95}
     for scenario in MINBIASXSEC:
         print scenario, 'xsec=',MINBIASXSEC[scenario]
-        #cmd='pileupCalc.py -i %s --inputLumiJSON %s --calcMode true --minBiasXsec %f --maxPileupBin %d --numPileupBins %s Pileup.root'%(opt.inJson,opt.puJson,MINBIASXSEC[scenario],MAXPU,NPUBINS)
-        cmd='pileupCalc.py -i %s --inputLumiJSON %s --calcMode true --minBiasXsec %f --maxPileupBin %d --numPileupBins %s Pileup.root'%(opt.inJson,opt.puJson,MINBIASXSEC[scenario],80,80)
+        cmd='pileupCalc.py -i %s --inputLumiJSON %s --calcMode true --minBiasXsec %f --maxPileupBin %d --numPileupBins %s Pileup.root'%(opt.inJson,opt.puJson,MINBIASXSEC[scenario],MAXPU,NPUBINS)
         commands.getstatusoutput(cmd)
 
         fIn=ROOT.TFile.Open('Pileup.root')
