@@ -96,6 +96,8 @@ void RunTop(TString filename,
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
+  //std::vector<TGraph *>puWgt;
+  std::vector<TH1D *>puWgt;
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
@@ -107,7 +109,11 @@ void RunTop(TString filename,
 	  TString grName("pu_nom");
           if(i==1) grName="pu_down";
           if(i==2) grName="pu_up";
-	  TGraph *puData=(TGraph *)fIn->Get(grName);
+	  //TGraph *puData=(TGraph *)fIn->Get(grName);
+          //TGraph *puWgtData=(TGraph *)fIn->Get("puwgts_nom");
+          TH1D *puWgtData=(TH1D *)fIn->Get("puwgts_nom");
+          puWgt.push_back(puWgtData);
+          /*
 	  Float_t totalData=puData->Integral();
 	  TH1 *tmp=(TH1 *)puTrue->Clone("tmp");
 	  for(Int_t xbin=1; xbin<=tmp->GetXaxis()->GetNbins(); xbin++)
@@ -122,12 +128,15 @@ void RunTop(TString filename,
 	  gr->SetName(grName);
 	  puWgtGr.push_back( gr );
 	  tmp->Delete();
+          */
 	}
+      /*
       TH1 *tmp=(TH1 *)puTrue->Clone("tmp");
       TGraph *gr=new TGraph(tmp);
       gr->SetName("puwgts_nom");
       puWgtGr.push_back( gr );
       tmp->Delete();
+      */
     }
     if(debug) cout << "loading pileup weight DONE" << endl;
 
@@ -172,6 +181,8 @@ void RunTop(TString filename,
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
+  allPlots["puwgtgr"] = new TH1F("puwgtgr","PU Weights (calc)",75,0,75);
+  allPlots["puwgt"] = new TH1F("puwgt","PU Weights (data)",75,0,75);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -568,11 +579,33 @@ void RunTop(TString filename,
 	{
 	  //account for pu weights and effect on normalization
 	  allPlots["puwgtctr"]->Fill(0.,1.0);
+	  allPlots["puwgtgr"]->Fill(0.,1.0);
+	  allPlots["puwgt"]->Fill(0.,1.0);
 	  if(debug) cout << "getting puWgts" << endl;
+          /*
+          for(int xbin=1; xbin<=puWgtGr[0]->GetXaxis()->GetNbins(); xbin++) {
+	    Double_t xobs,yobs;
+	    puWgtGr[0]->GetPoint(xbin-1,xobs,yobs);
+            //allPlots["puwgtgr"]->SetBinContent(xbin,yobs);
+            allPlots["puwgtgr"]->Fill(xbin,yobs);
+          }
+          for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
+	    Double_t xobs,yobs;
+	    puWgt[0]->GetPoint(xbin-1,xobs,yobs);
+            allPlots["puwgt"]->Fill(xbin,yobs);
+          }
+          */
 	    for(size_t iwgt=0; iwgt<3; iwgt++)
 	      {
-	        puWgts[iwgt]=puWgtGr[iwgt]->Eval(ev.putrue);  
+	        //puWgts[iwgt]=puWgtGr[iwgt]->Eval(ev.putrue);  
+	        //puWgts[iwgt]=puWgt[iwgt]->Eval(ev.putrue);  
+	        /*
+	        TH1F *tmp=(TH1F*)puWgt[iwgt]->GetHistogram ();
+	        puWgts[iwgt]=tmp->GetBinContent(ev.putrue);  
+                */
+	        puWgts[iwgt]=puWgt[iwgt]->GetBinContent(ev.putrue);  
 	        allPlots["puwgtctr"]->Fill(iwgt+1,puWgts[iwgt]);
+                //tmp->Delete();
 	      }
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections

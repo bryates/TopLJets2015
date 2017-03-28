@@ -78,8 +78,7 @@ Use the table which is printed out to update the "lumiPerRun" method in ReadTree
 That will be used to monitor the event yields per run in order to identify outlier runs.
 * Pileup weighting. To update the pileup distributions run the script below. It will store the data pileup distributions for different min.bias cross section in data/pileupWgts.root
 ```
-python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_DoubleMuon_lumis.json --out data/era2016/pileupWgts.root
-python scripts/runPileupEstimation.py --json /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt --out data/era2016/pileupWgts.root
+python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_DoubleMuon_lumis_BCDEF.json --runPeriod BCDEF --out data/era2016/pileupWgtsBCDEF.root
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
