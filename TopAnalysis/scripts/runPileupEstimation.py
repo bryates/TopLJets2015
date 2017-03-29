@@ -29,7 +29,7 @@ def main():
         #probVal=mix.input.nbPileupEvents.probValue[xbin]
         #simPuH.SetBinContent(xbin,probVal)
     for xbin,probVal in enumerate(mix.input.nbPileupEvents.probValue):
-        simPuH.SetBinContent(xbin,probVal)
+        simPuH.SetBinContent(xbin+1,probVal)
     simPuH.Scale(1./simPuH.Integral())
 
     #compute pileup in data assuming different xsec
