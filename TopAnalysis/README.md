@@ -8,26 +8,12 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_8_0_11 
-cd CMSSW_8_0_11/src 
+cmsrel CMSSW_8_0_26
+cd CMSSW_8_0_26/src
 cmsenv
-git cms-init
-#EGM smearer
-git remote add -f -t ecal_smear_fix_80X emanueledimarco https://github.com/emanueledimarco/cmssw.git
-git cms-addpkg EgammaAnalysis/ElectronTools
-git checkout -b from-52f192a 52f192a
-cd EgammaAnalysis/ElectronTools/data
-git clone -b ICHEP2016_v2 https://github.com/ECALELFS/ScalesSmearings.git
-cd -
-#Pseudo-top producer with Markus fix
-git cms-addpkg  TopQuarkAnalysis/TopEventProducers
-https://raw.githubusercontent.com/intrepid42/cmssw/4336e8182cab054c8383d7b4eb6622c046952711/TopQuarkAnalysis/TopEventProducers/src/PseudoTopProducer.cc
-#analysis code
-cd-
-git clone git@github.com:pfs/TopLJets2015.git
-cd TopLJets2015/TopAnalysis
-git checkout 80x_dev
-scram b -j 8
+git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
+cd TopLJets2015/TopAnalysis/
+scram b -j8
 ```
 
 ## Running ntuple creation
