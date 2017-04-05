@@ -12,6 +12,7 @@ using namespace std;
 LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod)
 {
   if(isData) return;
+  if(runPeriod.Contains("B") || runPeriod.Contains("F")) runPeriod = "BCDEF";
   init(era,runPeriod);
 }
 
@@ -46,7 +47,8 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       TString lepEffUrl(era+"/EfficienciesAndSF_"+runPeriod+".root");
       gSystem->ExpandPathName(lepEffUrl);
       TFile *fIn=TFile::Open(lepEffUrl);
-      lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
+      //lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
+      lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio")->Clone();
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 

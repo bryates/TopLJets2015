@@ -466,7 +466,7 @@ def main():
                     #hack to ignore WJets in D meson mass plots FIXME
                     if "massD" in key and "WJets" in tag:
                         keep=False
-                    keep=False if "WJets" in tag else True
+                    #keep=False if "WJets" in tag else True
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
