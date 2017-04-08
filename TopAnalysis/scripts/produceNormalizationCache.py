@@ -43,12 +43,12 @@ def main():
                     wgtCounter.Reset('ICE')
                 labelH=fIn.Get('analysis/generator_initrwgt')
                 if labelH : labelH.SetDirectory(0)                
-                if 'MC13TeV' in sample:
-                    tree=fIn.Get('analysis/data')
-                    Nall=tree.Draw('ttbar_w[0]','','goff')
-                    Nneg=tree.Draw('ttbar_w[0]','ttbar_w[0]<0','goff')
-                    Nnet=Nall - 2*Nneg
-                    print Nnet
+                #if 'MC13TeV' in sample:
+                    #tree=fIn.Get('analysis/data')
+                    #Nall=tree.Draw('ttbar_w[0]','','goff')
+                    #Nneg=tree.Draw('ttbar_w[0]','ttbar_w[0]<0','goff')
+                    #Nnet=Nall - 2*Nneg
+                    #print Nnet
                 wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
             else:
                 if wgtCounter is None:

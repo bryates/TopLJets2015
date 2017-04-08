@@ -464,11 +464,8 @@ def main():
                     for pname in onlyList: 
                         if pname in key: keep=True
                     #hack to ignore WJets in D meson mass plots FIXME
-                    if "massD" in key and "WJets" in tag:
-                        keep=False
-		    if "tW" in tag: continue
-                    if "ZZ" in tag: continue
-                    if "WZ" in tag: continue
+                    #if "massD" in key and "WJets" in tag:
+                        #keep=False
                     #keep=False if "WJets" in tag else True
                     if not keep: continue
                     obj=fIn.Get(key)

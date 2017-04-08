@@ -71,6 +71,8 @@ if options.runOnData:
 #    print 'Will process files from',options.inputDir
 #    process.source.fileNames=cms.untracked.vstring(getEOSlslist(directory=options.inputDir))
 
+######### Pre-skim weight counter
+process.weightCounter = cms.EDAnalyzer('WeightCounter')
 
 ######### Skim Filter
 process.selectedMuons = cms.EDFilter("CandPtrSelector",
@@ -147,7 +149,7 @@ process.TFileService = cms.Service("TFileService",
 
 if options.runOnData:
     process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
-    #process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    #process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
-    process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
-    #process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
+    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
+    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)

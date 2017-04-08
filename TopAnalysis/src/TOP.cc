@@ -20,8 +20,6 @@
 //#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 //#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
-#include "TopLJets2015/TopAnalysis/interface/rochcor2016.h"
-
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -225,6 +223,9 @@ void RunTop(TString filename,
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
+    allPlots["HT"+tag+cut+weight] = new TH1F("HT"+tag+cut+weight,";HT [GeV];Events / 20 GeV", 10,0,200);
+    allPlots["ST"+tag+cut+weight] = new TH1F("ST"+tag+cut+weight,";ST [GeV];Events / 20 GeV", 10,0,200);
+    allPlots["MET2oST"+tag+cut+weight] = new TH1F("MET2oST"+tag+cut+weight,";MET2oST [GeV];Events / 20 GeV", 10,0,200);
     allPlots["charge"+tag+cut+weight] = new TH1F("charge"+tag+cut+weight,";Charge(l_{1}*l_{2});Events", 5,-2,2);
     allPlots["csv"+tag+cut+weight] = new TH1F("CSV"+tag+cut+weight,";Jet CSV;Events / 0.1", 10,0,1);
     allPlots["dR"+tag+cut+weight] = new TH1F("dR"+tag+cut+weight,";dR;Events / 0.05", 20,0.0,1.);
@@ -461,6 +462,7 @@ void RunTop(TString filename,
       allPlots["nvtx_veto"]->Fill(ev.nvtx,norm);
       
       //save lepton kinematics
+      Float_t stsum(ev.met_pt[0]);
       std::vector<TLorentzVector> leptons;
       for(size_t il=0; il<selLeptons.size(); il++)
 	{
@@ -468,6 +470,7 @@ void RunTop(TString filename,
 	  TLorentzVector lp4;
 	  lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
 	  leptons.push_back(lp4);
+          stsum += lp4.Pt();
 	}
 
       //select jets
@@ -567,6 +570,8 @@ void RunTop(TString filename,
           else lightJetsVec.push_back(tmpj);
           allJetsVec.push_back(tmpj);
 	}
+
+      stsum += htsum;
 
       
       //event weight
@@ -692,6 +697,9 @@ void RunTop(TString filename,
       allPlots["nbj_all"]->Fill(bJetsVec.size(),wgt);
       allPlots["nlp"+chTag]->Fill(selLeptons.size(),wgt);
       allPlots["nlp"+chTag+"_no_weight"]->Fill(selLeptons.size(),norm);
+      allPlots["HT"+chTag]->Fill(htsum,wgt);
+      allPlots["ST"+chTag]->Fill(stsum,wgt);
+      allPlots["MET2oST"+chTag]->Fill(pow(ev.met_pt[0],2)/stsum,wgt);
 
       if(leptons.size() > 0) {
         allPlots["lp_pt_low"+chTag]->Fill(leptons[0].Pt(),wgt);
@@ -736,6 +744,9 @@ void RunTop(TString filename,
 
         allPlots["lp_pt_all_lep"]->Fill(leptons[0].Pt(),wgt);
         allPlots["MET"+chTag+"_lep"]->Fill(ev.met_pt[0],wgt);
+        allPlots["HT"+chTag+"_lep"]->Fill(htsum,wgt);
+        allPlots["ST"+chTag+"_lep"]->Fill(stsum,wgt);
+        allPlots["MET2oST"+chTag+"_lep"]->Fill(pow(ev.met_pt[0],2)/stsum,wgt);
         allPlots["MET"+chTag+"_lep_no_weight"]->Fill(ev.met_pt[0],norm);
         allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
         //Require at least 1 b-tagged and at least 2 light jets
@@ -748,6 +759,9 @@ void RunTop(TString filename,
 
           allPlots["lp_pt_all_lepjets"]->Fill(leptons[0].Pt(),wgt);
           allPlots["MET"+chTag+"_lepjets"]->Fill(ev.met_pt[0],wgt);
+          allPlots["HT"+chTag+"_lepjets"]->Fill(htsum,wgt);
+          allPlots["ST"+chTag+"_lepjets"]->Fill(stsum,wgt);
+          allPlots["MET2oST"+chTag+"_lepjets"]->Fill(pow(ev.met_pt[0],2)/stsum,wgt);
           allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
           //allPlots["MET"+chTag+"_lepjets__no_weight"]->Fill(ev.met_pt[0],norm);
         }
