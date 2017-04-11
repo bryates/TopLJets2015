@@ -587,13 +587,14 @@ void RunTop(TString filename,
 	  allPlots["puwgtgr"]->Fill(0.,1.0);
 	  allPlots["puwgt"]->Fill(0.,1.0);
 	  if(debug) cout << "getting puWgts" << endl;
-          /*
           for(int xbin=1; xbin<=puWgtGr[0]->GetXaxis()->GetNbins(); xbin++) {
 	    Double_t xobs,yobs;
-	    puWgtGr[0]->GetPoint(xbin-1,xobs,yobs);
+	    yobs = puWgtGr[0]->GetBinContent(xbin);
+	    //puWgtGr[0]->GetPoint(xbin-1,xobs,yobs);
             //allPlots["puwgtgr"]->SetBinContent(xbin,yobs);
             allPlots["puwgtgr"]->Fill(xbin,yobs);
           }
+          /*
           for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
 	    Double_t xobs,yobs;
 	    puWgt[0]->GetPoint(xbin-1,xobs,yobs);
@@ -623,7 +624,7 @@ void RunTop(TString filename,
           if(debug) cout << "calling trigger function DONE!" << endl;
           // ** selLeptons contains only ev_l position, leptons contains p4 **
 	  for(size_t il=0; il<selLeptons.size(); il++) {
-	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(pdgIds[il],leptons[il].Pt(),leptons[il].Eta());
+	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(pdgIds[il],leptons[il].Pt(),leptons[il].Eta(),runPeriod);
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
             if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
             if(debug) cout << "selSF=" << selSF.first << endl;

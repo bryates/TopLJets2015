@@ -52,6 +52,12 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 
+      lepEffUrl=era+"/Tracking_EfficienciesAndSF_"+runPeriod+".root";
+      gSystem->ExpandPathName(lepEffUrl);
+      fIn=TFile::Open(lepEffUrl);
+      lepEffGr_["m_tk_aeta"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_aeta_dr030e030_corr");
+      fIn->Close();
+
       lepEffUrl=era+"/MuonID_"+runPeriod+".root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
@@ -208,12 +214,13 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> p
 }
 
 //
-EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt,float eta)
+EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod)
 {
   EffCorrection_t corr(1.0,0.0);
 
   //update correction from histo, if found
-  TString hname(abs(pdgId)==11 ? "e" : "m");
+  TString idstr(abs(pdgId)==11 ? "e" : "m");
+  TString hname(idstr);
   hname+="_sel";
   if( lepEffH_.find(hname)!=lepEffH_.end() )
     {
@@ -228,9 +235,29 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt
       
       corr.first=h->GetBinContent(etaBinForEff,ptBinForEff);
       corr.second=h->GetBinError(etaBinForEff,ptBinForEff);
+
+      //tracking efficiency (if available)
+      hname=idstr+"_tk_aeta"+runPeriod;
+      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+        {
+          Double_t x(0.),xdiff(9999.),y(0.);
+          float tkEffSF(1.0),tkEffSFUnc(0);
+          for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
+            {
+              lepEffGr_[hname]->GetPoint(ip,x,y);
+              float ixdiff(TMath::Abs(fabs(eta)-x));
+              if(ixdiff>xdiff) continue;
+              xdiff=ixdiff;
+              tkEffSF=y;
+              tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
+            }
+          corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
+          corr.first  = corr.first*tkEffSF;
+        }
     }
 
   return corr;
+
 }
 
 LeptonEfficiencyWrapper::~LeptonEfficiencyWrapper()
