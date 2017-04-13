@@ -14,6 +14,7 @@
 #include "TopLJets2015/TopAnalysis/interface/CorrectionTools.h"
 
 #include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
+#include "TopLJets2015/TopAnalysis/interface/SelectionTools.h"
 
 //#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 //#include "CondTools/BTau/interface/BTagCalibrationReader.h"
@@ -67,8 +68,10 @@ void RunTop(TString filename,
   //if(ev.isData) runSysts=false;
   bool requireEletriggerOnly(false);
   if(ev.isData && filename.Contains("SingleElectron")) requireEletriggerOnly=true;
+  /*
   bool requireMutriggerOnly(false);
   if(ev.isData && filename.Contains("SingleMuon")) requireMutriggerOnly=true;
+  */
   bool requireEETriggers(false);
   if(ev.isData && filename.Contains("DoubleEG"))       requireEETriggers=true;
   bool requireMMTriggers(false);
@@ -236,7 +239,7 @@ void RunTop(TString filename,
     allPlots["weight"+tag+cut+weight]     = new TH1F("weight"+tag+cut+weight,";N_{events};Events/ 1.0" ,20,0.,2.);
     allPlots["norm"+tag+cut+weight]     = new TH1F("norm"+tag+cut+weight,";N_{events};Events / 1.0" ,2,0.,2.);
     allPlots["relIso"+tag+cut+weight] = new TH1F("relIso"+tag+cut+weight,";relIso;Events / 0.01", 25,0,0.25);
-    allPlots["nvtx"+tag+cut+weight]     = new TH1F("nvtx"+tag+cut+weight,";N_{events};Events / 1.0" ,50,0.,50.);
+    allPlots["nvtx"+tag+cut+weight]     = new TH1F("nvtx"+tag+cut+weight,";N_{PV};Events / 1.0" ,50,0.,50.);
     allPlots["chi2"+tag+cut+weight] = new TH1F("normchi2"+tag+cut+weight,";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["lp_dxy"+tag+cut+weight] = new TH1F("lp_dxy"+tag+cut+weight,";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
     allPlots["lp_dz"+tag+cut+weight] = new TH1F("lp_dz"+tag+cut+weight,";d_{z} [cm];Events / 0.01 #mum", 50, 0, 0.5);
@@ -254,8 +257,8 @@ void RunTop(TString filename,
     allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,1.,2.);
     allPlots["norm_iso"] = new TH1F("norm_iso",";After Isolation;Events / 1.0", 20,0,2.);
     allPlots["norm_veto"] = new TH1F("norm_veto",";After Veto;Events / 1.0", 20,0.,2.);
-    allPlots["nvtx_iso"]     = new TH1F("nvtx_iso",";N_{events};Events / 1.0" ,50,0.,50.);
-    allPlots["nvtx_veto"]     = new TH1F("nvtx_veto",";N_{events};Events / 1.0" ,50,0.,50.);
+    allPlots["nvtx_iso"]     = new TH1F("nvtx_iso",";N_{PV};Events / 1.0" ,50,0.,50.);
+    allPlots["nvtx_veto"]     = new TH1F("nvtx_veto",";N_{PV};Events / 1.0" ,50,0.,50.);
     allPlots["chi2_iso"] = new TH1F("normchi2_iso",";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["chi2_veto"] = new TH1F("normchi2_veto",";#chi^2/n.d.o.f.;Events", 10,0.,10.);
     allPlots["lp_dxy_iso"] = new TH1F("lp_dxy_iso",";d_{xy} [cm];Events / 0.01 #mum", 20, 0, 0.2);
@@ -310,6 +313,12 @@ void RunTop(TString filename,
       if(debug) cout << "lepton selection DONE" << endl;
 
       //check if triggers have fired
+      //Trigger(muonTriggers, electronTriggers, debug=0)
+      //Parse triggers
+      Trigger trigger = Trigger(ev.muTrigger, ev.elTrigger, debug);
+      //Check filetype (M/E/MM/EE/EM)
+      trigger.setDataType(filename);
+
       //Dielectron
       bool hasEETrigger(((ev.elTrigger>>4)&0x1)!=0);                             //HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v
       hasEETrigger |= (((ev.elTrigger>>5)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
@@ -328,8 +337,15 @@ void RunTop(TString filename,
       hasEMTrigger |= ((ev.elTrigger>>9)&0x1)!=0;                                 //HLT_Mu12_TrkIsoVVL_Ele23_CaloId_LTrrackIDL_IsoVL_DZ_v
 
       //Single muon
+      //Check only these triggers
+      trigger.addRequiredMuonTrigger("HLT_IsoMu24_v");
+      trigger.addRequiredMuonTrigger("HLT_IsoTkMu24_v");
+      //trigger.addRequiredMuonTrigger{""HLT_IsoMu24_v","HLT_IsoTkMu24_v"}) also works
+
+      /*
       bool hasMuTrigger(((ev.muTrigger)&0x1)!=0);                                 //HLT_IsoMu24_v
       hasMuTrigger |= (((ev.muTrigger>>1)&0x1)!=0);                               //HLT_IsoTkMu24_v
+      */
 
       //Single electorn
       bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
@@ -340,7 +356,7 @@ void RunTop(TString filename,
       //No trigger requirement for MC
       if(!ev.isData)
 	{	 
-	  hasMuTrigger=true;
+	  //hasMuTrigger=true;
 	  hasEleTrigger=true;
 	  hasEETrigger=true;
 	  hasMMTrigger=true;
@@ -348,7 +364,9 @@ void RunTop(TString filename,
 	}
       else
 	{
-	  if(requireMutriggerOnly && !hasMuTrigger) continue;
+	  //require now comes from trigger.setDataType(filename)
+	  //hasMuTrigger is now trigger.isSingleMuonEvent();
+	  //if(requireMutriggerOnly && !hasMuTrigger) continue;
 	  if(requireEletriggerOnly && !hasEleTrigger) continue;
 	  if(requireEETriggers && !hasEETrigger) continue;
 	  if(requireMMTriggers && !hasMMTrigger) continue;
@@ -407,9 +425,11 @@ void RunTop(TString filename,
 	  if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) {
             if(requireEletriggerOnly || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
           }
-	  if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) {
-            if(requireMutriggerOnly || !ev.isData) chTag="m"; //Ensure SingleMuon if data
+	  //if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) { //Check MC only
+	  if(abs(ev.l_id[ selLeptons[0] ])==13) {
+            if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m";
           }
+	  //if(abs(ev.l_id[ selLeptons[0] ])==13 && trigger.isSingleMuonEvent()) chTag="m"; //Checks filename and requestd trigger(s)
 	}
       if(selLeptons.size()==2)
 	{
@@ -422,11 +442,14 @@ void RunTop(TString filename,
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13 && hasEMTrigger) {
             if(requireEMTriggers || !ev.isData) chTag="em"; //Ensure MuonEG if data
           }
-	  if(hasMuTrigger && requireEletriggerOnly) chTag="";
+	  //if(hasMuTrigger && requireEletriggerOnly) chTag="";
+	  //Check if Electron file fired Muon trigger
+	  if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
 	}
       if(chTag=="") continue;
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
+      if(debug) cout << "Event: " << iev << endl;
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Int_t lepIdx=-1;
@@ -587,12 +610,13 @@ void RunTop(TString filename,
 	  allPlots["puwgtgr"]->Fill(0.,1.0);
 	  allPlots["puwgt"]->Fill(0.,1.0);
 	  if(debug) cout << "getting puWgts" << endl;
-          for(int xbin=1; xbin<=puWgtGr[0]->GetXaxis()->GetNbins(); xbin++) {
-	    Double_t xobs,yobs;
-	    yobs = puWgtGr[0]->GetBinContent(xbin);
+          for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
+	    Double_t yobs;
+	    //Double_t xobs,yobs;
+	    yobs = puWgt[0]->GetBinContent(xbin);
 	    //puWgtGr[0]->GetPoint(xbin-1,xobs,yobs);
             //allPlots["puwgtgr"]->SetBinContent(xbin,yobs);
-            allPlots["puwgtgr"]->Fill(xbin,yobs);
+            allPlots["puwgt"]->Fill(xbin,yobs);
           }
           /*
           for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
