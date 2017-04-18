@@ -321,28 +321,12 @@ void RunTop(TString filename,
 
       //Dielectron
       trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
-      /*
-      bool hasEETrigger(((ev.elTrigger>>4)&0x1)!=0);                             //HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v
-      hasEETrigger |= (((ev.elTrigger>>5)&0x1)!=0);                              //HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
-      */
 
       //Dimuon
       trigger.addRequiredDoubleMuonTrigger({"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"});
-      /*
-      bool hasMMTrigger(((ev.muTrigger>>5)&0x1)!=0);                              //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v
-      hasMMTrigger |= ((ev.muTrigger>>6)&0x1)!=0;                                 //HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
-      */
 
       //Electron Muon (ME as well)
       trigger.addRequiredEMTrigger({"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v","HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_v","HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_DZ_v","HLT_Mu12_TrkIsoVVL_Ele23_CaloId_LTrrackIDL_IsoVL_DZ_v"});
-      /*
-      bool hasEMTrigger(((ev.elTrigger>>6)&0x1)!=0);                              //HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v
-
-      //Muon Electron part
-      hasEMTrigger |= ((ev.elTrigger>>7)&0x1)!=0;                                 //HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_v
-      hasEMTrigger |= ((ev.elTrigger>>8)&0x1)!=0;                                 //HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_DZ_v
-      hasEMTrigger |= ((ev.elTrigger>>9)&0x1)!=0;                                 //HLT_Mu12_TrkIsoVVL_Ele23_CaloId_LTrrackIDL_IsoVL_DZ_v
-       */
 
       //Single muon
       //Check only these triggers
@@ -350,43 +334,11 @@ void RunTop(TString filename,
       trigger.addRequiredMuonTrigger("HLT_IsoTkMu24_v");
       //trigger.addRequiredMuonTrigger{""HLT_IsoMu24_v","HLT_IsoTkMu24_v"}) also works
 
-      /*
-      bool hasMuTrigger(((ev.muTrigger)&0x1)!=0);                                 //HLT_IsoMu24_v
-      hasMuTrigger |= (((ev.muTrigger>>1)&0x1)!=0);                               //HLT_IsoTkMu24_v
-      */
 
       //Single electorn
       trigger.addRequiredElectronTrigger("HLT_Ele27_WPTight_Gsf_v");
       trigger.addRequiredElectronTrigger("HLT_Ele32_eta2p1_WPTight_Gsf_v");
       trigger.addRequiredElectronTrigger("HLT_Ele25_eta2p1_WPTight_Gsf_v");
-      /*
-      bool hasEleTrigger((ev.elTrigger & 0x1)!=0);                                //HLT_Ele27_WPTight_Gsf_v
-      //hasEleTrigger |= (((ev.elTrigger>>1) & 0x1)!=0);                            //HLT_Ele32_WPTight_Gsf_v
-      hasEleTrigger |= (((ev.elTrigger>>2) & 0x1)!=0);                            //HLT_Ele32_eta2p1_WPTight_Gsf_v
-      hasEleTrigger |= (((ev.elTrigger>>3) & 0x1)!=0);                            //HLT_Ele25_eta2p1_WPTight_Gsf_v
-      */
-
-      //No trigger requirement for MC
-      /*
-      if(!ev.isData)
-	{	 
-	  //hasMuTrigger=true;
-	  hasEleTrigger=true;
-	  hasEETrigger=true;
-	  hasMMTrigger=true;
-	  hasEMTrigger=true;
-	}
-      else
-	{
-	  //require now comes from trigger.setDataType(filename)
-	  //hasMuTrigger is now trigger.isSingleMuonEvent();
-	  //if(requireMutriggerOnly && !hasMuTrigger) continue;
-	  if(requireEletriggerOnly && !hasEleTrigger) continue;
-	  if(requireEETriggers && !hasEETrigger) continue;
-	  if(requireMMTriggers && !hasMMTrigger) continue;
-	  if(requireEMTriggers && !hasEMTrigger) continue;
-	}
-      */
 
       //decide the channel
       if(debug) cout << "decide channel" << endl;
@@ -437,15 +389,12 @@ void RunTop(TString filename,
       if(selLeptons.size()==0) continue;
       if(selLeptons.size()==1)
 	{
-	  //if(abs(ev.l_id[ selLeptons[0] ])==11 && hasEleTrigger) {
 	  if(abs(ev.l_id[ selLeptons[0] ])==11) {
             if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
           }
-	  //if(abs(ev.l_id[ selLeptons[0] ])==13 && hasMuTrigger) { //Check MC only
 	  if(abs(ev.l_id[ selLeptons[0] ])==13) {
-            if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m";
+            if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m"; //Checks filename and requestd trigger(s)
           }
-	  //if(abs(ev.l_id[ selLeptons[0] ])==13 && trigger.isSingleMuonEvent()) chTag="m"; //Checks filename and requestd trigger(s)
 	}
       if(selLeptons.size()==2)
 	{
@@ -458,7 +407,6 @@ void RunTop(TString filename,
 	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13) {
             if(trigger.isEMEvent() || !ev.isData) chTag="em"; //Ensure MuonEG if data
           }
-	  //if(hasMuTrigger && requireEletriggerOnly) chTag="";
 	  //Check if Electron file fired Muon trigger
 	  if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
 	}

@@ -58,11 +58,11 @@ void Trigger::setDataType(TString fileName) {
     dataType_ = DoubleMuon;
     return;
   }
-  if(fileName.Contains("DoubleElectron")) {
+  if(fileName.Contains("DoubleEG")) {
     dataType_ = DoubleElectron;
     return;
   }
-  if(fileName.Contains("ElectronMuon")) {
+  if(fileName.Contains("MuonEG")) {
     dataType_ = ElectronMuon;
     return;
   }
@@ -249,7 +249,7 @@ bool Trigger::isDoubleMuonEvent() {
   }
   if(isData_ && isDoubleMuonFile()) {
     if(debug_) std::cout << "Event is" << (isDoubleMuonFile() ? " " : " not ")
-                         << "from a single muon file" << std::endl;
+                         << "from a double muon file" << std::endl;
   }
   else if(isData_) return false;
   return doubleMuonFired();
@@ -262,7 +262,7 @@ bool Trigger::isDoubleElectronEvent() {
   }
   if(isData_ && isDoubleElectronFile()) {
     if(debug_) std::cout << "Event is" << (isDoubleElectronFile() ? " " : " not ")
-                         << "from a single muon file" << std::endl;
+                         << "from a double electron file" << std::endl;
   }
   else if(isData_) return false;
   return doubleElectronFired();
@@ -275,7 +275,7 @@ bool Trigger::isEMEvent() {
   }
   if(isData_ && isEMFile()) {
     if(debug_) std::cout << "Event is" << (isEMFile() ? " " : " not ")
-                         << "from a single muon file" << std::endl;
+                         << "from an EG file" << std::endl;
   }
   else if(isData_) return false;
   return EMFired();
