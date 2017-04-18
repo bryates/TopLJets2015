@@ -1,5 +1,5 @@
-#ifndef _Selection_Tools_h
-#define _Selection_Tools_h
+#ifndef _Trigger_h
+#define _Trigger_h
 
 #include <vector>
 #include <map>
@@ -21,15 +21,31 @@ class Trigger{
   void addRequiredMuonTrigger(std::vector<TString>);
   void addRequiredElectronTrigger(TString);
   void addRequiredElectronTrigger(std::vector<TString>);
+  void addRequiredDoubleMuonTrigger(TString);
+  void addRequiredDoubleMuonTrigger(std::vector<TString>);
+  void addRequiredDoubleElectronTrigger(TString);
+  void addRequiredDoubleElectronTrigger(std::vector<TString>);
+  void addRequiredEMTrigger(TString);
+  void addRequiredEMTrigger(std::vector<TString>);
   void deleteRequiredMuonTrigger(TString);
   void deleteRequiredElectronTrigger(TString);
+  void deleteRequiredDoubleMuonTrigger(TString);
   bool triggerFired(TString);
   bool muonFired();
   bool electronFired();
+  bool doubleMuonFired();
+  bool doubleElectronFired();
+  bool EMFired();
   bool isSingleMuonEvent();
   bool isSingleElectronEvent();
+  bool isDoubleMuonEvent();
+  bool isDoubleElectronEvent();
+  bool isEMEvent();
   bool isMuonFile();
   bool isElectronFile();
+  bool isDoubleMuonFile();
+  bool isDoubleElectronFile();
+  bool isEMFile();
 
  private:
   bool debug_;
@@ -38,6 +54,9 @@ class Trigger{
   std::map<TString, bool> triggers_;
   std::vector<TString> requiredMuonTriggers_;
   std::vector<TString> requiredElectronTriggers_;
+  std::vector<TString> requiredDoubleMuonTriggers_;
+  std::vector<TString> requiredDoubleElectronTriggers_;
+  std::vector<TString> requiredEMTriggers_;
 
 };
 
