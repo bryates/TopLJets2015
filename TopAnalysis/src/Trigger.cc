@@ -71,7 +71,7 @@ void Trigger::setDataType(TString fileName) {
 void Trigger::addRequiredMuonTrigger(TString trigger) {
   if(std::find(requiredMuonTriggers_.begin(), requiredMuonTriggers_.end(), trigger) != requiredMuonTriggers_.end()) return;
   if(std::find(muTriggers.begin(), muTriggers.end(), trigger) == muTriggers.end()) {
-    std::cout << trigger << " does not exist!" << std::endl;
+    if(debug_) std::cout << trigger << " does not exist!" << std::endl;
     return;
   }
   requiredMuonTriggers_.push_back(trigger);
@@ -80,7 +80,7 @@ void Trigger::addRequiredMuonTrigger(TString trigger) {
 void Trigger::addRequiredElectronTrigger(TString trigger) {
   if(std::find(requiredElectronTriggers_.begin(), requiredElectronTriggers_.end(), trigger) != requiredElectronTriggers_.end()) return;
   if(std::find(eleTriggers.begin(), eleTriggers.end(), trigger) == eleTriggers.end()) {
-    std::cout << trigger << " does not exist!" << std::endl;
+    if(debug_) std::cout << trigger << " does not exist!" << std::endl;
     return;
   }
   requiredElectronTriggers_.push_back(trigger);
@@ -89,7 +89,7 @@ void Trigger::addRequiredElectronTrigger(TString trigger) {
 void Trigger::addRequiredDoubleMuonTrigger(TString trigger) {
   if(std::find(requiredDoubleMuonTriggers_.begin(), requiredDoubleMuonTriggers_.end(), trigger) != requiredDoubleMuonTriggers_.end()) return;
   if(std::find(muTriggers.begin(), muTriggers.end(), trigger) == muTriggers.end()) {
-    std::cout << trigger << " does not exist!" << std::endl;
+    if(debug_) std::cout << trigger << " does not exist!" << std::endl;
     return;
   }
   requiredDoubleMuonTriggers_.push_back(trigger);
@@ -98,7 +98,7 @@ void Trigger::addRequiredDoubleMuonTrigger(TString trigger) {
 void Trigger::addRequiredDoubleElectronTrigger(TString trigger) {
   if(std::find(requiredDoubleElectronTriggers_.begin(), requiredDoubleElectronTriggers_.end(), trigger) != requiredDoubleElectronTriggers_.end()) return;
   if(std::find(eleTriggers.begin(), eleTriggers.end(), trigger) == eleTriggers.end()) {
-    std::cout << trigger << " does not exist!" << std::endl;
+    if(debug_) std::cout << trigger << " does not exist!" << std::endl;
     return;
   }
   requiredDoubleElectronTriggers_.push_back(trigger);
@@ -107,7 +107,7 @@ void Trigger::addRequiredDoubleElectronTrigger(TString trigger) {
 void Trigger::addRequiredEMTrigger(TString trigger) {
   if(std::find(requiredEMTriggers_.begin(), requiredEMTriggers_.end(), trigger) != requiredEMTriggers_.end()) return;
   if(std::find(eleTriggers.begin(), eleTriggers.end(), trigger) == eleTriggers.end()) {
-    std::cout << trigger << " does not exist!" << std::endl;
+    if(debug_) std::cout << trigger << " does not exist!" << std::endl;
     return;
   }
   requiredEMTriggers_.push_back(trigger);
