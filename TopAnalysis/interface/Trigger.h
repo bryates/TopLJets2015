@@ -6,7 +6,7 @@
 
 #include "TString.h"
 
-enum type { SingleMuon, SingleElectron,
+enum triggerType { SingleMuon, SingleElectron,
               DoubleMuon, DoubleElectron,
               ElectronMuon, MC, None };
 
@@ -50,7 +50,7 @@ class Trigger{
  private:
   bool debug_;
   bool isData_;
-  type dataType_;
+  triggerType dataType_;
   std::map<TString, bool> triggers_;
   std::vector<TString> requiredMuonTriggers_;
   std::vector<TString> requiredElectronTriggers_;

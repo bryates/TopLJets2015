@@ -38,21 +38,6 @@ case $ERA in
 	;;
 esac
 lumi=`jq -r '.Data13TeV_SingleMuon["'$RUN'"]' data/era2016/lumi.json`
-#case $RUN in
-    #BCDEF)
-        #lumi=19593.811; #SingleMuon_BCDEF
-    #;;
-#esac
-#case $RUN in
-    #GH)
-        #lumi=16146.178;
-    #;;
-#esac
-#case $RUN in
-    #BCD)
-        #lumi=12605.523;
-    #;;
-#esac
 
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}

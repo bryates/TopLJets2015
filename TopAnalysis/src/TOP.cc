@@ -15,6 +15,8 @@
 
 #include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
+#include "TopLJets2015/TopAnalysis/interface/Particle.h"
+#include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 
 //#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 //#include "CondTools/BTau/interface/BTagCalibrationReader.h"
@@ -221,8 +223,8 @@ void RunTop(TString filename,
     allPlots["massD0_lep"+tag+cut+weight]     = new TH1F("massD0_lep"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_mu"+tag+cut+weight]     = new TH1F("massD0_mu"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
-    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.6 MeV" ,25,0.14,0.17);
-    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.6 MeV" ,25,0.14,0.17);
+    allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.5 MeV" ,20,0.14,0.16);
+    allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.5 MeV" ,20,0.14,0.16);
     allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
@@ -288,14 +290,43 @@ void RunTop(TString filename,
 
       //Basic lepton kinematics
       std::vector<int> tightLeptons,vetoLeptons;
+      Leptons Muons(Tight,debug);
+      Leptons Electrons(Tight,debug);
+      Leptons VetoMuons(Veto,debug);
+      Leptons VetoElectrons(Veto,debug);
+
+      Muons.setMinPt(20);
+      Muons.setMaxEta(2.4);
+      Muons.setMaxRelIso(0.15);
+
+      Electrons.setMinPt(20);
+      Electrons.setMaxEta(2.4);
+      Electrons.setMaxRelIso(.15);
+
+      VetoMuons.setMinPt(15);
+      VetoMuons.setMaxEta(2.4);
+      VetoMuons.setMaxRelIso(0.24);
+
+      VetoElectrons.setMinPt(15);
+      VetoElectrons.setMaxEta(2.4);
+      VetoElectrons.setMaxRelIso(1);
       for(int il=0; il<ev.nl; il++)
 	{
           //cout << "in lepton selection" << endl;
+          Particle p(ev.l_pt[il], ev.l_eta[il], ev.l_phi[il], ev.l_mass[il], ev.l_id[il], ev.l_relIso[il], ev.l_pid[il]);
+          if(p.isMuon()) {
+            Muons.addParticle(p); //only accepts tight
+            VetoMuons.addParticle(p); //only accepts loose
+          }
+          else if(p.isElectron()) {
+            Electrons.addParticle(p);
+            VetoElectrons.addParticle(p);
+          }
           float relIso = ev.l_relIso[il];
           bool muonTightKin(abs(ev.l_id[il])==13 && ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4);
           bool eleTightKin(abs(ev.l_id[il])==11 && ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.4 && (fabs(ev.l_eta[il]<1.4442) || fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660 FIXME ECAL gap already in miniAnalyzer
-          bool passTightKin(muonTightKin || eleTightKin);
 
+          bool passTightKin(muonTightKin || eleTightKin);
 	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
           bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
  
@@ -676,7 +707,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag]->Fill(1,norm);
       allPlots["weight"+chTag]->Fill(wgt,norm);
       allPlots["norm"+chTag]->Fill(norm,norm);
-      allPlots["nvtx"+chTag]->Fill(ev.nvtx,norm);
+      allPlots["nvtx"+chTag]->Fill(ev.nvtx,wgt);
       allPlots["nj"+chTag]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
@@ -833,7 +864,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag+"_lep"]->Fill(1,norm);
       allPlots["weight"+chTag+"_lep"]->Fill(wgt,norm);
       allPlots["norm"+chTag+"_lep"]->Fill(norm,norm);
-      allPlots["nvtx"+chTag+"_lep"]->Fill(ev.nvtx,norm);
+      allPlots["nvtx"+chTag+"_lep"]->Fill(ev.nvtx,wgt);
       allPlots["nevt_all_lep"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lep"]->Fill(allJetsVec.size(),wgt);
@@ -866,7 +897,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag+"_lepjets"]->Fill(1,norm);
       allPlots["weight"+chTag+"_lepjets"]->Fill(wgt,norm);
       allPlots["norm"+chTag+"_lepjets"]->Fill(norm,norm);
-      allPlots["nvtx"+chTag+"_lepjets"]->Fill(ev.nvtx,norm);
+      allPlots["nvtx"+chTag+"_lepjets"]->Fill(ev.nvtx,wgt);
       allPlots["nevt_all_lepjets"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
@@ -893,7 +924,7 @@ void RunTop(TString filename,
           allPlots["nevt"+chTag+"_csv"]->Fill(1,norm);
           allPlots["weight"+chTag+"_csv"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_csv"]->Fill(norm,norm);
-          allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,norm);
+          allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,wgt);
           allPlots["j_pt"+chTag+"_csv"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
           allPlots["lj_pt"+chTag+"_csv"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
           allPlots["bj_pt"+chTag+"_csv"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
@@ -935,7 +966,7 @@ void RunTop(TString filename,
           allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
           allPlots["weight"+chTag+"_jpsi"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_jpsi"]->Fill(norm,norm);
-          allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,norm);
+          allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,wgt);
 
           if(mass12<3.0 || mass12>3.2) continue;
 
@@ -1070,7 +1101,7 @@ void RunTop(TString filename,
                     allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                     allPlots["weight"+chTag+"_meson"]->Fill(wgt,norm);
                     allPlots["norm"+chTag+"_meson"]->Fill(norm,norm);
-                    allPlots["nvtx"+chTag+"_meson"]->Fill(ev.nvtx,norm);
+                    allPlots["nvtx"+chTag+"_meson"]->Fill(ev.nvtx,wgt);
                   }
                 }
               }
