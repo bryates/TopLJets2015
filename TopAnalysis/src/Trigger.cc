@@ -45,7 +45,10 @@ void Trigger::setElectronTrigger(int eleTrig) {
 
 void Trigger::setDataType(TString fileName) {
   isData_ = fileName.Contains("Data");
-  if(!isData_) return;
+  if(!isData_) {
+    dataType_ = MC;
+    return;
+  }
   if(fileName.Contains("SingleMuon")) {
     dataType_ = SingleMuon;
     return;
@@ -216,6 +219,10 @@ bool Trigger::isEMFile() {
   return dataType_ ==  ElectronMuon;
 }
 
+bool Trigger::isMCFile() {
+  return dataType_ ==  MC;
+}
+
 bool Trigger::isSingleMuonEvent() {
   if(dataType_ == None) {
     if(debug_) std::cout << "No type is set!" << std::endl;
@@ -227,6 +234,15 @@ bool Trigger::isSingleMuonEvent() {
   }
   else if(isData_) return false;
   return muonFired();
+}
+
+//Check for Single Muon trigger based on Leptons class
+bool Trigger::isSingleMuonEvent(Leptons leps) {
+  if(leps.size() > 1) return false;
+  if(leps.size() < 1) return false;
+  if(abs(leps[0].getPdgId())!=13) return false;
+  if(isMCFile()) return true;
+  return isSingleMuonEvent();
 }
 
 bool Trigger::isSingleElectronEvent() {
@@ -242,6 +258,15 @@ bool Trigger::isSingleElectronEvent() {
   return electronFired();
 }
 
+//Check for Single Electron trigger based on Leptons class
+bool Trigger::isSingleElectronEvent(Leptons leps) {
+  if(leps.size() > 1) return false;
+  if(leps.size() < 1) return false;
+  if(abs(leps[0].getPdgId())!=11) return false;
+  if(isMCFile()) return true;
+  return isSingleElectronEvent();
+}
+
 bool Trigger::isDoubleMuonEvent() {
   if(dataType_ == None) {
     if(debug_) std::cout << "No type is set!" << std::endl;
@@ -253,6 +278,14 @@ bool Trigger::isDoubleMuonEvent() {
   }
   else if(isData_) return false;
   return doubleMuonFired();
+}
+
+//Check for Double Muon trigger based on Leptons class
+bool Trigger::isDoubleMuonEvent(Leptons leps) {
+  if(leps.size() < 2) return false;
+  if(leps[0].getPdgId()*leps[1].getPdgId()!=-13*13) return false;
+  if(isMCFile()) return true;
+  return isDoubleMuonEvent();
 }
 
 bool Trigger::isDoubleElectronEvent() {
@@ -268,6 +301,14 @@ bool Trigger::isDoubleElectronEvent() {
   return doubleElectronFired();
 }
 
+//Check for Double Electron trigger based on Leptons class
+bool Trigger::isDoubleElectronEvent(Leptons leps) {
+  if(leps.size() < 2) return false;
+  if(leps[0].getPdgId()*leps[1].getPdgId()!=-11*11) return false;
+  if(isMCFile()) return true;
+  return isDoubleElectronEvent();
+}
+
 bool Trigger::isEMEvent() {
   if(dataType_ == None) {
     if(debug_) std::cout << "No type is set!" << std::endl;
@@ -279,5 +320,13 @@ bool Trigger::isEMEvent() {
   }
   else if(isData_) return false;
   return EMFired();
+}
+
+//Check for EM trigger based on Leptons class
+bool Trigger::isEMEvent(Leptons leps) {
+  if(leps.size() < 2) return false;
+  if(leps[0].getPdgId()*leps[1].getPdgId()!=-11*13) return false;
+  if(isMCFile()) return true;
+  return isEMEvent();
 }
 

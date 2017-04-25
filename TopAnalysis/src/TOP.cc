@@ -387,17 +387,21 @@ void RunTop(TString filename,
       if(debug) cout << "decide channel" << endl;
       TString chTag("");
 
-      if(debug) cout << "found " << leptons.size() << " tight lepton(s)" << endl;
       if(debug) if(leptons.size()==0) cout << "NO LEPTONS!!" << endl;
       if(leptons.size()==0) continue;
+      if(trigger.isSingleElectronEvent(leptons)) chTag="e";
+      else if(trigger.isSingleMuonEvent(leptons)) chTag="m";
+      /*
       if(leptons.size()==1) {
         if(leptons[0].isElectron()) {
           if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
         }
+
         else if(leptons[0].isMuon()) {
           if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m"; //Checks filename and requestd trigger(s)
         }
       }
+      */
       if(leptons.size()>1) {
         if(leptons[0].isElectron() && leptons[1].isElectron()) {
           if(trigger.isDoubleElectronEvent() || !ev.isData) chTag="ee"; //Ensure DoubleEG if data

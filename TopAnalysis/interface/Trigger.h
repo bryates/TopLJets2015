@@ -6,6 +6,9 @@
 
 #include "TString.h"
 
+#include "TopLJets2015/TopAnalysis/interface/Particle.h"
+#include "TopLJets2015/TopAnalysis/interface/Leptons.h"
+
 enum triggerType { SingleMuon, SingleElectron,
               DoubleMuon, DoubleElectron,
               ElectronMuon, MC, None };
@@ -37,15 +40,21 @@ class Trigger{
   bool doubleElectronFired();
   bool EMFired();
   bool isSingleMuonEvent();
+  bool isSingleMuonEvent(Leptons);
   bool isSingleElectronEvent();
+  bool isSingleElectronEvent(Leptons);
   bool isDoubleMuonEvent();
+  bool isDoubleMuonEvent(Leptons);
   bool isDoubleElectronEvent();
+  bool isDoubleElectronEvent(Leptons);
   bool isEMEvent();
+  bool isEMEvent(Leptons);
   bool isMuonFile();
   bool isElectronFile();
   bool isDoubleMuonFile();
   bool isDoubleElectronFile();
   bool isEMFile();
+  bool isMCFile();
 
  private:
   bool debug_;
