@@ -10,10 +10,44 @@ Leptons::Leptons(enum particleType reqType, bool debug) {
 Leptons::~Leptons() {};
 
 void Leptons::setMinPt(double minPt) { minPt_ = minPt; }
-
 void Leptons::setMaxEta(double maxEta) { maxEta_ = maxEta; }
-
 void Leptons::setMaxRelIso(double maxRelIso) { maxRelIso_ = maxRelIso; }
+
+//requiredMuonTriggers_.erase(std::remove(requiredMuonTriggers_.begin(), requiredMuonTriggers_.end(), trigger), requiredMuonTriggers_.end());
+void Leptons::changeMinPt(double minPt) { 
+  minPt_ = minPt; 
+  for(auto itP = leps_.begin(); itP != leps_.end(); itP++) {
+    if(itP->Pt() < minPt_ && debug_) std::cout << "Removing particle below new pT. (" << itP->Pt() << " < " << minPt_ << ")" << std::endl;
+    if(itP->Pt() < minPt_)
+      leps_.erase(itP--);
+  }
+}
+
+void Leptons::changeMaxEta(double maxEta) { 
+  maxEta_ = maxEta; 
+  for(auto itP = leps_.begin(); itP != leps_.end(); itP++) {
+    if(itP->Eta() > maxEta_ && debug_) std::cout << "Removing particle above new eta. (" << itP->Eta() << " > " << maxEta_ << ")" << std::endl;
+    if(itP->Eta() > maxEta_)
+      leps_.erase(itP--);
+  }
+}
+void Leptons::changeMaxRelIso(double maxRelIso) { 
+  maxRelIso_ = maxRelIso; 
+  for(auto itP = leps_.begin(); itP != leps_.end(); itP++) {
+    if(itP->getRelIso() > maxRelIso_ && debug_) std::cout << "Removing particle above new relIso. (" << itP->getRelIso() << " > " << maxRelIso_ << ")" << std::endl;
+    if(itP->getRelIso() > maxRelIso_)
+      leps_.erase(itP--);
+  }
+}
+
+void Leptons::changeParticleType(enum particleType reqType) { 
+  reqType_ = reqType;
+  for(auto itP = leps_.begin(); itP != leps_.end(); itP++) {
+    if(itP->getType() != reqType_ && debug_) std::cout << "Removing particle with old type. (" << itP->getType() << ")" << std::endl;
+    if(itP->getType() != reqType_)
+      leps_.erase(itP--);
+  }
+}
 
 void Leptons::addParticle(Particle p) {
   //check if particle passes required cuts
@@ -34,12 +68,23 @@ void Leptons::addParticle(Particle p) {
   leps_.push_back(p);
 }
 
+void Leptons::combineLeptons(Leptons lep) {
+  leps_.insert(leps_.end(), lep.leps_.begin(), lep.leps_.end());
+}
+
 int Leptons::getSize() {
   int s = leps_.size();
-  if(debug_) std::cout << "There " << (s > 1 ? "are " : "is ") << s << " lepton" << (s > 1 ? "s " : " ") << "in this collection" << std::endl;
+  if(debug_) std::cout << "There " << (s != 1 ? "are " : "is ") << s << " lepton" << (s != 1 ? "s " : " ") << "in this collection" << std::endl;
   return s;
 }
+
+void Leptons::sortLeptonsByPt() { sort(leps_.begin(),leps_.end(), [](Particle i, Particle j) { return i.Pt() > j.Pt() ; } ); }
 
 Particle& Leptons::getElement(int pos) {
   return leps_[pos];
 }
+
+Particle& Leptons::operator[](std::size_t idx) {
+  return getElement(idx);
+}
+

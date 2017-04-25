@@ -11,9 +11,17 @@ class Leptons {
   void setMinPt(double);
   void setMaxEta(double);
   void setMaxRelIso(double);
+  void changeMinPt(double);
+  void changeMaxEta(double);
+  void changeMaxRelIso(double);
+  void changeParticleType(enum particleType);
   void addParticle(Particle);
+  void combineLeptons(Leptons);
+  void sortLeptonsByPt();
   int getSize();
+  inline size_t size() { return getSize(); }
   Particle& getElement(int);
+  Particle& operator[](std::size_t);
 
  private:
   bool debug_;

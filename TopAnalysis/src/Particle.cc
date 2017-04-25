@@ -8,7 +8,8 @@ Particle::Particle(float pt, float eta, float phi, float mass, int pdgId, float 
   pid_ = pid;
   //tight muon ID or tight ID except Iso electron
   if(isMuon() && (pid_&0x1)) t_ = Tight;
-  else if(isElectron() && (pid_>>2)&0x1) t_ = Tight;
+  else if(isElectron() && (pid_>>1)&0x1) t_ = Tight;
+  else if(isElectron() && (pid_>>2)&0x1) t_ = TightNoIso;
   //Veto if muon isLoose or electron VetoId
   else if(isMuon() && (pid_>>2)&0x1) t_ = Veto;
   else if(isElectron() && (pid_)&0x1) t_ = Veto;
@@ -36,6 +37,9 @@ float Particle::Phi() {
 }
 float Particle::Mass() {
   return p4_.M();
+}
+int Particle::charge() {
+  return abs(pdgId_)/pdgId_;
 }
 particleType& Particle::getType() {
   return t_;

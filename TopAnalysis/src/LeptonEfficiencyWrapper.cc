@@ -12,7 +12,9 @@ using namespace std;
 LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod)
 {
   if(isData) return;
-  if(runPeriod.Contains("B") || runPeriod.Contains("C") || runPeriod.Contains("D") || runPeriod.Contains("E") || runPeriod.Contains("F")) runPeriod = "BCDEF";
+  //if(runPeriod.Contains("B") || runPeriod.Contains("C") || runPeriod.Contains("D") || runPeriod.Contains("E") || runPeriod.Contains("F")) runPeriod = "BCDEF";
+  if(TString("BCDEF").Contains(runPeriod)) runPeriod = "BCDEF";
+  else if(TString("GH").Contains(runPeriod)) runPeriod = "GH";
   init(era,runPeriod);
 }
 
@@ -90,22 +92,26 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 }
 
 //
-EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> pdgId,std::vector<TLorentzVector> leptons)
+EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
+//EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> pdgId,std::vector<TLorentzVector> leptons)
 {
   EffCorrection_t corr(1.0,0.0);
-  if(pdgId.size()<1 || leptons.size()<1) return corr;
+  if(leptons.size()<1) return corr;
+  //if(pdgId.size()<1 || leptons.size()<1) return corr;
   if(era_==2015)
     {
       if(leptons.size()>=2)
 	{
-	  int cat=abs(pdgId[0]*pdgId[1]);
+	  int cat=abs(leptons[0].getPdgId()*leptons[1].getPdgId());
+	  //int cat=abs(pdgId[0]*pdgId[1]);
 	  if(cat==13*13)      { corr.first=0.894; corr.second=0.894; }
 	  else if(cat==11*13) { corr.first=0.931; corr.second=0.931; }
 	  else if(cat==11*11) { corr.first=0.930; corr.second=0.930; }
 	}
       else
 	{
-	  TString hname(abs(pdgId[0])==11 ? "e" : "m");
+	  TString hname(abs(leptons[0].getPdgId())==11 ? "e" : "m");
+	  //TString hname(abs(pdgId[0])==11 ? "e" : "m");
 	  hname += "_singleleptrig";
 
 	  TH2 *h=lepEffH_[hname];
@@ -127,7 +133,8 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> p
       if(leptons.size()>=2)
 	{
 	  float leadPt(TMath::Max(leptons[0].Pt(),leptons[1].Pt())), trailPt(TMath::Min(leptons[0].Pt(),leptons[1].Pt()));
-	  int cat=abs(pdgId[0]*pdgId[1]);
+	  int cat=abs(leptons[0].getPdgId()*leptons[1].getPdgId());
+	  //int cat=abs(pdgId[0]*pdgId[1]);
 	  if(cat==13*13)      
 	    { 
 	      if(leadPt<40)
@@ -148,7 +155,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> p
 	    }
 	  else if(cat==11*13)
 	    { 
-	      if(abs(pdgId[0])==11) { leadPt=leptons[0].Pt(); trailPt=leptons[1].Pt(); }
+	      if(abs(leptons[0].getPdgId())==11) { leadPt=leptons[0].Pt(); trailPt=leptons[1].Pt(); }
 	      else                  { leadPt=leptons[1].Pt(); trailPt=leptons[0].Pt(); }
 	      if(leadPt<40)
                 {
@@ -190,7 +197,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> p
 	}
       else 
 	{
-	  TString hname(abs(pdgId[0])==11 ? "e" : "m");
+	  TString hname(abs(leptons[0].getPdgId())==11 ? "e" : "m");
 	  hname += "_singleleptrig";
 
 	  if( lepEffH_.find(hname)!=lepEffH_.end() )
@@ -214,8 +221,11 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(std::vector<int> p
 }
 
 //
-EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod)
+EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, TString runPeriod)
+//EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod)
 {
+  int pdgId = lep.getPdgId();
+  float pt(lep.Pt()), eta(lep.Eta());
   EffCorrection_t corr(1.0,0.0);
 
   //update correction from histo, if found

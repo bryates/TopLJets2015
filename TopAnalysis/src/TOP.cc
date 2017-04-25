@@ -291,57 +291,69 @@ void RunTop(TString filename,
       //Basic lepton kinematics
       std::vector<int> tightLeptons,vetoLeptons;
       Leptons Muons(Tight,debug);
-      Leptons Electrons(Tight,debug);
-      Leptons VetoMuons(Veto,debug);
-      Leptons VetoElectrons(Veto,debug);
+      Leptons Electrons(TightNoIso,debug);
+      Leptons VetoLeptons(Veto,debug);
 
       Muons.setMinPt(20);
       Muons.setMaxEta(2.4);
       Muons.setMaxRelIso(0.15);
 
-      Electrons.setMinPt(20);
+      Electrons.setMinPt(30);
       Electrons.setMaxEta(2.4);
       Electrons.setMaxRelIso(.15);
 
-      VetoMuons.setMinPt(15);
-      VetoMuons.setMaxEta(2.4);
-      VetoMuons.setMaxRelIso(0.24);
+      VetoLeptons.setMinPt(15);
+      VetoLeptons.setMaxEta(2.4);
+      VetoLeptons.setMaxRelIso(0.24);
 
-      VetoElectrons.setMinPt(15);
-      VetoElectrons.setMaxEta(2.4);
-      VetoElectrons.setMaxRelIso(1);
       for(int il=0; il<ev.nl; il++)
 	{
           //cout << "in lepton selection" << endl;
           Particle p(ev.l_pt[il], ev.l_eta[il], ev.l_phi[il], ev.l_mass[il], ev.l_id[il], ev.l_relIso[il], ev.l_pid[il]);
           if(p.isMuon()) {
             Muons.addParticle(p); //only accepts tight
-            VetoMuons.addParticle(p); //only accepts loose
+            VetoLeptons.addParticle(p); //only accepts loose FIXME think of more elegant way
           }
           else if(p.isElectron()) {
             Electrons.addParticle(p);
-            VetoElectrons.addParticle(p);
+            VetoLeptons.addParticle(p);
           }
-          float relIso = ev.l_relIso[il];
-          bool muonTightKin(abs(ev.l_id[il])==13 && ev.l_pt[il]>20 && fabs(ev.l_eta[il])<2.4);
-          bool eleTightKin(abs(ev.l_id[il])==11 && ev.l_pt[il]>30 && fabs(ev.l_eta[il])<2.4 && (fabs(ev.l_eta[il]<1.4442) || fabs(ev.l_eta[il])>1.5660)); //remove ECAL 1.4442<|eta|<1.5660 FIXME ECAL gap already in miniAnalyzer
-
-          bool passTightKin(muonTightKin || eleTightKin);
-	  bool passTightId(ev.l_id[il]==13 ? (ev.l_pid[il])&0x1  : (ev.l_pid[il]>>2)&0x1); //tight muon ID or tight ID except Iso electron
-          bool passIso( ev.l_id[il]==13 ? relIso<0.15 : (ev.l_pid[il]>>1)&0x1 );
- 
-          //Check veto here, but ONLY for lep+jets (later on in code)
-	  bool passVetoIso(  ev.l_id[il]==13 ? relIso<0.24 : true); //FIXME from 7_6_x
-          bool passVetoKin(  ev.l_pt[il]>15 && fabs(ev.l_eta[il])<2.4); // TOP veto 10->15
-          bool passVetoId(ev.l_id[il]==13 ? (ev.l_pid[il]>>2)&0x1 : (ev.l_pid[il])&0x1); //muon isLoose or electron VetoId
-
-	  if(passTightKin && passTightId && passIso)// && passSIP3d)
-	    {
-	      tightLeptons.push_back(il);
-	    }
-	  else if(passVetoKin && passVetoIso && passVetoId) vetoLeptons.push_back(il);
 	}
+
+      //Single Muon has tighter constraints
+      if(Muons.size() == 1) {
+        Muons.changeMinPt(26);
+        Muons.changeMaxEta(2.1);
+      }
+      if(Muons.size() == 1) {
+	allPlots["lp_pt_iso_m"]->Fill(Muons.getElement(0).Pt(),norm);
+        if(VetoLeptons.size()==0)
+	  allPlots["lp_pt_veto_m"]->Fill(Muons.getElement(0).Pt(),norm);
+      }
+      if(Electrons.size() == 1) {
+        Electrons.changeParticleType(Tight); //TightNoIso -> Tight
+      }
+      if(Electrons.size() == 1) {
+	allPlots["lp_pt_iso_e"]->Fill(Electrons.getElement(0).Pt(),norm);
+        if(VetoLeptons.size()==0)
+	  allPlots["lp_pt_veto_e"]->Fill(Electrons.getElement(0).Pt(),norm);
+      }
       if(debug) cout << "lepton selection DONE" << endl;
+      Leptons leptons(Tight,debug);
+      leptons.combineLeptons(Muons);
+      leptons.combineLeptons(Electrons);
+      if(debug) cout << "sorting leptons" << endl;
+      leptons.sortLeptonsByPt();
+
+      allPlots["nevt_iso"]->Fill(1,norm);
+      allPlots["norm_iso"]->Fill(norm,norm);
+      allPlots["nvtx_iso"]->Fill(ev.nvtx,norm);
+      
+      //USE VETO HERE
+      if(VetoLeptons.size()>0) continue; //veto only on lep+jets
+      allPlots["nevt_veto"]->Fill(1,norm);
+      allPlots["norm_veto"]->Fill(norm,norm);
+      allPlots["nvtx_veto"]->Fill(ev.nvtx,norm);
 
       //check if triggers have fired
       //Trigger(muonTriggers, electronTriggers, debug=0)
@@ -374,121 +386,58 @@ void RunTop(TString filename,
       //decide the channel
       if(debug) cout << "decide channel" << endl;
       TString chTag("");
-      std::vector<int> selLeptons;
-      bool passTightKin(false),passIso(false);
-      if(tightLeptons.size()==1 )
-	{
-          //** Tighter cuts for lepton + jets **
-          if(ev.l_id[tightLeptons[0]]==13) { // muon + jets
-	    passTightKin = (ev.l_pt[tightLeptons[0]] > 26 && fabs(ev.l_eta[tightLeptons[0]])<2.1); // TOP mu cut for lep+jets
-            passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
-	    allPlots["lp_pt_iso_m"]->Fill(ev.l_pt[tightLeptons[0]],norm);
-            //allPlots["chi2_iso"]->Fill(ev.l_chi2norm[tightLeptons[0]],norm);
-            //allPlots["dxy_iso"]->Fill(ev.l_dxy[tightLeptons[0]],norm);
-            //allPlots["dz_iso"]->Fill(ev.l_dz[tightLeptons[0]],norm);
-            if(vetoLeptons.size()==0) {
-              allPlots["lp_pt_veto_m"]->Fill(ev.l_pt[tightLeptons[0]],norm);
-              //allPlots["chi2_veto"]->Fill(ev.l_chi2norm[tightLeptons[0]],norm);
-              //allPlots["dxy_veto"]->Fill(ev.l_dxy[tightLeptons[0]],norm);
-              //allPlots["dz_veto"]->Fill(ev.l_dz[tightLeptons[0]],norm);
-            }
-          }
-          else if(ev.l_id[tightLeptons[0]]==11) { // electron + jets
-            passTightKin = (ev.l_pt[tightLeptons[0]] > 30); //from TOP-15-005
-            // passIso = (ev.l_relIso[tightLeptons[0]] < 0.15); //TOP mu cut for lep+jets
-            passIso = ( (ev.l_pid[tightLeptons[0]]>>1)&0x1 );
-            // Use same iso as di-lepton
-            allPlots["lp_pt_iso_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
-            if(vetoLeptons.size()==0)
-              allPlots["lp_pt_veto_e"]->Fill(ev.l_pt[tightLeptons[0]],norm);
-          }
 
-          if(passTightKin && passIso) {
-	    selLeptons.push_back( tightLeptons[0] );
-            if(debug) cout << "found 1 tight lepton" << endl;
-          }
-          //no extra isolated leptons
-          //if(vetoLeptons.size()>0) continue; //veto only on lep+jets
-	}
-      if(tightLeptons.size()>=2)
-	{
-	  selLeptons.push_back(tightLeptons[0]);
-	  selLeptons.push_back(tightLeptons[1]);
-          if(debug) cout << "found 2 tight leptons" << endl;
-	}
-      if(debug) if(selLeptons.size()==0) cout << "NO LEPTONS!!" << endl;
-      if(selLeptons.size()==0) continue;
-      if(selLeptons.size()==1)
-	{
-	  if(abs(ev.l_id[ selLeptons[0] ])==11) {
-            if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
-          }
-	  if(abs(ev.l_id[ selLeptons[0] ])==13) {
-            if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m"; //Checks filename and requestd trigger(s)
-          }
-	}
-      if(selLeptons.size()==2)
-	{
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*11) {
-            if(trigger.isDoubleElectronEvent() || !ev.isData) chTag="ee"; //Ensure DoubleEG if data
-          }
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==13*13) {
-            if(trigger.isDoubleMuonEvent() || !ev.isData) chTag="mm"; //Ensure DoubleMuon if data
-          }
-	  if(abs(ev.l_id[ selLeptons[0] ]*ev.l_id[ selLeptons[1] ])==11*13) {
-            if(trigger.isEMEvent() || !ev.isData) chTag="em"; //Ensure MuonEG if data
-          }
-	  //Check if Electron file fired Muon trigger
-	  if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
-	}
+      if(debug) cout << "found " << leptons.size() << " tight lepton(s)" << endl;
+      if(debug) if(leptons.size()==0) cout << "NO LEPTONS!!" << endl;
+      if(leptons.size()==0) continue;
+      if(leptons.size()==1) {
+        if(leptons[0].isElectron()) {
+          if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
+        }
+        else if(leptons[0].isMuon()) {
+          if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m"; //Checks filename and requestd trigger(s)
+        }
+      }
+      if(leptons.size()>1) {
+        if(leptons[0].isElectron() && leptons[1].isElectron()) {
+          if(trigger.isDoubleElectronEvent() || !ev.isData) chTag="ee"; //Ensure DoubleEG if data
+        }
+        else if(leptons[0].isMuon() && leptons[1].isMuon()) {
+          if(trigger.isDoubleMuonEvent() || !ev.isData) chTag="mm"; //Ensure DoubleMuon if data
+        }
+	else {
+          if(trigger.isEMEvent() || !ev.isData) chTag="em"; //Ensure MuonEG if data
+        }
+	//Check if Electron file fired Muon trigger
+	if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
+      }
       if(chTag=="") continue;
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
       if(debug) cout << "Event: " << iev << endl;
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
-      Int_t lepIdx=-1;
       Bool_t isZ(false);//,isZPassingSIP3d(false);
       TLorentzVector l1p4,l2p4,dilp4;
-      if(selLeptons.size()==1)                                       lepIdx=selLeptons[0];
-      //else if (selLeptons.size()==0 && selLeptonsNonIso.size()==1) lepIdx=selLeptonsNonIso[0];
-      else if(selLeptons.size()==2)
+      if(leptons.size()==2)
 	{	  
           if(debug) cout << "di-lepton" << endl;
-	  l1p4.SetPtEtaPhiM(ev.l_pt[selLeptons[0]],ev.l_eta[selLeptons[0]],ev.l_phi[selLeptons[0]],ev.l_mass[selLeptons[0]]);
-	  l2p4.SetPtEtaPhiM(ev.l_pt[selLeptons[1]],ev.l_eta[selLeptons[1]],ev.l_phi[selLeptons[1]],ev.l_mass[selLeptons[1]]);
+	  l1p4 = leptons[0].getVec();
+	  l2p4 = leptons[1].getVec();
 	  dilp4=l1p4+l2p4;
-	  if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]]          && 
-	     ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]]<0 && 
+          if(leptons[0].getPdgId() == -leptons[1].getPdgId() &&
 	     fabs(dilp4.M()-91)<15)
 	    { 
 	      isZ=true; 
 	    }
-	  lepIdx=selLeptons[0];
           if(debug) cout << "di-lepton DONE" << endl;
 	}
 
-      if(lepIdx<0) continue;
-      allPlots["nevt_iso"]->Fill(1,norm);
-      allPlots["norm_iso"]->Fill(norm,norm);
-      allPlots["nvtx_iso"]->Fill(ev.nvtx,norm);
-      
-      //USE VETO HERE
-      if(vetoLeptons.size()>0) continue; //veto only on lep+jets
-      allPlots["nevt_veto"]->Fill(1,norm);
-      allPlots["norm_veto"]->Fill(norm,norm);
-      allPlots["nvtx_veto"]->Fill(ev.nvtx,norm);
-      
       //save lepton kinematics
       Float_t stsum(ev.met_pt[0]);
-      std::vector<TLorentzVector> leptons;
-      for(size_t il=0; il<selLeptons.size(); il++)
+      for(size_t il=0; il<leptons.size(); il++)
 	{
-	  int lepIdx=selLeptons[il];
-	  TLorentzVector lp4;
-	  lp4.SetPtEtaPhiM(ev.l_pt[lepIdx],ev.l_eta[lepIdx],ev.l_phi[lepIdx],ev.l_mass[lepIdx]);
-	  leptons.push_back(lp4);
-          stsum += lp4.Pt();
+          stsum += leptons[il].Pt();
 	}
 
       //select jets
@@ -506,7 +455,7 @@ void RunTop(TString filename,
 	  //cross clean with respect to leptons deltaR<0.4
           bool overlapsWithLepton(false);
           for(size_t il=0; il<leptons.size(); il++) {
-            if(jp4.DeltaR(leptons[il])>0.4) continue;  //Jet is fine
+            if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
 	    overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
           }
           if(overlapsWithLepton) continue;
@@ -636,14 +585,15 @@ void RunTop(TString filename,
 	  //trigger/id+iso efficiency corrections
           if(debug) cout << "calling trigger function" << endl;
           std::vector<int> pdgIds; //vector of IDs for trigger correction function
-          for(size_t ilp = 0; ilp < selLeptons.size(); ilp++)
-            pdgIds.push_back(ev.l_id[selLeptons[ilp]]);
-	  //triggerCorrWgt=lepEffH.getTriggerCorrection(selLeptons,leptons);
-	  triggerCorrWgt=lepEffH.getTriggerCorrection(pdgIds,leptons); //FIXME
+          for(size_t ilp = 0; ilp < leptons.size(); ilp++)
+            pdgIds.push_back(leptons[ilp].getPdgId());
+	  //triggerCorrWgt=lepEffH.getTriggerCorrection(pdgIds,leptons); //FIXME
+	  triggerCorrWgt=lepEffH.getTriggerCorrection(leptons); //FIXME
           if(debug) cout << "calling trigger function DONE!" << endl;
-          // ** selLeptons contains only ev_l position, leptons contains p4 **
-	  for(size_t il=0; il<selLeptons.size(); il++) {
-	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(pdgIds[il],leptons[il].Pt(),leptons[il].Eta(),runPeriod);
+          // ** loop over all Particles in leptons **
+	  for(size_t il=0; il<leptons.size(); il++) {
+	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(leptons[il],runPeriod);
+	    //EffCorrection_t selSF=lepEffH.getOfflineCorrection(pdgIds[il],leptons[il].Pt(),leptons[il].Eta(),runPeriod);
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
             if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
             if(debug) cout << "selSF=" << selSF.first << endl;
@@ -657,6 +607,7 @@ void RunTop(TString filename,
       if(debug) cout << "Lepton scale factors DONE!" << endl;
 
       //sort by Pt
+      if(debug) cout << "sorting jets" << endl;
       sort(lightJetsVec.begin(),    lightJetsVec.end(),   sortJetsByPt);
       sort(bJetsVec.begin(),    bJetsVec.end(),   sortJetsByPt);
       sort(allJetsVec.begin(),  allJetsVec.end(), sortJetsByPt);
@@ -670,24 +621,9 @@ void RunTop(TString filename,
       for(size_t il=0; il<leptons.size(); il++) {
         for(size_t ij=0; ij<allJetsVec.size(); ij++) {
 	  TLorentzVector jp4=allJetsVec[ij].getVec();
-          allPlots["dR"+chTag]->Fill(jp4.DeltaR(leptons[il]),wgt);
-          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),norm);
+          allPlots["dR"+chTag]->Fill(jp4.DeltaR(leptons[il].getVec()),wgt);
+          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il].getVec()),norm);
         }
-      /*
-        for(size_t ij=0; ij<bJetsVec.size(); ij++) {
-	  TLorentzVector jp4=bJetsVec[ij].getVec();
-	  jp4.SetPtEtaPhiM(ev.j_pt[ij],ev.j_eta[ij],ev.j_phi[ij],ev.j_mass[ij]);
-          allPlots["dR"+chTag]->Fill(jp4.DeltaR(leptons[il]),wgt);
-          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),norm);
-        }
-        for(size_t ij=0; ij<lightJetsVec.size(); ij++) {
-	  TLorentzVector jp4;
-	  jp4.SetPtEtaPhiM(ev.j_pt[ij],ev.j_eta[ij],ev.j_phi[ij],ev.j_mass[ij]);
-          allPlots["dR"+chTag]->Fill(jp4.DeltaR(leptons[il]),wgt);
-          allPlots["dR_all"]->Fill(jp4.DeltaR(leptons[il]),wgt);
-          allPlots["dR"+chTag+"_no_weight"]->Fill(jp4.DeltaR(leptons[il]),norm);
-        }
-      */
       }
 
 
@@ -702,7 +638,7 @@ void RunTop(TString filename,
       bool singleLep(false);
       bool doubleLep(false);
       bool minJets(false);
-      if(debug) cout << "sorting jets" << endl;
+
       if(debug) cout << "starting simple plots" << endl;
       allPlots["nevt"+chTag]->Fill(1,norm);
       allPlots["weight"+chTag]->Fill(wgt,norm);
@@ -715,8 +651,8 @@ void RunTop(TString filename,
       allPlots["nbj"+chTag+"_no_weight"]->Fill(bJetsVec.size(),norm);
       allPlots["nlj_all"]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj_all"]->Fill(bJetsVec.size(),wgt);
-      allPlots["nlp"+chTag]->Fill(selLeptons.size(),wgt);
-      allPlots["nlp"+chTag+"_no_weight"]->Fill(selLeptons.size(),norm);
+      allPlots["nlp"+chTag]->Fill(leptons.size(),wgt);
+      allPlots["nlp"+chTag+"_no_weight"]->Fill(leptons.size(),norm);
       allPlots["HT"+chTag]->Fill(htsum,wgt);
       allPlots["ST"+chTag]->Fill(stsum,wgt);
       allPlots["MET2oST"+chTag]->Fill(pow(ev.met_pt[0],2)/stsum,wgt);
@@ -726,7 +662,7 @@ void RunTop(TString filename,
         allPlots["lp_pt"+chTag]->Fill(leptons[0].Pt(),wgt);
         allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),norm);
         allPlots["lp_pt_all"]->Fill(leptons[0].Pt(),wgt);
-        allPlots["relIso"+chTag]->Fill(ev.l_relIso[selLeptons[0]],wgt);
+        allPlots["relIso"+chTag]->Fill(leptons[0].getRelIso(),wgt);
       }
 
       if(isZ) {
@@ -753,10 +689,9 @@ void RunTop(TString filename,
         allPlots["bj_pt_all"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
       }
 
-      //if(selLeptons.size() == 1 && bJetsVec.size() >= 1 && lightJetsVec.size() >= 2) {
       if(debug) cout << "starting lep/jets plots" << endl;
       //Require exactly 1 lepton
-      if(selLeptons.size() == 1) {
+      if(leptons.size() == 1) {
         if(debug) cout << "single lepton" << endl;
         singleLep = true;
         allPlots["lp_pt"+chTag+"_lep"]->Fill(leptons[0].Pt(),wgt);
@@ -768,12 +703,11 @@ void RunTop(TString filename,
         allPlots["ST"+chTag+"_lep"]->Fill(stsum,wgt);
         allPlots["MET2oST"+chTag+"_lep"]->Fill(pow(ev.met_pt[0],2)/stsum,wgt);
         allPlots["MET"+chTag+"_lep_no_weight"]->Fill(ev.met_pt[0],norm);
-        allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
+        allPlots["relIso"+chTag+"_lep"]->Fill(leptons[0].getRelIso(),wgt);
         //Require at least 1 b-tagged and at least 2 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
           if(debug) cout << "jet reqirements" << endl;
           minJets = true;
-          std::sort(leptons.begin(), leptons.end(), VecSort);
           allPlots["lp_pt"+chTag+"_lepjets"]->Fill(leptons[0].Pt(),wgt);
           //allPlots["lp_pt"+chTag+"_lepjets_no_weight"]->Fill(leptons[0].Pt(),norm);
 
@@ -782,12 +716,12 @@ void RunTop(TString filename,
           allPlots["HT"+chTag+"_lepjets"]->Fill(htsum,wgt);
           allPlots["ST"+chTag+"_lepjets"]->Fill(stsum,wgt);
           allPlots["MET2oST"+chTag+"_lepjets"]->Fill(pow(ev.met_pt[0],2)/stsum,wgt);
-          allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
+          allPlots["relIso"+chTag+"_lepjets"]->Fill(leptons[0].getRelIso(),wgt);
           //allPlots["MET"+chTag+"_lepjets__no_weight"]->Fill(ev.met_pt[0],norm);
         }
       }
       //Require exactly 2 leptons
-      else if(selLeptons.size() == 2) {
+      else if(leptons.size() == 2) {
         if(debug) cout << "dilepton" << endl;
         doubleLep = true;
         //Z control plot
@@ -796,27 +730,26 @@ void RunTop(TString filename,
           allPlots["massZ"+chTag+"_lep_no_weight"]->Fill(dilp4.M(),norm);
         }
         if(abs(dilp4.M()-91)<15)
-          allPlots["chargeZ"+chTag]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt); 
+          allPlots["chargeZ"+chTag]->Fill(leptons[0].charge()*leptons[1].charge(),wgt); 
         //Exclude Z and low mass and require same falvor dilepton MET > 40 GeV
-        if(!isZ && (dilp4.M() > 20 && ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) &&
-          ((ev.l_id[selLeptons[0]]!=ev.l_id[selLeptons[1]]) || (ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() > 40))) {
-          allPlots["ndilp"+chTag+"_lep"]->Fill(selLeptons.size(),wgt);
+        if(!isZ && (dilp4.M() > 20 && leptons[0].getPdgId()==leptons[1].getPdgId() && leptons[0].charge()!=leptons[1].charge()) &&
+          ((leptons[0].getPdgId()!=leptons[1].getPdgId()) || (leptons[0].getPdgId()==leptons[1].getPdgId() && met.Pt() > 40))) {
+          allPlots["ndilp"+chTag+"_lep"]->Fill(leptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lep"]->Fill(dilp4.Pt(),wgt);
           allPlots["dilp_m"+chTag+"_lep"]->Fill(dilp4.M(),wgt);
-          allPlots["ndilp"+chTag+"_lep"+"_no_weight"]->Fill(selLeptons.size(),norm);
+          allPlots["ndilp"+chTag+"_lep"+"_no_weight"]->Fill(leptons.size(),norm);
           allPlots["dilp_pt"+chTag+"_lep"+"_no_weight"]->Fill(dilp4.Pt(),norm);
           allPlots["dilp_m"+chTag+"_lep"+"_no_weight"]->Fill(dilp4.M(),norm);
-          std::sort(leptons.begin(), leptons.end(), VecSort);
           allPlots["lp_pt"+chTag+"_lep"]->Fill(leptons[0].Pt(),wgt);
           allPlots["l2p_pt"+chTag+"_lep"]->Fill(leptons[1].Pt(),wgt);
           allPlots["lp_pt"+chTag+"_lep"+"_no_weight"]->Fill(leptons[0].Pt(),norm);
           allPlots["l2p_pt"+chTag+"_lep"+"_no_weight"]->Fill(leptons[1].Pt(),norm);
           allPlots["MET"+chTag+"_lep"]->Fill(ev.met_pt[0],wgt);
-          allPlots["charge"+chTag+"_lep"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt);
+          allPlots["charge"+chTag+"_lep"]->Fill(leptons[0].charge()*leptons[1].charge(),wgt);
           allPlots["MET"+chTag+"_lep"+"_no_weight"]->Fill(ev.met_pt[0],norm);
-          allPlots["charge"+chTag+"_lep"+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
-          allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
-          allPlots["relIso"+chTag+"_lep"]->Fill(ev.l_relIso[selLeptons[1]],wgt);
+          allPlots["charge"+chTag+"_lep"+"_no_weight"]->Fill(leptons[0].charge()*leptons[1].charge(),norm);
+          allPlots["relIso"+chTag+"_lep"]->Fill(leptons[0].getRelIso(),wgt);
+          allPlots["relIso"+chTag+"_lep"]->Fill(leptons[1].getRelIso(),wgt);
         }
         //Require at least 1 b-tagged and at least 1 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
@@ -829,27 +762,26 @@ void RunTop(TString filename,
           //Exclude Z mass
           if(isZ) continue;
           //Exclude low mass (M < 20 GeV)
-          if(dilp4.M() < 20 && ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && ev.l_charge[selLeptons[0]]!=ev.l_charge[selLeptons[1]]) continue;
+          if(dilp4.M() < 20 && leptons[0].getPdgId()==leptons[1].getPdgId() && leptons[0].charge()!=leptons[1].charge()) continue;
           //Require same falvor dilepton MET > 40 GeV
-          if(ev.l_id[selLeptons[0]]==ev.l_id[selLeptons[1]] && met.Pt() < 40) continue; //FIXME
+          if(leptons[0].getPdgId()==leptons[1].getPdgId() && met.Pt() < 40) continue; //FIXME
           minJets = true;
-          allPlots["ndilp"+chTag+"_lepjets"]->Fill(selLeptons.size(),wgt);
+          allPlots["ndilp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lepjets"]->Fill(dilp4.Pt(),wgt);
           allPlots["dilp_m"+chTag+"_lepjets"]->Fill(dilp4.M(),wgt);
-          allPlots["ndilp"+chTag+"_lepjets"+"_no_weight"]->Fill(selLeptons.size(),norm);
+          allPlots["ndilp"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons.size(),norm);
           allPlots["dilp_pt"+chTag+"_lepjets"+"_no_weight"]->Fill(dilp4.Pt(),norm);
           allPlots["dilp_m"+chTag+"_lepjets"+"_no_weight"]->Fill(dilp4.M(),norm);
-          std::sort(leptons.begin(), leptons.end(), VecSort);
           allPlots["lp_pt"+chTag+"_lepjets"]->Fill(leptons[0].Pt(),wgt);
           allPlots["l2p_pt"+chTag+"_lepjets"]->Fill(leptons[1].Pt(),wgt);
           allPlots["lp_pt"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].Pt(),norm);
           allPlots["l2p_pt"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[1].Pt(),norm);
           allPlots["MET"+chTag+"_lepjets"]->Fill(ev.met_pt[0],wgt);
-          allPlots["charge"+chTag+"_lepjets"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],wgt);
+          allPlots["charge"+chTag+"_lepjets"]->Fill(leptons[0].charge()*leptons[1].charge(),wgt);
           allPlots["MET"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.met_pt[0],norm);
-          allPlots["charge"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.l_charge[selLeptons[0]]*ev.l_charge[selLeptons[1]],norm);
-          allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[0]],wgt);
-          allPlots["relIso"+chTag+"_lepjets"]->Fill(ev.l_relIso[selLeptons[1]],wgt);
+          allPlots["charge"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].charge()*leptons[1].charge(),norm);
+          allPlots["relIso"+chTag+"_lepjets"]->Fill(leptons[0].getRelIso(),wgt);
+          allPlots["relIso"+chTag+"_lepjets"]->Fill(leptons[1].getRelIso(),wgt);
         }
       }
       if(debug) cout << "simple plots DONE" << endl;
@@ -872,8 +804,7 @@ void RunTop(TString filename,
       allPlots["nbj"+chTag+"_lep"]->Fill(bJetsVec.size(),wgt);
       //allPlots["nj"+chTag+"_lep"+"_no_weight"]->Fill(lightJetsVec.size(),norm);
       //allPlots["nbj"+chTag+"_lep"+"_no_weight"]->Fill(bJetsVec.size(),norm);
-      allPlots["nlp"+chTag+"_lep"]->Fill(selLeptons.size(),wgt);
-      //allPlots["nlp"+chTag+"_lep"+"_no_weight"]->Fill(selLeptons.size(),norm);
+      allPlots["nlp"+chTag+"_lep"]->Fill(leptons.size(),wgt);
 
       if(lightJetsVec.size() > 0 and bJetsVec.size() > 0) {
       allPlots["j_pt"+chTag+"_lep"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
@@ -903,7 +834,7 @@ void RunTop(TString filename,
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lepjets"]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag+"_lepjets"]->Fill(bJetsVec.size(),wgt);
-      allPlots["nlp"+chTag+"_lepjets"]->Fill(selLeptons.size(),wgt);
+      allPlots["nlp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
 
       allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
       allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);

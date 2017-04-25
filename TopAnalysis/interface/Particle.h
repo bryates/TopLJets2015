@@ -2,7 +2,7 @@
 #define _Particle_h
 #include "TLorentzVector.h"
 
-enum particleType { Tight, Medium, Loose, Veto };
+enum particleType { Tight, Medium, Loose, Veto, TightNoIso };
 
 //Defind Particle class
 //
@@ -19,6 +19,7 @@ class Particle {
   float Eta();
   float Phi();
   float Mass();
+  int charge();
   particleType& getType();
   float& getRelIso();
   int& getPdgId();
