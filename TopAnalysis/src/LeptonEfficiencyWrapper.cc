@@ -12,7 +12,8 @@ using namespace std;
 LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod)
 {
   if(isData) return;
-  if(runPeriod.Contains("B") || runPeriod.Contains("F")) runPeriod = "BCDEF";
+  if(TString("BCDEF").Contains(runPeriod)) runPeriod = "BCDEF";
+  else if(TString("GH").Contains(runPeriod)) runPeriod = "GH";
   init(era,runPeriod);
 }
 
