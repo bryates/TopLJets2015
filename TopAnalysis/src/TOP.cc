@@ -199,8 +199,8 @@ void RunTop(TString filename,
     allPlots["lp_pt_iso"+tag+cut+weight] = new TH1F("lp_pt_iso"+tag+cut+weight,";Lepton P_{T} [GeV] after cleaning;Events / 10 GeV", 20, 0,200);
     allPlots["lp_pt_veto"+tag+cut+weight] = new TH1F("lp_pt_veto"+tag+cut+weight,";Lepton P_{T} [GeV] after veto;Events / 10 GeV", 20, 0,200);
     allPlots["lp_pt_low"+tag+cut+weight] = new TH1F("lp_pt_low"+tag+cut+weight,";Leading Lepton P_{T} [GeV];Events / 1 GeV", 20, 20,40);
-    allPlots["lp_pt"+tag+cut+weight] = new TH1F("lp_pt"+tag+cut+weight,";Leading Lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
-    allPlots["l2p_pt"+tag+cut+weight] = new TH1F("l2p_pt"+tag+cut+weight,";Sub-leading Lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
+    allPlots["lp_pt"+tag+cut+weight] = new TH1F("lp_pt"+tag+cut+weight,";Leading lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
+    allPlots["l2p_pt"+tag+cut+weight] = new TH1F("l2p_pt"+tag+cut+weight,";Sub-leading lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["dilp_pt"+tag+cut+weight] = new TH1F("dilp_pt"+tag+cut+weight,";Lepton P_{T} [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["dilp_m"+tag+cut+weight] = new TH1F("dilp_m"+tag+cut+weight,";M_{ll} [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["j_pt"+tag+cut+weight] = new TH1F("j_pt"+tag+cut+weight,";Leading light Jet P_{T} [GeV];Events / 20 GeV", 15, 0,300);
@@ -215,6 +215,10 @@ void RunTop(TString filename,
     allPlots["nlj"+tag+cut+weight]     = new TH1F("nlj"+tag+cut+weight,";N_{jets} (P_{T} > 30 GeV);Events" ,10,0,10.);
     allPlots["nbj"+tag+cut+weight]     = new TH1F("nbj"+tag+cut+weight,";N_{b-jets} (CSV > 0.8);Events" ,4,1.,5.);
     allPlots["npf"+tag+cut+weight]     = new TH1F("npf"+tag+cut+weight,";N_{pf};Events / 10" ,5,0.,5.);
+    allPlots["lp_eta"+tag+cut+weight]  = new TH1F("lp_eta"+tag+cut+weight,";Leading lepton #eta; Events / 0.1", 30, -2.5,2.5);
+    allPlots["l2p_eta"+tag+cut+weight]  = new TH1F("l2p_eta"+tag+cut+weight,";Sub-Leading lepton #eta; Events / 0.1", 30, -2.5,2.5);
+    allPlots["lp_phi"+tag+cut+weight]  = new TH1F("lp_phi"+tag+cut+weight,";Leading lepton #phi; Events", 50, -3.14,3.14);
+    allPlots["l2p_phi"+tag+cut+weight]  = new TH1F("l2p_phi"+tag+cut+weight,";Sub-Leading lepton #phi; Events", 50, -3.14,3.14);
     allPlots["nstart"+tag+cut+weight]     = new TH1F("jetindex"+tag+cut+weight,";N_{jetindex};Events" ,5,0.,5.);
     allPlots["pfid"+tag+cut+weight]     = new TH1F("pfid"+tag+cut+weight,";PFID;Events" ,440,-220.,220.);
     allPlots["massJPsi"+tag+cut+weight]     = new TH1F("massJPsi"+tag+cut+weight,";M_{ll};Events / 18 MeV" ,50,2.5,3.4);
@@ -670,6 +674,10 @@ void RunTop(TString filename,
         allPlots["lp_pt"+chTag+"_no_weight"]->Fill(leptons[0].Pt(),norm);
         allPlots["lp_pt_all"]->Fill(leptons[0].Pt(),wgt);
         allPlots["relIso"+chTag]->Fill(leptons[0].getRelIso(),wgt);
+        allPlots["lp_eta"+chTag]->Fill(leptons[0].Eta(),wgt);
+        allPlots["lp_eta"+chTag+"_no_weight"]->Fill(leptons[0].Eta(),norm);
+        allPlots["lp_phi"+chTag]->Fill(leptons[0].Phi(),wgt);
+        allPlots["lp_phi"+chTag+"_no_weight"]->Fill(leptons[0].Phi(),norm);
       }
 
       if(isZ) {
@@ -696,6 +704,7 @@ void RunTop(TString filename,
         allPlots["bj_pt_all"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
       }
 
+      //if(selLeptons.size() == 1 && bJetsVec.size() >= 1 && lightJetsVec.size() >= 2) {
       if(debug) cout << "starting lep/jets plots" << endl;
       //Require exactly 1 lepton
       if(leptons.size() == 1) {
@@ -705,6 +714,10 @@ void RunTop(TString filename,
         allPlots["lp_pt"+chTag+"_lep_no_weight"]->Fill(leptons[0].Pt(),norm);
 
         allPlots["lp_pt_all_lep"]->Fill(leptons[0].Pt(),wgt);
+        allPlots["lp_eta"+chTag+"_lep"]->Fill(leptons[0].Eta(),wgt);
+        allPlots["lp_eta"+chTag+"_lep"+"_no_weight"]->Fill(leptons[0].Eta(),norm);
+        allPlots["lp_phi"+chTag+"_lep"]->Fill(leptons[0].Phi(),wgt);
+        allPlots["lp_phi"+chTag+"_lep"+"_no_weight"]->Fill(leptons[0].Phi(),norm);
         allPlots["MET"+chTag+"_lep"]->Fill(ev.met_pt[0],wgt);
         allPlots["HT"+chTag+"_lep"]->Fill(htsum,wgt);
         allPlots["ST"+chTag+"_lep"]->Fill(stsum,wgt);
@@ -715,10 +728,15 @@ void RunTop(TString filename,
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
           if(debug) cout << "jet reqirements" << endl;
           minJets = true;
+          std::sort(leptons.begin(), leptons.end(), VecSort);
           allPlots["lp_pt"+chTag+"_lepjets"]->Fill(leptons[0].Pt(),wgt);
           //allPlots["lp_pt"+chTag+"_lepjets_no_weight"]->Fill(leptons[0].Pt(),norm);
 
           allPlots["lp_pt_all_lepjets"]->Fill(leptons[0].Pt(),wgt);
+          allPlots["lp_eta"+chTag+"_lepjets"]->Fill(leptons[0].Eta(),wgt);
+          allPlots["lp_eta"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].Eta(),norm);
+          allPlots["lp_phi"+chTag+"_lepjets"]->Fill(leptons[0].Phi(),wgt);
+          allPlots["lp_phi"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].Phi(),norm);
           allPlots["MET"+chTag+"_lepjets"]->Fill(ev.met_pt[0],wgt);
           allPlots["HT"+chTag+"_lepjets"]->Fill(htsum,wgt);
           allPlots["ST"+chTag+"_lepjets"]->Fill(stsum,wgt);
@@ -783,6 +801,14 @@ void RunTop(TString filename,
           allPlots["l2p_pt"+chTag+"_lepjets"]->Fill(leptons[1].Pt(),wgt);
           allPlots["lp_pt"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].Pt(),norm);
           allPlots["l2p_pt"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[1].Pt(),norm);
+          allPlots["lp_eta"+chTag+"_lepjets"]->Fill(leptons[0].Eta(),wgt);
+          allPlots["l2p_eta"+chTag+"_lepjets"]->Fill(leptons[1].Eta(),wgt);
+          allPlots["lp_eta"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].Eta(),norm);
+          allPlots["l2p_eta"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[1].Eta(),norm);
+          allPlots["lp_phi"+chTag+"_lepjets"]->Fill(leptons[0].Phi(),wgt);
+          allPlots["l2p_phi"+chTag+"_lepjets"]->Fill(leptons[1].Phi(),wgt);
+          allPlots["lp_phi"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[0].Phi(),norm);
+          allPlots["l2p_phi"+chTag+"_lepjets"+"_no_weight"]->Fill(leptons[1].Phi(),norm);
           allPlots["MET"+chTag+"_lepjets"]->Fill(ev.met_pt[0],wgt);
           allPlots["charge"+chTag+"_lepjets"]->Fill(leptons[0].charge()*leptons[1].charge(),wgt);
           allPlots["MET"+chTag+"_lepjets"+"_no_weight"]->Fill(ev.met_pt[0],norm);
@@ -900,6 +926,10 @@ void RunTop(TString filename,
           allPlots["bj_pt"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getVec().Pt(),wgt);
           allPlots["lp_pt"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
           allPlots["lp_pt_low"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
+          allPlots["lp_eta"+chTag+"_jpsi"]->Fill(leptons[0].Eta(),wgt);
+          allPlots["lp_eta"+chTag+"_jpsi"+"_no_weight"]->Fill(leptons[0].Eta(),norm);
+          allPlots["lp_phi"+chTag+"_jpsi"]->Fill(leptons[0].Phi(),wgt);
+          allPlots["lp_phi"+chTag+"_jpsi"+"_no_weight"]->Fill(leptons[0].Phi(),norm);
           allPlots["csv"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getCSV(),wgt);
           allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
           allPlots["weight"+chTag+"_jpsi"]->Fill(wgt,norm);
@@ -1035,6 +1065,8 @@ void RunTop(TString filename,
                     allPlots["massDsmD0_all"]->Fill(deltam, wgt);
                     allPlots["lp_pt"+chTag+"_meson"]->Fill(leptons[0].Pt(),wgt);
                     allPlots["lp_pt_low"+chTag+"_meson"]->Fill(leptons[0].Pt(),wgt);
+                    allPlots["lp_eta"+chTag+"_meson"]->Fill(leptons[0].Eta(),wgt);
+                    allPlots["lp_phi"+chTag+"_meson"]->Fill(leptons[0].Phi(),wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
                     allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                     allPlots["weight"+chTag+"_meson"]->Fill(wgt,norm);
