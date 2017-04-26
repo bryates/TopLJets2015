@@ -13,7 +13,6 @@ void Leptons::setMinPt(double minPt) { minPt_ = minPt; }
 void Leptons::setMaxEta(double maxEta) { maxEta_ = maxEta; }
 void Leptons::setMaxRelIso(double maxRelIso) { maxRelIso_ = maxRelIso; }
 
-//requiredMuonTriggers_.erase(std::remove(requiredMuonTriggers_.begin(), requiredMuonTriggers_.end(), trigger), requiredMuonTriggers_.end());
 void Leptons::changeMinPt(double minPt) { 
   minPt_ = minPt; 
   for(auto itP = leps_.begin(); itP != leps_.end(); itP++) {
@@ -43,8 +42,8 @@ void Leptons::changeMaxRelIso(double maxRelIso) {
 void Leptons::changeParticleType(enum particleType reqType) { 
   reqType_ = reqType;
   for(auto itP = leps_.begin(); itP != leps_.end(); itP++) {
-    if(itP->getType() != reqType_ && debug_) std::cout << "Removing particle with old type. (" << itP->getType() << ")" << std::endl;
-    if(itP->getType() != reqType_)
+    if(itP->getType() < reqType_ && debug_) std::cout << "Removing particle with old type. (" << itP->getType() << ")" << std::endl;
+    if(itP->getType() < reqType_)
       leps_.erase(itP--);
   }
 }
@@ -61,7 +60,7 @@ void Leptons::addParticle(Particle p) {
   if(p.getRelIso() > maxRelIso_) return;
   if(debug_) std::cout << "relIso passed!!" << std::endl;
   if(debug_) std::cout << "Checking if particle type is correct." << std::endl;
-  if(p.getType() != reqType_) return;
+  if(p.getType() < reqType_) return;
   if(debug_) std::cout << "Type is good!!" << std::endl;
 
   //add good particles to collection
@@ -78,7 +77,10 @@ int Leptons::getSize() {
   return s;
 }
 
-void Leptons::sortLeptonsByPt() { sort(leps_.begin(),leps_.end(), [](Particle i, Particle j) { return i.Pt() > j.Pt() ; } ); }
+void Leptons::sortLeptonsByPt() {
+  sort(leps_.begin(),leps_.end(), [](Particle i, Particle j) { return i.Pt() > j.Pt() ; } );
+  if(leps_.size() > 2) leps_.resize(2); //keep only 2 hardest leptons if more
+}
 
 Particle& Leptons::getElement(int pos) {
   return leps_[pos];

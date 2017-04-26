@@ -2,13 +2,14 @@
 #define _Particle_h
 #include "TLorentzVector.h"
 
-enum particleType { Tight, Medium, Loose, Veto, TightNoIso };
+enum particleType { Veto, Loose, Medium, TightNoIso, Tight };
 
 //Defind Particle class
 //
 class Particle {
  public:
   Particle(float pt, float eta, float phi, float mass, int pdgId, float relIso, int pid);
+  Particle();
   ~Particle();
   //isMuon (if abs(pdgId)==13)
   bool isMuon();

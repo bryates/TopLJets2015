@@ -389,9 +389,14 @@ void RunTop(TString filename,
 
       if(debug) if(leptons.size()==0) cout << "NO LEPTONS!!" << endl;
       if(leptons.size()==0) continue;
+      /*
       if(trigger.isSingleElectronEvent(leptons)) chTag="e";
       else if(trigger.isSingleMuonEvent(leptons)) chTag="m";
-      /*
+      else if(trigger.isDoubleElectronEvent(leptons)) chTag="ee";
+      else if(trigger.isDoubleMuonEvent(leptons)) chTag="mm";
+      else if(trigger.isEMEvent(leptons)) chTag="em";
+      if(leptons.size() == 2 && trigger.muonFired() && trigger.isElectronFile()) continue;
+      */
       if(leptons.size()==1) {
         if(leptons[0].isElectron()) {
           if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
@@ -401,7 +406,6 @@ void RunTop(TString filename,
           if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m"; //Checks filename and requestd trigger(s)
         }
       }
-      */
       if(leptons.size()>1) {
         if(leptons[0].isElectron() && leptons[1].isElectron()) {
           if(trigger.isDoubleElectronEvent() || !ev.isData) chTag="ee"; //Ensure DoubleEG if data
@@ -415,7 +419,6 @@ void RunTop(TString filename,
 	//Check if Electron file fired Muon trigger
 	if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
       }
-      if(chTag=="") continue;
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
       if(debug) cout << "Event: " << iev << endl;

@@ -15,6 +15,8 @@ Particle::Particle(float pt, float eta, float phi, float mass, int pdgId, float 
   else if(isElectron() && (pid_)&0x1) t_ = Veto;
 }
 
+Particle::Particle() {} ;
+
 Particle::~Particle() {} ;
 
 bool Particle::isMuon() {

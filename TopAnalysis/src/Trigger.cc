@@ -238,8 +238,7 @@ bool Trigger::isSingleMuonEvent() {
 
 //Check for Single Muon trigger based on Leptons class
 bool Trigger::isSingleMuonEvent(Leptons leps) {
-  if(leps.size() > 1) return false;
-  if(leps.size() < 1) return false;
+  if(leps.size() != 1) return false;
   if(abs(leps[0].getPdgId())!=13) return false;
   if(isMCFile()) return true;
   return isSingleMuonEvent();
@@ -260,8 +259,7 @@ bool Trigger::isSingleElectronEvent() {
 
 //Check for Single Electron trigger based on Leptons class
 bool Trigger::isSingleElectronEvent(Leptons leps) {
-  if(leps.size() > 1) return false;
-  if(leps.size() < 1) return false;
+  if(leps.size() != 1) return false;
   if(abs(leps[0].getPdgId())!=11) return false;
   if(isMCFile()) return true;
   return isSingleElectronEvent();
@@ -283,7 +281,7 @@ bool Trigger::isDoubleMuonEvent() {
 //Check for Double Muon trigger based on Leptons class
 bool Trigger::isDoubleMuonEvent(Leptons leps) {
   if(leps.size() < 2) return false;
-  if(leps[0].getPdgId()*leps[1].getPdgId()!=-13*13) return false;
+  if(abs(leps[0].getPdgId()*leps[1].getPdgId())!=13*13) return false;
   if(isMCFile()) return true;
   return isDoubleMuonEvent();
 }
@@ -304,7 +302,7 @@ bool Trigger::isDoubleElectronEvent() {
 //Check for Double Electron trigger based on Leptons class
 bool Trigger::isDoubleElectronEvent(Leptons leps) {
   if(leps.size() < 2) return false;
-  if(leps[0].getPdgId()*leps[1].getPdgId()!=-11*11) return false;
+  if(abs(leps[0].getPdgId()*leps[1].getPdgId())!=11*11) return false;
   if(isMCFile()) return true;
   return isDoubleElectronEvent();
 }
@@ -325,7 +323,7 @@ bool Trigger::isEMEvent() {
 //Check for EM trigger based on Leptons class
 bool Trigger::isEMEvent(Leptons leps) {
   if(leps.size() < 2) return false;
-  if(leps[0].getPdgId()*leps[1].getPdgId()!=-11*13) return false;
+  if(abs(leps[0].getPdgId()*leps[1].getPdgId())!=11*13) return false;
   if(isMCFile()) return true;
   return isEMEvent();
 }
