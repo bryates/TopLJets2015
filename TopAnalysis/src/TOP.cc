@@ -680,7 +680,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag]->Fill(1,norm);
       allPlots["weight"+chTag]->Fill(wgt,norm);
       allPlots["norm"+chTag]->Fill(norm,norm);
-      allPlots["nvtx"+chTag]->Fill(ev.nvtx,norm);
+      allPlots["nvtx"+chTag]->Fill(ev.nvtx,wgt);
       allPlots["nj"+chTag]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
@@ -865,7 +865,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag+"_lep"]->Fill(1,norm);
       allPlots["weight"+chTag+"_lep"]->Fill(wgt,norm);
       allPlots["norm"+chTag+"_lep"]->Fill(norm,norm);
-      allPlots["nvtx"+chTag+"_lep"]->Fill(ev.nvtx,norm);
+      allPlots["nvtx"+chTag+"_lep"]->Fill(ev.nvtx,wgt);
       allPlots["nevt_all_lep"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lep"]->Fill(allJetsVec.size(),wgt);
@@ -898,7 +898,7 @@ void RunTop(TString filename,
       allPlots["nevt"+chTag+"_lepjets"]->Fill(1,norm);
       allPlots["weight"+chTag+"_lepjets"]->Fill(wgt,norm);
       allPlots["norm"+chTag+"_lepjets"]->Fill(norm,norm);
-      allPlots["nvtx"+chTag+"_lepjets"]->Fill(ev.nvtx,norm);
+      allPlots["nvtx"+chTag+"_lepjets"]->Fill(ev.nvtx,wgt);
       allPlots["nevt_all_lepjets"]->Fill(1,norm);
 
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
@@ -925,7 +925,7 @@ void RunTop(TString filename,
           allPlots["nevt"+chTag+"_csv"]->Fill(1,norm);
           allPlots["weight"+chTag+"_csv"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_csv"]->Fill(norm,norm);
-          allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,norm);
+          allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,wgt);
           allPlots["j_pt"+chTag+"_csv"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
           allPlots["lj_pt"+chTag+"_csv"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
           allPlots["bj_pt"+chTag+"_csv"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
@@ -971,7 +971,7 @@ void RunTop(TString filename,
           allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
           allPlots["weight"+chTag+"_jpsi"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_jpsi"]->Fill(norm,norm);
-          allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,norm);
+          allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,wgt);
 
           if(mass12<3.0 || mass12>3.2) continue;
 
@@ -1108,7 +1108,7 @@ void RunTop(TString filename,
                     allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                     allPlots["weight"+chTag+"_meson"]->Fill(wgt,norm);
                     allPlots["norm"+chTag+"_meson"]->Fill(norm,norm);
-                    allPlots["nvtx"+chTag+"_meson"]->Fill(ev.nvtx,norm);
+                    allPlots["nvtx"+chTag+"_meson"]->Fill(ev.nvtx,wgt);
                   }
                 }
               }
