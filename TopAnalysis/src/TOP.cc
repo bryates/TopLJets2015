@@ -373,7 +373,7 @@ void RunTop(TString filename,
       trigger.addRequiredDoubleMuonTrigger({"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"});
 
       //Electron Muon (ME as well)
-      trigger.addRequiredEMTrigger({"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v","HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_v","HLT_Mu23_TrkIsoVVL_Ele12_CaloId_LTrrackIDL_IsoVL_DZ_v","HLT_Mu12_TrkIsoVVL_Ele23_CaloId_LTrrackIDL_IsoVL_DZ_v"});
+      trigger.addRequiredEMTrigger({"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v","HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v","HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v","HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"});
 
       //Single muon
       //Check only these triggers
@@ -728,7 +728,6 @@ void RunTop(TString filename,
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
           if(debug) cout << "jet reqirements" << endl;
           minJets = true;
-          std::sort(leptons.begin(), leptons.end(), VecSort);
           allPlots["lp_pt"+chTag+"_lepjets"]->Fill(leptons[0].Pt(),wgt);
           //allPlots["lp_pt"+chTag+"_lepjets_no_weight"]->Fill(leptons[0].Pt(),norm);
 
