@@ -296,7 +296,7 @@ void RunTop(TString filename,
       std::vector<int> tightLeptons,vetoLeptons;
       Leptons Muons(Tight,debug);
       Leptons Electrons(TightNoIso,debug);
-      Leptons VetoLeptons(Veto,debug);
+      Leptons VetoLeptons(Veto,Loose,debug); // Designate Veto, only veto on Loose
 
       Muons.setMinPt(20);
       Muons.setMaxEta(2.4);
@@ -309,6 +309,7 @@ void RunTop(TString filename,
       VetoLeptons.setMinPt(15);
       VetoLeptons.setMaxEta(2.4);
       VetoLeptons.setMaxRelIso(0.24);
+      VetoLeptons.setMaxType(Loose);
 
       for(int il=0; il<ev.nl; il++)
 	{
@@ -346,8 +347,8 @@ void RunTop(TString filename,
       Leptons leptons(Tight,debug);
       leptons.combineLeptons(Muons);
       leptons.combineLeptons(Electrons);
-      if(debug) cout << "sorting leptons" << endl;
-      leptons.sortLeptonsByPt();
+      //if(debug) cout << "sorting leptons" << endl;
+      //leptons.sortLeptonsByPt();
 
       allPlots["nevt_iso"]->Fill(1,norm);
       allPlots["norm_iso"]->Fill(norm,norm);

@@ -6,12 +6,18 @@ Leptons::Leptons(enum particleType reqType, bool debug) {
   debug_  = debug;
 } 
 
-//Leptons::Leptons(bool veto, bool debug) : veto_(veto), debug_(debug) {} 
+Leptons::Leptons(enum particleType reqType, enum particleType maxType, bool debug) {
+  reqType_ = reqType;
+  debug_  = debug;
+  maxType_ = maxType;
+} 
+
 Leptons::~Leptons() {};
 
 void Leptons::setMinPt(double minPt) { minPt_ = minPt; }
 void Leptons::setMaxEta(double maxEta) { maxEta_ = maxEta; }
 void Leptons::setMaxRelIso(double maxRelIso) { maxRelIso_ = maxRelIso; }
+void Leptons::setMaxType(enum particleType maxType) { maxType_ = maxType; }
 
 void Leptons::changeMinPt(double minPt) { 
   minPt_ = minPt; 
@@ -53,14 +59,15 @@ void Leptons::addParticle(Particle p) {
   if(debug_) std::cout << "Checking if particle pT greter than required. (" << p.Pt() << " > " << minPt_ << ")" << std::endl;
   if(p.Pt() < minPt_) return;
   if(debug_) std::cout << "pT passed!!" << std::endl;
-  if(debug_) std::cout << "Checking if particle eta less than required. (" << p.Eta() << " < " << maxEta_ << ")" << std::endl;
-  if(p.Eta() > maxEta_) return;
+  if(debug_) std::cout << "Checking if particle |eta| less than required. (" << abs(p.Eta()) << " < " << maxEta_ << ")" << std::endl;
+  if(abs(p.Eta()) > maxEta_) return;
   if(debug_) std::cout << "eta passed!!" << std::endl;
   if(debug_) std::cout << "Checking if particle relIso less than required. (" << p.getRelIso() << " < " << maxRelIso_ << ")" << std::endl;
   if(p.getRelIso() > maxRelIso_) return;
   if(debug_) std::cout << "relIso passed!!" << std::endl;
   if(debug_) std::cout << "Checking if particle type is correct." << std::endl;
   if(p.getType() < reqType_) return;
+  if(reqType_ == Veto && p.getType() > maxType_) return;
   if(debug_) std::cout << "Type is good!!" << std::endl;
 
   //add good particles to collection

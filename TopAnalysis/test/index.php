@@ -58,9 +58,12 @@
             }
         }
         foreach ($dir as $key => $filename) {
-            if(!is_dir($filename)) continue;
+            //if(!is_dir($filename)) continue;
             if ($filename == "Meson") $key--;
-            print " <a href=\"$filename\">[".($key+1)."_$filename]</a>";
+            if(is_dir($filename))
+                print " <a href=\"$filename\">[".($key+1)."_$filename]</a>";
+            else
+                print "[".($key+1)."_$filename]";
         }
         print "</div>";
     }

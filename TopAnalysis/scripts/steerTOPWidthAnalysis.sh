@@ -61,28 +61,28 @@ case $WHAT in
         #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )
-	mkdir -p ${wwwdir}/sel/${RUN}
-	mkdir -p ${wwwdir}/sel/${RUN}/log
-	mkdir -p ${wwwdir}/sel/${RUN}/ee
-	mkdir -p ${wwwdir}/sel/${RUN}/e
-	mkdir -p ${wwwdir}/sel/${RUN}/em
-	mkdir -p ${wwwdir}/sel/${RUN}/mumu
-	mkdir -p ${wwwdir}/sel/${RUN}/mu
-	cp -p  ${outdir}/plots/*.{png,pdf} ${wwwdir}/sel/${RUN}/
-	rm ${wwwdir}/sel/${RUN}/*no_weight*.{png,pdf}
-	mv ${wwwdir}/sel/${RUN}/*_log.{png,pdf} ${wwwdir}/sel/${RUN}/log/
-	mv ${wwwdir}/sel/${RUN}/*_ee*.{png,pdf} ${wwwdir}/sel/${RUN}/ee/
-	mv ${wwwdir}/sel/${RUN}/*_em*.{png,pdf} ${wwwdir}/sel/${RUN}/em/
-	mv ${wwwdir}/sel/${RUN}/*_e*.{png,pdf} ${wwwdir}/sel/${RUN}/e/
-	mv ${wwwdir}/sel/${RUN}/*_mm*.{png,pdf} ${wwwdir}/sel/${RUN}/mumu/
-	mv ${wwwdir}/sel/${RUN}/*_m*.{png,pdf} ${wwwdir}/sel/${RUN}/mu/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/log/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/ee/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/e/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/em/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/mumu/
-	cp -p test/index.php ${wwwdir}/sel/${RUN}/mu/
+	mkdir -p ${wwwdir}/test/${RUN}
+	mkdir -p ${wwwdir}/test/${RUN}/log
+	mkdir -p ${wwwdir}/test/${RUN}/ee
+	mkdir -p ${wwwdir}/test/${RUN}/e
+	mkdir -p ${wwwdir}/test/${RUN}/em
+	mkdir -p ${wwwdir}/test/${RUN}/mumu
+	mkdir -p ${wwwdir}/test/${RUN}/mu
+	cp -p  ${outdir}/plots/*.{png,pdf} ${wwwdir}/test/${RUN}/
+	rm ${wwwdir}/test/${RUN}/*no_weight*.{png,pdf}
+	mv ${wwwdir}/test/${RUN}/*_log.{png,pdf} ${wwwdir}/test/${RUN}/log/
+	mv ${wwwdir}/test/${RUN}/*_ee*.{png,pdf} ${wwwdir}/test/${RUN}/ee/
+	mv ${wwwdir}/test/${RUN}/*_em*.{png,pdf} ${wwwdir}/test/${RUN}/em/
+	mv ${wwwdir}/test/${RUN}/*_e*.{png,pdf} ${wwwdir}/test/${RUN}/e/
+	mv ${wwwdir}/test/${RUN}/*_mm*.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
+	mv ${wwwdir}/test/${RUN}/*_m*.{png,pdf} ${wwwdir}/test/${RUN}/mu/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/log/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/ee/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/e/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/em/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/mumu/
+	cp -p test/index.php ${wwwdir}/test/${RUN}/mu/
 	;;
     ANA )
 	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};
