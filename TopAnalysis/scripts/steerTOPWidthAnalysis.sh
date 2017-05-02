@@ -68,14 +68,14 @@ case $WHAT in
 	mkdir -p ${wwwdir}/test/${RUN}/em
 	mkdir -p ${wwwdir}/test/${RUN}/mumu
 	mkdir -p ${wwwdir}/test/${RUN}/mu
-	cp -p  ${outdir}/plots/*.{png,pdf} ${wwwdir}/test/${RUN}/
-	rm ${wwwdir}/test/${RUN}/*no_weight*.{png,pdf}
-	mv ${wwwdir}/test/${RUN}/*_log.{png,pdf} ${wwwdir}/test/${RUN}/log/
-	mv ${wwwdir}/test/${RUN}/*_ee*.{png,pdf} ${wwwdir}/test/${RUN}/ee/
-	mv ${wwwdir}/test/${RUN}/*_em*.{png,pdf} ${wwwdir}/test/${RUN}/em/
-	mv ${wwwdir}/test/${RUN}/*_e*.{png,pdf} ${wwwdir}/test/${RUN}/e/
-	mv ${wwwdir}/test/${RUN}/*_mm*.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
-	mv ${wwwdir}/test/${RUN}/*_m*.{png,pdf} ${wwwdir}/test/${RUN}/mu/
+	cp -p  ${outdir}/plots/*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/
+	rm ${wwwdir}/test/${RUN}/*no_weight*_${RUN}.{png,pdf}
+	mv ${wwwdir}/test/${RUN}/*_log_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/log/
+	mv ${wwwdir}/test/${RUN}/*_ee*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/ee/
+	mv ${wwwdir}/test/${RUN}/*_em*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/em/
+	mv ${wwwdir}/test/${RUN}/*_e*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/e/
+	mv ${wwwdir}/test/${RUN}/*_mm*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
+	mv ${wwwdir}/test/${RUN}/*_m*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/mu/
 	cp -p test/index.php ${wwwdir}/test/${RUN}/
 	cp -p test/index.php ${wwwdir}/test/${RUN}/log/
 	cp -p test/index.php ${wwwdir}/test/${RUN}/ee/

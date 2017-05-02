@@ -17,6 +17,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
+#include "TopLJets2015/TopAnalysis/interface/Jet.h"
 #include "TopLJets2015/TopAnalysis/interface/StdPlots.h"
 
 //#include "CondFormats/BTauObjects/interface/BTagCalibration.h"

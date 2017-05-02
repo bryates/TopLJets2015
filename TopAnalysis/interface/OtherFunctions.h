@@ -54,6 +54,7 @@ bool VecSort(TLorentzVector j1, TLorentzVector j2) { return j1.Pt() > j2.Pt(); }
 bool sortJetTuple(std::tuple<int,int,float> i, std::tuple<int,int,float> j) { return std::get<1>(i) < std::get<1>(j) || ( std::get<1>(i) == std::get<1>(j) && std::get<2>(i) > std::get<2>(j) ); }
 bool sortJetCSVTuple(std::tuple<int,float,float> i, std::tuple<int,float,float> j) { return std::get<1>(i) < std::get<1>(j) || ( std::get<1>(i) == std::get<1>(j) && std::get<2>(i) > std::get<2>(j) ); }
 
+/*
 class pfTrack {
 
  public:
@@ -140,6 +141,7 @@ class Jet {
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }
 
+*/
 /*
 Jet::Jet(TLorentzVector p4, float csv, int idx) {
   p4_ = p4;
@@ -148,6 +150,7 @@ Jet::Jet(TLorentzVector p4, float csv, int idx) {
 }
 */
 
+/*
 Jet::~Jet() {};
 
 //void Jet::addTrack(TLorentzVector p4, int pfid) { trks_.push_back( IdTrack(p4,pfid) ); }
@@ -172,5 +175,6 @@ bool sortIdTracksByPt(IdTrack i, IdTrack j)  { return i.first.Pt() > j.first.Pt(
 
 //void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), sortIdTracksByPt); }
 void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), [](IdTrack i, IdTrack j) { return i.first.Pt() > j.first.Pt() ; } ); }
+*/
 
 #endif

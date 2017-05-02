@@ -2,7 +2,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/StdPlots.h"
-//#include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
+#include "TopLJets2015/TopAnalysis/interface/Jet.h"
 
 StdPlots::StdPlots(TString runPeriod, bool debug) {  
   runPeriod_ = "_"+runPeriod;
@@ -146,7 +146,6 @@ void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
   }
 }
 
-/*
 void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString name) {
   float wgt = norm_ * sfs_ * puWgt_;
 
@@ -178,7 +177,6 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
   }
 
 }
-*/
 
 void StdPlots::Fill(Double_t weight, Int_t N, Double_t pt, Double_t eta, Double_t phi) {
   h_particles->Fill(N,weight/N);
