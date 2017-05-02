@@ -20,11 +20,6 @@
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 #include "TopLJets2015/TopAnalysis/interface/StdPlots.h"
 
-//#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
-//#include "CondTools/BTau/interface/BTagCalibrationReader.h"
-//#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-//#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -34,16 +29,6 @@
 
 using namespace std;
 
-//
-/*
-Float_t computeMT(TLorentzVector &a, TLorentzVector &b)
-{
-  return TMath::Sqrt(2*a.Pt()*b.Pt()*(1-TMath::Cos(a.DeltaPhi(b))));
-}
-
-
-*/
-//
 void RunTop(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 
@@ -69,33 +54,6 @@ void RunTop(TString filename,
   attachToMiniEventTree(t,ev,true);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
-  //if(ev.isData) runSysts=false;
-  /*
-  bool requireEletriggerOnly(false);
-  if(ev.isData && filename.Contains("SingleElectron")) requireEletriggerOnly=true;
-  bool requireMutriggerOnly(false);
-  if(ev.isData && filename.Contains("SingleMuon")) requireMutriggerOnly=true;
-  bool requireEETriggers(false);
-  if(ev.isData && filename.Contains("DoubleEG"))       requireEETriggers=true;
-  bool requireMMTriggers(false);
-  if(ev.isData && filename.Contains("DoubleMuon"))     requireMMTriggers=true;
-  bool requireEMTriggers(false);
-  if(ev.isData && filename.Contains("MuonEG"))         requireEMTriggers=true;
-  */
-
-  /*
-  bool inRange(false);
-  for(int i = 0; i < run.Length(); i++) {
-    if(ev.isData && filename.Contains((TString("2016").Append(run[i])))) {
-      inRange = true;
-      break;
-    }
-  }
-  if(ev.isData && !inRange) {
-    cout << "Data not in range " << run;
-    return;
-  }
-  */
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
@@ -116,34 +74,9 @@ void RunTop(TString filename,
 	  TString grName("pu_nom");
           if(i==1) grName="pu_down";
           if(i==2) grName="pu_up";
-	  //TGraph *puData=(TGraph *)fIn->Get(grName);
-          //TGraph *puWgtData=(TGraph *)fIn->Get("puwgts_nom");
           TH1D *puWgtData=(TH1D *)fIn->Get("puwgts_nom");
           puWgt.push_back(puWgtData);
-          /*
-	  Float_t totalData=puData->Integral();
-	  TH1 *tmp=(TH1 *)puTrue->Clone("tmp");
-	  for(Int_t xbin=1; xbin<=tmp->GetXaxis()->GetNbins(); xbin++)
-	    {
-	      Float_t yexp=puTrue->GetBinContent(xbin);
-	      Double_t xobs,yobs;
-	      puData->GetPoint(xbin-1,xobs,yobs);
-	      tmp->SetBinContent(xbin, yexp>0 ? yobs/(totalData*yexp) : 0. );
-	    }
-	  TGraph *gr=new TGraph(tmp);
-	  grName.ReplaceAll("pu","puwgts");
-	  gr->SetName(grName);
-	  puWgtGr.push_back( gr );
-	  tmp->Delete();
-          */
 	}
-      /*
-      TH1 *tmp=(TH1 *)puTrue->Clone("tmp");
-      TGraph *gr=new TGraph(tmp);
-      gr->SetName("puwgts_nom");
-      puWgtGr.push_back( gr );
-      tmp->Delete();
-      */
 
       //Load PU plots for all run periods
       for(int ic = 0; ic < tmpRun.Length(); ic++) {
@@ -434,31 +367,6 @@ void RunTop(TString filename,
       else continue;
       if(debug) cout << "check if Single Electron fired Single Muon trigger" << endl;
       if(leptons.size() == 2 && trigger.muonFired() && trigger.isElectronFile()) continue;
-      /*
-      if(leptons.size()==1) {
-        if(leptons[0].isElectron()) {
-          if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
-        }
-
-        else if(leptons[0].isMuon()) {
-          if(trigger.isSingleMuonEvent() || !ev.isData) chTag="m"; //Checks filename and requestd trigger(s)
-        }
-      }
-      if(leptons.size()>1) {
-        if(leptons[0].isElectron() && leptons[1].isElectron()) {
-          if(trigger.isDoubleElectronEvent() || !ev.isData) chTag="ee"; //Ensure DoubleEG if data
-        }
-        else if(leptons[0].isMuon() && leptons[1].isMuon()) {
-          if(trigger.isDoubleMuonEvent() || !ev.isData) chTag="mm"; //Ensure DoubleMuon if data
-        }
-	else {
-          if(trigger.isEMEvent() || !ev.isData) chTag="em"; //Ensure MuonEG if data
-        }
-	//Check if Electron file fired Muon trigger
-	if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
-      }
-      if(chTag=="") continue;
-      */
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
       if(debug) cout << "Event: " << iev << endl;
@@ -610,20 +518,7 @@ void RunTop(TString filename,
             //allPlots["puwgtgr"]->SetBinContent(xbin,yobs);
             allPlots["puwgt"]->Fill(xbin,yobs);
           }
-          //Get PU weight for each run period
-          /*
-          for(int ic = 0; ic < tmpRun.Length(); ic++) {
-
-            TString puWgtRunUrl(era+"/pileupWgts"+tmpRun[ic]+".root");
-            gSystem->ExpandPathName(puWgtRunUrl);
-            TFile *fIn=TFile::Open(puWgtRunUrl);
-            TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
-
-	    //puWgtsRun[ic]->GetBinContent(ev.putrue);  
-            //fIn->Close();
-            
-          }
-          */
+          //Set PU weight for each run period
           runB.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
           runC.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
           runD.SetPuWgt(puWgtsRun[2]->GetBinContent(ev.putrue));
@@ -632,24 +527,10 @@ void RunTop(TString filename,
           runG.SetPuWgt(puWgtsRun[5]->GetBinContent(ev.putrue));
           runH.SetPuWgt(puWgtsRun[6]->GetBinContent(ev.putrue));
 
-          /*
-          for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
-	    Double_t xobs,yobs;
-	    puWgt[0]->GetPoint(xbin-1,xobs,yobs);
-            allPlots["puwgt"]->Fill(xbin,yobs);
-          }
-          */
 	    for(size_t iwgt=0; iwgt<3; iwgt++)
 	      {
-	        //puWgts[iwgt]=puWgtGr[iwgt]->Eval(ev.putrue);  
-	        //puWgts[iwgt]=puWgt[iwgt]->Eval(ev.putrue);  
-	        /*
-	        TH1F *tmp=(TH1F*)puWgt[iwgt]->GetHistogram ();
-	        puWgts[iwgt]=tmp->GetBinContent(ev.putrue);  
-                */
 	        puWgts[iwgt]=puWgt[iwgt]->GetBinContent(ev.putrue);  
 	        allPlots["puwgtctr"]->Fill(iwgt+1,puWgts[iwgt]);
-                //tmp->Delete();
 	      }
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
@@ -663,7 +544,6 @@ void RunTop(TString filename,
           // ** loop over all Particles in leptons **
 	  for(size_t il=0; il<leptons.size(); il++) {
 	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(leptons[il],runPeriod);
-	    //EffCorrection_t selSF=lepEffH.getOfflineCorrection(pdgIds[il],leptons[il].Pt(),leptons[il].Eta(),runPeriod);
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
             if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
             if(debug) cout << "selSF=" << selSF.first << endl;
@@ -798,7 +678,6 @@ void RunTop(TString filename,
         allPlots["bj_pt_all"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
       }
 
-      //if(selLeptons.size() == 1 && bJetsVec.size() >= 1 && lightJetsVec.size() >= 2) {
       if(debug) cout << "starting lep/jets plots" << endl;
       //Require exactly 1 lepton
       if(leptons.size() == 1) {
@@ -1310,7 +1189,6 @@ void RunTop(TString filename,
     if(debug) cout << it.second->GetName() << endl;
     if(debug) cout << it.second->GetEntries() << endl;
 
-    //fOut->cd( dir );
     it.second->SetDirectory(fOut); it.second->Write(); 
     fOut->cd();
   }
