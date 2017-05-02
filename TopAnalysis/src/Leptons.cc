@@ -72,6 +72,7 @@ void Leptons::addParticle(Particle p) {
 
   //add good particles to collection
   leps_.push_back(p);
+  if(debug_) p.print();
 }
 
 void Leptons::combineLeptons(Leptons lep) {

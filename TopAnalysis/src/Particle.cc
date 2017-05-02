@@ -19,6 +19,15 @@ Particle::Particle() {} ;
 
 Particle::~Particle() {} ;
 
+void Particle::print() {
+  std::cout << "pT: " << p4_.Pt() << std::endl
+            << "eta: " << p4_.Eta() << std::endl
+            << "phi: " << p4_.Phi() << std::endl
+            << "PdgId: " << pdgId_ << std::endl
+            << "pid: " << pid_ << std::endl
+            << "relIso: " << relIso_ << std::endl << std::endl;
+}
+
 bool Particle::isMuon() {
   return (abs(pdgId_) == 13);
 }

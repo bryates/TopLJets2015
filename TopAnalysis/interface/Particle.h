@@ -1,6 +1,7 @@
 #ifndef _Particle_h
 #define _Particle_h
 #include "TLorentzVector.h"
+#include <iostream>
 
 enum particleType { Veto, Loose, Medium, TightNoIso, Tight };
 
@@ -11,6 +12,7 @@ class Particle {
   Particle(float pt, float eta, float phi, float mass, int pdgId, float relIso, int pid);
   Particle();
   ~Particle();
+  void print();
   //isMuon (if abs(pdgId)==13)
   bool isMuon();
   //isElectron (if abs(pdgId)==11)

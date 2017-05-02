@@ -17,6 +17,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
+#include "TopLJets2015/TopAnalysis/interface/StdPlots.h"
 
 //#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 //#include "CondTools/BTau/interface/BTagCalibrationReader.h"
@@ -101,6 +102,8 @@ void RunTop(TString filename,
   std::vector<TGraph *>puWgtGr;
   //std::vector<TGraph *>puWgt;
   std::vector<TH1D *>puWgt;
+  TString tmpRun ("BCDEFGH");
+  std::vector<TH1D*> puWgtsRun;
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
@@ -140,6 +143,18 @@ void RunTop(TString filename,
       puWgtGr.push_back( gr );
       tmp->Delete();
       */
+
+      //Load PU plots for all run periods
+      for(int ic = 0; ic < tmpRun.Length(); ic++) {
+        TString puWgtRunUrl(era+"/pileupWgts"+tmpRun[ic]+".root");
+        gSystem->ExpandPathName(puWgtRunUrl);
+        TFile *fIn=TFile::Open(puWgtRunUrl);
+        TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
+        puWgtDataRun->SetDirectory(0);
+	puWgtsRun.push_back(puWgtDataRun);
+        fIn->Close();
+        
+      }
     }
     if(debug) cout << "loading pileup weight DONE" << endl;
 
@@ -181,6 +196,14 @@ void RunTop(TString filename,
   
   //LIST OF SYSTEMATICS
   
+  //HISTOGRAMS BY RUNPERIOD
+  StdPlots runB("B", debug);
+  StdPlots runC("C", debug);
+  StdPlots runD("D", debug);
+  StdPlots runE("E", debug);
+  StdPlots runF("F", debug);
+  StdPlots runG("G", debug);
+  StdPlots runH("H", debug);
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
@@ -288,6 +311,14 @@ void RunTop(TString filename,
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
       }
+      runB.SetNorm(norm);
+      runC.SetNorm(norm);
+      runD.SetNorm(norm);
+      runE.SetNorm(norm);
+      runF.SetNorm(norm);
+      runG.SetNorm(norm);
+      runH.SetNorm(norm);
+
       allPlots["nevt_all"]->Fill(1,norm);
       allPlots["norm_all"]->Fill(norm,norm);
       allPlots["nvtx_all"]->Fill(ev.nvtx,norm);
@@ -394,14 +425,15 @@ void RunTop(TString filename,
 
       if(debug) if(leptons.size()==0) cout << "NO LEPTONS!!" << endl;
       if(leptons.size()==0) continue;
-      /*
       if(trigger.isSingleElectronEvent(leptons)) chTag="e";
       else if(trigger.isSingleMuonEvent(leptons)) chTag="m";
       else if(trigger.isDoubleElectronEvent(leptons)) chTag="ee";
       else if(trigger.isDoubleMuonEvent(leptons)) chTag="mm";
       else if(trigger.isEMEvent(leptons)) chTag="em";
+      else continue;
+      if(debug) cout << "check if Single Electron fired Single Muon trigger" << endl;
       if(leptons.size() == 2 && trigger.muonFired() && trigger.isElectronFile()) continue;
-      */
+      /*
       if(leptons.size()==1) {
         if(leptons[0].isElectron()) {
           if(trigger.isSingleElectronEvent() || !ev.isData) chTag="e"; //Ensure SingleElectorn if data
@@ -424,6 +456,8 @@ void RunTop(TString filename,
 	//Check if Electron file fired Muon trigger
 	if(trigger.muonFired() && trigger.isElectronFile()) chTag="";
       }
+      if(chTag=="") continue;
+      */
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
       if(debug) cout << "Event: " << iev << endl;
@@ -561,6 +595,7 @@ void RunTop(TString filename,
       if(debug) cout << "Lepton scale factors" << endl;
       if(!ev.isData)
 	{
+          //float *puWgtsRun = new float[tmpRun.Length()];
 	  //account for pu weights and effect on normalization
 	  allPlots["puwgtctr"]->Fill(0.,1.0);
 	  allPlots["puwgtgr"]->Fill(0.,1.0);
@@ -574,6 +609,28 @@ void RunTop(TString filename,
             //allPlots["puwgtgr"]->SetBinContent(xbin,yobs);
             allPlots["puwgt"]->Fill(xbin,yobs);
           }
+          //Get PU weight for each run period
+          /*
+          for(int ic = 0; ic < tmpRun.Length(); ic++) {
+
+            TString puWgtRunUrl(era+"/pileupWgts"+tmpRun[ic]+".root");
+            gSystem->ExpandPathName(puWgtRunUrl);
+            TFile *fIn=TFile::Open(puWgtRunUrl);
+            TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
+
+	    //puWgtsRun[ic]->GetBinContent(ev.putrue);  
+            //fIn->Close();
+            
+          }
+          */
+          runB.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
+          runC.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
+          runD.SetPuWgt(puWgtsRun[2]->GetBinContent(ev.putrue));
+          runE.SetPuWgt(puWgtsRun[3]->GetBinContent(ev.putrue));
+          runF.SetPuWgt(puWgtsRun[4]->GetBinContent(ev.putrue));
+          runG.SetPuWgt(puWgtsRun[5]->GetBinContent(ev.putrue));
+          runH.SetPuWgt(puWgtsRun[6]->GetBinContent(ev.putrue));
+
           /*
           for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
 	    Double_t xobs,yobs;
@@ -612,10 +669,21 @@ void RunTop(TString filename,
 	    lepSelCorrWgt.first *= selSF.first;
 	  }
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
+
+          runB.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          runC.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          runD.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          runE.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          runF.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          runG.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          runH.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
           //wgt=1.0;
 	}
+      else
+        if(debug) cout << "weight=" << wgt << " norm=" << norm << endl;
       if(debug) cout << "Lepton scale factors DONE!" << endl;
 
       //sort by Pt
@@ -656,6 +724,30 @@ void RunTop(TString filename,
       allPlots["weight"+chTag]->Fill(wgt,norm);
       allPlots["norm"+chTag]->Fill(norm,norm);
       allPlots["nvtx"+chTag]->Fill(ev.nvtx,wgt);
+      runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+      /*
+      runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      */
+      runB.Fill(leptons, chTag);
+      runC.Fill(leptons, chTag);
+      runD.Fill(leptons, chTag);
+      runE.Fill(leptons, chTag);
+      runF.Fill(leptons, chTag);
+      runG.Fill(leptons, chTag);
+      runH.Fill(leptons, chTag);
+
       allPlots["nj"+chTag]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag]->Fill(lightJetsVec.size(),wgt);
       allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
@@ -711,6 +803,30 @@ void RunTop(TString filename,
       if(leptons.size() == 1) {
         if(debug) cout << "single lepton" << endl;
         singleLep = true;
+        runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+        /*
+        runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
+        */
+        runB.Fill(leptons, chTag, "lep");
+        runC.Fill(leptons, chTag, "lep");
+        runD.Fill(leptons, chTag, "lep");
+        runE.Fill(leptons, chTag, "lep");
+        runF.Fill(leptons, chTag, "lep");
+        runG.Fill(leptons, chTag, "lep");
+        runH.Fill(leptons, chTag, "lep");
+
         allPlots["lp_pt"+chTag+"_lep"]->Fill(leptons[0].Pt(),wgt);
         allPlots["lp_pt"+chTag+"_lep_no_weight"]->Fill(leptons[0].Pt(),norm);
 
@@ -729,6 +845,30 @@ void RunTop(TString filename,
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
           if(debug) cout << "jet reqirements" << endl;
           minJets = true;
+          runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          /*
+          runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          */
+          runB.Fill(leptons, chTag, "lepjets");
+          runC.Fill(leptons, chTag, "lepjets");
+          runD.Fill(leptons, chTag, "lepjets");
+          runE.Fill(leptons, chTag, "lepjets");
+          runF.Fill(leptons, chTag, "lepjets");
+          runG.Fill(leptons, chTag, "lepjets");
+          runH.Fill(leptons, chTag, "lepjets");
+
           allPlots["lp_pt"+chTag+"_lepjets"]->Fill(leptons[0].Pt(),wgt);
           //allPlots["lp_pt"+chTag+"_lepjets_no_weight"]->Fill(leptons[0].Pt(),norm);
 
@@ -749,6 +889,29 @@ void RunTop(TString filename,
       else if(leptons.size() == 2) {
         if(debug) cout << "dilepton" << endl;
         doubleLep = true;
+        runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
+        /*
+        runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+        */
+        runB.Fill(leptons, chTag);
+        runC.Fill(leptons, chTag);
+        runD.Fill(leptons, chTag);
+        runE.Fill(leptons, chTag);
+        runF.Fill(leptons, chTag);
+        runG.Fill(leptons, chTag);
+        runH.Fill(leptons, chTag);
         //Z control plot
         if(isZ) {
           allPlots["massZ"+chTag+"_lep"]->Fill(dilp4.M(),wgt);
@@ -759,6 +922,30 @@ void RunTop(TString filename,
         //Exclude Z and low mass and require same falvor dilepton MET > 40 GeV
         if(!isZ && (dilp4.M() > 20 && leptons[0].getPdgId()==leptons[1].getPdgId() && leptons[0].charge()!=leptons[1].charge()) &&
           ((leptons[0].getPdgId()!=leptons[1].getPdgId()) || (leptons[0].getPdgId()==leptons[1].getPdgId() && met.Pt() > 40))) {
+          runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
+          /*
+          runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+          */
+          runB.Fill(leptons, chTag, "lep");
+          runC.Fill(leptons, chTag, "lep");
+          runD.Fill(leptons, chTag, "lep");
+          runE.Fill(leptons, chTag, "lep");
+          runF.Fill(leptons, chTag, "lep");
+          runG.Fill(leptons, chTag, "lep");
+          runH.Fill(leptons, chTag, "lep");
+
           allPlots["ndilp"+chTag+"_lep"]->Fill(leptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lep"]->Fill(dilp4.Pt(),wgt);
           allPlots["dilp_m"+chTag+"_lep"]->Fill(dilp4.M(),wgt);
@@ -791,6 +978,30 @@ void RunTop(TString filename,
           //Require same falvor dilepton MET > 40 GeV
           if(leptons[0].getPdgId()==leptons[1].getPdgId() && met.Pt() < 40) continue; //FIXME
           minJets = true;
+          runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
+          /*
+          runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+          */
+          runB.Fill(leptons, chTag, "lepjets");
+          runC.Fill(leptons, chTag, "lepjets");
+          runD.Fill(leptons, chTag, "lepjets");
+          runE.Fill(leptons, chTag, "lepjets");
+          runF.Fill(leptons, chTag, "lepjets");
+          runG.Fill(leptons, chTag, "lepjets");
+          runH.Fill(leptons, chTag, "lepjets");
+
           allPlots["ndilp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
           allPlots["dilp_pt"+chTag+"_lepjets"]->Fill(dilp4.Pt(),wgt);
           allPlots["dilp_m"+chTag+"_lepjets"]->Fill(dilp4.M(),wgt);
@@ -1102,6 +1313,14 @@ void RunTop(TString filename,
     it.second->SetDirectory(fOut); it.second->Write(); 
     fOut->cd();
   }
+  runB.Write();
+  runC.Write();
+  runD.Write();
+  runE.Write();
+  runF.Write();
+  runG.Write();
+  runH.Write();
+
   if(debug) cout << "writing histograms DONE" << endl;
   if(debug) cout << "closing ROOT file" << endl;
   fOut->Close();

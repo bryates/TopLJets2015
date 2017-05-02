@@ -73,10 +73,19 @@ class Plot(object):
             outDir = outF.mkdir(self.name)
             outDir.cd()
         for m in self.mc :
+            integral = self.mc[m].Integral()
+            title = self.mc[m].GetTitle()
+            self.mc[m].SetTitle(title + ": " + str(integral))
             self.mc[m].Write(self.mc[m].GetName(), ROOT.TObject.kOverwrite)
         if self.dataH :
+            integral = self.dataH.Integral()
+            title = self.dataH.GetTitle()
+            self.dataH.SetTitle(title + ": " + str(integral))
             self.dataH.Write(self.dataH.GetName(), ROOT.TObject.kOverwrite)
         if self.data :
+            integral = self.data.Integral()
+            title = self.data.GetTitle()
+            #self.data.SetTitle(title + ": " + str(integral))
             self.data.Write(self.data.GetName(), ROOT.TObject.kOverwrite)
         outF.Close()
 

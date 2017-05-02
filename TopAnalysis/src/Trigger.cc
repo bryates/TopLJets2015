@@ -167,6 +167,7 @@ bool Trigger::muonFired() {
 }
 
 bool Trigger::electronFired() {
+  if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
   for(size_t itrig = 0; itrig < requiredElectronTriggers_.size(); itrig++)
     if(triggerFired(requiredElectronTriggers_[itrig])) return true;
   return false;
