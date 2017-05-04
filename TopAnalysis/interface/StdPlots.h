@@ -15,10 +15,10 @@ class StdPlots {
  public:
   TH1F *h_particles, *h_pt, *h_eta, *h_phi;
  
-  StdPlots(TString name,bool debug=false);
+  StdPlots(TString, TString, bool debug=false);
   ~StdPlots();
   void Fill(Leptons, TString, TString name="");
-  void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString);
+  void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
   void Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name="");
   void Fill(Double_t weight, Int_t N, Double_t pt, Double_t eta, Double_t phi);
   void SetNorm(float);
@@ -30,6 +30,7 @@ class StdPlots {
  private:
   TString runPeriod_;
   bool debug_;
+  bool isGood_;
   float norm_;
   float sfs_;
   float puWgt_;

@@ -73,19 +73,10 @@ class Plot(object):
             outDir = outF.mkdir(self.name)
             outDir.cd()
         for m in self.mc :
-            integral = self.mc[m].Integral()
-            title = self.mc[m].GetTitle()
-            self.mc[m].SetTitle(title + ": " + str(integral))
             self.mc[m].Write(self.mc[m].GetName(), ROOT.TObject.kOverwrite)
         if self.dataH :
-            integral = self.dataH.Integral()
-            title = self.dataH.GetTitle()
-            self.dataH.SetTitle(title + ": " + str(integral))
             self.dataH.Write(self.dataH.GetName(), ROOT.TObject.kOverwrite)
         if self.data :
-            integral = self.data.Integral()
-            title = self.data.GetTitle()
-            #self.data.SetTitle(title + ": " + str(integral))
             self.data.Write(self.data.GetName(), ROOT.TObject.kOverwrite)
         outF.Close()
 
@@ -478,6 +469,8 @@ def main():
                     if "massJPsi" in key and "WJets" in tag:
                         keep=False
                     #keep=False if "WJets" in tag else True
+                    if "_"+opt.run not in key:
+                         keep=False
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
@@ -503,12 +496,14 @@ def main():
     ROOT.gROOT.SetBatch(True)
     outDir=opt.inDir+'/plots'
     os.system('mkdir -p %s' % outDir)
-    os.system('rm %s/%s'%(outDir,opt.outName))
+    outName = opt.outName.replace(".root","_"+opt.run+".root")
+    os.system('rm %s/%s'%(outDir,outName))
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
         #if not opt.puNormSF    : plots[p].noPU=True
         if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
-        plots[p].appendTo('%s/%s'%(outDir,opt.outName))
+        outName = opt.outName.replace(".root","_"+opt.run+".root")
+        plots[p].appendTo('%s/%s'%(outDir,outName))
         plots[p].reset()
 
     print '-'*50

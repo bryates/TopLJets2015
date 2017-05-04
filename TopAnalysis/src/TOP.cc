@@ -89,8 +89,8 @@ void RunTop(TString filename,
         fIn->Close();
         
       }
+      if(debug) cout << "loading pileup weight DONE" << endl;
     }
-    if(debug) cout << "loading pileup weight DONE" << endl;
 
   //LEPTON EFFICIENCIES
   LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod);
@@ -131,13 +131,13 @@ void RunTop(TString filename,
   //LIST OF SYSTEMATICS
   
   //HISTOGRAMS BY RUNPERIOD
-  StdPlots runB("B", debug);
-  StdPlots runC("C", debug);
-  StdPlots runD("D", debug);
-  StdPlots runE("E", debug);
-  StdPlots runF("F", debug);
-  StdPlots runG("G", debug);
-  StdPlots runH("H", debug);
+  StdPlots runB("B", outname, debug);
+  StdPlots runC("C", outname, debug);
+  StdPlots runD("D", outname, debug);
+  StdPlots runE("E", outname, debug);
+  StdPlots runF("F", outname, debug);
+  StdPlots runG("G", outname, debug);
+  StdPlots runH("H", outname, debug);
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
@@ -551,13 +551,33 @@ void RunTop(TString filename,
 	  }
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
 
-          runB.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
-          runC.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
-          runD.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
-          runE.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
-          runF.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
-          runG.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
-          runH.SetSFs(triggerCorrWgt.first*lepSelCorrWgt.first);
+          // ** SFs for BCDEF and GH separately
+          LeptonEfficiencyWrapper lepEffH_BCDEF(filename.Contains("Data13TeV"),era,"BCDEF");
+          LeptonEfficiencyWrapper lepEffH_GH(filename.Contains("Data13TeV"),era,"GH");
+          EffCorrection_t lepSelCorrWgt_BCDEF(1.0,0.0), triggerCorrWgt_BCDEF(1.0,0.0);
+          EffCorrection_t lepSelCorrWgt_GH(1.0,0.0), triggerCorrWgt_GH(1.0,0.0);
+	  triggerCorrWgt_BCDEF=lepEffH_BCDEF.getTriggerCorrection(leptons);
+	  triggerCorrWgt_GH=lepEffH_GH.getTriggerCorrection(leptons);
+	  for(size_t il=0; il<leptons.size(); il++) {
+	    EffCorrection_t selSF_BCDEF=lepEffH.getOfflineCorrection(leptons[il],"BCDEF");
+	    EffCorrection_t selSF_GH=lepEffH.getOfflineCorrection(leptons[il],"GH");
+	    lepSelCorrWgt_BCDEF.second = sqrt( pow(lepSelCorrWgt_BCDEF.first*selSF_BCDEF.second,2)+pow(lepSelCorrWgt_BCDEF.second*selSF_BCDEF.first,2));
+	    lepSelCorrWgt_GH.second = sqrt( pow(lepSelCorrWgt_GH.first*selSF_GH.second,2)+pow(lepSelCorrWgt_GH.second*selSF_GH.first,2));
+            if(debug) cout << "lepSelCorrWgt_BCDEF=" << lepSelCorrWgt_BCDEF.first << endl;
+            if(debug) cout << "selSF=" << selSF_BCDEF.first << endl;
+            if(debug) cout << "lepSelCorrWgt_GH=" << lepSelCorrWgt_GH.first << endl;
+            if(debug) cout << "selSF=" << selSF_GH.first << endl;
+	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first;
+	    lepSelCorrWgt_GH.first *= selSF_GH.first;
+	  }
+          runB.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
+          runC.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
+          runD.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
+          runE.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
+          runF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
+          runG.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
+          runH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
+          // **
 
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
@@ -612,7 +632,7 @@ void RunTop(TString filename,
       runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
       runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
       runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
-      /*
+
       runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
       runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
       runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
@@ -620,7 +640,7 @@ void RunTop(TString filename,
       runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
       runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
       runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
-      */
+
       runB.Fill(leptons, chTag);
       runC.Fill(leptons, chTag);
       runD.Fill(leptons, chTag);
@@ -690,15 +710,15 @@ void RunTop(TString filename,
         runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
         runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
         runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
-        /*
-        runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag+"lep");
-        */
+
+        runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        runE.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+        
         runB.Fill(leptons, chTag, "lep");
         runC.Fill(leptons, chTag, "lep");
         runD.Fill(leptons, chTag, "lep");
@@ -732,7 +752,7 @@ void RunTop(TString filename,
           runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
           runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
           runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
-          /*
+          
           runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
@@ -740,7 +760,7 @@ void RunTop(TString filename,
           runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
-          */
+          
           runB.Fill(leptons, chTag, "lepjets");
           runC.Fill(leptons, chTag, "lepjets");
           runD.Fill(leptons, chTag, "lepjets");
@@ -776,7 +796,7 @@ void RunTop(TString filename,
         runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
         runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
         runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag);
-        /*
+        
         runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
         runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
         runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
@@ -784,7 +804,7 @@ void RunTop(TString filename,
         runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
         runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
         runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
-        */
+        
         runB.Fill(leptons, chTag);
         runC.Fill(leptons, chTag);
         runD.Fill(leptons, chTag);
@@ -809,7 +829,7 @@ void RunTop(TString filename,
           runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
           runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
           runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lep");
-          /*
+          
           runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
           runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
           runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
@@ -817,7 +837,7 @@ void RunTop(TString filename,
           runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
           runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
           runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
-          */
+          
           runB.Fill(leptons, chTag, "lep");
           runC.Fill(leptons, chTag, "lep");
           runD.Fill(leptons, chTag, "lep");
@@ -865,7 +885,7 @@ void RunTop(TString filename,
           runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
           runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
           runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
-          /*
+          
           runB.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runC.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runD.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
@@ -873,7 +893,7 @@ void RunTop(TString filename,
           runF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
           runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
-          */
+          
           runB.Fill(leptons, chTag, "lepjets");
           runC.Fill(leptons, chTag, "lepjets");
           runD.Fill(leptons, chTag, "lepjets");
@@ -931,15 +951,16 @@ void RunTop(TString filename,
       allPlots["nlp"+chTag+"_lep"]->Fill(leptons.size(),wgt);
 
       if(lightJetsVec.size() > 0 and bJetsVec.size() > 0) {
-      allPlots["j_pt"+chTag+"_lep"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
-      allPlots["lj_pt"+chTag+"_lep"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-      allPlots["bj_pt"+chTag+"_lep"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
+        allPlots["j_pt"+chTag+"_lep"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
+        allPlots["lj_pt"+chTag+"_lep"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
+        allPlots["bj_pt"+chTag+"_lep"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
+      }
 
       for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
         float csv = allJetsVec.at(ij).getCSV();
         allPlots["csv"+chTag+"_lep"]->Fill(csv,wgt);
         allPlots["csv_all_lep"]->Fill(csv,wgt);
-      }
+      //}
       }
 
 
