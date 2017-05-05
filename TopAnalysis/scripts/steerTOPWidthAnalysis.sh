@@ -69,13 +69,16 @@ case $WHAT in
 	mkdir -p ${wwwdir}/test/${RUN}/mumu
 	mkdir -p ${wwwdir}/test/${RUN}/mu
 	cp -p  ${outdir}/plots/*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/
+	cp -p  ${outdir}/plots/*_${RUN}_log.{png,pdf} ${wwwdir}/test/${RUN}/
+        rename _${RUN}. . ${wwwdir}/test/${RUN}/*_${RUN}.*
+        rename _${RUN}_log. _log. ${wwwdir}/test/${RUN}/*_${RUN}_log.*
 	rm ${wwwdir}/test/${RUN}/*no_weight*_${RUN}.{png,pdf}
-	mv ${wwwdir}/test/${RUN}/*_log_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/log/
-	mv ${wwwdir}/test/${RUN}/*_ee*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/ee/
-	mv ${wwwdir}/test/${RUN}/*_em*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/em/
-	mv ${wwwdir}/test/${RUN}/*_e*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/e/
-	mv ${wwwdir}/test/${RUN}/*_mm*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
-	mv ${wwwdir}/test/${RUN}/*_m*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/mu/
+	mv ${wwwdir}/test/${RUN}/*_log*.{png,pdf} ${wwwdir}/test/${RUN}/log/
+	mv ${wwwdir}/test/${RUN}/*_ee_*.{png,pdf} ${wwwdir}/test/${RUN}/ee/
+	mv ${wwwdir}/test/${RUN}/*_em_*.{png,pdf} ${wwwdir}/test/${RUN}/em/
+	mv ${wwwdir}/test/${RUN}/*_e_*.{png,pdf} ${wwwdir}/test/${RUN}/e/
+	mv ${wwwdir}/test/${RUN}/*_mm_*.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
+	mv ${wwwdir}/test/${RUN}/*_m_*.{png,pdf} ${wwwdir}/test/${RUN}/mu/
 	cp -p test/index.php ${wwwdir}/test/${RUN}/
 	cp -p test/index.php ${wwwdir}/test/${RUN}/log/
 	cp -p test/index.php ${wwwdir}/test/${RUN}/ee/

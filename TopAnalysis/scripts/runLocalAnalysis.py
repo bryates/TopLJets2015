@@ -139,7 +139,7 @@ def main():
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
             if debug : localrun += ' --verbose %s' % (debug)
             if runSysts : localRun += ' --runSysts'            
-            cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localRun)
+            cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
             os.system(cmd)
 
 """
