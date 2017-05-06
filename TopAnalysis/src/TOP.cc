@@ -93,9 +93,9 @@ void RunTop(TString filename,
     }
 
   //LEPTON EFFICIENCIES
-  LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod);
-  LeptonEfficiencyWrapper lepEffH_BCDEF(filename.Contains("Data13TeV"),era,"BCDEF");
-  LeptonEfficiencyWrapper lepEffH_GH(filename.Contains("Data13TeV"),era,"GH");
+  LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod,debug);
+  LeptonEfficiencyWrapper lepEffH_BCDEF(filename.Contains("Data13TeV"),era,"BCDEF",debug);
+  LeptonEfficiencyWrapper lepEffH_GH(filename.Contains("Data13TeV"),era,"GH",debug);
 
 
   //B-TAG CALIBRATION
@@ -538,14 +538,11 @@ void RunTop(TString filename,
 	  //trigger/id+iso efficiency corrections
           if(debug) cout << "calling trigger function" << endl;
           std::vector<int> pdgIds; //vector of IDs for trigger correction function
-          for(size_t ilp = 0; ilp < leptons.size(); ilp++)
-            pdgIds.push_back(leptons[ilp].getPdgId());
-	  //triggerCorrWgt=lepEffH.getTriggerCorrection(pdgIds,leptons); //FIXME
-	  triggerCorrWgt=lepEffH.getTriggerCorrection(leptons); //FIXME
+	  triggerCorrWgt=lepEffH.getTriggerCorrection(leptons);
           if(debug) cout << "calling trigger function DONE!" << endl;
           // ** loop over all Particles in leptons **
 	  for(size_t il=0; il<leptons.size(); il++) {
-	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(leptons[il],runPeriod);
+	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(leptons[il]);
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
             if(debug) cout << "lepSelCorrWgt=" << lepSelCorrWgt.first << endl;
             if(debug) cout << "selSF=" << selSF.first << endl;
@@ -559,8 +556,10 @@ void RunTop(TString filename,
 	  triggerCorrWgt_BCDEF=lepEffH_BCDEF.getTriggerCorrection(leptons);
 	  triggerCorrWgt_GH=lepEffH_GH.getTriggerCorrection(leptons);
 	  for(size_t il=0; il<leptons.size(); il++) {
-	    EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il],"BCDEF");
-	    EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il],"GH");
+	    EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il]);
+	    //EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il],"BCDEF");
+	    EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il]);
+	    //EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il],"GH");
 	    lepSelCorrWgt_BCDEF.second = sqrt( pow(lepSelCorrWgt_BCDEF.first*selSF_BCDEF.second,2)+pow(lepSelCorrWgt_BCDEF.second*selSF_BCDEF.first,2));
 	    lepSelCorrWgt_GH.second = sqrt( pow(lepSelCorrWgt_GH.first*selSF_GH.second,2)+pow(lepSelCorrWgt_GH.second*selSF_GH.first,2));
             if(debug) cout << "lepSelCorrWgt_BCDEF=" << lepSelCorrWgt_BCDEF.first << endl;
@@ -1086,7 +1085,21 @@ void RunTop(TString filename,
     
         if(pfmuCands.size()>1) {
           runB.Fill(pfmuCands, leptons, chTag, "jpsi");
+          runC.Fill(pfmuCands, leptons, chTag, "jpsi");
+          runD.Fill(pfmuCands, leptons, chTag, "jpsi");
+          runE.Fill(pfmuCands, leptons, chTag, "jpsi");
+          runF.Fill(pfmuCands, leptons, chTag, "jpsi");
+          runG.Fill(pfmuCands, leptons, chTag, "jpsi");
+          runH.Fill(pfmuCands, leptons, chTag, "jpsi");
+
           runB.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+          runC.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+          runD.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+          runE.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+          runF.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+          runG.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+          runH.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+
           if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) continue;
           float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
           float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);

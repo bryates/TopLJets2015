@@ -61,31 +61,31 @@ case $WHAT in
         #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )
-	mkdir -p ${wwwdir}/test/${RUN}
-	mkdir -p ${wwwdir}/test/${RUN}/log
-	mkdir -p ${wwwdir}/test/${RUN}/ee
-	mkdir -p ${wwwdir}/test/${RUN}/e
-	mkdir -p ${wwwdir}/test/${RUN}/em
-	mkdir -p ${wwwdir}/test/${RUN}/mumu
-	mkdir -p ${wwwdir}/test/${RUN}/mu
-	cp -p  ${outdir}/plots/*_${RUN}.{png,pdf} ${wwwdir}/test/${RUN}/
-	cp -p  ${outdir}/plots/*_${RUN}_log.{png,pdf} ${wwwdir}/test/${RUN}/
-        rename _${RUN}. . ${wwwdir}/test/${RUN}/*_${RUN}.*
-        rename _${RUN}_log. _log. ${wwwdir}/test/${RUN}/*_${RUN}_log.*
-	rm ${wwwdir}/test/${RUN}/*no_weight*_${RUN}.{png,pdf}
-	mv ${wwwdir}/test/${RUN}/*_log*.{png,pdf} ${wwwdir}/test/${RUN}/log/
-	mv ${wwwdir}/test/${RUN}/*_ee_*.{png,pdf} ${wwwdir}/test/${RUN}/ee/
-	mv ${wwwdir}/test/${RUN}/*_em_*.{png,pdf} ${wwwdir}/test/${RUN}/em/
-	mv ${wwwdir}/test/${RUN}/*_e_*.{png,pdf} ${wwwdir}/test/${RUN}/e/
-	mv ${wwwdir}/test/${RUN}/*_mm_*.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
-	mv ${wwwdir}/test/${RUN}/*_m_*.{png,pdf} ${wwwdir}/test/${RUN}/mu/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/log/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/ee/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/e/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/em/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/mumu/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/mu/
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}/log
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}/ee
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}/e
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}/em
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}/mumu
+	mkdir -p ${wwwdir}/test/eff_vtx/${RUN}/mu
+	cp -p  ${outdir}/plots/*_${RUN}.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/
+	cp -p  ${outdir}/plots/*_${RUN}_log.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/
+        rename _${RUN}. . ${wwwdir}/test/eff_vtx/${RUN}/*_${RUN}.*
+        rename _${RUN}_log. _log. ${wwwdir}/test/eff_vtx/${RUN}/*_${RUN}_log.*
+	rm ${wwwdir}/test/eff_vtx/${RUN}/*no_weight*_${RUN}.{png,pdf}
+	mv ${wwwdir}/test/eff_vtx/${RUN}/*_log*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/log/
+	mv ${wwwdir}/test/eff_vtx/${RUN}/*_ee_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/ee/
+	mv ${wwwdir}/test/eff_vtx/${RUN}/*_em_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/em/
+	mv ${wwwdir}/test/eff_vtx/${RUN}/*_e_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/e/
+	mv ${wwwdir}/test/eff_vtx/${RUN}/*_mm_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/mumu/
+	mv ${wwwdir}/test/eff_vtx/${RUN}/*_m_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/mu/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/log/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/ee/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/e/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/em/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/mumu/
+	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/mu/
 	;;
     ANA )
 	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};

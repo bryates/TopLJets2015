@@ -9,13 +9,16 @@
 using namespace std;
 
 //
-LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod)
+LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod, bool debug)
 {
   if(isData) return;
   //if(runPeriod.Contains("B") || runPeriod.Contains("C") || runPeriod.Contains("D") || runPeriod.Contains("E") || runPeriod.Contains("F")) runPeriod = "BCDEF";
-  if(TString("BCDEF").Contains(runPeriod)) runPeriod = "BCDEF";
-  else if(TString("GH").Contains(runPeriod)) runPeriod = "GH";
-  init(era,runPeriod);
+  if(TString("BCDEF").Contains(runPeriod)) runPeriod_ = "BCDEF";
+  else if(TString("GH").Contains(runPeriod)) runPeriod_ = "GH";
+  else runPeriod_ = "BCDEF";
+  debug_ = debug;
+  if(debug_) std::cout << "Initializing efficiencies for " << era << " runPeriod " << runPeriod_ << std::endl;
+  init(era,runPeriod_);
 }
 
 //
@@ -57,7 +60,8 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       lepEffUrl=era+"/Tracking_EfficienciesAndSF_"+runPeriod+".root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
-      lepEffGr_["m_tk_aeta"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_aeta_dr030e030_corr");
+      lepEffGr_["m_tk_aeta_"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_aeta_dr030e030_corr");
+      lepEffGr_["m_tk_vtx_"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_vtx_dr030e030_corr");
       fIn->Close();
 
       lepEffUrl=era+"/MuonID_"+runPeriod+".root";
@@ -221,7 +225,8 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 }
 
 //
-EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, TString runPeriod)
+EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep)
+//EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, TString runPeriod)
 //EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod)
 {
   int pdgId = lep.getPdgId();
@@ -247,23 +252,28 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, TStr
       corr.second=h->GetBinError(etaBinForEff,ptBinForEff);
 
       //tracking efficiency (if available)
-      hname=idstr+"_tk_aeta"+runPeriod;
-      if(lepEffGr_.find(hname)!=lepEffGr_.end())
-        {
-          Double_t x(0.),xdiff(9999.),y(0.);
-          float tkEffSF(1.0),tkEffSFUnc(0);
-          for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
-            {
-              lepEffGr_[hname]->GetPoint(ip,x,y);
-              float ixdiff(TMath::Abs(fabs(eta)-x));
-              if(ixdiff>xdiff) continue;
-              xdiff=ixdiff;
-              tkEffSF=y;
-              tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
-            }
-          corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
-          corr.first  = corr.first*tkEffSF;
-        }
+      std::vector<TString> tk_eff = {"_tk_aeta_","_tk_vtx_"};
+      for(auto& itTk: tk_eff) {
+        hname=idstr+itTk+runPeriod_;
+        if(debug_) std::cout << hname << std::endl;
+        if(lepEffGr_.find(hname)!=lepEffGr_.end())
+          {
+            Double_t x(0.),xdiff(9999.),y(0.);
+            float tkEffSF(1.0),tkEffSFUnc(0);
+            for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
+              {
+                lepEffGr_[hname]->GetPoint(ip,x,y);
+                float ixdiff(TMath::Abs(fabs(eta)-x));
+                if(ixdiff>xdiff) continue;
+                xdiff=ixdiff;
+                tkEffSF=y;
+                tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
+              }
+            corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
+            if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
+            corr.first  = corr.first*tkEffSF;
+          }
+      }
     }
 
   return corr;

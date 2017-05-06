@@ -17,15 +17,17 @@ typedef std::pair<float,float> EffCorrection_t;
 class LeptonEfficiencyWrapper 
 {
  public:
-  LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod);
+  LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod, bool debug=false);
   EffCorrection_t getTriggerCorrection(Leptons leptons);
   //EffCorrection_t getTriggerCorrection(std::vector<int> pdgId,std::vector<TLorentzVector> leptons);
-  EffCorrection_t getOfflineCorrection(Particle lep, TString runPeriod);
+  EffCorrection_t getOfflineCorrection(Particle lep);
   //EffCorrection_t getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod);
   ~LeptonEfficiencyWrapper();  
  private:
   void init(TString era,TString runPeriod);
+  bool debug_;
   int era_;
+  TString runPeriod_;
   std::map<TString,TH2 *> lepEffH_;
   std::map<TString,TGraphAsymmErrors *> lepEffGr_;
 };
