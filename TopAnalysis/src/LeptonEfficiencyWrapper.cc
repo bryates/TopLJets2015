@@ -225,7 +225,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 }
 
 //
-EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep)
+EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int nvtx)
 //EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, TString runPeriod)
 //EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod)
 {
@@ -252,28 +252,44 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep)
       corr.second=h->GetBinError(etaBinForEff,ptBinForEff);
 
       //tracking efficiency (if available)
-      std::vector<TString> tk_eff = {"_tk_aeta_","_tk_vtx_"};
-      for(auto& itTk: tk_eff) {
-        hname=idstr+itTk+runPeriod_;
-        if(debug_) std::cout << hname << std::endl;
-        if(lepEffGr_.find(hname)!=lepEffGr_.end())
-          {
-            Double_t x(0.),xdiff(9999.),y(0.);
-            float tkEffSF(1.0),tkEffSFUnc(0);
-            for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
-              {
-                lepEffGr_[hname]->GetPoint(ip,x,y);
-                float ixdiff(TMath::Abs(fabs(eta)-x));
-                if(ixdiff>xdiff) continue;
-                xdiff=ixdiff;
-                tkEffSF=y;
-                tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
-              }
-            corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
-            if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
-            corr.first  = corr.first*tkEffSF;
-          }
-      }
+      hname=idstr+"_tk_aeta_"+runPeriod_;
+      if(debug_) std::cout << hname << std::endl;
+      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+        {
+          Double_t x(0.),xdiff(9999.),y(0.);
+          float tkEffSF(1.0),tkEffSFUnc(0);
+          for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
+            {
+              lepEffGr_[hname]->GetPoint(ip,x,y);
+              float ixdiff(TMath::Abs(fabs(eta)-x));
+              if(ixdiff>xdiff) continue;
+              xdiff=ixdiff;
+              tkEffSF=y;
+              tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
+            }
+          corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
+          if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
+          corr.first  = corr.first*tkEffSF;
+        }
+      hname=idstr+"_tk_vtx_"+runPeriod_;
+      if(debug_) std::cout << hname << std::endl;
+      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+        {
+          Double_t x(0.),xdiff(9999.),y(0.);
+          float tkEffSF(1.0),tkEffSFUnc(0);
+          for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
+            {
+              lepEffGr_[hname]->GetPoint(ip,x,y);
+              float ixdiff(TMath::Abs(fabs(nvtx)-x));
+              if(ixdiff>xdiff) continue;
+              xdiff=ixdiff;
+              tkEffSF=y;
+              tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
+            }
+          corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
+          if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
+          corr.first  = corr.first*tkEffSF;
+        }
     }
 
   return corr;

@@ -24,13 +24,14 @@ class StdPlots {
   void Fill(std::vector<pfTrack>, TString, TString name=""); //e.g. J/Psi plots
   void Fill(std::vector<pfTrack>, Leptons, TString, TString name=""); //e.g. J/Psi plots+mu
   void Fill(std::vector<pfTrack>, Jet, TString, TString name=""); //e.g. J/Psi plots+mu
+  void Fill(std::vector<pfTrack>, Leptons, Jet, TString, TString name="");
   void SetNorm(float);
   void SetSFs(float);
   void SetPuWgt(float);
   void Write();
-  std::map<TString, TH1 *> allPlots;
 
  private:
+  std::map<TString, TH1 *> allPlots;
   TString runPeriod_;
   bool debug_;
   bool isGood_;

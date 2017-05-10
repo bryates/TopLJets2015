@@ -4,6 +4,7 @@ import json
 import ROOT
 import math
 import pickle
+from collections import OrderedDict
 
 from TopLJets2015.TopAnalysis.rounding import *
 
@@ -16,7 +17,8 @@ class Plot(object):
     def __init__(self,name):
         self.name = name
         self.wideCanvas = True if 'ratevsrun' in self.name else False
-        self.mc = {}
+        self.mc = OrderedDict()
+        #self.mc = {}
         self.dataH = None
         self.data = None
         self._garbageList = []
@@ -24,6 +26,8 @@ class Plot(object):
         self.savelog = False
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
+        if "_jpsi" in name:
+            self.ratiorange = (0.47,1.57)
 
     def add(self, h, title, color, isData):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -421,13 +425,15 @@ def main():
     onlyList=opt.only.split(',')
 
     #read plots 
-    plots={}
+    plots=OrderedDict()
+    #plots={}
     report=''
     for tag,sample in samplesList: 
-        splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
-        split_run = splitRun( opt.run )
-        if 'Data' in tag:
-            if not any(run in tag for run in split_run): continue
+        if len(opt.run) is 1:
+            splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
+            split_run = splitRun( opt.run )
+            if 'Data' in tag:
+                if not any(run in tag for run in split_run): continue
 
         xsec=sample[0]
         isData=sample[1]
@@ -466,9 +472,10 @@ def main():
                     #hack to ignore WJets in D meson mass plots FIXME
                     #if "massD" in key and "WJets" in tag:
                         #keep=False
-                    if "massJPsi" in key and "WJets" in tag:
-                        keep=False
-                    #keep=False if "WJets" in tag else True
+                    #hack to ignoe WJets and DY in JPSi plots
+                      #Single event with large weight
+                    if "JPsi" in key and "WJets" in tag: continue
+                    if "JPsi" in key and "DY" in tag: continue
                     if "_"+opt.run not in key:
                          keep=False
                     if not keep: continue

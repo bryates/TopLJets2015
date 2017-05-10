@@ -20,7 +20,7 @@ class LeptonEfficiencyWrapper
   LeptonEfficiencyWrapper(bool isData,TString era,TString runPeriod, bool debug=false);
   EffCorrection_t getTriggerCorrection(Leptons leptons);
   //EffCorrection_t getTriggerCorrection(std::vector<int> pdgId,std::vector<TLorentzVector> leptons);
-  EffCorrection_t getOfflineCorrection(Particle lep);
+  EffCorrection_t getOfflineCorrection(Particle lep, int nvtx);
   //EffCorrection_t getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod);
   ~LeptonEfficiencyWrapper();  
  private:

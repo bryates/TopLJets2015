@@ -79,13 +79,14 @@ case $WHAT in
 	mv ${wwwdir}/test/eff_vtx/${RUN}/*_e_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/e/
 	mv ${wwwdir}/test/eff_vtx/${RUN}/*_mm_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/mumu/
 	mv ${wwwdir}/test/eff_vtx/${RUN}/*_m_*.{png,pdf} ${wwwdir}/test/eff_vtx/${RUN}/mu/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/log/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/ee/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/e/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/em/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/mumu/
-	cp -p test/eff_vtx/index.php ${wwwdir}/test/eff_vtx/${RUN}/mu/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/log/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/ee/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/e/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/em/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/mumu/
+	cp -p test/index.php ${wwwdir}/test/eff_vtx/${RUN}/mu/
 	;;
     ANA )
 	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};
