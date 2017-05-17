@@ -43,6 +43,7 @@ void RunTop(TString filename,
   if(debug) cout << "in RunTop" << endl;
 
   bool isTTbar( filename.Contains("_TTJets") );
+  //bool isData( filename.Contains("Data13TeV") );
   
   //READ TREE FROM FILE
   MiniEvent_t ev;
@@ -368,7 +369,7 @@ void RunTop(TString filename,
       //trigger.addRequiredMuonTrigger{""HLT_IsoMu24_v","HLT_IsoTkMu24_v"}) also works
 
 
-      //Single electorn
+      //Single electron
       trigger.addRequiredElectronTrigger("HLT_Ele27_WPTight_Gsf_v");
       trigger.addRequiredElectronTrigger("HLT_Ele32_eta2p1_WPTight_Gsf_v");
       trigger.addRequiredElectronTrigger("HLT_Ele25_eta2p1_WPTight_Gsf_v");
@@ -1364,6 +1365,11 @@ void RunTop(TString filename,
   runH.Write();
   runBCDEF.Write();
   runGH.Write();
+  //Merge BCDEF and GH
+  /*
+  StdPlots run = runBCDEF + runGH;
+  run.Write();
+  */
 
   if(debug) cout << "writing histograms DONE" << endl;
   if(debug) cout << "closing ROOT file" << endl;

@@ -398,7 +398,7 @@ def main():
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
-    parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default=41.6,              type=float)
+    parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default='data/era2016/lumi.json',        type='string')
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
     parser.add_option(      '--run',         dest='run',         help='plot only in run',               default="BCDEFGH",         type='string')
     parser.add_option(      '--puNormSF',    dest='puNormSF',    help='Use this histogram to correct pu weight normalization', default=None, type='string')
@@ -407,7 +407,14 @@ def main():
 
     #read list of samples
     jsonFile = open(opt.json,'r')
-    samplesList=json.load(jsonFile,encoding='utf-8').items()
+    samplesList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
+    #samplesList=list(reversed(samplesList))
+    jsonFile.close()
+
+    #read list of lumis
+    jsonFile = open(opt.lumi,'r')
+    lumiList=json.load(jsonFile,encoding='utf-8')
+    lumiList=lumiList["Data13TeV_SingleMuon"]
     jsonFile.close()
 
     #proc SF
@@ -428,12 +435,11 @@ def main():
     plots=OrderedDict()
     #plots={}
     report=''
-    for tag,sample in samplesList: 
-        if len(opt.run) is 1:
-            splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
-            split_run = splitRun( opt.run )
-            if 'Data' in tag:
-                if not any(run in tag for run in split_run): continue
+    for tag,sample in reversed(samplesList):
+        splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
+        split_run = splitRun( opt.run )
+        if 'Data' in tag:
+            if not any(run in tag for run in split_run): continue
 
         xsec=sample[0]
         isData=sample[1]
@@ -447,20 +453,53 @@ def main():
 
             fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
             if not fIn : continue
+            print 'Loading file: %s' % sp[0]
 
             #fix pileup weighting normalization
             puNormSF=1
             if opt.puNormSF and not isData:
-                puCorrH=fIn.Get(opt.puNormSF)
-                nonWgt=puCorrH.GetBinContent(1)
-                wgt=puCorrH.GetBinContent(2)
-                if wgt>0 :
-                    puNormSF=nonWgt/wgt
-                    if puNormSF>1.3 or puNormSF<0.7 : 
-                        puNormSF=1
-                        report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                    else :
-                        report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
+                if(opt.run == "BCDEFGH"):
+                  puBCDEF = opt.puNormSF.split("_")
+                  puBCDEF[-1] = "BCDEF"
+                  puBCDEF = "_".join(puBCDEF)
+                  try:
+                      puCorrHBCDEF=fIn.Get(puBCDEF)
+                      nonWgtBCDEF=puCorrHBCDEF.GetBinContent(1)
+                      wgtBCDEF=puCorrHBCDEF.GetBinContent(2)
+                  except: pass
+                  puGH = opt.puNormSF.split("_")
+                  puGH[-1] = "GH"
+                  puGH = "_".join(puGH)
+                  try:
+                      puCorrHGH=fIn.Get(puGH)
+                      nonWgtGH=puCorrHGH.GetBinContent(1)
+                      wgtGH=puCorrHBCDEF.GetBinContent(2)
+                  except: pass
+                  if wgtBCDEF>0 :
+                      puNormSF=nonWgtBCDEF/wgtBCDEF
+                      if puNormSF>1.3 or puNormSF<0.7 : 
+                          puNormSF=1
+                          report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                      else :
+                          report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSF,"BCDEF")
+                  elif wgtGH>0 :
+                      puNormSF=nonWgtGH/wgtGH
+                      if puNormSF>1.3 or puNormSF<0.7 : 
+                          puNormSF=1
+                          report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                      else :
+                          report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSF,"GH")
+                else:
+                    puCorrH=fIn.Get(opt.puNormSF)
+                    nonWgt=puCorrH.GetBinContent(1)
+                    wgt=puCorrH.GetBinContent(2)
+                    if wgt>0 :
+                        puNormSF=nonWgt/wgt
+                        if puNormSF>1.3 or puNormSF<0.7 : 
+                            puNormSF=1
+                            report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                        else :
+                            report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
 
             try:
                 for tkey in fIn.GetListOfKeys():
@@ -474,10 +513,13 @@ def main():
                         #keep=False
                     #hack to ignoe WJets and DY in JPSi plots
                       #Single event with large weight
-                    if "JPsi" in key and "WJets" in tag: continue
-                    if "JPsi" in key and "DY" in tag: continue
-                    if "_"+opt.run not in key:
+                    #if "JPsi" in key and "WJets" in tag: continue
+                    if "_jpsi" in key and "WJets" in tag: continue
+                    if "_jpsi" in key and "DY" in tag: continue
+                    if "_"+opt.run not in key and opt.run != "BCDEFGH" :
                          keep=False
+                    #if key.split("_")[-1] != opt.run: continue
+                    if "_BCDEFGH" in key: continue
                     if not keep: continue
                     obj=fIn.Get(key)
                     if not obj.InheritsFrom('TH1') : continue
@@ -490,10 +532,25 @@ def main():
                                     if pcat not in key: continue
                                     sfVal=procSF[procToScale][pcat][0]
                                 #print 'Applying scale factor for ',sp[1],key,sfVal
-                        obj.Scale(xsec*opt.lumi*puNormSF*sfVal)                    
+                        lumi=obj.GetName().split("_")[-1]
+                        if(lumi not in opt.run): lumi=opt.run
+                        lumi=lumiList[lumi]
+                        obj.Scale(xsec*lumi*puNormSF*sfVal)                    
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
-                    if not key in plots : plots[key]=Plot(key)
-                    plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
+                    if opt.run != "BCDEFGH":
+                        if not key in plots : plots[key]=Plot(key)
+                        plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
+                    else:
+                        if key.split("_")[-1] in ("BCDEF","GH"):
+                            tmpkey = key.split("_")
+                            tmpkey[-1]="BCDEFGH"
+                            tmpkey="_".join(tmpkey)
+                            tmp = obj.GetName().split("_")
+                            tmp[-1]="BCDEFGH"
+                            tname="_".join(tmp)
+                            obj.SetName(tname)
+                            if not tmpkey in plots : plots[tmpkey]=Plot(tmpkey)
+                            plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
             except:
                 pass
 
@@ -508,7 +565,8 @@ def main():
     for p in plots : 
         if opt.saveLog    : plots[p].savelog=True
         #if not opt.puNormSF    : plots[p].noPU=True
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=opt.lumi,noStack=opt.noStack,saveTeX=opt.saveTeX)
+        lumiTotal=lumiList[opt.run]
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX)
         outName = opt.outName.replace(".root","_"+opt.run+".root")
         plots[p].appendTo('%s/%s'%(outDir,outName))
         plots[p].reset()

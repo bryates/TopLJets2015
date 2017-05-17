@@ -6,17 +6,19 @@
 
 StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {  
   runPeriod_ = "_"+runPeriod;
-  //Only use MC or Data with correct run period
-  if(name.Contains("MC") || (name.Contains("Data") && name.Contains("2016"+runPeriod))) isGood_ = true;
+  name_ = name;
   //Check for multiple run periods
   if(runPeriod.Length() > 1) {
     for(int i=0; i < runPeriod.Length(); i++) {
-      if(name.Contains("2016"+runPeriod[i])) {
+      TString tmp(runPeriod[i]);
+      if(name.Contains("MC") || (name.Contains("Data") && name.Contains("2016"+tmp))) {
         isGood_ = true;
         break;
       }
     }
   }
+  //Only use MC or Data with correct run period
+  else if(name.Contains("MC") || (name.Contains("Data") && name.Contains("2016"+runPeriod))) isGood_ = true;
   else isGood_ = false;
   debug_ = debug;
   norm_ = 1.;
@@ -26,6 +28,8 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   if(debug_ && isGood_)
     std::cout << "Initializing run" << runPeriod_ << std::endl;
 
+  //PU plot
+  allPlots["puwgtctr"+runPeriod_] = new TH1F("puwgtctr"+runPeriod_,"Weight sums",4,0,4);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -35,6 +39,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     TString tag(lfsVec[i]);
     TString cut(cutVec[j]);
     TString weight(wgtVec[k]);
+
     // Lepton plots
     allPlots["lp_pt_iso"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt_iso"+tag+cut+weight+runPeriod_,";Lepton P_{T} [GeV] after cleaning;Events / 10 GeV", 20, 0,200);
     allPlots["lp_pt_veto"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt_veto"+tag+cut+weight+runPeriod_,";Lepton P_{T} [GeV] after veto;Events / 10 GeV", 20, 0,200);
@@ -77,10 +82,10 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["JPsi_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["JPsi_e_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+e) [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["JPsi_l_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+l) [GeV];Events / 10 GeV", 20, 0,200);
-    allPlots["JPsi_mu1_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_eta"+tag+cut+weight+runPeriod_,";J/#Psi#mu_{1} #eta; Events / 0.1", 30, -2.5,2.5);
-    allPlots["JPsi_mu2_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_eta"+tag+cut+weight+runPeriod_,";J/#Psi#mu_{2} #eta; Events / 0.1", 30, -2.5,2.5);
-    allPlots["JPsi_mu1_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_phi"+tag+cut+weight+runPeriod_,";J/#Psi#mu_{1} #phi; Events", 50, -3.14,3.14);
-    allPlots["JPsi_mu2_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_phi"+tag+cut+weight+runPeriod_,";J/#Psi#mu_{2} #phi; Events", 50, -3.14,3.14);
+    allPlots["JPsi_mu1_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #eta; Events / 0.1", 30, -2.5,2.5);
+    allPlots["JPsi_mu2_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #eta; Events / 0.1", 30, -2.5,2.5);
+    allPlots["JPsi_mu1_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_phi"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #phi; Events", 50, -3.14,3.14);
+    allPlots["JPsi_mu2_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_phi"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #phi; Events", 50, -3.14,3.14);
     allPlots["JPsioJet_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi)/P_{T}(jet);Events / 0.02", 10, 0,1);
     allPlots["dR_JPsi_mu"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_mu"+tag+cut+weight+runPeriod_,";#DeltaR(J/#Psi-leading #mu);Events / 0.01", 10, 0,5);
     allPlots["dR_JPsi_e"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_e"+tag+cut+weight+runPeriod_,";#DeltaR(J/#Psi-leading e);Events / 0.01", 10, 0,5);
@@ -125,7 +130,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
 }
 
 StdPlots::~StdPlots() {
-  for (auto& it : allPlots) delete it.second;
+  //for (auto it : allPlots) delete it.second;
 }
 
 void StdPlots::SetNorm(float norm) {
@@ -144,6 +149,8 @@ void StdPlots::SetPuWgt(float puWgt) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting puWgt= " << puWgt << std::endl;
   puWgt_ = puWgt;
+  allPlots["puwgtctr"+runPeriod_]->Fill(0.,1.0);
+  allPlots["puwgtctr"+runPeriod_]->Fill(1,puWgt_);
 }
 
 void StdPlots::Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name) {
@@ -240,9 +247,13 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, TString chTag, TString name)
     allPlots["massJPsi_all"+name+runPeriod_]->Fill(jpsi.M(),wgt);
     //float pt12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).Pt());
 
-    //if(mass12<3.0 || mass12>3.2) return; //Window in Elvire's AN
+    if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
     allPlots["JPsi_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt(),wgt);
     allPlots["JPsi_pt_all"+name+runPeriod_]->Fill(jpsi.Pt(),wgt);
+    allPlots["JPsi_eta"+chTag+name+runPeriod_]->Fill(jpsi.Eta(),wgt);
+    allPlots["JPsi_eta_all"+name+runPeriod_]->Fill(jpsi.Eta(),wgt);
+    allPlots["JPsi_phi"+chTag+name+runPeriod_]->Fill(jpsi.Phi(),wgt);
+    allPlots["JPsi_phi_all"+name+runPeriod_]->Fill(jpsi.Phi(),wgt);
   }
 }
 
@@ -260,7 +271,6 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, 
     float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
     //J/Psi mass in slightly wide window
     if(mass12<3.0 || mass12>3.2) return; //Window in Elvire's AN
-    //if(mass12<2.8 || mass12>3.4) return;
     if(debug_) std::cout << "is J/Psi" << name << std::endl;
     float pt123((pfmuCands[0].getVec() + pfmuCands[1].getVec()+lep[0].getVec()).Pt());
     float mass123((pfmuCands[0].getVec() + pfmuCands[1].getVec()+lep[0].getVec()).M());
@@ -315,7 +325,6 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Jet jet, TString chTag, TStr
     if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) return;
     float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
     if(mass12<3.0 || mass12>3.2) return; //Window in Elvire's AN
-    //if(mass12<2.8 || mass12>3.4) return;
     if(debug_) std::cout << "is J/Psi" << name << std::endl;
     float pt12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).Pt());
     float jpt(jet.getPt());
@@ -330,8 +339,72 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Jet jet, TString chTag, TStr
 //Fill for mesons (currently only J/Psi
 void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, Jet jet, TString chTag, TString name) {
   Fill(pfmuCands, lep, chTag, name); //Fill meson+lep plots
-  Fill(pfmuCands, jet, chTag, name); //Fill meson+jet plots
+  Fill(pfmuCands, jet, chTag, name); //Fill meson+jet run2
 }
+
+StdPlots Combine(const StdPlots &plots1, const StdPlots &plots2) {
+  std::map<TString, float> lumi;
+  lumi["all"] = 35740.161;
+  lumi["BCDEF"] = 19593.811;
+  lumi["GH"] = 16146.17;
+  //Load run period from plots
+  //e.g. "_GH"
+  TString runPeriod(plots2.runPeriod_);
+  //Strip the '_'
+  //e.g. "GH"
+  runPeriod.Replace(0,1,"");
+  //if(debug_) std::cout << "Adding plots from runPeriod " << runPeriod << std::endl;
+  //Append to current run period
+  //e.g. "_BCDEF"->"_BCDEFGH"
+  runPeriod = plots1.runPeriod_ + runPeriod;
+  runPeriod.Replace(0,1,"");
+  if(plots1.debug_) std::cout << "New runPeriod " << runPeriod << std::endl;
+  //Add plot to new run
+  //e.g. CSV_m_BCDEFGH->Add(CSV_m_BCDEFGH)
+  StdPlots run(runPeriod, plots1.name_, plots1.debug_);
+  for(auto& it : plots1.allPlots) {
+    if(!plots1.isGood_) break;
+    //Strip run period from plot being added and append new run period
+    if(it.second->Integral() == 0) continue;
+    TString plotName(it.first);
+    plotName.Resize((it.first.Length() - plots1.runPeriod_.Length()));
+    TString tmp(plotName + plots2.runPeriod_);
+    plotName += "_"+runPeriod;
+    TString tmpl(plots1.runPeriod_);
+    tmpl.Replace(0,1,"");
+    //1 - wgt due to 0 < Integral < 1
+    //e.g. BCDEF has larger lumi, should get larger weight
+    //float wgt = it.second->Integral()/(it.second->Integral() + plots2.allPlots.at(tmp)->Integral());
+    float wgt = lumi[tmpl]/lumi["all"];
+    if(plots2.debug_) std::cout << tmp << " " << wgt << std::endl;
+    if(run.name_.Contains("Data")) wgt=1.0;
+    it.second->Scale(wgt);
+    run.allPlots[plotName]->Add(it.second);
+  }
+  //Add plot from plots to new
+  //e.g. CSV_m_GH->Add(CSV_m_BCDEFGH)
+  for(auto& it : plots2.allPlots) {
+    if(!plots2.isGood_) break;
+    //Strip run period from plot being added and append new run period
+    if(it.second->Integral() == 0) continue;
+    TString plotName(it.first);
+    plotName.Resize((it.first.Length() - plots2.runPeriod_.Length()));
+    TString tmp(plotName + plots1.runPeriod_);
+    plotName += "_"+runPeriod;
+    TString tmpl(plots2.runPeriod_);
+    tmpl.Replace(0,1,"");
+    //float wgt = it.second->Integral()/(it.second->Integral() + plots1.allPlots.at(tmp)->Integral());
+    float wgt = lumi[tmpl]/lumi["all"];
+    if(plots1.debug_) std::cout << tmp << " " << wgt << std::endl;
+    if(run.name_.Contains("Data")) wgt=1.0;
+    if(plots1.debug_) std::cout << it.second->Integral() << std::endl;
+    it.second->Scale(wgt);
+    run.allPlots[plotName]->Add(it.second);
+  }
+  return run;
+}
+
+//StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
 
 void StdPlots::Write() {
   if(!isGood_) return;

@@ -17,6 +17,10 @@ class StdPlots {
  
   StdPlots(TString, TString, bool debug=false);
   ~StdPlots();
+  //inline friend StdPlots operator+(const StdPlots&, const StdPlots&);
+  //StdPlots Combine(const StdPlots&);
+  friend StdPlots Combine(const StdPlots&, const StdPlots&);
+  inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
   void Fill(Leptons, TString, TString name="");
   void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
   void Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name="");
@@ -33,6 +37,7 @@ class StdPlots {
  private:
   std::map<TString, TH1 *> allPlots;
   TString runPeriod_;
+  TString name_;
   bool debug_;
   bool isGood_;
   float norm_;
