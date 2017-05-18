@@ -3,6 +3,8 @@
 
 std::vector<TString> muTriggers = {"HLT_IsoMu24_v", "HLT_IsoTkMu24_v","HLT_IsoMu22_v", "HLT_IsoTkMu22_v", "HLT_IsoMu22_eta2p1_v", "HLT_IsoTkMu22_eta2p1_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
 std::vector<TString> eleTriggers = {"HLT_Ele27_WPTight_Gsf_v", "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_Ele25_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"}; 
+//std::vector<TString> muTriggers = {"HLT_IsoMu24_v", "HLT_IsoTkMu24_v","HLT_IsoMu22_v", "HLT_IsoTkMu22_v","HLT_IsoMu22_eta2p1_v", "HLT_IsoTkMu22_eta2p1_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
+//std::vector<TString> eleTriggers = {"HLT_Ele27_WPTight_Gsf_v", "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_Ele25_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"};
 
 int count(TString st, TString sub) {
   int c = 0;
@@ -45,6 +47,7 @@ void Trigger::setElectronTrigger(int eleTrig) {
 
 void Trigger::setDataType(TString fileName) {
   isData_ = fileName.Contains("Data");
+  isH_ = fileName.Contains("H_");
   if(!isData_) {
     dataType_ = MC;
     return;
@@ -157,6 +160,22 @@ bool Trigger::triggerFired(TString triggerName) {
   return triggers_[triggerName];
 }
 
+//Check if DZ trigger exist in required list
+//Return true only if it does
+bool Trigger::triggerHasDZ(TString trigger) {
+  //if(trigger.Contains("_DZ_")) return true; //Trivial case
+  size_t f = trigger.Index("_v");
+  trigger = trigger.Replace(f, TString("_v").Length(), "_DZ_v");
+  if(debug_) std::cout << "Looking for " << trigger << std::endl;
+  if(std::find(requiredMuonTriggers_.begin(), requiredMuonTriggers_.end(), trigger) != requiredMuonTriggers_.end()) return true;
+  if(std::find(requiredElectronTriggers_.begin(), requiredElectronTriggers_.end(), trigger) != requiredElectronTriggers_.end()) return true;
+  if(std::find(requiredDoubleMuonTriggers_.begin(), requiredDoubleMuonTriggers_.end(), trigger) != requiredDoubleMuonTriggers_.end()) return true;
+  if(std::find(requiredDoubleElectronTriggers_.begin(), requiredDoubleElectronTriggers_.end(), trigger) != requiredDoubleElectronTriggers_.end()) return true;
+  if(std::find(requiredEMTriggers_.begin(), requiredEMTriggers_.end(), trigger) != requiredEMTriggers_.end()) return true;
+  else return false;
+
+}
+
 bool Trigger::muonFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
   for(size_t itrig = 0; itrig < requiredMuonTriggers_.size(); itrig++) {
@@ -175,8 +194,12 @@ bool Trigger::electronFired() {
 
 bool Trigger::doubleMuonFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
-  for(size_t itrig = 0; itrig < requiredDoubleMuonTriggers_.size(); itrig++) {
-    if(triggerFired(requiredDoubleMuonTriggers_[itrig])) return true;
+  for(auto & itrig : requiredDoubleElectronTriggers_) {
+    //Only use DZ trigges for epoch H
+    if(isH_ && !itrig.Contains("_DZ_"))
+      if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
+    if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
+    if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;
   return false;
@@ -184,8 +207,13 @@ bool Trigger::doubleMuonFired() {
 
 bool Trigger::doubleElectronFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
-  for(size_t itrig = 0; itrig < requiredDoubleElectronTriggers_.size(); itrig++) {
-    if(triggerFired(requiredDoubleElectronTriggers_[itrig])) return true;
+  //for(size_t itrig = 0; itrig < requiredDoubleElectronTriggers_.size(); itrig++) {
+  for(auto & itrig : requiredDoubleElectronTriggers_) {
+    //Only use DZ trigges for epoch H
+    if(isH_ && !itrig.Contains("_DZ_"))
+      if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
+    if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
+    if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;
   return false;
@@ -193,8 +221,13 @@ bool Trigger::doubleElectronFired() {
 
 bool Trigger::EMFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
-  for(size_t itrig = 0; itrig < requiredEMTriggers_.size(); itrig++) {
-    if(triggerFired(requiredEMTriggers_[itrig])) return true;
+  //for(size_t itrig = 0; itrig < requiredEMTriggers_.size(); itrig++) {
+  for(auto & itrig : requiredDoubleElectronTriggers_) {
+    //Only use DZ trigges for epoch H
+    if(isH_ && !itrig.Contains("_DZ_"))
+      if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
+    if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
+    if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;
   return false;

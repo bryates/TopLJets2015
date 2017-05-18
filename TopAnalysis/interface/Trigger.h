@@ -34,6 +34,7 @@ class Trigger{
   void deleteRequiredElectronTrigger(TString);
   void deleteRequiredDoubleMuonTrigger(TString);
   bool triggerFired(TString);
+  bool triggerHasDZ(TString); //Check if a DZ version exists
   bool muonFired();
   bool electronFired();
   bool doubleMuonFired();
@@ -59,6 +60,7 @@ class Trigger{
  private:
   bool debug_;
   bool isData_;
+  bool isH_;
   triggerType dataType_;
   std::map<TString, bool> triggers_;
   std::vector<TString> requiredMuonTriggers_;

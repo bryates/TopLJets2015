@@ -8,6 +8,26 @@ from collections import OrderedDict
 
 from TopLJets2015.TopAnalysis.rounding import *
 
+"""
+increments the first and the last bin to show the under- and over-flows
+"""
+def fixExtremities(h,addOverflow=True,addUnderflow=True):
+    if addUnderflow and h.Integral() > h.GetBinContent(0):
+        fbin  = h.GetBinContent(0) + h.GetBinContent(1)
+	fbine = ROOT.TMath.Sqrt(h.GetBinError(0)**2 + h.GetBinError(1)**2)
+	h.SetBinContent(1,fbin)
+	h.SetBinError(1,fbine)
+	h.SetBinContent(0,0)
+	h.SetBinError(0,0)
+    if addOverflow and h.Integral() > h.GetBinContent(h.GetNbinsX()+1):
+        nbins = h.GetNbinsX();
+	fbin  = h.GetBinContent(nbins) + h.GetBinContent(nbins+1)
+	fbine = ROOT.TMath.Sqrt(h.GetBinError(nbins)**2  + h.GetBinError(nbins+1)**2)
+	h.SetBinContent(nbins,fbin)
+	h.SetBinError(nbins,fbine)
+	h.SetBinContent(nbins+1,0)
+	h.SetBinError(nbins+1,0)
+
 
 """
 A wrapper to store data and MC histograms for comparison
@@ -473,22 +493,22 @@ def main():
                   try:
                       puCorrHGH=fIn.Get(puGH)
                       nonWgtGH=puCorrHGH.GetBinContent(1)
-                      wgtGH=puCorrHBCDEF.GetBinContent(2)
+                      wgtGH=puCorrHGH.GetBinContent(2)
                   except: pass
                   if wgtBCDEF>0 :
-                      puNormSF=nonWgtBCDEF/wgtBCDEF
-                      if puNormSF>1.3 or puNormSF<0.7 : 
-                          puNormSF=1
+                      puNormSFBCDEF=nonWgtBCDEF/wgtBCDEF
+                      if puNormSFBCDEF>1.3 or puNormSF<0.7 : 
+                          puNormSFBCDEF=1
                           report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                       else :
-                          report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSF,"BCDEF")
-                  elif wgtGH>0 :
-                      puNormSF=nonWgtGH/wgtGH
+                          report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFBCDEF,"BCDEF")
+                  if wgtGH>0 :
+                      puNormSFGH=nonWgtGH/wgtGH
                       if puNormSF>1.3 or puNormSF<0.7 : 
-                          puNormSF=1
+                          puNormSFGH=1
                           report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                       else :
-                          report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSF,"GH")
+                          report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFGH,"GH")
                 else:
                     puCorrH=fIn.Get(opt.puNormSF)
                     nonWgt=puCorrH.GetBinContent(1)
@@ -534,8 +554,11 @@ def main():
                                 #print 'Applying scale factor for ',sp[1],key,sfVal
                         lumi=obj.GetName().split("_")[-1]
                         if(lumi not in opt.run): lumi=opt.run
+                        if(opt.run == "BCDEFGH" and lumi == "BCDEF"): puNormSF=puNormSFBCDEF
+                        elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
                         lumi=lumiList[lumi]
                         obj.Scale(xsec*lumi*puNormSF*sfVal)                    
+                        fixExtremities(h=obj,addOverflow=True,addUnderflow=True)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if opt.run != "BCDEFGH":
                         if not key in plots : plots[key]=Plot(key)
