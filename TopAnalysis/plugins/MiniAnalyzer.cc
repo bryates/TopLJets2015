@@ -138,6 +138,7 @@ private:
   std::vector<std::string> muTriggersToUse_, elTriggersToUse_;
 
   bool saveTree_,savePF_;
+  double paramA_, paramB_;
   TTree *tree_;
   MiniEvent_t ev_;
 
@@ -190,6 +191,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   electronToken_ = mayConsume<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
   elTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("elTriggersToUse");
   muTriggersToUse_ = iConfig.getParameter<std::vector<std::string> >("muTriggersToUse");
+  paramA_ = iConfig.getParameter<double>("paramA");
+  paramB_ = iConfig.getParameter<double>("paramB");
 
   //start the rochester correction tool
   rochcor_=new rochcor2016(2016);
@@ -427,6 +430,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   //iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
   ev_.ngtop=0; 
   float mStop(-1),mNeutralino(-1);
+  double weight = 1.0;
   for (size_t i = 0; i < prunedGenParticles->size(); ++i)
     {
       const reco::GenParticle & genIt = (*prunedGenParticles)[i];
@@ -443,7 +447,12 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gtop_phi[ ev_.ngtop ] = genIt.phi();
       ev_.gtop_m[ ev_.ngtop ]   = genIt.mass();
       ev_.ngtop++;
+
+      //Top pT reweight
+      double pt = genIt.pt();
+      weight *= TMath::Exp(paramA_ - paramB_ * pt);
     }
+  ev_.gtop_pt_wgt = TMath::Sqrt(weight);
 
   //check if this is a SMS scan
   if(mStop>0 && mNeutralino>0)
