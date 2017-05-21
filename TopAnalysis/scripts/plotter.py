@@ -558,7 +558,7 @@ def main():
                         elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
                         lumi=lumiList[lumi]
                         obj.Scale(xsec*lumi*puNormSF*sfVal)                    
-                        fixExtremities(h=obj,addOverflow=True,addUnderflow=True)
+                    fixExtremities(h=obj,addOverflow=True,addUnderflow=True)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if opt.run != "BCDEFGH":
                         if not key in plots : plots[key]=Plot(key)
