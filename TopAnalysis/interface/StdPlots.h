@@ -21,6 +21,7 @@ class StdPlots {
   //StdPlots Combine(const StdPlots&);
   friend StdPlots Combine(const StdPlots&, const StdPlots&);
   inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
+  inline float getWgt() { return norm_ * sfs_ * puWgt_ * top_pt_wgt_; };
   void Fill(Leptons, TString, TString name="");
   void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
   void Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name="");
@@ -32,6 +33,7 @@ class StdPlots {
   void SetNorm(float);
   void SetSFs(float);
   void SetPuWgt(float);
+  void SetTopPtWgt(float);
   void Write();
 
  private:
@@ -43,7 +45,7 @@ class StdPlots {
   float norm_;
   float sfs_;
   float puWgt_;
-
+  float top_pt_wgt_;
 
 };
 

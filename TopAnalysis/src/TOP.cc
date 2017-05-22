@@ -6,6 +6,7 @@
 #include <TGraph.h>
 #include <TLorentzVector.h>
 #include <TGraphAsymmErrors.h>
+#include <TMath.h>
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
@@ -273,6 +274,39 @@ void RunTop(TString filename,
       runH.SetNorm(norm);
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);
+
+      //Apply top pT weight to ttbar events
+      //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#Run_2_strategy
+      if(isTTbar) {
+        float top_pt_wgt(1.0);
+        vector<float> pt;
+        for(int i = 0; i < ev.ngtop; i++) {
+          //Aviod stops stored by ntupelizer
+          if(abs(ev.gtop_id[i]) != 6) continue;
+          float tpt = ev.gtop_pt[i];
+          if(tpt > 400) tpt = 400;
+          pt.push_back(tpt);
+          if(debug) std::cout << "Top pT= " << tpt << std::endl;
+        }
+        //Save onlt hardest two tops (ttbar)
+        //Might not need after imopsing |PdgId|==6
+        std::sort(pt.begin(), pt.end());
+        std::reverse(pt.begin(), pt.end());
+        //Calculate SFs based on expontial
+        //https://twiki.cern.ch/twiki/bin/view/CMS/TopPtReweighting#Eventweight
+        top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[0]);
+        top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[1]);
+        top_pt_wgt = 1.0 - TMath::Sqrt(top_pt_wgt);
+        runB.SetTopPtWgt(top_pt_wgt);
+        runC.SetTopPtWgt(top_pt_wgt);
+        runD.SetTopPtWgt(top_pt_wgt);
+        runE.SetTopPtWgt(top_pt_wgt);
+        runF.SetTopPtWgt(top_pt_wgt);
+        runG.SetTopPtWgt(top_pt_wgt);
+        runH.SetTopPtWgt(top_pt_wgt);
+        runBCDEF.SetTopPtWgt(top_pt_wgt);
+        runGH.SetTopPtWgt(top_pt_wgt);
+      }
 
       allPlots["nevt_all"]->Fill(1,norm);
       allPlots["norm_all"]->Fill(norm,norm);

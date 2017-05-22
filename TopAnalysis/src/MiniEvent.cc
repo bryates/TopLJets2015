@@ -46,7 +46,6 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 
   //top (lastCopy and pseudo-top)
   t->Branch("ngtop",     &ev.ngtop,      "ngtop/I");
-  t->Branch("gtop_pt_wgt", &ev.gtop_pt_wgt, "gtop_pt_wgt/F");
   t->Branch("gtop_id",    ev.gtop_id,    "gtop_id[ngtop]/I");
   t->Branch("gtop_pt",    ev.gtop_pt,    "gtop_pt[ngtop]/F");
   t->Branch("gtop_eta",   ev.gtop_eta,   "gtop_eta[ngtop]/F");
@@ -186,7 +185,6 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
 
   //top (lastCopy and pseudo-top)
   t->SetBranchAddress("ngtop",     &ev.ngtop);
-  t->SetBranchAddress("gtop_pt_wgt", &ev.gtop_pt_wgt);
   t->SetBranchAddress("gtop_id",    ev.gtop_id);
   t->SetBranchAddress("gtop_pt",    ev.gtop_pt);
   t->SetBranchAddress("gtop_eta",   ev.gtop_eta);
