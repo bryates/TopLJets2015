@@ -45,7 +45,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["lp_pt_iso"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt_iso"+tag+cut+weight+runPeriod_,";Lepton P_{T} [GeV] after cleaning;Events / 5 GeV", 50, 0,500);
     allPlots["lp_pt_veto"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt_veto"+tag+cut+weight+runPeriod_,";Lepton P_{T} [GeV] after veto;Events / 5 GeV", 60, 0,600);
     allPlots["lp_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt_low"+tag+cut+weight+runPeriod_,";Leading Lepton P_{T} [GeV];Events / 0.5 GeV", 20, 20,40);
-    allPlots["lp_pt"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt"+tag+cut+weight+runPeriod_,";Leading lepton P_{T} [GeV];Events / 5 GeV", 60, 0,600);
+    allPlots["lp_pt"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt"+tag+cut+weight+runPeriod_,";Leading lepton P_{T} [GeV];Events / 5 GeV", 30, 0,300);
     allPlots["l2p_pt"+tag+cut+weight+runPeriod_] = new TH1F("l2p_pt"+tag+cut+weight+runPeriod_,";Sub-leading lepton P_{T} [GeV];Events / 5 GeV", 60, 0,600);
     allPlots["lp_eta"+tag+cut+weight+runPeriod_]  = new TH1F("lp_eta"+tag+cut+weight+runPeriod_,";Leading lepton #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["l2p_eta"+tag+cut+weight+runPeriod_]  = new TH1F("l2p_eta"+tag+cut+weight+runPeriod_,";Sub-Leading lepton #eta; Events / 0.1", 30, -2.5,2.5);
@@ -56,9 +56,9 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["ndilp"+tag+cut+weight+runPeriod_]     = new TH1F("ndilp"+tag+cut+weight+runPeriod_,";Di-Lepton Multiplicity;Events" ,3,0.,3.);
 
     //Jet plots
-    allPlots["j_pt"+tag+cut+weight+runPeriod_] = new TH1F("j_pt"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 5 GeV", 60, 0,600);
-    allPlots["lj_pt"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 5 GeV", 60, 0,600);
-    allPlots["bj_pt"+tag+cut+weight+runPeriod_] = new TH1F("bj_pt"+tag+cut+weight+runPeriod_,";Leading b-Jet P_{T} [GeV];Events / 5 GeV", 60, 0,600);
+    allPlots["j_pt"+tag+cut+weight+runPeriod_] = new TH1F("j_pt"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 5 GeV", 40, 0,400);
+    allPlots["lj_pt"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 5 GeV", 40, 0, 400);
+    allPlots["bj_pt"+tag+cut+weight+runPeriod_] = new TH1F("bj_pt"+tag+cut+weight+runPeriod_,";Leading b-Jet P_{T} [GeV];Events / 5 GeV", 40, 0,400);
     allPlots["j_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("j_pt_low"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
     allPlots["lj_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt_low"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
     allPlots["bj_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("bj_pt_low"+tag+cut+weight+runPeriod_,";Leading b-Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
@@ -70,16 +70,16 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     
     //J/Psi plots
     allPlots["massJPsi"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi"+tag+cut+weight+runPeriod_,";M_{#mu^{#pm}#mu^{#mp}} [GeV];Events / 18 MeV" ,50,2.5,3.4);
-    allPlots["massJPsi_mu"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV];Events / 10 GeV" ,25,0,250);
-    allPlots["massJPsi_e"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_e"+tag+cut+weight+runPeriod_,";M_{J/#Psi+e} [GeV];Events / 10 GeV" ,25,0,250);
-    allPlots["massJPsi_l"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_l"+tag+cut+weight+runPeriod_,";M_{J/#Psi+l} [GeV];Events / 10 GeV" ,25,0,250);
+    allPlots["massJPsi_mu"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV];Events / 10 GeV" ,30,0,300);
+    allPlots["massJPsi_e"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_e"+tag+cut+weight+runPeriod_,";M_{J/#Psi+e} [GeV];Events / 10 GeV" ,30,0,300);
+    allPlots["massJPsi_l"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_l"+tag+cut+weight+runPeriod_,";M_{J/#Psi+l} [GeV];Events / 10 GeV" ,30,0,300);
     allPlots["massJPsiK"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsiK"+tag+cut+weight+runPeriod_,";M_{llk} [GeV];Events / 15 MeV" ,100,4.5,6);
-    allPlots["JPsi_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi) [GeV];Events / 5 GeV", 60, 0,600);
+    allPlots["JPsi_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi) [GeV];Events / 5 GeV", 20, 0, 200);
     allPlots["JPsi_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_eta"+tag+cut+weight+runPeriod_,";J/#Psi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_phi"+tag+cut+weight+runPeriod_,";J/#Psi #phi; Events", 50, -3.14,3.14);
-    allPlots["JPsi_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV];Events / 5 GeV", 60, 0,600);
-    allPlots["JPsi_e_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+e) [GeV];Events / 5 GeV", 60, 0,600);
-    allPlots["JPsi_l_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+l) [GeV];Events / 5 GeV", 60, 0,600);
+    allPlots["JPsi_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV];Events / 5 GeV", 40, 0, 400);
+    allPlots["JPsi_e_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+e) [GeV];Events / 5 GeV", 40, 0, 400);
+    allPlots["JPsi_l_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+l) [GeV];Events / 5 GeV", 40, 0,400);
     allPlots["JPsi_mu1_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_mu2_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_mu1_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_phi"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #phi; Events", 50, -3.14,3.14);

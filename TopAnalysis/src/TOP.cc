@@ -296,7 +296,7 @@ void RunTop(TString filename,
         //https://twiki.cern.ch/twiki/bin/view/CMS/TopPtReweighting#Eventweight
         top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[0]);
         top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[1]);
-        top_pt_wgt = 1.0 - TMath::Sqrt(top_pt_wgt);
+        top_pt_wgt = TMath::Sqrt(top_pt_wgt);
         runB.SetTopPtWgt(top_pt_wgt);
         runC.SetTopPtWgt(top_pt_wgt);
         runD.SetTopPtWgt(top_pt_wgt);
