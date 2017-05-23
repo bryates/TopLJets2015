@@ -48,8 +48,23 @@ def main():
             #if 'Data13TeV' in pub : continue
 
             localMerge='python scripts/checkProductionIntegrity.py -i %s -o %s --nocheck --only %s'%(opt.inDir,opt.outDir,pub)
-            cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localMerge)
-            os.system(cmd)
+            ############### Submit to condor ###############
+            target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
+            condorFile = open(target,'w')
+            condorFile.write('universe              = vanilla\n')
+            condorFile.write('executable            = condor/cond_wrapper.sh\n')
+            condorFile.write('arguments             = $(ClusterID) $(ProcId) "%s"' % localMerge)
+            condorFile.write('output                = condor/log/%s_EOS_$(ProcId).out\n' % pub)
+            condorFile.write('error                 = condor/log/%s_EOS_$(ProcId).err\n' % pub)
+            condorFile.write('log                   = condor/log/%s_EOS.log\n' % pub)
+            condorFile.write('+JobFlavour           = "workday"\n')
+            condorFile.write('Should_Transfer_Files = NO\n')
+            condorFile.write('queue %d')
+            condorFile.close()
+            os.system('condor_submit %s -batch-name %s' % (target,tag))
+            os.system('rm %s' % (tag))
+            #cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localMerge)
+            #os.system(cmd)
 
     Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
 
