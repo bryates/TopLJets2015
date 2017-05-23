@@ -23,6 +23,7 @@ class StdPlots {
   inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
   inline float getWgt() { return norm_ * sfs_ * puWgt_ * top_pt_wgt_; };
   void Fill(Leptons, TString, TString name="");
+  void FillGen(std::vector<Particle>, TString, TString name="");
   void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
   void Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name="");
   void Fill(Double_t weight, Int_t N, Double_t pt, Double_t eta, Double_t phi);

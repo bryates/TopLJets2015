@@ -277,6 +277,8 @@ void RunTop(TString filename,
 
       //Apply top pT weight to ttbar events
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#Run_2_strategy
+      //Particle(float pt, float eta, float phi, float mass, int pdgId, float relIso, int pid);
+      std::vector<Particle> tops;
       if(isTTbar) {
         float top_pt_wgt(1.0);
         vector<float> pt;
@@ -287,6 +289,7 @@ void RunTop(TString filename,
           if(tpt > 400) tpt = 400;
           pt.push_back(tpt);
           if(debug) std::cout << "Top pT= " << tpt << std::endl;
+          tops.push_back(Particle(ev.gtop_pt[i], ev.gtop_eta[i], ev.gtop_phi[i], ev.gtop_m[i], ev.gtop_id[i], 0, 0));
         }
         //Save onlt hardest two tops (ttbar)
         //Might not need after imopsing |PdgId|==6
@@ -1050,6 +1053,12 @@ void RunTop(TString filename,
       //Require b-tagged and light jets
       if(!minJets) continue;
       if(debug) cout << "passed jet requirements" << endl;
+
+      //Fill gen-level top plots
+      if(isTTbar) {
+        runBCDEF.FillGen(tops, chTag, "lepjets");
+        runGH.FillGen(tops, chTag, "lepjets");
+      }
 
       runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
       runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");

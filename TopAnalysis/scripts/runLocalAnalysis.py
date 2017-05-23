@@ -118,7 +118,22 @@ def main():
             if 'Data' in tag:
                 if not any(run in tag for run in split_run): continue
 
+            ############### Submit to condor ###############
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
+            target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
+            condorFile = open(target,'w')
+            condorFile.write('universe              = vanilla\n')
+            condorFile.write('executable            = condor/cond_submit.sh\n')
+            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s\n' % (tag,opt.runPeriod))
+            condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag)
+            condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % tag)
+            condorFile.write('log                   = condor/log/%s.log\n' % tag)
+            condorFile.write('+JobFlavour           = "workday"\n')
+            condorFile.write('Should_Transfer_Files = NO\n')
+            condorFile.write('queue %d' % len(input_list))
+            condorFile.close()
+            os.system('condor_submit %s -batch-name %s' % (target,tag))
+            os.system('rm %s' % (tag))
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
@@ -139,8 +154,9 @@ def main():
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
             if debug : localrun += ' --verbose %s' % (debug)
             if runSysts : localRun += ' --runSysts'            
-            cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
-            os.system(cmd)
+            ############### Now using condor instead of LSF (bsub) ###############
+            #cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
+            #os.system(cmd)
 
 """
 for execution from another script

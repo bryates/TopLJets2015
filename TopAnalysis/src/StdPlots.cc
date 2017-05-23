@@ -111,6 +111,9 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["dR"+tag+cut+weight+runPeriod_] = new TH1F("dR"+tag+cut+weight+runPeriod_,";dR;Events / 0.05", 20,0.0,1.);
     allPlots["pflp_pt"+tag+cut+weight+runPeriod_] = new TH1F("pflp_pt"+tag+cut+weight+runPeriod_,";PF lepton P_{T} [GeV];Events / 0.2 GeV", 15, 0,3);
 
+    //gen-level plots
+    allPlots["gtop_pt"+tag+cut+weight+runPeriod_] = new TH1F("gtop_pt"+tag+cut+weight+runPeriod_,";Generator top P_{T} [GeV];Events / 10 GeV", 40, 0,400);
+
     //Z control plots
     allPlots["massZ"+tag+cut+weight+runPeriod_]     = new TH1F("massZ_control"+tag+cut+weight+runPeriod_,";M_{l^{#pm}l^{#mp}};Events / 1.0 GeV" ,30,81,111);
     allPlots["chargeZ"+tag+cut+weight+runPeriod_]     = new TH1F("chargeZ_control"+tag+cut+weight+runPeriod_,";Charage (l^#pm) * Charge(l^#mp);Events / 1.0 GeV" ,5,-2,2);
@@ -172,6 +175,15 @@ void StdPlots::Fill(double nevt, double nvtx, double HT, double ST, double MET, 
   allPlots["ST"+chTag+name+runPeriod_]->Fill(ST,getWgt());
   allPlots["MET2oST"+chTag+name+runPeriod_]->Fill(pow(MET,2)/ST,getWgt());
   allPlots["MET"+chTag+name+runPeriod_]->Fill(MET,getWgt());
+}
+
+void StdPlots::FillGen(std::vector<Particle> tops, TString chTag, TString name) {
+  if(!isGood_) return;
+  float wgt = norm_ * sfs_ * puWgt_; //No top_pt_wgt_
+  if(!name.EqualTo("")) name = "_" + name;
+  if(debug_) std::cout << "Filling gen-level top" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
+  for(auto& it : tops)
+    allPlots["gtop_pt"+chTag+name+runPeriod_]->Fill(it.Pt(),wgt);
 }
 
 void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
