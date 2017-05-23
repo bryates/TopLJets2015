@@ -61,7 +61,7 @@ def main():
             condorFile.write('Should_Transfer_Files = NO\n')
             condorFile.write('queue %d')
             condorFile.close()
-            os.system('condor_submit %s -batch-name %s' % (target,tag))
+            os.system('condor_submit %s -batch-name %s' % (target,pub))
             os.system('rm %s' % (tag))
             #cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localMerge)
             #os.system(cmd)
