@@ -35,7 +35,13 @@ def main():
             if not opt.HiForest:
                 if wgtCounter is None:
                     try:
-                        wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
+                        wgtCounter=fIn.Get('weightCounter/Event_weight').Clone('genwgts')
+                        weightCounter=True
+                    except:
+                        weightCounter=False
+                    try:
+                        if not weightCounter:
+                            wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
                     except:
                         print 'Check eos/cms/%s/%s/%s probably corrupted?' % (opt.inDir,sample,f )
                         continue
@@ -49,7 +55,10 @@ def main():
                     #Nneg=tree.Draw('ttbar_w[0]','ttbar_w[0]<0','goff')
                     #Nnet=Nall - 2*Nneg
                     #print Nnet
-                wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
+                if weightCounter:
+                    wgtCounter.Add(fIn.Get('weightCounter/Event_weight'))
+                else:
+                    wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
             else:
                 if wgtCounter is None:
                     wgtCounter=ROOT.TH1F('genwgts','genwgts',500,0,500)

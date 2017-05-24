@@ -538,7 +538,7 @@ def main():
                     if "_jpsi" in key and "DY" in tag: continue
                     if "_"+opt.run not in key and opt.run != "BCDEFGH" :
                          keep=False
-                    #if key.split("_")[-1] != opt.run: continue
+                    if key.split("_")[-1] != opt.run: continue
                     if "_BCDEFGH" in key: continue
                     if not keep: continue
                     obj=fIn.Get(key)

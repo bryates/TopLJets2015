@@ -81,6 +81,7 @@ void RunTop(TString filename,
 	}
 
       //Load PU plots for all run periods
+      /*
       for(int ic = 0; ic < tmpRun.Length(); ic++) {
         TString puWgtRunUrl(era+"/pileupWgts"+tmpRun[ic]+".root");
         gSystem->ExpandPathName(puWgtRunUrl);
@@ -91,20 +92,21 @@ void RunTop(TString filename,
         fIn->Close();
         
       }
-        TString puWgtRunUrl(era+"/pileupWgtsBCDEF.root");
-        gSystem->ExpandPathName(puWgtRunUrl);
-        fIn=TFile::Open(puWgtRunUrl);
-        TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
-        puWgtDataRun->SetDirectory(0);
+      */
+      TString puWgtRunUrl(era+"/pileupWgtsBCDEF.root");
+      gSystem->ExpandPathName(puWgtRunUrl);
+      fIn=TFile::Open(puWgtRunUrl);
+      TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
+      puWgtDataRun->SetDirectory(0);
 	puWgtsRun.push_back(puWgtDataRun);
-        fIn->Close();
-        puWgtRunUrl = era+"/pileupWgtsGH.root";
-        gSystem->ExpandPathName(puWgtRunUrl);
-        fIn=TFile::Open(puWgtRunUrl);
-        puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
-        puWgtDataRun->SetDirectory(0);
-	puWgtsRun.push_back(puWgtDataRun);
-        fIn->Close();
+      fIn->Close();
+      puWgtRunUrl = era+"/pileupWgtsGH.root";
+      gSystem->ExpandPathName(puWgtRunUrl);
+      fIn=TFile::Open(puWgtRunUrl);
+      puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
+      puWgtDataRun->SetDirectory(0);
+      puWgtsRun.push_back(puWgtDataRun);
+      fIn->Close();
       if(debug) cout << "loading pileup weight DONE" << endl;
     }
 
