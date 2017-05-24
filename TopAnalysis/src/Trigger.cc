@@ -194,7 +194,7 @@ bool Trigger::electronFired() {
 
 bool Trigger::doubleMuonFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
-  for(auto & itrig : requiredDoubleElectronTriggers_) {
+  for(auto & itrig : requiredDoubleMuonTriggers_) {
     //Only use DZ trigges for epoch H
     if(isH_ && !itrig.Contains("_DZ_"))
       if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
@@ -207,7 +207,6 @@ bool Trigger::doubleMuonFired() {
 
 bool Trigger::doubleElectronFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
-  //for(size_t itrig = 0; itrig < requiredDoubleElectronTriggers_.size(); itrig++) {
   for(auto & itrig : requiredDoubleElectronTriggers_) {
     //Only use DZ trigges for epoch H
     if(isH_ && !itrig.Contains("_DZ_"))
@@ -221,8 +220,7 @@ bool Trigger::doubleElectronFired() {
 
 bool Trigger::EMFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
-  //for(size_t itrig = 0; itrig < requiredEMTriggers_.size(); itrig++) {
-  for(auto & itrig : requiredDoubleElectronTriggers_) {
+  for(auto & itrig : requiredEMTriggers_) {
     //Only use DZ trigges for epoch H
     if(isH_ && !itrig.Contains("_DZ_"))
       if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!

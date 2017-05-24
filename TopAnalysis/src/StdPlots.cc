@@ -116,7 +116,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
 
     //Z control plots
     allPlots["massZ"+tag+cut+weight+runPeriod_]     = new TH1F("massZ_control"+tag+cut+weight+runPeriod_,";M_{l^{#pm}l^{#mp}};Events / 1.0 GeV" ,30,81,111);
-    allPlots["chargeZ"+tag+cut+weight+runPeriod_]     = new TH1F("chargeZ_control"+tag+cut+weight+runPeriod_,";Charage (l^#pm) * Charge(l^#mp);Events / 1.0 GeV" ,5,-2,2);
+    //allPlots["chargeZ"+tag+cut+weight+runPeriod_]     = new TH1F("chargeZ_control"+tag+cut+weight+runPeriod_,";Charage (l^#pm) * Charge(l^#mp);Events / 1.0 GeV" ,5,-2,2);
 
     //Event plots
 allPlots["nevt"+tag+cut+weight+runPeriod_]     = new TH1F("nevt"+tag+cut+weight+runPeriod_,";Event Multiplicity;Events" ,1,1.,2.);
@@ -158,6 +158,7 @@ void StdPlots::SetTopPtWgt(float top_pt_wgt) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting top pT weight= " << top_pt_wgt << std::endl;
   top_pt_wgt_ = top_pt_wgt;
+  top_pt_wgt_vec.push_back(top_pt_wgt);
 }
 
 void StdPlots::Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name) {
@@ -203,6 +204,12 @@ void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
     //allPlots["lp_eta"+chTag+name+"_"+"_no_weight"+"_"+runPeiod_]->Fill(leptons[0].Eta(),norm_);
     allPlots["lp_phi"+chTag+name+runPeriod_]->Fill(leptons[0].Phi(),getWgt());
     //allPlots["lp_phi"+chTag+name+"_"+"_no_weight"+"_"+runPeiod_]->Fill(leptons[0].Phi(),norm_);
+    if(leptons.size()>1) {
+      TLorentzVector dilp4 = leptons[0].getVec()+leptons[1].getVec();
+      if(leptons[0].getPdgId() == -leptons[1].getPdgId() && fabs(dilp4.M()-91)<15) {
+        allPlots["massZ"+chTag+name+runPeriod_]->Fill(dilp4.M(),getWgt());
+      }
+    }
   }
 }
 
@@ -431,5 +438,12 @@ void StdPlots::Write() {
 
     it.second->Write(); 
   }
+
+  /*
+  TTree *t = new TTree("top_pt_wgt","Top pT");
+  t->Branch("top_pt_wgt",&top_pt_wgt_vec);
+  t->Fill();
+  t->Write();
+  */
 }
 

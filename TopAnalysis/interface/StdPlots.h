@@ -6,6 +6,7 @@
 #include <map>
 #include "TString.h"
 #include "TH1F.h"
+#include "TTree.h"
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
@@ -47,6 +48,7 @@ class StdPlots {
   float sfs_;
   float puWgt_;
   float top_pt_wgt_;
+  std::vector<float> top_pt_wgt_vec;
 
 };
 
