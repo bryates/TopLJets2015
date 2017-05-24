@@ -48,7 +48,7 @@ class StdPlots {
   float sfs_;
   float puWgt_;
   float top_pt_wgt_;
-  std::vector<float> top_pt_wgt_vec;
+  //std::vector<float> top_pt_wgt_vec;
 
 };
 

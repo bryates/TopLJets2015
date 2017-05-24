@@ -157,8 +157,10 @@ void StdPlots::SetPuWgt(float puWgt) {
 void StdPlots::SetTopPtWgt(float top_pt_wgt) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting top pT weight= " << top_pt_wgt << std::endl;
+  /*
   top_pt_wgt_ = top_pt_wgt;
   top_pt_wgt_vec.push_back(top_pt_wgt);
+  */
 }
 
 void StdPlots::Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name) {
