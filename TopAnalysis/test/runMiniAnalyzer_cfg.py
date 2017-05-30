@@ -137,7 +137,7 @@ jecLevels=['L1FastJet','L2Relative','L3Absolute']
 jecFile='Summer16_23Sep2016V4_MC.db'
 jecTag='Summer16_23Sep2016V4_MC_AK4PFchs'
 if options.runOnData : 
-    print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
+    #print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
     jecLevels.append( 'L2L3Residual' )
     jecFile='Summer16_23Sep2016AllV4_DATA.db'
     jecTag='Summer16_23Sep2016AllV4_DATA_AK4PFchs'
@@ -149,8 +149,8 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 if options.runOnData:
-    process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
-    #process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
     #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
     process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)

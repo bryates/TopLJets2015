@@ -16,6 +16,10 @@
 //pileup weighting
 std::vector<TGraph *> getPileupWeights(TString era,TH1 *genPU);
 
+//apply jec uncertainty
+//MiniEvent_t applyJetCorrectionUncertainty(MiniEvent_t &ev, JetCorrectionUncertainty *jecUnc, TString jecVar, TString direction);
+void applyJetCorrectionUncertainty(TLorentzVector &jp4,JetCorrectionUncertainty *jecUnc,TString direction);
+
 //apply jet energy resolutions
 MiniEvent_t smearJetEnergies(MiniEvent_t ev, std::string option = "central");
 

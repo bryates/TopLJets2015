@@ -98,7 +98,7 @@ void RunTop(TString filename,
       fIn=TFile::Open(puWgtRunUrl);
       TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
       puWgtDataRun->SetDirectory(0);
-	puWgtsRun.push_back(puWgtDataRun);
+      puWgtsRun.push_back(puWgtDataRun);
       fIn->Close();
       puWgtRunUrl = era+"/pileupWgtsGH.root";
       gSystem->ExpandPathName(puWgtRunUrl);
@@ -145,8 +145,10 @@ void RunTop(TString filename,
 
 
   //jet energy uncertainties
-  TString jecUncUrl(era+"/jecUncertaintySources_AK4PFchs.txt");
+  TString jecUncUrl(era+"/Summer16_23Sep2016V4_MC_UncertaintySources_AK4PFchs.txt");
   gSystem->ExpandPathName(jecUncUrl);
+  JetCorrectorParameters *jecParam = new JetCorrectorParameters(jecUncUrl.Data(), "Total");
+  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty( *jecParam );
   
   //LIST OF SYSTEMATICS
   
@@ -162,6 +164,7 @@ void RunTop(TString filename,
   */
   StdPlots runBCDEF("BCDEF", outname, debug);
   StdPlots runGH("GH", outname, debug);
+
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
@@ -513,15 +516,15 @@ void RunTop(TString filename,
 	  if(!ev.isData)
 	    {
 	      float jptForBtag(jp4.Pt()>1000. ? 999. : jp4.Pt()), jetaForBtag(fabs(jp4.Eta()));
-	      float expEff(1.0), jetBtagSF(1.0), jetBtagSFUp(1.0), jetBtagSFDown(1.0);
+	      float expEff(1.0), jetBtagSF(1.0);//, jetBtagSFUp(1.0), jetBtagSFDown(1.0);
 
 	      BTagEntry::JetFlavor hadFlav=BTagEntry::FLAV_UDSG; 
 	      if(abs(ev.j_hadflav[k])==4) hadFlav=BTagEntry::FLAV_C; 
 	      if(abs(ev.j_hadflav[k])==5) hadFlav=BTagEntry::FLAV_B;
 
 	      jetBtagSF = btvsfReaders[hadFlav]->eval_auto_bounds( "central", hadFlav, jetaForBtag, jptForBtag);
-	      jetBtagSFUp = btvsfReaders[hadFlav]->eval_auto_bounds( "up", hadFlav, jetaForBtag, jptForBtag);
-	      jetBtagSFUp = btvsfReaders[hadFlav]->eval_auto_bounds( "down", hadFlav, jetaForBtag, jptForBtag);
+	      //jetBtagSFUp = btvsfReaders[hadFlav]->eval_auto_bounds( "up", hadFlav, jetaForBtag, jptForBtag);
+	      //jetBtagSFUp = btvsfReaders[hadFlav]->eval_auto_bounds( "down", hadFlav, jetaForBtag, jptForBtag);
 	      if(abs(ev.j_hadflav[k])==4) 
 		{ 
 		  ncjets++;
@@ -543,8 +546,8 @@ void RunTop(TString filename,
 	      
 	      //updated b-tagging decision with the data/MC scale factor
 	      myBTagSFUtil.modifyBTagsWithSF(isBTagged,    jetBtagSF,     expEff);
-	      myBTagSFUtil.modifyBTagsWithSF(isBTagged,      jetBtagSFUp,      expEff);
-	      myBTagSFUtil.modifyBTagsWithSF(isBTagged,  jetBtagSFDown,  expEff);
+	      //myBTagSFUtil.modifyBTagsWithSF(isBTagged,      jetBtagSFUp,      expEff);
+	      //myBTagSFUtil.modifyBTagsWithSF(isBTagged,  jetBtagSFDown,  expEff);
 	    }
 	  if(debug) cout << "b-tagging DONE" << endl;
 
@@ -557,6 +560,14 @@ void RunTop(TString filename,
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
             pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf]);
 	    tmpj.addTrack(pftk,ev.pf_id[ipf]);
+            /*
+            if(jecUnc) {
+              jecUnc->setJetEta(jp4.Eta());
+              jecUnc->setJetPt(jp4.Pt());
+              float jes = jecUnc->getUncertainty(true);
+              cout << "jes= " << jes << endl;
+            }
+            */
 	  }
           tmpj.sortTracksByPt();
 
@@ -600,8 +611,8 @@ void RunTop(TString filename,
           runG.SetPuWgt(puWgtsRun[5]->GetBinContent(ev.putrue));
           runH.SetPuWgt(puWgtsRun[6]->GetBinContent(ev.putrue));
           */
-          runBCDEF.SetPuWgt(puWgtsRun[7]->GetBinContent(ev.putrue));
-          runGH.SetPuWgt(puWgtsRun[8]->GetBinContent(ev.putrue));
+          runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
+          runGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
 
 	    for(size_t iwgt=0; iwgt<3; iwgt++)
 	      {
@@ -939,18 +950,18 @@ void RunTop(TString filename,
         //Require at least 1 b-tagged and at least 1 light jets
         if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
           if(debug) cout << "jet reqirements" << endl;
+          minJets = true;
           //Z control plot
           if(isZ) {
             allPlots["massZ"+chTag+"_lepjets"]->Fill(dilp4.M(),wgt);
             allPlots["massZ"+chTag+"_lepjets_no_weight"]->Fill(dilp4.M(),norm);
           }
           //Exclude Z mass
-          if(isZ) continue;
+          if(isZ) minJets = false;
           //Exclude low mass (M < 20 GeV)
-          if(dilp4.M() < 20 && leptons[0].getPdgId()==leptons[1].getPdgId() && leptons[0].charge()!=leptons[1].charge()) continue;
+          if(dilp4.M() < 20 && leptons[0].getPdgId()==leptons[1].getPdgId() && leptons[0].charge()!=leptons[1].charge()) minJets = false;
           //Require same falvor dilepton MET > 40 GeV
-          if(leptons[0].getPdgId()==leptons[1].getPdgId() && met.Pt() < 40) continue; //FIXME
-          minJets = true;
+          if(leptons[0].getPdgId()==leptons[1].getPdgId() && met.Pt() < 40) minJets = false;
           /*
           runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
           runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");

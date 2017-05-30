@@ -49,7 +49,8 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
   else
     {
       era_=2016;
-      TString lepEffUrl(era+"/EfficienciesAndSF_"+runPeriod+".root");
+                            //EfficienciesAndSF_RunBCDEF_23SepReReco.root
+      TString lepEffUrl(era+"/EfficienciesAndSF_Run"+runPeriod+"_23SepReReco.root");
       gSystem->ExpandPathName(lepEffUrl);
       TFile *fIn=TFile::Open(lepEffUrl);
       lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
@@ -57,21 +58,24 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 
-      lepEffUrl=era+"/Tracking_EfficienciesAndSF_"+runPeriod+".root";
+                    //Tracking_EfficienciesAndSF_RunBCDEF_23SepReReco.root
+      lepEffUrl=era+"/Tracking_EfficienciesAndSF_Run"+runPeriod+"_23SepReReco.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
       lepEffGr_["m_tk_aeta_"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_aeta_dr030e030_corr");
       lepEffGr_["m_tk_vtx_"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_vtx_dr030e030_corr");
       fIn->Close();
 
-      lepEffUrl=era+"/MuonID_"+runPeriod+".root";
+                    //MuonID_RunBCDEFF_23SepReReco.root
+      lepEffUrl=era+"/MuonID_Run"+runPeriod+"_23SepReReco.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
       lepEffH_["m_sel"]=(TH2 *)fIn->Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio")->Clone();
       lepEffH_["m_sel"]->SetDirectory(0);
       fIn->Close();
 
-      lepEffUrl=era+"/MuonIso_"+runPeriod+".root";
+                    //MuonIso_RunBCDEFF_23SepReReco.root
+      lepEffUrl=era+"/MuonIso_Run"+runPeriod+"_23SepReReco.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);      
       TH2 *isoH=(TH2 *)fIn->Get("TightISO_TightID_pt_eta/abseta_pt_ratio");
@@ -86,7 +90,8 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 	  }
       fIn->Close();
       
-      lepEffUrl=era+"/egammaEff_tight_EGM2D.root";
+                    //ElectronIdMedium_egammaEffi_Moriond17_EGM2D.root
+      lepEffUrl=era+"/ElectronIdMedium_egammaEffi_Moriond17_EGM2D.root"; //switch to tight FIXME ElectronIdTight_egammaEffi_Moriond17_EGM2D.root
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D")->Clone();

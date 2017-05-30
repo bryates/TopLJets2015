@@ -207,9 +207,16 @@ void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
     allPlots["lp_phi"+chTag+name+runPeriod_]->Fill(leptons[0].Phi(),getWgt());
     //allPlots["lp_phi"+chTag+name+"_"+"_no_weight"+"_"+runPeiod_]->Fill(leptons[0].Phi(),norm_);
     if(leptons.size()>1) {
+      bool isZ(false);
       TLorentzVector dilp4 = leptons[0].getVec()+leptons[1].getVec();
-      if(leptons[0].getPdgId() == -leptons[1].getPdgId() && fabs(dilp4.M()-91)<15) {
+      if(leptons[0].getPdgId() == -leptons[1].getPdgId() &&
+         fabs(dilp4.M()-91)<15) { isZ=true; }
+      if(isZ) {
         allPlots["massZ"+chTag+name+runPeriod_]->Fill(dilp4.M(),getWgt());
+      }
+      else {
+        allPlots["dilp_m"+chTag+name+runPeriod_]->Fill(dilp4.M(),getWgt());
+        allPlots["dilp_pt"+chTag+name+runPeriod_]->Fill(dilp4.Pt(),getWgt());
       }
     }
   }

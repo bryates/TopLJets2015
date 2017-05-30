@@ -1,10 +1,8 @@
 #include <iostream>
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
 
-std::vector<TString> muTriggers = {"HLT_IsoMu24_v", "HLT_IsoTkMu24_v","HLT_IsoMu22_v", "HLT_IsoTkMu22_v", "HLT_IsoMu22_eta2p1_v", "HLT_IsoTkMu22_eta2p1_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
-std::vector<TString> eleTriggers = {"HLT_Ele27_WPTight_Gsf_v", "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_Ele25_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"}; 
-//std::vector<TString> muTriggers = {"HLT_IsoMu24_v", "HLT_IsoTkMu24_v","HLT_IsoMu22_v", "HLT_IsoTkMu22_v","HLT_IsoMu22_eta2p1_v", "HLT_IsoTkMu22_eta2p1_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
-//std::vector<TString> eleTriggers = {"HLT_Ele27_WPTight_Gsf_v", "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_Ele25_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"};
+std::vector<TString> muTriggers = {"HLT_IsoMu24_v", "HLT_IsoTkMu24_v","HLT_IsoMu22_v", "HLT_IsoTkMu22_v","HLT_IsoMu22_eta2p1_v", "HLT_IsoTkMu22_eta2p1_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
+std::vector<TString> eleTriggers = {"HLT_Ele27_WPTight_Gsf_v", "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_Ele25_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"};
 
 int count(TString st, TString sub) {
   int c = 0;
@@ -196,9 +194,11 @@ bool Trigger::doubleMuonFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
   for(auto & itrig : requiredDoubleMuonTriggers_) {
     //Only use DZ trigges for epoch H
+    /*
     if(isH_ && !itrig.Contains("_DZ_"))
       if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
     if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
+    */
     if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;
@@ -209,9 +209,11 @@ bool Trigger::doubleElectronFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
   for(auto & itrig : requiredDoubleElectronTriggers_) {
     //Only use DZ trigges for epoch H
+    /*
     if(isH_ && !itrig.Contains("_DZ_"))
       if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
     if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
+    */
     if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;
@@ -222,9 +224,11 @@ bool Trigger::EMFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
   for(auto & itrig : requiredEMTriggers_) {
     //Only use DZ trigges for epoch H
+    /*
     if(isH_ && !itrig.Contains("_DZ_"))
       if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
     if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
+    */
     if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;

@@ -115,7 +115,7 @@ MiniEvent_t updateBTagDecisions(MiniEvent_t ev,
 std::map<BTagEntry::JetFlavor,BTagCalibrationReader *> getBTVcalibrationReaders(TString era,BTagEntry::OperatingPoint btagOP)
 {
   //start the btag calibration
-  TString btagUncUrl(era+"/btagSFactors.csv");
+  TString btagUncUrl(era+"/CSVv2_Moriond17_B_H.csv");
   gSystem->ExpandPathName(btagUncUrl);
   BTagCalibration btvcalib("csvv2", btagUncUrl.Data());
 
@@ -150,5 +150,18 @@ std::map<BTagEntry::JetFlavor, TGraphAsymmErrors *> readExpectedBtagEff(TString 
 
   //all done
   return expBtagEff;
+}
+
+void applyJetCorrectionUncertainty(TLorentzVector &jp4,JetCorrectionUncertainty *jecUnc,TString direction)
+{
+    jecUnc->setJetPt(jp4.Pt());
+    jecUnc->setJetEta(jp4.Eta());
+    double scale = 1.;
+    if (direction == "up")
+      scale += jecUnc->getUncertainty(true);
+    else if (direction == "down")
+      scale -= jecUnc->getUncertainty(false);
+    
+    jp4 *= scale;
 }
 
