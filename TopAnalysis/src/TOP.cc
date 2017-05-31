@@ -961,10 +961,9 @@ void RunTop(TString filename,
           if(isZ) minJets = false;
           //if(abs(dilp4.M()-91)<15 && abs(leptons[0].getPdgId())==abs(leptons[1].getPdgId()) && leptons[0].charge()!=leptons[1].charge()) minJets = false;
           //Exclude low mass (M < 20 GeV)
-          if(dilp4.M() < 20) minJets = false;
-          //if(dilp4.M() < 20 && abs(leptons[0].getPdgId())==abs(leptons[1].getPdgId()) && leptons[0].charge()!=leptons[1].charge()) minJets = false;
+          if(dilp4.M() < 20 && leptons[0].getPdgId()==-leptons[1].getPdgId()) minJets = false;
           //Require same falvor dilepton MET > 40 GeV
-          if(abs(leptons[0].getPdgId())==abs(leptons[1].getPdgId()) && met.Pt() < 40) minJets = false;
+          if(leptons[0].getPdgId()==-leptons[1].getPdgId() && met.Pt() < 40) minJets = false;
           /*
           runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
           runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
