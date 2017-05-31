@@ -373,17 +373,20 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Jet jet, TString chTag, TStr
 void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, Jet jet, TString chTag, TString name) {
   Fill(pfmuCands, lep, chTag, name); //Fill meson+lep plots
   Fill(pfmuCands, jet, chTag, name); //Fill meson+jet run2
-  TLorentzVector jpsi = pfmuCands[0].getVec() + pfmuCands[1].getVec();
-  if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
-  float jpt(jet.getPt());
-  float dRJPsil(jpsi.DeltaR(lep[0].getVec()));
-  if(dRJPsil < 2.0) {
-    allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
-    allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
-  }
-  else {
-    allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
-    allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+  if(!name.EqualTo("")) name = "_" + name;
+  if(name.Contains("jpsi")) {
+    TLorentzVector jpsi = pfmuCands[0].getVec() + pfmuCands[1].getVec();
+    if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    float jpt(jet.getPt());
+    float dRJPsil(jpsi.DeltaR(lep[0].getVec()));
+    if(dRJPsil < 2.0) {
+      allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+      allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+    }
+    else {
+      allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+      allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+    }
   }
 }
 
