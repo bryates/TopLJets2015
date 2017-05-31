@@ -91,11 +91,20 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       fIn->Close();
       
                     //ElectronIdMedium_egammaEffi_Moriond17_EGM2D.root
+                    //ElectronIdTight_egammaEffi_Moriond17_EGM2D.root
       lepEffUrl=era+"/ElectronIdMedium_egammaEffi_Moriond17_EGM2D.root"; //switch to tight FIXME ElectronIdTight_egammaEffi_Moriond17_EGM2D.root
+      //lepEffUrl=era+"/ElectronIdTight_egammaEffi_Moriond17_EGM2D.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D")->Clone();
       lepEffH_["e_sel"]->SetDirectory(0);     
+      fIn->Close();
+                    //ElectronReco_egammaEffi_Moriond17_EGM2D.root
+      lepEffUrl=era+"/ElectronReco_egammaEffi_Moriond17_EGM2D.root";
+      gSystem->ExpandPathName(lepEffUrl);
+      fIn=TFile::Open(lepEffUrl);
+      lepEffH_["e_reco"]=(TH2 *)fIn->Get("EGamma_SF2D");
+      lepEffH_["e_reco"]->SetDirectory(0);
       fIn->Close();
     }
 }
@@ -295,6 +304,24 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
           if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
           corr.first  = corr.first*tkEffSF;
         }
+ 
+      //reco efficiency (if available)
+      hname=idstr+"_reco";
+      if(lepEffH_.find(hname)!=lepEffH_.end() )
+	{
+	  TH2 *h=lepEffH_[hname];
+	  float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
+	  float etaForEff=TMath::Max(TMath::Min(float(fabs(eta)),maxEtaForEff),minEtaForEff);
+	  Int_t etaBinForEff=h->GetXaxis()->FindBin(etaForEff);
+	  
+	  float minPtForEff( h->GetYaxis()->GetXmin() ), maxPtForEff( h->GetYaxis()->GetXmax()-0.01 );
+	  float ptForEff=TMath::Max(TMath::Min(pt,maxPtForEff),minPtForEff);
+	  Int_t ptBinForEff=h->GetYaxis()->FindBin(ptForEff);
+	  
+	  corr.second = sqrt(pow(h->GetBinError(etaBinForEff,ptBinForEff)*corr.first,2)+pow(h->GetBinError(etaBinForEff,ptBinForEff)*corr.second,2));
+	  corr.first  = corr.first*h->GetBinContent(etaBinForEff,ptBinForEff);
+	  
+	}
     }
 
   return corr;

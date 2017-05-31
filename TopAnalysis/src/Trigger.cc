@@ -161,9 +161,10 @@ bool Trigger::triggerFired(TString triggerName) {
 //Check if DZ trigger exist in required list
 //Return true only if it does
 bool Trigger::triggerHasDZ(TString trigger) {
-  //if(trigger.Contains("_DZ_")) return true; //Trivial case
-  size_t f = trigger.Index("_v");
-  trigger = trigger.Replace(f, TString("_v").Length(), "_DZ_v");
+  if(!trigger.Contains("_DZ_")) {
+    size_t f = trigger.Index("_v");
+    trigger = trigger.Replace(f, TString("_v").Length(), "_DZ_v");
+  }
   if(debug_) std::cout << "Looking for " << trigger << std::endl;
   if(std::find(requiredMuonTriggers_.begin(), requiredMuonTriggers_.end(), trigger) != requiredMuonTriggers_.end()) return true;
   if(std::find(requiredElectronTriggers_.begin(), requiredElectronTriggers_.end(), trigger) != requiredElectronTriggers_.end()) return true;
@@ -194,11 +195,8 @@ bool Trigger::doubleMuonFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
   for(auto & itrig : requiredDoubleMuonTriggers_) {
     //Only use DZ trigges for epoch H
-    /*
-    if(isH_ && !itrig.Contains("_DZ_"))
-      if(triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
+    if(isH_ && triggerHasDZ(itrig)) continue; //If DZ version exsits, use it!
     if(!isH_ && itrig.Contains("_DZ_")) continue; //If not H, don't use DZ!
-    */
     if(triggerFired(itrig)) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;

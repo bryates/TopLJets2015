@@ -58,13 +58,14 @@ mergeJSON.py grid/crab_Data13TeV_SingleMuon_2016B/results/processedLumis.json gr
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
 ```
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
-brilcalc lumi --normtag /afs/cern.ch/user/l/lumipro/public/Normtags/normtag_DATACERT.json -u /pb -i data/era2016/Data13TeV_DoubleMuon_lumis_BCDEFGH.json --hltpath="HLT_Iso*24_v*"
+brilcalc lumi --normtag /afs/cern.ch/user/l/lumipro/public/Normtags/normtag_DATACERT.json -u /pb -i data/era2016/Data13TeV_SingleMuon_lumis_BCDEFGH.json --hltpath="HLT_Iso*24_v*"
 ```
 Use the table which is printed out to update the "lumiPerRun" method in ReadTree.cc.
 That will be used to monitor the event yields per run in order to identify outlier runs.
 * Pileup weighting. To update the pileup distributions run the script below. It will store the data pileup distributions for different min.bias cross section in data/pileupWgts.root
 ```
-python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_DoubleMuon_lumis_BCDEF.json --out data/era2016/pileupWgtsBCDEF.root
+python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_SingleMuon_lumis_BCDEF.json --out data/era2016/pileupWgtsBCDEF.root
+python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_SingleMuon_lumis_GH.json --out data/era2016/pileupWgtsGH.root
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```

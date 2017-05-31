@@ -67,7 +67,7 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option(      '--HiForest',  dest='HiForest', help='use HiForest trees',          default=False, action='store_true')
-    parser.add_option('-i', '--in',        dest='input',    help='input directory with files',  default='/store/cmst3/user/psilva/LJets2015/076fb7a/MC13TeV_TTJets', type='string')
+    parser.add_option('-i', '--in',        dest='input',    help='input directory with files',  default='/store/user/byates/LJets2015/8db9ad6/MC13TeV_TTJets_powheg', type='string')
     parser.add_option('-o', '--out',       dest='output',   help='output file',                 default='data/expTageff.root',                                       type='string')
     parser.add_option(      '--csv',       dest='csv',      help='csv cut',                     default=0.8484,                                                       type=float)
     (opt, args) = parser.parse_args()
