@@ -33,8 +33,14 @@ class Trigger{
   void deleteRequiredMuonTrigger(TString);
   void deleteRequiredElectronTrigger(TString);
   void deleteRequiredDoubleMuonTrigger(TString);
+  void printRequiredMuonTriggers();
+  void printRequiredDoubleMuonTriggers();
+  void printRequiredElectronTriggers();
+  void printRequiredDoubleElectronTriggers();
+  void printRequiredEMTriggers();
   bool triggerFired(TString);
   bool triggerHasDZ(TString); //Check if a DZ version exists
+  bool triggerHasNonDZ(TString); //Check if a non-DZ version exists
   bool muonFired();
   bool electronFired();
   bool doubleMuonFired();

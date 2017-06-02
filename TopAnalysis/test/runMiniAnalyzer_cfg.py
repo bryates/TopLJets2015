@@ -62,7 +62,7 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck') 
                             )
 if options.runOnData:
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016G/MuonEG/MINIAOD/23Sep2016-v1/50000/A2AAED1F-F18F-E611-A51D-002590D0AFBA.root')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016G/DoubleMuon/MINIAOD/23Sep2016-v1/50000/0ADAF1EC-808D-E611-8B6C-008CFA056400.root')
     #/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/158/00000/06277EC1-181A-E611-870F-02163E0145E5.root')
 
 #this make the process crash ?!
