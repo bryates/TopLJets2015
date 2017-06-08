@@ -72,26 +72,26 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["massJPsi"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi"+tag+cut+weight+runPeriod_,";M_{#mu^{#pm}#mu^{#mp}} [GeV];Events / 18 MeV" ,50,2.5,3.4);
     allPlots["massJPsi_mu"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV];Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_mu_low_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu_low_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
-    allPlots["massJPsi_mu_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
+    allPlots["massJPsi_mu_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_e"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_e"+tag+cut+weight+runPeriod_,";M_{J/#Psi+e} [GeV];Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_e_low_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_e_low_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#e} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
-    allPlots["massJPsi_e_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_e_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#e} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
+    allPlots["massJPsi_e_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_e_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#e} [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_l"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_l"+tag+cut+weight+runPeriod_,";M_{J/#Psi+l} [GeV];Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_l_low_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_l_low_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#l} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
-    allPlots["massJPsi_l_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_l_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#l} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
+    allPlots["massJPsi_l_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_l_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#l} [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV" ,30,0,300);
     allPlots["massJPsiK"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsiK"+tag+cut+weight+runPeriod_,";M_{llk} [GeV];Events / 15 MeV" ,100,4.5,6);
     allPlots["JPsi_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi) [GeV];Events / 10 GeV", 20, 0, 200);
     allPlots["JPsi_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_eta"+tag+cut+weight+runPeriod_,";J/#Psi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_phi"+tag+cut+weight+runPeriod_,";J/#Psi #phi; Events", 50, -3.14,3.14);
     allPlots["JPsi_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV];Events / 10 GeV", 40, 0, 400);
     allPlots["JPsi_mu_pt_low_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt_low_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
-    allPlots["JPsi_mu_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
+    allPlots["JPsi_mu_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV", 40, 0, 400);
     allPlots["JPsi_e_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+e) [GeV];Events / 10 GeV", 40, 0, 400);
     allPlots["JPsi_e_pt_low_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt_low_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
-    allPlots["JPsi_e_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
+    allPlots["JPsi_e_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_e_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV", 40, 0, 400);
     allPlots["JPsi_l_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+l) [GeV];Events / 10 GeV", 40, 0,400);
     allPlots["JPsi_l_pt_low_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt_low_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
-    allPlots["JPsi_l_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
+    allPlots["JPsi_l_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV", 40, 0, 400);
     allPlots["JPsi_mu1_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_mu2_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_mu1_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_phi"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #phi; Events", 50, -3.14,3.14);
@@ -324,6 +324,7 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, 
     float dRmumu(pfmuCands[0].getVec().DeltaR(pfmuCands[1].getVec()));
     //J/Psi mass in slightly wide window
     allPlots["massJPsi_l"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
+    allPlots["massJPsi_l_all"+name+runPeriod_]->Fill(mass123,getWgt());
     if(lep[0].isMuon())
       allPlots["massJPsi_mu"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
     else if(lep[0].isElectron())
@@ -361,6 +362,7 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, 
     //dR test
     if(dRJPsil<2.0) {
       allPlots["massJPsi_l_low_dR"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
+      allPlots["massJPsi_l_low_dR_all"+name+runPeriod_]->Fill(mass123,getWgt());
       if(lep[0].isMuon())
         allPlots["massJPsi_mu_low_dR"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
       if(lep[0].isElectron())
@@ -368,6 +370,7 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, 
     }
     else {
       allPlots["massJPsi_l_high_dR"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
+      allPlots["massJPsi_l_high_dR_all"+name+runPeriod_]->Fill(mass123,getWgt());
       if(lep[0].isMuon())
         allPlots["massJPsi_mu_high_dR"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
       if(lep[0].isElectron())

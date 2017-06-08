@@ -90,10 +90,8 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 	  }
       fIn->Close();
       
-                    //ElectronIdMedium_egammaEffi_Moriond17_EGM2D.root
                     //ElectronIdTight_egammaEffi_Moriond17_EGM2D.root
-      lepEffUrl=era+"/ElectronIdMedium_egammaEffi_Moriond17_EGM2D.root"; //switch to tight FIXME ElectronIdTight_egammaEffi_Moriond17_EGM2D.root
-      //lepEffUrl=era+"/ElectronIdTight_egammaEffi_Moriond17_EGM2D.root";
+      lepEffUrl=era+"/ElectronIdTight_egammaEffi_Moriond17_EGM2D.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D")->Clone();

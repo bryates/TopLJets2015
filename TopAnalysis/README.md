@@ -53,6 +53,9 @@ done
 ``` 
 Then you can merge the json files for the same dataset to get the full list of run/lumi sections to analyse
 ```
+mergeJSON.py grid/crab_Data13TeV_SingleMuon_2016B/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016C/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016D/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016E/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016F/results/processedLumis.json --output data/era2016/Data13TeV_SingleMuon_lumis_BCDEF.json
+mergeJSON.py grid/crab_Data13TeV_SingleMuon_2016G/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016H_v2/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016H_v3/results/processedLumis.json --output data/era2016/Data13TeV_SingleMuon_lumis_GH.json
+
 mergeJSON.py grid/crab_Data13TeV_SingleMuon_2016B/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016C/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016D/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016E/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016F/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016G/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016H_v2/results/processedLumis.json grid/crab_Data13TeV_SingleMuon_2016H_v3/results/processedLumis.json --output data/era2016/Data13TeV_SingleMuon_lumis.json
 ```
 You can then run the brilcalc tool to get the integrated luminosity in total and per run (see https://twiki.cern.ch/twiki/bin/view/CMS/2015LumiNormtag for more details).
