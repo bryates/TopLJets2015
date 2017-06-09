@@ -82,11 +82,11 @@ case $WHAT in
         rename _${RUN}. . ${outdir}/plots/${RUN}/*_${RUN}.*
         rename _${RUN}_log. _log. ${outdir}/plots/${RUN}/*_${RUN}_log.*
         mv ${outdir}/plots/${RUN}/*_log*.{png,pdf} ${outdir}/plots/${RUN}/log/
-        mv ${outdir}/plots/${RUN}/*_ee*.{png,pdf} ${outdir}/plots/${RUN}/ee/
-        mv ${outdir}/plots/${RUN}/*_em*.{png,pdf} ${outdir}/plots/${RUN}/em/
-        mv ${outdir}/plots/${RUN}/*_e*.{png,pdf} ${outdir}/plots/${RUN}/e/
-        mv ${outdir}/plots/${RUN}/*_mm*.{png,pdf} ${outdir}/plots/${RUN}/mumu/
-        mv ${outdir}/plots/${RUN}/*_m*.{png,pdf} ${outdir}/plots/${RUN}/mu/
+        mv ${outdir}/plots/${RUN}/*_ee_*.{png,pdf} ${outdir}/plots/${RUN}/ee/
+        mv ${outdir}/plots/${RUN}/*_em_*.{png,pdf} ${outdir}/plots/${RUN}/em/
+        mv ${outdir}/plots/${RUN}/*_mm_*.{png,pdf} ${outdir}/plots/${RUN}/mumu/
+        mv ${outdir}/plots/${RUN}/*_e_*.{png,pdf} ${outdir}/plots/${RUN}/e/
+        mv ${outdir}/plots/${RUN}/*_m_*.{png,pdf} ${outdir}/plots/${RUN}/mu/
 	cp -p ${outdir}/plots/${RUN}/*.{png,pdf} ${wwwdir}/test/${RUN}/
 	cp -p ${outdir}/plots/${RUN}/log/*.{png,pdf} ${wwwdir}/test/${RUN}/log/
 	cp -p ${outdir}/plots/${RUN}/ee/*.{png,pdf} ${wwwdir}/test/${RUN}/ee/

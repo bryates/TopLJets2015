@@ -327,7 +327,7 @@ bool Trigger::isSingleMuonEvent() {
 bool Trigger::isSingleMuonEvent(Leptons leps) {
   if(leps.size() != 1) return false;
   if(abs(leps[0].getPdgId())!=13) return false;
-  if(isMCFile()) return true;
+  //if(isMCFile()) return true;
   return isSingleMuonEvent();
 }
 
@@ -348,7 +348,7 @@ bool Trigger::isSingleElectronEvent() {
 bool Trigger::isSingleElectronEvent(Leptons leps) {
   if(leps.size() != 1) return false;
   if(abs(leps[0].getPdgId())!=11) return false;
-  if(isMCFile()) return true;
+  //if(isMCFile()) return true;
   return isSingleElectronEvent();
 }
 
@@ -369,7 +369,7 @@ bool Trigger::isDoubleMuonEvent() {
 bool Trigger::isDoubleMuonEvent(Leptons leps) {
   if(leps.size() < 2) return false;
   if(abs(leps[0].getPdgId()*leps[1].getPdgId())!=13*13) return false;
-  if(isMCFile()) return true;
+  //if(isMCFile()) return true;
   return isDoubleMuonEvent();
 }
 
@@ -390,7 +390,7 @@ bool Trigger::isDoubleElectronEvent() {
 bool Trigger::isDoubleElectronEvent(Leptons leps) {
   if(leps.size() < 2) return false;
   if(abs(leps[0].getPdgId()*leps[1].getPdgId())!=11*11) return false;
-  if(isMCFile()) return true;
+  //if(isMCFile()) return true;
   return isDoubleElectronEvent();
 }
 
@@ -411,7 +411,7 @@ bool Trigger::isEMEvent() {
 bool Trigger::isEMEvent(Leptons leps) {
   if(leps.size() < 2) return false;
   if(abs(leps[0].getPdgId()*leps[1].getPdgId())!=11*13) return false;
-  if(isMCFile()) return true;
+  //if(isMCFile()) return true;
   return isEMEvent();
 }
 

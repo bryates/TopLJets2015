@@ -53,8 +53,8 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       TString lepEffUrl(era+"/EfficienciesAndSF_Run"+runPeriod+"_23SepReReco.root");
       gSystem->ExpandPathName(lepEffUrl);
       TFile *fIn=TFile::Open(lepEffUrl);
-      lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
-      //lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio")->Clone();
+      //lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
+      lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio")->Clone();
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 
@@ -90,6 +90,13 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 	  }
       fIn->Close();
       
+                            //SingleElectron_TriggerSF_Run2016BCDEF_v1.root
+      lepEffUrl=era+"/SingleElectron_TriggerSF_Run2016"+runPeriod+"_v1.root";
+      gSystem->ExpandPathName(lepEffUrl);
+      fIn=TFile::Open(lepEffUrl);
+      lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele27_WPTight_Gsf")->Clone();
+      lepEffH_["e_singleleptrig"]->SetDirectory(0);
+      fIn->Close();
                     //ElectronIdTight_egammaEffi_Moriond17_EGM2D.root
       lepEffUrl=era+"/ElectronIdTight_egammaEffi_Moriond17_EGM2D.root";
       gSystem->ExpandPathName(lepEffUrl);
@@ -128,6 +135,8 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	{
 	  TString hname(abs(leptons[0].getPdgId())==11 ? "e" : "m");
 	  //TString hname(abs(pdgId[0])==11 ? "e" : "m");
+	  //Correct for electron
+	  //  pT vs. eta (no abseta_pt)
 	  hname += "_singleleptrig";
 
 	  TH2 *h=lepEffH_[hname];
@@ -146,6 +155,9 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
   else
     {
       //cf .https://indico.cern.ch/event/532751/contributions/2170250/subcontributions/196785/attachments/1287403/1915605/Talk_TSG_0806.pdf
+      //**************************************
+      //*********** HARD CODED SFs ***********
+      //**************************************
       if(leptons.size()>=2)
 	{
 	  float leadPt(TMath::Max(leptons[0].Pt(),leptons[1].Pt())), trailPt(TMath::Min(leptons[0].Pt(),leptons[1].Pt()));
@@ -215,9 +227,9 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	{
 	  TString hname(abs(leptons[0].getPdgId())==11 ? "e" : "m");
 	  hname += "_singleleptrig";
-
-	  if( lepEffH_.find(hname)!=lepEffH_.end() )
+	  if( abs(leptons[0].getPdgId())==13 && lepEffH_.find(hname)!=lepEffH_.end() )
 	    {
+              if(debug_) std::cout << hname << std::endl;
 	      TH1 *h=lepEffH_[hname];
 	      float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
 	      float etaForEff=TMath::Max(TMath::Min(float(fabs(leptons[0].Eta())),maxEtaForEff),minEtaForEff);
@@ -230,6 +242,21 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	      corr.first=h->GetBinContent(etaBinForEff,ptBinForEff);
 	      corr.second=h->GetBinError(etaBinForEff,etaBinForEff);
 	    }
+          //electron histogram has inverted axes and uses eta, not abs(eta)
+	  else if( abs(leptons[0].getPdgId())==11 && lepEffH_.find(hname)!=lepEffH_.end() ) {
+              if(debug_) std::cout << hname << std::endl;
+	      TH1 *h=lepEffH_[hname];
+              float minEtaForEff( h->GetYaxis()->GetXmin() ), maxEtaForEff( h->GetYaxis()->GetXmax()-0.01 );
+              float etaForEff=TMath::Max(TMath::Min(float(leptons[0].Eta()),maxEtaForEff),minEtaForEff);
+              Int_t etaBinForEff=h->GetYaxis()->FindBin(etaForEff);
+
+              float minPtForEff( 30. ), maxPtForEff( h->GetXaxis()->GetXmax()-0.01 );
+              float ptForEff=TMath::Max(TMath::Min(float(leptons[0].Pt()),maxPtForEff),minPtForEff);
+              Int_t ptBinForEff=h->GetXaxis()->FindBin(ptForEff);
+
+              corr.first=h->GetBinContent(ptBinForEff,etaBinForEff);
+              corr.second=h->GetBinError(ptBinForEff,etaBinForEff);
+          }
 	}
     }
 
@@ -253,7 +280,11 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
     {
       TH2 *h=lepEffH_[hname];
       float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
-      float etaForEff=TMath::Max(TMath::Min(float(fabs(eta)),maxEtaForEff),minEtaForEff);
+      float etaForEff;
+      if (minEtaForEff >= 0.) //axis is abseta
+        etaForEff=TMath::Max(TMath::Min(float(fabs(eta)),maxEtaForEff),minEtaForEff);
+      else //axis is signed eta
+        etaForEff=TMath::Max(TMath::Min(float(eta),maxEtaForEff),minEtaForEff);
       Int_t etaBinForEff=h->GetXaxis()->FindBin(etaForEff);
 
       float minPtForEff( h->GetYaxis()->GetXmin() ), maxPtForEff( h->GetYaxis()->GetXmax()-0.01 );
@@ -265,9 +296,9 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
 
       //tracking efficiency (if available)
       hname=idstr+"_tk_aeta_"+runPeriod_;
-      if(debug_) std::cout << hname << std::endl;
       if(lepEffGr_.find(hname)!=lepEffGr_.end())
         {
+          if(debug_) std::cout << hname << std::endl;
           Double_t x(0.),xdiff(9999.),y(0.);
           float tkEffSF(1.0),tkEffSFUnc(0);
           for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
@@ -284,9 +315,9 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
           corr.first  = corr.first*tkEffSF;
         }
       hname=idstr+"_tk_vtx_"+runPeriod_;
-      if(debug_) std::cout << hname << std::endl;
       if(lepEffGr_.find(hname)!=lepEffGr_.end())
         {
+          if(debug_) std::cout << hname << std::endl;
           Double_t x(0.),xdiff(9999.),y(0.);
           float tkEffSF(1.0),tkEffSFUnc(0);
           for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
