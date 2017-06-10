@@ -91,10 +91,13 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       fIn->Close();
       
                             //SingleElectron_TriggerSF_Run2016BCDEF_v1.root
-      lepEffUrl=era+"/SingleElectron_TriggerSF_Run2016"+runPeriod+"_v1.root";
+                            //v1 has Ele25_eta2p1 and Ele_27
+                            //v2 has Ele32_eta2p1
+      lepEffUrl=era+"/SingleElectron_TriggerSF_Run2016"+runPeriod+"_v2.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
-      lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele27_WPTight_Gsf")->Clone();
+      lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele32_eta2p1_WPTight_Gsf")->Clone();
+      //lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele27_WPTight_Gsf")->Clone();
       lepEffH_["e_singleleptrig"]->SetDirectory(0);
       fIn->Close();
                     //ElectronIdTight_egammaEffi_Moriond17_EGM2D.root

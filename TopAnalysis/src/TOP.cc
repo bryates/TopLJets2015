@@ -425,7 +425,7 @@ void RunTop(TString filename,
 
       //Single electron
       //trigger.addRequiredElectronTrigger("HLT_Ele27_WPTight_Gsf_v");
-      //trigger.addRequiredElectronTrigger("HLT_Ele32_eta2p1_WPTight_Gsf_v");
+      trigger.addRequiredElectronTrigger("HLT_Ele32_eta2p1_WPTight_Gsf_v");
       //trigger.addRequiredElectronTrigger("HLT_Ele25_eta2p1_WPTight_Gsf_v");
 
       //Only triggers in Pedro's code
