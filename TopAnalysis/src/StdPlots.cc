@@ -245,6 +245,7 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
   allPlots["nj"+chTag+name+runPeriod_]->Fill(allJetsVec.size(),getWgt());
   allPlots["nlj"+chTag+name+runPeriod_]->Fill(lightJetsVec.size(),getWgt());
   allPlots["nbj"+chTag+name+runPeriod_]->Fill(bJetsVec.size(),getWgt());
+  allPlots["nbj_all"+name+runPeriod_]->Fill(bJetsVec.size(),getWgt());
   //allPlots["nlj"+chTag+name+"_no_weight"+runPeriod_]->Fill(lightJetsVec.size(),norm_);
   //allPlots["nbj"+chTag+name+"_no_weight"+runPeriod_]->Fill(bJetsVec.size(),norm_);
   //allPlots["nlj_all"+name+runPeriod_]->Fill(lightJetsVec.size(),getWgt());
