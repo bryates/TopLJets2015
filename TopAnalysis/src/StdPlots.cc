@@ -204,6 +204,7 @@ void StdPlots::FillGen(std::vector<Particle> tops, TString chTag, TString name) 
 }
 
 void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
+  if(debug_) std::cout << "Filling leptons only" << std::endl;
   if(!isGood_) return;
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
@@ -278,22 +279,23 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
   }
 
 }
-//Called by Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, TString name)
-void StdPlots::Fill(std::vector<pfTrack> pfmuCands, TString chTag, TString name) {
+//Called by Fill(std::vector<pfTrack> puCands, Leptons lep, TString chTag, TString name)
+void StdPlots::Fill(std::vector<pfTrack> pfCands, TString chTag, TString name) {
+  if(debug_) std::cout << "Filling meson only" << std::endl;
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
-  if(debug_) std::cout << "Filling J/Psi" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
   if(name.Contains("jpsi")) {
+    if(debug_) std::cout << "Filling J/Psi" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
     if(debug_) std::cout << "is " << name << std::endl;
-    if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) return;
-    TLorentzVector jpsi = pfmuCands[0].getVec() + pfmuCands[1].getVec();
-    //float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
+    if(pfCands[0].getPfid() != -pfCands[1].getPfid()) return;
+    TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
+    //float mass12((pfCands[0].getVec() + pfCands[1].getVec()).M());
     //J/Psi mass in slightly wide window
     if(jpsi.M()<2.5 || jpsi.M()>3.4) return; //Loose window for mass only
     if(debug_) std::cout << "is J/Psi" << name << std::endl;
     allPlots["massJPsi"+chTag+name+runPeriod_]->Fill(jpsi.M(),getWgt());
     allPlots["massJPsi_all"+name+runPeriod_]->Fill(jpsi.M(),getWgt());
-    //float pt12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).Pt());
+    //float pt12((pfCands[0].getVec() + pfCands[1].getVec()).Pt());
 
     if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
     allPlots["JPsi_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt(),getWgt());
@@ -303,26 +305,69 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, TString chTag, TString name)
     allPlots["JPsi_phi"+chTag+name+runPeriod_]->Fill(jpsi.Phi(),getWgt());
     allPlots["JPsi_phi_all"+name+runPeriod_]->Fill(jpsi.Phi(),getWgt());
   }
+  else if(name.Contains("meson")) {
+    if(pfCands.size()>=2) {
+      float mass12 = (pfCands[0].getVec() + pfCands[1].getVec()).M();
+      if(pfCands.size()==2) {
+        if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
+        if (mass12<1.65 && mass12>2.0) return;
+        allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
+        allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());
+        allPlots["nbj"+chTag+name+runPeriod_]->Fill(1,getWgt());
+      }
+      if(debug_) std::cout << "Filling D*" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
+      TLorentzVector p_cand = pfCands[0].getVec()+pfCands[1].getVec()+pfCands[2].getVec();
+      allPlots["massDs"+chTag+name+runPeriod_]->Fill(p_cand.M(), getWgt());
+      allPlots["massDs_all"+name+runPeriod_]->Fill(p_cand.M(), getWgt());
+      if(abs(mass12-1.864) > 0.10) return; // mass window cut
+      float deltam = p_cand.M() - mass12;
+
+      if(debug_) std::cout << "Filling D*-D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
+      allPlots["massDsmD0loose"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
+      allPlots["massDsmD0loose_all"+name+runPeriod_]->Fill(deltam, getWgt());
+      if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
+
+        allPlots["massDsmD0"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
+        allPlots["massDsmD0_all"+name+runPeriod_]->Fill(deltam, getWgt());
+        //allPlots["lp_pt"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Pt(),getWgt());
+        //allPlots["lp_pt_low"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Pt(),getWgt());
+        //allPlots["lp_eta"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Eta(),getWgt());
+        //allPlots["lp_phi"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Phi(),getWgt());
+        if(deltam<0.14 || deltam>0.15) return;
+      }
+    }
+  }
 }
 
-//Called by Fill(std::vector<pfTrack> pfmuCands, Leptons lep, Jet jet, TString chTag, TString name)
-void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, TString name) {
-  Fill(pfmuCands, chTag, name); //Fill meson only plots
+//Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
+void StdPlots::Fill(std::vector<pfTrack> pfCands, Leptons lep, TString chTag, TString name) {
+  Fill(pfCands, chTag, name); //Fill meson only plots
   Fill(lep, chTag, name);       //Fill lepton only plots
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
-  if(debug_) std::cout << "Filling J/Psi+lep" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
   //J/Psi events
   if(name.Contains("jpsi")) {
+    if(debug_) std::cout << "Filling J/Psi+lep" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
     if(debug_) std::cout << "is " << name << std::endl;
-    if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) return;
-    TLorentzVector jpsi = pfmuCands[0].getVec() + pfmuCands[1].getVec();
+    if(pfCands[0].getPfid() != -pfCands[1].getPfid()) return;
+    TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
     if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
     if(debug_) std::cout << "is J/Psi" << name << std::endl;
     float pt123((jpsi + lep[0].getVec()).Pt());
     float mass123((jpsi + lep[0].getVec()).M());
-    float dRJPsil(jpsi.DeltaR(lep[0].getVec()));
-    float dRmumu(pfmuCands[0].getVec().DeltaR(pfmuCands[1].getVec()));
+    int ilep = 0;
+    float dRJPsil(jpsi.DeltaR(lep[ilep].getVec()));
+    //Find closest isolated lepton in di-lepton event
+    if(lep.size()>1) {
+      for(ilep = 0; ilep < (int)lep.size(); ilep++) {
+        float tmpdRJPsil(jpsi.DeltaR(lep[ilep].getVec()));
+        if(tmpdRJPsil < dRJPsil) {
+          ilep = ilep; 
+          dRJPsil = tmpdRJPsil;
+        }
+      }
+    }
+    float dRmumu(pfCands[0].getVec().DeltaR(pfCands[1].getVec()));
     //J/Psi mass in slightly wide window
     allPlots["massJPsi_l"+chTag+name+runPeriod_]->Fill(mass123,getWgt());
     allPlots["massJPsi_l_all"+name+runPeriod_]->Fill(mass123,getWgt());
@@ -352,11 +397,11 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, 
     allPlots["dR_JPsi_l_all"+name+runPeriod_]->Fill(dRJPsil,getWgt());
 
     allPlots["dR_JPsi_mumu"+chTag+name+runPeriod_]->Fill(dRmumu,getWgt());
-    allPlots["JPsi_mu1_eta"+chTag+name+runPeriod_]->Fill(pfmuCands[0].Eta(),getWgt());
-    allPlots["JPsi_mu2_eta"+chTag+name+runPeriod_]->Fill(pfmuCands[1].Eta(),getWgt());
-    allPlots["JPsi_mu1_phi"+chTag+name+runPeriod_]->Fill(pfmuCands[0].Eta(),getWgt());
-    allPlots["JPsi_mu2_phi"+chTag+name+runPeriod_]->Fill(pfmuCands[1].Eta(),getWgt());
-    float pt_ratio = (pfmuCands[0].Pt() - pfmuCands[1].Pt())/(pfmuCands[0].Pt()+ pfmuCands[1].Pt());
+    allPlots["JPsi_mu1_eta"+chTag+name+runPeriod_]->Fill(pfCands[0].Eta(),getWgt());
+    allPlots["JPsi_mu2_eta"+chTag+name+runPeriod_]->Fill(pfCands[1].Eta(),getWgt());
+    allPlots["JPsi_mu1_phi"+chTag+name+runPeriod_]->Fill(pfCands[0].Eta(),getWgt());
+    allPlots["JPsi_mu2_phi"+chTag+name+runPeriod_]->Fill(pfCands[1].Eta(),getWgt());
+    float pt_ratio = (pfCands[0].Pt() - pfCands[1].Pt())/(pfCands[0].Pt()+ pfCands[1].Pt());
     allPlots["JPsi_mumu_pt_ratio"+chTag+name+runPeriod_]->Fill(pt_ratio,getWgt());
     allPlots["JPsi_mumu_pt_ratio_all"+name+runPeriod_]->Fill(pt_ratio,getWgt());
 
@@ -380,15 +425,15 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, TString chTag, 
   }
 }
 
-//Called by Fill(std::vector<pfTrack> pfmuCands, Leptons lep, Jet jet, TString chTag, TString name)
-void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Jet jet, TString chTag, TString name) {
+//Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
+void StdPlots::Fill(std::vector<pfTrack> pfCands, Jet jet, TString chTag, TString name) {
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
-  if(debug_) std::cout << "Filling J/Psi+jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
   if(name.Contains("jpsi")) {
+    if(debug_) std::cout << "Filling J/Psi+jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
     if(debug_) std::cout << "is " << name << std::endl;
-    if(pfmuCands[0].getPfid() != -pfmuCands[1].getPfid()) return;
-    TLorentzVector jpsi = pfmuCands[0].getVec() + pfmuCands[1].getVec();
+    if(pfCands[0].getPfid() != -pfCands[1].getPfid()) return;
+    TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
     if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
     if(debug_) std::cout << "is J/Psi" << name << std::endl;
     float jpt(jet.getPt());
@@ -401,12 +446,12 @@ void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Jet jet, TString chTag, TStr
 }
 
 //Fill for mesons (currently only J/Psi
-void StdPlots::Fill(std::vector<pfTrack> pfmuCands, Leptons lep, Jet jet, TString chTag, TString name) {
-  Fill(pfmuCands, lep, chTag, name); //Fill meson+lep plots
-  Fill(pfmuCands, jet, chTag, name); //Fill meson+jet run2
+void StdPlots::Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name) {
+  Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
+  Fill(pfCands, jet, chTag, name); //Fill meson+jet run2
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
-    TLorentzVector jpsi = pfmuCands[0].getVec() + pfmuCands[1].getVec();
+    TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
     if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
     float jpt(jet.getPt());
     float dRJPsil(jpsi.DeltaR(lep[0].getVec()));

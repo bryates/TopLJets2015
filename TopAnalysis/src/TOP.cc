@@ -1344,19 +1344,27 @@ void RunTop(TString filename,
             TLorentzVector p_track1, p_track2;
             p_track1.SetPtEtaPhiM(tracks[i].first.Pt(), tracks[i].first.Eta(), tracks[i].first.Phi(), gMassPi);
             p_track2.SetPtEtaPhiM(tracks[j].first.Pt(), tracks[j].first.Eta(), tracks[j].first.Phi(), gMassK);
-            if(debug) cout << i << ": " << tracks[i].first.Pt() << " " << tracks[i].first.Eta() << " " << tracks[i].first.Phi() << " " << gMassPi << endl;
-            if(debug) cout << j << ": " << tracks[j].first.Pt() << " " << tracks[j].first.Eta() << " " << tracks[j].first.Phi() << " " << gMassK << endl << endl;
             float mass12 = (p_track1+p_track2).M();
-            if(debug) cout << mass12 << endl;
+
             allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
             //allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
+            std::vector<pfTrack> pfCands;
+            pfCands.push_back(pfTrack(p_track1, tracks[i].first.getDxy(), tracks[i].first.getDxyE(), tracks[i].first.getDz(), tracks[i].first.getDzE(), tracks[i].second));
+            pfCands.push_back(pfTrack(p_track2, tracks[j].first.getDxy(), tracks[j].first.getDxyE(), tracks[j].first.getDz(), tracks[j].first.getDzE(), tracks[j].second));
+            runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+            runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
 
             if (mass12>1.65 && mass12<2.0) {
+              if(debug) cout << i << ": " << tracks[i].first.Pt() << " " << tracks[i].first.Eta() << " " << tracks[i].first.Phi() << " " << gMassPi << endl;
+              if(debug) cout << j << ": " << tracks[j].first.Pt() << " " << tracks[j].first.Eta() << " " << tracks[j].first.Phi() << " " << gMassK << endl << endl;
+              if(debug) cout << mass12 << endl;
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
               allPlots["massD0_all"]->Fill(mass12,wgt);
               //allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,norm);
               allPlots["nbj"+chTag+"_meson"]->Fill(1,wgt);
               //cout << ev.event << " " << iev << " " << jetindex << endl;
+              runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
+              runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
             }
 
             //looking for lepton
@@ -1398,6 +1406,7 @@ void RunTop(TString filename,
 
               TLorentzVector p_track3, p_cand;
               p_track3.SetPtEtaPhiM(tracks[k].first.Pt(), tracks[k].first.Eta(), tracks[k].first.Phi(), gMassPi);
+              pfCands.push_back(pfTrack(p_track3, tracks[k].first.getDxy(), tracks[k].first.getDxyE(), tracks[k].first.getDz(), tracks[k].first.getDzE(), tracks[k].second));
               if(debug) cout << k << ": " << tracks[k].first.Pt() << " " << tracks[k].first.Eta() << " " << tracks[k].first.Phi() << " " << gMassPi << endl;
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
               allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),norm);
@@ -1410,6 +1419,9 @@ void RunTop(TString filename,
                 allPlots["massDs"+chTag]->Fill(p_cand.M(), wgt);
                 allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),norm);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);
+
+                runBCDEF.Fill(pfCands, bJetsVec[ij], chTag, "meson");
+                runGH.Fill(pfCands, bJetsVec[ij], chTag, "meson");
 
                 if(abs(mass12-1.864) < 0.10) { // mass window cut
                   TLorentzVector p_jet;
@@ -1430,6 +1442,8 @@ void RunTop(TString filename,
                     allPlots["lp_eta"+chTag+"_meson"]->Fill(leptons[0].Eta(),wgt);
                     allPlots["lp_phi"+chTag+"_meson"]->Fill(leptons[0].Phi(),wgt);
                     if(deltam<0.14 || deltam>0.15) continue;
+                    runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
+                    runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
                     allPlots["nevt"+chTag+"_meson"]->Fill(1,norm);
                     allPlots["weight"+chTag+"_meson"]->Fill(wgt,norm);
                     allPlots["norm"+chTag+"_meson"]->Fill(norm,norm);
