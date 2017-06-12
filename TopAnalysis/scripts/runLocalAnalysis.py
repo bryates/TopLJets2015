@@ -60,9 +60,12 @@ def main():
     parser.add_option(      '--era',         dest='era',         help='era to use for corrections/uncertainties  [%default]',   default='era2016',  type='string')
     parser.add_option(      '--runPeriod',   dest='runPeriod',   help='peirod to use for corrections/uncertainties  [%default]',default='BCDEF',    type='string')
     parser.add_option(      '--tag',         dest='tag',         help='normalize from this tag  [%default]',                    default=None,       type='string')
+    parser.add_option(      '--type',        dest='type',        help='only run Data or MC  [%default]',                        default=None,       type='string')
+    parser.add_option(      '--dataOnly',    dest='dataOnly',    help='only run Data  [%default]',                              default=False,      action='store_true')
+    parser.add_option(      '--MCOnly',      dest='MCOnly',      help='only run MC  [%default]',                                default=False,      action='store_true')
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
-    parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                                default=0,    type='int')
-    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,       action='store_true')
+    parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                  default=0,          type='int')
+    parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,      action='store_true')
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -117,6 +120,8 @@ def main():
             split_run = splitRun( opt.runPeriod )
             if 'Data' in tag:
                 if not any(run in tag for run in split_run): continue
+                if opt.MCOnly: continue
+            if 'MC' in tag and opt.dataOnly: continue
 
             ############### Submit to condor ###############
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )

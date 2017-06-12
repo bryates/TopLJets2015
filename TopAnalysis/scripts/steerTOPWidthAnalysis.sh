@@ -50,7 +50,12 @@ RED='\e[31m'
 NC='\e[0m'
 case $WHAT in
     SEL )
-	python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
+        if [ "${RUN}" == "BCDEFGH" ]; then
+	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} --dataOnly -m TOP::RunTop --ch 0;
+	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod B --MCOnly -m TOP::RunTop --ch 0;
+        else
+  	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
+        fi
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	
