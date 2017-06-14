@@ -277,10 +277,10 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
     //allPlots["bj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),norm_);
     //allPlots["bj_pt_all"+name+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),getWgt());
   }
-
 }
+
 //Called by Fill(std::vector<pfTrack> puCands, Leptons lep, TString chTag, TString name)
-void StdPlots::Fill(std::vector<pfTrack> pfCands, TString chTag, TString name) {
+void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) {
   if(debug_) std::cout << "Filling meson only" << std::endl;
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
@@ -305,42 +305,11 @@ void StdPlots::Fill(std::vector<pfTrack> pfCands, TString chTag, TString name) {
     allPlots["JPsi_phi"+chTag+name+runPeriod_]->Fill(jpsi.Phi(),getWgt());
     allPlots["JPsi_phi_all"+name+runPeriod_]->Fill(jpsi.Phi(),getWgt());
   }
-  else if(name.Contains("meson")) {
-    if(pfCands.size()>=2) {
-      float mass12 = (pfCands[0].getVec() + pfCands[1].getVec()).M();
-      if(pfCands.size()==2) {
-        if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
-        if (mass12<1.65 && mass12>2.0) return;
-        allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
-        allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());
-        allPlots["nbj"+chTag+name+runPeriod_]->Fill(1,getWgt());
-      }
-      if(debug_) std::cout << "Filling D*" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
-      TLorentzVector p_cand = pfCands[0].getVec()+pfCands[1].getVec()+pfCands[2].getVec();
-      allPlots["massDs"+chTag+name+runPeriod_]->Fill(p_cand.M(), getWgt());
-      allPlots["massDs_all"+name+runPeriod_]->Fill(p_cand.M(), getWgt());
-      if(abs(mass12-1.864) > 0.10) return; // mass window cut
-      float deltam = p_cand.M() - mass12;
 
-      if(debug_) std::cout << "Filling D*-D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
-      allPlots["massDsmD0loose"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
-      allPlots["massDsmD0loose_all"+name+runPeriod_]->Fill(deltam, getWgt());
-      if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
-
-        allPlots["massDsmD0"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
-        allPlots["massDsmD0_all"+name+runPeriod_]->Fill(deltam, getWgt());
-        //allPlots["lp_pt"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Pt(),getWgt());
-        //allPlots["lp_pt_low"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Pt(),getWgt());
-        //allPlots["lp_eta"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Eta(),getWgt());
-        //allPlots["lp_phi"+chTag+name+runPeriod_+"_meson"]->Fill(leptons[0].Phi(),getWgt());
-        if(deltam<0.14 || deltam>0.15) return;
-      }
-    }
-  }
 }
 
 //Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
-void StdPlots::Fill(std::vector<pfTrack> pfCands, Leptons lep, TString chTag, TString name) {
+void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, TString name) {
   Fill(pfCands, chTag, name); //Fill meson only plots
   Fill(lep, chTag, name);       //Fill lepton only plots
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
@@ -426,7 +395,7 @@ void StdPlots::Fill(std::vector<pfTrack> pfCands, Leptons lep, TString chTag, TS
 }
 
 //Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
-void StdPlots::Fill(std::vector<pfTrack> pfCands, Jet jet, TString chTag, TString name) {
+void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TString name) {
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
@@ -443,10 +412,50 @@ void StdPlots::Fill(std::vector<pfTrack> pfCands, Jet jet, TString chTag, TStrin
     allPlots["csv"+chTag+name+runPeriod_]->Fill(csv,getWgt());
     allPlots["csv_all"+name+runPeriod_]->Fill(csv,getWgt());
   }
+  else if(name.Contains("meson")) {
+    if(debug_) std::cout << "pfCands: " << pfCands.size() << std::endl;
+    float mass12(0.);
+    if(pfCands.size()>1) mass12 = (pfCands[0].getVec() + pfCands[1].getVec()).M();
+    if(pfCands.size()==2 && (mass12>1.65 && mass12<2.0)) { //Plot D0 only
+      if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
+      allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
+      allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());
+      allPlots["nbj"+chTag+name+runPeriod_]->Fill(1,getWgt());
+    }
+    if(pfCands.size()>=2) {
+      //recheck first pi and K
+      if(pfCands[0].getPdgId()*pfCands[1].getPdgId() != -211*211) return;
+      //if (mass12<1.65 && mass12>2.0) return;
+
+      if(fabs(pfCands[2].getPdgId()) != 211) return; //reinforce pion
+      // Kaon and pion have opposite charges
+      // I.e. correct mass assumption
+      if(pfCands[1].charge() == pfCands[2].charge()) return;
+
+      if(debug_) std::cout << "Filling D*" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
+      TLorentzVector p_cand = pfCands[0].getVec()+pfCands[1].getVec()+pfCands[2].getVec();
+      allPlots["massDs"+chTag+name+runPeriod_]->Fill(p_cand.M(), getWgt());
+      allPlots["massDs_all"+name+runPeriod_]->Fill(p_cand.M(), getWgt());
+      if(fabs(mass12-1.864) > 0.10) return; // mass window cut
+      float deltam = p_cand.M() - mass12;
+
+      if(debug_) std::cout << "Filling D*-D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
+      allPlots["massDsmD0loose"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
+      allPlots["massDsmD0loose_all"+name+runPeriod_]->Fill(deltam, getWgt());
+      if(fabs(mass12-1.864) > 0.05) return; // tighter mass window cut
+      if(debug_) std::cout << "Masses: " << pfCands[0].getVec().M() << " ";
+      if(debug_) std::cout << pfCands[1].getVec().M() << " ";
+      if(debug_) std::cout << pfCands[2].getVec().M() << std::endl;
+
+      allPlots["massDsmD0"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
+      allPlots["massDsmD0_all"+name+runPeriod_]->Fill(deltam, getWgt());
+      //if(deltam<0.14 || deltam>0.15) return;
+    }
+  }
 }
 
 //Fill for mesons (currently only J/Psi
-void StdPlots::Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name) {
+void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name) {
   Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
   Fill(pfCands, jet, chTag, name); //Fill meson+jet run2
   if(!name.EqualTo("")) name = "_" + name;

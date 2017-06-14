@@ -1408,25 +1408,27 @@ void RunTop(TString filename,
               if(debug) cout << "Pion found" << endl;
 
               TLorentzVector p_track3, p_cand;
+              std::vector<pfTrack> &tmp_cands = pfCands;
               p_track3.SetPtEtaPhiM(tracks[k].first.Pt(), tracks[k].first.Eta(), tracks[k].first.Phi(), gMassPi);
-              pfCands.push_back(pfTrack(p_track3, tracks[k].first.getDxy(), tracks[k].first.getDxyE(), tracks[k].first.getDz(), tracks[k].first.getDzE(), tracks[k].second));
+              //pfCands.push_back(pfTrack(p_track3, tracks[k].first.getDxy(), tracks[k].first.getDxyE(), tracks[k].first.getDz(), tracks[k].first.getDzE(), tracks[k].second));
               if(debug) cout << k << ": " << tracks[k].first.Pt() << " " << tracks[k].first.Eta() << " " << tracks[k].first.Phi() << " " << gMassPi << endl;
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
               allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),norm);
               if( tracks[j].second/abs(tracks[j].second) == -tracks[k].second/abs(tracks[k].second) ) {
                 // Kaon and pion have opposite charges
                 // I.e. correct mass assumption
-                if(debug) cout << "correct mass assumption" << endl;
+                tmp_cands.push_back(pfTrack(p_track3, tracks[k].first.getDxy(), tracks[k].first.getDxyE(), tracks[k].first.getDz(), tracks[k].first.getDzE(), tracks[k].second));
+                if(debug) cout << "correct mass assumption (D*)" << endl;
 
                 p_cand = p_track1+p_track2+p_track3;
                 allPlots["massDs"+chTag]->Fill(p_cand.M(), wgt);
                 allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),norm);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);
 
-                runBCDEF.Fill(pfCands, bJetsVec[ij], chTag, "meson");
-                runGH.Fill(pfCands, bJetsVec[ij], chTag, "meson");
+                runBCDEF.Fill(tmp_cands, bJetsVec[ij], chTag, "meson");
+                runGH.Fill(tmp_cands, bJetsVec[ij], chTag, "meson");
 
-                if(abs(mass12-1.864) < 0.10) { // mass window cut
+                if(fabs(mass12-1.864) < 0.10) { // mass window cut
                   TLorentzVector p_jet;
                   p_jet.SetPtEtaPhiM(ev.j_pt[jetindex], ev.j_eta[jetindex], ev.j_phi[jetindex], 0.);
 
@@ -1435,7 +1437,10 @@ void RunTop(TString filename,
                   allPlots["massDsmD0loose"+chTag]->Fill(deltam, wgt);
                   allPlots["massDsmD0loose"+chTag+"_no_weight"]->Fill(deltam,norm);
                   allPlots["massDsmD0loose_all"]->Fill(deltam, wgt);
-                  if(abs(mass12-1.864) < 0.05) { // tighter mass window cut
+                  if(fabs(mass12-1.864) < 0.05) { // tighter mass window cut
+                    if(debug) std::cout << "TOP.CC Masses: " << tmp_cands[0].getVec().M() << " ";
+                    if(debug) std::cout << tmp_cands[1].getVec().M() << " ";
+                    if(debug) std::cout << tmp_cands[2].getVec().M() << std::endl << std::endl;
 
                     allPlots["massDsmD0"+chTag]->Fill(deltam, wgt);
                     allPlots["massDsmD0"+chTag+"_no_weight"]->Fill(deltam, norm);

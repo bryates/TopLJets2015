@@ -401,6 +401,20 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gjpsi_mu_dz[ev_.ngjpsi]  = daug->dz(primVtx.position());
       ev_.gjpsi_mu_dzE[ev_.ngjpsi]  = daug->dzE();
       */
+ 
+      //Find t(tbar) mother
+      while(abs(daug->pdgId()) != 6) {
+        int charge = daug->charge();
+        if(!charge) charge = 1;
+        cout << "PdgId= " << daug->pdgId()*charge << endl;
+        daug = daug->mother();
+        charge = daug->charge();
+        if(!charge) charge = 1;
+        cout << "Mother PdgId= " << daug->pdgId()*charge << endl;
+        if(abs(daug->pdgId()) == 2212) break;
+        if(abs(daug->pdgId()) == 22) break;
+      }
+      ev_.gmeson_mother_id[2*ev_.ngmeson+ipf] = daug->pdgId()*daug->charge();
     }
     if(!JPsiDaughter && !D0Daughter) continue;
     /*

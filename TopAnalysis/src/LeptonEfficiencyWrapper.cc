@@ -171,13 +171,13 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	      if(leadPt<40)
 		{
 		  if(trailPt<40) { corr.first=0.908; corr.second=0.039; }
-                  else           { corr.first=1.000; corr.second=0.000; }
+                  //else           { corr.first=1.000; corr.second=0.000; }
 		}
 	      else if(leadPt<70)
 		{
 		  if(trailPt<40)      { corr.first=0.897; corr.second=0.033; }
 		  else if(trailPt<70) { corr.first=0.859; corr.second=0.054; }
-                  else                { corr.first=1.000; corr.second=0.000; }
+                  //else                { corr.first=1.000; corr.second=0.000; }
 		}
 	      else 
 		{
@@ -214,13 +214,13 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	      if(leadPt<40)
                 {
                   if(trailPt<40) { corr.first=0.853; corr.second=0.056; }
-                  else           { corr.first=1.000; corr.second=0.000; }
+                  //else           { corr.first=1.000; corr.second=0.000; }
 		}
 	      else if(leadPt<70)
 		{
                   if(trailPt<40)      { corr.first=0.954; corr.second=0.026; }
                   else if(trailPt<70) { corr.first=0.944; corr.second=0.042; }
-                  else                { corr.first=1.000; corr.second=0.000; }
+                  //else                { corr.first=1.000; corr.second=0.000; }
                 }
 	      else
 		{

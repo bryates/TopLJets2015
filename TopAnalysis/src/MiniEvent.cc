@@ -31,6 +31,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   //gen level J/Psi
   t->Branch("ngjpsi",       &ev.ngjpsi, "ngjpsi/I");
   t->Branch("ngmeson",      &ev.ngmeson, "ngmeson/I");
+  t->Branch("gmeson_mother_id",  ev.gmeson_mother_id, "gmeson_mother_id[ngmeson]/I");
   t->Branch("gmeson_daug_id",  ev.gmeson_daug_id, "gmeson_daug_id[ngmeson]/I");
   t->Branch("gmeson_daug_pt",  ev.gmeson_daug_pt, "gmeson_daug_pt[ngmeson]/F");
   t->Branch("gmeson_daug_eta", ev.gmeson_daug_eta, "gmeson_daug_eta[ngmeson]/F");
@@ -207,6 +208,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   //gen level J/Psi
   t->SetBranchAddress("ngjpsi",       &ev.ngmeson);
   t->SetBranchAddress("ngmeson",      &ev.ngmeson);
+  t->SetBranchAddress("gmeson_mother_id",  ev.gmeson_mother_id);
   t->SetBranchAddress("gmeson_daug_id",  ev.gmeson_daug_id);
   t->SetBranchAddress("gmeson_daug_pt",  ev.gmeson_daug_pt);
   t->SetBranchAddress("gmeson_daug_eta", ev.gmeson_daug_eta);

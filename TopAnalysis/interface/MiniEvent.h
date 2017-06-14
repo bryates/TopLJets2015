@@ -28,7 +28,7 @@ struct MiniEvent_t
   Float_t gtop_pt[15],gtop_eta[15],gtop_phi[15],gtop_m[15]; 
   Int_t gpf_id[5000],gpf_c[5000],gpf_g[5000];
   Float_t gpf_pt[5000],gpf_eta[5000],gpf_phi[5000],gpf_m[5000];
-  Int_t gmeson_id[5000],gmeson_daug_id[5000];
+  Int_t gmeson_id[5000],gmeson_daug_id[5000],gmeson_mother_id[5000];
   Float_t gmeson_pt[5000],gmeson_eta[5000],gmeson_phi[5000],gmeson_m[5000],gmeson_daug_dR[5000],gmeson_index[5000];
   Float_t gmeson_daug_pt[5000],gmeson_daug_eta[5000],gmeson_daug_phi[5000],gmeson_daug_m[5000],gmeson_daug_meson_index[5000],gmeson_daug_dxy[5000],gmeson_daug_dxyE[5000],gmeson_daug_dz[5000],gmeson_daug_dzE[5000];
 
