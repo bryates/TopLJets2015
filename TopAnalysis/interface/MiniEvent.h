@@ -8,7 +8,7 @@ struct MiniEvent_t
   MiniEvent_t()
   {
     ttbar_nw=0;
-    ng=0; ngtop=0; ngpf=0; ngjpsi=0; ngmeson=0;
+    ng=0; ngtop=0; ngpf=0; ngjpsi=0; ngmeson=0; ngmeson_daug=0;
     nl=0; nj=0; nmet=0; npf=0;
   }
 
@@ -20,7 +20,7 @@ struct MiniEvent_t
   Int_t pu,putrue;
   Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
   Float_t ttbar_w[500];
-  Int_t ng,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson;
+  Int_t ng,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson,ngmeson_daug;
   Float_t gtop_pt_wgt;
   Int_t g_id[500];
   Float_t g_pt[500],g_eta[500],g_phi[500],g_m[500]; 

@@ -209,6 +209,8 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
                   else                { corr.first=1.000; corr.second=0.045; }
                 }
 	    }
+          else if(cat==11*11)         { corr.first=1.00;  corr.second=0.000; } //Using 1 until correct HLT SFs are available
+          /*
 	  else if(cat==11*11) 
 	    {
 	      if(leadPt<40)
@@ -229,6 +231,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
                   else                { corr.first=0.941; corr.second=0.122; }
                 }
 	    }
+          */
 	}
       else 
 	{

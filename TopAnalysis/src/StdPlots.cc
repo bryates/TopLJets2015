@@ -416,7 +416,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     if(debug_) std::cout << "pfCands: " << pfCands.size() << std::endl;
     float mass12(0.);
     if(pfCands.size()>1) mass12 = (pfCands[0].getVec() + pfCands[1].getVec()).M();
-    if(pfCands.size()==2 && (mass12>1.65 && mass12<2.0)) { //Plot D0 only
+    if(pfCands.size()==2 && (mass12>1.7 && mass12<2.0)) { //Plot D0 only
       if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
       allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
       allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());

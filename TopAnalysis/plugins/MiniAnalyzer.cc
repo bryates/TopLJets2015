@@ -359,7 +359,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   //Meson decay (J/Psi or D0)
   ev_.ngjpsi=0;
   ev_.ngmeson=0;
-  int meson_index=0; 
+  ev_.ngmeson_daug=0;
   //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
@@ -390,11 +390,13 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       cout << daug->phi() << endl;
       */
       //2*ev_.ngjpsi to account for 2 duaghters per J/Psi
-      ev_.gmeson_daug_id[2*ev_.ngmeson+ipf] = daug->pdgId();
-      ev_.gmeson_daug_pt[2*ev_.ngmeson+ipf] = daug->pt();
-      ev_.gmeson_daug_eta[2*ev_.ngmeson+ipf] = daug->eta();
-      ev_.gmeson_daug_phi[2*ev_.ngmeson+ipf] = daug->phi();
-      ev_.gmeson_daug_meson_index[2*ev_.ngmeson+ipf] = meson_index;
+      ev_.gmeson_daug_id[ev_.ngmeson_daug] = daug->pdgId();
+      ev_.gmeson_daug_pt[ev_.ngmeson_daug] = daug->pt();
+      ev_.gmeson_daug_eta[ev_.ngmeson_daug] = daug->eta();
+      ev_.gmeson_daug_phi[ev_.ngmeson_daug] = daug->phi();
+      ev_.gmeson_daug_meson_index[ev_.ngmeson_daug] = ev_.ngmeson;
+      //cout << "i: " << i << " " << ev_.event << " " << ev_.ngmeson << " " << ev_.ngmeson_daug << " " << ev_.ngmeson << endl;
+
       /*
       ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
       ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
@@ -406,15 +408,16 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       while(abs(daug->pdgId()) != 6) {
         int charge = daug->charge();
         if(!charge) charge = 1;
-        cout << "PdgId= " << daug->pdgId()*charge << endl;
+        //cout << "PdgId= " << daug->pdgId()*charge << endl;
         daug = daug->mother();
         charge = daug->charge();
         if(!charge) charge = 1;
-        cout << "Mother PdgId= " << daug->pdgId()*charge << endl;
+        //cout << "Mother PdgId= " << daug->pdgId()*charge << endl;
         if(abs(daug->pdgId()) == 2212) break;
         if(abs(daug->pdgId()) == 22) break;
       }
-      ev_.gmeson_mother_id[2*ev_.ngmeson+ipf] = daug->pdgId()*daug->charge();
+      ev_.gmeson_mother_id[ev_.ngmeson_daug] = daug->pdgId()*daug->charge();
+      ev_.ngmeson_daug++;
     }
     if(!JPsiDaughter && !D0Daughter) continue;
     /*
@@ -430,10 +433,10 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     ev_.gmeson_phi[ev_.ngmeson]    = genIt.phi();
     ev_.gmeson_m[ev_.ngmeson]      = genIt.mass();
     ev_.gmeson_daug_dR[ev_.ngmeson]  = reco::deltaR(genIt.daughter(0)->eta(),genIt.daughter(0)->phi(),genIt.daughter(1)->eta(),genIt.daughter(1)->phi());
-    ev_.gmeson_index[ev_.ngmeson] = meson_index;
+    ev_.gmeson_index[ev_.ngmeson] = ev_.ngmeson;
     if(JPsiDaughter) ev_.ngjpsi++;
+    //if(JPsiDaughter || D0Daughter) ev_.ngmeson++;
     ev_.ngmeson++;
-    meson_index++;
   }
 
   //top or stop quarks (lastCopy)
@@ -805,6 +808,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     else if(fabs(pf->pdgId())==211) mupik.second++;
     else continue;
 
+    //If this jet is already in the map, increment with the new paticles
     if(nPFJet.find(ev_.pf_j[ev_.npf]) != nPFJet.end()) {
       nPFJet[ev_.pf_j[ev_.npf]].first += mupik.first;
       nPFJet[ev_.pf_j[ev_.npf]].second += mupik.second;
@@ -814,6 +818,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       cout << "pi/K " << nPFJet[ev_.pf_j[ev_.npf]].second << endl;
       */
     }
+    //Otherwise, add this jet to the map
     else nPFJet[ev_.pf_j[ev_.npf]] = mupik;
     pfCand.push_back(std::pair<int,double>(ev_.npf,pf->pt()));
     ev_.pf_jnpf[ev_.pf_j[ev_.npf]]++;
@@ -822,9 +827,10 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
   }
 
-  sort(pfCand.begin(),pfCand.end(), pfSort);
+  sort(pfCand.begin(),pfCand.end(), pfSort); //FIXME use lambda function
   pfCand.resize(6); //keep only 6 hardest non muon PF candidates
 
+  //Now actually put the desired jets in the ntuple
   ev_.npf=0;
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf)
     {
