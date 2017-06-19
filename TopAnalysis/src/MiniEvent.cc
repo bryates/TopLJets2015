@@ -31,7 +31,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   //gen level J/Psi
   t->Branch("ngjpsi",       &ev.ngjpsi, "ngjpsi/I");
   t->Branch("ngmeson",      &ev.ngmeson, "ngmeson/I");
-  t->Branch("ngmeson_daug", &ev.ngmeson, "ngmeson_daug/I");
+  t->Branch("ngmeson_daug", &ev.ngmeson_daug, "ngmeson_daug/I");
   t->Branch("gmeson_mother_id",  ev.gmeson_mother_id, "gmeson_mother_id[ngmeson]/I");
   t->Branch("gmeson_daug_id",  ev.gmeson_daug_id, "gmeson_daug_id[ngmeson_daug]/I");
   t->Branch("gmeson_daug_pt",  ev.gmeson_daug_pt, "gmeson_daug_pt[ngmeson_daug]/F");
@@ -109,6 +109,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_area",     ev.j_area,      "j_area[nj]/F");
   t->Branch("j_rawsf",    ev.j_rawsf,      "j_rawsf[nj]/F");
   t->Branch("j_pt",       ev.j_pt,      "j_pt[nj]/F");
+  t->Branch("j_pt_charged", ev.j_pt_charged, "j_pt_charged[nj]/F");
   t->Branch("j_eta",      ev.j_eta,     "j_eta[nj]/F");
   t->Branch("j_phi",      ev.j_phi,     "j_phi[nj]/F");
   t->Branch("j_mass",     ev.j_mass,     "j_mass[nj]/F");
@@ -267,6 +268,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("j_area",     ev.j_area);
   t->SetBranchAddress("j_rawsf",    ev.j_rawsf);
   t->SetBranchAddress("j_pt",       ev.j_pt);
+  t->SetBranchAddress("j_pt_charged", ev.j_pt_charged);
   t->SetBranchAddress("j_eta",      ev.j_eta);
   t->SetBranchAddress("j_phi",      ev.j_phi);
   t->SetBranchAddress("j_mass",     ev.j_mass);

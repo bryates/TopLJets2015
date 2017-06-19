@@ -129,7 +129,7 @@ def main():
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
             condorFile.write('executable            = condor/cond_submit.sh\n')
-            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s\n' % (tag,opt.runPeriod))
+            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s\n' % (opt.input,opt.output,tag,opt.runPeriod))
             condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag)
             condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % tag)
             condorFile.write('log                   = condor/log/%s.log\n' % tag)

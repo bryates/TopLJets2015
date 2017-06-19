@@ -338,7 +338,7 @@ void RunTop(TString filename,
 
       Electrons.setMinPt(30);
       Electrons.setMaxEta(2.4);
-      Electrons.setMaxRelIso(.15);
+      Electrons.setMaxRelIso(0.15);
 
       VetoLeptons.setMinPt(15);
       VetoLeptons.setMaxEta(2.4);

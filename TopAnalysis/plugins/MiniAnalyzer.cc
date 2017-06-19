@@ -359,7 +359,6 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   //Meson decay (J/Psi or D0)
   ev_.ngjpsi=0;
   ev_.ngmeson=0;
-  ev_.ngmeson_daug=0;
   //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
@@ -370,9 +369,11 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     if(genIt.numberOfDaughters()!=2) continue;
     if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
        genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321) continue;
+    //cout << "New meson found: ngmeson = " << ev_.ngmeson << endl; 
     //cout << "daughter found" << endl;
     bool JPsiDaughter = false;
     bool D0Daughter = false;
+    ev_.ngmeson_daug=0;
     for(size_t ipf=0; ipf<genIt.numberOfDaughters(); ipf++) {
       //cout << "loading daughter" << endl;
       const reco::Candidate *daug=genIt.daughter(ipf);
@@ -380,6 +381,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       else if(abs(daug->pdgId())==211 && absid==421) D0Daughter = true;
       else if(abs(daug->pdgId())==321 && absid==421) D0Daughter = true;
       else continue;
+      //cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
       /*
       if(JPsiDaughter) cout << "J/Psi" << endl;
       else if(D0Daughter) cout << "D0" << endl;
@@ -403,20 +405,21 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gjpsi_mu_dz[ev_.ngjpsi]  = daug->dz(primVtx.position());
       ev_.gjpsi_mu_dzE[ev_.ngjpsi]  = daug->dzE();
       */
- 
+
       //Find t(tbar) mother
       while(abs(daug->pdgId()) != 6) {
-        int charge = daug->charge();
-        if(!charge) charge = 1;
+        if(daug->mother() == 0) break;
+        //int charge = daug->charge();
+        //if(!charge) charge = 1;
         //cout << "PdgId= " << daug->pdgId()*charge << endl;
         daug = daug->mother();
-        charge = daug->charge();
-        if(!charge) charge = 1;
-        //cout << "Mother PdgId= " << daug->pdgId()*charge << endl;
+        //charge = daug->charge();
+        //if(!charge) charge = 1;
+        //cout << "Mother PdgId= " << daug->pdgId() << endl;
         if(abs(daug->pdgId()) == 2212) break;
         if(abs(daug->pdgId()) == 22) break;
       }
-      ev_.gmeson_mother_id[ev_.ngmeson_daug] = daug->pdgId()*daug->charge();
+      ev_.gmeson_mother_id[ev_.ngmeson_daug] = daug->pdgId(); //*daug->charge();
       ev_.ngmeson_daug++;
     }
     if(!JPsiDaughter && !D0Daughter) continue;
@@ -761,15 +764,20 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.j_flav[ev_.nj]=j->partonFlavour();
       ev_.j_hadflav[ev_.nj]=j->hadronFlavour();
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
-      ev_.nj++;
 
+      ev_.j_pt_charged[ev_.nj]=0; //pT of charged tracks only
       //save all PF candidates central jet
       if(fabs(j->eta())>2.5) continue;
+      float jpt=0;
       for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
 	{
 	  const reco::Candidate *pf=j->daughter(ipf);
 	  clustCands.push_back(std::pair<const reco::Candidate *,int>(pf,ev_.nj-1));
+          ev_.j_pt_charged[ev_.nj] += abs(pf->pt()*pf->charge()); //pT of charged tracks only (neutral particles weighted by 0)
+          jpt += pf->pt(); //pT of charged tracks only (neutral particles weighted by 0)
 	}
+
+      ev_.nj++;
     }
       
   // MET

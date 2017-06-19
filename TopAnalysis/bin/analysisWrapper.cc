@@ -52,7 +52,10 @@ int main(int argc, char* argv[])
 
   //open normalization file
   TH1F *normH=0;
-  TFile *normF=TFile::Open(era+"/genweights.root");
+  TString normUrl(era+"/genweights.root");
+  if(TString(normTag).Contains("MC13TeV_TTJets_m1")) normUrl.ReplaceAll("genweights","genweights_mass");
+  gSystem->ExpandPathName(normUrl);
+  TFile *normF=TFile::Open(normUrl);
   if(normF)
     {
       normH=(TH1F *)normF->Get(normTag);
