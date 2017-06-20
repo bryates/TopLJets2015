@@ -109,6 +109,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("j_area",     ev.j_area,      "j_area[nj]/F");
   t->Branch("j_rawsf",    ev.j_rawsf,      "j_rawsf[nj]/F");
   t->Branch("j_pt",       ev.j_pt,      "j_pt[nj]/F");
+  t->Branch("j_pt_pf",    ev.j_pt_pf,   "j_pt_pf[nj]/F");
   t->Branch("j_pt_charged", ev.j_pt_charged, "j_pt_charged[nj]/F");
   t->Branch("j_eta",      ev.j_eta,     "j_eta[nj]/F");
   t->Branch("j_phi",      ev.j_phi,     "j_phi[nj]/F");
@@ -268,6 +269,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("j_area",     ev.j_area);
   t->SetBranchAddress("j_rawsf",    ev.j_rawsf);
   t->SetBranchAddress("j_pt",       ev.j_pt);
+  t->SetBranchAddress("j_pt_pf", ev.j_pt_pf);
   t->SetBranchAddress("j_pt_charged", ev.j_pt_charged);
   t->SetBranchAddress("j_eta",      ev.j_eta);
   t->SetBranchAddress("j_phi",      ev.j_phi);

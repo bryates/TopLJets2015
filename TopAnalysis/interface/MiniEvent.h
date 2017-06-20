@@ -45,7 +45,7 @@ struct MiniEvent_t
   Float_t l_nValTrackerHits[50], l_globalTrackNumberOfValidHits[50], l_nValPixelHits[50], l_nMatchedStations[50], l_pixelLayerWithMeasurement[50], l_trackerLayersWithMeasurement[50], l_validFraction[50], l_chi2LocalPosition[50], l_trkKink[50];
 
   Int_t nj;
-  Float_t j_pt[200],j_pt_charged[200],j_eta[200],j_phi[200],j_mass[200],j_area[200],j_rawsf[200];
+  Float_t j_pt[200],j_pt_pf[200],j_pt_charged[200],j_eta[200],j_phi[200],j_mass[200],j_area[200],j_rawsf[200];
   Float_t j_csv[200],j_cvsl[200],j_cvsb[200],j_vtxmass[200],j_vtx3DVal[200],j_vtx3DSig[200],j_puid[200],j_vtxpx[200],j_vtxpy[200],j_vtxpz[200];
   Int_t j_vtxNtracks[200],j_flav[200],j_pid[200],j_hadflav[200],j_g[200];
 
