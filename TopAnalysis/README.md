@@ -72,7 +72,7 @@ python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_SingleMuon_l
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
-python scripts/saveExpectedBtagEff.py -i /store/user/byates/LJets2015/8db9ad6/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root;
+python scripts/saveExpectedBtagEff.py -i /store/user/byates/LJets2015/8db9ad6/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
 ```

@@ -58,13 +58,14 @@ int main(int argc, char* argv[])
   TFile *normF=TFile::Open(normUrl);
   if(normF)
     {
+      cout << "Check normalization file " << normUrl << endl;
       normH=(TH1F *)normF->Get(normTag);
       if(normH) normH->SetDirectory(0);
       normF->Close();
     }
   if(normH==0)
     {
-      cout << "Check normalization file genweights.root in era=" << era 
+      cout << "Check normalization file " << normUrl
 	   << " and tag (" << normTag << ")" << endl
 	   << "Will run without any" << endl;
       printHelp();

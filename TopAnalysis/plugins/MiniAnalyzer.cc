@@ -772,7 +772,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
 	{
 	  const reco::Candidate *pf=j->daughter(ipf);
-	  clustCands.push_back(std::pair<const reco::Candidate *,int>(pf,ev_.nj-1));
+	  clustCands.push_back(std::pair<const reco::Candidate *,int>(pf,ev_.nj));
           ev_.j_pt_charged[ev_.nj] += abs(pf->pt()*pf->charge()); //pT of charged tracks only (neutral particles weighted by 0)
           ev_.j_pt_pf[ev_.nj] += pf->pt(); //pT of charged tracks only (neutral particles weighted by 0)
 	}
