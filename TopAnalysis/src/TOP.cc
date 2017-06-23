@@ -567,7 +567,7 @@ void RunTop(TString filename,
 	    TLorentzVector tkP4(0,0,0,0);
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
             pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf]);
-	    tmpj.addTrack(pftk,ev.pf_id[ipf]);
+	    tmpj.addTrack(pftk); //,ev.pf_id[ipf]);
             /*
             if(jecUnc) {
               jecUnc->setJetEta(jp4.Eta());
@@ -1217,23 +1217,31 @@ void RunTop(TString filename,
         }
 
         allPlots["csv"+chTag+"_csv"]->Fill(bJetsVec[ij].getCSV(),wgt);
-        std::vector<IdTrack> &tracks = bJetsVec[ij].getTracks();
+        std::vector<pfTrack> &tracks = bJetsVec[ij].getTracks();
 
         //J/Psi
         if(debug) cout << "starting J/Psi" << endl;
         const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
         std::vector<pfTrack> pfmuCands,kaonCands;
         for(size_t itk = 0; itk < tracks.size(); itk++) {
-          if(abs(tracks[itk].first.getPdgId()) == 13) {
+          if(abs(tracks[itk].getPdgId()) == 13) {
+            /*
             TLorentzVector muP4;
-            muP4.SetPtEtaPhiM(tracks[itk].first.Pt(), tracks[itk].first.Eta(), tracks[itk].first.Phi(), gMassMu);
-            pfTrack pfmu(muP4, tracks[itk].first.getDxy(), tracks[itk].first.getDxyE(), tracks[itk].first.getDz(), tracks[itk].first.getDzE(), tracks[itk].first.getPdgId());
+            muP4.SetPtEtaPhiM(tracks[itk].Pt(), tracks[itk].Eta(), tracks[itk].Phi(), gMassMu);
+            pfTrack pfmu(muP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
             pfmuCands.push_back(pfmu);
+            */
+            tracks[itk].setMass(gMassMu);
+            pfmuCands.push_back(tracks[itk]);
           }
-          if(abs(tracks[itk].first.getPdgId()) == 211) {
+          if(abs(tracks[itk].getPdgId()) == 211) {
+            /*
             TLorentzVector kP4;
-            pfTrack pfk(kP4, tracks[itk].first.getDxy(), tracks[itk].first.getDxyE(), tracks[itk].first.getDz(), tracks[itk].first.getDzE(), tracks[itk].first.getPdgId());
+            kP4.SetPtEtaPhiM(tracks[itk].Pt(), tracks[itk].Eta(), tracks[itk].Phi(), gMassK);
+            pfTrack pfk(kP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
             kaonCands.push_back(pfk);
+            */
+            kaonCands.push_back(tracks[itk]);
           }
         }
     
@@ -1253,6 +1261,7 @@ void RunTop(TString filename,
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngpf; ig++) {
+              if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], ev.gpf_m[ig]);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_meson_index[ig]));
@@ -1386,24 +1395,32 @@ void RunTop(TString filename,
             if(i == j) continue;
 
             //opposite sign
-            if(tracks[i].first.getPdgId()*tracks[j].first.getPdgId() != -211*211) continue;
+            if(tracks[i].getPdgId()*tracks[j].getPdgId() != -211*211) continue;
 
+            /*
             TLorentzVector p_track1, p_track2;
-            p_track1.SetPtEtaPhiM(tracks[i].first.Pt(), tracks[i].first.Eta(), tracks[i].first.Phi(), gMassPi);
-            p_track2.SetPtEtaPhiM(tracks[j].first.Pt(), tracks[j].first.Eta(), tracks[j].first.Phi(), gMassK);
+            p_track1.SetPtEtaPhiM(tracks[i].Pt(), tracks[i].Eta(), tracks[i].Phi(), gMassPi);
+            p_track2.SetPtEtaPhiM(tracks[j].Pt(), tracks[j].Eta(), tracks[j].Phi(), gMassK);
             float mass12 = (p_track1+p_track2).M();
+            */
+            float mass12 = (tracks[i].getVec()+tracks[j].getVec()).M();
 
-            allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
+            //allPlots["dR"+chTag+"_meson"]->Fill(p_track1.DeltaR(p_track2), wgt);
+            allPlots["dR"+chTag+"_meson"]->Fill(tracks[i].DeltaR(tracks[j]), wgt);
             //allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
-            std::vector<pfTrack> pfCands;
-            pfCands.push_back(pfTrack(p_track1, tracks[i].first.getDxy(), tracks[i].first.getDxyE(), tracks[i].first.getDz(), tracks[i].first.getDzE(), tracks[i].first.getPdgId()));
-            pfCands.push_back(pfTrack(p_track2, tracks[j].first.getDxy(), tracks[j].first.getDxyE(), tracks[j].first.getDz(), tracks[j].first.getDzE(), tracks[j].first.getPdgId()));
+            tracks[i].setMass(gMassPi);
+            tracks[j].setMass(gMassK);
+            std::vector<pfTrack> pfCands = {tracks[i], tracks[j]};
+            /*
+            pfCands.push_back(pfTrack(p_track1, tracks[i].getDxy(), tracks[i].getDxyE(), tracks[i].getDz(), tracks[i].getDzE(), tracks[i].getPdgId()));
+            pfCands.push_back(pfTrack(p_track2, tracks[j].getDxy(), tracks[j].getDxyE(), tracks[j].getDz(), tracks[j].getDzE(), tracks[j].getPdgId()));
+            */
             runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
             runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
 
             if (mass12>1.65 && mass12<2.0) {
-              if(debug) cout << i << ": " << tracks[i].first.Pt() << " " << tracks[i].first.Eta() << " " << tracks[i].first.Phi() << " " << gMassPi << endl;
-              if(debug) cout << j << ": " << tracks[j].first.Pt() << " " << tracks[j].first.Eta() << " " << tracks[j].first.Phi() << " " << gMassK << endl << endl;
+              if(debug) cout << i << ": " << tracks[i].Pt() << " " << tracks[i].Eta() << " " << tracks[i].Phi() << " " << gMassPi << endl;
+              if(debug) cout << j << ": " << tracks[j].Pt() << " " << tracks[j].Eta() << " " << tracks[j].Phi() << " " << gMassK << endl << endl;
               if(debug) cout << mass12 << endl;
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
               allPlots["massD0_all"]->Fill(mass12,wgt);
@@ -1422,24 +1439,24 @@ void RunTop(TString filename,
               if(k == j) continue;
               if(debug) cout << "third lepton possible" << endl;
             
-              if(abs(tracks[k].first.getPdgId()) != 13 && abs(tracks[k].first.getPdgId()) != 11) continue;
+              if(abs(tracks[k].getPdgId()) != 13 && abs(tracks[k].getPdgId()) != 11) continue;
               if(debug) cout << "third lepton found" << endl;
 
-              //if(tracks[j].first.getPdgId()/abs(tracks[j].first.getPdgId()) == -tracks[k].first.getPdgId()/abs(tracks[k].first.getPdgId())) {
-              if(tracks[j].first.charge() == -tracks[k].first.charge()) {
+              //if(tracks[j].getPdgId()/abs(tracks[j].getPdgId()) == -tracks[k].getPdgId()/abs(tracks[k].getPdgId())) {
+              if(tracks[j].charge() == -tracks[k].charge()) {
                 //Kaon and lepton have same charge
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
                 allPlots["massD0_lep"+chTag]->Fill(mass12,wgt);
                 allPlots["massD0_lep"+chTag+"_no_weight"]->Fill(mass12,norm);
 
-                if(abs(tracks[k].first.getPdgId()) == 13)
+                if(abs(tracks[k].getPdgId()) == 13)
                   allPlots["massD0_mu"+chTag]->Fill(mass12,wgt);
-                if(abs(tracks[k].first.getPdgId()) == 11)
+                if(abs(tracks[k].getPdgId()) == 11)
                   allPlots["massD0_e"+chTag]->Fill(mass12,wgt);
-                if(abs(tracks[k].first.getPdgId()) == 13)
+                if(abs(tracks[k].getPdgId()) == 13)
                   allPlots["massD0_mu"+chTag+"_no_weight"]->Fill(mass12,norm);
-                if(abs(tracks[k].first.getPdgId()) == 11)
+                if(abs(tracks[k].getPdgId()) == 11)
                   allPlots["massD0_e"+chTag+"_no_weight"]->Fill(mass12,norm);
               }
             }
@@ -1449,24 +1466,27 @@ void RunTop(TString filename,
               if(k == i) continue;
               if(k == j) continue;
 
-              if(abs(tracks[k].first.getPdgId()) != 211) continue;
+              if(abs(tracks[k].getPdgId()) != 211) continue;
               if(debug) cout << "Pion found" << endl;
 
               TLorentzVector p_track3, p_cand;
               std::vector<pfTrack> &tmp_cands = pfCands;
-              p_track3.SetPtEtaPhiM(tracks[k].first.Pt(), tracks[k].first.Eta(), tracks[k].first.Phi(), gMassPi);
-              //pfCands.push_back(pfTrack(p_track3, tracks[k].first.getDxy(), tracks[k].first.getDxyE(), tracks[k].first.getDz(), tracks[k].first.getDzE(), tracks[k].first.getPdgId()));
-              if(debug) cout << k << ": " << tracks[k].first.Pt() << " " << tracks[k].first.Eta() << " " << tracks[k].first.Phi() << " " << gMassPi << endl;
+              p_track3.SetPtEtaPhiM(tracks[k].Pt(), tracks[k].Eta(), tracks[k].Phi(), gMassPi);
+              tracks[k].setMass(gMassPi);
+              //pfCands.push_back(pfTrack(p_track3, tracks[k].getDxy(), tracks[k].getDxyE(), tracks[k].getDz(), tracks[k].getDzE(), tracks[k].getPdgId()));
+              if(debug) cout << k << ": " << tracks[k].Pt() << " " << tracks[k].Eta() << " " << tracks[k].Phi() << " " << gMassPi << endl;
               allPlots["pi_pt"+chTag]->Fill(p_track3.Pt(),wgt);
               allPlots["pi_pt"+chTag+"_no_weight"]->Fill(p_track3.Pt(),norm);
-              //if( tracks[j].first.getPdgId()/abs(tracks[j].first.getPdgId()) == -tracks[k].first.getPdgId()/abs(tracks[k].first.getPdgId()) ) {
-              if( tracks[j].first.charge() == -tracks[k].first.charge() ) {
+              //if( tracks[j].getPdgId()/abs(tracks[j].getPdgId()) == -tracks[k].getPdgId()/abs(tracks[k].getPdgId()) ) {
+              if( tracks[j].charge() == -tracks[k].charge() ) {
                 // Kaon and pion have opposite charges
                 // I.e. correct mass assumption
-                tmp_cands.push_back(pfTrack(p_track3, tracks[k].first.getDxy(), tracks[k].first.getDxyE(), tracks[k].first.getDz(), tracks[k].first.getDzE(), tracks[k].first.getPdgId()));
+                //tmp_cands.push_back(pfTrack(p_track3, tracks[k].getDxy(), tracks[k].getDxyE(), tracks[k].getDz(), tracks[k].getDzE(), tracks[k].getPdgId()));
+                tmp_cands.push_back(tracks[k]);
                 if(debug) cout << "correct mass assumption (D*)" << endl;
 
-                p_cand = p_track1+p_track2+p_track3;
+                //p_cand = p_track1+p_track2+p_track3;
+                p_cand = tracks[i].getVec() + tracks[j].getVec() + tracks[k].getVec();
                 allPlots["massDs"+chTag]->Fill(p_cand.M(), wgt);
                 allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),norm);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);

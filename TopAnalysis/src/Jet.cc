@@ -12,12 +12,15 @@ int pfTrack::charge() { return pfid_ / abs(pfid_); }
 float pfTrack::Pt() { return vec_.Pt() ; }
 float pfTrack::Eta() { return vec_.Eta() ; }
 float pfTrack::Phi() { return vec_.Phi() ; }
+float pfTrack::M() { return vec_.M() ; }
+float pfTrack::DeltaR(pfTrack &rhs) { return vec_.DeltaR(rhs.getVec()) ; }
 float pfTrack::getDxy() { return dxy_ ; }
 float pfTrack::getDxyE() { return dxyE_ ; }
 float pfTrack::getDz() { return dz_ ; }
 float pfTrack::getDzE() { return dzE_ ; }
 TLorentzVector &pfTrack::getVec() { return vec_ ; }
 void pfTrack::setPfid(int pfid) { pfid_ = pfid ; }
+void pfTrack::setMass(float mass) { vec_.SetPtEtaPhiM(Pt(), Eta(), Phi(), mass); }
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt) { }
@@ -34,7 +37,8 @@ Jet::Jet(TLorentzVector p4, float csv, int idx) {
 Jet::~Jet() {};
 
 //void Jet::addTrack(TLorentzVector p4, int pfid) { trks_.push_back( IdTrack(p4,pfid) ); }
-void Jet::addTrack(pfTrack pf, int pfid) { trks_.push_back( IdTrack(pf,pfid) ); }
+//void Jet::addTrack(pfTrack pf, int pfid) { trks_.push_back( IdTrack(pf,pfid) ); }
+void Jet::addTrack(pfTrack pf) { trks_.push_back( pf ); }
 void Jet::addTrack(int idx) { index_.push_back( idx ) ; }
 void Jet::addDxy(float dxy, float dxyE) { dxy_.push_back( dxy ) ; dxyE_.push_back( dxyE ) ; }
 void Jet::addDz(float dz, float dzE) { dz_.push_back( dz ) ; dzE_.push_back( dzE) ; }
@@ -50,8 +54,8 @@ float &Jet::getDxy(int idx) { return dxy_[idx]; }
 float &Jet::getDz(int idx) { return dz_[idx]; }
 float &Jet::getDxyE(int idx) { return dxyE_[idx]; }
 float &Jet::getDzE(int idx) { return dzE_[idx]; }
-std::vector<IdTrack> &Jet::getTracks() { return trks_; }
+std::vector<pfTrack> &Jet::getTracks() { return trks_; }
 
 //void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), sortIdTracksByPt); }
-void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), [](IdTrack i, IdTrack j) { return i.first.Pt() > j.first.Pt() ; } ); }
+void Jet::sortTracksByPt() { sort(trks_.begin(),trks_.end(), [](pfTrack i, pfTrack j) { return i.Pt() > j.Pt() ; } ); }
 
