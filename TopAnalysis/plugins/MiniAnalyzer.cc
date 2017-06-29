@@ -365,14 +365,16 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   for(size_t i = 0; i < prunedGenParticles->size(); i++) {
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
-    if(absid!=443 && absid!=421) continue;
+    if(absid!=443 && absid!=421 && absid!=413) continue;
     if(genIt.numberOfDaughters()!=2) continue;
     if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
-       genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321) continue;
+       genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
+       genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321*-211) continue;
     //cout << "New meson found: ngmeson = " << ev_.ngmeson << endl; 
     //cout << "daughter found" << endl;
     bool JPsiDaughter = false;
     bool D0Daughter = false;
+    bool DsDaughter = false;
     ev_.ngmeson_daug=0;
     for(size_t ipf=0; ipf<genIt.numberOfDaughters(); ipf++) {
       //cout << "loading daughter" << endl;
@@ -380,8 +382,10 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if(abs(daug->pdgId())==13 && absid==443) JPsiDaughter = true;
       else if(abs(daug->pdgId())==211 && absid==421) D0Daughter = true;
       else if(abs(daug->pdgId())==321 && absid==421) D0Daughter = true;
+      else if(abs(daug->pdgId())==211 && absid==413) DsDaughter = true;
+      else if(abs(daug->pdgId())==321 && absid==413) DsDaughter = true;
       else continue;
-      //cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
+      cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : pdgId() = " << genIt.pdgId() << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
       /*
       if(JPsiDaughter) cout << "J/Psi" << endl;
       else if(D0Daughter) cout << "D0" << endl;
@@ -422,7 +426,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.gmeson_mother_id[ev_.ngmeson_daug] = daug->pdgId(); //*daug->charge();
       ev_.ngmeson_daug++;
     }
-    if(!JPsiDaughter && !D0Daughter) continue;
+    if(!JPsiDaughter && !D0Daughter && !DsDaughter) continue;
     /*
     cout << "J/Psi: pT, eta, phi, M" << endl;
     cout << genIt.pt() << ", ";

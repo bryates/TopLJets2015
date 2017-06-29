@@ -51,7 +51,7 @@ class Plot(object):
 
     def add(self, h, title, color, isData):
         ## hack to fix impact parameter range (cm -> um) ##
-        if "pf_" in h.GetName() and "significance" not in h.GetName():
+        if "pf_d" in h.GetName() and "significance" not in h.GetName():
             nbins = h.GetNbinsX()
             h.GetXaxis().Set(nbins,0,1000)
             tmptitle = h.GetXaxis().GetTitle()

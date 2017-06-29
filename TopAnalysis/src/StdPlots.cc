@@ -328,8 +328,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     if(pfCands.size()<2) return;
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
     float mass12 = D0.M();
-    if(mass12<1.7 || mass12>2.0) return; //D^0 mass window
-    if(pfCands.size()==2) { //Plot D0 only
+    //if(mass12<1.7 || mass12>2.0) return; //D^0 mass window
+    if(pfCands.size()==2 && mass12>1.7 && mass12<2.0) { //Plot D0 only
       if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
       allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
       allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());
@@ -367,8 +367,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["massDsmD0_all"+name+runPeriod_]->Fill(deltam, getWgt());
 
     if(deltam<0.14 || deltam>0.15) return;
-    allPlots["massD0_fromDs"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
-    allPlots["massD0_fromDs_all"+name+runPeriod_]->Fill(deltam, getWgt());
+    allPlots["massD0_fromDs"+chTag+name+runPeriod_]->Fill(mass12, getWgt());
+    allPlots["massD0_fromDs_all"+name+runPeriod_]->Fill(mass12, getWgt());
   }
 }
 
