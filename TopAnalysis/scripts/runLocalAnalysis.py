@@ -125,6 +125,7 @@ def main():
 
             ############### Submit to condor ###############
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
+            ext_len=",".join(input_list).count("_ext")
             target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
@@ -135,10 +136,14 @@ def main():
             condorFile.write('log                   = condor/log/%s.log\n' % tag)
             condorFile.write('+JobFlavour           = "workday"\n')
             condorFile.write('Should_Transfer_Files = NO\n')
-            condorFile.write('queue %d' % len(input_list))
+            condorFile.write('queue %d' % (len(input_list)-ext_len))
             condorFile.close()
             os.system('condor_submit %s -batch-name %s' % (target,tag))
             os.system('rm %s' % (tag))
+            if tag is "MC13TeV_WJets":
+              os.system('cd %s/src/TopLJets2015/TopAnalysis/condor' % cmsswBase)
+              os.system('condor_submit wjet_ext -batch-name MC13TeV_Wjets_ext')
+              os.system('cd %s/src/TopLJets2015/TopAnalysis/condor' % cmsswBase)
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))

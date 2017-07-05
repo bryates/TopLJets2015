@@ -59,7 +59,7 @@ void Leptons::addParticle(Particle p) {
   if(debug_) std::cout << "Checking if particle pT greter than required. (" << p.Pt() << " > " << minPt_ << ")" << std::endl;
   if(p.Pt() < minPt_) return;
   if(debug_) std::cout << "pT passed!!" << std::endl;
-  if(debug_) std::cout << "Checking if particle |eta| less than required. (" << abs(p.Eta()) << " < " << maxEta_ << ")" << std::endl;
+  if(debug_) std::cout << "Checking if particle |eta| less than required. (" << fabs(p.Eta()) << " < " << maxEta_ << ")" << std::endl;
   if(abs(p.Eta()) > maxEta_) return;
   if(debug_) std::cout << "eta passed!!" << std::endl;
   if(debug_) std::cout << "Checking if particle relIso less than required. (" << p.getRelIso() << " < " << maxRelIso_ << ")" << std::endl;
@@ -87,7 +87,7 @@ int Leptons::getSize() {
 
 void Leptons::sortLeptonsByPt() {
   sort(leps_.begin(),leps_.end(), [](Particle i, Particle j) { return i.Pt() > j.Pt() ; } );
-  if(leps_.size() > 2) leps_.resize(2); //keep only 2 hardest leptons if more
+  //if(leps_.size() > 2) leps_.resize(2); //keep only 2 hardest leptons if more
 }
 
 Particle& Leptons::getElement(int pos) {

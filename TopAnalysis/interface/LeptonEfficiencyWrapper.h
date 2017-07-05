@@ -30,6 +30,8 @@ class LeptonEfficiencyWrapper
   TString runPeriod_;
   std::map<TString,TH2 *> lepEffH_;
   std::map<TString,TGraphAsymmErrors *> lepEffGr_;
+  std::vector<std::vector<float>> eeSFHigh;
+  std::vector<std::vector<float>> eeSFLow;
 };
 
 #endif

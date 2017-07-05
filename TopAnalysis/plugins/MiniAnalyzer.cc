@@ -798,6 +798,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   //PF candidates
   //Skim
   //Save all muons an 6 hardest others
+  //This block only counts the number of PF types
   ev_.npf=0;
   std::vector<pair<int,double>> pfCand;
   std::map<int,pair<int,int>> nPFJet; //pf_j, nMu, nKPi;
@@ -839,7 +840,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
   }
 
-  sort(pfCand.begin(),pfCand.end(), pfSort); //FIXME use lambda function
+  sort(pfCand.begin(),pfCand.end(), [](std::pair<int,double> i, std::pair<int,double> j) { return i.second > j.second ; } );
   pfCand.resize(6); //keep only 6 hardest non muon PF candidates
 
   //Now actually put the desired jets in the ntuple

@@ -402,7 +402,8 @@ void RunTop(TString filename,
       trigger.setDataType(filename);
 
       //Dielectron
-      trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
+      //trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
+      trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
       //non-DZ
       //trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"); //FIXME not in Pedro's code, Carmen says prescaled
       //Prescaled
@@ -1458,6 +1459,11 @@ void RunTop(TString filename,
                   allPlots["massD0_mu"+chTag+"_no_weight"]->Fill(mass12,norm);
                 if(abs(tracks[k].getPdgId()) == 11)
                   allPlots["massD0_e"+chTag+"_no_weight"]->Fill(mass12,norm);
+                
+                std::vector<pfTrack> &tmp_cands = pfCands;
+                tmp_cands.push_back(tracks[k]);
+                runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+                runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
               }
             }
             //looking for pion

@@ -4,6 +4,7 @@
 #include "TSystem.h"
 
 #include <iostream>
+#include <fstream>
 
 
 using namespace std;
@@ -114,6 +115,23 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       lepEffH_["e_reco"]=(TH2 *)fIn->Get("EGamma_SF2D");
       lepEffH_["e_reco"]->SetDirectory(0);
       fIn->Close();
+
+      //Load ee SFs from text file
+      TString eeHighUrl=era+"/HLT_DoubleEleLegHigPt.txt";
+      gSystem->ExpandPathName(eeHighUrl);
+      std::ifstream ifs(eeHighUrl);
+      float eta1,eta2,pt1,pt2,sf,sfu;
+      while(ifs >> eta1 >> eta2 >> pt1 >> pt2 >> sf >> sfu) {
+        std::vector<float> sflist {eta1,eta2,pt1,pt2,sf,sfu};
+        eeSFHigh.push_back(sflist);
+      }
+      TString eeLowUrl=era+"/HLT_DoubleEleLegLowPt.txt";
+      gSystem->ExpandPathName(eeLowUrl);
+      ifs = ifstream(eeLowUrl);
+      while(ifs >> eta1 >> eta2 >> pt1 >> pt2 >> sf >> sfu) {
+        std::vector<float> sflist {eta1,eta2,pt1,pt2,sf,sfu};
+        eeSFLow.push_back(sflist);
+      }
     }
 }
 
@@ -164,6 +182,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
       if(leptons.size()>=2)
 	{
 	  float leadPt(TMath::Max(leptons[0].Pt(),leptons[1].Pt())), trailPt(TMath::Min(leptons[0].Pt(),leptons[1].Pt()));
+          float leadEta(leadPt==leptons[0].Pt() ? leptons[0].Eta() : leptons[1].Eta()), trailEta(trailPt==leptons[0].Pt() ? leptons[0].Eta() : leptons[1].Eta());
 	  int cat=abs(leptons[0].getPdgId()*leptons[1].getPdgId());
 	  //int cat=abs(pdgId[0]*pdgId[1]);
 	  if(cat==13*13)      
@@ -209,7 +228,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
                   else                { corr.first=1.000; corr.second=0.045; }
                 }
 	    }
-          else if(cat==11*11)         { corr.first=1.00;  corr.second=0.000; } //Using 1 until correct HLT SFs are available
+          //else if(cat==11*11)         { corr.first=1.00;  corr.second=0.000; } //Using 1 until correct HLT SFs are available
           /*
 	  else if(cat==11*11) 
 	    {
@@ -232,6 +251,28 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
                 }
 	    }
           */
+          else if(cat==11*11) {
+            for(auto &it : eeSFHigh) {
+              //[0] is low eta, [1] is high eta
+              if(leadEta < it[0] || leadEta > it[1]) continue;
+              //[2] is low pT, [3] is high pT
+              if(leadPt < it[2] || leadPt > it[3]) continue;
+              //[4] is SF, [5] is SF uncertainty
+              corr.first=it[4]; corr.second=it[5];
+              if(debug_) std::cout << "corr = " << it[4] << std::endl;
+              break;
+            }
+            for(auto &it : eeSFLow) {
+              //[0] is low eta, [1] is high eta
+              if(trailEta < it[0] || trailEta > it[1]) continue;
+              //[2] is low pT, [3] is high pT
+              if(trailPt < it[2] || trailPt > it[3]) continue;
+              //[4] is SF, [5] is SF uncertainty
+              corr.first*=it[4]; corr.second=TMath::Sqrt(corr.second*corr.second + it[5]*it[5]);
+              if(debug_) std::cout << "corr = " << it[4] << std::endl;
+              break;
+            }
+          }
 	}
       else 
 	{
