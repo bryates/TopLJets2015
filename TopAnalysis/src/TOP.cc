@@ -336,7 +336,7 @@ void RunTop(TString filename,
       Muons.setMaxEta(2.4);
       Muons.setMaxRelIso(0.15);
 
-      Electrons.setMinPt(30);
+      Electrons.setMinPt(12);
       Electrons.setMaxEta(2.4);
       Electrons.setMaxRelIso(0.15);
 
@@ -370,6 +370,7 @@ void RunTop(TString filename,
 	  allPlots["lp_pt_veto_m"]->Fill(Muons.getElement(0).Pt(),norm);
       }
       if(Electrons.size() == 1) {
+        Electrons.changeMinPt(26);
         Electrons.changeParticleType(Tight); //TightNoIso -> Tight
       }
       if(Electrons.size() == 1) {
@@ -381,8 +382,8 @@ void RunTop(TString filename,
       Leptons leptons(Tight,debug);
       leptons.combineLeptons(Muons);
       leptons.combineLeptons(Electrons);
-      //if(debug) cout << "sorting leptons" << endl;
-      //leptons.sortLeptonsByPt();
+      if(debug) cout << "sorting leptons" << endl;
+      leptons.sortLeptonsByPt();
 
       allPlots["nevt_iso"]->Fill(1,norm);
       allPlots["norm_iso"]->Fill(norm,norm);
@@ -402,8 +403,8 @@ void RunTop(TString filename,
       trigger.setDataType(filename);
 
       //Dielectron
-      //trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
-      trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
+      trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
+      //trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
       //non-DZ
       //trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"); //FIXME not in Pedro's code, Carmen says prescaled
       //Prescaled

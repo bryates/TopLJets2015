@@ -802,6 +802,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   ev_.npf=0;
   std::vector<pair<int,double>> pfCand;
   std::map<int,pair<int,int>> nPFJet; //pf_j, nMu, nKPi;
+  std::pair<int,double> hard = std::pair<int,double>(-1,0); //save hadest PF
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf) {
     if(ev_.npf>=5000) continue;
 
@@ -815,6 +816,11 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
     //extra requirements for unclustered PF candidates
     if(ev_.pf_j[ev_.npf]==-1) continue;
+
+    //Only save hardest if not already saved
+    //e.g. not a muon or not in the top 6 cands
+    if(ev_.pf_pt[ev_.npf] > hard.second)
+      hard = std::pair<int,double>(ev_.npf,ev_.pf_pt[ev_.npf]);
 
     std::pair<int,int> mupik = std::pair<int,int>(0,0);
     if(fabs(pf->pdgId())==13) mupik.first++;
@@ -862,11 +868,12 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	}
       if(ev_.pf_j[ev_.npf]==-1) continue;
 
-      //only save jets with 2+ mu (+/- 13) or 2+ K/pi (+/- 211)
+      //only save jets with 2+ mu (+/- 13) or 2+ K/pi (+/- 211) or hardest pT track (if not a mu or K)
       if(ev_.pf_id[ev_.npf])
       if(ev_.pf_j[ev_.npf]>=0 &&
         (nPFJet[ev_.pf_j[ev_.npf]].first < 2 &&
-         nPFJet[ev_.pf_j[ev_.npf]].second < 2)) continue;
+         nPFJet[ev_.pf_j[ev_.npf]].second < 2) &&
+         ev_.npf != hard.first) continue;
       
       //extra requirements for unclustered PF candidates
       //ONLY save mu/pi/K

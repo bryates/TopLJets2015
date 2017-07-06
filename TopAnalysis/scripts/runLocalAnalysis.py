@@ -142,8 +142,8 @@ def main():
             os.system('rm %s' % (tag))
             if tag is "MC13TeV_WJets":
               os.system('cd %s/src/TopLJets2015/TopAnalysis/condor' % cmsswBase)
-              os.system('condor_submit wjet_ext -batch-name MC13TeV_Wjets_ext')
-              os.system('cd %s/src/TopLJets2015/TopAnalysis/condor' % cmsswBase)
+              os.system('condor_submit wjets_ext -batch-name MC13TeV_WJets_ext')
+              os.system('cd %s/src/TopLJets2015/TopAnalysis' % cmsswBase)
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
