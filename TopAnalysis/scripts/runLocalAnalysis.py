@@ -140,7 +140,7 @@ def main():
             condorFile.close()
             os.system('condor_submit %s -batch-name %s' % (target,tag))
             os.system('rm %s' % (tag))
-            if tag is "MC13TeV_WJets":
+            if "MC13TeV_WJets" in tag:
               os.system('cd %s/src/TopLJets2015/TopAnalysis/condor' % cmsswBase)
               os.system('condor_submit wjets_ext -batch-name MC13TeV_WJets_ext')
               os.system('cd %s/src/TopLJets2015/TopAnalysis' % cmsswBase)

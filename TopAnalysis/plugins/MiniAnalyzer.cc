@@ -366,10 +366,10 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
     if(absid!=443 && absid!=421 && absid!=413) continue;
-    if(genIt.numberOfDaughters()!=2) continue;
-    if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
-       genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
-       genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321*-211) continue;
+    if(genIt.numberOfDaughters()<2) continue;
+    //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
+    //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
+    //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321*-211) continue;
     //cout << "New meson found: ngmeson = " << ev_.ngmeson << endl; 
     //cout << "daughter found" << endl;
     bool JPsiDaughter = false;

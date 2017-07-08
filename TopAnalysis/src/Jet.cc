@@ -2,13 +2,15 @@
 #include <vector>
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 
-pfTrack::pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid) : vec_(p4), dxy_(dxy), dxyE_(dxyE), dz_(dz), dzE_(dzE), pfid_(pfid)
+pfTrack::pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid, int quality, bool highPurity) : vec_(p4), dxy_(dxy), dxyE_(dxyE), dz_(dz), dzE_(dzE), pfid_(pfid), quality_(quality), highPurity_(highPurity)
 { }
 pfTrack::pfTrack(TLorentzVector p4, int pfid) : vec_(p4), dxy_(0), dxyE_(0), dz_(0), dzE_(0), pfid_(pfid)
 { }
 pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }
 int pfTrack::charge() { return pfid_ / abs(pfid_); }
+int pfTrack::getQuality() { return quality_; }
+bool pfTrack::highPurity() { return highPurity_; }
 float pfTrack::Pt() { return vec_.Pt() ; }
 float pfTrack::Eta() { return vec_.Eta() ; }
 float pfTrack::Phi() { return vec_.Phi() ; }

@@ -7,7 +7,7 @@
 class pfTrack {
 
  public:
-  pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid);
+  pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid, int quality, bool highPurity);
   pfTrack(TLorentzVector p4, int pfid);
   ~pfTrack();
   float Pt();
@@ -18,6 +18,8 @@ class pfTrack {
   int getPfid();
   inline int getPdgId() { return getPfid(); }
   int charge();
+  int getQuality();
+  bool highPurity();
   float getDxy();
   float getDxyE();
   float getDz();
@@ -34,6 +36,8 @@ class pfTrack {
   float dz_;
   float dzE_;
   int pfid_;
+  int quality_;
+  bool highPurity_;
 
 };
 

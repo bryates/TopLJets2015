@@ -568,7 +568,7 @@ void RunTop(TString filename,
 	    if(ev.pf_c[ipf]==0) continue;   //skip if PF track is neutral
 	    TLorentzVector tkP4(0,0,0,0);
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
-            pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf]);
+            pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf],ev.pf_quality[ipf],ev.pf_highPurity[ipf]);
 	    tmpj.addTrack(pftk); //,ev.pf_id[ipf]);
             /*
             if(jecUnc) {
@@ -1226,6 +1226,7 @@ void RunTop(TString filename,
         const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
         std::vector<pfTrack> pfmuCands,kaonCands;
         for(size_t itk = 0; itk < tracks.size(); itk++) {
+          if(!tracks[itk].highPurity()) continue; //only use high purity tracks
           if(abs(tracks[itk].getPdgId()) == 13) {
             /*
             TLorentzVector muP4;
@@ -1249,31 +1250,30 @@ void RunTop(TString filename,
     
         if(pfmuCands.size()>1 && (pfmuCands[0].getPfid() == -pfmuCands[1].getPfid())) {
 
-          /*
+          std::vector<pfTrack> pfmuMatched;
           //Gen-matching
           if(!ev.isData) {
-            if(!ev.ngmeson) continue; //event has no mesons
+            //Don't use as it would skip non-gen events
+            //if(!ev.ngmeson) continue; //event has no mesons
             bool isJPsiEvent(false);
             if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
             for(int ij = 0; ij < ev.ngmeson; ij++) {
-              if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //JPsi found
+              if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
             }
-            if(!isJPsiEvent) continue; //event doesn't have a JPsi
+            //if(!isJPsiEvent) continue; //event doesn't have a JPsi
 
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
-            for(int ig = 0; ig < ev.ngpf; ig++) {
-              if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+            for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
+              if(!isJPsiEvent) break;
+              //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
               TLorentzVector gen;
-              gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], ev.gpf_m[ig]);
-              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_meson_index[ig]));
-              if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0,ev.gpf_id[ig]));
+              gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
+              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
+              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
             }
 
-
-            std::vector<pfTrack> pfmuMatched;
-            for(auto & it : pfmuCands) {
-
+            for(auto & it : pfmuCands) { //FIXME reference might not work
               double dR = 0.3; //initial dR
               int best_idx = -1;
               for(auto & itg : genMuTracks) {
@@ -1285,12 +1285,11 @@ void RunTop(TString filename,
               }
               if(best_idx<0) continue; //no gen track matched
               //genMuTracks.erase(std::remove(genMuTracks.begin(), genMuTracks.end(), best_idx), genMuTracks.end()); //remove gen track so it cannot be matched again!
-              genMuTracks.erase(genMuTracks.begin() + best_idx);
+              genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               pfmuMatched.push_back(it);
             }
             //pfmuCands = pfmuMatched; //overwrite original vector with matched vector so I don't have to change the rest of the code
           }
-          */
 
           float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
           float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);
@@ -1326,6 +1325,10 @@ void RunTop(TString filename,
             */
             runBCDEF.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
             runGH.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+            if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
+              runBCDEF.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
+              runGH.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
+            }
 
             /*
             runB.Fill(pfmuCands, leptons, chTag, "jpsi");
@@ -1417,8 +1420,52 @@ void RunTop(TString filename,
             pfCands.push_back(pfTrack(p_track1, tracks[i].getDxy(), tracks[i].getDxyE(), tracks[i].getDz(), tracks[i].getDzE(), tracks[i].getPdgId()));
             pfCands.push_back(pfTrack(p_track2, tracks[j].getDxy(), tracks[j].getDxyE(), tracks[j].getDz(), tracks[j].getDzE(), tracks[j].getPdgId()));
             */
+
+            std::vector<pfTrack> pfMatched;
+            //Gen-matching
+            if(!ev.isData) {
+              //Don't use as it would skip non-gen events
+              //if(!ev.ngmeson) continue; //event has no mesons
+              bool isDEvent(false);
+              if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+              for(int ij = 0; ij < ev.ngmeson; ij++) {
+                if(abs(ev.gmeson_id[ij])==421 || abs(ev.gmeson_id[ij])==413) { isDEvent = true; continue; } //loop until D found
+              }
+
+              std::vector<pfTrack> genTracks;
+              for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
+                if(!isDEvent) break;
+                //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+                TLorentzVector gen;
+                float gen_mass = 0.0;
+                if(abs(ev.gmeson_daug_id[ig])==211) gen_mass = gMassPi;
+                else if(abs(ev.gmeson_daug_id[ig])==321) gen_mass = gMassK;
+                else continue; //no pi/K found
+                gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gen_mass);
+                genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
+              }
+
+              for(auto & it : pfCands) { //FIXME reference might not work
+                double dR = 0.3; //initial dR
+                int best_idx = -1;
+                for(auto & itg : genTracks) {
+                  if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
+                  if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
+                  if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
+                  dR = it.getVec().DeltaR(itg.getVec());
+                  best_idx = &itg - &genTracks[0]; //get index on current closest gen particle
+                }
+                if(best_idx<0) continue; //no gen track matched
+                genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                pfMatched.push_back(it);
+              }
+            }
             runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
             runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+            if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
+              runBCDEF.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
+              runGH.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
+            }
 
             if (mass12>1.65 && mass12<2.0) {
               if(debug) cout << i << ": " << tracks[i].Pt() << " " << tracks[i].Eta() << " " << tracks[i].Phi() << " " << gMassPi << endl;
