@@ -365,8 +365,9 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   for(size_t i = 0; i < prunedGenParticles->size(); i++) {
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
-    if(absid!=443 && absid!=421 && absid!=413) continue;
-    if(genIt.numberOfDaughters()<2) continue;
+    //if(absid!=443 && absid!=421 && absid!=413) continue;
+    if(absid!=421) continue;
+    if(genIt.numberOfDaughters()!=2) continue;
     //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321*-211) continue;
@@ -384,8 +385,10 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       else if(abs(daug->pdgId())==321 && absid==421) D0Daughter = true;
       else if(abs(daug->pdgId())==211 && absid==413) DsDaughter = true;
       else if(abs(daug->pdgId())==321 && absid==413) DsDaughter = true;
-      else continue;
-      cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : pdgId() = " << genIt.pdgId() << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
+      //else continue;
+      if(abs(daug->pdgId())==14 || abs(daug->pdgId())==13) continue;
+      if(abs(daug->pdgId())==12 || abs(daug->pdgId())==11) continue;
+      if(!JPsiDaughter) cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : pdgId() = " << genIt.pdgId() << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
       /*
       if(JPsiDaughter) cout << "J/Psi" << endl;
       else if(D0Daughter) cout << "D0" << endl;
@@ -908,6 +911,9 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.pf_standAloneMuon[ev_.npf] = pf->isStandAloneMuon();
       ev_.pf_globalMuon[ev_.npf] = pf->isGlobalMuon();
       ev_.pf_trackerMuon[ev_.npf] = pf->isTrackerMuon();
+
+      ev_.pf_chi2ndof[ev_.npf] = pf->pseudoTrack().normalizedChi2();
+      ev_.pf_vtxchi2ndof[ev_.npf] = pf->vertexNormalizedChi2();
 
       ev_.npf++;
     }

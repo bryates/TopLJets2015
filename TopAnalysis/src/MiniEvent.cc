@@ -152,6 +152,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_standAloneMuon",   ev.pf_standAloneMuon,   "pf_standAloneMuon[npf]/O");
   t->Branch("pf_globalMuon",   ev.pf_globalMuon,   "pf_globalMuon[npf]/O");
   t->Branch("pf_trackerMuon",   ev.pf_trackerMuon,   "pf_trackerMuon[npf]/O");
+  t->Branch("pf_chi2ndof",   ev.pf_chi2ndof,   "pf_chi2ndof[npf]/F");
+  t->Branch("pf_vtxchi2ndof",   ev.pf_vtxchi2ndof,   "pf_vtxchi2ndof[npf]/F");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
@@ -312,9 +314,11 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("pf_highPurity",      ev.pf_highPurity);
       t->SetBranchAddress("pf_quality",      ev.pf_quality);
       t->SetBranchAddress("pf_muon",       ev.pf_muon);
-      t->SetBranchAddress("pf_standAloneMuon",       ev.pf_standAloneMuon);
+      t->SetBranchAddress("pf_standAloneMuon",   ev.pf_standAloneMuon);
       t->SetBranchAddress("pf_globalMuon",       ev.pf_globalMuon);
-      t->SetBranchAddress("pf_trackerMuon",       ev.pf_trackerMuon);
+      t->SetBranchAddress("pf_trackerMuon",      ev.pf_trackerMuon);
+      t->SetBranchAddress("pf_chi2ndof",         ev.pf_chi2ndof);
+      t->SetBranchAddress("pf_vtxchi2ndof",   ev.pf_vtxchi2ndof);
     }
 
   //MET

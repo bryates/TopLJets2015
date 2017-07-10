@@ -138,6 +138,18 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0_K_quality"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_quality"+tag+cut+weight+runPeriod_,";D^{0} K track quality; Events", 8, 0, 8);
     allPlots["D0_pi_highPurity"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_highPurity"+tag+cut+weight+runPeriod_,";D^{0} #pi track highPurity; Events", 2, 0, 2);
     allPlots["D0_K_highPurity"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_highPurity"+tag+cut+weight+runPeriod_,";D^{0} K track highPurity; Events", 2, 0, 2);
+    //loose Ds
+    allPlots["D0_fromDsloose_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_fromDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_fromDsloose_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
+    allPlots["D0_fromDsloose_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_eta"+tag+cut+weight+runPeriod_,";D^{0} K #eta; Events / 0.1", 30, -2.5,2.5);
+    allPlots["D0_fromDsloose_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_phi"+tag+cut+weight+runPeriod_,";D^{0} #pi #phi; Events", 50, -3.14,3.14);
+    allPlots["D0_fromDsloose_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_phi"+tag+cut+weight+runPeriod_,";D^{0} K #phi; Events", 50, -3.14,3.14);
+    allPlots["D0_fromDsloose_pi_quality"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_quality"+tag+cut+weight+runPeriod_,";D^{0} #pi track quality; Events", 8, 0, 8);
+    allPlots["D0_fromDsloose_K_quality"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_quality"+tag+cut+weight+runPeriod_,";D^{0} K track quality; Events", 8, 0, 8);
+    allPlots["D0_fromDsloose_pi_highPurity"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_highPurity"+tag+cut+weight+runPeriod_,";D^{0} #pi track highPurity; Events", 2, 0, 2);
+    allPlots["D0_fromDsloose_K_highPurity"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_highPurity"+tag+cut+weight+runPeriod_,";D^{0} K track highPurity; Events", 2, 0, 2);
+    //tight Ds
     allPlots["D0_fromDs_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_fromDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_fromDs_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
@@ -385,21 +397,24 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     if(pfCands.size()<2) return;
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
     float mass12 = D0.M();
+    pfTrack *pi, *k;
+    if(pfCands[0].M() > 0.15) { //m_pi = 0.1396 and m_K = 0.4937
+      k = &pfCands[0];
+      pi = &pfCands[1];
+    }
+    else {
+      k = &pfCands[1];
+      pi = &pfCands[0];
+    }
     //if(mass12<1.7 || mass12>2.0) return; //D^0 mass window
     if(pfCands.size()==2 && mass12>1.7 && mass12<2.0) { //Plot D0 only
       if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
       allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
       allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());
 
-      pfTrack *pi, *k;
-      if(pfCands[0].M() > 0.15) { //m_pi = 0.1396 and m_K = 0.4937
-        k = &pfCands[0];
-        pi = &pfCands[1];
-      }
-      else {
-        k = &pfCands[1];
-        pi = &pfCands[0];
-      }
+
+      if(pi->Pt() < 6) return; //cut from ovelaying D0_pi and D0_formDs_pi
+
       allPlots["D0_pi_pt"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt());
       allPlots["D0_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt());
       allPlots["D0_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt());
@@ -461,6 +476,27 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     if(debug_) std::cout << "Filling D*-D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
     allPlots["massDsmD0loose"+chTag+name+runPeriod_]->Fill(deltam, getWgt());
     allPlots["massDsmD0loose_all"+name+runPeriod_]->Fill(deltam, getWgt());
+
+    allPlots["D0_fromDsloose_pi_pt"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt());
+    allPlots["D0_fromDsloose_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt());
+    allPlots["D0_fromDsloose_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt());
+    allPlots["D0_fromDsloose_K_pt_all"+name+runPeriod_]->Fill(k->Pt(),getWgt());
+    allPlots["D0_fromDsloose_pi_eta"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt());
+    allPlots["D0_fromDsloose_pi_eta_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt());
+    allPlots["D0_fromDsloose_K_eta"+chTag+name+runPeriod_]->Fill(k->Eta(),getWgt());
+    allPlots["D0_fromDsloose_K_eta_all"+name+runPeriod_]->Fill(k->Eta(),getWgt());
+    allPlots["D0_fromDsloose_pi_phi"+chTag+name+runPeriod_]->Fill(pi->Phi(),getWgt());
+    allPlots["D0_fromDsloose_pi_phi_all"+name+runPeriod_]->Fill(pi->Phi(),getWgt());
+    allPlots["D0_fromDsloose_K_phi"+chTag+name+runPeriod_]->Fill(k->Phi(),getWgt());
+    allPlots["D0_fromDsloose_K_phi_all"+name+runPeriod_]->Fill(k->Phi(),getWgt());
+
+    allPlots["D0_fromDsloose_pi_quality"+chTag+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
+    allPlots["D0_fromDsloose_pi_quality_all"+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
+    allPlots["D0_fromDsloose_K_quality"+chTag+name+runPeriod_]->Fill(k->getQuality(),getWgt());
+    allPlots["D0_fromDsloose_K_quality_all"+name+runPeriod_]->Fill(k->getQuality(),getWgt());
+    allPlots["D0_fromDsloose_pi_highPurity"+chTag+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
+    allPlots["D0_fromDsloose_pi_highPurity_all"+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
+    allPlots["D0_fromDsloose_K_highPurity_all"+name+runPeriod_]->Fill(k->highPurity(),getWgt());
     if(fabs(mass12-1.864) > 0.05 && (deltam<0.14 || deltam>0.15) && (deltam>0.15 && deltam<0.16)) { //window of 0.01 to match window of good peak
       allPlots["massD0_notDs"+chTag+name+runPeriod_]->Fill(mass12, getWgt());
       allPlots["massD0_notDs_all"+name+runPeriod_]->Fill(mass12, getWgt());
@@ -480,38 +516,28 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["massD0_fromDs_all"+name+runPeriod_]->Fill(mass12, getWgt());
     allPlots["massDs_fromDs"+chTag+name+runPeriod_]->Fill(p_cand.M(), getWgt());
     allPlots["massDs_fromDs_all"+name+runPeriod_]->Fill(p_cand.M(), getWgt());
-    if(name.Contains("gmeson")) {
-      pfTrack *pi, *k;
-      if(pfCands[0].M() > 0.15) { //m_pi = 0.1396 and m_K = 0.4937
-        k = &pfCands[0];
-        pi = &pfCands[1];
-      }
-      else {
-        k = &pfCands[1];
-        pi = &pfCands[0];
-      }
-      allPlots["D0_fromDs_pi_pt"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt());
-      allPlots["D0_fromDs_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt());
-      allPlots["D0_fromDs_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt());
-      allPlots["D0_fromDs_K_pt_all"+name+runPeriod_]->Fill(k->Pt(),getWgt());
-      allPlots["D0_fromDs_pi_eta"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt());
-      allPlots["D0_fromDs_pi_eta_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt());
-      allPlots["D0_fromDs_K_eta"+chTag+name+runPeriod_]->Fill(k->Eta(),getWgt());
-      allPlots["D0_fromDs_K_eta_all"+name+runPeriod_]->Fill(k->Eta(),getWgt());
-      allPlots["D0_fromDs_pi_phi"+chTag+name+runPeriod_]->Fill(pi->Phi(),getWgt());
-      allPlots["D0_fromDs_pi_phi_all"+name+runPeriod_]->Fill(pi->Phi(),getWgt());
-      allPlots["D0_fromDs_K_phi"+chTag+name+runPeriod_]->Fill(k->Phi(),getWgt());
-      allPlots["D0_fromDs_K_phi_all"+name+runPeriod_]->Fill(k->Phi(),getWgt());
 
-      allPlots["D0_fromDs_pi_quality"+chTag+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
-      allPlots["D0_fromDs_pi_quality_all"+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
-      allPlots["D0_fromDs_K_quality"+chTag+name+runPeriod_]->Fill(k->getQuality(),getWgt());
-      allPlots["D0_fromDs_K_quality_all"+name+runPeriod_]->Fill(k->getQuality(),getWgt());
-      allPlots["D0_fromDs_pi_highPurity"+chTag+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
-      allPlots["D0_fromDs_pi_highPurity_all"+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
-      allPlots["D0_fromDs_K_highPurity"+chTag+name+runPeriod_]->Fill(k->highPurity(),getWgt());
-      allPlots["D0_fromDs_K_highPurity_all"+name+runPeriod_]->Fill(k->highPurity(),getWgt());
-    }
+    allPlots["D0_fromDs_pi_pt"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt());
+    allPlots["D0_fromDs_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt());
+    allPlots["D0_fromDs_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt());
+    allPlots["D0_fromDs_K_pt_all"+name+runPeriod_]->Fill(k->Pt(),getWgt());
+    allPlots["D0_fromDs_pi_eta"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt());
+    allPlots["D0_fromDs_pi_eta_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt());
+    allPlots["D0_fromDs_K_eta"+chTag+name+runPeriod_]->Fill(k->Eta(),getWgt());
+    allPlots["D0_fromDs_K_eta_all"+name+runPeriod_]->Fill(k->Eta(),getWgt());
+    allPlots["D0_fromDs_pi_phi"+chTag+name+runPeriod_]->Fill(pi->Phi(),getWgt());
+    allPlots["D0_fromDs_pi_phi_all"+name+runPeriod_]->Fill(pi->Phi(),getWgt());
+    allPlots["D0_fromDs_K_phi"+chTag+name+runPeriod_]->Fill(k->Phi(),getWgt());
+    allPlots["D0_fromDs_K_phi_all"+name+runPeriod_]->Fill(k->Phi(),getWgt());
+
+    allPlots["D0_fromDs_pi_quality"+chTag+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
+    allPlots["D0_fromDs_pi_quality_all"+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
+    allPlots["D0_fromDs_K_quality"+chTag+name+runPeriod_]->Fill(k->getQuality(),getWgt());
+    allPlots["D0_fromDs_K_quality_all"+name+runPeriod_]->Fill(k->getQuality(),getWgt());
+    allPlots["D0_fromDs_pi_highPurity"+chTag+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
+    allPlots["D0_fromDs_pi_highPurity_all"+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
+    allPlots["D0_fromDs_K_highPurity"+chTag+name+runPeriod_]->Fill(k->highPurity(),getWgt());
+    allPlots["D0_fromDs_K_highPurity_all"+name+runPeriod_]->Fill(k->highPurity(),getWgt());
   }
 }
 
