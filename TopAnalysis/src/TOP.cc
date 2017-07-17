@@ -569,6 +569,10 @@ void RunTop(TString filename,
 	    TLorentzVector tkP4(0,0,0,0);
 	    tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
             pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf],ev.pf_quality[ipf],ev.pf_highPurity[ipf]);
+            if(abs(pftk.getPdgId())==13) {
+              pftk.setGlobalMuon(ev.pf_globalMuon[ipf]);
+              pftk.setTrackerMuon(ev.pf_trackerMuon[ipf]);
+            }
 	    tmpj.addTrack(pftk); //,ev.pf_id[ipf]);
             /*
             if(jecUnc) {
@@ -1234,6 +1238,8 @@ void RunTop(TString filename,
             pfTrack pfmu(muP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
             pfmuCands.push_back(pfmu);
             */
+            if(!tracks[itk].globalMuon() && !tracks[itk].trackerMuon()) continue;
+            if(tracks[itk].Pt() < 5.0) continue;
             tracks[itk].setMass(gMassMu);
             pfmuCands.push_back(tracks[itk]);
           }
@@ -1250,7 +1256,7 @@ void RunTop(TString filename,
     
         if(pfmuCands.size()>1 && (pfmuCands[0].getPfid() == -pfmuCands[1].getPfid())) {
 
-          std::vector<pfTrack> pfmuMatched;
+          std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
           if(!ev.isData) {
             //Don't use as it would skip non-gen events
@@ -1283,10 +1289,14 @@ void RunTop(TString filename,
                 dR = it.getVec().DeltaR(itg.getVec());
                 best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
               }
-              if(best_idx<0) continue; //no gen track matched
-              //genMuTracks.erase(std::remove(genMuTracks.begin(), genMuTracks.end(), best_idx), genMuTracks.end()); //remove gen track so it cannot be matched again!
-              genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
-              pfmuMatched.push_back(it);
+              if(best_idx<0) { //no gen track matched
+                pfmuReject.push_back(it);
+              }
+              else {
+                //genMuTracks.erase(std::remove(genMuTracks.begin(), genMuTracks.end(), best_idx), genMuTracks.end()); //remove gen track so it cannot be matched again!
+                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                pfmuMatched.push_back(it);
+              }
             }
             //pfmuCands = pfmuMatched; //overwrite original vector with matched vector so I don't have to change the rest of the code
           }
@@ -1328,6 +1338,10 @@ void RunTop(TString filename,
             if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
               runBCDEF.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
               runGH.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
+            }
+            if(!ev.isData && pfmuReject.size() > 1) { //save gen-matched J/Psi
+              runBCDEF.Fill(pfmuReject, leptons, bJetsVec[ij], chTag, "rgjpsi");
+              runGH.Fill(pfmuReject, leptons, bJetsVec[ij], chTag, "rgjpsi");
             }
 
             /*
@@ -1414,7 +1428,10 @@ void RunTop(TString filename,
             allPlots["dR"+chTag+"_meson"]->Fill(tracks[i].DeltaR(tracks[j]), wgt);
             //allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
             tracks[i].setMass(gMassPi);
+            if(tracks[i].Pt() < 5.0) continue;
+            if(!tracks[i].highPurity()) continue;
             tracks[j].setMass(gMassK);
+            if(tracks[j].Pt() < 1.0) continue;
             std::vector<pfTrack> pfCands = {tracks[i], tracks[j]};
             /*
             pfCands.push_back(pfTrack(p_track1, tracks[i].getDxy(), tracks[i].getDxyE(), tracks[i].getDz(), tracks[i].getDzE(), tracks[i].getPdgId()));
@@ -1489,11 +1506,14 @@ void RunTop(TString filename,
               if(debug) cout << "third lepton possible" << endl;
             
               if(abs(tracks[k].getPdgId()) != 13 && abs(tracks[k].getPdgId()) != 11) continue;
+              if(!tracks[k].highPurity()) continue;
+              if(abs(tracks[k].getPdgId()) == 13 && !tracks[k].trackerMuon() && !tracks[k].globalMuon()) continue;
+              if(tracks[k].Pt() > 3.0) continue;
               if(debug) cout << "third lepton found" << endl;
 
               //if(tracks[j].getPdgId()/abs(tracks[j].getPdgId()) == -tracks[k].getPdgId()/abs(tracks[k].getPdgId())) {
-              if(tracks[j].charge() == -tracks[k].charge()) {
-                //Kaon and lepton have same charge
+              if(tracks[j].charge() == tracks[k].charge()) {
+                //Kaon and lepton have same charge (e.g. b^- -> c^+ W^- -> c^+ l^+ nubar)
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
                 allPlots["massD0_lep"+chTag]->Fill(mass12,wgt);
@@ -1510,8 +1530,8 @@ void RunTop(TString filename,
                 
                 std::vector<pfTrack> &tmp_cands = pfCands;
                 tmp_cands.push_back(tracks[k]);
-                runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
-                runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+                runBCDEF.Fill(tmp_cands, leptons, bJetsVec[ij], chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, bJetsVec[ij], chTag, "meson");
               }
             }
             //looking for pion

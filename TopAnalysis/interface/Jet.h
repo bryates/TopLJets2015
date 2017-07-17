@@ -20,6 +20,8 @@ class pfTrack {
   int charge();
   int getQuality();
   bool highPurity();
+  bool globalMuon();
+  bool trackerMuon();
   float getDxy();
   float getDxyE();
   float getDz();
@@ -28,6 +30,8 @@ class pfTrack {
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
   void setPfid(int pfid);
   void setMass(float mass);
+  void setGlobalMuon(bool);
+  void setTrackerMuon(bool);
 
  private:
   TLorentzVector vec_;
@@ -38,6 +42,8 @@ class pfTrack {
   int pfid_;
   int quality_;
   bool highPurity_;
+  bool globalMuon_;
+  bool trackerMuon_;
 
 };
 

@@ -536,6 +536,8 @@ def main():
                     #if "JPsi" in key and "WJets" in tag: continue
                     if "_jpsi" in key and "WJets" in tag: continue
                     if "_jpsi" in key and "DY" in tag: continue
+                    if "_tag" in key and "WJets" in tag: continue
+                    if "mass" in key and "_meson" in key and "WJets" in tag: continue
                     if "_"+opt.run not in key and opt.run != "BCDEFGH" :
                          keep=False
                     #if key.split("_")[-1] != opt.run: continue
