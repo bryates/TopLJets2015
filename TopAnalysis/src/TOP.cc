@@ -1508,11 +1508,11 @@ void RunTop(TString filename,
               if(abs(tracks[k].getPdgId()) != 13 && abs(tracks[k].getPdgId()) != 11) continue;
               if(!tracks[k].highPurity()) continue;
               if(abs(tracks[k].getPdgId()) == 13 && !tracks[k].trackerMuon() && !tracks[k].globalMuon()) continue;
-              if(tracks[k].Pt() > 3.0) continue;
+              if(tracks[k].Pt() < 3.0) continue;
               if(debug) cout << "third lepton found" << endl;
 
               //if(tracks[j].getPdgId()/abs(tracks[j].getPdgId()) == -tracks[k].getPdgId()/abs(tracks[k].getPdgId())) {
-              if(tracks[j].charge() == tracks[k].charge()) {
+              if(tracks[j].charge() == -tracks[k].charge()) {
                 //Kaon and lepton have same charge (e.g. b^- -> c^+ W^- -> c^+ l^+ nubar)
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
