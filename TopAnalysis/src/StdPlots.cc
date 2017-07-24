@@ -176,7 +176,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0oJet_pt_charged"+tag+cut+weight+runPeriod_] = new TH1F("D0oJet_pt_charged"+tag+cut+weight+runPeriod_,";P_{T}(D^{0})/P_{T}(jet charged PF tracks);Events / 0.02", 10, 0,1);
     allPlots["D0oJet_pt_pf"+tag+cut+weight+runPeriod_] = new TH1F("D0oJet_pt_pf"+tag+cut+weight+runPeriod_,";P_{T}(D^{0})/P_{T}(jet PF tracks);Events / 0.02", 10, 0,1);
     allPlots["D0dotJet"+tag+cut+weight+runPeriod_] = new TH1F("D0dotJet"+tag+cut+weight+runPeriod_,";P(D^{0})#upointP(jet)/|P(jet)|;Events / 1", 200, 0, 200);
-    allPlots["D0cosJet"+tag+cut+weight+runPeriod_] = new TH1F("D0cosJet"+tag+cut+weight+runPeriod_,";cos(P(D^{0}),P(jet));Events / 0.02", 10, 0, 1);
+    allPlots["D0cosJet"+tag+cut+weight+runPeriod_] = new TH1F("D0cosJet"+tag+cut+weight+runPeriod_,";cos(P(D^{0}),P(jet));Events / 0.02", 100, 0.9, 1.0);
     //D*
     allPlots["massDsmD0loose"+tag+cut+weight+runPeriod_]     = new TH1F("massDsmD0loose"+tag+cut+weight+runPeriod_,";M_{K#pi#pi} - M_{K#pi};Events / 0.25 MeV" ,40,0.14,0.16);
     allPlots["massDsmD0"+tag+cut+weight+runPeriod_]     = new TH1F("massDsmD0"+tag+cut+weight+runPeriod_,";M_{K#pi#pi} - M_{K#pi};Events / 0.25 MeV" ,40,0.14,0.16);
@@ -463,8 +463,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
       pi = &pfCands[0];
     }
     //if(pi->Pt() < 6) return; //cut from ovelaying D0_pi and D0_formDs_pi
-    if(!pi->highPurity()) return;
-    if(!k->highPurity()) return;
+    //if(!pi->highPurity()) return;
+    //if(!k->highPurity()) return;
 
     //if(mass12<1.7 || mass12>2.0) return; //D^0 mass window
     if(pfCands.size()==2 && mass12>1.7 && mass12<2.0) { //Plot D0 only
@@ -504,7 +504,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
         }
       //}
     }
-    else if(abs(pfCands[2].getPdgId())==11) {
+    if(abs(pfCands[2].getPdgId())==11) {
       //if(pfCands[1].charge() == pfCands[2].charge()) { //reinforce kaon and lepton have same sign
         if(pfCands.size()==2 && mass12>1.7 && mass12<2.0) { //Plot D0 only
           allPlots["massD0_e_tag"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
@@ -521,11 +521,11 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     if(fabs(pfCands[2].getPdgId()) != 211) return; //reinforce pion
     // Kaon and pion have opposite charges
     // I.e. correct mass assumption
-    if(pfCands[1].charge() == -pfCands[2].charge()) return;
+    if(pfCands[1].charge() == pfCands[2].charge()) return;
 
     pfTrack *pi2;
     pi2 = &pfCands[2];
-    if(!pi2->highPurity()) return;
+    //if(!pi2->highPurity()) return;
     //if(pi2->Pt() > 10) return; //cut from ovelaying Ds_pi2 and Ds_formDs_pi2
 
     if(debug_) std::cout << "Filling D*" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
