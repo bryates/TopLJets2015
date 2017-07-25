@@ -97,7 +97,7 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       lepEffUrl=era+"/SingleElectron_TriggerSF_Run2016_Ele32_eta2p1.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
-      lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele32_eta2p1_WPTight_Gsf")->Clone();
+      lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("SF")->Clone();
       //lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele27_WPTight_Gsf")->Clone();
       lepEffH_["e_singleleptrig"]->SetDirectory(0);
       fIn->Close();

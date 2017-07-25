@@ -126,6 +126,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     if(cut.Contains("meson")) {
     allPlots["massD0"+tag+cut+weight+runPeriod_]     = new TH1F("massD0"+tag+cut+weight+runPeriod_,";M_{D^{0}};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDs"+tag+cut+weight+runPeriod_,";M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_fromDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDsloose"+tag+cut+weight+runPeriod_,";M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_notDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDs"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_notDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDsloose"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_lep_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_lep_tag"+tag+cut+weight+runPeriod_,";M_{K#pi}(D^{0})+l;Events / 5 MeV" ,60,1.7,2.0);
@@ -568,6 +569,9 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["massDsmD0loose_all"+name+runPeriod_]->Fill(deltam, getWgt());
 
     if(deltam>0.14 && deltam<0.15) {
+      allPlots["massD0_fromDsloose"+chTag+name+runPeriod_]->Fill(D0.M(), getWgt());
+      allPlots["massD0_fromDsloose_all"+name+runPeriod_]->Fill(D0.M(), getWgt());
+
       allPlots["massDs_fromDsloose"+chTag+name+runPeriod_]->Fill(p_cand.M(), getWgt());
       allPlots["massDs_fromDsloose_all"+name+runPeriod_]->Fill(p_cand.M(), getWgt());
 
