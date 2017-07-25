@@ -1239,7 +1239,7 @@ void RunTop(TString filename,
             pfmuCands.push_back(pfmu);
             */
             if(!tracks[itk].globalMuon() && !tracks[itk].trackerMuon()) continue;
-            if(tracks[itk].Pt() < 5.0) continue;
+            if(tracks[itk].Pt() < 3.0) continue;
             tracks[itk].setMass(gMassMu);
             pfmuCands.push_back(tracks[itk]);
           }
@@ -1428,7 +1428,11 @@ void RunTop(TString filename,
             allPlots["dR"+chTag+"_meson"]->Fill(tracks[i].DeltaR(tracks[j]), wgt);
             //allPlots["dR"+chTag+"_meson_no_weight"]->Fill(p_track1.DeltaR(p_track2),norm);
             tracks[i].setMass(gMassPi);
+            if(!tracks[i].highPurity()) continue;
+            if(tracks[i].Pt() < 5.0) continue;
             tracks[j].setMass(gMassK);
+            if(!tracks[j].highPurity()) continue;
+            if(tracks[j].Pt() < 1.0) continue;
             std::vector<pfTrack> pfCands = {tracks[i], tracks[j]};
             /*
             pfCands.push_back(pfTrack(p_track1, tracks[i].getDxy(), tracks[i].getDxyE(), tracks[i].getDz(), tracks[i].getDzE(), tracks[i].getPdgId()));
@@ -1474,19 +1478,11 @@ void RunTop(TString filename,
                 pfMatched.push_back(it);
               }
             }
-            bool kinCuts(true);
-            kinCuts &= tracks[i].highPurity();
-            kinCuts &= tracks[j].highPurity();
-            kinCuts &= tracks[i].Pt() > 5.0;
-            kinCuts &= tracks[j].Pt() > 1.0;
-            if(!kinCuts) continue;
-            if(kinCuts) {
-              runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
-              runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
-              if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
-                runBCDEF.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
-                runGH.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
-              }
+            runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+            runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+            if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
+              runBCDEF.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
+              runGH.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
             }
 
             if (mass12>1.65 && mass12<2.0) {
@@ -1506,7 +1502,6 @@ void RunTop(TString filename,
             if(debug) cout << "third lepton" << endl;
             //for(int tk3 = 0; tk3 < ev.npf; tk3++)
             for(size_t k = 0; k < tracks.size(); k++) {
-              if(!kinCuts) continue;
               if(k == i) continue;
               if(k == j) continue;
               if(debug) cout << "third lepton possible" << endl;

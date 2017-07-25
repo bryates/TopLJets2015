@@ -94,7 +94,7 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
                             //SingleElectron_TriggerSF_Run2016BCDEF_v1.root
                             //v1 has Ele25_eta2p1 and Ele_27
                             //v2 has Ele32_eta2p1
-      lepEffUrl=era+"/SingleElectron_TriggerSF_Run2016"+runPeriod+"_v2.root";
+      lepEffUrl=era+"/SingleElectron_TriggerSF_Run2016_Ele32_eta2p1.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_singleleptrig"]=(TH2 *)fIn->Get("Ele32_eta2p1_WPTight_Gsf")->Clone();
@@ -294,14 +294,15 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	      corr.second=h->GetBinError(etaBinForEff,etaBinForEff);
 	    }
           //electron histogram has inverted axes and uses eta, not abs(eta)
+          //electron histogram uses eta, not abs(eta)
 	  else if( abs(leptons[0].getPdgId())==11 && lepEffH_.find(hname)!=lepEffH_.end() ) {
               if(debug_) std::cout << hname << std::endl;
 	      TH1 *h=lepEffH_[hname];
-              float minEtaForEff( h->GetYaxis()->GetXmin() ), maxEtaForEff( h->GetYaxis()->GetXmax()-0.01 );
+              float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
               float etaForEff=TMath::Max(TMath::Min(float(leptons[0].Eta()),maxEtaForEff),minEtaForEff);
               Int_t etaBinForEff=h->GetYaxis()->FindBin(etaForEff);
 
-              float minPtForEff( 30. ), maxPtForEff( h->GetXaxis()->GetXmax()-0.01 );
+              float minPtForEff( h->GetYaxis()->GetXmin() ), maxPtForEff( h->GetYaxis()->GetXmax()-0.01 );
               float ptForEff=TMath::Max(TMath::Min(float(leptons[0].Pt()),maxPtForEff),minPtForEff);
               Int_t ptBinForEff=h->GetXaxis()->FindBin(ptForEff);
 

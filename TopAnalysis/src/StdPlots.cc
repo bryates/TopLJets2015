@@ -69,6 +69,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
 
     
     //J/Psi plots
+    if(cut.Contains("jpsi")) { // reduce number of empty histograms
     allPlots["massJPsi"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi"+tag+cut+weight+runPeriod_,";M_{#mu^{#pm}#mu^{#mp}} [GeV];Events / 18 MeV" ,50,2.5,3.4);
     allPlots["massJPsi_mu"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV];Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_mu_low_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu_low_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
@@ -119,8 +120,10 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["dR_JPsi_l"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_l"+tag+cut+weight+runPeriod_,";#DeltaR(J/#Psi-leading l);Events / 0.01", 10, 0,5);
     allPlots["dR_JPsi_mumu"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_mumu"+tag+cut+weight+runPeriod_,";#DeltaR(J/#Psi_{#mu1},J/#Psi_{#mu2});Events / 0.01", 10, 0,0.5);
     allPlots["JPsi_mumu_pt_ratio"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mumu_pt_ratio"+tag+cut+weight+runPeriod_,";(#mu_{1 P_{T}}-#mu_{2 P_{T}})/(#mu_{1 P_{T}}+#mu_{2 P_{T}});Events / 0.01", 10, 0,1);
+    }
  
     //D meson plots
+    if(cut.Contains("meson")) {
     allPlots["massD0"+tag+cut+weight+runPeriod_]     = new TH1F("massD0"+tag+cut+weight+runPeriod_,";M_{D^{0}};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDs"+tag+cut+weight+runPeriod_,";M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_notDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDs"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
@@ -234,6 +237,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["DsoJet_pt_hard"+tag+cut+weight+runPeriod_] = new TH1F("DsoJet_pt_hard"+tag+cut+weight+runPeriod_,";P_{T}(hardest)/P_{T}(jet);Events / 0.02", 10, 0,1);
     allPlots["DsoJet_pt_charged"+tag+cut+weight+runPeriod_] = new TH1F("DsoJet_pt_charged"+tag+cut+weight+runPeriod_,";P_{T}(D*)/P_{T}(jet charged PF tracks);Events / 0.02", 10, 0,1);
     allPlots["DsoJet_pt_pf"+tag+cut+weight+runPeriod_] = new TH1F("DsoJet_pt_pf"+tag+cut+weight+runPeriod_,";P_{T}(D*)/P_{T}(jet PF tracks);Events / 0.02", 10, 0,1);
+    }
 
     allPlots["pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("pi_pt"+tag+cut+weight+runPeriod_,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
 
@@ -521,7 +525,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     if(fabs(pfCands[2].getPdgId()) != 211) return; //reinforce pion
     // Kaon and pion have opposite charges
     // I.e. correct mass assumption
-    if(pfCands[1].charge() == pfCands[2].charge()) return;
+    if(pfCands[1].charge() != -pfCands[2].charge()) return;
 
     pfTrack *pi2;
     pi2 = &pfCands[2];
@@ -868,6 +872,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     float jpt_pf(jet.getPFPt());
     if (mass12<1.7 && mass12>2.0) return;
     if(pfCands.size()==2) { //Plot D0 only
+      if(abs(mass12-1.864) > 0.05) return;  // tighter mass window cut
       if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
       allPlots["nbj"+chTag+name+runPeriod_]->Fill(1,getWgt());
       allPlots["D0oJet_pt"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
@@ -892,21 +897,19 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
         allPlots["D0oJet_pt_mu_all"+name+runPeriod_]->Fill(tracks[mu].Pt()/jpt_charged,getWgt());
       }
 
-      if(fabs(mass12-1.864) < 0.05) { // tighter mass window cut
-        float cosDjet = (D0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P());
-        allPlots["D0dotJet"+chTag+name+runPeriod_]->Fill(cosDjet,getWgt());
-        allPlots["D0dotJet_all"+name+runPeriod_]->Fill(cosDjet,getWgt());
-        cosDjet /= D0.P();
-        allPlots["D0cosJet"+chTag+name+runPeriod_]->Fill(cosDjet,getWgt());
-        allPlots["D0cosJet_all"+name+runPeriod_]->Fill(cosDjet,getWgt());
-      }
+      float cosDjet = (D0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P());
+      allPlots["D0dotJet"+chTag+name+runPeriod_]->Fill(cosDjet,getWgt());
+      allPlots["D0dotJet_all"+name+runPeriod_]->Fill(cosDjet,getWgt());
+      cosDjet /= D0.P();
+      allPlots["D0cosJet"+chTag+name+runPeriod_]->Fill(cosDjet,getWgt());
+      allPlots["D0cosJet_all"+name+runPeriod_]->Fill(cosDjet,getWgt());
     }
     if(pfCands.size()<3) return; // D^*
 
     if(fabs(pfCands[2].getPdgId()) != 211) return; //reinforce pion
     // Kaon and pion have opposite charges
     // I.e. correct mass assumption
-    if(pfCands[1].charge() == pfCands[2].charge()) return;
+    if(pfCands[1].charge() != -pfCands[2].charge()) return;
 
     if(debug_) std::cout << "Filling D*" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
     TLorentzVector p_cand = pfCands[0].getVec()+pfCands[1].getVec()+pfCands[2].getVec();

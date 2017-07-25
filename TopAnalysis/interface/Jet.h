@@ -3,6 +3,7 @@
 
 #include <TLorentzVector.h>
 #include <vector>
+#include <iostream>
 
 class pfTrack {
 
@@ -32,6 +33,7 @@ class pfTrack {
   void setMass(float mass);
   void setGlobalMuon(bool);
   void setTrackerMuon(bool);
+  void print();
 
  private:
   TLorentzVector vec_;

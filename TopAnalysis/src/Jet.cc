@@ -27,6 +27,7 @@ void pfTrack::setPfid(int pfid) { pfid_ = pfid ; }
 void pfTrack::setMass(float mass) { vec_.SetPtEtaPhiM(Pt(), Eta(), Phi(), mass); }
 void pfTrack::setGlobalMuon(bool globalMuon) { globalMuon_ = globalMuon; }
 void pfTrack::setTrackerMuon(bool trackerMuon) { trackerMuon_ = trackerMuon; }
+void pfTrack::print() { std:: cout << "pdgId=" << getPdgId() << " pT=" << Pt() << " eta=" << Eta() << " phi=" << Phi() << " mass=" << M() << std::endl; }
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt) { }
