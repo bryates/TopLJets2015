@@ -300,14 +300,18 @@ EffCorrection_t LeptonEfficiencyWrapper::getTriggerCorrection(Leptons leptons)
 	      TH1 *h=lepEffH_[hname];
               float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
               float etaForEff=TMath::Max(TMath::Min(float(leptons[0].Eta()),maxEtaForEff),minEtaForEff);
-              Int_t etaBinForEff=h->GetYaxis()->FindBin(etaForEff);
+              Int_t etaBinForEff=h->GetXaxis()->FindBin(etaForEff);
 
               float minPtForEff( h->GetYaxis()->GetXmin() ), maxPtForEff( h->GetYaxis()->GetXmax()-0.01 );
               float ptForEff=TMath::Max(TMath::Min(float(leptons[0].Pt()),maxPtForEff),minPtForEff);
-              Int_t ptBinForEff=h->GetXaxis()->FindBin(ptForEff);
+              Int_t ptBinForEff=h->GetYaxis()->FindBin(ptForEff);
 
-              corr.first=h->GetBinContent(ptBinForEff,etaBinForEff);
-              corr.second=h->GetBinError(ptBinForEff,etaBinForEff);
+	      corr.first=h->GetBinContent(etaBinForEff,ptBinForEff);
+	      corr.second=h->GetBinError(etaBinForEff,etaBinForEff);
+              if(debug_) std::cout << std::endl
+                         << minEtaForEff << " " << maxEtaForEff << " " << etaForEff << " "
+                         << minPtForEff << " " << maxPtForEff << " " << ptForEff << endl
+                         << corr.first << " " << corr.second << endl;
           }
 	}
     }

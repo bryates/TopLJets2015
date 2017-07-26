@@ -370,7 +370,7 @@ void RunTop(TString filename,
 	  allPlots["lp_pt_veto_m"]->Fill(Muons.getElement(0).Pt(),norm);
       }
       if(Electrons.size() == 1) {
-        Electrons.changeMinPt(26);
+        Electrons.changeMinPt(30);
         Electrons.changeParticleType(Tight); //TightNoIso -> Tight
       }
       if(Electrons.size() == 1) {
