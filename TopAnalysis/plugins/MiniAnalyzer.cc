@@ -365,9 +365,16 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   for(size_t i = 0; i < prunedGenParticles->size(); i++) {
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
-    //if(absid!=443 && absid!=421 && absid!=413) continue;
-    if(absid!=421) continue;
+    if(absid!=443 && absid!=421 && absid!=413) continue;
+    //if(absid!=421) continue;
+    if(absid!=443) continue;
     if(genIt.numberOfDaughters()!=2) continue;
+    const reco::GenParticle* motherTmp = &(*prunedGenParticles)[i];
+    while(abs(motherTmp->pdgId()) != 6 && abs(motherTmp->pdgId()) != 22 && abs(motherTmp->pdgId()) != 2212) {
+      if (motherTmp->mother() == 0) break;
+      motherTmp = (reco::GenParticle*) motherTmp->mother();
+    }
+    cout << "mother0 id= " << motherTmp->pdgId() << endl;
     //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321*-211) continue;
@@ -388,7 +395,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       //else continue;
       if(abs(daug->pdgId())==14 || abs(daug->pdgId())==13) continue;
       if(abs(daug->pdgId())==12 || abs(daug->pdgId())==11) continue;
-      if(!JPsiDaughter) cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : pdgId() = " << genIt.pdgId() << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
+      //if(!JPsiDaughter) cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : pdgId() = " << genIt.pdgId() << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
       /*
       if(JPsiDaughter) cout << "J/Psi" << endl;
       else if(D0Daughter) cout << "D0" << endl;
@@ -414,7 +421,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       */
 
       //Find t(tbar) mother
-      while(abs(daug->pdgId()) != 6) {
+      while(abs(daug->pdgId()) != 6 && abs(daug->pdgId()) != 22 && abs(daug->pdgId()) != 2212) {
         if(daug->mother() == 0) break;
         //int charge = daug->charge();
         //if(!charge) charge = 1;
@@ -423,9 +430,11 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
         //charge = daug->charge();
         //if(!charge) charge = 1;
         //cout << "Mother PdgId= " << daug->pdgId() << endl;
-        if(abs(daug->pdgId()) == 2212) break;
-        if(abs(daug->pdgId()) == 22) break;
+        //if(abs(daug->pdgId()) == 2212) break;
+        //if(abs(daug->pdgId()) == 22) break;
       }
+      //Find t(tbar) mother
+
       ev_.gmeson_mother_id[ev_.ngmeson_daug] = daug->pdgId(); //*daug->charge();
       ev_.ngmeson_daug++;
     }

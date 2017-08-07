@@ -10,6 +10,7 @@ pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }
 int pfTrack::charge() { return pfid_ / abs(pfid_); }
 int pfTrack::getQuality() { return quality_; }
+int pfTrack::getGenT() { return genT_; }
 bool pfTrack::highPurity() { return highPurity_; }
 bool pfTrack::globalMuon() { return globalMuon_; }
 bool pfTrack::trackerMuon() { return trackerMuon_; }
@@ -27,6 +28,7 @@ void pfTrack::setPfid(int pfid) { pfid_ = pfid ; }
 void pfTrack::setMass(float mass) { vec_.SetPtEtaPhiM(Pt(), Eta(), Phi(), mass); }
 void pfTrack::setGlobalMuon(bool globalMuon) { globalMuon_ = globalMuon; }
 void pfTrack::setTrackerMuon(bool trackerMuon) { trackerMuon_ = trackerMuon; }
+void pfTrack::setGenT(int genT) { genT_ = genT; }
 void pfTrack::print() { std:: cout << "pdgId=" << getPdgId() << " pT=" << Pt() << " eta=" << Eta() << " phi=" << Phi() << " mass=" << M() << std::endl; }
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }

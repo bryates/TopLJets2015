@@ -475,6 +475,26 @@ def main():
             if not fIn : continue
             print 'Loading file: %s' % sp[0]
 
+            #fix top pT weighting normalization
+            topPtNorm=1
+            if not isData and "TTJets" in tag:
+                try:
+                    topPtBCDEF=fIn.Get("topptwgt_BCDEF")
+                    nonTopWgtBCDEF=topPtBCDEF.GetBinContent(1)
+                    topWgtBCDEF=topPtBCDEF.GetBinContent(2)
+                except: pass
+                try:
+                    topPtGH=fIn.Get("topptwgt_GH")
+                    nonTopWgtGH=topPtGH.GetBinContent(1)
+                    topWgtGH=topPtGH.GetBinContent(2)
+                except: pass
+                if topWgtBCDEF>0 :
+                    topPtNormBCDEF=topWgtBCDEF/nonTopWgtBCDEF
+                    report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormBCDEF,"BCDEF")
+                if topWgtGH>0 :
+                    topPtNormGH=topWgtGH/nonTopWgtGH
+                    report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
+
             #fix pileup weighting normalization
             puNormSF=1
             if opt.puNormSF and not isData:
@@ -558,8 +578,10 @@ def main():
                         if(lumi not in opt.run): lumi=opt.run
                         if(opt.run == "BCDEFGH" and lumi == "BCDEF"): puNormSF=puNormSFBCDEF
                         elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
+                        if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
+                        elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
                         lumi=lumiList[lumi]
-                        obj.Scale(xsec*lumi*puNormSF*sfVal)                    
+                        obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
                     over=True
                     under=True
                     if "meson" in key: over=False

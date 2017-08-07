@@ -20,6 +20,7 @@ class pfTrack {
   inline int getPdgId() { return getPfid(); }
   int charge();
   int getQuality();
+  int getGenT();
   bool highPurity();
   bool globalMuon();
   bool trackerMuon();
@@ -33,6 +34,7 @@ class pfTrack {
   void setMass(float mass);
   void setGlobalMuon(bool);
   void setTrackerMuon(bool);
+  void setGenT(int);
   void print();
 
  private:
@@ -43,6 +45,7 @@ class pfTrack {
   float dzE_;
   int pfid_;
   int quality_;
+  int genT_ = 0;
   bool highPurity_;
   bool globalMuon_;
   bool trackerMuon_;

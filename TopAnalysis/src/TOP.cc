@@ -170,6 +170,7 @@ void RunTop(TString filename,
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
   allPlots["puwgtgr"] = new TH1F("puwgtgr","PU Weights (calc)",75,0,75);
   allPlots["puwgt"] = new TH1F("puwgt","PU Weights (data)",75,0,75);
+  allPlots["topptwgt"] = new TH1F("topptwgt","Top p_{T} weights", 2, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -309,6 +310,8 @@ void RunTop(TString filename,
         top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[0]);
         top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[1]);
         top_pt_wgt = TMath::Sqrt(top_pt_wgt);
+        allPlots["topptwgt"]->Fill(0.,1.0);
+        allPlots["topptwgt"]->Fill(1.,top_pt_wgt);
         /*
         runB.SetTopPtWgt(top_pt_wgt);
         runC.SetTopPtWgt(top_pt_wgt);
@@ -336,7 +339,8 @@ void RunTop(TString filename,
       Muons.setMaxEta(2.4);
       Muons.setMaxRelIso(0.15);
 
-      Electrons.setMinPt(12);
+      //Electrons.setMinPt(12);
+      Electrons.setMinPt(20);
       Electrons.setMaxEta(2.4);
       Electrons.setMaxRelIso(0.15);
 
@@ -1276,7 +1280,12 @@ void RunTop(TString filename,
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
+              int mother = ev.gmeson_daug_meson_index[ig]; //daug -> mother id -> mother ttbar
+              genTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+              //cout << genTracks.back().getGenT() << endl;
               if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
+              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+              //cout << genMuTracks.back().getGenT() << endl;
             }
 
             for(auto & it : pfmuCands) { //FIXME reference might not work
@@ -1295,7 +1304,9 @@ void RunTop(TString filename,
               else {
                 //genMuTracks.erase(std::remove(genMuTracks.begin(), genMuTracks.end(), best_idx), genMuTracks.end()); //remove gen track so it cannot be matched again!
                 genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                it.setGenT(genMuTracks[best_idx].getGenT());
                 pfmuMatched.push_back(it);
+                //pfmuMatched.back().setGenT(genMuTracks[best_idx].getGenT());
               }
             }
             //pfmuCands = pfmuMatched; //overwrite original vector with matched vector so I don't have to change the rest of the code

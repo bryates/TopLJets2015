@@ -140,10 +140,22 @@ def main():
             condorFile.close()
             os.system('condor_submit %s -batch-name %s' % (target,tag))
             os.system('rm %s' % (tag))
-            if "MC13TeV_WJets" in tag:
-              os.system('cd %s/src/TopLJets2015/TopAnalysis/condor' % cmsswBase)
-              os.system('condor_submit wjets_ext -batch-name MC13TeV_WJets_ext')
-              os.system('cd %s/src/TopLJets2015/TopAnalysis' % cmsswBase)
+            ############### Special case for ext samples ###############
+            if "_ext" in tag:
+              target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
+              condorFile = open(target,'w')
+              condorFile.write('universe              = vanilla\n')
+              condorFile.write('executable            = condor/cond_ext.sh\n')
+              condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s\n' % (opt.input,opt.output,tag,opt.runPeriod))
+              condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag+"_ext")
+              condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % tag+"_ext")
+              condorFile.write('log                   = condor/log/%s.log\n' % tag+"_ext")
+              condorFile.write('+JobFlavour           = "workday"\n')
+              condorFile.write('Should_Transfer_Files = NO\n')
+              condorFile.write('queue %d' % ext_len)
+              condorFile.close()
+              os.system('condor_submit %s -batch-name %s' % (target,tag))
+              os.system('rm %s' % (tag))
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
