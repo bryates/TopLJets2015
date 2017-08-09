@@ -68,6 +68,12 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["nlj"+tag+cut+weight+runPeriod_]     = new TH1F("nlj"+tag+cut+weight+runPeriod_,";Light-Jet Multiplicity (P_{T} > 30 GeV);Events" ,10,0,10.);
     allPlots["nbj"+tag+cut+weight+runPeriod_]     = new TH1F("nbj"+tag+cut+weight+runPeriod_,";b-Jet Multiplicity (CSV > 0.8);Events" ,4,1.,5.);
 
+    allPlots["pf_dxy"+tag+cut+weight+runPeriod_] = new TH1F("pf_dxy"+tag+cut+weight+runPeriod_,";d_{xy} [cm];Events / 0.02 #mum", 20, 0, 0.1);
+    allPlots["pf_dz"+tag+cut+weight+runPeriod_] = new TH1F("pf_dz"+tag+cut+weight+runPeriod_,";d_{z} [cm];Events / 0.02 #mum", 20, 0, 0.1);
+    allPlots["pf_dxyE"+tag+cut+weight+runPeriod_] = new TH1F("pf_dxyE"+tag+cut+weight+runPeriod_,";#sigma(d_{xy}) [cm];Events / 0.02 #mum", 20, 0, 0.1);
+    allPlots["pf_dzE"+tag+cut+weight+runPeriod_] = new TH1F("pf_dzE"+tag+cut+weight+runPeriod_,";#sigma(d_{z}) [cm];Events / 0.02 #mum", 20, 0, 0.1);
+    allPlots["pf_dxy_sig"+tag+cut+weight+runPeriod_] = new TH1F("pf_dxy_significance"+tag+cut+weight+runPeriod_,";d_{xy};Events / 1", 30, 0, 30);
+    allPlots["pf_dz_sig"+tag+cut+weight+runPeriod_] = new TH1F("pf_dz_significance"+tag+cut+weight+runPeriod_,";d_{z};Events / 1", 30, 0, 30);
     
     //J/Psi plots
     if(cut.Contains("jpsi")) { // reduce number of empty histograms
@@ -309,8 +315,8 @@ void StdPlots::SetTopPtWgt(float top_pt_wgt) {
   if(debug_) std::cout << "Setting top pT weight= " << top_pt_wgt << std::endl;
   allPlots["topptwgt"+runPeriod_]->Fill(0.,1.0);
   allPlots["topptwgt"+runPeriod_]->Fill(1.,top_pt_wgt);
-  /*
   top_pt_wgt_ = top_pt_wgt;
+  /*
   top_pt_wgt_vec.push_back(top_pt_wgt);
   */
 }
@@ -464,6 +470,23 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["JPsi_mu1_highPurity_all"+name+runPeriod_]->Fill(pfCands[0].highPurity(),getWgt());
     allPlots["JPsi_mu2_highPurity"+chTag+name+runPeriod_]->Fill(pfCands[1].highPurity(),getWgt());
     allPlots["JPsi_mu2_highPurity_all"+name+runPeriod_]->Fill(pfCands[1].highPurity(),getWgt());
+
+    /*
+    allPlots["pf_dxy"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxy()),wgt);
+    allPlots["pf_dxy_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxy()),wgt);
+    allPlots["pf_dz"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDz()),wgt);
+    allPlots["pf_dz_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDz()),wgt);
+    allPlots["pf_dxyE"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
+    allPlots["pf_dxyE_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
+    allPlots["pf_dzE"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDzE()),wgt);
+    allPlots["pf_dzE_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDzE()),wgt);
+    allPlots["pf_dz_sig"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+    allPlots["pf_dz_sig_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+    allPlots["pf_dxy_sig"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
+    allPlots["pf_dxy_sig_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
+    allPlots["pf_dz_sig"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+    allPlots["pf_dz_sig_all"+name+runPeriod_]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+    */
   }
   else if(name.Contains("meson")) {
     if(debug_) std::cout << "Filling D_meson" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;

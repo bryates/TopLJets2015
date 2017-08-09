@@ -9,6 +9,7 @@
 #include <TMath.h>
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
+#include "TopLJets2015/TopAnalysis/interface/CharmEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
 #include "TopLJets2015/TopAnalysis/interface/LeptonEfficiencyWrapper.h"
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
@@ -20,6 +21,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 #include "TopLJets2015/TopAnalysis/interface/StdPlots.h"
+#include "TopLJets2015/TopAnalysis/interface/CharmTree.h"
 
 #include <vector>
 #include <iostream>
@@ -46,6 +48,16 @@ void RunTop(TString filename,
   bool isTTbar( filename.Contains("_TTJets") );
   //bool isData( filename.Contains("Data13TeV") );
   
+  //CREATE CHARM TREE IN FILE
+  TString selPrefix("");  
+  if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
+  TString baseName=gSystem->BaseName(outname); 
+  TString dirName=gSystem->DirName(outname);
+  TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
+  TTree *cht = new TTree("data","Charm tree");
+  CharmEvent_t evch;
+  createCharmEventTree(cht,evch);
+
   //READ TREE FROM FILE
   MiniEvent_t ev;
   TFile *f = TFile::Open(filename);
@@ -164,6 +176,9 @@ void RunTop(TString filename,
   */
   StdPlots runBCDEF("BCDEF", outname, debug);
   StdPlots runGH("GH", outname, debug);
+  
+  CharmTree treeBCDEF(t, "BCDEF", outname, debug);
+  CharmTree treeGH(t, "GH", outname, debug);
 
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
@@ -407,8 +422,8 @@ void RunTop(TString filename,
       trigger.setDataType(filename);
 
       //Dielectron
-      trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
-      //trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
+      //trigger.addRequiredDoubleElectronTrigger({"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"});
+      trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
       //non-DZ
       //trigger.addRequiredDoubleElectronTrigger("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"); //FIXME not in Pedro's code, Carmen says prescaled
       //Prescaled
@@ -1623,11 +1638,11 @@ void RunTop(TString filename,
   f->Close();
 
   //save histos to file  
-  TString selPrefix("");  
-  if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
-  TString baseName=gSystem->BaseName(outname); 
-  TString dirName=gSystem->DirName(outname);
-  TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
+  //TString selPrefix("");  
+  //if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
+  //TString baseName=gSystem->BaseName(outname); 
+  //TString dirName=gSystem->DirName(outname);
+  //TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   fOut->cd();
   if(debug) cout << "writing histograms" << endl;
 
@@ -1649,8 +1664,12 @@ void RunTop(TString filename,
   */
   runBCDEF.Write();
   runGH.Write();
-
   if(debug) cout << "writing histograms DONE" << endl;
+
+  if(debug) cout << "writing tree" << endl;
+  cht->Write();
+  if(debug) cout << "writing tree DONE" << endl;
+
   if(debug) cout << "closing ROOT file" << endl;
   fOut->Close();
 }
