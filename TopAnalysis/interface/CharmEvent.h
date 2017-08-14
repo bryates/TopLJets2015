@@ -13,9 +13,9 @@ struct CharmEvent_t
   }
 
   Bool_t isData;
-  Int_t run,event,lumi;
-  Float_t norm,puwgt,topptwgt;
-  Float_t sfs; //need to split into separate parts
+  Int_t run,event,lumi,epoch[5];
+  Float_t norm,puwgt[5],topptwgt;
+  Float_t sfs[5]; //need to split into separate parts
 
 
   //gen level event
@@ -31,6 +31,8 @@ struct CharmEvent_t
 
   Int_t nj;
   Float_t j_pt[200],j_pt_pf[200],j_pt_charged[200],j_eta[200],j_phi[200],j_mass[200];
+  Float_t j_p[200],j_p_pf[200],j_p_charged[200];
+  Float_t j_pz[200],j_pz_pf[200],j_pz_charged[200];
   Float_t j_csv[200];
 
   //PF candidates
@@ -40,10 +42,11 @@ struct CharmEvent_t
 
   //JPsi candidates
   Int_t njpsi;
-  Float_t jpsi_mass[5],jpsi_pt[5],jpsi_eta[5],jpsi_phi[5];
-  Float_t jpsi_j[5];//,jpsi_j_dR[5];
+  Float_t jpsi_mass[5],jpsi_pt[5],jpsi_eta[5],jpsi_phi[5],jpsi_p[5],jpsi_pz[5];
+  Float_t jpsi_j[5],jpsi_ptrel[5],jpsi_l[5];//,jpsi_j_dR[5];
   Float_t jpsi_mu1_pt[5],jpsi_mu1_eta[5],jpsi_mu1_phi[5];
   Float_t jpsi_mu2_pt[5],jpsi_mu2_eta[5],jpsi_mu2_phi[5];
+  Float_t jpsi_l_mass[5],jpsi_l_dR[5];
 
 };
 

@@ -14,6 +14,8 @@ class pfTrack {
   float Pt();
   float Eta();
   float Phi();
+  float P();
+  float Pz();
   float M();
   float DeltaR(pfTrack &rhs);
   int getPfid();
@@ -73,6 +75,12 @@ class Jet {
   float getPt();
   float &getChargedPt();
   float &getPFPt();
+  float getP();
+  //float &getChargedP();
+  //float &getPFP();
+  float getPz();
+  //float &getChargedPz();
+  //float &getPFPz();
   int &getGenJet();
   int &getJetIndex();
   int &getIndex(int idx);

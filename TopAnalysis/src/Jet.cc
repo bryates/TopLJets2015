@@ -17,6 +17,8 @@ bool pfTrack::trackerMuon() { return trackerMuon_; }
 float pfTrack::Pt() { return vec_.Pt() ; }
 float pfTrack::Eta() { return vec_.Eta() ; }
 float pfTrack::Phi() { return vec_.Phi() ; }
+float pfTrack::P() { return vec_.P() ; }
+float pfTrack::Pz() { return vec_.Pz() ; }
 float pfTrack::M() { return vec_.M() ; }
 float pfTrack::DeltaR(pfTrack &rhs) { return vec_.DeltaR(rhs.getVec()) ; }
 float pfTrack::getDxy() { return dxy_ ; }
@@ -56,6 +58,12 @@ float &Jet::getCSV() { return csv_; }
 float Jet::getPt() { return p4_.Pt(); }
 float &Jet::getChargedPt() { return chargedPt_; }
 float &Jet::getPFPt() { return PFPt_; }
+float Jet::getP() { return p4_.P(); }
+//float &Jet::getChargedP() { return chargedP_; }
+//float &Jet::getPFP() { return PFP_; }
+float Jet::getPz() { return p4_.Pz(); }
+//float &Jet::getChargedPz() { return chargedPz_; }
+//float &Jet::getPFPz() { return PFPz_; }
 int &Jet::getGenJet() { return genJet_; }
 int &Jet::getJetIndex() { return idx_; }
 int &Jet::getIndex(int idx) { return index_[idx]; }

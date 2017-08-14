@@ -106,6 +106,10 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["JPsi_mu2_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_mu1_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_phi"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #phi; Events", 50, -3.14,3.14);
     allPlots["JPsi_mu2_phi"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_phi"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #phi; Events", 50, -3.14,3.14);
+    allPlots["JPsi_mu1_pt_good"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_pt_good"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} P_{T} (good gen #deltaR) [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["JPsi_mu2_pt_good"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_pt_good"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} P_{T} (good gen #deltaR(J/#Psi,closest l)) [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["JPsi_mu1_pt_bad"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_pt_bad"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} P_{T} (bad gen #deltaR(J/#Psi,closest l)) [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["JPsi_mu2_pt_bad"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_pt_bad"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} P_{T} (bad gen #deltaR(J/#Psi,closest l)) [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["JPsi_mu1_quality"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_quality"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} track quality; Events", 8, 0, 8);
     allPlots["JPsi_mu2_quality"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_quality"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} track quality; Events", 8, 0, 8);
     allPlots["JPsi_mu1_highPurity"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_highPurity"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} track highPurity; Events", 2, 0, 2);
@@ -784,10 +788,18 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, T
       if(lep[ilep].getPdgId()*pfCands[0].getGenT() > 0) {
         allPlots["dR_JPsi_l_good"+chTag+name+runPeriod_]->Fill(dRJPsil,getWgt());
         allPlots["dR_JPsi_l_good_all"+name+runPeriod_]->Fill(dRJPsil,getWgt());
+        allPlots["JPsi_mu1_pt_good"+chTag+name+runPeriod_]->Fill(pfCands[0].Pt(),getWgt());
+        allPlots["JPsi_mu1_pt_good_all"+name+runPeriod_]->Fill(pfCands[0].Pt(),getWgt());
+        allPlots["JPsi_mu2_pt_good"+chTag+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
+        allPlots["JPsi_mu2_pt_good_all"+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
       }
       if(lep[ilep].getPdgId()*pfCands[0].getGenT() < 0) {
         allPlots["dR_JPsi_l_bad"+chTag+name+runPeriod_]->Fill(dRJPsil,getWgt());
         allPlots["dR_JPsi_l_bad_all"+name+runPeriod_]->Fill(dRJPsil,getWgt());
+        allPlots["JPsi_mu1_pt_bad"+chTag+name+runPeriod_]->Fill(pfCands[0].Pt(),getWgt());
+        allPlots["JPsi_mu1_pt_bad_all"+name+runPeriod_]->Fill(pfCands[0].Pt(),getWgt());
+        allPlots["JPsi_mu2_pt_bad"+chTag+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
+        allPlots["JPsi_mu2_pt_bad_all"+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
       }
     }
     allPlots["JPsi_l_pt"+chTag+name+runPeriod_]->Fill(pt123,getWgt());

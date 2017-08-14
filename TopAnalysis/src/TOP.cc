@@ -191,9 +191,10 @@ void RunTop(TString filename,
   std::vector<TString> wgtVec = { "", "_no_weight" };
 
   for(int i = 0; i < (int)lfsVec.size(); i++) {
+    TString tag(lfsVec[i]);
+    allPlots["pid"+tag] = new TH1F("pid"+tag,";pid;Events triggered",3,0,3);
   for(int j = 0; j < (int)cutVec.size(); j++) {
   for(int k = 0; k < (int)wgtVec.size(); k++) {
-    TString tag(lfsVec[i]);
     TString cut(cutVec[j]);
     TString weight(wgtVec[k]);
     allPlots["lp_pt_iso"+tag+cut+weight] = new TH1F("lp_pt_iso"+tag+cut+weight,";Lepton P_{T} [GeV] after cleaning;Events / 10 GeV", 20, 0,200);
@@ -261,6 +262,7 @@ void RunTop(TString filename,
   }
     allPlots["nevt_iso"] = new TH1F("nevt_iso",";After Isolation;Events", 1,1.,2.);
     allPlots["nevt_veto"] = new TH1F("nevt_veto",";After Veto;Events", 1,1.,2.);
+    allPlots["nevt_trigger"] = new TH1F("nevt_trigger",";After Trigger;Events", 1,1.,2.);
     allPlots["norm_iso"] = new TH1F("norm_iso",";After Isolation;Events / 1.0", 20,0,2.);
     allPlots["norm_veto"] = new TH1F("norm_veto",";After Veto;Events / 1.0", 20,0.,2.);
     allPlots["nvtx_iso"]     = new TH1F("nvtx_iso",";N_{PV};Events / 1.0" ,50,0.,50.);
@@ -299,6 +301,8 @@ void RunTop(TString filename,
       */
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);
+      treeBCDEF.SetNorm(norm);
+      treeGH.SetNorm(norm);
 
       //Apply top pT weight to ttbar events
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#Run_2_strategy
@@ -338,6 +342,8 @@ void RunTop(TString filename,
         */
         runBCDEF.SetTopPtWgt(top_pt_wgt);
         runGH.SetTopPtWgt(top_pt_wgt);
+        treeBCDEF.SetTopPtWgt(top_pt_wgt);
+        treeGH.SetTopPtWgt(top_pt_wgt);
       }
 
       allPlots["nevt_all"]->Fill(1,norm);
@@ -355,7 +361,7 @@ void RunTop(TString filename,
       Muons.setMaxRelIso(0.15);
 
       //Electrons.setMinPt(12);
-      Electrons.setMinPt(20);
+      Electrons.setMinPt(30);
       Electrons.setMaxEta(2.4);
       Electrons.setMaxRelIso(0.15);
 
@@ -375,6 +381,12 @@ void RunTop(TString filename,
           else if(p.isElectron()) {
             Electrons.addParticle(p);
             VetoLeptons.addParticle(p);
+            if(p.getType()==TightNoIso)
+              allPlots["pid_all"]->Fill(1);
+            if(p.getType()==Tight)
+              allPlots["pid_all"]->Fill(2);
+            else
+              allPlots["pid_all"]->Fill(0);
           }
 	}
 
@@ -472,6 +484,15 @@ void RunTop(TString filename,
       chTag = "_"+chTag;
       if(debug) cout << "decide channel DONE" << endl;
       if(debug) cout << "Event: " << iev << endl;
+      allPlots["nevt_trigger"]->Fill(1,norm);
+      for(size_t i=0; i<leptons.size(); i++) {
+        if(leptons[i].getType()==TightNoIso)
+          allPlots["pid"+chTag]->Fill(1);
+        else if(leptons[i].getType()==Tight)
+          allPlots["pid"+chTag]->Fill(2);
+        else
+          allPlots["pid"+chTag]->Fill(0);
+      }
 
       //one good lepton either isolated or in the non-isolated sideband or a Z candidate
       Bool_t isZ(false);//,isZPassingSIP3d(false);
@@ -646,6 +667,8 @@ void RunTop(TString filename,
           */
           runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
           runGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
+          treeBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
+          treeGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
 
 	    for(size_t iwgt=0; iwgt<3; iwgt++)
 	      {
@@ -698,6 +721,8 @@ void RunTop(TString filename,
           */
           runBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
           runGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
+          treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
+          treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
           // **
 
           if(debug) cout << "weight=" << wgt << endl;
@@ -1245,6 +1270,8 @@ void RunTop(TString filename,
         std::vector<pfTrack> &tracks = bJetsVec[ij].getTracks();
 
         //J/Psi
+        evch.njpsi=0;
+        evch.nj=0;
         if(debug) cout << "starting J/Psi" << endl;
         const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
         std::vector<pfTrack> pfmuCands,kaonCands;
@@ -1361,6 +1388,10 @@ void RunTop(TString filename,
             */
             runBCDEF.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
             runGH.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+
+            treeBCDEF.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+            treeGH.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+
             if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
               runBCDEF.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
               runGH.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
@@ -1426,10 +1457,13 @@ void RunTop(TString filename,
             }
           }
         }
+        cht->Fill();
         if(debug) cout << "J/Psi DONE" << endl;
         //continue; //FIXME
 
         //D0 and D* 
+        evch.njpsi=0;
+        evch.nj=0;
         if(debug) cout << "Starting D0 and D*" << endl;
         int jetindex = allJetsVec[ij].getJetIndex();
         if(tracks.size() < 3) continue;

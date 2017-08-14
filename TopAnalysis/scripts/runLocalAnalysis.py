@@ -141,8 +141,8 @@ def main():
             os.system('condor_submit %s -batch-name %s' % (target,tag))
             os.system('rm %s' % (tag))
             ############### Special case for ext samples ###############
-            if "_ext" in tag:
-              target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
+            if "WJets" in tag:
+              target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag+"_ext")
               condorFile = open(target,'w')
               condorFile.write('universe              = vanilla\n')
               condorFile.write('executable            = condor/cond_ext.sh\n')
@@ -154,8 +154,8 @@ def main():
               condorFile.write('Should_Transfer_Files = NO\n')
               condorFile.write('queue %d' % ext_len)
               condorFile.close()
-              os.system('condor_submit %s -batch-name %s' % (target,tag))
-              os.system('rm %s' % (tag))
+              os.system('condor_submit %s -batch-name %s' % (target,tag+"_ext"))
+              os.system('rm %s' % (tag+"_ext"))
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))

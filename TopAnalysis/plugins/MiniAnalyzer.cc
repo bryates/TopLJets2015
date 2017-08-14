@@ -755,6 +755,8 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.j_area[ev_.nj]=j->jetArea();
       ev_.j_rawsf[ev_.nj]=j->correctedJet("Uncorrected").pt()/j->pt();
       ev_.j_pt[ev_.nj]=j->pt();
+      ev_.j_p[ev_.nj]=j->p();
+      ev_.j_pz[ev_.nj]=j->pz();
       ev_.j_mass[ev_.nj]=j->mass();
       ev_.j_eta[ev_.nj]=j->eta();
       ev_.j_phi[ev_.nj]=j->phi();
@@ -782,15 +784,23 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.j_pid[ev_.nj]=genParton ? genParton->pdgId() : 0;
 
       ev_.j_pt_charged[ev_.nj]=0; //pT of charged tracks only
+      ev_.j_p_charged[ev_.nj]=0; //p of charged tracks only
+      ev_.j_pz_charged[ev_.nj]=0; //pz of charged tracks only
       //save all PF candidates central jet
       if(fabs(j->eta())>2.5) continue;
       ev_.j_pt_pf[ev_.nj]=0;
+      ev_.j_p_pf[ev_.nj]=0;
+      ev_.j_pz_pf[ev_.nj]=0;
       for(size_t ipf=0; ipf<j->numberOfDaughters(); ipf++)
 	{
 	  const reco::Candidate *pf=j->daughter(ipf);
 	  clustCands.push_back(std::pair<const reco::Candidate *,int>(pf,ev_.nj));
           ev_.j_pt_charged[ev_.nj] += abs(pf->pt()*pf->charge()); //pT of charged tracks only (neutral particles weighted by 0)
           ev_.j_pt_pf[ev_.nj] += pf->pt(); //pT of charged tracks only (neutral particles weighted by 0)
+          ev_.j_p_charged[ev_.nj] += abs(pf->p()*pf->charge()); //p of charged tracks only (neutral particles weighted by 0)
+          ev_.j_p_pf[ev_.nj] += pf->p(); //p of charged tracks only (neutral particles weighted by 0)
+          ev_.j_pz_charged[ev_.nj] += abs(pf->pz()*pf->charge()); //pz of charged tracks only (neutral particles weighted by 0)
+          ev_.j_pz_pf[ev_.nj] += pf->pz(); //pz of charged tracks only (neutral particles weighted by 0)
 	}
 
       ev_.nj++;
