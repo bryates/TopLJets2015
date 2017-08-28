@@ -43,6 +43,16 @@
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/MyIPTools.h"
@@ -95,6 +105,8 @@ private:
   virtual void beginJob() override;
   void genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  //void KalmanAnalysis(vector<pair<const pat::PackedCandidate &,int>> pfKalman, const edm::EventSetup& iSetup);
+  void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   float getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
@@ -374,7 +386,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       if (motherTmp->mother() == 0) break;
       motherTmp = (reco::GenParticle*) motherTmp->mother();
     }
-    cout << "mother0 id= " << motherTmp->pdgId() << endl;
+    //cout << "mother0 id= " << motherTmp->pdgId() << endl;
     //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321*-211) continue;
@@ -736,6 +748,10 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
   // JETS
   ev_.nj=0; 
+  ev_.nkj=0;
+  ev_.nkpf=0; 
+  ev_.njpsi=0;
+  ev_.nmeson=0;
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(jetToken_,jets);
   std::vector< std::pair<const reco::Candidate *,int> > clustCands;
@@ -803,6 +819,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
           ev_.j_pz_pf[ev_.nj] += pf->pz(); //pz of charged tracks only (neutral particles weighted by 0)
 	}
 
+      KalmanAnalysis(iEvent,iSetup,*j);
       ev_.nj++;
     }
       
@@ -876,6 +893,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf)
     {
       if(ev_.npf>=5000) continue;
+
       //int npf = ev_.npf;
       //if(!(fabs(pf->pdgId())==13 || std::any_of(pfCand.begin(), pfCand.end(),
       //                              [npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
@@ -908,7 +926,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(pf->puppiWeight()<0.01) continue; // && fabs(pf->pdgId())!=13) continue;
 	}
       if(ev_.pf_j[ev_.npf]==-1) continue; // skip unclustered PF candidates
-      
+
       ev_.pf_fromPV[ev_.npf]   = pf->fromPV();
       ev_.pf_id[ev_.npf]       = pf->pdgId();
       ev_.pf_c[ev_.npf]        = pf->charge();
@@ -935,7 +953,9 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       ev_.pf_vtxchi2ndof[ev_.npf] = pf->vertexNormalizedChi2();
 
       ev_.npf++;
+
     }
+    //KalmanAnalysis(pfKalman, iSetup);
 }
 
 // ------------ method called for each event  ------------
@@ -945,6 +965,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //analyze the event
   if(!iEvent.isRealData()) genAnalysis(iEvent,iSetup);
+  //KalmanAnalysis(iEvent,iSetup);
   recAnalysis(iEvent,iSetup);
   
   //save event if at least one lepton at gen or reco level
@@ -957,6 +978,137 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   tree_->Fill();
 }
 
+
+void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j)
+{
+  //edm::Handle<pat::PackedCandidateCollection> pfcands;
+  //iEvent.getByToken(pfToken_,pfcands);
+  //edm::Handle<edm::View<pat::Jet> > jets;
+  //iEvent.getByToken(jetToken_,jets);
+  edm::ESHandle<TransientTrackBuilder> ttB;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", ttB);
+  TransientTrackBuilder thebuilder = *(ttB.product());
+
+  // J/psi
+  // At least 1 jet pT > 50
+  /*
+  ev_.nkj=0;
+  ev_.nkpf=0; 
+  ev_.njpsi=0;
+  ev_.nmeson=0;
+  bool goodEvent(false);
+  */
+  /*
+  for (const pat::Jet &j :  *jets) {
+    if(j.pt() > 50) { goodEvent = true; break; }
+  }
+  */
+  //for (const pat::Jet &j :  *jets) {
+
+    //if(!goodEvent) break; //event has no jets with pT > 50
+
+    //if (j.pt() < 50 || fabs(j.eta()) > 2.4) continue;
+    //if (j.pt() < 30 || fabs(j.eta()) > 2.4) continue;
+    if (j.pt() < 30 || fabs(j.eta()) > 2.4) return;
+    unsigned int ndau = j.numberOfDaughters();
+
+    //if(ndau < 4)continue;
+    if(ndau < 2)return;
+    for (unsigned int id1 = 0; id1 < ndau; ++id1) {// different way to combine w.r.t. D0
+      for (unsigned int id2 = id1+1; id2 < ndau; ++id2) {
+	  
+	if(id1 == id2) continue;
+	  
+	const pat::PackedCandidate &pf1 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id1));
+	const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
+	  
+	// correct charge combination and not muons
+	if(pf1.pdgId()*pf2.pdgId() != -13*13) continue;
+	  
+	if(pf1.pt() <3.0 || pf2.pt()<3.0) continue;
+	if(fabs(pf1.eta()) > 2.4 || fabs(pf2.eta())> 2.4) continue;
+	  
+        if(!pf1.trackHighPurity());
+        if(!pf2.trackHighPurity());
+        if(!pf1.isTrackerMuon() && !pf1.isGlobalMuon()) continue;
+        if(!pf2.isTrackerMuon() && !pf2.isGlobalMuon()) continue;
+
+	TLorentzVector p_track1, p_track2;
+	const float gMassMu(0.1057);
+	  
+	p_track1.SetPtEtaPhiM(pf1.pt(), pf1.eta(), pf1.phi(), gMassMu);
+	p_track2.SetPtEtaPhiM(pf2.pt(), pf2.eta(), pf2.phi(), gMassMu);
+
+	float mass12 = (p_track1+p_track2).M();
+	  
+	if (mass12<2.5 || mass12>3.5) continue; 
+        cout << "Kalman mass " << mass12 << endl;
+        cout << "using jet " << j.pt() << endl;
+	  
+	// vtx fitting
+	const reco::Track* trk1 = &pf1.pseudoTrack();
+	const reco::Track* trk2 = &pf2.pseudoTrack();
+
+	reco::TransientTrack trTrack1 = thebuilder.build(*trk1);
+	reco::TransientTrack trTrack2 = thebuilder.build(*trk2);
+
+	vector<reco::TransientTrack> trTrackVec;
+	trTrackVec.push_back(trTrack1);
+	trTrackVec.push_back(trTrack2);
+
+           
+	KalmanVertexFitter kvf(true ); 
+	TransientVertex tv = kvf.vertex( trTrackVec );
+	reco::Vertex fittedVertex = tv;
+	//cout<<"isValid: "<<tv.isValid()<<endl;
+	//cout<<"norm chi2 "<<tv.normalisedChiSquared()<<endl;
+	//cout<<"total chi2 "<<tv.totalChiSquared()<<endl;
+	//cout<<"ndof "<<tv.degreesOfFreedom()<<endl;
+
+	//cout<<"vtx prob: "<<TMath::Prob( tv.totalChiSquared(),  tv.degreesOfFreedom() )<<endl;
+
+	float vtxProb = TMath::Prob( tv.totalChiSquared(),  tv.degreesOfFreedom() );
+
+        ev_.k_j_pt[ev_.nj]=j.pt();
+        ev_.k_j_eta[ev_.nj]=j.eta();
+        ev_.k_j_phi[ev_.nj]=j.phi();
+        ev_.k_j_mass[ev_.nj]=j.mass();
+        //pf1
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassMu;
+        ev_.k_id[ev_.nkpf]=443;
+        ev_.k_mass[ev_.nkpf]=mass12;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.nkpf++;
+        //pf2
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf2.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf2.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf2.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassMu;
+        ev_.k_id[ev_.nkpf]=443;
+        ev_.k_mass[ev_.nkpf]=mass12;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.nkpf++;
+        ev_.nkj++;
+
+        ev_.njpsi++;
+
+	//if (vtxProb<0.02) continue;
+      }
+    }
+  //}// end of J/psi
+  ev_.nmeson += ev_.njpsi;
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   TFile *normF=TFile::Open(normUrl);
   if(normF)
     {
-      cout << "Check normalization file " << normUrl << endl;
+      cout << "Using normalization file " << normUrl << endl;
       normH=(TH1F *)normF->Get(normTag);
       if(normH) normH->SetDirectory(0);
       normF->Close();
@@ -84,6 +84,7 @@ int main(int argc, char* argv[])
   //if(method=="TOP-16-006::RunTop16006")    RunTop16006(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   //else if(method=="TOPWidth::RunTopWidth") RunTopWidth(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   if(method=="TOP::RunTop") RunTop(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
+  else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   //else if(method=="Run5TeVAnalysis::Run5TeVAnalysis") Run5TeVAnalysis(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   else
     {

@@ -165,6 +165,28 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
   t->Branch("met_pt",     ev.met_pt,   "met_pt[nmet]/F");
   t->Branch("met_phi",    ev.met_phi,  "met_phi[nmet]/F");
+
+  //Kalman Filter
+  t->Branch("njpsi",      &ev.njpsi,        "njpsi/I");
+  t->Branch("nmeson",     &ev.nmeson,       "nmeson/I");
+  t->Branch("nkj",        &ev.nkj,          "nkj/I");
+  t->Branch("nkpf",       &ev.nkpf,         "nkpf/I");
+  t->Branch("pf_idx",      ev.pf_idx,       "pf_idx[nkpf]/I");
+  t->Branch("k_j",         ev.k_j,          "k_j[nj]/I");
+  t->Branch("k_j_pt",      ev.k_j_pt,       "k_j_pt[nj]/F");
+  t->Branch("k_j_eta",     ev.k_j_eta,      "k_j_eta[nj]/F");
+  t->Branch("k_j_phi",     ev.k_j_phi,      "k_j_phi[nj]/F");
+  t->Branch("k_j_mass",    ev.k_j_mass,     "k_j_mass[nj]/F");
+  t->Branch("k_pf_id",     ev.k_pf_id,      "k_pf_id[nkpf]/F");
+  t->Branch("k_pf_pt",     ev.k_pf_pt,      "k_pf_pt[nkpf]/F");
+  t->Branch("k_pf_eta",    ev.k_pf_eta,     "k_pf_eta[nkpf]/F");
+  t->Branch("k_pf_phi",    ev.k_pf_phi,     "k_pf_phi[nkpf]/F");
+  t->Branch("k_pf_m",      ev.k_pf_m,       "k_pf_m[nkpf]/F");
+  t->Branch("k_mass",      ev.k_mass,       "k_mass[nkpf]/F");
+  t->Branch("k_chi2",      ev.k_chi2,       "k_chi2[nkpf]/F");
+  t->Branch("k_ndof",      ev.k_ndof,       "k_ndof[nkpf]/I");
+  t->Branch("k_vtxProb",   ev.k_vtxProb,    "k_vtxProb[nkpf]/F");
+  t->Branch("k_id",        ev.k_id,         "k_id[nkpf]/I");
 }
 
 //
@@ -337,4 +359,24 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("nmet",      &ev.nmet);
   t->SetBranchAddress("met_pt",    ev.met_pt);
   t->SetBranchAddress("met_phi",   ev.met_phi);
+
+  //Kalman Filter
+  t->SetBranchAddress("njpsi",      &ev.njpsi);
+  t->SetBranchAddress("nmeson",     &ev.nmeson);
+  t->SetBranchAddress("pf_idx",      ev.pf_idx);
+  t->SetBranchAddress("k_j",         ev.k_j);
+  t->SetBranchAddress("k_j_pt",      ev.k_j_pt);
+  t->SetBranchAddress("k_j_eta",     ev.k_j_eta);
+  t->SetBranchAddress("k_j_phi",     ev.k_j_phi);
+  t->SetBranchAddress("k_j_mass",    ev.k_j_mass);
+  t->SetBranchAddress("k_pf_id",     ev.k_pf_id);
+  t->SetBranchAddress("k_pf_pt",     ev.k_pf_pt);
+  t->SetBranchAddress("k_pf_eta",    ev.k_pf_eta);
+  t->SetBranchAddress("k_pf_phi",    ev.k_pf_phi);
+  t->SetBranchAddress("k_pf_m",      ev.k_pf_m);
+  t->SetBranchAddress("k_mass",      ev.k_mass);
+  t->SetBranchAddress("k_chi2",      ev.k_chi2);
+  t->SetBranchAddress("k_ndof",      ev.k_ndof);
+  t->SetBranchAddress("k_vtxProb",   ev.k_vtxProb);
+  t->SetBranchAddress("k_id",        ev.k_id);
 }

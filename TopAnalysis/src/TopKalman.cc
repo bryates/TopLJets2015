@@ -15,7 +15,7 @@
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 #include "TopLJets2015/TopAnalysis/interface/CorrectionTools.h"
 
-#include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
+//#include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
@@ -33,7 +33,7 @@
 
 using namespace std;
 
-void RunTop(TString filename,
+void RunTopKalman(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 
 		 Int_t chargeSelection, 
@@ -70,8 +70,7 @@ void RunTop(TString filename,
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
 
-  //TTree *tK = (TTree*)f->Get("kalman/data");
-  //KalmanEvent kalman(tK);
+  KalmanEvent kalman(debug);
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
@@ -210,15 +209,15 @@ void RunTop(TString filename,
     allPlots["dilp_m"+tag+cut+weight] = new TH1F("dilp_m"+tag+cut+weight,";M_{ll} [GeV];Events / 10 GeV", 20, 0,200);
     allPlots["j_pt"+tag+cut+weight] = new TH1F("j_pt"+tag+cut+weight,";Leading light Jet P_{T} [GeV];Events / 20 GeV", 15, 0,300);
     allPlots["lj_pt"+tag+cut+weight] = new TH1F("lj_pt"+tag+cut+weight,";Leading light Jet P_{T} [GeV];Events / 20 GeV", 15, 0,300);
-    allPlots["bj_pt"+tag+cut+weight] = new TH1F("bj_pt"+tag+cut+weight,";Leading b Jet P_{T} [GeV];Events / 20 GeV", 15, 0,300);
+    allPlots["kj_pt"+tag+cut+weight] = new TH1F("kj_pt"+tag+cut+weight,";Leading b Jet P_{T} [GeV];Events / 20 GeV", 15, 0,300);
     allPlots["j_pt_low"+tag+cut+weight] = new TH1F("j_pt_low"+tag+cut+weight,";Leading light Jet P_{T} [GeV];Events / 1 GeV", 20, 30,50);
     allPlots["lj_pt_low"+tag+cut+weight] = new TH1F("lj_pt_low"+tag+cut+weight,";Leading light Jet P_{T} [GeV];Events / 1 GeV", 20, 30,50);
-    allPlots["bj_pt_low"+tag+cut+weight] = new TH1F("bj_pt_low"+tag+cut+weight,";Leading b Jet P_{T} [GeV];Events / 1 GeV", 20, 30,50);
+    allPlots["kj_pt_low"+tag+cut+weight] = new TH1F("kj_pt_low"+tag+cut+weight,";Leading b Jet P_{T} [GeV];Events / 1 GeV", 20, 30,50);
     allPlots["nlp"+tag+cut+weight]     = new TH1F("nlp"+tag+cut+weight,";N_{l};Events" ,3,0.,3.);
     allPlots["ndilp"+tag+cut+weight]     = new TH1F("ndilp"+tag+cut+weight,";N_{ll};Events" ,3,0.,3.);
     allPlots["nj"+tag+cut+weight]     = new TH1F("nj"+tag+cut+weight,";N_{jets} (P_{T} > 30 GeV);Events" ,10,0,10.);
     allPlots["nlj"+tag+cut+weight]     = new TH1F("nlj"+tag+cut+weight,";N_{jets} (P_{T} > 30 GeV);Events" ,10,0,10.);
-    allPlots["nbj"+tag+cut+weight]     = new TH1F("nbj"+tag+cut+weight,";N_{b-jets} (CSV > 0.8);Events" ,4,1.,5.);
+    allPlots["nkj"+tag+cut+weight]     = new TH1F("nkj"+tag+cut+weight,";N_{b-jets} (Klaman jet);Events" ,4,1.,5.);
     allPlots["npf"+tag+cut+weight]     = new TH1F("npf"+tag+cut+weight,";N_{pf};Events / 10" ,5,0.,5.);
     allPlots["lp_eta"+tag+cut+weight]  = new TH1F("lp_eta"+tag+cut+weight,";Leading lepton #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["l2p_eta"+tag+cut+weight]  = new TH1F("l2p_eta"+tag+cut+weight,";Sub-Leading lepton #eta; Events / 0.1", 30, -2.5,2.5);
@@ -241,7 +240,6 @@ void RunTop(TString filename,
     allPlots["ST"+tag+cut+weight] = new TH1F("ST"+tag+cut+weight,";ST [GeV];Events / 20 GeV", 10,0,200);
     allPlots["MET2oST"+tag+cut+weight] = new TH1F("MET2oST"+tag+cut+weight,";MET2oST [GeV];Events / 20 GeV", 10,0,200);
     allPlots["charge"+tag+cut+weight] = new TH1F("charge"+tag+cut+weight,";Charge(l_{1}*l_{2});Events", 5,-2,2);
-    allPlots["csv"+tag+cut+weight] = new TH1F("CSV"+tag+cut+weight,";Jet CSV;Events / 0.1", 10,0,1);
     allPlots["dR"+tag+cut+weight] = new TH1F("dR"+tag+cut+weight,";dR;Events / 0.05", 20,0.0,1.);
     allPlots["pflp_pt"+tag+cut+weight] = new TH1F("pflp_pt"+tag+cut+weight,";PF lepton P_{T} [GeV];Events / 0.2 GeV", 15, 0,3);
     allPlots["massZ"+tag+cut+weight]     = new TH1F("massZ_control"+tag+cut+weight,";M_{ll};Events / 1.0 GeV" ,30,81,111);
@@ -526,8 +524,26 @@ void RunTop(TString filename,
       //select jets
       Float_t htsum(0);
       TLorentzVector jetDiff(0,0,0,0);
-      int nbjets(0),ncjets(0),nljets(0);//,leadingJetIdx(-wgt);
-      std::vector<Jet> bJetsVec, lightJetsVec, allJetsVec;
+      //int nkjets(0),ncjets(0),nljets(0);//,leadingJetIdx(-wgt);
+      //std::vector<Jet> bJetsVec, lightJetsVec, allJetsVec;
+      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec;
+      //kalman.loadEvent(ev.event);
+      kalman.loadEvent(ev);
+      for(auto &jet : kalman.getJets()) {
+        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
+	TLorentzVector jp4 = jet.getVec();
+	//cross clean with respect to leptons deltaR<0.4
+        bool overlapsWithLepton(false);
+        for(size_t il=0; il<leptons.size(); il++) {
+          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
+	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
+        }
+        if(overlapsWithLepton) continue;
+        if(debug) cout << "Overlap with lepton DONE" << endl;
+        jet.sortTracksByPt();
+        kJetsVec.push_back(jet);
+        allJetsVec.push_back(jet);
+      }
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -563,6 +579,7 @@ void RunTop(TString filename,
 	  htsum += jp4.Pt();
 
 	  //b-tag
+          /*
 	  if(debug) cout << "Starting b-tagging" << endl;
 	  float csv = ev.j_csv[k];	  
 	  bool isBTagged(csv>0.8484);//,isBTaggedUp(isBTagged),isBTaggedDown(isBTagged);
@@ -586,7 +603,7 @@ void RunTop(TString filename,
 		}
 	      else if(abs(ev.j_hadflav[k])==5) 
 		{ 
-		  nbjets++;
+		  nkjets++;
 		  expEff    = expBtagEff["b"]->Eval(jptForBtag); 
 		  jetBtagSF *= expEff>0 ? expBtagEffPy8["b"]->Eval(jptForBtag)/expBtagEff["b"]->Eval(jptForBtag) : 0.;
 		}
@@ -603,10 +620,11 @@ void RunTop(TString filename,
 	      //myBTagSFUtil.modifyBTagsWithSF(isBTagged,  jetBtagSFDown,  expEff);
 	    }
 	  if(debug) cout << "b-tagging DONE" << endl;
+          */
 
 	  //save jet
           //Jet tmpj(jp4, csv, k);
-          Jet tmpj(jp4, csv, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
 	    if(ev.pf_j[ipf] != k) continue; //skip if PF track doesn't belong to current jet
 	    if(ev.pf_c[ipf]==0) continue;   //skip if PF track is neutral
@@ -629,8 +647,8 @@ void RunTop(TString filename,
 	  }
           tmpj.sortTracksByPt();
 
-          if(isBTagged) bJetsVec.push_back(tmpj);
-          else lightJetsVec.push_back(tmpj);
+          //if(isBTagged) bJetsVec.push_back(tmpj);
+          lightJetsVec.push_back(tmpj);
           allJetsVec.push_back(tmpj);
 	}
 
@@ -740,14 +758,8 @@ void RunTop(TString filename,
       //sort by Pt
       if(debug) cout << "sorting jets" << endl;
       sort(lightJetsVec.begin(),    lightJetsVec.end(),   sortJetsByPt);
-      sort(bJetsVec.begin(),    bJetsVec.end(),   sortJetsByPt);
+      sort(kJetsVec.begin(),    kJetsVec.end(),   sortJetsByPt);
       sort(allJetsVec.begin(),  allJetsVec.end(), sortJetsByPt);
-
-      for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
-        float csv = allJetsVec.at(ij).getCSV();
-        allPlots["csv"+chTag]->Fill(csv,wgt);
-        allPlots["csv_all"]->Fill(csv,wgt);
-      }
 
       for(size_t il=0; il<leptons.size(); il++) {
         for(size_t ij=0; ij<allJetsVec.size(); ij++) {
@@ -769,7 +781,6 @@ void RunTop(TString filename,
       bool singleLep(false);
       bool doubleLep(false);
       bool minJets(false);
-      //kalman.loadEvent(ev.event);
 
       if(debug) cout << "starting simple plots" << endl;
       allPlots["nevt"+chTag]->Fill(1,norm);
@@ -797,8 +808,8 @@ void RunTop(TString filename,
       runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
       runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
       */
-      runBCDEF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
-      runGH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag);
+      runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag);
+      runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag);
 
       /*
       runB.Fill(leptons, chTag);
@@ -814,11 +825,11 @@ void RunTop(TString filename,
 
       allPlots["nj"+chTag]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag]->Fill(lightJetsVec.size(),wgt);
-      allPlots["nbj"+chTag]->Fill(bJetsVec.size(),wgt);
+      allPlots["nkj"+chTag]->Fill(kJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_no_weight"]->Fill(lightJetsVec.size(),norm);
-      allPlots["nbj"+chTag+"_no_weight"]->Fill(bJetsVec.size(),norm);
+      allPlots["nkj"+chTag+"_no_weight"]->Fill(kJetsVec.size(),norm);
       allPlots["nlj_all"]->Fill(lightJetsVec.size(),wgt);
-      allPlots["nbj_all"]->Fill(bJetsVec.size(),wgt);
+      allPlots["nkj_all"]->Fill(kJetsVec.size(),wgt);
       allPlots["nlp"+chTag]->Fill(leptons.size(),wgt);
       allPlots["nlp"+chTag+"_no_weight"]->Fill(leptons.size(),norm);
       allPlots["HT"+chTag]->Fill(htsum,wgt);
@@ -854,11 +865,11 @@ void RunTop(TString filename,
         allPlots["lj_pt"+chTag+"_no_weight"]->Fill(lightJetsVec[0].getVec().Pt(),norm);
         allPlots["lj_pt_all"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
       }
-      if(bJetsVec.size() > 0) {
-        allPlots["bj_pt_low"+chTag]->Fill(bJetsVec[0].getVec().Pt(),wgt);
-        allPlots["bj_pt"+chTag]->Fill(bJetsVec[0].getVec().Pt(),wgt);
-        allPlots["bj_pt"+chTag+"_no_weight"]->Fill(bJetsVec[0].getVec().Pt(),norm);
-        allPlots["bj_pt_all"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
+      if(kJetsVec.size() > 0) {
+        allPlots["kj_pt_low"+chTag]->Fill(kJetsVec[0].getVec().Pt(),wgt);
+        allPlots["kj_pt"+chTag]->Fill(kJetsVec[0].getVec().Pt(),wgt);
+        allPlots["kj_pt"+chTag+"_no_weight"]->Fill(kJetsVec[0].getVec().Pt(),norm);
+        allPlots["kj_pt_all"]->Fill(kJetsVec[0].getVec().Pt(),wgt);
       }
 
       if(debug) cout << "starting lep/jets plots" << endl;
@@ -907,8 +918,11 @@ void RunTop(TString filename,
         allPlots["MET"+chTag+"_lep_no_weight"]->Fill(ev.met_pt[0],norm);
         allPlots["relIso"+chTag+"_lep"]->Fill(leptons[0].getRelIso(),wgt);
         //Require at least 1 b-tagged and at least 2 light jets
-        if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
-          if(debug) cout << "jet reqirements" << endl;
+        //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
+        if(debug) cout << "is " << (kalman.isGoodEvent() ? "" : "not") << " a Kalman event" << endl;
+        //if(kJetsVec.size() >= 4 && kalman.isGoodEvent()) {
+        if(kJetsVec.size() >=1 && lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
+          if(debug) cout << "jet requirements" << endl;
           minJets = true;
           /*
           runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "lepjets");
@@ -1011,8 +1025,9 @@ void RunTop(TString filename,
           allPlots["relIso"+chTag+"_lep"]->Fill(leptons[1].getRelIso(),wgt);
         }
         //Require at least 1 b-tagged and at least 1 light jets
-        if(bJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
-          if(debug) cout << "jet reqirements" << endl;
+        //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
+        if(kJetsVec.size() >=1 && lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
+          if(debug) cout << "jet requirements" << endl;
           //Z control plot
           minJets = true;
           if(isZ) {
@@ -1108,8 +1123,8 @@ void RunTop(TString filename,
       runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
       runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
       */
-      runBCDEF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
-      runGH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lep");
+      runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "lep");
+      runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "lep");
       
       /*
       runB.Fill(leptons, chTag, "lep");
@@ -1133,26 +1148,18 @@ void RunTop(TString filename,
 
       allPlots["nj"+chTag+"_lep"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lep"]->Fill(lightJetsVec.size(),wgt);
-      allPlots["nbj"+chTag+"_lep"]->Fill(bJetsVec.size(),wgt);
+      allPlots["nkj"+chTag+"_lep"]->Fill(kJetsVec.size(),wgt);
       //allPlots["nj"+chTag+"_lep"+"_no_weight"]->Fill(lightJetsVec.size(),norm);
-      //allPlots["nbj"+chTag+"_lep"+"_no_weight"]->Fill(bJetsVec.size(),norm);
+      //allPlots["nkj"+chTag+"_lep"+"_no_weight"]->Fill(kJetsVec.size(),norm);
       allPlots["nlp"+chTag+"_lep"]->Fill(leptons.size(),wgt);
 
-      if(lightJetsVec.size() > 0 and bJetsVec.size() > 0) {
+      if(lightJetsVec.size() > 0 and kJetsVec.size() > 0) {
         allPlots["j_pt"+chTag+"_lep"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
         allPlots["lj_pt"+chTag+"_lep"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-        allPlots["bj_pt"+chTag+"_lep"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
-      }
-
-      for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
-        float csv = allJetsVec.at(ij).getCSV();
-        allPlots["csv"+chTag+"_lep"]->Fill(csv,wgt);
-        allPlots["csv_all_lep"]->Fill(csv,wgt);
-      //}
+        allPlots["kj_pt"+chTag+"_lep"]->Fill(kJetsVec[0].getVec().Pt(),wgt);
       }
 
       //Require b-tagged and light jets
-      //if(!minJets || !kalman.isGoodEvent()) continue;
       if(!minJets) continue;
       if(debug) cout << "passed jet requirements" << endl;
 
@@ -1183,8 +1190,8 @@ void RunTop(TString filename,
       runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
       runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
       */
-      runBCDEF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
-      runGH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "lepjets");
+      runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "lepjets");
+      runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "lepjets");
       
       /*
       runB.Fill(leptons, chTag, "lepjets");
@@ -1208,21 +1215,15 @@ void RunTop(TString filename,
 
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lepjets"]->Fill(lightJetsVec.size(),wgt);
-      allPlots["nbj"+chTag+"_lepjets"]->Fill(bJetsVec.size(),wgt);
+      allPlots["nkj"+chTag+"_lepjets"]->Fill(kJetsVec.size(),wgt);
       allPlots["nlp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
 
       allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
       allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-      allPlots["bj_pt"+chTag+"_lepjets"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
-
-      for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
-        float csv = allJetsVec.at(ij).getCSV();
-        allPlots["csv"+chTag+"_lepjets"]->Fill(csv,wgt);
-        allPlots["csv_all_lepjets"]->Fill(csv,wgt);
-      }
+      allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
-      for(size_t ij = 0; ij < bJetsVec.size(); ij++) {
+      for(size_t ij = 0; ij < kJetsVec.size(); ij++) {
 
         if(ij > 1) continue;
         if(ij == 0) {
@@ -1247,8 +1248,8 @@ void RunTop(TString filename,
           runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "csv");
           runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "csv");
           */
-          runBCDEF.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "csv");
-          runGH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "csv");
+          runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "csv");
+          runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "csv");
           
           /*
           runB.Fill(leptons, chTag, "csv");
@@ -1262,211 +1263,211 @@ void RunTop(TString filename,
           runBCDEF.Fill(leptons, chTag, "csv");
           runGH.Fill(leptons, chTag, "csv");
 
-          //allPlots["nbj"+chTag+"_csv"]->Fill(1,wgt);
+          //allPlots["nkj"+chTag+"_csv"]->Fill(1,wgt);
           allPlots["nevt"+chTag+"_csv"]->Fill(1,norm);
           allPlots["weight"+chTag+"_csv"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_csv"]->Fill(norm,norm);
           allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,wgt);
           allPlots["j_pt"+chTag+"_csv"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
           allPlots["lj_pt"+chTag+"_csv"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-          allPlots["bj_pt"+chTag+"_csv"]->Fill(bJetsVec[0].getVec().Pt(),wgt);
+          allPlots["kj_pt"+chTag+"_csv"]->Fill(kJetsVec[0].getVec().Pt(),wgt);
         }
 
-        allPlots["csv"+chTag+"_csv"]->Fill(bJetsVec[ij].getCSV(),wgt);
-        std::vector<pfTrack> &tracks = bJetsVec[ij].getTracks();
+        std::vector<pfTrack> &tracks = kJetsVec[ij].getTracks();
+        if(tracks.size()<1) break;
+        cout << tracks.size();
+          const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
 
         //J/Psi
+        if(kalman.isJPsiEvent()) {
+          evch.njpsi=0;
+          evch.nj=0;
+          if(debug) cout << "starting J/Psi" << endl;
+          std::vector<pfTrack> pfmuCands,kaonCands;
+          for(size_t itk = 0; itk < tracks.size(); itk++) {
+            //if(!tracks[itk].highPurity()) continue; //only use high purity tracks FIXME
+            if(abs(tracks[itk].getPdgId()) == 13) {
+              /*
+              TLorentzVector muP4;
+              muP4.SetPtEtaPhiM(tracks[itk].Pt(), tracks[itk].Eta(), tracks[itk].Phi(), gMassMu);
+              pfTrack pfmu(muP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
+              pfmuCands.push_back(pfmu);
+              */
+              //if(!tracks[itk].globalMuon() && !tracks[itk].trackerMuon()) continue; FIXME
+              //if(tracks[itk].Pt() < 3.0) continue; FIXME
+              tracks[itk].setMass(gMassMu);
+              pfmuCands.push_back(tracks[itk]);
+            }
+            if(abs(tracks[itk].getPdgId()) == 211) {
+              /*
+              TLorentzVector kP4;
+              kP4.SetPtEtaPhiM(tracks[itk].Pt(), tracks[itk].Eta(), tracks[itk].Phi(), gMassK);
+              pfTrack pfk(kP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
+              kaonCands.push_back(pfk);
+              */
+              kaonCands.push_back(tracks[itk]);
+            }
+          }
+      
+          if(pfmuCands.size()>1 && (pfmuCands[0].getPfid() == -pfmuCands[1].getPfid())) {
 
-        //if(!kalman.isJPsiEvent()) continue;
-        evch.njpsi=0;
-        evch.nj=0;
-        if(debug) cout << "starting J/Psi" << endl;
-        const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
-        std::vector<pfTrack> pfmuCands,kaonCands;
-        for(size_t itk = 0; itk < tracks.size(); itk++) {
-          if(!tracks[itk].highPurity()) continue; //only use high purity tracks
-          if(abs(tracks[itk].getPdgId()) == 13) {
-            /*
-            TLorentzVector muP4;
-            muP4.SetPtEtaPhiM(tracks[itk].Pt(), tracks[itk].Eta(), tracks[itk].Phi(), gMassMu);
-            pfTrack pfmu(muP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
-            pfmuCands.push_back(pfmu);
-            */
-            if(!tracks[itk].globalMuon() && !tracks[itk].trackerMuon()) continue;
-            if(tracks[itk].Pt() < 3.0) continue;
-            tracks[itk].setMass(gMassMu);
-            pfmuCands.push_back(tracks[itk]);
+            std::vector<pfTrack> pfmuMatched, pfmuReject;
+            //Gen-matching
+            if(!ev.isData) {
+              //Don't use as it would skip non-gen events
+              //if(!ev.ngmeson) continue; //event has no mesons
+              bool isJPsiEvent(false);
+              if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+              for(int ij = 0; ij < ev.ngmeson; ij++) {
+                if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
+              }
+              //if(!isJPsiEvent) continue; //event doesn't have a JPsi
+
+              std::vector<pfTrack> genTracks;
+              std::vector<pfTrack> genMuTracks;
+              for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
+                if(!isJPsiEvent) break;
+                //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+                TLorentzVector gen;
+                gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
+                genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
+                int mother = ev.gmeson_daug_meson_index[ig]; //daug -> mother id -> mother ttbar
+                genTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+                //cout << genTracks.back().getGenT() << endl;
+                if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
+                if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+                //cout << genMuTracks.back().getGenT() << endl;
+              }
+
+              for(auto & it : pfmuCands) { //FIXME reference might not work
+                double dR = 0.3; //initial dR
+                int best_idx = -1;
+                for(auto & itg : genMuTracks) {
+                  if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
+                  if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
+                  if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
+                  dR = it.getVec().DeltaR(itg.getVec());
+                  best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
+                }
+                if(best_idx<0) { //no gen track matched
+                  pfmuReject.push_back(it);
+                }
+                else {
+                  //genMuTracks.erase(std::remove(genMuTracks.begin(), genMuTracks.end(), best_idx), genMuTracks.end()); //remove gen track so it cannot be matched again!
+                  genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                  it.setGenT(genMuTracks[best_idx].getGenT());
+                  pfmuMatched.push_back(it);
+                  //pfmuMatched.back().setGenT(genMuTracks[best_idx].getGenT());
+                }
+              }
+              //pfmuCands = pfmuMatched; //overwrite original vector with matched vector so I don't have to change the rest of the code
+            }
+
+            float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
+            float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);
+            allPlots["nkj"+chTag+"_jpsi"]->Fill(1,wgt);
+            allPlots["kj_pt"+chTag+"_jpsi"]->Fill(kJetsVec[ij].getVec().Pt(),wgt);
+            allPlots["lp_pt"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
+            allPlots["lp_pt_low"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
+            allPlots["lp_eta"+chTag+"_jpsi"]->Fill(leptons[0].Eta(),wgt);
+            allPlots["lp_eta"+chTag+"_jpsi"+"_no_weight"]->Fill(leptons[0].Eta(),norm);
+            allPlots["lp_phi"+chTag+"_jpsi"]->Fill(leptons[0].Phi(),wgt);
+            allPlots["lp_phi"+chTag+"_jpsi"+"_no_weight"]->Fill(leptons[0].Phi(),norm);
+            allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
+            allPlots["weight"+chTag+"_jpsi"]->Fill(wgt,norm);
+            allPlots["norm"+chTag+"_jpsi"]->Fill(norm,norm);
+            allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,wgt);
+
+            if(mass12>2.5 && mass12<3.4) {
+              if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
+              if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
+              if(debug) cout << mass12 << endl << endl;
+              allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
+    	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
+
+              /*
+              runB.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              runC.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              runD.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              runE.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              runF.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              runG.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              runH.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+              */
+              runBCDEF.Fill(pfmuCands, leptons, kJetsVec[ij], chTag, "jpsi");
+              runGH.Fill(pfmuCands, leptons, kJetsVec[ij], chTag, "jpsi");
+
+              treeBCDEF.Fill(evch, pfmuCands, leptons, kJetsVec[ij], chTag, "jpsi");
+              treeGH.Fill(evch, pfmuCands, leptons, kJetsVec[ij], chTag, "jpsi");
+
+              if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
+                runBCDEF.Fill(pfmuMatched, leptons, kJetsVec[ij], chTag, "gjpsi");
+                runGH.Fill(pfmuMatched, leptons, kJetsVec[ij], chTag, "gjpsi");
+              }
+              if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
+                runBCDEF.Fill(pfmuReject, leptons, kJetsVec[ij], chTag, "rgjpsi");
+                runGH.Fill(pfmuReject, leptons, kJetsVec[ij], chTag, "rgjpsi");
+              }
+
+              /*
+              runB.Fill(pfmuCands, leptons, chTag, "jpsi");
+              runC.Fill(pfmuCands, leptons, chTag, "jpsi");
+              runD.Fill(pfmuCands, leptons, chTag, "jpsi");
+              runE.Fill(pfmuCands, leptons, chTag, "jpsi");
+              runF.Fill(pfmuCands, leptons, chTag, "jpsi");
+              runG.Fill(pfmuCands, leptons, chTag, "jpsi");
+              runH.Fill(pfmuCands, leptons, chTag, "jpsi");
+
+              runB.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              runC.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              runD.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              runE.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              runF.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              runG.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              runH.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
+              */
+
+              /*
+              runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              */
+              runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+              runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+
+              for(int itk = 0; itk < 2; itk++) {
+
+                for(int i = 0; i < 2; i++) {
+                  allPlots["pf_dxy"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy()),wgt);
+                  allPlots["pf_dz"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz()),wgt);
+                  allPlots["pf_dxyE"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
+                  allPlots["pf_dzE"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDzE()),wgt);
+                  allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+                  allPlots["pf_dxy_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
+                  allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+                  allPlots["pf_dxy_all"]->Fill(abs(pfmuCands[i].getDxy()),wgt);
+                  allPlots["pf_dz_all"]->Fill(abs(pfmuCands[i].getDz()),wgt);
+                  allPlots["pf_dxyE_all"]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
+                  allPlots["pf_dzE_all"]->Fill(abs(pfmuCands[i].getDzE()),wgt);
+                  allPlots["pf_dz_sig_all"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+                  allPlots["pf_dxy_sig_all"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
+                  allPlots["pf_dz_sig_all"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
+                }
+              }
+
+              if(mass123 > 0) {
+                allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
+                allPlots["massJPsiK_all"]->Fill(mass123,wgt);
+              }
+            }
           }
-          if(abs(tracks[itk].getPdgId()) == 211) {
-            /*
-            TLorentzVector kP4;
-            kP4.SetPtEtaPhiM(tracks[itk].Pt(), tracks[itk].Eta(), tracks[itk].Phi(), gMassK);
-            pfTrack pfk(kP4, tracks[itk].getDxy(), tracks[itk].getDxyE(), tracks[itk].getDz(), tracks[itk].getDzE(), tracks[itk].getPdgId());
-            kaonCands.push_back(pfk);
-            */
-            kaonCands.push_back(tracks[itk]);
-          }
+          cht->Fill();
+          if(debug) cout << "J/Psi DONE" << endl;
         }
-    
-        if(pfmuCands.size()>1 && (pfmuCands[0].getPfid() == -pfmuCands[1].getPfid())) {
-
-          std::vector<pfTrack> pfmuMatched, pfmuReject;
-          //Gen-matching
-          if(!ev.isData) {
-            //Don't use as it would skip non-gen events
-            //if(!ev.ngmeson) continue; //event has no mesons
-            bool isJPsiEvent(false);
-            if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
-            for(int ij = 0; ij < ev.ngmeson; ij++) {
-              if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
-            }
-            //if(!isJPsiEvent) continue; //event doesn't have a JPsi
-
-            std::vector<pfTrack> genTracks;
-            std::vector<pfTrack> genMuTracks;
-            for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-              if(!isJPsiEvent) break;
-              //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
-              TLorentzVector gen;
-              gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
-              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
-              int mother = ev.gmeson_daug_meson_index[ig]; //daug -> mother id -> mother ttbar
-              genTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
-              //cout << genTracks.back().getGenT() << endl;
-              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
-              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
-              //cout << genMuTracks.back().getGenT() << endl;
-            }
-
-            for(auto & it : pfmuCands) { //FIXME reference might not work
-              double dR = 0.3; //initial dR
-              int best_idx = -1;
-              for(auto & itg : genMuTracks) {
-                if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
-                if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
-                if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
-                dR = it.getVec().DeltaR(itg.getVec());
-                best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
-              }
-              if(best_idx<0) { //no gen track matched
-                pfmuReject.push_back(it);
-              }
-              else {
-                //genMuTracks.erase(std::remove(genMuTracks.begin(), genMuTracks.end(), best_idx), genMuTracks.end()); //remove gen track so it cannot be matched again!
-                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
-                it.setGenT(genMuTracks[best_idx].getGenT());
-                pfmuMatched.push_back(it);
-                //pfmuMatched.back().setGenT(genMuTracks[best_idx].getGenT());
-              }
-            }
-            //pfmuCands = pfmuMatched; //overwrite original vector with matched vector so I don't have to change the rest of the code
-          }
-
-          float mass12((pfmuCands[0].getVec() + pfmuCands[1].getVec()).M());
-          float mass123( kaonCands.size()>0 ? (pfmuCands[0].getVec()+pfmuCands[1].getVec()+kaonCands[0].getVec()).M() : -1);
-          allPlots["nbj"+chTag+"_jpsi"]->Fill(1,wgt);
-          allPlots["bj_pt"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getVec().Pt(),wgt);
-          allPlots["lp_pt"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
-          allPlots["lp_pt_low"+chTag+"_jpsi"]->Fill(leptons[0].Pt(),wgt);
-          allPlots["lp_eta"+chTag+"_jpsi"]->Fill(leptons[0].Eta(),wgt);
-          allPlots["lp_eta"+chTag+"_jpsi"+"_no_weight"]->Fill(leptons[0].Eta(),norm);
-          allPlots["lp_phi"+chTag+"_jpsi"]->Fill(leptons[0].Phi(),wgt);
-          allPlots["lp_phi"+chTag+"_jpsi"+"_no_weight"]->Fill(leptons[0].Phi(),norm);
-          allPlots["csv"+chTag+"_jpsi"]->Fill(bJetsVec[ij].getCSV(),wgt);
-          allPlots["nevt"+chTag+"_jpsi"]->Fill(1,norm);
-          allPlots["weight"+chTag+"_jpsi"]->Fill(wgt,norm);
-          allPlots["norm"+chTag+"_jpsi"]->Fill(norm,norm);
-          allPlots["nvtx"+chTag+"_jpsi"]->Fill(ev.nvtx,wgt);
-
-          if(mass12>2.5 && mass12<3.4) {
-            if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
-            if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
-            if(debug) cout << mass12 << endl << endl;
-            allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
-  	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
-
-            /*
-            runB.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runC.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runD.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runE.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runF.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runG.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runH.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            */
-            runBCDEF.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            runGH.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-
-            treeBCDEF.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            treeGH.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-
-            if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
-              runBCDEF.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
-              runGH.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");
-            }
-            if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
-              runBCDEF.Fill(pfmuReject, leptons, bJetsVec[ij], chTag, "rgjpsi");
-              runGH.Fill(pfmuReject, leptons, bJetsVec[ij], chTag, "rgjpsi");
-            }
-
-            /*
-            runB.Fill(pfmuCands, leptons, chTag, "jpsi");
-            runC.Fill(pfmuCands, leptons, chTag, "jpsi");
-            runD.Fill(pfmuCands, leptons, chTag, "jpsi");
-            runE.Fill(pfmuCands, leptons, chTag, "jpsi");
-            runF.Fill(pfmuCands, leptons, chTag, "jpsi");
-            runG.Fill(pfmuCands, leptons, chTag, "jpsi");
-            runH.Fill(pfmuCands, leptons, chTag, "jpsi");
-
-            runB.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            runC.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            runD.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            runE.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            runF.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            runG.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            runH.Fill(pfmuCands, bJetsVec[ij], chTag, "jpsi");
-            */
-
-            /*
-            runB.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runC.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runD.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runE.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runG.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            */
-            runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-
-            for(int itk = 0; itk < 2; itk++) {
-
-              for(int i = 0; i < 2; i++) {
-                allPlots["pf_dxy"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy()),wgt);
-                allPlots["pf_dz"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz()),wgt);
-                allPlots["pf_dxyE"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
-                allPlots["pf_dzE"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDzE()),wgt);
-                allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
-                allPlots["pf_dxy_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
-                allPlots["pf_dz_sig"+chTag+"_jpsi"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
-                allPlots["pf_dxy_all"]->Fill(abs(pfmuCands[i].getDxy()),wgt);
-                allPlots["pf_dz_all"]->Fill(abs(pfmuCands[i].getDz()),wgt);
-                allPlots["pf_dxyE_all"]->Fill(abs(pfmuCands[i].getDxyE()),wgt);
-                allPlots["pf_dzE_all"]->Fill(abs(pfmuCands[i].getDzE()),wgt);
-                allPlots["pf_dz_sig_all"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
-                allPlots["pf_dxy_sig_all"]->Fill(abs(pfmuCands[i].getDxy())/abs(pfmuCands[i].getDxyE()),wgt);
-                allPlots["pf_dz_sig_all"]->Fill(abs(pfmuCands[i].getDz())/abs(pfmuCands[i].getDzE()),wgt);
-              }
-            }
-
-            if(mass123 > 0) {
-              allPlots["massJPsiK"+chTag]->Fill(mass123,wgt);
-              allPlots["massJPsiK_all"]->Fill(mass123,wgt);
-            }
-          }
-        }
-        cht->Fill();
-        if(debug) cout << "J/Psi DONE" << endl;
         //continue; //FIXME
 
         //D0 and D* 
@@ -1546,11 +1547,11 @@ void RunTop(TString filename,
                 pfMatched.push_back(it);
               }
             }
-            runBCDEF.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
-            runGH.Fill(pfCands, leptons, bJetsVec[ij], chTag, "meson");
+            runBCDEF.Fill(pfCands, leptons, kJetsVec[ij], chTag, "meson");
+            runGH.Fill(pfCands, leptons, kJetsVec[ij], chTag, "meson");
             if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
-              runBCDEF.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
-              runGH.Fill(pfMatched, leptons, bJetsVec[ij], chTag, "gmeson");
+              runBCDEF.Fill(pfMatched, leptons, kJetsVec[ij], chTag, "gmeson");
+              runGH.Fill(pfMatched, leptons, kJetsVec[ij], chTag, "gmeson");
             }
 
             if (mass12>1.65 && mass12<2.0) {
@@ -1560,7 +1561,7 @@ void RunTop(TString filename,
               allPlots["massD0"+chTag]->Fill(mass12,wgt);
               allPlots["massD0_all"]->Fill(mass12,wgt);
               //allPlots["massD0"+chTag+"_no_weight"]->Fill(mass12,norm);
-              allPlots["nbj"+chTag+"_meson"]->Fill(1,wgt);
+              allPlots["nkj"+chTag+"_meson"]->Fill(1,wgt);
               //cout << ev.event << " " << iev << " " << jetindex << endl;
               runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
               runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
@@ -1600,8 +1601,8 @@ void RunTop(TString filename,
                 
                 std::vector<pfTrack> tmp_cands = pfCands;
                 tmp_cands.push_back(tracks[k]);
-                runBCDEF.Fill(tmp_cands, leptons, bJetsVec[ij], chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, bJetsVec[ij], chTag, "meson");
+                runBCDEF.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
               }
             }
             //looking for pion
@@ -1635,8 +1636,8 @@ void RunTop(TString filename,
                 allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),norm);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);
 
-                runBCDEF.Fill(tmp_cands, leptons, bJetsVec[ij], chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, bJetsVec[ij], chTag, "meson");
+                runBCDEF.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
 
                 if(fabs(mass12-1.864) < 0.10) { // mass window cut
                   TLorentzVector p_jet;

@@ -5,6 +5,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/BTauReco"> 
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Common"/>
 <use name="CommonTools/UtilAlgos"/>

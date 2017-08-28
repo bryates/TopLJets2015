@@ -47,4 +47,14 @@ void RunTop(TString filename,
 		 TString era,
                  TString runPeriod,
                  Bool_t debug);
+void RunTopKalman(TString filename,
+		 TString outname,
+		 Int_t channelSelection, 
+		 Int_t chargeSelection, 
+		 FlavourSplitting flavourSplitting,
+		 TH1F *normH, 
+		 Bool_t runSysts,
+		 TString era,
+                 TString runPeriod,
+                 Bool_t debug);
 #endif

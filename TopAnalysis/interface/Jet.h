@@ -10,6 +10,7 @@ class pfTrack {
  public:
   pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid, int quality, bool highPurity);
   pfTrack(TLorentzVector p4, int pfid);
+  pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -30,6 +31,8 @@ class pfTrack {
   float getDxyE();
   float getDz();
   float getDzE();
+  inline float chi2() { return chi2_; }
+  inline float vtxProb() { return vtxProb_; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
   void setPfid(int pfid);
@@ -45,6 +48,8 @@ class pfTrack {
   float dxyE_;
   float dz_;
   float dzE_;
+  float chi2_;
+  float vtxProb_;
   int pfid_;
   int quality_;
   int genT_ = 0;
