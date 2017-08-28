@@ -529,6 +529,7 @@ void RunTopKalman(TString filename,
       std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec;
       //kalman.loadEvent(ev.event);
       kalman.loadEvent(ev);
+      /*
       for(auto &jet : kalman.getJets()) {
         if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
 	TLorentzVector jp4 = jet.getVec();
@@ -544,6 +545,7 @@ void RunTopKalman(TString filename,
         kJetsVec.push_back(jet);
         allJetsVec.push_back(jet);
       }
+      */
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -648,6 +650,7 @@ void RunTopKalman(TString filename,
           tmpj.sortTracksByPt();
 
           //if(isBTagged) bJetsVec.push_back(tmpj);
+          if(kalman.isGoodJet(k)) kJetsVec.push_back(tmpj);
           lightJetsVec.push_back(tmpj);
           allJetsVec.push_back(tmpj);
 	}
@@ -921,7 +924,8 @@ void RunTopKalman(TString filename,
         //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
         if(debug) cout << "is " << (kalman.isGoodEvent() ? "" : "not") << " a Kalman event" << endl;
         //if(kJetsVec.size() >= 4 && kalman.isGoodEvent()) {
-        if(kJetsVec.size() >=1 && lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
+        //if(kJetsVec.size() >=1 && lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
+        if(lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
           if(debug) cout << "jet requirements" << endl;
           minJets = true;
           /*
@@ -1026,7 +1030,8 @@ void RunTopKalman(TString filename,
         }
         //Require at least 1 b-tagged and at least 1 light jets
         //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
-        if(kJetsVec.size() >=1 && lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
+        //if(kJetsVec.size() >=1 && lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
+        if(lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
           if(debug) cout << "jet requirements" << endl;
           //Z control plot
           minJets = true;
@@ -1215,12 +1220,12 @@ void RunTopKalman(TString filename,
 
       allPlots["nj"+chTag+"_lepjets"]->Fill(allJetsVec.size(),wgt);
       allPlots["nlj"+chTag+"_lepjets"]->Fill(lightJetsVec.size(),wgt);
-      allPlots["nkj"+chTag+"_lepjets"]->Fill(kJetsVec.size(),wgt);
+      //allPlots["nkj"+chTag+"_lepjets"]->Fill(kJetsVec.size(),wgt);
       allPlots["nlp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
 
       allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
       allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-      allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
+      //allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
       for(size_t ij = 0; ij < kJetsVec.size(); ij++) {
@@ -1248,8 +1253,8 @@ void RunTopKalman(TString filename,
           runG.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "csv");
           runH.Fill(lightJetsVec,bJetsVec,allJetsVec, chTag, "csv");
           */
-          runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "csv");
-          runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "csv");
+          runBCDEF.Fill(lightJetsVec,kJetsVec,kJetsVec, chTag, "csv");
+          runGH.Fill(lightJetsVec,kJetsVec,kJetsVec, chTag, "csv");
           
           /*
           runB.Fill(leptons, chTag, "csv");
@@ -1268,7 +1273,7 @@ void RunTopKalman(TString filename,
           allPlots["weight"+chTag+"_csv"]->Fill(wgt,norm);
           allPlots["norm"+chTag+"_csv"]->Fill(norm,norm);
           allPlots["nvtx"+chTag+"_csv"]->Fill(ev.nvtx,wgt);
-          allPlots["j_pt"+chTag+"_csv"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
+          allPlots["j_pt"+chTag+"_csv"]->Fill(kJetsVec[0].getVec().Pt(),wgt);
           allPlots["lj_pt"+chTag+"_csv"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
           allPlots["kj_pt"+chTag+"_csv"]->Fill(kJetsVec[0].getVec().Pt(),wgt);
         }
@@ -1547,11 +1552,11 @@ void RunTopKalman(TString filename,
                 pfMatched.push_back(it);
               }
             }
-            runBCDEF.Fill(pfCands, leptons, kJetsVec[ij], chTag, "meson");
-            runGH.Fill(pfCands, leptons, kJetsVec[ij], chTag, "meson");
+            runBCDEF.Fill(pfCands, leptons, allJetsVec[ij], chTag, "meson");
+            runGH.Fill(pfCands, leptons, allJetsVec[ij], chTag, "meson");
             if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
-              runBCDEF.Fill(pfMatched, leptons, kJetsVec[ij], chTag, "gmeson");
-              runGH.Fill(pfMatched, leptons, kJetsVec[ij], chTag, "gmeson");
+              runBCDEF.Fill(pfMatched, leptons, allJetsVec[ij], chTag, "gmeson");
+              runGH.Fill(pfMatched, leptons, allJetsVec[ij], chTag, "gmeson");
             }
 
             if (mass12>1.65 && mass12<2.0) {
@@ -1601,8 +1606,8 @@ void RunTopKalman(TString filename,
                 
                 std::vector<pfTrack> tmp_cands = pfCands;
                 tmp_cands.push_back(tracks[k]);
-                runBCDEF.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
+                runBCDEF.Fill(tmp_cands, leptons, allJetsVec[ij], chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, allJetsVec[ij], chTag, "meson");
               }
             }
             //looking for pion
@@ -1636,8 +1641,8 @@ void RunTopKalman(TString filename,
                 allPlots["massDs"+chTag+"_no_weight"]->Fill(p_cand.M(),norm);
                 allPlots["massDs_all"]->Fill(p_cand.M(), wgt);
 
-                runBCDEF.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, kJetsVec[ij], chTag, "meson");
+                runBCDEF.Fill(tmp_cands, leptons, allJetsVec[ij], chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, allJetsVec[ij], chTag, "meson");
 
                 if(fabs(mass12-1.864) < 0.10) { // mass window cut
                   TLorentzVector p_jet;

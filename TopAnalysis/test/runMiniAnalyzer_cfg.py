@@ -103,12 +103,12 @@ process.countJets = cms.EDFilter("CandViewCountFilter",
 process.preYieldFilter = cms.Sequence(process.selectedMuons+process.selectedElectrons+process.allLeps+process.countLeps+process.selectedJets+process.countJets)
 
 ######### Kalman Filter
-process.kalman = cms.EDAnalyzer("KalmanFilter",
-    electrons = cms.InputTag("slimmedElectrons"),
-    muons = cms.InputTag("slimmedMuons"),
-    jets = cms.InputTag("slimmedJets"),
-    pfCands = cms.InputTag("packedPFCandidates::PAT"),
-)
+#process.kalman = cms.EDAnalyzer("KalmanFilter",
+    #electrons = cms.InputTag("slimmedElectrons"),
+    #muons = cms.InputTag("slimmedMuons"),
+    #jets = cms.InputTag("slimmedJets"),
+    #pfCands = cms.InputTag("packedPFCandidates::PAT"),
+#)
 
 
 #analysis
@@ -162,4 +162,4 @@ if options.runOnData:
     process.p = cms.Path(process.preYieldFilter*process.kalman*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
     #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
-    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.kalman*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
+    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)

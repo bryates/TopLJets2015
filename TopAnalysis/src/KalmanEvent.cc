@@ -79,6 +79,14 @@ std::vector<Jet> KalmanEvent::getJets()
   return jets_;
 }
 
+bool KalmanEvent::isGoodJet(int idx) {
+  buildJets();
+  for(auto &jet : jets_) {
+    if(jet.getJetIndex()==idx) return true;
+  }
+  return false;
+}
+
 /*
 std::vector<Jet> KalmanEvent::getJets() {
   std::vector<Jet> jets;

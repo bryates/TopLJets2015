@@ -1042,8 +1042,6 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 	float mass12 = (p_track1+p_track2).M();
 	  
 	if (mass12<2.5 || mass12>3.5) continue; 
-        cout << "Kalman mass " << mass12 << endl;
-        cout << "using jet " << j.pt() << endl;
 	  
 	// vtx fitting
 	const reco::Track* trk1 = &pf1.pseudoTrack();

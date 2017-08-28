@@ -20,6 +20,7 @@ class KalmanEvent
   inline int getEvent() { return event_; }
   inline bool isJPsiEvent() { return njpsi_ > 0; }
   inline bool isGoodEvent() { return nmeson_ > 0; }
+  bool isGoodJet(int idx);
   std::vector<Jet> getJets();
 
  private:
