@@ -366,6 +366,7 @@ void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
   if(leptons.size() > 0) {
     allPlots["lp_pt_low"+chTag+name+runPeriod_]->Fill(leptons[0].Pt(),getWgt());
     allPlots["lp_pt"+chTag+name+runPeriod_]->Fill(leptons[0].Pt(),getWgt());
+    allPlots["lp_pt_all"+name+runPeriod_]->Fill(leptons[0].Pt(),getWgt());
     //allPlots["lp_pt"+chTag+name+"_"+"_no_weight"+runPeiod_]->Fill(leptons[0].Pt(),norm_);
     allPlots["relIso"+chTag+name+runPeriod_]->Fill(leptons[0].getRelIso(),getWgt());
     allPlots["lp_eta"+chTag+name+runPeriod_]->Fill(leptons[0].Eta(),getWgt());
@@ -382,7 +383,9 @@ void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
       }
       else {
         allPlots["dilp_m"+chTag+name+runPeriod_]->Fill(dilp4.M(),getWgt());
+        allPlots["dilp_m_all"+name+runPeriod_]->Fill(dilp4.M(),getWgt());
         allPlots["dilp_pt"+chTag+name+runPeriod_]->Fill(dilp4.Pt(),getWgt());
+        allPlots["dilp_pt_all"+name+runPeriod_]->Fill(dilp4.Pt(),getWgt());
       }
     }
   }
@@ -395,7 +398,9 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
   if(debug_) std::cout << "Filling jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
 
   allPlots["nj"+chTag+name+runPeriod_]->Fill(allJetsVec.size(),getWgt());
+  allPlots["nj_all"+name+runPeriod_]->Fill(allJetsVec.size(),getWgt());
   allPlots["nlj"+chTag+name+runPeriod_]->Fill(lightJetsVec.size(),getWgt());
+  allPlots["nlj_all"+name+runPeriod_]->Fill(lightJetsVec.size(),getWgt());
   allPlots["nbj"+chTag+name+runPeriod_]->Fill(bJetsVec.size(),getWgt());
   allPlots["nbj_all"+name+runPeriod_]->Fill(bJetsVec.size(),getWgt());
   //allPlots["nlj"+chTag+name+"_no_weight"+runPeriod_]->Fill(lightJetsVec.size(),norm_);
@@ -407,7 +412,7 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
     allPlots["j_pt"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
     allPlots["j_pt_low"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["j_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(), norm_);
-    //allPlots["j_pt_all"+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["j_pt_all"+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
     for(size_t ij = 0; ij < allJetsVec.size(); ij++) {
       float csv = allJetsVec.at(ij).getCSV();
       allPlots["csv"+chTag+name+runPeriod_]->Fill(csv,getWgt());
@@ -420,13 +425,13 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
     allPlots["lj_pt_low"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
     allPlots["lj_pt"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["lj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),norm_);
-    //allPlots["lj_pt_all"+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["lj_pt_all"+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
   }
   if(bJetsVec.size() > 0) {
     allPlots["bj_pt_low"+chTag+name+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),getWgt());
     allPlots["bj_pt"+chTag+name+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["bj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),norm_);
-    //allPlots["bj_pt_all"+name+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["bj_pt_all"+name+runPeriod_]->Fill(bJetsVec[0].getVec().Pt(),getWgt());
   }
 }
 

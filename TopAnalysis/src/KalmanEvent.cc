@@ -66,6 +66,7 @@ void KalmanEvent::buildJets() {
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf]);
       if(debug_) { std::cout << "pfTrack "; pftk.print(); }
+      if(debug_) std::cout << "Kalman jet " << ev_.k_j[ipf] << " with pT=" << ev_.j_pt[ev_.k_j[ipf]] << std::endl;
       tmpj.addTrack(pftk);
     }
     if(!tmpj.getTracks().size()) continue; //skip empty jets

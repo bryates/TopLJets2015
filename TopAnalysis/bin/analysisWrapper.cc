@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
   //else if(method=="TOPWidth::RunTopWidth") RunTopWidth(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   if(method=="TOP::RunTop") RunTop(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
+  else if(method=="TOP::RunTopAOD") RunTopAOD(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   //else if(method=="Run5TeVAnalysis::Run5TeVAnalysis") Run5TeVAnalysis(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   else
     {
