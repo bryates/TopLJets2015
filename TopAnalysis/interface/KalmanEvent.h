@@ -22,6 +22,7 @@ class KalmanEvent
   inline bool isGoodEvent() { return nmeson_ > 0; }
   bool isGoodJet(int idx);
   std::vector<Jet> getJets();
+  //void getJets(std::vector<Jet> &kjets, std::vector<Jet> &jets);
 
  private:
   TTree *tree_;

@@ -18,13 +18,14 @@ out=$4
 tag=$5
 num=$2
 period=$6
+method=$7
 
 #echo "Running: python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6/${tag}/MergedMiniEvents_${num}.root -o LJets2015/2016/${tag}_${num}.root --tag ${tag} --method TOP::RunTop --era era2016 --runPeriod ${period}"
 
 #python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6/${tag}/MergedMiniEvents_${num}.root -o LJets2015/2016/${tag}_${num}.root --tag ${tag} --method TOP::RunTop --era era2016 --runPeriod ${period}
 
-echo "Running: python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}_${num}.root --tag ${tag} --method TOP::RunTop --era era2016 --runPeriod ${period}"
+echo "Running: python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}_${num}.root --tag ${tag} --method ${method} --era era2016 --runPeriod ${period}"
 
-python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}_${num}.root --tag ${tag} --method TOP::RunTop --era era2016 --runPeriod ${period}
+python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}_${num}.root --tag ${tag} --method ${method} --era era2016 --runPeriod ${period}
 #mv *.root $dir/condor
 #rm *

@@ -1136,8 +1136,8 @@ void StdPlots::Write() {
   if(debug_) std::cout << "writing histograms" << std::endl;
 
   for (auto& it : allPlots)  { 
-    if(debug_) std::cout << it.second->GetName() << std::endl;
-    if(debug_) std::cout << it.second->GetEntries() << std::endl;
+    //if(debug_) std::cout << it.second->GetName() << std::endl;
+    //if(debug_) std::cout << it.second->GetEntries() << std::endl;
 
     it.second->Write(); 
   }

@@ -65,19 +65,18 @@ void RunTopKalman(TString filename,
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
 
-  KalmanEvent kalman(debug);
-
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
   //std::vector<TGraph *>puWgt;
-  std::vector<TH1D *>puWgt;
+  //std::vector<TH1D *>puWgt;
   TString tmpRun ("BCDEFGH");
   std::vector<TH1D*> puWgtsRun;
   if(!ev.isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
+      /*
       TString puWgtUrl(era+"/pileupWgts"+runPeriod+".root");
       gSystem->ExpandPathName(puWgtUrl);
       TFile *fIn=TFile::Open(puWgtUrl);
@@ -89,6 +88,7 @@ void RunTopKalman(TString filename,
           TH1D *puWgtData=(TH1D *)fIn->Get("puwgts_nom");
           puWgt.push_back(puWgtData);
 	}
+      */
 
       //Load PU plots for all run periods
       /*
@@ -105,7 +105,7 @@ void RunTopKalman(TString filename,
       */
       TString puWgtRunUrl(era+"/pileupWgtsBCDEF.root");
       gSystem->ExpandPathName(puWgtRunUrl);
-      fIn=TFile::Open(puWgtRunUrl);
+      TFile *fIn=TFile::Open(puWgtRunUrl);
       TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
       puWgtDataRun->SetDirectory(0);
       puWgtsRun.push_back(puWgtDataRun);
@@ -121,37 +121,9 @@ void RunTopKalman(TString filename,
     }
 
   //LEPTON EFFICIENCIES
-  LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod,debug);
+  //LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod,debug);
   LeptonEfficiencyWrapper lepEffH_BCDEF(filename.Contains("Data13TeV"),era,"BCDEF",debug);
   LeptonEfficiencyWrapper lepEffH_GH(filename.Contains("Data13TeV"),era,"GH",debug);
-
-
-  //B-TAG CALIBRATION
-  TString btagEffExpUrl(era+"/expTageff.root");
-  gSystem->ExpandPathName(btagEffExpUrl);
-  std::map<BTagEntry::JetFlavor, BTagCalibrationReader *> btvsfReaders  = getBTVcalibrationReaders(era,BTagEntry::OP_MEDIUM);
-  std::map<TString, TGraphAsymmErrors *> expBtagEff, expBtagEffPy8;
-  BTagSFUtil myBTagSFUtil;
-  
-  TFile *beffIn=TFile::Open(btagEffExpUrl);
-  expBtagEffPy8["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
-  expBtagEffPy8["c"]=(TGraphAsymmErrors *)beffIn->Get("c");
-  expBtagEffPy8["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
-  beffIn->Close();
-
-  TString btagExpPostFix("");
-  if(isTTbar)
-	{
-	  if(filename.Contains("_herwig")) btagExpPostFix="_herwig";
-	  if(filename.Contains("_scaleup")) btagExpPostFix="_scaleup";
-	  if(filename.Contains("_scaledown")) btagExpPostFix="_scaledown";
-	}
-  btagEffExpUrl.ReplaceAll(".root",btagExpPostFix+".root");
-  beffIn=TFile::Open(btagEffExpUrl);
-  expBtagEff["b"]=(TGraphAsymmErrors *)beffIn->Get("b");
-  expBtagEff["c"]=(TGraphAsymmErrors *)beffIn->Get("c");
-  expBtagEff["udsg"]=(TGraphAsymmErrors *)beffIn->Get("udsg");
-  beffIn->Close();
 
 
   //jet energy uncertainties
@@ -278,15 +250,6 @@ void RunTopKalman(TString filename,
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
       }
-      /*
-      runB.SetNorm(norm);
-      runC.SetNorm(norm);
-      runD.SetNorm(norm);
-      runE.SetNorm(norm);
-      runF.SetNorm(norm);
-      runG.SetNorm(norm);
-      runH.SetNorm(norm);
-      */
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);
       treeBCDEF.SetNorm(norm);
@@ -501,12 +464,9 @@ void RunTopKalman(TString filename,
       //select jets
       Float_t htsum(0);
       TLorentzVector jetDiff(0,0,0,0);
-      //int nkjets(0),ncjets(0),nljets(0);//,leadingJetIdx(-wgt);
-      //std::vector<Jet> bJetsVec, lightJetsVec, allJetsVec;
       std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec;
-      //kalman.loadEvent(ev.event);
+      KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
-      /*
       for(auto &jet : kalman.getJets()) {
         if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
 	TLorentzVector jp4 = jet.getVec();
@@ -520,9 +480,8 @@ void RunTopKalman(TString filename,
         if(debug) cout << "Overlap with lepton DONE" << endl;
         jet.sortTracksByPt();
         kJetsVec.push_back(jet);
-        allJetsVec.push_back(jet);
+        //allJetsVec.push_back(jet);
       }
-      */
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -557,50 +516,6 @@ void RunTopKalman(TString filename,
 	  //if(leadingJetIdx<0) leadingJetIdx=k;
 	  htsum += jp4.Pt();
 
-	  //b-tag
-          /*
-	  if(debug) cout << "Starting b-tagging" << endl;
-	  float csv = ev.j_csv[k];	  
-	  bool isBTagged(csv>0.8484);//,isBTaggedUp(isBTagged),isBTaggedDown(isBTagged);
-	  if(!ev.isData)
-	    {
-	      float jptForBtag(jp4.Pt()>1000. ? 999. : jp4.Pt()), jetaForBtag(fabs(jp4.Eta()));
-	      float expEff(1.0), jetBtagSF(1.0);//, jetBtagSFUp(1.0), jetBtagSFDown(1.0);
-
-	      BTagEntry::JetFlavor hadFlav=BTagEntry::FLAV_UDSG; 
-	      if(abs(ev.j_hadflav[k])==4) hadFlav=BTagEntry::FLAV_C; 
-	      if(abs(ev.j_hadflav[k])==5) hadFlav=BTagEntry::FLAV_B;
-
-	      jetBtagSF = btvsfReaders[hadFlav]->eval_auto_bounds( "central", hadFlav, jetaForBtag, jptForBtag);
-	      //jetBtagSFUp = btvsfReaders[hadFlav]->eval_auto_bounds( "up", hadFlav, jetaForBtag, jptForBtag);
-	      //jetBtagSFUp = btvsfReaders[hadFlav]->eval_auto_bounds( "down", hadFlav, jetaForBtag, jptForBtag);
-	      if(abs(ev.j_hadflav[k])==4) 
-		{ 
-		  ncjets++;
-		  expEff    = expBtagEff["c"]->Eval(jptForBtag); 
-		  jetBtagSF *= expEff>0 ? expBtagEffPy8["c"]->Eval(jptForBtag)/expBtagEff["c"]->Eval(jptForBtag) : 0.;
-		}
-	      else if(abs(ev.j_hadflav[k])==5) 
-		{ 
-		  nkjets++;
-		  expEff    = expBtagEff["b"]->Eval(jptForBtag); 
-		  jetBtagSF *= expEff>0 ? expBtagEffPy8["b"]->Eval(jptForBtag)/expBtagEff["b"]->Eval(jptForBtag) : 0.;
-		}
-	      else
-		{
-		  nljets++;
-		  expEff    = expBtagEff["udsg"]->Eval(jptForBtag);
-		  jetBtagSF *= expEff> 0 ? expBtagEffPy8["udsg"]->Eval(jptForBtag)/expBtagEff["udsg"]->Eval(jptForBtag) : 0.;
-		}
-	      
-	      //updated b-tagging decision with the data/MC scale factor
-	      myBTagSFUtil.modifyBTagsWithSF(isBTagged,    jetBtagSF,     expEff);
-	      //myBTagSFUtil.modifyBTagsWithSF(isBTagged,      jetBtagSFUp,      expEff);
-	      //myBTagSFUtil.modifyBTagsWithSF(isBTagged,  jetBtagSFDown,  expEff);
-	    }
-	  if(debug) cout << "b-tagging DONE" << endl;
-          */
-
 	  //save jet
           //Jet tmpj(jp4, csv, k);
           Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
@@ -626,12 +541,13 @@ void RunTopKalman(TString filename,
 	  }
           tmpj.sortTracksByPt();
 
-          //if(isBTagged) bJetsVec.push_back(tmpj);
-          if(debug && kalman.isGoodJet(k)) cout << "k=" << k << " jet pT=" << jp4.Pt() << endl;
-          if(kalman.isGoodJet(k)) kJetsVec.push_back(tmpj);
-          else lightJetsVec.push_back(tmpj);
+          //if(debug && kalman.isGoodJet(k)) cout << "k=" << k << " jet pT=" << jp4.Pt() << endl;
+          //if(kalman.isGoodJet(k)) kJetsVec.push_back(tmpj);
+          if(!kalman.isGoodJet(k)) lightJetsVec.push_back(tmpj);
           allJetsVec.push_back(tmpj);
 	}
+      if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
+      if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
       stsum += htsum;
 
@@ -644,38 +560,39 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Lepton scale factors" << endl;
       if(!ev.isData)
 	{
-          //float *puWgtsRun = new float[tmpRun.Length()];
 	  //account for pu weights and effect on normalization
 	  allPlots["puwgtctr"]->Fill(0.,1.0);
 	  allPlots["puwgtgr"]->Fill(0.,1.0);
 	  allPlots["puwgt"]->Fill(0.,1.0);
 	  if(debug) cout << "getting puWgts" << endl;
+          /*
           for(int xbin=1; xbin<=puWgt[0]->GetXaxis()->GetNbins(); xbin++) {
 	    Double_t yobs;
-	    //Double_t xobs,yobs;
 	    yobs = puWgt[0]->GetBinContent(xbin);
-	    //puWgtGr[0]->GetPoint(xbin-1,xobs,yobs);
-            //allPlots["puwgtgr"]->SetBinContent(xbin,yobs);
             allPlots["puwgt"]->Fill(xbin,yobs);
           }
+          */
           //Set PU weight for each run period
           runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
           runGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
           treeBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
           treeGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
 
+          /*
 	    for(size_t iwgt=0; iwgt<3; iwgt++)
 	      {
 	        puWgts[iwgt]=puWgt[iwgt]->GetBinContent(ev.putrue);  
 	        allPlots["puwgtctr"]->Fill(iwgt+1,puWgts[iwgt]);
 	      }
+          */
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
           if(debug) cout << "calling trigger function" << endl;
           std::vector<int> pdgIds; //vector of IDs for trigger correction function
-	  triggerCorrWgt=lepEffH.getTriggerCorrection(leptons);
+	  //triggerCorrWgt=lepEffH.getTriggerCorrection(leptons);
           if(debug) cout << "calling trigger function DONE!" << endl;
           // ** loop over all Particles in leptons **
+          /*
 	  for(size_t il=0; il<leptons.size(); il++) {
 	    EffCorrection_t selSF=lepEffH.getOfflineCorrection(leptons[il], ev.nvtx);
 	    lepSelCorrWgt.second = sqrt( pow(lepSelCorrWgt.first*selSF.second,2)+pow(lepSelCorrWgt.second*selSF.first,2));
@@ -684,6 +601,7 @@ void RunTopKalman(TString filename,
 	    lepSelCorrWgt.first *= selSF.first;
 	  }
 	  wgt=triggerCorrWgt.first*lepSelCorrWgt.first*puWgts[0]*norm;
+          */
 
           // ** SFs for BCDEF and GH separately
           EffCorrection_t lepSelCorrWgt_BCDEF(1.0,0.0), triggerCorrWgt_BCDEF(1.0,0.0);
@@ -692,9 +610,7 @@ void RunTopKalman(TString filename,
 	  triggerCorrWgt_GH=lepEffH_GH.getTriggerCorrection(leptons);
 	  for(size_t il=0; il<leptons.size(); il++) {
 	    EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il], ev.nvtx);
-	    //EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il],"BCDEF");
 	    EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il], ev.nvtx);
-	    //EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il],"GH");
 	    lepSelCorrWgt_BCDEF.second = sqrt( pow(lepSelCorrWgt_BCDEF.first*selSF_BCDEF.second,2)+pow(lepSelCorrWgt_BCDEF.second*selSF_BCDEF.first,2));
 	    lepSelCorrWgt_GH.second = sqrt( pow(lepSelCorrWgt_GH.first*selSF_GH.second,2)+pow(lepSelCorrWgt_GH.second*selSF_GH.first,2));
             if(debug) cout << "lepSelCorrWgt_BCDEF=" << lepSelCorrWgt_BCDEF.first << endl;
@@ -709,6 +625,8 @@ void RunTopKalman(TString filename,
           treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
           treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
           // **
+          runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
+	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[0]->GetBinContent(ev.putrue))*norm;
 
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
@@ -830,11 +748,11 @@ void RunTopKalman(TString filename,
         allPlots["relIso"+chTag+"_lep"]->Fill(leptons[0].getRelIso(),wgt);
         //Require at least 1 b-tagged and at least 2 light jets
         //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
-        if(debug) cout << "is " << (kalman.isGoodEvent() ? "" : "not") << " a Kalman event" << endl;
+        if(debug) cout << "is" << (kalman.isGoodEvent() ? "" : " not") << " a Kalman event" << endl;
         //if(kJetsVec.size() >= 4 && kalman.isGoodEvent()) {
         //if(kJetsVec.size() >=1 && lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
         //if(lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
-        if(kalman.isGoodEvent()) {
+        if(kalman.isGoodEvent() && kJetsVec.size()>0) {
           if(debug) cout << "jet requirements" << endl;
           minJets = true;
 
@@ -889,7 +807,7 @@ void RunTopKalman(TString filename,
         //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
         //if(kJetsVec.size() >=1 && lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
         //if(lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
-        if(kalman.isGoodEvent()) {
+        if(kalman.isGoodEvent() && kJetsVec.size()>0) {
           if(debug) cout << "jet requirements" << endl;
           //Z control plot
           minJets = true;
@@ -1014,8 +932,8 @@ void RunTopKalman(TString filename,
           runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "csv");
           runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "csv");
 
-          runBCDEF.Fill(lightJetsVec,kJetsVec,kJetsVec, chTag, "csv");
-          runGH.Fill(lightJetsVec,kJetsVec,kJetsVec, chTag, "csv");
+          runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "csv");
+          runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "csv");
           
           runBCDEF.Fill(leptons, chTag, "csv");
           runGH.Fill(leptons, chTag, "csv");
@@ -1031,7 +949,7 @@ void RunTopKalman(TString filename,
         }
 
         std::vector<pfTrack> &tracks = kJetsVec[ij].getTracks();
-        if(tracks.size()<1) break;
+        if(tracks.size()<1) continue;
         const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
 
         //J/Psi
@@ -1069,7 +987,7 @@ void RunTopKalman(TString filename,
               std::vector<pfTrack> genTracks;
               std::vector<pfTrack> genMuTracks;
               for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-                if(!isJPsiEvent) break;
+                if(!isJPsiEvent) continue;
                 //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
                 TLorentzVector gen;
                 gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
@@ -1121,6 +1039,8 @@ void RunTopKalman(TString filename,
               if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
               if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
               if(debug) cout << mass12 << endl << endl;
+              if(debug) cout << "J/Psi found" << endl;
+              if(debug && (mass12>3.0 && mass12<3.2)) cout << "and it's good!" << endl;
               allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
     	      allPlots["massJPsi_all"]->Fill(mass12,wgt);
 
@@ -1218,7 +1138,7 @@ void RunTopKalman(TString filename,
 
               std::vector<pfTrack> genTracks;
               for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-                if(!isDEvent) break;
+                if(!isDEvent) continue;
                 //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
                 TLorentzVector gen;
                 float gen_mass = 0.0;
@@ -1387,8 +1307,8 @@ void RunTopKalman(TString filename,
   if(debug) cout << "writing histograms" << endl;
 
   for (auto& it : allPlots)  { 
-    if(debug) cout << it.second->GetName() << endl;
-    if(debug) cout << it.second->GetEntries() << endl;
+    //if(debug) cout << it.second->GetName() << endl;
+    //if(debug) cout << it.second->GetEntries() << endl;
 
     it.second->SetDirectory(fOut); it.second->Write(); 
     fOut->cd();

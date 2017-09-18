@@ -1054,17 +1054,19 @@ void RunTopAOD(TString filename,
           if(!ev.isData) {
             //Don't use as it would skip non-gen events
             //if(!ev.ngmeson) continue; //event has no mesons
-            bool isJPsiEvent(false);
+            //bool isJPsiEvent(false);
             if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+            /*
             for(int ij = 0; ij < ev.ngmeson; ij++) {
               if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
             }
+            */
             //if(!isJPsiEvent) continue; //event doesn't have a JPsi
 
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-              if(!isJPsiEvent) break;
+              //if(!isJPsiEvent) break;
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
@@ -1200,15 +1202,17 @@ void RunTopAOD(TString filename,
             if(!ev.isData) {
               //Don't use as it would skip non-gen events
               //if(!ev.ngmeson) continue; //event has no mesons
-              bool isDEvent(false);
+              //bool isDEvent(false);
               if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+              /*
               for(int ij = 0; ij < ev.ngmeson; ij++) {
                 if(abs(ev.gmeson_id[ij])==421 || abs(ev.gmeson_id[ij])==413) { isDEvent = true; continue; } //loop until D found
               }
+              */
 
               std::vector<pfTrack> genTracks;
               for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-                if(!isDEvent) break;
+                //if(!isDEvent) break;
                 //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
                 TLorentzVector gen;
                 float gen_mass = 0.0;
