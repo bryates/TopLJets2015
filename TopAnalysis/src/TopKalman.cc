@@ -890,6 +890,7 @@ void RunTopKalman(TString filename,
 
       //Require b-tagged and light jets
       if(!minJets) continue;
+
       if(debug) cout << "passed jet requirements" << endl;
 
       //Fill gen-level top plots
@@ -925,6 +926,98 @@ void RunTopKalman(TString filename,
       //allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
+      //Better J/Psi (Just look how much shorter it is!)
+      const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
+      for(auto &jet : kJetsVec) {
+        vector<pfTrack> muTracks;
+	for(auto &track : jet.getTracks()) {
+          if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
+        }
+        if(muTracks.size()>1) {
+
+          std::vector<pfTrack> pfmuMatched, pfmuReject;
+          //Gen-matching
+          if(!ev.isData) {
+            //Don't use as it would skip non-gen events
+            //if(!ev.ngmeson) continue; //event has no mesons
+            bool isJPsiEvent(false);
+            //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+            for(int ij = 0; ij < ev.ngmeson; ij++) {
+              if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
+            }
+
+            std::vector<pfTrack> genTracks;
+            std::vector<pfTrack> genMuTracks;
+            for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
+              if(!isJPsiEvent) continue;
+              //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+              TLorentzVector gen;
+              gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
+              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
+              int mother = ev.gmeson_daug_meson_index[ig]; //daug -> mother id -> mother ttbar
+              genTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+              //cout << genTracks.back().getGenT() << endl;
+              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
+              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+            }
+
+            for(auto & it : muTracks) { //FIXME reference might not work
+              double dR = 0.3; //initial dR
+              int best_idx = -1;
+              for(auto & itg : genMuTracks) {
+                if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
+                if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
+                if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
+                dR = it.getVec().DeltaR(itg.getVec());
+                best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
+              }
+              if(best_idx<0) { //no gen track matched
+                pfmuReject.push_back(it);
+              }
+              else {
+                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                it.setGenT(genMuTracks[best_idx].getGenT());
+                pfmuMatched.push_back(it);
+              }
+            }
+          }
+
+          float mass12 = (muTracks[0].getVec()+muTracks[1].getVec()).M();
+          if(mass12>2.5 && mass12<3.4) {
+            allPlots["massJPsi_csv"]->Fill(mass12);
+            //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
+            //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
+            if(debug) cout << mass12 << endl << endl;
+            if(debug) cout << "J/Psi found" << endl;
+            if(debug && (mass12>3.0 && mass12<3.2)) cout << "and it's good!" << endl;
+            allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
+	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
+
+            runBCDEF.Fill(muTracks, leptons, jet, chTag, "jpsi");
+            runGH.Fill(muTracks, leptons, jet, chTag, "jpsi");
+
+            treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
+            treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
+
+            if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
+              runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
+              runGH.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
+            }
+            if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
+              runBCDEF.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
+              runGH.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
+            }
+
+            runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+            runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+
+          }
+        }
+        cht->Fill();
+        if(debug) cout << "J/Psi DONE" << endl;
+      }
+      //end better J/Psi
+
       for(size_t ij = 0; ij < kJetsVec.size(); ij++) {
 
         //if(ij > 1) continue;
@@ -950,10 +1043,11 @@ void RunTopKalman(TString filename,
 
         std::vector<pfTrack> &tracks = kJetsVec[ij].getTracks();
         if(tracks.size()<1) continue;
-        const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
+        //const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
 
         //J/Psi
-        if(kalman.isJPsiEvent()) {
+        /*
+        if(kalman.isJPsiEvent() && 0) {
           evch.njpsi=0;
           evch.nj=0;
           if(debug) cout << "starting J/Psi" << endl;
@@ -979,7 +1073,7 @@ void RunTopKalman(TString filename,
               //Don't use as it would skip non-gen events
               //if(!ev.ngmeson) continue; //event has no mesons
               bool isJPsiEvent(false);
-              if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+              //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
               for(int ij = 0; ij < ev.ngmeson; ij++) {
                 if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
               }
@@ -1091,6 +1185,7 @@ void RunTopKalman(TString filename,
           cht->Fill();
           if(debug) cout << "J/Psi DONE" << endl;
         }
+        */
         //continue; //FIXME
 
         //D0 and D* 
