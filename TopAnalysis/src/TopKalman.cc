@@ -975,16 +975,15 @@ void RunTopKalman(TString filename,
                 pfmuReject.push_back(it);
               }
               else {
-                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
                 it.setGenT(genMuTracks[best_idx].getGenT());
                 pfmuMatched.push_back(it);
+                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               }
             }
           }
 
           float mass12 = (muTracks[0].getVec()+muTracks[1].getVec()).M();
           if(mass12>2.5 && mass12<3.4) {
-            allPlots["massJPsi_csv"]->Fill(mass12);
             //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
             //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
             if(debug) cout << mass12 << endl << endl;

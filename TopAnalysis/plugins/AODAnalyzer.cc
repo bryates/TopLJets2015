@@ -207,14 +207,14 @@ void AODAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
     const reco::GenParticle &genIt = (*genParticles)[i];
     int absid=abs(genIt.pdgId());
     if(absid!=443 && absid!=421 && absid!=413) continue;
-    //if(absid!=421) continue;
-    //if(absid!=443) continue;
-    if(genIt.numberOfDaughters()!=2) continue;
+    if(genIt.numberOfDaughters()<2) continue;
+    /*
     const reco::GenParticle* motherTmp = &(*genParticles)[i];
     while(abs(motherTmp->pdgId()) != 6 && abs(motherTmp->pdgId()) != 22 && abs(motherTmp->pdgId()) != 2212) {
       if (motherTmp->mother() == 0) break;
       motherTmp = (reco::GenParticle*) motherTmp->mother();
     }
+    */
     //cout << "mother0 id= " << motherTmp->pdgId() << endl;
     //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&

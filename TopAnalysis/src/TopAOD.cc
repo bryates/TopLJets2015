@@ -1054,19 +1054,17 @@ void RunTopAOD(TString filename,
           if(!ev.isData) {
             //Don't use as it would skip non-gen events
             //if(!ev.ngmeson) continue; //event has no mesons
-            //bool isJPsiEvent(false);
-            if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
-            /*
+            bool isJPsiEvent(false);
+            //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
             for(int ij = 0; ij < ev.ngmeson; ij++) {
               if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
             }
-            */
             //if(!isJPsiEvent) continue; //event doesn't have a JPsi
 
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-              //if(!isJPsiEvent) break;
+              if(!isJPsiEvent) break;
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
@@ -1090,9 +1088,9 @@ void RunTopAOD(TString filename,
                 pfmuReject.push_back(it);
               }
               else {
-                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
                 it.setGenT(genMuTracks[best_idx].getGenT());
                 pfmuMatched.push_back(it);
+                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               }
             }
           }
@@ -1170,7 +1168,7 @@ void RunTopAOD(TString filename,
         if(debug) cout << "J/Psi DONE" << endl;
 
         //D0 and D* 
-        evch.njpsi=0;
+        //evch.nmeson=0;
         evch.nj=0;
         if(debug) cout << "Starting D0 and D*" << endl;
         int jetindex = allJetsVec[ij].getJetIndex();
@@ -1203,7 +1201,7 @@ void RunTopAOD(TString filename,
               //Don't use as it would skip non-gen events
               //if(!ev.ngmeson) continue; //event has no mesons
               //bool isDEvent(false);
-              if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+              //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
               /*
               for(int ij = 0; ij < ev.ngmeson; ij++) {
                 if(abs(ev.gmeson_id[ij])==421 || abs(ev.gmeson_id[ij])==413) { isDEvent = true; continue; } //loop until D found

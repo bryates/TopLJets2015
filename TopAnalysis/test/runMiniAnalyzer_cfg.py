@@ -159,7 +159,7 @@ process.TFileService = cms.Service("TFileService",
 
 if options.runOnData:
     #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
-    process.p = cms.Path(process.preYieldFilter*process.kalman*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
     #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
     process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
