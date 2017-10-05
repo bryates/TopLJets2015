@@ -1195,23 +1195,18 @@ void RunTopAOD(TString filename,
             //if(tracks[j].Pt() < 1.0) continue;
             std::vector<pfTrack> pfCands = {tracks[i], tracks[j]};
 
-            std::vector<pfTrack> pfMatched;
+            std::vector<pfTrack> pfMatched,pfReject;
             //Gen-matching
             if(!ev.isData) {
-              //Don't use as it would skip non-gen events
-              //if(!ev.ngmeson) continue; //event has no mesons
-              //bool isDEvent(false);
-              //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
-              /*
+              bool isDEvent(false);
               for(int ij = 0; ij < ev.ngmeson; ij++) {
+                if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (e.g. pi + K)
                 if(abs(ev.gmeson_id[ij])==421 || abs(ev.gmeson_id[ij])==413) { isDEvent = true; continue; } //loop until D found
               }
-              */
 
               std::vector<pfTrack> genTracks;
               for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-                //if(!isDEvent) break;
-                //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+                if(!isDEvent) break;
                 TLorentzVector gen;
                 float gen_mass = 0.0;
                 if(abs(ev.gmeson_daug_id[ig])==211) gen_mass = gMassPi;
@@ -1231,9 +1226,13 @@ void RunTopAOD(TString filename,
                   dR = it.getVec().DeltaR(itg.getVec());
                   best_idx = &itg - &genTracks[0]; //get index on current closest gen particle
                 }
-                if(best_idx<0) continue; //no gen track matched
-                genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
-                pfMatched.push_back(it);
+                if(best_idx<0) { //no gen track matched
+                  pfReject.push_back(it);
+                }
+                else {
+                  genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                  pfMatched.push_back(it);
+                }
               }
             }
             runBCDEF.Fill(pfCands, leptons, allJetsVec[ij], chTag, "meson");
@@ -1241,6 +1240,10 @@ void RunTopAOD(TString filename,
             if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
               runBCDEF.Fill(pfMatched, leptons, allJetsVec[ij], chTag, "gmeson");
               runGH.Fill(pfMatched, leptons, allJetsVec[ij], chTag, "gmeson");
+            }
+            if(!ev.isData && pfReject.size() > 1) { //save gen-unmatched D mesons
+              runBCDEF.Fill(pfReject, leptons, allJetsVec[ij], chTag, "rgmeson");
+              runGH.Fill(pfReject, leptons, allJetsVec[ij], chTag, "rgmeson");
             }
 
             if (mass12>1.65 && mass12<2.0) {

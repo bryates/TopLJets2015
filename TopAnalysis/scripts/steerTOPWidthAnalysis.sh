@@ -65,6 +65,7 @@ case $WHAT in
 	#python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
         echo "Processing with lumi=${lumi} pb^-1"
 	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr_${RUN}  -j data/${ERA}/samples.json -l ${lumiFile} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
+	#python scripts/plotter.py -i LJets2015/2016 --puNormSF puwgtctr_BCDEFGH  -j data/era2016/samples.json -l data/era2016/lumi.json --saveLog --run BCDEFGH
         #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )

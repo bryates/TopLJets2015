@@ -323,11 +323,6 @@ void AODAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
 //
 void AODAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-}
-
-// ------------ method called for each event  ------------
-void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
   //VERTICES
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxToken_, vertices);
@@ -336,23 +331,6 @@ void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   reco::VertexRef primVtxRef(vertices,0);
   ev_.nvtx=vertices->size();
   if(ev_.nvtx==0) return;
-
-  histContainer_["counter"]->Fill(0);
-
-  //analyze the event
-  if(!iEvent.isRealData()) genAnalysis(iEvent,iSetup);
-  recAnalysis(iEvent,iSetup);
-  
-  //save event if at least one lepton at gen or reco level
-  //if((ev_.ngleptons==0 && ev_.nleptons==0) || !saveTree_) return;  
-  if(ev_.ngmeson==0) return;
-  if(!saveTree_) return;  
-  ev_.run     = iEvent.id().run();
-  ev_.lumi    = iEvent.luminosityBlock();
-  ev_.event   = iEvent.id().event(); 
-  ev_.isData  = iEvent.isRealData();
-  if(!savePF_) { ev_.ngpf=0; ev_.npf=0; }
-  tree_->Fill();
 
   //TRIGGER INFORMATION
   edm::Handle<edm::TriggerResults> h_trigRes;
@@ -485,7 +463,7 @@ void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         ev_.l_nMatchedStations[ev_.nl] = mu.numberOfMatchedStations();
       }
       ev_.nl++;    
-      //ev_.nleptons += ( isTight && mu.pt()>25); 
+      ev_.nleptons += ( isTight && mu.pt()>25); 
     }
 
   // ELECTRON SELECTION: cf. https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
@@ -554,7 +532,7 @@ void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       */
       ev_.nl++;
       nele++;
-      //ev_.nleptons += (passTightIdExceptIso && el.pt()>25);
+      ev_.nleptons += (passTightIdExceptIso && el.pt()>25);
     }
 
   // JETS
@@ -761,6 +739,26 @@ void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       ev_.npf++;
     }
+}
+
+// ------------ method called for each event  ------------
+void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  histContainer_["counter"]->Fill(0);
+
+  //analyze the event
+  if(!iEvent.isRealData()) genAnalysis(iEvent,iSetup);
+  recAnalysis(iEvent,iSetup);
+  
+  //save event if at least one lepton at gen or reco level
+  if(ev_.nleptons==0 || !saveTree_) return;  
+  //if(ev_.ngmeson==0) return;
+  ev_.run     = iEvent.id().run();
+  ev_.lumi    = iEvent.luminosityBlock();
+  ev_.event   = iEvent.id().event(); 
+  ev_.isData  = iEvent.isRealData();
+  if(!savePF_) { ev_.ngpf=0; ev_.npf=0; }
+  tree_->Fill();
 }
 
 

@@ -1015,6 +1015,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       p_track1.SetPtEtaPhiM(pf1.pt(), pf1.eta(), pf1.phi(), gMassMu);
       p_track2.SetPtEtaPhiM(pf2.pt(), pf2.eta(), pf2.phi(), gMassMu);
 
+
       float mass12 = (p_track1+p_track2).M();
       
       if (mass12<2.5 || mass12>3.5) continue; 
@@ -1032,10 +1033,16 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
            
       KalmanVertexFitter kvf(true ); 
-      TransientVertex tv = kvf.vertex( trTrackVec );
+      TransientVertex tv;
+      float vtxProb(0);
+      try {
+      //TransientVertex tv = kvf.vertex( trTrackVec );
+      tv = kvf.vertex( trTrackVec );
+      }
+      catch (...) { std::cout << "Problem computing vertex" << std::endl; continue; }
       reco::Vertex fittedVertex = tv;
 
-      float vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
+      vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
 
       ev_.k_j_pt[ev_.nj]=j.pt();
       ev_.k_j_eta[ev_.nj]=j.eta();

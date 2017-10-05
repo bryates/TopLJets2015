@@ -1316,7 +1316,7 @@ void RunTop(TString filename,
             //Don't use as it would skip non-gen events
             //if(!ev.ngmeson) continue; //event has no mesons
             bool isJPsiEvent(false);
-            if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+            //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
             for(int ij = 0; ij < ev.ngmeson; ij++) {
               if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
             }

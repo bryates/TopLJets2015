@@ -545,17 +545,17 @@ def main():
                 for tkey in fIn.GetListOfKeys():
 
                     key=tkey.GetName()
+                    keep=True
                     keep=False if len(onlyList)>0 else True
-                    for pname in onlyList: 
+                    for pname in onlyList:
                         if pname in key: keep=True
                     #hack to ignore WJets in D meson mass plots FIXME
                     #if "massD" in key and "WJets" in tag:
                         #keep=False
                     #hack to ignoe WJets and DY in JPSi plots
                       #Single event with large weight
-                    #if "JPsi" in key and "WJets" in tag: continue
-                    if "_jpsi" in key and "WJets" in tag: continue
-                    if "_jpsi" in key and "DY" in tag: continue
+                    #if "_jpsi" in key and "WJets" in tag: continue
+                    #if "_jpsi" in key and "DY" in tag: continue
                     if "_tag" in key and "WJets" in tag: continue
                     if "mass" in key and "_meson" in key and "WJets" in tag: continue
                     if "_"+opt.run not in key and opt.run != "BCDEFGH" :

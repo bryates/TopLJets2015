@@ -28,12 +28,15 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
 
   if(debug_ && isGood_)
     std::cout << "Initializing run" << runPeriod_ << std::endl;
+  if(!isGood_) return;
 
   //PU plot
   allPlots["puwgtctr"+runPeriod_] = new TH1F("puwgtctr"+runPeriod_,"Weight sums",4,0,4);
   allPlots["topptwgt"+runPeriod_] = new TH1F("topptwgt"+runPeriod_,"Top p_{T} weights", 2, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
-  std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_meson", "_gmeson" };
+  std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_meson", "_gmeson", "_rgmeson" };
+  if(name_.Contains("Data")) //Gen plots only for MC
+    cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_meson" };
   std::vector<TString> wgtVec = { "" }; //, "_no_weight" };
   for(int i = 0; i < (int)lfsVec.size(); i++) {
   for(int j = 0; j < (int)cutVec.size(); j++) {
@@ -282,14 +285,15 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     //allPlots["chargeZ"+tag+cut+weight+runPeriod_]     = new TH1F("chargeZ_control"+tag+cut+weight+runPeriod_,";Charage (l^#pm) * Charge(l^#mp);Events / 1.0 GeV" ,5,-2,2);
 
     //Event plots
-allPlots["nevt"+tag+cut+weight+runPeriod_]     = new TH1F("nevt"+tag+cut+weight+runPeriod_,";Event Multiplicity;Events" ,1,1.,2.);
-allPlots["weight"+tag+cut+weight+runPeriod_]     = new TH1F("weight"+tag+cut+weight+runPeriod_,";weights;Events/ 1.0" ,20,0.,2.);
-allPlots["norm"+tag+cut+weight+runPeriod_]     = new TH1F("norm"+tag+cut+weight+runPeriod_,";norm;Events / 1.0" ,2,0.,2.);
-allPlots["relIso"+tag+cut+weight+runPeriod_] = new TH1F("relIso"+tag+cut+weight+runPeriod_,";relIso;Events / 0.01", 25,0,0.25);
-allPlots["nvtx"+tag+cut+weight+runPeriod_]     = new TH1F("nvtx"+tag+cut+weight+runPeriod_,";Vertex Multiplicity;Events / 1.0" ,50,0.,50.);
+    allPlots["nevt"+tag+cut+weight+runPeriod_]     = new TH1F("nevt"+tag+cut+weight+runPeriod_,";Event Multiplicity;Events" ,1,1.,2.);
+    allPlots["weight"+tag+cut+weight+runPeriod_]     = new TH1F("weight"+tag+cut+weight+runPeriod_,";weights;Events/ 1.0" ,20,0.,2.);
+    allPlots["norm"+tag+cut+weight+runPeriod_]     = new TH1F("norm"+tag+cut+weight+runPeriod_,";norm;Events / 1.0" ,2,0.,2.);
+    allPlots["relIso"+tag+cut+weight+runPeriod_] = new TH1F("relIso"+tag+cut+weight+runPeriod_,";relIso;Events / 0.01", 25,0,0.25);
+    allPlots["nvtx"+tag+cut+weight+runPeriod_]     = new TH1F("nvtx"+tag+cut+weight+runPeriod_,";Vertex Multiplicity;Events / 1.0" ,50,0.,50.);
   }
   }
   }
+  for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
 
 }
 
@@ -437,6 +441,7 @@ void StdPlots::Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, st
 
 //Called by Fill(std::vector<pfTrack> puCands, Leptons lep, TString chTag, TString name)
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) {
+  if(!isGood_) return;
   if(debug_) std::cout << "Filling meson only" << std::endl;
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
@@ -743,6 +748,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
 
 //Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, TString name) {
+  if(!isGood_) return;
   Fill(pfCands, chTag, name); //Fill meson only plots
   Fill(lep, chTag, name);       //Fill lepton only plots
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
@@ -896,6 +902,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, T
 
 //Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TString name) {
+  if(!isGood_) return;
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
@@ -1038,6 +1045,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
 
 //Fill for mesons (currently only J/Psi
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name) {
+  if(!isGood_) return;
   Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
   Fill(pfCands, jet, chTag, name); //Fill meson+jet run2
   if(!name.EqualTo("")) name = "_" + name;

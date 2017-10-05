@@ -20,7 +20,7 @@ KalmanEvent::KalmanEvent(bool debug) {
   nmeson_ = 0;
 }
 
-KalmanEvent::~KalmanEvent() { }
+KalmanEvent::~KalmanEvent() { jets_.clear(); }
 //pass it "kalman/data"
 void KalmanEvent::loadTree(TTree *tree) {
   tree_ = tree;
@@ -50,6 +50,7 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
 }
 
 void KalmanEvent::buildJets() {
+  jets_.clear(); //start off fresh
   for(int ij=0; ij<ev_.nj; ij++) {
     TLorentzVector jp4;
     jp4.SetPtEtaPhiM(ev_.j_pt[ij],ev_.j_eta[ij],ev_.j_phi[ij],ev_.j_mass[ij]);

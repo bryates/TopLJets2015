@@ -48,9 +48,10 @@ void RunTopKalman(TString filename,
 
   bool isTTbar( filename.Contains("_TTJets") );
   //bool isData( filename.Contains("Data13TeV") );
-  
+
   //CREATE CHARM TREE IN FILE
   TTree *cht = new TTree("data","Charm tree");
+  cht->SetDirectory(0);
   CharmEvent_t evch;
   createCharmEventTree(cht,evch);
 
@@ -70,7 +71,7 @@ void RunTopKalman(TString filename,
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
   //std::vector<TGraph *>puWgt;
-  //std::vector<TH1D *>puWgt;
+  std::vector<TH1D *>puWgt;
   TString tmpRun ("BCDEFGH");
   std::vector<TH1D*> puWgtsRun;
   if(!ev.isData)
@@ -584,7 +585,7 @@ void RunTopKalman(TString filename,
 	        puWgts[iwgt]=puWgt[iwgt]->GetBinContent(ev.putrue);  
 	        allPlots["puwgtctr"]->Fill(iwgt+1,puWgts[iwgt]);
 	      }
-          */
+          /*/
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
           if(debug) cout << "calling trigger function" << endl;
@@ -749,10 +750,8 @@ void RunTopKalman(TString filename,
         //Require at least 1 b-tagged and at least 2 light jets
         //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 3) {
         if(debug) cout << "is" << (kalman.isGoodEvent() ? "" : " not") << " a Kalman event" << endl;
-        //if(kJetsVec.size() >= 4 && kalman.isGoodEvent()) {
-        //if(kJetsVec.size() >=1 && lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
-        //if(lightJetsVec.size() >= 3 && kalman.isGoodEvent()) {
-        if(kalman.isGoodEvent() && kJetsVec.size()>0) {
+        //if(kalman.isGoodEvent() && kJetsVec.size()>0 && lightJetsVec.size() >= 3) {
+        if(kalman.isGoodEvent() && kJetsVec.size()>0 && lightJetsVec.size() >= 1) {
           if(debug) cout << "jet requirements" << endl;
           minJets = true;
 
@@ -805,8 +804,7 @@ void RunTopKalman(TString filename,
         }
         //Require at least 1 b-tagged and at least 1 light jets
         //if(kJetsVec.size() >= 1 && lightJetsVec.size() >= 1) {
-        //if(kJetsVec.size() >=1 && lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
-        //if(lightJetsVec.size() >=1 && kalman.isGoodEvent()) {
+        //if(kalman.isGoodEvent() && kJetsVec.size()>0 && lightJetsVec.size() >=1) {
         if(kalman.isGoodEvent() && kJetsVec.size()>0) {
           if(debug) cout << "jet requirements" << endl;
           //Z control plot
@@ -921,35 +919,39 @@ void RunTopKalman(TString filename,
       allPlots["nkj"+chTag+"_lepjets"]->Fill(kJetsVec.size(),wgt);
       allPlots["nlp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
 
-      //allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
-      //allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-      //allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
+      allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
+      allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
+      allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
       //Better J/Psi (Just look how much shorter it is!)
       const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
-      for(auto &jet : kJetsVec) {
-        vector<pfTrack> muTracks;
-	for(auto &track : jet.getTracks()) {
-          if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
-        }
-        if(muTracks.size()>1) {
+      if(kalman.isJPsiEvent()) {
+        for(auto &jet : kJetsVec) {
+          vector<pfTrack> muTracks;
+          for(auto &track : jet.getTracks()) {
+            if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
+          }
+          if(muTracks.size()<2) continue;
+          //if(muTracks.size()>1) {
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
           if(!ev.isData) {
             //Don't use as it would skip non-gen events
             //if(!ev.ngmeson) continue; //event has no mesons
-            bool isJPsiEvent(false);
+            //bool isJPsiEvent(false);
             //if(ev.ngmeson_daug<2) continue; //require at least 2 daughters (mu^+ and mu^-)
+            /*
             for(int ij = 0; ij < ev.ngmeson; ij++) {
               if(abs(ev.gmeson_id[ij])==443) { isJPsiEvent = true; continue; } //loop until JPsi found
             }
+            */
 
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
-              if(!isJPsiEvent) continue;
+              //if(!isJPsiEvent) continue;
               //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
@@ -1009,11 +1011,17 @@ void RunTopKalman(TString filename,
 
             runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
             runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+            //Only run once (i.e. in first jet from collection)
+            if(&jet == &kJetsVec.front()) {
+              runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
+              runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
+            }
 
           }
+          //}
+          //cht->Fill(); //FIXME
+          if(debug) cout << "J/Psi DONE" << endl;
         }
-        cht->Fill();
-        if(debug) cout << "J/Psi DONE" << endl;
       }
       //end better J/Psi
 
@@ -1191,7 +1199,7 @@ void RunTopKalman(TString filename,
         evch.njpsi=0;
         evch.nj=0;
         if(debug) cout << "Starting D0 and D*" << endl;
-        int jetindex = allJetsVec[ij].getJetIndex();
+        //int jetindex = allJetsVec[ij].getJetIndex();
         if(tracks.size() < 3) continue;
         size_t tmax = 4;
         tmax = tracks.size() >= tmax ? tmax : tracks.size();
@@ -1351,8 +1359,8 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, allJetsVec[ij], chTag, "meson");
 
                 if(fabs(mass12-1.864) < 0.10) { // mass window cut
-                  TLorentzVector p_jet;
-                  p_jet.SetPtEtaPhiM(ev.j_pt[jetindex], ev.j_eta[jetindex], ev.j_phi[jetindex], 0.);
+                  //TLorentzVector p_jet;
+                  //p_jet.SetPtEtaPhiM(ev.j_pt[jetindex], ev.j_eta[jetindex], ev.j_phi[jetindex], 0.);
 
                   float deltam = p_cand.M() - mass12;
 
@@ -1405,7 +1413,7 @@ void RunTopKalman(TString filename,
     //if(debug) cout << it.second->GetEntries() << endl;
 
     it.second->SetDirectory(fOut); it.second->Write(); 
-    fOut->cd();
+    //fOut->cd();
   }
   runBCDEF.Write();
   runGH.Write();
