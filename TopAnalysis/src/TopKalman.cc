@@ -919,9 +919,9 @@ void RunTopKalman(TString filename,
       allPlots["nkj"+chTag+"_lepjets"]->Fill(kJetsVec.size(),wgt);
       allPlots["nlp"+chTag+"_lepjets"]->Fill(leptons.size(),wgt);
 
-      allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
-      allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
-      allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
+      if(allJetsVec.size()>0)   allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
+      if(lightJetsVec.size()>0) allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
+      if(kJetsVec.size()>0)     allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
       //Better J/Psi (Just look how much shorter it is!)
@@ -1019,7 +1019,7 @@ void RunTopKalman(TString filename,
 
           }
           //}
-          //cht->Fill(); //FIXME
+          cht->Fill(); //FIXME
           if(debug) cout << "J/Psi DONE" << endl;
         }
       }

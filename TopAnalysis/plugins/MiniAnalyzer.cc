@@ -748,10 +748,6 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
   // JETS
   ev_.nj=0; 
-  ev_.nkj=0;
-  ev_.nkpf=0; 
-  ev_.njpsi=0;
-  ev_.nmeson=0;
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(jetToken_,jets);
   std::vector< std::pair<const reco::Candidate *,int> > clustCands;
@@ -976,11 +972,16 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.isData  = iEvent.isRealData();
   if(!savePF_) { ev_.ngpf=0; ev_.npf=0; }
   tree_->Fill();
+  ev_ = {};
 }
 
 
 void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j)
 {
+  ev_.nkj=0;
+  ev_.nkpf=0; 
+  ev_.njpsi=0;
+  ev_.nmeson=0;
   edm::ESHandle<TransientTrackBuilder> ttB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", ttB);
   TransientTrackBuilder thebuilder = *(ttB.product());
