@@ -80,7 +80,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     
     //J/Psi plots
     if(cut.Contains("jpsi")) { // reduce number of empty histograms
-    allPlots["massJPsi"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi"+tag+cut+weight+runPeriod_,";M_{#mu^{#pm}#mu^{#mp}} [GeV];Events / 18 MeV" ,50,2.5,3.4);
+    allPlots["massJPsi"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi"+tag+cut+weight+runPeriod_,";M_{#mu^{#pm}#mu^{#mp}} [GeV];Events / 20 MeV" ,50,2.4,3.4);
     allPlots["massJPsi_mu"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV];Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_mu_low_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu_low_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV" ,30,0,300);
     allPlots["massJPsi_mu_high_dR"+tag+cut+weight+runPeriod_]     = new TH1F("massJPsi_mu_high_dR"+tag+cut+weight+runPeriod_,";M_{J/#Psi+#mu} [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV" ,30,0,300);
@@ -359,8 +359,8 @@ void StdPlots::FillGen(std::vector<Particle> tops, TString chTag, TString name) 
 }
 
 void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
-  if(debug_) std::cout << "Filling leptons only" << std::endl;
   if(!isGood_) return;
+  if(debug_) std::cout << "Filling leptons only" << std::endl;
   float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling lep" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;

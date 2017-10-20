@@ -103,8 +103,8 @@ public:
   virtual void endRun(const edm::Run&,const edm::EventSetup&);  
 private:
   virtual void beginJob() override;
-  void genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   //void KalmanAnalysis(vector<pair<const pat::PackedCandidate &,int>> pfKalman, const edm::EventSetup& iSetup);
   void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -239,7 +239,7 @@ MiniAnalyzer::~MiniAnalyzer()
 //
 // member functions
 //
-void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //
   // PILEUP
@@ -315,6 +315,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
   //leptons
   ev_.ngleptons=-0;
+  int ngleptons(0);
   edm::Handle<std::vector<reco::GenJet> > dressedLeptons;
   iEvent.getByToken(genLeptonsToken_,dressedLeptons);
   for(auto genLep = dressedLeptons->begin();  genLep != dressedLeptons->end(); ++genLep)
@@ -333,6 +334,7 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
       //gen level selection
       if(genLep->pt()>20 && fabs(genLep->eta())<2.5) ev_.ngleptons++;
+      if(genLep->pt()>20 && fabs(genLep->eta())<2.5) ngleptons++;
     }
   
   
@@ -527,20 +529,21 @@ void MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	    histContainer_[tag.Data()]->Fill((float)iw,ev_.ttbar_w[iw]);
 	}
     }
+  return ngleptons;
 }
 
 
 //
-void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //VERTICES
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxToken_, vertices);
-  if (vertices->empty()) return; // skip the event if no PV found
+  if (vertices->empty()) return 0; // skip the event if no PV found
   const reco::Vertex &primVtx = vertices->front();
   reco::VertexRef primVtxRef(vertices,0);
    ev_.nvtx=vertices->size();
-  if(ev_.nvtx==0) return;
+  if(ev_.nvtx==0) return 0;
 
   //RHO
   edm::Handle< double > rhoH;
@@ -573,7 +576,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
     }
   bool passMuTrigger(ev_.isData ? ev_.muTrigger!=0 : true);
   bool passElTrigger(ev_.isData ? ev_.elTrigger!=0 : true);  
-  if(!passMuTrigger && !passElTrigger) return;
+  if(!passMuTrigger && !passElTrigger) return 0;
 
   //PF candidates
   edm::Handle<pat::PackedCandidateCollection> pfcands;
@@ -583,6 +586,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
   //LEPTON SELECTION
   //
   ev_.nl=0; ev_.nleptons=0;
+  int nleptons(0);
 
   //MUON SELECTION: cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   edm::Handle<pat::MuonCollection> muons;
@@ -679,6 +683,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
       }
       ev_.nl++;    
       ev_.nleptons += ( isTight && mu.pt()>25); 
+      nleptons += ( isTight && mu.pt()>25 && fabs(mu.eta())<2.5); 
     }
   
   // ELECTRON SELECTION: cf. https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
@@ -744,10 +749,15 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 	}
       ev_.nl++;
       ev_.nleptons += (passTightIdExceptIso && el.pt()>25);
+      nleptons += (passTightIdExceptIso && el.pt()>25 && fabs(el.eta())<2.5);
     }
 
   // JETS
   ev_.nj=0; 
+  ev_.nkj=0;
+  ev_.nkpf=0; 
+  ev_.njpsi=0;
+  ev_.nmeson=0;
   edm::Handle<edm::View<pat::Jet> > jets;
   iEvent.getByToken(jetToken_,jets);
   std::vector< std::pair<const reco::Candidate *,int> > clustCands;
@@ -952,6 +962,7 @@ void MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& 
 
     }
     //KalmanAnalysis(pfKalman, iSetup);
+    return nleptons;
 }
 
 // ------------ method called for each event  ------------
@@ -960,28 +971,25 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   histContainer_["counter"]->Fill(0);
 
   //analyze the event
-  if(!iEvent.isRealData()) genAnalysis(iEvent,iSetup);
+  int nleptons(0), ngleptons(0);
+  if(!iEvent.isRealData()) ngleptons=genAnalysis(iEvent,iSetup);
   //KalmanAnalysis(iEvent,iSetup);
-  recAnalysis(iEvent,iSetup);
+  nleptons=recAnalysis(iEvent,iSetup);
   
   //save event if at least one lepton at gen or reco level
-  if((ev_.ngleptons==0 && ev_.nleptons==0) || !saveTree_) return;  
+  //if((ev_.ngleptons==0 && ev_.nleptons==0) || !saveTree_) return;  
+  if((ngleptons==0 && nleptons==0) || !saveTree_) return;  
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event(); 
   ev_.isData  = iEvent.isRealData();
   if(!savePF_) { ev_.ngpf=0; ev_.npf=0; }
   tree_->Fill();
-  ev_ = {};
 }
 
 
 void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j)
 {
-  ev_.nkj=0;
-  ev_.nkpf=0; 
-  ev_.njpsi=0;
-  ev_.nmeson=0;
   edm::ESHandle<TransientTrackBuilder> ttB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", ttB);
   TransientTrackBuilder thebuilder = *(ttB.product());

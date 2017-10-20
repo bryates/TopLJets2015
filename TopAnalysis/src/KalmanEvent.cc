@@ -44,9 +44,9 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   ev_ = ev;
   njpsi_ = ev_.njpsi;
   nmeson_ = ev_.nmeson;
-  buildJets();
   vtxProb_ = 0.02;
   chi2_ = 6;
+  buildJets();
 }
 
 void KalmanEvent::buildJets() {

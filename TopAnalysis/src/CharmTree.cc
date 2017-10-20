@@ -66,7 +66,8 @@ void CharmTree::SetTopPtWgt(float top_pt_wgt) {
   //ev_.topptwgt = top_pt_wgt_;
 }
 
-void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name) {
+void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name, Int_t event) {
+  if(!isGood_) return;
   //attachToCharmEventTree(t_,ev_);
   //Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
   //Fill(pfCands, jet, chTag, name); //Fill meson+jet run2
@@ -82,6 +83,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     else if(runPeriod_.Contains("GH"))
       epoch = 2;
 
+    if(event>0) ev_.event = event;
     ev_.epoch[ev_.njpsi] = epoch;
     ev_.norm = norm_;
     ev_.puwgt[ev_.njpsi] = puWgt_;
@@ -131,12 +133,12 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.j_pt[ev_.njpsi] = jet.getPt();
     ev_.j_pt_charged[ev_.njpsi] = jet.getChargedPt();
     ev_.j_pt_pf[ev_.njpsi] = jet.getPFPt();
-    //ev_.j_p[ev_.njpsi] = jet.getP();
-    //ev_.j_p_charged[ev_.njpsi] = jet.getChargedP();
-    //ev_.j_p_pf[ev_.njpsi] = jet.getPFP();
-    //ev_.j_pz[ev_.njpsi] = jet.getPz();
-    //ev_.j_pz_charged[ev_.njpsi] = jet.getChargedPz();
-    //ev_.j_pz_pf[ev_.njpsi] = jet.getPFPz();
+    ev_.j_p[ev_.njpsi] = jet.getP();
+    ev_.j_p_charged[ev_.njpsi] = jet.getChargedP();
+    ev_.j_p_pf[ev_.njpsi] = jet.getPFP();
+    ev_.j_pz[ev_.njpsi] = jet.getPz();
+    ev_.j_pz_charged[ev_.njpsi] = jet.getChargedPz();
+    ev_.j_pz_pf[ev_.njpsi] = jet.getPFPz();
     ev_.njpsi++;
     ev_.nj++;
   }

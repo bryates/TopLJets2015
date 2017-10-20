@@ -57,6 +57,8 @@ class Plot(object):
             tmptitle = h.GetXaxis().GetTitle()
             tmptitle = tmptitle.replace("cm","#mum")
             h.GetXaxis().SetTitle(tmptitle)
+        if "massJPsi" in h.GetName():
+            h.GetXaxis().SetRangeUser(2.5,3.4)
 
         h.SetTitle(title)
         if isData:

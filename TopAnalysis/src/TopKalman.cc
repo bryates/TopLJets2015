@@ -242,6 +242,7 @@ void RunTopKalman(TString filename,
   //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
+      //evch = {};
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       //Normalize to XSec and lumi
@@ -408,7 +409,7 @@ void RunTopKalman(TString filename,
       //trigger.addRequiredElectronTrigger("HLT_Ele25_eta2p1_WPTight_Gsf_v");
 
       //Only triggers in Pedro's code
-      trigger.addRequiredElectronTrigger({"HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v"});
+      //trigger.addRequiredElectronTrigger({"HLT_Ele32_eta2p1_WPTight_Gsf_v", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v"});
 
       //decide the channel
       if(debug) cout << "decide channel" << endl;
@@ -519,7 +520,8 @@ void RunTopKalman(TString filename,
 
 	  //save jet
           //Jet tmpj(jp4, csv, k);
-          Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          //Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
 	    if(ev.pf_j[ipf] != k) continue; //skip if PF track doesn't belong to current jet
 	    if(ev.pf_c[ipf]==0) continue;   //skip if PF track is neutral
@@ -933,7 +935,6 @@ void RunTopKalman(TString filename,
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
           }
           if(muTracks.size()<2) continue;
-          //if(muTracks.size()>1) {
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
@@ -1016,12 +1017,11 @@ void RunTopKalman(TString filename,
               runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
               runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
             }
-
           }
-          //}
-          cht->Fill(); //FIXME
-          if(debug) cout << "J/Psi DONE" << endl;
         }
+        cht->Fill(); //FIXME
+        //evch = {}; //reset just in case (to avoid duplicates)
+        if(debug) cout << "J/Psi DONE" << endl;
       }
       //end better J/Psi
 

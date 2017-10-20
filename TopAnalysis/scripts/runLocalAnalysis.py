@@ -53,6 +53,7 @@ def main():
     parser.add_option('-i', '--in',          dest='input',       help='input directory with files or single file [%default]',  default=None,       type='string')
     parser.add_option('-o', '--out',         dest='output',      help='output directory (or file if single file to process)  [%default]',  default='analysis', type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process  [%default]',             default=None,       type='string')
+    parser.add_option(      '--skip',        dest='skip'  ,      help='skip all these (csv)',         default=None,    type='string')
     parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics  [%default]',                            default=False,      action='store_true')
     parser.add_option(      '--flav',        dest='flav',        help='split according to heavy flavour content  [%default]',   default=0,          type=int)
     parser.add_option(      '--ch',          dest='channel',     help='channel  [%default]',                                    default=13,         type=int)
@@ -72,6 +73,11 @@ def main():
     onlyList=[]
     try:
         onlyList=opt.only.split(',')
+    except:
+        pass
+    skipList=[]
+    try:
+        skipList=opt.skip.split(',')
     except:
         pass
 
@@ -116,6 +122,8 @@ def main():
                         processThisTag=True
                         break
                 if not processThisTag : continue
+            if len(skipList)>0:
+                if tag in skipList: continue
             splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
             split_run = splitRun( opt.runPeriod )
             if 'Data' in tag:

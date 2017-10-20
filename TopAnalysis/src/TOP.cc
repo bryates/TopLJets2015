@@ -1398,7 +1398,8 @@ void RunTop(TString filename,
             runGH.Fill(pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
 
             treeBCDEF.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
-            treeGH.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi");
+            treeGH.Fill(evch, pfmuCands, leptons, bJetsVec[ij], chTag, "jpsi", ev.event);
+            cout << ev.event << endl;
 
             if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
               runBCDEF.Fill(pfmuMatched, leptons, bJetsVec[ij], chTag, "gjpsi");

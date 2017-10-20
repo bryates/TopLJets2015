@@ -67,6 +67,7 @@ class Jet {
   Jet(TLorentzVector p4, float csv, int idx);
   Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt);
   Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt, int genJet);
+  Jet(TLorentzVector p4, float csv, int idx, float chargedPt,  float chargedPz, float chargedP, float PFPt, float PFPz, float PFP, int genJet);
   ~Jet();
   //void addTrack(TLorentzVector p4, int pfid);
   //void addTrack(pfTrack pf, int pfid);
@@ -81,11 +82,11 @@ class Jet {
   float &getChargedPt();
   float &getPFPt();
   float getP();
-  //float &getChargedP();
-  //float &getPFP();
+  float &getChargedP();
+  float &getPFP();
   float getPz();
-  //float &getChargedPz();
-  //float &getPFPz();
+  float &getChargedPz();
+  float &getPFPz();
   int &getGenJet();
   int &getJetIndex();
   int &getIndex(int idx);
@@ -103,7 +104,11 @@ class Jet {
   int jetindex_;
   int idx_;
   float chargedPt_;
+  float chargedPz_;
+  float chargedP_;
   float PFPt_;
+  float PFPz_;
+  float PFP_;
   int genJet_;
   std::vector<pfTrack> trks_;
   std::vector<int> index_;
