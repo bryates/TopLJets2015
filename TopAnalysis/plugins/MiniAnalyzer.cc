@@ -985,6 +985,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ev_.isData  = iEvent.isRealData();
   if(!savePF_) { ev_.ngpf=0; ev_.npf=0; }
   tree_->Fill();
+  ev_ = {};
 }
 
 
