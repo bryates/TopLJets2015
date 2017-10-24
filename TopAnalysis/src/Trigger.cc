@@ -230,10 +230,12 @@ bool Trigger::triggerHasNonDZ(TString trigger) {
 
 bool Trigger::muonFired() {
   if(debug_) std::cout << "Checking if required trigger(s) fired" << std::endl;
+  //search for all fired triggers among required triggers
   for(size_t itrig = 0; itrig < requiredMuonTriggers_.size(); itrig++) {
     if(triggerFired(requiredMuonTriggers_[itrig])) return true;
   }
   if(debug_) std::cout << "No required triggers fired" << std::endl;
+  //incase nothing required was fired
   return false;
 }
 
@@ -311,23 +313,31 @@ bool Trigger::isMCFile() {
 }
 
 bool Trigger::isSingleMuonEvent() {
+  //insure type is set
   if(dataType_ == None) {
     if(debug_) std::cout << "No type is set!" << std::endl;
     return false;
   }
+  //insure that data files are indeed muon data files
   if(isData_ && isMuonFile()) {
     if(debug_) std::cout << "Event is" << (isMuonFile() ? " " : " not ")
                          << "from a single muon file" << std::endl;
   }
   else if(isData_) return false;
-  return (muonFired() && !doubleMuonFired());
+  //exclude di-mu triggers for data
+  if(isData_) return (muonFired() && !doubleMuonFired()); //Cross check for data only
+  //check if required muon trigger(s) fired
+  return muonFired();
 }
 
 //Check for Single Muon trigger based on Leptons class
 bool Trigger::isSingleMuonEvent(Leptons leps) {
+  //must have a single lepton
   if(leps.size() != 1) return false;
+  //must be a muon
   if(abs(leps[0].getPdgId())!=13) return false;
   //if(isMCFile()) return true;
+  //check if it is a good single muon event
   return isSingleMuonEvent();
 }
 
@@ -341,7 +351,8 @@ bool Trigger::isSingleElectronEvent() {
                          << "from a single electron file" << std::endl;
   }
   else if(isData_) return false;
-  return (electronFired() && !doubleElectronFired());
+  if(isData_) return (electronFired() && !doubleElectronFired()); //Cross check for data only
+  return electronFired();
 }
 
 //Check for Single Electron trigger based on Leptons class
