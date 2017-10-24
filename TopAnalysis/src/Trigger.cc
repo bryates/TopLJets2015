@@ -320,7 +320,7 @@ bool Trigger::isSingleMuonEvent() {
                          << "from a single muon file" << std::endl;
   }
   else if(isData_) return false;
-  return muonFired();
+  return (muonFired() && !doubleMuonFired());
 }
 
 //Check for Single Muon trigger based on Leptons class
@@ -341,7 +341,7 @@ bool Trigger::isSingleElectronEvent() {
                          << "from a single electron file" << std::endl;
   }
   else if(isData_) return false;
-  return electronFired();
+  return (electronFired() && !doubleElectronFired());
 }
 
 //Check for Single Electron trigger based on Leptons class

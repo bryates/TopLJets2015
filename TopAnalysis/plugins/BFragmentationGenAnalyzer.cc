@@ -27,6 +27,7 @@
 
 #define IS_BHADRON_PDGID(id) ( ((abs(id)/100%10) == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
 #define IS_NEUTRINO_PDGID(id) ( (abs(id) == 12) || (abs(id) == 14) || (abs(id) == 16) )
+#define IS_JPSI_PDGID(id) ( (abs(id) == 443) )
 
 
 
@@ -90,7 +91,7 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
 }
 
 void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
-  std::vector<int> leptons,bHadrons,JPsi;
+  std::vector<int> leptons,bHadrons;//,JPsi;
 
   //gen jets
   edm::Handle<std::vector<reco::GenJet>> genJets;
@@ -124,14 +125,6 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     for(int j = 0; j < n; ++j) {
       const reco::Candidate *d = p.daughter(j);
       int daugId = d->pdgId();
-      //J/Psi
-      /*
-      if(abs(daugId)==443) {
-        hasJPsiDaughter = true;
-        tmpJPsi.push_back(j);
-      }
-      */
-
       if(IS_BHADRON_PDGID(daugId)) {
         hasBDaughter = true;
         break;
@@ -141,14 +134,13 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     if(hasBDaughter) continue;
 
     bHadrons.push_back(i);
-    //for(auto & ij : tmpJPsi) JPsi.push_back(ij); //Add only J/Psi found in B hadron (not e.g. B*)
+
+    //J/Psi
     for(int j = 0; j < n; ++j) {
       const reco::Candidate *d = p.daughter(j);
-      int daugId = d->pdgId();
-      //J/Psi
-      if(abs(daugId)==443) {
+      if(IS_JPSI_PDGID(d->pdgId())) {
         hasJPsiDaughter = true;
-        JPsi.push_back(j);
+        //JPsi.push_back(j);
       }
     }
 
@@ -183,11 +175,11 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     //quality cuts
     if(ijet.hadEnergy()/ijet.energy()<0.05) continue;
     if(ijet.emEnergy()/ijet.energy()>0.95) continue;
-    //if(ijet.getGenConstituents().size()<2) continue;
+    //if(ijet.getGenConstituents().size()<2) continue; //FIXME causes unexpected crashes (GenJet constituent is not of the type GenParticle)
 
     //check if a B hadron can be matched
     bool isBjet(false);
-    //for(auto & k : bHadrons) {
+    int b=-1;
     for(size_t k=0; k<bHadrons.size(); ++k) {
       const reco::GenParticle &bhad = (*genParticles)[bHadrons[k]];
       float dR=deltaR(bhad,ijet);
@@ -199,21 +191,25 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
       Bphi_[nB_] = bhad.phi();
       Bm_[nB_]   = bhad.mass();
       isBjet = true;
+      b=k;
       break;
     }
     if(!isBjet) continue;
 
     //Looking for J/Psi in B jet
-    for(size_t k=0; k<JPsi.size(); ++k) {
-      const reco::GenParticle &jpsi = (*genParticles)[JPsi[k]];
-      float dR=deltaR(jpsi,ijet);
-      if(dR>0.5) continue;
+    //for(size_t k=0; k<JPsi.size(); ++k) {
+    const reco::GenParticle &bhad = (*genParticles)[bHadrons[b]];
+    for(size_t k = 0; k  < bhad.numberOfDaughters(); ++k) {
+      //const reco::Candidate *jpsi = bhad.daughter(JPsi[k]);
+      const reco::Candidate *jpsi = bhad.daughter(k);
+      if(!IS_JPSI_PDGID(jpsi->pdgId())) continue;
+      //float dR=deltaR(jpsi,ijet);
+      //if(dR>0.5) continue;
 
-      std::cout << jpsi.pt() << std::endl;
-      JPsipt_[nJPsi_]  = jpsi.pt();
-      JPsieta_[nJPsi_] = jpsi.eta();
-      JPsiphi_[nJPsi_] = jpsi.phi();
-      JPsim_[nJPsi_]   = jpsi.mass();
+      JPsipt_[nJPsi_]  = jpsi->pt();
+      JPsieta_[nJPsi_] = jpsi->eta();
+      JPsiphi_[nJPsi_] = jpsi->phi();
+      JPsim_[nJPsi_]   = jpsi->mass();
       nJPsi_++;
     }
 
