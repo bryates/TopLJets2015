@@ -24,12 +24,12 @@ Trigger::Trigger(int muTrig, int eleTrig, bool debug) {
 Trigger::~Trigger() {};
 
 void Trigger::setMuonTrigger(int muTrig) {
-  if(debug_) std::cout << "====== Parsing triggers ======" << std::endl;
+  if(debug_) std::cout << "====== Parsing muon triggers ======" << std::endl;
   for(size_t imu = 0; imu < muTriggers.size(); imu++) {
     triggers_[muTriggers[imu]] = ((muTrig>>imu)&0x1);
     if(debug_) std::cout << ((muTrig>>imu)&0x1) << " " << muTriggers[imu] << std::endl;
   }
-  if(debug_) std::cout << "=== Parsing triggers done! ===" << std::endl;
+  if(debug_) std::cout << "====== Parsing triggers done! ======" << std::endl;
   /*
   addRequiredMuonTrigger("HLT_IsoMu24_v");
   addRequiredMuonTrigger("HLT_IsoTkMu24_v");
@@ -37,10 +37,12 @@ void Trigger::setMuonTrigger(int muTrig) {
 }
 
 void Trigger::setElectronTrigger(int eleTrig) {
+  if(debug_) std::cout << "====== Parsing electron triggers ======" << std::endl;
   for(size_t iel = 0; iel < eleTriggers.size(); iel++) {
     triggers_[eleTriggers[iel]] = ((eleTrig>>iel)&0x1);
     if(debug_) std::cout << ((eleTrig>>iel)&0x1) << " " << eleTriggers[iel] << std::endl;
   }
+  if(debug_) std::cout << "====== Parsing triggers done! ========" << std::endl;
 }
 
 void Trigger::setDataType(TString fileName) {
