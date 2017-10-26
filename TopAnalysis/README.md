@@ -46,8 +46,8 @@ python scripts/submitCheckProductionIntegrity.py -i /store/group/phys_top/byates
 Correction and uncertainty files are stored under data by era directories (e.g. data/era2015, data/era2016) in order no to mix different periods.
 After ntuples are processed start by creating the json files with the list of runs/luminosity sections processed, e.g. as:
 ```
-a=(`find grid/ -maxdepth 1 | grep crab_Data `)
-for i in ${a[@]}; do
+for i in $(find grid/ -maxdepth 1 | grep crab_Data);
+do
     crab report ${i}; 
 done
 ``` 
