@@ -106,7 +106,7 @@ private:
   int genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   //void KalmanAnalysis(vector<pair<const pat::PackedCandidate &,int>> pfKalman, const edm::EventSetup& iSetup);
-  void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j);
+  void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j, const reco::Vertex &primVtx);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   float getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
@@ -825,7 +825,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
           ev_.j_pz_pf[ev_.nj] += pf->pz(); //pz of charged tracks only (neutral particles weighted by 0)
 	}
 
-      KalmanAnalysis(iEvent,iSetup,*j);
+      KalmanAnalysis(iEvent,iSetup,*j,primVtx);
       ev_.nj++;
     }
       
@@ -989,7 +989,7 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 
-void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j)
+void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j, const reco::Vertex &primVtx)
 {
   edm::ESHandle<TransientTrackBuilder> ttB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", ttB);
@@ -1051,6 +1051,28 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       }
       catch (...) { std::cout << "Problem computing vertex" << std::endl; continue; }
       reco::Vertex fittedVertex = tv;
+      float dxy = sqrt(pow(fittedVertex.x()-primVtx.x(),2) +
+                       pow(fittedVertex.y()-primVtx.y(),2));
+      float dxyE = sqrt(pow(fittedVertex.xError(),2) +
+                        pow(primVtx.xError(),2) +
+                        pow(fittedVertex.yError(),2) +
+                        pow(primVtx.yError(),2));
+
+      //*** L3D and sigmaL3D ****
+      //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
+      TLorentzVector jpsi = (p_track1+p_track2);
+      float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
+      float sigmay = sqrt(pow(fittedVertex.yError(),2) + pow(primVtx.yError(),2));
+      float sigmaz = sqrt(pow(fittedVertex.zError(),2) + pow(primVtx.zError(),2));
+
+      float sigmaL3D = 1.0 / sqrt( pow( (jpsi.Px()/jpsi.M())/sigmax,2 ) +
+                                   pow( (jpsi.Py()/jpsi.M())/sigmay,2 ) +
+                                   pow( (jpsi.Pz()/jpsi.M())/sigmaz,2 ) );
+
+      float L3D = abs((jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
+                      (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
+                      (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z()));
+      //*************************
 
       vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
 
@@ -1070,6 +1092,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
       ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
       ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+      ev_.k_dxy[ev_.nkpf]=dxy;
+      ev_.k_dxyE[ev_.nkpf]=dxyE;
+      ev_.k_l3d[ev_.nkpf]=L3D;
+      ev_.k_sigmal3d[ev_.nkpf]=sigmaL3D;
       ev_.nkpf++;
       //pf2
       ev_.k_j[ev_.nkpf]=ev_.nj;
@@ -1083,6 +1109,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
       ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
       ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+      ev_.k_dxy[ev_.nkpf]=dxy;
+      ev_.k_dxyE[ev_.nkpf]=dxyE;
+      ev_.k_l3d[ev_.nkpf]=L3D;
+      ev_.k_sigmal3d[ev_.nkpf]=sigmaL3D;
       ev_.nkpf++;
       ev_.nkj++;
 

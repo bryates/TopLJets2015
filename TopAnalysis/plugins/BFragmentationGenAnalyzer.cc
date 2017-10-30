@@ -28,6 +28,7 @@
 #define IS_BHADRON_PDGID(id) ( ((abs(id)/100%10) == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
 #define IS_NEUTRINO_PDGID(id) ( (abs(id) == 12) || (abs(id) == 14) || (abs(id) == 16) )
 #define IS_JPSI_PDGID(id) ( (abs(id) == 443) )
+#define IS_BQUARK_PDGID(id) ( abs(id) == 5 )
 
 
 
@@ -42,10 +43,11 @@ class FragmentationAnalyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
   std::map<std::string, TH1F*> hists;
   TTree *data_;
-  Int_t nB_, nL_, nJPsi_, Bid_[100], Lid_[100];
+  Int_t nb_, nB_, nL_, nJPsi_, Bid_[100], Lid_[100], JPsiPrompt_[100];
+  Float_t bpt_[100], beta_[100], bphi_[100];
   Float_t Bpt_[100], Beta_[100], Bphi_[100], Bm_[100];
   Float_t Bjpt_[100], Bjeta_[100], Bjphi_[100], Bjm_[100];
-  Float_t JPsipt_[100], JPsieta_[100], JPsiphi_[100], JPsim_[100];
+  Float_t JPsipt_[100], JPsieta_[100], JPsiphi_[100], JPsim_[100], JPsidxy_[100], JPsidz_[100];
   Float_t Lpt_[100], Leta_[100], Lphi_[100], Lm_[100];
 
 };
@@ -66,6 +68,10 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
 
   //sumary tree for B, J/Psi, and leptons
   data_ = fs->make<TTree>("FragTree", "FragTree");
+  data_->Branch("nb",    &nb_,    "nb/I");
+  data_->Branch("bpt",    bpt_,   "bpt[nb]/F");
+  data_->Branch("beta",   beta_,  "beta[nb]/F");
+  data_->Branch("bphi",   bphi_,  "bphi[nb]/F");
   data_->Branch("nB",    &nB_,    "nB/I");
   data_->Branch("Bid",    Bid_,   "Bid[nB]/I");
   data_->Branch("Bpt",    Bpt_,   "Bpt[nB]/F");
@@ -77,10 +83,13 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   data_->Branch("Bjphi",  Bjphi_, "Bjphi[nB]/F");
   data_->Branch("Bjm",    Bjm_,   "Bjm[nB]/F");
   data_->Branch("nJPsi",  &nJPsi_,   "nJPsi/I");
+  data_->Branch("JPsiPrompt",  JPsiPrompt_,   "JPsiPrompt[nJPsi]/I");
   data_->Branch("JPsipt",  JPsipt_,  "JPsipt[nJPsi]/F");
   data_->Branch("JPsieta", JPsieta_, "JPsieta[nJPsi]/F");
   data_->Branch("JPsiphi", JPsiphi_, "JPsiphi[nJPsi]/F");
   data_->Branch("JPsim",   JPsim_,   "JPsim[nJPsi]/F");
+  data_->Branch("JPsidxy", JPsidxy_, "JPsidxy[nJPsi]/F");
+  data_->Branch("JPsidz",  JPsidz_,  "JPsidz[nJPsi]/F");
   data_->Branch("nL",   &nL_,   "nL/I");
   data_->Branch("Lid",   Lid_,  "Lid[nL]/F");
   data_->Branch("Lpt",   Lpt_,  "Lpt[nL]/F");
@@ -100,11 +109,41 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
   //gen particles
   edm::Handle<reco::GenParticleCollection> genParticles;
   evt.getByToken(prunedGenParticlesToken_,genParticles);
+  nb_=0;
   for(size_t i = 0; i  <  genParticles->size(); ++i) {
     const reco::GenParticle &p = (*genParticles)[i];
     const reco::Candidate *mother = p.mother();
     int absid = p.pdgId();
     if(p.pt() == 0) continue;
+
+    //b quark
+    if(IS_BQUARK_PDGID(absid)) {
+      bpt_[nb_]  = p.pt();
+      beta_[nb_] = p.eta();
+      bphi_[nb_] = p.phi();
+      nb_++;
+    }
+
+    //Prompt J/Psi
+    /*
+    if(IS_JPSI_PDGID(absid)) {
+      const reco::Candidate *tmpMother = p.mother();
+      while(abs(tmpMother->pdgId()) != 5 && abs(tmpMother->pdgId()) != 22 && abs(tmpMother->pdgId()) != 2212) {
+        if(tmpMother->mother() == 0) break;
+        tmpMother = tmpMother->mother();
+      }
+      if(abs(tmpMother->pdgId())==2212) {
+        JPsipt_[nJPsi_]  = p.pt();
+        JPsieta_[nJPsi_] = p.eta();
+        JPsiphi_[nJPsi_] = p.phi();
+        JPsim_[nJPsi_]   = p.mass();
+        JPsidxy_[nJPsi_] = sqrt(pow(p.vx(),2)+pow(p.vy(),2));
+        JPsidz_[nJPsi_]  = p.vz();
+        JPsiPrompt_[nJPsi_] = 1;
+        nJPsi_++;
+      }
+    }
+    */
 
     //iso leptons
     if(absid==11 || absid==13) {
@@ -199,17 +238,29 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     //Looking for J/Psi in B jet
     //for(size_t k=0; k<JPsi.size(); ++k) {
     const reco::GenParticle &bhad = (*genParticles)[bHadrons[b]];
+    //const reco::GenParticle &jpsi = (*genParticles)[JPsi[b]];
     for(size_t k = 0; k  < bhad.numberOfDaughters(); ++k) {
-      //const reco::Candidate *jpsi = bhad.daughter(JPsi[k]);
       const reco::Candidate *jpsi = bhad.daughter(k);
       if(!IS_JPSI_PDGID(jpsi->pdgId())) continue;
       //float dR=deltaR(jpsi,ijet);
-      //if(dR>0.5) continue;
+      //if(dR>0->5) continue;
+      /*
+      const reco::Candidate *tmpMother = bhad.mother();
+      while(abs(tmpMother->pdgId()) != 5 && abs(tmpMother->pdgId()) != 22 && abs(tmpMother->pdgId()) != 2212) {
+        if(tmpMother->mother() == 0) break;
+        tmpMother = tmpMother->mother();
+      }
+      std::cout << tmpMother->pdgId() << std::endl;
+      if(abs(tmpMother->pdgId())!=5) continue;
+      */
 
       JPsipt_[nJPsi_]  = jpsi->pt();
       JPsieta_[nJPsi_] = jpsi->eta();
       JPsiphi_[nJPsi_] = jpsi->phi();
       JPsim_[nJPsi_]   = jpsi->mass();
+      JPsidxy_[nJPsi_] = sqrt(pow(jpsi->vx(),2)+pow(jpsi->vy(),2));
+      JPsidz_[nJPsi_]  = jpsi->vz();
+      JPsiPrompt_[nJPsi_] = 0;
       nJPsi_++;
     }
 
