@@ -367,6 +367,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   //Kalman Filter
   t->SetBranchAddress("njpsi",      &ev.njpsi);
   t->SetBranchAddress("nmeson",     &ev.nmeson);
+  t->SetBranchAddress("nkpf",       &ev.nkpf);
   t->SetBranchAddress("pf_idx",      ev.pf_idx);
   t->SetBranchAddress("k_j",         ev.k_j);
   t->SetBranchAddress("k_j_pt",      ev.k_j_pt);

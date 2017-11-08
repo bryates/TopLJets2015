@@ -190,11 +190,11 @@ void Trigger::printRequiredEMTriggers() {
 
 bool Trigger::triggerFired(TString triggerName) {
   if(debug_) {
-    //Only use DZ trigges for epoch H
-    if(isH_ && !triggerName.Contains("DZ") && triggerHasDZ(triggerName)) return 0; //If DZ version exsits, use it!
-    if(!isH_ && triggerName.Contains("DZ") && triggerHasNonDZ(triggerName)) return 0; //If non-DZ version exsits, use it!
     std::cout << triggers_[triggerName] << " " << triggerName << std::endl;
   }
+  //Only use DZ trigges for epoch H
+  if(isH_ && !triggerName.Contains("DZ") && triggerHasDZ(triggerName)) return 0; //If DZ version exsits, use it!
+  if(!isH_ && triggerName.Contains("DZ") && triggerHasNonDZ(triggerName)) return 0; //If non-DZ version exsits, use it!
   return triggers_[triggerName];
 }
 

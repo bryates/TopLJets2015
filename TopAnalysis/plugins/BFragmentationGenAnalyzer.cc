@@ -15,6 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "TopLJets2015/TopAnalysis/interface/BFragmentationAnalyzerUtils.h"
+
 #include <memory>
 #include <string>
 #include <iostream>
@@ -24,9 +26,11 @@
 #include "TString.h"
 #include "TVector2.h"
 #include "TTree.h"
+#include "TFile.h"
+#include "TGraph.h"
 
-#define IS_BHADRON_PDGID(id) ( ((abs(id)/100%10) == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
-#define IS_NEUTRINO_PDGID(id) ( (abs(id) == 12) || (abs(id) == 14) || (abs(id) == 16) )
+//#define IS_BHADRON_PDGID(id) ( ((abs(id)/100)%10 == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
+//#define IS_NEUTRINO_PDGID(id) ( (abs(id) == 12) || (abs(id) == 14) || (abs(id) == 16) )
 #define IS_JPSI_PDGID(id) ( (abs(id) == 443) )
 #define IS_BQUARK_PDGID(id) ( abs(id) == 5 )
 
@@ -42,6 +46,8 @@ class FragmentationAnalyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
   std::map<std::string, TH1F*> hists;
+  std::map<std::string, TGraph *> wgtGr_;
+  std::map< std::string, std::vector<float> > jetWeights;
   TTree *data_;
   Int_t nb_, nB_, nL_, nJPsi_, Bid_[100], Lid_[100], JPsiPrompt_[100];
   Float_t bpt_[100], beta_[100], bphi_[100];
@@ -56,6 +62,20 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles")))
 {
+  std::string weights[]={"upFrag","centralFrag","downFrag","PetersonFrag","semilepbrUp","semilepbrDown"};
+
+  //readout weights from file and declare them for the producer
+  edm::FileInPath fp = cfg.getParameter<edm::FileInPath>("cfg");
+  TFile *fIn=TFile::Open(fp.fullPath().c_str());
+  for(size_t i=0; i<sizeof(weights)/sizeof(std::string); i++)
+    {
+      //produces<edm::ValueMap<float> >(weights[i]);
+      TGraph *gr=(TGraph *)fIn->Get(weights[i].c_str());  
+      if(gr==0) continue;
+      wgtGr_[weights[i]]=gr;
+    }
+  fIn->Close();
+
   //Load TFile Service
   edm::Service<TFileService> fs;
   if(!fs)
@@ -65,6 +85,12 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   hists["genBHadronNuDecay"] = fs->make<TH1F>("genBHadronDecay", "genBHadronDecay", 2, 0, 2);
   hists["genBHadronPtFraction"] = fs->make<TH1F>("genBHadronPtFraction", "genBHadronPtFraction", 2, 0, 2);
   for(auto & it : hists) it.second->Sumw2();
+  jetWeights["upFrag"]=std::vector<float>();
+  jetWeights["centralFrag"]=std::vector<float>();
+  jetWeights["downFrag"]=std::vector<float>();
+  jetWeights["PetersonFrag"]=std::vector<float>();
+  jetWeights["semilepbrUp"]=std::vector<float>();
+  jetWeights["semilepbrDown"]=std::vector<float>();
 
   //sumary tree for B, J/Psi, and leptons
   data_ = fs->make<TTree>("FragTree", "FragTree");
@@ -96,6 +122,12 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   data_->Branch("Leta",  Leta_, "Leta[nL]/F");
   data_->Branch("Lphi",  Lphi_, "Lphi[nL]/F");
   data_->Branch("Lm",    Lm_,   "Lm[nL]/F");
+  data_->Branch("upFrag", &(jetWeights["upFrag"]));
+  data_->Branch("centralFrag", &(jetWeights["centralFrag"]));
+  data_->Branch("downFrag", &(jetWeights["downFrag"]));
+  data_->Branch("PetersonFrag", &(jetWeights["PetersonFrag"]));
+  data_->Branch("semilepbrUp", &(jetWeights["semilepbrUp"]));
+  data_->Branch("semilepbrDown", &(jetWeights["semilepbrDown"]));
 
 }
 
@@ -269,6 +301,39 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     Bjphi_[nB_] = ijet.phi();
     Bjm_[nB_]   = ijet.mass();
     nB_++;
+  }
+
+  for(auto genJet : *genJets) {
+    //Fragmentation
+    //map the gen particles wchih are clustered in theis jet
+    JetFragInfo_t jinfo=analyzeJet(genJet);
+
+    //evaluate the weight to an alternative fragmentation model (if a tag id is available)
+    if(jinfo.leadTagId != 0) {
+      std::cout << jinfo.xb << std::endl;
+      jetWeights["upFrag"].push_back(wgtGr_["upFrag"]->Eval(jinfo.xb));
+      jetWeights["centralFrag"].push_back(wgtGr_["centralFrag"]->Eval(jinfo.xb));
+      jetWeights["downFrag"].push_back(wgtGr_["downFrag"]->Eval(jinfo.xb));
+      jetWeights["PetersonFrag"].push_back(wgtGr_["PetersonFrag"]->Eval(jinfo.xb));
+    }
+    else {
+      jetWeights["upFrag"].push_back(1.);
+      jetWeights["centralFrag"].push_back(1.);
+      jetWeights["downFrag"].push_back(1.);
+      jetWeights["PetersonFrag"].push_back(1.);
+    }
+
+    float semilepbrUp(1.0),semilepbrDown(1.0);
+    int absBid(abs(jinfo.leadTagId));
+    //Only B^0, B^+, Bs^0, and lambda b ^0
+    if(absBid==511 || absBid==521 || absBid==531 || absBid==5122) {
+      int bid( jinfo.hasSemiLepDecay ? absBid : -absBid);
+      semilepbrUp=wgtGr_["semilepbrUp"]->Eval(bid);
+      semilepbrDown=wgtGr_["semilepbrDown"]->Eval(bid);
+    }
+    jetWeights["semilepbrUp"].push_back(semilepbrUp);
+    jetWeights["semilepbrDown"].push_back(semilepbrDown);
+
   }
 
   //Leptons from W may be from semileptonic hadron decays (at least in Sherpa)

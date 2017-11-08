@@ -933,6 +933,9 @@ void RunTopKalman(TString filename,
           vector<pfTrack> muTracks;
           for(auto &track : jet.getTracks()) {
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
+            //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << track.Pt() << " " << track.Eta() << " " << track.Phi() <<  " " << ev.k_mass[0] << endl; }
+            //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[0] << " " << ev.k_pf_eta[0] << " " << ev.k_pf_phi[0] <<  " " << ev.k_mass[0] << endl; }
+            //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[1] << " " << ev.k_pf_eta[1] << " " << ev.k_pf_phi[1] <<  " " << ev.k_mass[1] << endl; }
           }
           if(muTracks.size()<2) continue;
 
@@ -1017,10 +1020,19 @@ void RunTopKalman(TString filename,
               runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
               runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
             }
+            for(auto &track : jet.getTracks()) {
+              if(mass12<3.0 || mass12>3.2) continue;
+              if(abs(track.getPdgId())!=211) continue;
+              TLorentzVector p_track3;
+              track.setMass(gMassMu);
+              treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
+              treeGH.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
+            }
           }
+          muTracks.clear();
         }
         cht->Fill(); //FIXME
-        //evch = {}; //reset just in case (to avoid duplicates)
+        evch = {}; //reset just in case (to avoid duplicates)
         if(debug) cout << "J/Psi DONE" << endl;
       }
       //end better J/Psi
@@ -1394,6 +1406,7 @@ void RunTopKalman(TString filename,
         if(debug) cout << "D0 and D* DONE" << endl;
       }
 
+      kJetsVec.clear();
     }
 
   //close input file

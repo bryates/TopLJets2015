@@ -8,11 +8,8 @@
 class KalmanEvent
 {
  public:
-  KalmanEvent(TTree *tree);
   KalmanEvent(bool debug);
   ~KalmanEvent();
-  void loadTree(TTree *tree);
-  void loadEvent(int event);
   void loadEvent(const MiniEvent_t &ev);
   void buildJets();
   inline int getNJPsi() { return njpsi_; }
@@ -22,10 +19,8 @@ class KalmanEvent
   inline bool isGoodEvent() { return nmeson_ > 0; }
   bool isGoodJet(int idx);
   std::vector<Jet> getJets();
-  //void getJets(std::vector<Jet> &kjets, std::vector<Jet> &jets);
 
  private:
-  TTree *tree_;
   MiniEvent_t ev_;
   bool debug_;
   int event_;
@@ -34,7 +29,8 @@ class KalmanEvent
   int nmeson_;
   float vtxProb_;
   float chi2_;
-  std::vector<Jet> jets_;
+  float l3dsig_;
+  std::vector<Jet> jets_ {};
 
 };
 

@@ -34,9 +34,9 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   allPlots["puwgtctr"+runPeriod_] = new TH1F("puwgtctr"+runPeriod_,"Weight sums",4,0,4);
   allPlots["topptwgt"+runPeriod_] = new TH1F("topptwgt"+runPeriod_,"Top p_{T} weights", 2, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
-  std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_meson", "_gmeson", "_rgmeson" };
+  std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_kjpsi", "_meson", "_gmeson", "_rgmeson" };
   if(name_.Contains("Data")) //Gen plots only for MC
-    cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_meson" };
+    cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_kjpsi", "_meson" };
   std::vector<TString> wgtVec = { "" }; //, "_no_weight" };
   for(int i = 0; i < (int)lfsVec.size(); i++) {
   for(int j = 0; j < (int)cutVec.size(); j++) {

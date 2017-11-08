@@ -6,7 +6,7 @@ pfTrack::pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, 
 { }
 pfTrack::pfTrack(TLorentzVector p4, int pfid) : vec_(p4), dxy_(0), dxyE_(0), dz_(0), dzE_(0), pfid_(pfid)
 { }
-pfTrack::pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid) : vec_(p4), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid)
+pfTrack::pfTrack(TLorentzVector p4, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid) : vec_(p4), l3d_(l3d), sigmal3d_(sigmal3d), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid)
 { }
 pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }
@@ -27,6 +27,8 @@ float pfTrack::getDxy() { return dxy_ ; }
 float pfTrack::getDxyE() { return dxyE_ ; }
 float pfTrack::getDz() { return dz_ ; }
 float pfTrack::getDzE() { return dzE_ ; }
+float pfTrack::getL3D() { return l3d_; }
+float pfTrack::getSigmaL3D() { return sigmal3d_; }
 TLorentzVector &pfTrack::getVec() { return vec_ ; }
 void pfTrack::setPfid(int pfid) { pfid_ = pfid ; }
 void pfTrack::setMass(float mass) { vec_.SetPtEtaPhiM(Pt(), Eta(), Phi(), mass); }

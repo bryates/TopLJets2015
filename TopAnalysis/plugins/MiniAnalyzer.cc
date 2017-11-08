@@ -1069,9 +1069,9 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
                                    pow( (jpsi.Py()/jpsi.M())/sigmay,2 ) +
                                    pow( (jpsi.Pz()/jpsi.M())/sigmaz,2 ) );
 
-      float L3D = abs((jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
-                      (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
-                      (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z()));
+      float L3D = (jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
+                  (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
+                  (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
       //*************************
 
       vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
@@ -1117,11 +1117,11 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.nkj++;
 
       ev_.njpsi++;
+      ev_.nmeson++;
 
       //if (vtxProb<0.02) continue;
     }
   }// end of J/psi
-  ev_.nmeson += ev_.njpsi;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
