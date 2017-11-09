@@ -22,7 +22,7 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   nmeson_ = ev_.nmeson;
   vtxProb_ = 0.02;
   chi2_ = 5.; //Same as Elvire's, chi2=5.365 at vtxProb>0.02
-  l3dsig_ = 20.;
+  l3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/l3d_ratio_B.png
   //buildJets();
   if(nmeson_) buildJets();
 }
@@ -42,7 +42,7 @@ void KalmanEvent::buildJets() {
       //if(ev_.k_mass[ipf]<2.5 || ev_.k_mass[ipf]>3.4) continue;
       if(!ev_.k_mass[ipf]) continue;
       if(debug_) std::cout << "passed mass window" << std::endl; 
-      //if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
+      if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
       if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
       TLorentzVector tkP4(0,0,0,0);
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);

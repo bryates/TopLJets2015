@@ -135,8 +135,21 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
   std::vector<int> leptons,bHadrons;//,JPsi;
 
   //gen jets
+  using namespace edm;
   edm::Handle<std::vector<reco::GenJet>> genJets;
   evt.getByToken(genJetsToken_,genJets);
+   //playing with fragmentation re-weighting
+   for(auto genJet : *genJets)
+     {
+       //map the gen particles which are clustered in this jet
+       JetFragInfo_t jinfo=analyzeJet(genJet);
+       
+       //evaluate the weight to an alternative fragmentation model (if a tag id is available)
+       if(jinfo.leadTagId != 0)
+       {
+         std::cout << jinfo.xb << std::endl;
+       }
+     }
 
   //gen particles
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -229,6 +242,11 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
       if(dr < 0.5) {
         double xb = p.pt()/ijet.pt();
         hists["genBHadronPtFraction"]->Fill(xb);
+        //playing with fragmentation re-weighting
+        jetWeights["upFrag"].push_back(wgtGr_["upFrag"]->Eval(xb));
+        jetWeights["centralFrag"].push_back(wgtGr_["centralFrag"]->Eval(xb));
+        jetWeights["downFrag"].push_back(wgtGr_["downFrag"]->Eval(xb));
+        jetWeights["PetersonFrag"].push_back(wgtGr_["PetersonFrag"]->Eval(xb));
         break;
       }
     }
@@ -303,6 +321,7 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     nB_++;
   }
 
+  /*
   for(auto genJet : *genJets) {
     //Fragmentation
     //map the gen particles wchih are clustered in theis jet
@@ -335,6 +354,7 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
     jetWeights["semilepbrDown"].push_back(semilepbrDown);
 
   }
+  */
 
   //Leptons from W may be from semileptonic hadron decays (at least in Sherpa)
   nL_ = 0;

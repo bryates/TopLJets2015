@@ -19,10 +19,11 @@ process.maxEvents = cms.untracked.PSet (
     input = cms.untracked.int32(-1)
 )
 
+# pseudo-top
 process.load('TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi')
-process.pseudoTop.leptonMinPt=cms.double(20)
-process.pseudoTop.leptonMaxEta=cms.double(2.5)
-process.pseudoTop.jetMaxEta=cms.double(5.0)
+#process.pseudoTop.leptonMinPt=cms.double(20)
+#process.pseudoTop.leptonMaxEta=cms.double(2.5)
+#process.pseudoTop.jetMaxEta=cms.double(5.0)
 
 process.load('TopLJets2015.TopAnalysis.fragAnalyzer_cfi')
 process.TFileService = cms.Service("TFileService", fileName = cms.string("FragmentationDist.root"))

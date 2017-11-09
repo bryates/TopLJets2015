@@ -1029,10 +1029,10 @@ void RunTopKalman(TString filename,
               treeGH.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
             }
           }
-          muTracks.clear();
+          //muTracks.clear();
         }
-        cht->Fill(); //FIXME
-        evch = {}; //reset just in case (to avoid duplicates)
+        //cht->Fill(); //FIXME
+        //evch = {}; //reset just in case (to avoid duplicates)
         if(debug) cout << "J/Psi DONE" << endl;
       }
       //end better J/Psi
