@@ -4,6 +4,14 @@ process = cms.Process('GEN')
 
 #import sys
 #model=sys.argv[2]
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing ('python')
+options.register('fragModel', 'PetersonFrag',
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.string,
+                 "Run on this model"
+                 )
+options.parseArguments()
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -26,8 +34,12 @@ process.load('TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi')
 #process.pseudoTop.jetMaxEta=cms.double(5.0)
 
 process.load('TopLJets2015.TopAnalysis.fragAnalyzer_cfi')
-process.TFileService = cms.Service("TFileService", fileName = cms.string("FragmentationDist.root"))
-#process.TFileService = cms.Service("TFileService", filename = cms.string("FragmentationDist_%s.root" % model))
+print options.fragModel
+process.fragAnalyzer.fragModel=options.fragModel
+
+#process.TFileService = cms.Service("TFileService", fileName = cms.string("FragmentationDist.root"))
+#process.TFileService = cms.Service("TFileService", filename = cms.string("FragmentationDist_%s.root" % options.fragModel))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("FragmentationDist_%s.root"%options.fragModel))
 
 #from FWCore.ParameterSet.VarParsing import VarParsing
 #options = VarParsing ('python')

@@ -88,6 +88,11 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("jpsi_l",       ev.jpsi_l,        "jpsi_l[njpsi]/F");
   t->Branch("jpsi_l_mass",  ev.jpsi_l_mass,   "jpsi_l_mass[njpsi]/F");
   t->Branch("jpsi_l_dR",    ev.jpsi_l_dR,     "jpsi_l_dR[njpsi]/F");
+  t->Branch("jpsi_l3d",     ev.jpsi_l3d,      "jpsi_l3d[njpsi]/F");
+  t->Branch("jpsi_sigmal3d",ev.jpsi_sigmal3d, "jpsi_sigmal3d[njpsi]/F");
+
+  //D meson candidates
+  t->Branch("nmeson",       &ev.nmeson,         "nmeson/I");
 
 }
 
@@ -178,5 +183,10 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("jpsi_l",       ev.jpsi_l);
   t->SetBranchAddress("jpsi_l_mass",  ev.jpsi_l_mass);
   t->SetBranchAddress("jpsi_l_dR",    ev.jpsi_l_dR);
+  t->SetBranchAddress("jpsi_l3d",     ev.jpsi_l3d);
+  t->SetBranchAddress("jpsi_sigmal3d",ev.jpsi_sigmal3d);
+
+  //D meson candidates
+  t->SetBranchAddress("nmeson",       &ev.nmeson);
 
 }

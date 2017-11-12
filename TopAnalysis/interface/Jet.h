@@ -11,7 +11,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid, int quality, bool highPurity);
   pfTrack(TLorentzVector p4, int pfid);
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
-  pfTrack(TLorentzVector p4, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid);
+  pfTrack(TLorentzVector p4, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -22,6 +22,7 @@ class pfTrack {
   float DeltaR(pfTrack &rhs);
   int getPfid();
   inline int getPdgId() { return getPfid(); }
+  int getMotherId();
   int charge();
   int getQuality();
   int getGenT();
@@ -56,6 +57,7 @@ class pfTrack {
   float chi2_;
   float vtxProb_;
   int pfid_;
+  int motherId_;
   int quality_;
   int genT_ = 0;
   bool highPurity_;

@@ -28,6 +28,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TGraph.h"
+#include "TCanvas.h"
 
 //#define IS_BHADRON_PDGID(id) ( ((abs(id)/100)%10 == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
 //#define IS_NEUTRINO_PDGID(id) ( (abs(id) == 12) || (abs(id) == 14) || (abs(id) == 16) )
@@ -41,8 +42,11 @@ class FragmentationAnalyzer : public edm::EDAnalyzer {
  public:
   FragmentationAnalyzer(const edm::ParameterSet &);
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  virtual void fragAnalyze(const edm::Event &, const edm::EventSetup &);
+  virtual void endJob() override;
 
  private:
+  std::string fragModel;
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
   std::map<std::string, TH1F*> hists;
@@ -53,12 +57,14 @@ class FragmentationAnalyzer : public edm::EDAnalyzer {
   Float_t bpt_[100], beta_[100], bphi_[100];
   Float_t Bpt_[100], Beta_[100], Bphi_[100], Bm_[100];
   Float_t Bjpt_[100], Bjeta_[100], Bjphi_[100], Bjm_[100];
+  Float_t model_[100];
   Float_t JPsipt_[100], JPsieta_[100], JPsiphi_[100], JPsim_[100], JPsidxy_[100], JPsidz_[100];
   Float_t Lpt_[100], Leta_[100], Lphi_[100], Lm_[100];
 
 };
  
 FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
+  fragModel(cfg.getParameter< std::string >("fragModel")),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles")))
 {
@@ -122,16 +128,23 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   data_->Branch("Leta",  Leta_, "Leta[nL]/F");
   data_->Branch("Lphi",  Lphi_, "Lphi[nL]/F");
   data_->Branch("Lm",    Lm_,   "Lm[nL]/F");
-  data_->Branch("upFrag", &(jetWeights["upFrag"]));
-  data_->Branch("centralFrag", &(jetWeights["centralFrag"]));
-  data_->Branch("downFrag", &(jetWeights["downFrag"]));
-  data_->Branch("PetersonFrag", &(jetWeights["PetersonFrag"]));
-  data_->Branch("semilepbrUp", &(jetWeights["semilepbrUp"]));
-  data_->Branch("semilepbrDown", &(jetWeights["semilepbrDown"]));
+  data_->Branch("fragModel",   model_,  "fragModel[nB]/F");
 
 }
 
 void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
+  fragAnalyze(evt, setup);
+}
+
+void FragmentationAnalyzer::endJob() {
+  data_->Draw("fragModel:Bpt/Bjpt","","goff");
+  TGraph *g = new TGraph(data_->GetSelectedRows(),data_->GetV2(),data_->GetV1());
+  g->SetName(TString(fragModel));
+  g->Draw("AP");
+  g->Write();
+}
+
+void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventSetup &setup) {
   std::vector<int> leptons,bHadrons;//,JPsi;
 
   //gen jets
@@ -242,11 +255,6 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
       if(dr < 0.5) {
         double xb = p.pt()/ijet.pt();
         hists["genBHadronPtFraction"]->Fill(xb);
-        //playing with fragmentation re-weighting
-        jetWeights["upFrag"].push_back(wgtGr_["upFrag"]->Eval(xb));
-        jetWeights["centralFrag"].push_back(wgtGr_["centralFrag"]->Eval(xb));
-        jetWeights["downFrag"].push_back(wgtGr_["downFrag"]->Eval(xb));
-        jetWeights["PetersonFrag"].push_back(wgtGr_["PetersonFrag"]->Eval(xb));
         break;
       }
     }
@@ -273,6 +281,7 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
       const reco::GenParticle &bhad = (*genParticles)[bHadrons[k]];
       float dR=deltaR(bhad,ijet);
       if(dR>0.5) continue;
+      if(bhad.pt()/ijet.pt()>2) continue;
 
       Bid_[nB_]  = bhad.pdgId();
       Bpt_[nB_]  = bhad.pt();
@@ -314,6 +323,9 @@ void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup
       nJPsi_++;
     }
 
+    //playing with fragmentation re-weighting
+    double xb = bhad.pt()/ijet.pt();
+    model_[nB_] = wgtGr_[fragModel]->Eval(xb);
     Bjpt_[nB_]  = ijet.pt();
     Bjeta_[nB_] = ijet.eta();
     Bjphi_[nB_] = ijet.phi();

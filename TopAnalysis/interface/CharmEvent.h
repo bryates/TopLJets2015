@@ -9,7 +9,7 @@ struct CharmEvent_t
   {
     ttbar_nw=0;
     nl=0; nj=0; npf=0;
-    njpsi=0;
+    njpsi=0; nmeson=0;
   }
 
   Bool_t isData;
@@ -41,12 +41,13 @@ struct CharmEvent_t
   Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000];
 
   //JPsi candidates
-  Int_t njpsi;
+  Int_t njpsi,nmeson;
   Float_t jpsi_mass[5],jpsi_pt[5],jpsi_eta[5],jpsi_phi[5],jpsi_p[5],jpsi_pz[5];
   Float_t jpsi_j[5],jpsi_ptrel[5],jpsi_l[5];//,jpsi_j_dR[5];
   Float_t jpsi_mu1_pt[5],jpsi_mu1_eta[5],jpsi_mu1_phi[5];
   Float_t jpsi_mu2_pt[5],jpsi_mu2_eta[5],jpsi_mu2_phi[5];
   Float_t jpsi_l_mass[5],jpsi_l_dR[5];
+  Float_t jpsi_l3d[5],jpsi_sigmal3d[5];
 
 };
 

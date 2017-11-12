@@ -42,11 +42,11 @@ void KalmanEvent::buildJets() {
       //if(ev_.k_mass[ipf]<2.5 || ev_.k_mass[ipf]>3.4) continue;
       if(!ev_.k_mass[ipf]) continue;
       if(debug_) std::cout << "passed mass window" << std::endl; 
-      if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
-      if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
+      //if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
+      //if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
       TLorentzVector tkP4(0,0,0,0);
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
-      pfTrack pftk(tkP4, ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf]);
+      pfTrack pftk(tkP4, ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf]);
       if(debug_) { std::cout << "pfTrack "; pftk.print(); }
       if(debug_) std::cout << "Kalman jet " << ev_.k_j[ipf] << " with pT=" << ev_.j_pt[ev_.k_j[ipf]] << std::endl;
       tmpj.addTrack(pftk);

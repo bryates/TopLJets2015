@@ -327,7 +327,7 @@ bool Trigger::isSingleMuonEvent() {
   }
   else if(isData_) return false;
   //exclude di-mu triggers for data
-  if(isData_) return (muonFired() && !doubleMuonFired()); //Cross check for data only
+  //if(isData_) return (muonFired() && !doubleMuonFired()); //Cross check for data only FIXME
   //check if required muon trigger(s) fired
   return muonFired();
 }
@@ -335,9 +335,9 @@ bool Trigger::isSingleMuonEvent() {
 //Check for Single Muon trigger based on Leptons class
 bool Trigger::isSingleMuonEvent(Leptons leps) {
   //must have a single lepton
-  if(leps.size() != 1) return false;
+  if(leps.size() != 1) return false; //FIXME
   //must be a muon
-  if(abs(leps[0].getPdgId())!=13) return false;
+  if(abs(leps[0].getPdgId())!=13) return false; //FIXME
   //if(isMCFile()) return true;
   //check if it is a good single muon event
   return isSingleMuonEvent();

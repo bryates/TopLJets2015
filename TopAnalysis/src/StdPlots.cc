@@ -131,6 +131,8 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["dR_JPsi_l"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_l"+tag+cut+weight+runPeriod_,";#DeltaR(J/#Psi,leading l);Events / 0.01", 10, 0,5);
     allPlots["dR_JPsi_mumu"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_mumu"+tag+cut+weight+runPeriod_,";#DeltaR(J/#Psi_{#mu1},J/#Psi_{#mu2});Events / 0.01", 10, 0,0.5);
     allPlots["JPsi_mumu_pt_ratio"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mumu_pt_ratio"+tag+cut+weight+runPeriod_,";(#mu_{1 P_{T}}-#mu_{2 P_{T}})/(#mu_{1 P_{T}}+#mu_{2 P_{T}});Events / 0.01", 10, 0,1);
+    allPlots["JPsi_l3d"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l3d"+tag+cut+weight+runPeriod_,";J/#Psi c#tau;Events / 0.001",200, -0.1,0.1);
+    allPlots["JPsi_sigmal3d"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_sigmal3d"+tag+cut+weight+runPeriod_,";J/#Psi #sigma_{c#tau};Events / 0.0001", 300, 0,0.03);
     }
     if(cut.Contains("gjpsi")) {
       allPlots["dR_JPsi_l_good"+tag+cut+weight+runPeriod_] = new TH1F("dR_JPsi_l_good"+tag+cut+weight+runPeriod_,";#DeltaR(gen J/#Psi,leading l);Events / 0.01", 10, 0,5);
@@ -487,6 +489,11 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["JPsi_mu1_highPurity_all"+name+runPeriod_]->Fill(pfCands[0].highPurity(),getWgt());
     allPlots["JPsi_mu2_highPurity"+chTag+name+runPeriod_]->Fill(pfCands[1].highPurity(),getWgt());
     allPlots["JPsi_mu2_highPurity_all"+name+runPeriod_]->Fill(pfCands[1].highPurity(),getWgt());
+
+    allPlots["JPsi_l3d"+chTag+name+runPeriod_]->Fill(pfCands[0].getL3D(),getWgt());
+    allPlots["JPsi_l3d_all"+name+runPeriod_]->Fill(pfCands[0].getL3D(),getWgt());
+    allPlots["JPsi_sigmal3d"+chTag+name+runPeriod_]->Fill(pfCands[0].getSigmaL3D(),getWgt());
+    allPlots["JPsi_sigmal3d_all"+name+runPeriod_]->Fill(pfCands[0].getSigmaL3D(),getWgt());
 
     /*
     allPlots["pf_dxy"+chTag+name+runPeriod_]->Fill(abs(pfmuCands[i].getDxy()),wgt);

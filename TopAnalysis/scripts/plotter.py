@@ -588,6 +588,8 @@ def main():
                     under=True
                     if "meson" in key: over=False
                     if "meson" in key: under=False
+                    if "l3d" in key: over=False
+                    if "l3d" in key: under=False
                     fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if opt.run != "BCDEFGH":

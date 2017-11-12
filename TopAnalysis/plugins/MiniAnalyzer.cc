@@ -105,8 +105,8 @@ private:
   virtual void beginJob() override;
   int genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  //void KalmanAnalysis(vector<pair<const pat::PackedCandidate &,int>> pfKalman, const edm::EventSetup& iSetup);
   void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j, const reco::Vertex &primVtx);
+  std::pair<float,float> ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex, const reco::Vertex &primVtx);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   float getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
@@ -961,7 +961,6 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.npf++;
 
     }
-    //KalmanAnalysis(pfKalman, iSetup);
     return nleptons;
 }
 
@@ -973,7 +972,6 @@ void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //analyze the event
   int nleptons(0), ngleptons(0);
   if(!iEvent.isRealData()) ngleptons=genAnalysis(iEvent,iSetup);
-  //KalmanAnalysis(iEvent,iSetup);
   nleptons=recAnalysis(iEvent,iSetup);
   
   //save event if at least one lepton at gen or reco level
@@ -1060,7 +1058,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
       //*** L3D and sigmaL3D ****
       //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
-      TLorentzVector jpsi = (p_track1+p_track2);
+      /*
       float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
       float sigmay = sqrt(pow(fittedVertex.yError(),2) + pow(primVtx.yError(),2));
       float sigmaz = sqrt(pow(fittedVertex.zError(),2) + pow(primVtx.zError(),2));
@@ -1072,7 +1070,31 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       float L3D = (jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
                   (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
                   (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
+      */
       //*************************
+      TLorentzVector jpsi = (p_track1+p_track2);
+      std::pair<float,float> l3d = ctau(jpsi, fittedVertex, primVtx);
+      //BPH version
+      /*
+      TVector3 disp( fittedVertex.x() - primVtx.x(),
+                     fittedVertex.y() - primVtx.y(),
+                     fittedVertex.z() - primVtx.z() ); //changed z from 0
+      TVector3 cmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+      float cosAlpha = disp.Dot( cmom ) / ( disp.Perp() * cmom.Perp() );
+      float mass = jpsi.M();
+      AlgebraicVector3 vmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+      VertexDistanceXY vdistXY;
+      Measurement1D distXY = vdistXY.distance( fittedVertex, primVtx );
+      double ctauPV = distXY.value() * cosAlpha * mass / cmom.Perp();
+      GlobalError sve = fittedVertex.error();
+      GlobalError pve = primVtx.error();
+      AlgebraicSymMatrix33 vXYe = sve.matrix() + pve.matrix();
+      double ctauErrPV = sqrt( ROOT::Math::Similarity( vmom, vXYe ) ) * mass /
+                               cmom.Perp2();
+      std::cout << L3D << " " << sigmaL3D << std::endl;
+      std::cout << ctauPV << " " << ctauErrPV << std::endl;
+      std::cout << L3D/ctauPV << " " << sigmaL3D/ctauErrPV << std::endl << std::endl;
+      */
 
       vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
 
@@ -1094,8 +1116,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_vtxProb[ev_.nkpf]=vtxProb;
       ev_.k_dxy[ev_.nkpf]=dxy;
       ev_.k_dxyE[ev_.nkpf]=dxyE;
-      ev_.k_l3d[ev_.nkpf]=L3D;
-      ev_.k_sigmal3d[ev_.nkpf]=sigmaL3D;
+      ev_.k_l3d[ev_.nkpf]=l3d.first;
+      ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
       ev_.nkpf++;
       //pf2
       ev_.k_j[ev_.nkpf]=ev_.nj;
@@ -1111,8 +1133,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_vtxProb[ev_.nkpf]=vtxProb;
       ev_.k_dxy[ev_.nkpf]=dxy;
       ev_.k_dxyE[ev_.nkpf]=dxyE;
-      ev_.k_l3d[ev_.nkpf]=L3D;
-      ev_.k_sigmal3d[ev_.nkpf]=sigmaL3D;
+      ev_.k_l3d[ev_.nkpf]=l3d.first;
+      ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
       ev_.nkpf++;
       ev_.nkj++;
 
@@ -1122,7 +1144,435 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       //if (vtxProb<0.02) continue;
     }
   }// end of J/psi
+
+
+  // D0  
+
+  if(ndau < 4) return;
+  for (unsigned int id1 = 0; id1 < 4; ++id1) {
+    for (unsigned int id2 = 0; id2 < 4; ++id2) {
+	
+      if(id1 == id2) continue;
+	
+      const pat::PackedCandidate &pf1 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id1));
+      const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
+
+      // correct charge combination and not muons
+      if(pf1.pdgId()*pf2.pdgId() != -211*211) continue;
+      
+      if(pf1.pt()<1.0 || pf2.pt()<5.0) continue; //K pT > 1 GeV, pi pT > 5 GeV
+      if(fabs(pf1.eta()) > 2.4 || fabs(pf2.eta())> 2.4) continue;
+      
+      TLorentzVector p_track1, p_track2;
+      const float gMassK(0.4937);
+      const float gMassPi(0.1396);
+      
+      p_track1.SetPtEtaPhiM(pf1.pt(), pf1.eta(), pf1.phi(), gMassK);
+      p_track2.SetPtEtaPhiM(pf2.pt(), pf2.eta(), pf2.phi(), gMassPi);
+
+      if(!pf1.trackHighPurity());
+      if(!pf2.trackHighPurity());
+
+      float mass12 = (p_track1+p_track2).M();
+      
+      if (mass12<1.7 || mass12>2.0) continue; 
+      
+      // vtx fitting
+      const reco::Track* trk1 = &pf1.pseudoTrack();
+      const reco::Track* trk2 = &pf2.pseudoTrack();
+      
+      reco::TransientTrack trTrack1 = thebuilder.build(*trk1);
+      reco::TransientTrack trTrack2 = thebuilder.build(*trk2);
+      
+      vector<reco::TransientTrack> trTrackVec;
+      trTrackVec.push_back(trTrack1);
+      trTrackVec.push_back(trTrack2);
+
+         
+      KalmanVertexFitter kvf(true ); 
+      TransientVertex tv;
+      float vtxProb(0);
+      try {
+      //TransientVertex tv = kvf.vertex( trTrackVec );
+      tv = kvf.vertex( trTrackVec );
+      }
+      catch (...) { std::cout << "Problem computing vertex" << std::endl; continue; }
+      reco::Vertex fittedVertex = tv;
+      float dxy = sqrt(pow(fittedVertex.x()-primVtx.x(),2) +
+                       pow(fittedVertex.y()-primVtx.y(),2));
+      float dxyE = sqrt(pow(fittedVertex.xError(),2) +
+                        pow(primVtx.xError(),2) +
+                        pow(fittedVertex.yError(),2) +
+                        pow(primVtx.yError(),2));
+
+      //*** L3D and sigmaL3D ****
+      //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
+      /*
+      float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
+      float sigmay = sqrt(pow(fittedVertex.yError(),2) + pow(primVtx.yError(),2));
+      float sigmaz = sqrt(pow(fittedVertex.zError(),2) + pow(primVtx.zError(),2));
+
+      float sigmaL3D = 1.0 / sqrt( pow( (jpsi.Px()/jpsi.M())/sigmax,2 ) +
+                                   pow( (jpsi.Py()/jpsi.M())/sigmay,2 ) +
+                                   pow( (jpsi.Pz()/jpsi.M())/sigmaz,2 ) );
+
+      float L3D = (jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
+                  (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
+                  (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
+      */
+      //*************************
+      TLorentzVector d0 = (p_track1+p_track2);
+      std::pair<float,float> l3d = ctau(d0, fittedVertex, primVtx);
+      //BPH version
+      /*
+      TVector3 disp( fittedVertex.x() - primVtx.x(),
+                     fittedVertex.y() - primVtx.y(),
+                     fittedVertex.z() - primVtx.z() ); //changed z from 0
+      TVector3 cmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+      float cosAlpha = disp.Dot( cmom ) / ( disp.Perp() * cmom.Perp() );
+      float mass = jpsi.M();
+      AlgebraicVector3 vmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+      VertexDistanceXY vdistXY;
+      Measurement1D distXY = vdistXY.distance( fittedVertex, primVtx );
+      double ctauPV = distXY.value() * cosAlpha * mass / cmom.Perp();
+      GlobalError sve = fittedVertex.error();
+      GlobalError pve = primVtx.error();
+      AlgebraicSymMatrix33 vXYe = sve.matrix() + pve.matrix();
+      double ctauErrPV = sqrt( ROOT::Math::Similarity( vmom, vXYe ) ) * mass /
+                               cmom.Perp2();
+      std::cout << L3D << " " << sigmaL3D << std::endl;
+      std::cout << ctauPV << " " << ctauErrPV << std::endl;
+      std::cout << L3D/ctauPV << " " << sigmaL3D/ctauErrPV << std::endl << std::endl;
+      */
+
+      vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
+
+      ev_.k_j_pt[ev_.nj]=j.pt();
+      ev_.k_j_eta[ev_.nj]=j.eta();
+      ev_.k_j_phi[ev_.nj]=j.phi();
+      ev_.k_j_mass[ev_.nj]=j.mass();
+      //pf1
+      ev_.k_j[ev_.nkpf]=ev_.nj;
+      ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
+      ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
+      ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
+      ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
+      ev_.k_pf_m[ev_.nkpf]=gMassK;
+      ev_.k_id[ev_.nkpf]=421;
+      ev_.k_mass[ev_.nkpf]=mass12;
+      ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+      ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+      ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+      ev_.k_dxy[ev_.nkpf]=dxy;
+      ev_.k_dxyE[ev_.nkpf]=dxyE;
+      ev_.k_l3d[ev_.nkpf]=l3d.first;
+      ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+      ev_.nkpf++;
+      //pf2
+      ev_.k_j[ev_.nkpf]=ev_.nj;
+      ev_.k_pf_id[ev_.nkpf]=pf2.pdgId();
+      ev_.k_pf_pt[ev_.nkpf]=pf2.pt();
+      ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
+      ev_.k_pf_phi[ev_.nkpf]=pf2.phi();
+      ev_.k_pf_m[ev_.nkpf]=gMassPi;
+      ev_.k_id[ev_.nkpf]=421;
+      ev_.k_mass[ev_.nkpf]=mass12;
+      ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+      ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+      ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+      ev_.k_dxy[ev_.nkpf]=dxy;
+      ev_.k_dxyE[ev_.nkpf]=dxyE;
+      ev_.k_l3d[ev_.nkpf]=l3d.first;
+      ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+      ev_.nkpf++;
+      ev_.nkj++;
+
+      ev_.njpsi++;
+      ev_.nmeson++;
+
+      for (unsigned int id3 = 0; id3 < ndau; ++id3) {
+	if(id1 == id3) continue;
+	if(id2 == id3) continue;
+
+	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
+        if(abs(pf3.pdgId())!=13) continue;
+        if(pf3.pt()<3.0) continue; //lep pT > 3 GeV
+        if(pf2.pdgId()*pf3.pdgId() < 0) continue; //K and lep must have same sign
+
+        if(!pf3.trackHighPurity());
+        if(!pf3.isTrackerMuon() && !pf3.isGlobalMuon()) continue;
+
+	// vtx fitting
+	const reco::Track* trk1lep = &pf1.pseudoTrack();
+	const reco::Track* trk2lep = &pf2.pseudoTrack();
+
+	reco::TransientTrack trTrack1lep = thebuilder.build(*trk1lep);
+	reco::TransientTrack trTrack2lep = thebuilder.build(*trk2lep);
+
+	vector<reco::TransientTrack> trTrackVecLep;
+	trTrackVecLep.push_back(trTrack1lep);
+	trTrackVecLep.push_back(trTrack2lep);
+
+         
+        KalmanVertexFitter kvf(true ); 
+        TransientVertex tv;
+        float vtxProb(0);
+        try {
+        //TransientVertex tv = kvf.vertex( trTrackVec );
+        tv = kvf.vertex( trTrackVec );
+        }
+        catch (...) { std::cout << "Problem computing vertex" << std::endl; continue; }
+        reco::Vertex fittedVertex = tv;
+        float dxy = sqrt(pow(fittedVertex.x()-primVtx.x(),2) +
+                         pow(fittedVertex.y()-primVtx.y(),2));
+        float dxyE = sqrt(pow(fittedVertex.xError(),2) +
+                          pow(primVtx.xError(),2) +
+                          pow(fittedVertex.yError(),2) +
+                          pow(primVtx.yError(),2));
+
+        //*** L3D and sigmaL3D ****
+        //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
+        /*
+        TLorentzVector jpsi = (p_track1+p_track2);
+        float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
+        float sigmay = sqrt(pow(fittedVertex.yError(),2) + pow(primVtx.yError(),2));
+        float sigmaz = sqrt(pow(fittedVertex.zError(),2) + pow(primVtx.zError(),2));
+
+        float sigmaL3D = 1.0 / sqrt( pow( (jpsi.Px()/jpsi.M())/sigmax,2 ) +
+                                     pow( (jpsi.Py()/jpsi.M())/sigmay,2 ) +
+                                     pow( (jpsi.Pz()/jpsi.M())/sigmaz,2 ) );
+
+        float L3D = (jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
+                    (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
+                    (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
+        */
+        //*************************
+        std::pair<float,float> l3d = ctau(d0, fittedVertex, primVtx);
+        //BPH version
+        /*
+        TVector3 disp( fittedVertex.x() - primVtx.x(),
+                       fittedVertex.y() - primVtx.y(),
+                       fittedVertex.z() - primVtx.z() ); //changed z from 0
+        TVector3 cmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+        float cosAlpha = disp.Dot( cmom ) / ( disp.Perp() * cmom.Perp() );
+        float mass = jpsi.M();
+        AlgebraicVector3 vmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+        VertexDistanceXY vdistXY;
+        Measurement1D distXY = vdistXY.distance( fittedVertex, primVtx );
+        double ctauPV = distXY.value() * cosAlpha * mass / cmom.Perp();
+        GlobalError sve = fittedVertex.error();
+        GlobalError pve = primVtx.error();
+        AlgebraicSymMatrix33 vXYe = sve.matrix() + pve.matrix();
+        double ctauErrPV = sqrt( ROOT::Math::Similarity( vmom, vXYe ) ) * mass /
+                                 cmom.Perp2();
+        std::cout << L3D << " " << sigmaL3D << std::endl;
+        std::cout << ctauPV << " " << ctauErrPV << std::endl;
+        std::cout << L3D/ctauPV << " " << sigmaL3D/ctauErrPV << std::endl << std::endl;
+        */
+
+        vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
+
+        ev_.k_j_pt[ev_.nj]=j.pt();
+        ev_.k_j_eta[ev_.nj]=j.eta();
+        ev_.k_j_phi[ev_.nj]=j.phi();
+        ev_.k_j_mass[ev_.nj]=j.mass();
+        //pf1
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassK;
+        ev_.k_id[ev_.nkpf]=42113;
+        ev_.k_mass[ev_.nkpf]=mass12;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.k_dxy[ev_.nkpf]=dxy;
+        ev_.k_dxyE[ev_.nkpf]=dxyE;
+        ev_.k_l3d[ev_.nkpf]=l3d.first;
+        ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.nkpf++;
+        //pf2
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf2.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf2.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf2.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassPi;
+        ev_.k_id[ev_.nkpf]=42113;
+        ev_.k_mass[ev_.nkpf]=mass12;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.k_dxy[ev_.nkpf]=dxy;
+        ev_.k_dxyE[ev_.nkpf]=dxyE;
+        ev_.k_l3d[ev_.nkpf]=l3d.first;
+        ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.nkpf++;
+        //pf3
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf3.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf3.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf3.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf3.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassPi;
+        ev_.k_id[ev_.nkpf]=42113;
+        ev_.k_mass[ev_.nkpf]=mass12;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.k_dxy[ev_.nkpf]=dxy;
+        ev_.k_dxyE[ev_.nkpf]=dxyE;
+        ev_.k_l3d[ev_.nkpf]=l3d.first;
+        ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.nkpf++;
+        ev_.nkj++;
+
+        ev_.njpsi++;
+        ev_.nmeson++;
+
+      }
+
+      // D*
+      for (unsigned int id3 = 0; id3 < 4; ++id3) {
+	if(id1 == id3) continue;
+	if(id2 == id3) continue;
+
+	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
+	if(pf2.pdgId()*pf3.pdgId() != -211*211) continue;
+
+	if(fabs(pf3.eta()) > 2.4) continue;
+
+	TLorentzVector p_track3;
+	    
+	p_track3.SetPtEtaPhiM(pf3.pt(), pf3.eta(), pf3.phi(), gMassPi);
+
+        //if(!pf3.trackHighPurity());
+
+	float mass123 = (p_track1+p_track2+p_track3).M();
+	    
+	if (mass123<1.9 || mass123>2.2) continue; 
+	    
+	// vtx fitting
+	const reco::Track* trk3 = &pf3.pseudoTrack();
+
+	reco::TransientTrack trTrack3 = thebuilder.build(*trk3);
+
+	vector<reco::TransientTrack> trTrackVecDs;
+	trTrackVecDs.push_back(trTrack1);
+	trTrackVecDs.push_back(trTrack2);
+	trTrackVecDs.push_back(trTrack3);
+
+           
+        KalmanVertexFitter kvf(true ); 
+        TransientVertex tv;
+        float vtxProb(0);
+        try {
+        //TransientVertex tv = kvf.vertex( trTrackVec );
+        tv = kvf.vertex( trTrackVec );
+        }
+        catch (...) { std::cout << "Problem computing vertex" << std::endl; continue; }
+        reco::Vertex fittedVertex = tv;
+        float dxy = sqrt(pow(fittedVertex.x()-primVtx.x(),2) +
+                         pow(fittedVertex.y()-primVtx.y(),2));
+        float dxyE = sqrt(pow(fittedVertex.xError(),2) +
+                          pow(primVtx.xError(),2) +
+                          pow(fittedVertex.yError(),2) +
+                          pow(primVtx.yError(),2));
+
+        //*** L3D and sigmaL3D ****
+        //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
+        /*
+        float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
+        float sigmay = sqrt(pow(fittedVertex.yError(),2) + pow(primVtx.yError(),2));
+        float sigmaz = sqrt(pow(fittedVertex.zError(),2) + pow(primVtx.zError(),2));
+
+        float sigmaL3D = 1.0 / sqrt( pow( (jpsi.Px()/jpsi.M())/sigmax,2 ) +
+                                     pow( (jpsi.Py()/jpsi.M())/sigmay,2 ) +
+                                     pow( (jpsi.Pz()/jpsi.M())/sigmaz,2 ) );
+
+        float L3D = (jpsi.Px()/jpsi.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
+                    (jpsi.Py()/jpsi.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
+                    (jpsi.Pz()/jpsi.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
+        */
+        //*************************
+        TLorentzVector ds = (p_track1+p_track2+p_track3);
+        std::pair<float,float> l3d = ctau(ds, fittedVertex, primVtx);
+        //BPH version
+        /*
+        TVector3 disp( fittedVertex.x() - primVtx.x(),
+                       fittedVertex.y() - primVtx.y(),
+                       fittedVertex.z() - primVtx.z() ); //changed z from 0
+        TVector3 cmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+        float cosAlpha = disp.Dot( cmom ) / ( disp.Perp() * cmom.Perp() );
+        float mass = jpsi.M();
+        AlgebraicVector3 vmom( jpsi.Px(), jpsi.Py(), jpsi.Pz() ); //changed z from 0
+        VertexDistanceXY vdistXY;
+        Measurement1D distXY = vdistXY.distance( fittedVertex, primVtx );
+        double ctauPV = distXY.value() * cosAlpha * mass / cmom.Perp();
+        GlobalError sve = fittedVertex.error();
+        GlobalError pve = primVtx.error();
+        AlgebraicSymMatrix33 vXYe = sve.matrix() + pve.matrix();
+        double ctauErrPV = sqrt( ROOT::Math::Similarity( vmom, vXYe ) ) * mass /
+                                 cmom.Perp2();
+        std::cout << L3D << " " << sigmaL3D << std::endl;
+        std::cout << ctauPV << " " << ctauErrPV << std::endl;
+        std::cout << L3D/ctauPV << " " << sigmaL3D/ctauErrPV << std::endl << std::endl;
+        */
+
+        vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
+
+        ev_.k_j_pt[ev_.nj]=j.pt();
+        ev_.k_j_eta[ev_.nj]=j.eta();
+        ev_.k_j_phi[ev_.nj]=j.phi();
+        ev_.k_j_mass[ev_.nj]=j.mass();
+        //pf1
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassPi;
+        ev_.k_id[ev_.nkpf]=413;
+        ev_.k_mass[ev_.nkpf]=mass123;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.k_dxy[ev_.nkpf]=dxy;
+        ev_.k_dxyE[ev_.nkpf]=dxyE;
+        ev_.k_l3d[ev_.nkpf]=l3d.first;
+        ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.nkpf++;
+        ev_.nkj++;
+
+        ev_.njpsi++;
+        ev_.nmeson++;
+
+      } // end of D*
+    }
+  }// end of D0
+
 }
+
+std::pair<float,float> MiniAnalyzer::ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex, const reco::Vertex &primVtx) {
+    //*** L3D and sigmaL3D ****
+    //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
+    float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
+    float sigmay = sqrt(pow(fittedVertex.yError(),2) + pow(primVtx.yError(),2));
+    float sigmaz = sqrt(pow(fittedVertex.zError(),2) + pow(primVtx.zError(),2));
+
+    float sigmaL3D = 1.0 / sqrt( pow( (p4.Px()/p4.M())/sigmax,2 ) +
+                                 pow( (p4.Py()/p4.M())/sigmay,2 ) +
+                                 pow( (p4.Pz()/p4.M())/sigmaz,2 ) );
+
+    float L3D = (p4.Px()/p4.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()) +
+                (p4.Py()/p4.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
+                (p4.Pz()/p4.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
+    //*************************
+    
+    return std::pair<float,float>(L3D,sigmaL3D);
+  }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

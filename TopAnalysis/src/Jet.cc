@@ -6,10 +6,11 @@ pfTrack::pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, 
 { }
 pfTrack::pfTrack(TLorentzVector p4, int pfid) : vec_(p4), dxy_(0), dxyE_(0), dz_(0), dzE_(0), pfid_(pfid)
 { }
-pfTrack::pfTrack(TLorentzVector p4, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid) : vec_(p4), l3d_(l3d), sigmal3d_(sigmal3d), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid)
+pfTrack::pfTrack(TLorentzVector p4, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId) : vec_(p4), l3d_(l3d), sigmal3d_(sigmal3d), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid), motherId_(motherId)
 { }
 pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }
+int pfTrack::getMotherId() { return motherId_; }
 int pfTrack::charge() { return pfid_ / abs(pfid_); }
 int pfTrack::getQuality() { return quality_; }
 int pfTrack::getGenT() { return genT_; }

@@ -122,6 +122,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.jpsi_l[ev_.njpsi] = ilep;
     ev_.jpsi_l_mass[ev_.njpsi] = mass123;
     ev_.jpsi_l_dR[ev_.njpsi] = dRJPsil;
+    ev_.jpsi_l3d[ev_.njpsi] = pfCands[0].getL3D();
+    ev_.jpsi_sigmal3d[ev_.njpsi] = pfCands[0].getSigmaL3D();
 
     ev_.jpsi_mu1_pt[ev_.njpsi] = pfCands[0].Pt();
     ev_.jpsi_mu1_eta[ev_.njpsi] = pfCands[0].Eta();
