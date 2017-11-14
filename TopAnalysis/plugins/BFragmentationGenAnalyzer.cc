@@ -53,9 +53,9 @@ class FragmentationAnalyzer : public edm::EDAnalyzer {
   std::map<std::string, TGraph *> wgtGr_;
   std::map< std::string, std::vector<float> > jetWeights;
   TTree *data_;
-  Int_t nb_, nB_, nL_, nJPsi_, Bid_[100], Lid_[100], JPsiPrompt_[100];
-  Float_t bpt_[100], beta_[100], bphi_[100];
-  Float_t Bpt_[100], Beta_[100], Bphi_[100], Bm_[100];
+  Int_t nb_, nB_, nM_, nL_, nJPsi_, Bid_[100], Lid_[100], JPsiPrompt_[100];
+  Float_t bpt_[100], xb_[100], beta_[100], bphi_[100];
+  Float_t fBpt_[100], Bpt_[100], Beta_[100], Bphi_[100], Bm_[100];
   Float_t Bjpt_[100], Bjeta_[100], Bjphi_[100], Bjm_[100];
   Float_t model_[100];
   Float_t JPsipt_[100], JPsieta_[100], JPsiphi_[100], JPsim_[100], JPsidxy_[100], JPsidz_[100];
@@ -105,6 +105,7 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   data_->Branch("beta",   beta_,  "beta[nb]/F");
   data_->Branch("bphi",   bphi_,  "bphi[nb]/F");
   data_->Branch("nB",    &nB_,    "nB/I");
+  data_->Branch("nM",    &nM_,    "nM/I");
   data_->Branch("Bid",    Bid_,   "Bid[nB]/I");
   data_->Branch("Bpt",    Bpt_,   "Bpt[nB]/F");
   data_->Branch("Beta",   Beta_,  "Beta[nB]/F");
@@ -128,16 +129,20 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
   data_->Branch("Leta",  Leta_, "Leta[nL]/F");
   data_->Branch("Lphi",  Lphi_, "Lphi[nL]/F");
   data_->Branch("Lm",    Lm_,   "Lm[nL]/F");
-  data_->Branch("fragModel",   model_,  "fragModel[nB]/F");
+  data_->Branch("fragModel",   model_,  "fragModel[nM]/F");
+  data_->Branch("xb",    xb_,    "xb[nM]F");
 
 }
 
 void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
   fragAnalyze(evt, setup);
+
+  //Fill ntuple
+  if((nL_ && nB_) || nM_) data_->Fill();
 }
 
 void FragmentationAnalyzer::endJob() {
-  data_->Draw("fragModel:Bpt/Bjpt","","goff");
+  data_->Draw("fragModel:xb","","goff");
   TGraph *g = new TGraph(data_->GetSelectedRows(),data_->GetV2(),data_->GetV1());
   g->SetName(TString(fragModel));
   g->Draw("AP");
@@ -151,18 +156,25 @@ void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventS
   using namespace edm;
   edm::Handle<std::vector<reco::GenJet>> genJets;
   evt.getByToken(genJetsToken_,genJets);
-   //playing with fragmentation re-weighting
-   for(auto genJet : *genJets)
-     {
-       //map the gen particles which are clustered in this jet
-       JetFragInfo_t jinfo=analyzeJet(genJet);
-       
-       //evaluate the weight to an alternative fragmentation model (if a tag id is available)
-       if(jinfo.leadTagId != 0)
-       {
-         std::cout << jinfo.xb << std::endl;
-       }
-     }
+  //playing with fragmentation re-weighting
+  nM_ = 0;
+  for(auto genJet : *genJets) {
+    //map the gen particles which are clustered in this jet
+    JetFragInfo_t jinfo=analyzeJet(genJet);
+    
+    //evaluate the weight to an alternative fragmentation model (if a tag id is available)
+    if(jinfo.leadTagId != 0) {
+      model_[nM_] = wgtGr_[fragModel]->Eval(jinfo.xb);
+      xb_[nM_] = jinfo.xb;
+      nM_++;
+    }
+    /*
+    else {
+      model_[nM_] = 1;
+    }
+    */
+  }
+  data_->Fill();
 
   //gen particles
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -323,9 +335,6 @@ void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventS
       nJPsi_++;
     }
 
-    //playing with fragmentation re-weighting
-    double xb = bhad.pt()/ijet.pt();
-    model_[nB_] = wgtGr_[fragModel]->Eval(xb);
     Bjpt_[nB_]  = ijet.pt();
     Bjeta_[nB_] = ijet.eta();
     Bjphi_[nB_] = ijet.phi();
@@ -333,40 +342,6 @@ void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventS
     nB_++;
   }
 
-  /*
-  for(auto genJet : *genJets) {
-    //Fragmentation
-    //map the gen particles wchih are clustered in theis jet
-    JetFragInfo_t jinfo=analyzeJet(genJet);
-
-    //evaluate the weight to an alternative fragmentation model (if a tag id is available)
-    if(jinfo.leadTagId != 0) {
-      std::cout << jinfo.xb << std::endl;
-      jetWeights["upFrag"].push_back(wgtGr_["upFrag"]->Eval(jinfo.xb));
-      jetWeights["centralFrag"].push_back(wgtGr_["centralFrag"]->Eval(jinfo.xb));
-      jetWeights["downFrag"].push_back(wgtGr_["downFrag"]->Eval(jinfo.xb));
-      jetWeights["PetersonFrag"].push_back(wgtGr_["PetersonFrag"]->Eval(jinfo.xb));
-    }
-    else {
-      jetWeights["upFrag"].push_back(1.);
-      jetWeights["centralFrag"].push_back(1.);
-      jetWeights["downFrag"].push_back(1.);
-      jetWeights["PetersonFrag"].push_back(1.);
-    }
-
-    float semilepbrUp(1.0),semilepbrDown(1.0);
-    int absBid(abs(jinfo.leadTagId));
-    //Only B^0, B^+, Bs^0, and lambda b ^0
-    if(absBid==511 || absBid==521 || absBid==531 || absBid==5122) {
-      int bid( jinfo.hasSemiLepDecay ? absBid : -absBid);
-      semilepbrUp=wgtGr_["semilepbrUp"]->Eval(bid);
-      semilepbrDown=wgtGr_["semilepbrDown"]->Eval(bid);
-    }
-    jetWeights["semilepbrUp"].push_back(semilepbrUp);
-    jetWeights["semilepbrDown"].push_back(semilepbrDown);
-
-  }
-  */
 
   //Leptons from W may be from semileptonic hadron decays (at least in Sherpa)
   nL_ = 0;
@@ -387,9 +362,6 @@ void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventS
     Lm_[nL_]   = lep.mass();
     nL_++;
   }
-
-  //Fill ntuple
-  if(nL_ && nB_) data_->Fill();
 
 }
 

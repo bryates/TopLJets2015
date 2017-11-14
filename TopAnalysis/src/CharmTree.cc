@@ -144,6 +144,81 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.njpsi++;
     ev_.nj++;
   }
+
+  else if(name.Contains("meson")) {
+    TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
+    if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
+    std::cout << D0.M() << std::endl;
+    ev_.d0_mass[ev_.nmeson] = D0.M();
+    ev_.meson_id[ev_.nmeson] = 421;
+    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
+      ev_.meson_id[ev_.nmeson] = 42113;
+      //std::cout << D0.M() << std::endl;
+    }
+
+    int epoch(0);
+    if(runPeriod_.Contains("BCDEF"))
+      epoch = 1;
+    else if(runPeriod_.Contains("GH"))
+      epoch = 2;
+
+    if(event>0) ev_.event = event;
+    ev_.epoch[ev_.nmeson] = epoch;
+    ev_.norm = norm_;
+    ev_.puwgt[ev_.nmeson] = puWgt_;
+    ev_.topptwgt = top_pt_wgt_;
+    ev_.sfs[ev_.nmeson] = sfs_;
+
+    float mass123((D0 + lep[0].getVec()).M());
+    int ilep = 0;
+    float dRJPsil(D0.DeltaR(lep[ilep].getVec()));
+    //Find closest isolated lepton in di-lepton event
+    if(lep.size()>1) {
+      for(ilep = 0; ilep < (int)lep.size(); ilep++) {
+        float tmpdRJPsil(D0.DeltaR(lep[ilep].getVec()));
+        if(tmpdRJPsil < dRJPsil) {
+          dRJPsil = tmpdRJPsil;
+          mass123 = (D0 + lep[ilep].getVec()).M();
+        }
+      }
+    }
+
+
+    ev_.d0_pt[ev_.nmeson] = D0.Pt();
+    ev_.d0_eta[ev_.nmeson] = D0.Eta();
+    ev_.d0_phi[ev_.nmeson] = D0.Phi();
+    ev_.d0_p[ev_.nmeson] = D0.P();
+    ev_.d0_pz[ev_.nmeson] = D0.Pz();
+    ev_.d0_j[ev_.nmeson] = ev_.nj;
+    ev_.d0_ptrel[ev_.nmeson] = ROOT::Math::VectorUtil::Perp(D0.Vect(),jet.getVec().Vect());
+
+    ev_.d0_l[ev_.nmeson] = ilep;
+    ev_.d0_l_mass[ev_.nmeson] = mass123;
+    ev_.d0_l_dR[ev_.nmeson] = dRJPsil;
+    ev_.d0_l3d[ev_.nmeson] = pfCands[0].getL3D();
+    ev_.d0_sigmal3d[ev_.nmeson] = pfCands[0].getSigmaL3D();
+
+    ev_.d0_pi_pt[ev_.nmeson] = pfCands[0].Pt();
+    ev_.d0_pi_eta[ev_.nmeson] = pfCands[0].Eta();
+    ev_.d0_pi_phi[ev_.nmeson] = pfCands[0].Phi();
+    ev_.d0_k_pt[ev_.nmeson] = pfCands[1].Pt();
+    ev_.d0_k_eta[ev_.nmeson] = pfCands[1].Eta();
+    ev_.d0_k_phi[ev_.nmeson] = pfCands[1].Phi();
+
+    ev_.j_pt[ev_.nmeson] = jet.getPt();
+    ev_.j_pt_charged[ev_.nmeson] = jet.getChargedPt();
+    ev_.j_pt_pf[ev_.nmeson] = jet.getPFPt();
+    ev_.j_p[ev_.nmeson] = jet.getP();
+    ev_.j_p_charged[ev_.nmeson] = jet.getChargedP();
+    ev_.j_p_pf[ev_.nmeson] = jet.getPFP();
+    ev_.j_pz[ev_.nmeson] = jet.getPz();
+    ev_.j_pz_charged[ev_.nmeson] = jet.getChargedPz();
+    ev_.j_pz_pf[ev_.nmeson] = jet.getPFPz();
+    ev_.nmeson++;
+    ev_.nj++;
+    //std::cout << "tree done" << std::endl;
+  }
+
 }
 
 void CharmTree::Write() {

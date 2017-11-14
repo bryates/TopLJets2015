@@ -34,9 +34,9 @@ process.maxEvents = cms.untracked.PSet (
     input = cms.untracked.int32(-1)
 )
 
-process.load('TopLJets2015.TopAnalysis.fragAnalyzer_cfi')
+process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
 print "Running on: %s" % options.fragModel
-process.fragAnalyzer.fragModel=options.fragModel
+process.fragWgtProducer.fragModel=options.fragModel
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("FragmentationDist_%s.root"%options.fragModel))
 
@@ -69,4 +69,4 @@ process.load('TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi')
 #process.pseudoTop.leptonMaxEta=cms.double(2.5)
 #process.pseudoTop.jetMaxEta=cms.double(5.0)
 
-process.analysis = cms.Path(process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.fragAnalyzer)
+process.analysis = cms.Path(process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.fragWgtProducer)

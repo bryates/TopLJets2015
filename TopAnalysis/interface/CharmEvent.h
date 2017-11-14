@@ -41,13 +41,22 @@ struct CharmEvent_t
   Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000];
 
   //JPsi candidates
-  Int_t njpsi,nmeson;
+  Int_t njpsi;
   Float_t jpsi_mass[5],jpsi_pt[5],jpsi_eta[5],jpsi_phi[5],jpsi_p[5],jpsi_pz[5];
   Float_t jpsi_j[5],jpsi_ptrel[5],jpsi_l[5];//,jpsi_j_dR[5];
   Float_t jpsi_mu1_pt[5],jpsi_mu1_eta[5],jpsi_mu1_phi[5];
   Float_t jpsi_mu2_pt[5],jpsi_mu2_eta[5],jpsi_mu2_phi[5];
   Float_t jpsi_l_mass[5],jpsi_l_dR[5];
   Float_t jpsi_l3d[5],jpsi_sigmal3d[5];
+
+  //D meson candidates
+  Int_t nmeson, meson_id[5];
+  Float_t d0_mass[5],d0_pt[5],d0_eta[5],d0_phi[5],d0_p[5],d0_pz[5];
+  Float_t d0_j[5],d0_ptrel[5],d0_l[5];//,d0_j_dR[5];
+  Float_t d0_pi_pt[5],d0_pi_eta[5],d0_pi_phi[5];
+  Float_t d0_k_pt[5],d0_k_eta[5],d0_k_phi[5];
+  Float_t d0_l_mass[5],d0_l_dR[5];
+  Float_t d0_l3d[5],d0_sigmal3d[5];
 
 };
 

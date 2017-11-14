@@ -1136,7 +1136,6 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_l3d[ev_.nkpf]=l3d.first;
       ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
       ev_.nkpf++;
-      ev_.nkj++;
 
       ev_.njpsi++;
       ev_.nmeson++;
@@ -1285,7 +1284,6 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_l3d[ev_.nkpf]=l3d.first;
       ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
       ev_.nkpf++;
-      ev_.nkj++;
 
       ev_.njpsi++;
       ev_.nmeson++;
@@ -1427,7 +1425,6 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
         ev_.k_l3d[ev_.nkpf]=l3d.first;
         ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
         ev_.nkpf++;
-        ev_.nkj++;
 
         ev_.njpsi++;
         ev_.nmeson++;
@@ -1544,7 +1541,6 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
         ev_.k_l3d[ev_.nkpf]=l3d.first;
         ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
         ev_.nkpf++;
-        ev_.nkj++;
 
         ev_.njpsi++;
         ev_.nmeson++;
@@ -1552,6 +1548,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       } // end of D*
     }
   }// end of D0
+  ev_.nkj++;
 
 }
 

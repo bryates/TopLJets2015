@@ -93,6 +93,26 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
 
   //D meson candidates
   t->Branch("nmeson",       &ev.nmeson,         "nmeson/I");
+  t->Branch("meson_id",      ev.meson_id,       "meson_id[nmeson]/I");
+  t->Branch("d0_mass",       ev.d0_mass,        "d0_mass[nmeson]/F");
+  t->Branch("d0_pt",         ev.d0_pt,          "d0_pt[nmeson]/F");
+  t->Branch("d0_eta",        ev.d0_eta,         "d0_eta[nmeson]/F");
+  t->Branch("d0_phi",        ev.d0_phi,         "d0_phi[nmeson]/F");
+  t->Branch("d0_p",          ev.d0_p,           "d0_p[nmeson]/F");
+  t->Branch("d0_pz",         ev.d0_pz,          "d0_pz[nmeson]/F");
+  t->Branch("d0_pi_pt",      ev.d0_pi_pt,       "d0_pi_pt[nmeson]/F");
+  t->Branch("d0_pi_eta",     ev.d0_pi_eta,      "d0_pi_eta[nmeson]/F");
+  t->Branch("d0_pi_phi",     ev.d0_pi_phi,      "d0_pi_phi[nmeson]/F");
+  t->Branch("d0_k_pt",       ev.d0_k_pt,        "d0_k_pt[nmeson]/F");
+  t->Branch("d0_k_eta",      ev.d0_k_eta,       "d0_k_eta[nmeson]/F");
+  t->Branch("d0_k_phi",      ev.d0_k_phi,       "d0_k_phi[nmeson]/F");
+  t->Branch("d0_j",          ev.d0_j,           "d0_j[nmeson]/F");
+  t->Branch("d0_ptrel",      ev.d0_ptrel,       "d0_ptrel[nmeson]/F");
+  t->Branch("d0_l",          ev.d0_l,           "d0_l[nmeson]/F");
+  t->Branch("d0_l_mass",     ev.d0_l_mass,      "d0_l_mass[nmeson]/F");
+  t->Branch("d0_l_dR",       ev.d0_l_dR,        "d0_l_dR[nmeson]/F");
+  t->Branch("d0_l3d",        ev.d0_l3d,         "d0_l3d[nmeson]/F");
+  t->Branch("d0_sigmal3d",   ev.d0_sigmal3d,    "d0_sigmal3d[nmeson]/F");
 
 }
 
@@ -188,5 +208,25 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
 
   //D meson candidates
   t->SetBranchAddress("nmeson",       &ev.nmeson);
+  t->SetBranchAddress("meson_id",      ev.meson_id);
+  t->SetBranchAddress("d0_mass",       ev.d0_mass);
+  t->SetBranchAddress("d0_pt",         ev.d0_pt);
+  t->SetBranchAddress("d0_eta",        ev.d0_eta);
+  t->SetBranchAddress("d0_phi",        ev.d0_phi);
+  t->SetBranchAddress("d0_p",          ev.d0_p);
+  t->SetBranchAddress("d0_pz",         ev.d0_pz);
+  t->SetBranchAddress("d0_pi_pt",      ev.d0_pi_pt);
+  t->SetBranchAddress("d0_pi_eta",     ev.d0_pi_eta);
+  t->SetBranchAddress("d0_pi_phi",     ev.d0_pi_phi);
+  t->SetBranchAddress("d0_k_pt",       ev.d0_k_pt);
+  t->SetBranchAddress("d0_k_eta",      ev.d0_k_eta);
+  t->SetBranchAddress("d0_k_phi",      ev.d0_k_phi);
+  t->SetBranchAddress("d0_j",          ev.d0_j);
+  t->SetBranchAddress("d0_ptrel",      ev.d0_ptrel);
+  t->SetBranchAddress("d0_l",          ev.d0_l);
+  t->SetBranchAddress("d0_l_mass",     ev.d0_l_mass);
+  t->SetBranchAddress("d0_l_dR",       ev.d0_l_dR);
+  t->SetBranchAddress("d0_l3d",        ev.d0_l3d);
+  t->SetBranchAddress("d0_sigmal3d",   ev.d0_sigmal3d);
 
 }

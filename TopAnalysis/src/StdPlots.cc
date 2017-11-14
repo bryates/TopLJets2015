@@ -209,6 +209,10 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0oJet_pt_hard_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_hard_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(hardest)/P_{T}(jet) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
     allPlots["D0oJet_pt_charged_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_charged_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(D^{0})/P_{T}(jet charged PF tracks) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
     allPlots["D0oJet_pt_pf_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_pf_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(#pf)/P_{T}(jet PF tracks) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
+    allPlots["D0_l3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_l3d"+tag+cut+weight+runPeriod_,";D^{0} c#tau;Events / 0.001",200, -0.1,0.1);
+    allPlots["D0_sigmal3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_sigmal3d"+tag+cut+weight+runPeriod_,";D^{0} #sigma_{c#tau};Events / 0.0001", 300, 0,0.03);
+    allPlots["D0_mu_tag_l3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_l3d"+tag+cut+weight+runPeriod_,";D^{0}+#mu c#tau;Events / 0.001",200, -0.1,0.1);
+    allPlots["D0_mu_tag_sigmal3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_sigmal3d"+tag+cut+weight+runPeriod_,";D^{0}+#mu #sigma_{c#tau};Events / 0.0001", 300, 0,0.03);
     //D*
     allPlots["massDsmD0loose"+tag+cut+weight+runPeriod_]     = new TH1F("massDsmD0loose"+tag+cut+weight+runPeriod_,";M_{K#pi#pi} - M_{K#pi};Events / 0.25 MeV" ,40,0.14,0.16);
     allPlots["massDsmD0"+tag+cut+weight+runPeriod_]     = new TH1F("massDsmD0"+tag+cut+weight+runPeriod_,";M_{K#pi#pi} - M_{K#pi};Events / 0.25 MeV" ,40,0.14,0.16);
@@ -556,6 +560,13 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
       allPlots["D0_pi_highPurity"+chTag+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
       allPlots["D0_pi_highPurity_all"+name+runPeriod_]->Fill(pi->highPurity(),getWgt());
       allPlots["D0_K_highPurity_all"+name+runPeriod_]->Fill(k->highPurity(),getWgt());
+
+      if(mass12>1.8 && mass12<1.9) {
+        allPlots["D0_l3d"+chTag+name+runPeriod_]->Fill(pi->getL3D(),getWgt());
+        allPlots["D0_l3d_all"+name+runPeriod_]->Fill(pi->getL3D(),getWgt());
+        allPlots["D0_sigmal3d"+chTag+name+runPeriod_]->Fill(pi->getSigmaL3D(),getWgt());
+        allPlots["D0_sigmal3d_all"+name+runPeriod_]->Fill(pi->getSigmaL3D(),getWgt());
+      }
     }
     if(pfCands.size()<3) return; // D^* and flavor tagging D^0 
     if(abs(pfCands[2].getPdgId())==13) {
@@ -567,6 +578,12 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
           allPlots["massD0_lep_tag_all"+name+runPeriod_]->Fill(mass12,getWgt());
         }
       //}
+      if(mass12>1.8 && mass12<1.9) {
+        allPlots["D0_mu_tag_l3d"+chTag+name+runPeriod_]->Fill(pi->getL3D(),getWgt());
+        allPlots["D0_mu_tag_l3d_all"+name+runPeriod_]->Fill(pi->getL3D(),getWgt());
+        allPlots["D0_mu_tag_sigmal3d"+chTag+name+runPeriod_]->Fill(pi->getSigmaL3D(),getWgt());
+        allPlots["D0_mu_tag_sigmal3d_all"+name+runPeriod_]->Fill(pi->getSigmaL3D(),getWgt());
+      }
     }
     if(abs(pfCands[2].getPdgId())==11) {
       //if(pfCands[1].charge() == pfCands[2].charge()) { //reinforce kaon and lepton have same sign
