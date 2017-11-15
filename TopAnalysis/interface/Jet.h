@@ -11,7 +11,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid, int quality, bool highPurity);
   pfTrack(TLorentzVector p4, int pfid);
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
-  pfTrack(TLorentzVector p4, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId);
+  pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -37,6 +37,7 @@ class pfTrack {
   float getSigmaL3D();
   inline float chi2() { return chi2_; }
   inline float vtxProb() { return vtxProb_; }
+  inline float getKalmanMass() { return k_mass_; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
   void setPfid(int pfid);
@@ -52,6 +53,7 @@ class pfTrack {
   float dxyE_;
   float dz_;
   float dzE_;
+  float k_mass_;
   float l3d_;
   float sigmal3d_;
   float chi2_;

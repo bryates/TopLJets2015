@@ -752,7 +752,7 @@ void AODAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   //save event if at least one lepton at gen or reco level
   if(ev_.nleptons==0 || !saveTree_) return;  
-  //if(ev_.ngmeson==0) return;
+  if(ev_.ngmeson==0) return;
   ev_.run     = iEvent.id().run();
   ev_.lumi    = iEvent.luminosityBlock();
   ev_.event   = iEvent.id().event(); 

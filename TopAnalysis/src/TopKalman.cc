@@ -998,50 +998,55 @@ void RunTopKalman(TString filename,
             }
           }
 
-          float mass12 = (muTracks[0].getVec()+muTracks[1].getVec()).M();
-          if(mass12>2.5 && mass12<3.4) {
-            //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
-            //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
-            if(debug) cout << mass12 << endl << endl;
-            if(debug) cout << "J/Psi found" << endl;
-            if(debug && (mass12>3.0 && mass12<3.2)) cout << "and it's good!" << endl;
-            allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
-	    allPlots["massJPsi_all"]->Fill(mass12,wgt);
+          //for(size_t i = 0; i < muTracks.size(); i++) { //0,1 is only ~35% of all J/Psi
+            //for(size_t j = 0; j < muTracks.size(); j++) {
+            int i(0),j(1);
+              float mass12 = (muTracks[i].getVec()+muTracks[j].getVec()).M();
+              if(mass12>2.5 && mass12<3.4) {
+                //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
+                //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
+                if(debug) cout << mass12 << endl << endl;
+                if(debug) cout << "J/Psi found" << endl;
+                if(debug && (mass12>3.0 && mass12<3.2)) cout << "and it's good!" << endl;
+                allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
+	        allPlots["massJPsi_all"]->Fill(mass12,wgt);
 
-            runBCDEF.Fill(muTracks, leptons, jet, chTag, "jpsi");
-            runGH.Fill(muTracks, leptons, jet, chTag, "jpsi");
+                runBCDEF.Fill(muTracks, leptons, jet, chTag, "jpsi");
+                runGH.Fill(muTracks, leptons, jet, chTag, "jpsi");
 
-            treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
-            treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
+                treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
+                treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
 
-            if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
-              runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
-              runGH.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
-            }
-            if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
-              runBCDEF.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
-              runGH.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
-            }
+                if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
+                  runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
+                  runGH.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
+                }
+                if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
+                  runBCDEF.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
+                  runGH.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
+                }
 
-            runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
-            //Only run once (i.e. in first jet from collection)
-            if(&jet == &kJetsVec.front()) {
-              runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
-              runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
-            }
-            /*
-            for(auto &track : jet.getTracks()) {
-              if(mass12<3.0 || mass12>3.2) continue;
-              if(abs(track.getPdgId())!=211) continue;
-              TLorentzVector p_track3;
-              track.setMass(gMassMu);
-              treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
-              treeGH.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
-            }
-            */
-          }
-          //muTracks.clear();
+                runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+                runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "jpsi");
+                //Only run once (i.e. in first jet from collection)
+                if(&jet == &kJetsVec.front()) {
+                  runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
+                  runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
+                }
+                /*
+                for(auto &track : jet.getTracks()) {
+                  if(mass12<3.0 || mass12>3.2) continue;
+                  if(abs(track.getPdgId())!=211) continue;
+                  TLorentzVector p_track3;
+                  track.setMass(gMassMu);
+                  treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
+                  treeGH.Fill(evch, muTracks, leptons, jet, chTag, "kjpsi");
+                }
+                */
+              }
+              //muTracks.clear();
+            //} //end j
+          //} //end i
         }
         cht->Fill();
         //evch = {}; //reset just in case (to avoid duplicates)
