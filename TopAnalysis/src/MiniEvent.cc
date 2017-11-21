@@ -191,6 +191,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("k_dxyE",      ev.k_dxyE,       "k_dxyE[nkpf]/F");
   t->Branch("k_l3d",       ev.k_l3d,        "k_l3d[nkpf]/F");
   t->Branch("k_sigmal3d",  ev.k_sigmal3d,   "k_sigmal3d[nkpf]/F");
+
+  //Fragmentation
+  t->Branch("peterson",    ev.peterson,     "peterson[ng]/F");
+  t->Branch("up",          ev.up,           "up[ng]/F");
+  t->Branch("central",     ev.central,      "central[ng]/F");
+  t->Branch("down",        ev.down,         "downp[ng]/F");
 }
 
 //
@@ -388,4 +394,10 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("k_dxyE",      ev.k_dxyE);
   t->SetBranchAddress("k_l3d",       ev.k_l3d);
   t->SetBranchAddress("k_sigmal3d",  ev.k_sigmal3d);
+
+  //Fragmentation
+  t->SetBranchAddress("peterson",    ev.peterson);
+  t->SetBranchAddress("up",          ev.up);
+  t->SetBranchAddress("central",     ev.central);
+  t->SetBranchAddress("down",        ev.down);
 }

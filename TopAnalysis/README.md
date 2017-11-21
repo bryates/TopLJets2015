@@ -12,7 +12,11 @@ cmsrel CMSSW_8_0_26
 cd CMSSW_8_0_26/src
 cmsenv
 git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
-cd TopLJets2015/TopAnalysis/
+#For BFragmentationAnalyzer
+mkdir TopQuarkAnalysis
+cd TopQuarkAnalysis
+git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git
+cd -
 scram b -j8
 ```
 

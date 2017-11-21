@@ -66,7 +66,7 @@ void CharmTree::SetTopPtWgt(float top_pt_wgt) {
   //ev_.topptwgt = top_pt_wgt_;
 }
 
-void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name, Int_t event) {
+void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name, int event, std::vector<float> frag) {
   if(!isGood_) return;
   //attachToCharmEventTree(t_,ev_);
   //Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
@@ -76,6 +76,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
     if(jpsi.M()<2.5 || jpsi.M()>3.4) return; //Loose window for mass resonance
     ev_.jpsi_mass[ev_.njpsi] = jpsi.M();
+    ev_.meson_id[ev_.njpsi] = abs(pfCands[0].getMotherId());
 
     int epoch(0);
     if(runPeriod_.Contains("BCDEF"))
@@ -89,6 +90,11 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.puwgt[ev_.njpsi] = puWgt_;
     ev_.topptwgt = top_pt_wgt_;
     ev_.sfs[ev_.njpsi] = sfs_;
+
+    ev_.peterson[ev_.nj] = frag[0];
+    ev_.up[ev_.nj] = frag[1];
+    ev_.central[ev_.nj] = frag[2];
+    ev_.down[ev_.nj] = frag[3];
 
     //if(jpsi.M()<3.0 || jpsi.M()>3.2) ev_.njpsi++;
     //if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
@@ -142,19 +148,20 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.j_pz_charged[ev_.njpsi] = jet.getChargedPz();
     ev_.j_pz_pf[ev_.njpsi] = jet.getPFPz();
     ev_.njpsi++;
-    ev_.nj++;
+    //ev_.nj++;
   }
 
   else if(name.Contains("meson")) {
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
     if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
-    std::cout << D0.M() << std::endl;
     ev_.d0_mass[ev_.nmeson] = D0.M();
-    ev_.meson_id[ev_.nmeson] = 421;
-    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
+    ev_.meson_id[ev_.nmeson] = abs(pfCands[0].getMotherId());
+    /*
+    //if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
+    if(abs(pfCands[0].getMotherId())==42113) {
       ev_.meson_id[ev_.nmeson] = 42113;
-      //std::cout << D0.M() << std::endl;
     }
+    */
 
     int epoch(0);
     if(runPeriod_.Contains("BCDEF"))
@@ -164,10 +171,17 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
 
     if(event>0) ev_.event = event;
     ev_.epoch[ev_.nmeson] = epoch;
+    /*
     ev_.norm = norm_;
     ev_.puwgt[ev_.nmeson] = puWgt_;
     ev_.topptwgt = top_pt_wgt_;
     ev_.sfs[ev_.nmeson] = sfs_;
+    */
+
+    ev_.peterson[ev_.nj] = frag[0];
+    ev_.up[ev_.nj] = frag[1];
+    ev_.central[ev_.nj] = frag[2];
+    ev_.down[ev_.nj] = frag[3];
 
     float mass123((D0 + lep[0].getVec()).M());
     int ilep = 0;
@@ -205,17 +219,17 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.d0_k_eta[ev_.nmeson] = pfCands[1].Eta();
     ev_.d0_k_phi[ev_.nmeson] = pfCands[1].Phi();
 
-    ev_.j_pt[ev_.nmeson] = jet.getPt();
-    ev_.j_pt_charged[ev_.nmeson] = jet.getChargedPt();
-    ev_.j_pt_pf[ev_.nmeson] = jet.getPFPt();
-    ev_.j_p[ev_.nmeson] = jet.getP();
-    ev_.j_p_charged[ev_.nmeson] = jet.getChargedP();
-    ev_.j_p_pf[ev_.nmeson] = jet.getPFP();
-    ev_.j_pz[ev_.nmeson] = jet.getPz();
-    ev_.j_pz_charged[ev_.nmeson] = jet.getChargedPz();
-    ev_.j_pz_pf[ev_.nmeson] = jet.getPFPz();
+    ev_.j_pt[ev_.nj] = jet.getPt();
+    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
+    ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
+    ev_.j_p[ev_.nj] = jet.getP();
+    ev_.j_p_charged[ev_.nj] = jet.getChargedP();
+    ev_.j_p_pf[ev_.nj] = jet.getPFP();
+    ev_.j_pz[ev_.nj] = jet.getPz();
+    ev_.j_pz_charged[ev_.nj] = jet.getChargedPz();
+    ev_.j_pz_pf[ev_.nj] = jet.getPFPz();
     ev_.nmeson++;
-    ev_.nj++;
+    //ev_.nj++;
     //std::cout << "tree done" << std::endl;
   }
 

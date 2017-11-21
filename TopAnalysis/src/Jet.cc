@@ -50,6 +50,7 @@ Jet::Jet(TLorentzVector p4, float csv, int idx) {
   idx_ = idx;
 }
 */
+Jet::Jet () {};
 
 Jet::~Jet() {};
 

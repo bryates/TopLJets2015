@@ -77,6 +77,7 @@ class Jet {
   Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt);
   Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt, int genJet);
   Jet(TLorentzVector p4, float csv, int idx, float chargedPt,  float chargedPz, float chargedP, float PFPt, float PFPz, float PFP, int genJet);
+  Jet();
   ~Jet();
   //void addTrack(TLorentzVector p4, int pfid);
   //void addTrack(pfTrack pf, int pfid);

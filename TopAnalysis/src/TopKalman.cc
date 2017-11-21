@@ -471,7 +471,7 @@ void RunTopKalman(TString filename,
       //select jets
       Float_t htsum(0);
       TLorentzVector jetDiff(0,0,0,0);
-      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec;
+      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec, genJetsVec;
       KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
       for(auto &jet : kalman.getJets()) {
@@ -555,6 +555,23 @@ void RunTopKalman(TString filename,
           if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu
           allJetsVec.push_back(tmpj);
 	}
+      for (int k=0; k<ev.ng;k++) {
+        //check kinematics
+        if(abs(ev.g_id[k])==13 || abs(ev.g_id[k])==11) continue; //skip leptons since they are stored after genJets
+	TLorentzVector jp4;
+	jp4.SetPtEtaPhiM(ev.g_pt[k],ev.g_eta[k],ev.g_phi[k],ev.g_m[k]);
+
+	// re-inforce kinematics cuts
+	if(jp4.Pt()<30) continue;
+	if(fabs(jp4.Eta()) > 2.4) continue;
+	
+	//if(leadingJetIdx<0) leadingJetIdx=k;
+	htsum += jp4.Pt();
+
+	//save jet
+        Jet tmpgj(jp4, ev.g_id[k], k);
+        genJetsVec.push_back(tmpgj);
+      }
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
@@ -948,6 +965,14 @@ void RunTopKalman(TString filename,
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[1] << " " << ev.k_pf_eta[1] << " " << ev.k_pf_phi[1] <<  " " << ev.k_mass[1] << endl; }
           }
           if(muTracks.size()<2) continue;
+          Jet genJet;
+          for(auto & gjet : genJetsVec) {
+            if(gjet.getVec().DeltaR(jet.getVec())>0.1) continue; //find good dR match
+            if(gjet.getVec().DeltaR(jet.getVec()) > genJet.getVec().DeltaR(jet.getVec())) continue; //find tighter dR match
+            genJet = gjet;
+            break;
+          }
+          std::vector<float> frag = {ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()],};
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
@@ -1014,8 +1039,8 @@ void RunTopKalman(TString filename,
                 runBCDEF.Fill(muTracks, leptons, jet, chTag, "jpsi");
                 runGH.Fill(muTracks, leptons, jet, chTag, "jpsi");
 
-                treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
-                treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi");
+                treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event, frag);
+                treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event, frag);
 
                 if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
                   runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
@@ -1047,15 +1072,18 @@ void RunTopKalman(TString filename,
               //muTracks.clear();
             //} //end j
           //} //end i
+          evch.nj++;
         }
         cht->Fill();
-        //evch = {}; //reset just in case (to avoid duplicates)
+        evch = {}; //reset just in case (to avoid duplicates)
         if(debug) cout << "J/Psi DONE" << endl;
       }
       //end better J/Psi
 
       //Better D meson
       //const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
+      evch.nmeson=0;
+      evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
           vector<pfTrack> piTracks,muTracks;
@@ -1121,6 +1149,8 @@ void RunTopKalman(TString filename,
           for(size_t i = 0; i < piTracks.size(); i++) {
             for(size_t j = 0; j < piTracks.size(); j++) {
               if(i==j) continue;
+              //ensure same Kalman mass (sorting tracks by pT might mess up order in which Kalman masses were saved)
+              if(piTracks[i].getKalmanMass() != piTracks[j].getKalmanMass()) continue;
               //Set mass assmumption
               piTracks[i].setMass(gMassPi); piTracks[j].setMass(gMassK);
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
@@ -1130,16 +1160,14 @@ void RunTopKalman(TString filename,
                 if(debug) cout << mass12 << endl << endl;
                 if(debug) cout << "D0 found" << endl;
                 if(debug && (mass12>1.8 && mass12<1.9)) cout << "and it's good!" << endl;
-                allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
-	        allPlots["massJPsi_all"]->Fill(mass12,wgt);
+                allPlots["massD0"+chTag]->Fill(mass12,wgt);
+	        allPlots["massD0_all"]->Fill(mass12,wgt);
 
                 runBCDEF.Fill(piTracks, leptons, jet, chTag, "meson");
                 runGH.Fill(piTracks, leptons, jet, chTag, "meson");
 
-                /*
                 treeBCDEF.Fill(evch, piTracks, leptons, jet, chTag, "meson");
                 treeGH.Fill(evch, piTracks, leptons, jet, chTag, "meson");
-                */
 
                 if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
                   runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gmeson");
@@ -1157,6 +1185,7 @@ void RunTopKalman(TString filename,
                   runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                   runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                 }
+                /*
                 for(auto &kjet : allKJetsVec) {
                   if(kjet.getJetIndex() != jet.getJetIndex()) continue;
                   for(auto &track : kjet.getTracks()) {
@@ -1170,22 +1199,29 @@ void RunTopKalman(TString filename,
                     tmp_cands.push_back(track);
                     runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                     runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                    /*
-                    treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                    treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                    */
+                    //treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                    //treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   }
                 }
-                /*
+                */
+                //D^0 + mu for flavor tagging
                 if(abs(piTracks[i].getMotherId())!=42113) continue;
                 if(abs(piTracks[j].getMotherId())!=42113) continue;
+                runBCDEF.Fill(piTracks, leptons, jet, chTag, "meson");
+                runGH.Fill(piTracks, leptons, jet, chTag, "meson");
+
+                treeBCDEF.Fill(evch, piTracks, leptons, jet, chTag, "meson");
+                treeGH.Fill(evch, piTracks, leptons, jet, chTag, "meson");
+                /*
                 if(muTracks.size()<1) continue;
                 for(size_t k = 0; k < muTracks.size(); k++) {
+                  if(piTracks[i].getKalmanMass() != muTracks[k].getKalmanMass()) continue;
                   if(abs(muTracks[k].getMotherId())!=42113) continue;
+                  if(!muTracks[k].trackerMuon() && !muTracks[k].globalMuon()) continue;
                   if(muTracks[k].Pt() < 3.0) continue;
                   if(debug) cout << "third lepton found" << endl;
 
-                  if(piTracks[j].charge() == -muTracks[k].charge()) {
+                  if(piTracks[i].charge() == muTracks[k].charge()) {
                     //Kaon and lepton have same charge (e.g. b^- -> c^+ W^- -> c^+ l^- nubar)
                     //correct mass assumption
                     if(debug) cout << "correct mass assumption" << endl;
@@ -1196,13 +1232,17 @@ void RunTopKalman(TString filename,
                     //runGH.Fill(piTracks, leptons, jet, chTag, "meson");
                     runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                     runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                    treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                    treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   }
                 }
                 */
               }
               if(piTracks.size()<3) continue;
-              if(abs(piTracks[i].getMotherId())!=413) continue;
-              if(abs(piTracks[j].getMotherId())!=413) continue;
+              if(abs(piTracks[i].getMotherId())!=421) continue;
+              if(abs(piTracks[j].getMotherId())!=421) continue;
+              //if(abs(piTracks[i].getMotherId())!=413) continue;
+              //if(abs(piTracks[j].getMotherId())!=413) continue;
               for(size_t k = 0; k < piTracks.size(); k++) {
                 if(abs(piTracks[k].getMotherId())!=413) continue;
                 if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
@@ -1214,17 +1254,16 @@ void RunTopKalman(TString filename,
                   std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],piTracks[k] };
                   runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                   runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                  /*
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                  */
                 }
               } //end D*
             } //end D^0 j
           } //end D^0 i
+          evch.nj++;
         } //end jets loop
         cht->Fill();
-        //evch = {}; //reset just in case (to avoid duplicates)
+        evch = {}; //reset just in case (to avoid duplicates)
         if(debug) cout << "D meosn DONE" << endl;
       }
       //end better D meson

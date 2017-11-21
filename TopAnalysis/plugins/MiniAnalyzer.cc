@@ -121,6 +121,7 @@ private:
   edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > petersonFragToken_, upFragToken_, centralFragToken_, downFragToken_;
   edm::EDGetTokenT<pat::PackedGenParticleCollection> genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> pseudoTopToken_;
@@ -179,6 +180,10 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   puToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"))),  
   genLeptonsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:leptons"))),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
+  petersonFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:PetersonFrag"))),
+  upFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:upFrag"))),
+  centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
+  downFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:downFrag"))),
   genParticlesToken_(consumes<pat::PackedGenParticleCollection>(edm::InputTag("packedGenParticles"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
   pseudoTopToken_(consumes<reco::GenParticleCollection>(edm::InputTag("pseudoTop"))),
@@ -290,6 +295,14 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   ev_.ng=0; ev_.ngjets=0; ev_.ngbjets=0;
   edm::Handle<std::vector<reco::GenJet> > genJets;
   iEvent.getByToken(genJetsToken_,genJets);  
+  edm::Handle<edm::ValueMap<float> > petersonFrag;
+  iEvent.getByToken(petersonFragToken_,petersonFrag);
+  edm::Handle<edm::ValueMap<float> > upFrag;
+  iEvent.getByToken(upFragToken_,upFrag);
+  edm::Handle<edm::ValueMap<float> > centralFrag;
+  iEvent.getByToken(centralFragToken_,centralFrag);
+  edm::Handle<edm::ValueMap<float> > downFrag;
+  iEvent.getByToken(downFragToken_,downFrag);
   std::map<const reco::Candidate *,int> jetConstsMap;
   for(auto genJet = genJets->begin();  genJet != genJets->end(); ++genJet)
     {
@@ -303,7 +316,6 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.g_eta[ev_.ng]  = genJet->eta();
       ev_.g_phi[ev_.ng]  = genJet->phi();
       ev_.g_m[ev_.ng]    = genJet->mass();       
-      ev_.ng++;
       
       //gen level selection
       if(genJet->pt()>25 && fabs(genJet->eta())<2.5)
@@ -311,6 +323,12 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
 	  ev_.ngjets++;
 	  if(abs(genJet->pdgId())) ev_.ngbjets++;
 	}
+      edm::Ref<std::vector<reco::GenJet> > genJetRef(genJets,genJet-genJets->begin());
+      ev_.peterson[ev_.ng] = (*petersonFrag)[genJetRef];
+      ev_.up[ev_.ng] = (*upFrag)[genJetRef];
+      ev_.central[ev_.ng] = (*centralFrag)[genJetRef];
+      ev_.down[ev_.ng] = (*downFrag)[genJetRef];
+      ev_.ng++;
     }
 
   //leptons
@@ -1296,6 +1314,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
         if(abs(pf3.pdgId())!=13) continue;
         if(pf3.pt()<3.0) continue; //lep pT > 3 GeV
         if(pf2.pdgId()*pf3.pdgId() < 0) continue; //K and lep must have same sign
+        //This currently reads pi and mu ss -> K and mu opposite sign but gives a peak, ss does not!
 
         if(!pf3.trackHighPurity());
         if(!pf3.isTrackerMuon() && !pf3.isGlobalMuon()) continue;

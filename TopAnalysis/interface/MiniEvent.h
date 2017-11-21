@@ -69,6 +69,9 @@ struct MiniEvent_t
   Float_t k_mass[5000],k_chi2[5000],k_vtxProb[5000];
   Float_t k_dxy[5000],k_dxyE[5000];
   Float_t k_l3d[5000],k_sigmal3d[5000];
+
+  //Fragmentation
+  Float_t peterson[500], up[500], down[500], central[500];
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);
