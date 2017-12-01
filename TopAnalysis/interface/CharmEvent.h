@@ -13,9 +13,9 @@ struct CharmEvent_t
   }
 
   Bool_t isData;
-  Int_t run,event,lumi,epoch[10];
-  Float_t norm,puwgt[10],topptwgt;
-  Float_t sfs[10]; //need to split into separate parts
+  Int_t run,event,lumi,epoch[50];
+  Float_t norm,puwgt[50],topptwgt;
+  Float_t sfs[50]; //need to split into separate parts
 
 
   //gen level event
@@ -42,24 +42,24 @@ struct CharmEvent_t
 
   //JPsi candidates
   Int_t njpsi;
-  Float_t jpsi_mass[10],jpsi_pt[10],jpsi_eta[10],jpsi_phi[10],jpsi_p[10],jpsi_pz[10];
-  Float_t jpsi_j[10],jpsi_ptrel[10],jpsi_l[10];//,jpsi_j_dR[10];
-  Float_t jpsi_mu1_pt[10],jpsi_mu1_eta[10],jpsi_mu1_phi[10];
-  Float_t jpsi_mu2_pt[10],jpsi_mu2_eta[10],jpsi_mu2_phi[10];
-  Float_t jpsi_l_mass[10],jpsi_l_dR[10];
-  Float_t jpsi_l3d[10],jpsi_sigmal3d[10];
+  Float_t jpsi_mass[50],jpsi_pt[50],jpsi_eta[50],jpsi_phi[50],jpsi_p[50],jpsi_pz[50];
+  Float_t jpsi_j[50],jpsi_ptrel[50],jpsi_l[50];//,jpsi_j_dR[50];
+  Float_t jpsi_mu1_pt[50],jpsi_mu1_eta[50],jpsi_mu1_phi[50];
+  Float_t jpsi_mu2_pt[50],jpsi_mu2_eta[50],jpsi_mu2_phi[50];
+  Float_t jpsi_l_mass[50],jpsi_l_dR[50];
+  Float_t jpsi_l3d[50],jpsi_sigmal3d[50];
 
   //D meson candidates
-  Int_t nmeson, meson_id[10];
-  Float_t d0_mass[10],d0_pt[10],d0_eta[10],d0_phi[10],d0_p[10],d0_pz[10];
-  Float_t d0_j[10],d0_ptrel[10],d0_l[10];//,d0_j_dR[10];
-  Float_t d0_pi_pt[10],d0_pi_eta[10],d0_pi_phi[10];
-  Float_t d0_k_pt[10],d0_k_eta[10],d0_k_phi[10];
-  Float_t d0_l_mass[10],d0_l_dR[10];
-  Float_t d0_l3d[10],d0_sigmal3d[10];
+  Int_t nmeson, meson_id[50];
+  Float_t d0_mass[50],d0_pt[50],d0_eta[50],d0_phi[50],d0_p[50],d0_pz[50];
+  Float_t d0_j[50],d0_ptrel[50],d0_l[50];//,d0_j_dR[50];
+  Float_t d0_pi_pt[50],d0_pi_eta[50],d0_pi_phi[50];
+  Float_t d0_k_pt[50],d0_k_eta[50],d0_k_phi[50];
+  Float_t d0_l_mass[50],d0_l_dR[50];
+  Float_t d0_l3d[50],d0_sigmal3d[50];
 
   //Fragmentation
-  Float_t peterson[10], up[10], down[10], central[10];
+  Float_t peterson[50], up[50], down[50], central[50];
 
 };
 

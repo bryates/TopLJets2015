@@ -23,6 +23,8 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   vtxProb_ = 0.02;
   chi2_ = 5.; //Same as Elvire's, chi2=5.365 at vtxProb>0.02
   l3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/l3d_ratio_B.png
+  csv_ = 0.5426;
+  //csv_ = 0.8484;
   //buildJets();
   if(nmeson_) buildJets();
 }
@@ -32,7 +34,7 @@ void KalmanEvent::buildJets() {
   for(int ij=0; ij<ev_.nj; ij++) {
     TLorentzVector jp4;
     jp4.SetPtEtaPhiM(ev_.j_pt[ij],ev_.j_eta[ij],ev_.j_phi[ij],ev_.j_mass[ij]);
-    Jet tmpj(jp4, 1, ij);
+    Jet tmpj(jp4, 0, ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracijs and gen matched index
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
       if(ev_.k_j[ipf] != ij) continue; //skip if PF track doesn't belong to current jet
@@ -44,6 +46,8 @@ void KalmanEvent::buildJets() {
       if(debug_) std::cout << "passed mass window" << std::endl; 
       //if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
       //if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
+      //testing CSV
+      //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
       TLorentzVector tkP4(0,0,0,0);
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf]);

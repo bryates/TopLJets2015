@@ -1082,12 +1082,15 @@ void RunTopKalman(TString filename,
 
       //Better D meson
       //const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
-      evch.nmeson=0;
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
           vector<pfTrack> piTracks,muTracks;
+          size_t tmax = 4;
+          tmax = jet.getTracks().size() >= tmax ? tmax : jet.getTracks().size();
           for(auto &track : jet.getTracks()) {
+            //Only save up to first 4 hardest tracks (sorted by pT already)
+            if((size_t)(&track - &jet.getTracks()[0]) >= tmax) break;
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
             if(abs(track.getPdgId())==211) { piTracks.push_back(track); }
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
@@ -1185,7 +1188,7 @@ void RunTopKalman(TString filename,
                   runBCDEF.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                   runGH.Fill(lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                 }
-                /*
+                //Use full jet to find soft leptons
                 for(auto &kjet : allKJetsVec) {
                   if(kjet.getJetIndex() != jet.getJetIndex()) continue;
                   for(auto &track : kjet.getTracks()) {
@@ -1199,11 +1202,11 @@ void RunTopKalman(TString filename,
                     tmp_cands.push_back(track);
                     runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                     runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                    //treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                    //treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                    treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                    treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   }
                 }
-                */
+                /*
                 //D^0 + mu for flavor tagging
                 if(abs(piTracks[i].getMotherId())!=42113) continue;
                 if(abs(piTracks[j].getMotherId())!=42113) continue;
@@ -1212,11 +1215,12 @@ void RunTopKalman(TString filename,
 
                 treeBCDEF.Fill(evch, piTracks, leptons, jet, chTag, "meson");
                 treeGH.Fill(evch, piTracks, leptons, jet, chTag, "meson");
+                */
                 /*
                 if(muTracks.size()<1) continue;
                 for(size_t k = 0; k < muTracks.size(); k++) {
-                  if(piTracks[i].getKalmanMass() != muTracks[k].getKalmanMass()) continue;
-                  if(abs(muTracks[k].getMotherId())!=42113) continue;
+                  //if(piTracks[i].getKalmanMass() != muTracks[k].getKalmanMass()) continue;
+                  //if(abs(muTracks[k].getMotherId())!=42113) continue;
                   if(!muTracks[k].trackerMuon() && !muTracks[k].globalMuon()) continue;
                   if(muTracks[k].Pt() < 3.0) continue;
                   if(debug) cout << "third lepton found" << endl;
@@ -1238,6 +1242,28 @@ void RunTopKalman(TString filename,
                 }
                 */
               }
+              //Use full jet to find third pi
+              if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
+              for(auto &kjet : allKJetsVec) {
+                if(kjet.getJetIndex() != jet.getJetIndex()) continue;
+                for(auto &track : kjet.getTracks()) {
+                  if(abs(track.getPdgId())!=211) continue;
+                  track.setMass(gMassPi);
+                  if(track.getVec().DeltaR(piTracks[i].getVec())<0.1 && (track.Pt()-piTracks[i].Pt()/track.Pt())>0.10) continue;
+                  if(track.getVec().DeltaR(piTracks[j].getVec())<0.1 && (track.Pt()-piTracks[j].Pt()/track.Pt())>0.10) continue;
+                  //if(track.Pt() < 3.0) continue;
+                  // Kaon and pion have opposite charges
+                  // I.e. correct mass assumption
+                  if(piTracks[j].charge()*track.charge()>0) continue;
+                  std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
+                  tmp_cands.push_back(track);
+                  runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                  runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                }
+              }
+              /*
               if(piTracks.size()<3) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;
@@ -1258,11 +1284,12 @@ void RunTopKalman(TString filename,
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                 }
               } //end D*
+              */
             } //end D^0 j
           } //end D^0 i
           evch.nj++;
         } //end jets loop
-        cht->Fill();
+        //cht->Fill();
         evch = {}; //reset just in case (to avoid duplicates)
         if(debug) cout << "D meosn DONE" << endl;
       }

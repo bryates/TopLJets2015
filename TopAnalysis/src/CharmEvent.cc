@@ -68,30 +68,30 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   //JPsi candidates
   t->Branch("njpsi",        &ev.njpsi,        "njpsi/I");
   t->Branch("nmeson",       &ev.nmeson,       "nmeson/I");
-  t->Branch("meson_id",      ev.meson_id,     "meson_id[njpsi]/I");
-  t->Branch("epoch" ,        ev.epoch,        "epoch[njpsi]/I");
-  t->Branch("puwgt",         ev.puwgt,        "puwgt[njpsi]/F");
-  t->Branch("sfs",           ev.sfs,          "sfs[njpsi]/F");
+  t->Branch("meson_id",      ev.meson_id,     "meson_id[nmeson]/I");
+  t->Branch("epoch" ,        ev.epoch,        "epoch[nmeson]/I");
+  t->Branch("puwgt",         ev.puwgt,        "puwgt[nmeson]/F");
+  t->Branch("sfs",           ev.sfs,          "sfs[nmeson]/F");
 
-  t->Branch("jpsi_mass",    ev.jpsi_mass,     "jpsi_mass[njpsi]/F");
-  t->Branch("jpsi_pt",      ev.jpsi_pt,       "jpsi_pt[njpsi]/F");
-  t->Branch("jpsi_eta",     ev.jpsi_eta,      "jpsi_eta[njpsi]/F");
-  t->Branch("jpsi_phi",     ev.jpsi_phi,      "jpsi_phi[njpsi]/F");
-  t->Branch("jpsi_p",       ev.jpsi_p,        "jpsi_p[njpsi]/F");
-  t->Branch("jpsi_pz",      ev.jpsi_pz,       "jpsi_pz[njpsi]/F");
-  t->Branch("jpsi_mu1_pt",  ev.jpsi_mu1_pt,   "jpsi_mu1_pt[njpsi]/F");
-  t->Branch("jpsi_mu1_eta", ev.jpsi_mu1_eta,  "jpsi_mu1_eta[njpsi]/F");
-  t->Branch("jpsi_mu1_phi", ev.jpsi_mu1_phi,  "jpsi_mu1_phi[njpsi]/F");
-  t->Branch("jpsi_mu2_pt",  ev.jpsi_mu2_pt,   "jpsi_mu2_pt[njpsi]/F");
-  t->Branch("jpsi_mu2_eta", ev.jpsi_mu2_eta,  "jpsi_mu2_eta[njpsi]/F");
-  t->Branch("jpsi_mu2_phi", ev.jpsi_mu2_phi,  "jpsi_mu2_phi[njpsi]/F");
-  t->Branch("jpsi_j",       ev.jpsi_j,        "jpsi_j[njpsi]/F");
-  t->Branch("jpsi_ptrel",   ev.jpsi_ptrel,     "jpsi_ptrel[njpsi]/F");
-  t->Branch("jpsi_l",       ev.jpsi_l,        "jpsi_l[njpsi]/F");
-  t->Branch("jpsi_l_mass",  ev.jpsi_l_mass,   "jpsi_l_mass[njpsi]/F");
-  t->Branch("jpsi_l_dR",    ev.jpsi_l_dR,     "jpsi_l_dR[njpsi]/F");
-  t->Branch("jpsi_l3d",     ev.jpsi_l3d,      "jpsi_l3d[njpsi]/F");
-  t->Branch("jpsi_sigmal3d",ev.jpsi_sigmal3d, "jpsi_sigmal3d[njpsi]/F");
+  t->Branch("jpsi_mass",    ev.jpsi_mass,     "jpsi_mass[nmeson]/F");
+  t->Branch("jpsi_pt",      ev.jpsi_pt,       "jpsi_pt[nmeson]/F");
+  t->Branch("jpsi_eta",     ev.jpsi_eta,      "jpsi_eta[nmeson]/F");
+  t->Branch("jpsi_phi",     ev.jpsi_phi,      "jpsi_phi[nmeson]/F");
+  t->Branch("jpsi_p",       ev.jpsi_p,        "jpsi_p[nmeson]/F");
+  t->Branch("jpsi_pz",      ev.jpsi_pz,       "jpsi_pz[nmeson]/F");
+  t->Branch("jpsi_mu1_pt",  ev.jpsi_mu1_pt,   "jpsi_mu1_pt[nmeson]/F");
+  t->Branch("jpsi_mu1_eta", ev.jpsi_mu1_eta,  "jpsi_mu1_eta[nmeson]/F");
+  t->Branch("jpsi_mu1_phi", ev.jpsi_mu1_phi,  "jpsi_mu1_phi[nmeson]/F");
+  t->Branch("jpsi_mu2_pt",  ev.jpsi_mu2_pt,   "jpsi_mu2_pt[nmeson]/F");
+  t->Branch("jpsi_mu2_eta", ev.jpsi_mu2_eta,  "jpsi_mu2_eta[nmeson]/F");
+  t->Branch("jpsi_mu2_phi", ev.jpsi_mu2_phi,  "jpsi_mu2_phi[nmeson]/F");
+  t->Branch("jpsi_j",       ev.jpsi_j,        "jpsi_j[nmeson]/F");
+  t->Branch("jpsi_ptrel",   ev.jpsi_ptrel,     "jpsi_ptrel[nmeson]/F");
+  t->Branch("jpsi_l",       ev.jpsi_l,        "jpsi_l[nmeson]/F");
+  t->Branch("jpsi_l_mass",  ev.jpsi_l_mass,   "jpsi_l_mass[nmeson]/F");
+  t->Branch("jpsi_l_dR",    ev.jpsi_l_dR,     "jpsi_l_dR[nmeson]/F");
+  t->Branch("jpsi_l3d",     ev.jpsi_l3d,      "jpsi_l3d[nmeson]/F");
+  t->Branch("jpsi_sigmal3d",ev.jpsi_sigmal3d, "jpsi_sigmal3d[nmeson]/F");
 
   //D meson candidates
   t->Branch("d0_mass",       ev.d0_mass,        "d0_mass[nmeson]/F");

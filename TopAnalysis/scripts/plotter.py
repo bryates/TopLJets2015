@@ -417,6 +417,7 @@ def main():
     parser.add_option('-o', '--outName',     dest='outName' ,    help='name of the output file',        default='plotter.root',    type='string')
     parser.add_option(      '--noStack',     dest='noStack',     help='don\'t stack distributions',     default=False,             action='store_true')
     parser.add_option(      '--saveLog',     dest='saveLog' ,    help='save log versions of the plots', default=False,             action='store_true')
+    parser.add_option(      '--saveNorm',    dest='saveNorm' ,   help='save normalised versions of the plots', default=False,             action='store_true')
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
@@ -500,7 +501,7 @@ def main():
             #fix pileup weighting normalization
             puNormSF=1
             if opt.puNormSF and not isData:
-                if(opt.run == "BCDEFGH"):
+                if(opt.run == "BCDEFGH" and 0):
                   puBCDEF = opt.puNormSF.split("_")
                   puBCDEF[-1] = "BCDEF"
                   puBCDEF = "_".join(puBCDEF)
@@ -558,8 +559,8 @@ def main():
                       #Single event with large weight
                     #if "_jpsi" in key and "WJets" in tag: continue
                     #if "_jpsi" in key and "DY" in tag: continue
-                    if "_tag" in key and "WJets" in tag: continue
-                    if "mass" in key and "_meson" in key and "WJets" in tag: continue
+                    #if "_tag" in key and "WJets" in tag: continue
+                    #if "mass" in key and "_meson" in key and "WJets" in tag: continue
                     if "_"+opt.run not in key and opt.run != "BCDEFGH" :
                          keep=False
                     #if key.split("_")[-1] != opt.run: continue
@@ -590,6 +591,7 @@ def main():
                     if "meson" in key: under=False
                     if "l3d" in key: over=False
                     if "l3d" in key: under=False
+                    if "oJet" in key: over=False
                     fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)
                     if opt.run != "BCDEFGH":
