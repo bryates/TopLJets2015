@@ -44,8 +44,8 @@ void KalmanEvent::buildJets() {
       //if(ev_.k_mass[ipf]<2.5 || ev_.k_mass[ipf]>3.4) continue;
       if(!ev_.k_mass[ipf]) continue;
       if(debug_) std::cout << "passed mass window" << std::endl; 
-      //if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
-      //if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
+      if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue; //proper decay length significance > 20
+      if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
       TLorentzVector tkP4(0,0,0,0);

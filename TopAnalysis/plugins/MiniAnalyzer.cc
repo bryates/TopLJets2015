@@ -560,7 +560,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   if (vertices->empty()) return 0; // skip the event if no PV found
   const reco::Vertex &primVtx = vertices->front();
   reco::VertexRef primVtxRef(vertices,0);
-   ev_.nvtx=vertices->size();
+  ev_.nvtx=vertices->size();
   if(ev_.nvtx==0) return 0;
 
   //RHO

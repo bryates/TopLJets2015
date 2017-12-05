@@ -63,13 +63,13 @@ void RunTopSync(TString filename,
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
   //BOOK HISTOGRAMS
-  //std::map<TString, TH1 *> allPlots;
-  //allPlots["nevt"]     = new TH1F("nevt_0",";N_{events};Events" ,6,0.,5.);
-  TH1F *nevt = new TH1F("nevt",";N_{events};Events" ,5,0.,5.);
-  //for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
-  nevt->Sumw2();
-  nevt->SetDirectory(0);
+  std::map<TString, TH1 *> allPlots;
+  allPlots["nevt_mm"]     = new TH1F("nevt_mm",";N_{events};Events" ,5,0.,5.);
+  allPlots["nevt_ee"]     = new TH1F("nevt_ee",";N_{events};Events" ,5,0.,5.);
+  allPlots["nevt_em"]     = new TH1F("nevt_em",";N_{events};Events" ,5,0.,5.);
+  for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
 
+  TString chTag("");
   //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
@@ -77,13 +77,14 @@ void RunTopSync(TString filename,
       t->GetEntry(iev);
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
 
-      nevt->Fill(0);
+      allPlots["nevt_mm"]->Fill(0);
+      allPlots["nevt_ee"]->Fill(0);
+      allPlots["nevt_em"]->Fill(0);
 
       //Basic lepton kinematics
       std::vector<int> tightLeptons,vetoLeptons;
       Leptons Muons(Tight,debug);
       Leptons Electrons(Medium,debug);
-      Leptons VetoLeptons(Veto,Loose,debug); // Designate Veto, only veto on Loose
 
       Muons.setMinPt(20);
       Muons.setMaxEta(2.4);
@@ -103,18 +104,24 @@ void RunTopSync(TString filename,
 
       if(debug) cout << "lepton selection DONE" << endl;
       Leptons leptons(Tight,debug);
-      leptons.combineLeptons(Muons);
-      leptons.combineLeptons(Electrons);
+      if(chargeSelection==13*13) leptons = Muons;
+      else if(chargeSelection==11*11) leptons = Electrons;
+      else if(chargeSelection==11*13) { leptons.combineLeptons(Muons); leptons.combineLeptons(Electrons); }
+      else;
       if(debug) cout << "sorting leptons" << endl;
       leptons.sortLeptonsByPt();
       if(leptons.size()<2) continue; // di-lepton events
       int ch = leptons[0].getPdgId()*leptons[1].getPdgId();
       if(ch > 0) continue; // opposite sign only
+      if(ch==-13*13 && ch==-chargeSelection) chTag = "_mm";
+      else if(ch==-11*11 && ch==-chargeSelection) chTag = "_ee";
+      else if(ch==-11*13 && ch==-chargeSelection) chTag = "_em";
+      else continue;
       if((leptons[0].getVec()+leptons[1].getVec()).M()<20) continue; // mass > 20 GeV
 
-      nevt->Fill(1);
+      allPlots["nevt"+chTag]->Fill(1);
       if(fabs((leptons[0].getVec()+leptons[1].getVec()).M()-91)<15) continue; // mZ veto
-      nevt->Fill(2);
+      allPlots["nevt"+chTag]->Fill(2);
 
       std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec;
       for (int k=0; k<ev.nj;k++)
@@ -160,10 +167,10 @@ void RunTopSync(TString filename,
       met.SetPz(0.); met.SetE(met.Pt());
 
       if((ch==-13*13 || ch==-11*11) && met.Pt()<40) continue;
-      nevt->Fill(3);
+      allPlots["nevt"+chTag]->Fill(3);
 
       if(allJetsVec.size()<2) continue; // 2+ jets
-      nevt->Fill(4);
+      allPlots["nevt"+chTag]->Fill(4);
     }
 
   //close input file
@@ -171,19 +178,19 @@ void RunTopSync(TString filename,
 
   //save histos to file  
   TString selPrefix("");  
+  TString selPostfix("");  
   if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
+  if(chargeSelection) outname.ReplaceAll(".root",chTag+".root");
+  cout << selPostfix << endl;
   TString baseName=gSystem->BaseName(outname); 
   TString dirName=gSystem->DirName(outname);
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   fOut->cd();
   if(debug) cout << "writing histograms" << endl;
 
-  /*
   for (auto& it : allPlots)  { 
     it.second->SetDirectory(fOut); it.second->Write(); 
   }
-  */
-  nevt->Write();
   if(debug) cout << "writing histograms DONE" << endl;
   fOut->Close();
 }
