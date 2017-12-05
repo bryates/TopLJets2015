@@ -3,6 +3,7 @@
 #include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
 //#include "TopLJets2015/TopAnalysis/interface/TOP-16-006.h"
 #include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
+#include "TopLJets2015/TopAnalysis/interface/TopSync.h"
 //#include "TopLJets2015/TopAnalysis/interface/Run5TeVAnalysis.h"
 
 #include "TH1F.h"
@@ -86,6 +87,7 @@ int main(int argc, char* argv[])
   if(method=="TOP::RunTop") RunTop(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   else if(method=="TOP::RunTopAOD") RunTopAOD(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
+  else if(method=="TOP::RunTopSync") RunTopSync(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   //else if(method=="Run5TeVAnalysis::Run5TeVAnalysis") Run5TeVAnalysis(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   else
     {

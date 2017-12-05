@@ -1465,7 +1465,7 @@ void RunTop(TString filename,
             }
           }
         }
-        cht->Fill();
+        //cht->Fill();
         if(debug) cout << "J/Psi DONE" << endl;
         //continue; //FIXME
 

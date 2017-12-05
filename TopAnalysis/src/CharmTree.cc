@@ -138,15 +138,16 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.jpsi_mu2_eta[ev_.nmeson] = pfCands[1].Eta();
     ev_.jpsi_mu2_phi[ev_.nmeson] = pfCands[1].Phi();
 
-    ev_.j_pt[ev_.nmeson] = jet.getPt();
-    ev_.j_pt_charged[ev_.nmeson] = jet.getChargedPt();
-    ev_.j_pt_pf[ev_.nmeson] = jet.getPFPt();
-    ev_.j_p[ev_.nmeson] = jet.getP();
-    ev_.j_p_charged[ev_.nmeson] = jet.getChargedP();
-    ev_.j_p_pf[ev_.nmeson] = jet.getPFP();
-    ev_.j_pz[ev_.nmeson] = jet.getPz();
-    ev_.j_pz_charged[ev_.nmeson] = jet.getChargedPz();
-    ev_.j_pz_pf[ev_.nmeson] = jet.getPFPz();
+    ev_.j_pt[ev_.nj] = jet.getPt();
+    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
+    ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
+    ev_.j_p[ev_.nj] = jet.getP();
+    ev_.j_p_charged[ev_.nj] = jet.getChargedP();
+    ev_.j_p_pf[ev_.nj] = jet.getPFP();
+    ev_.j_pz[ev_.nj] = jet.getPz();
+    ev_.j_pz_charged[ev_.nj] = jet.getChargedPz();
+    ev_.j_pz_pf[ev_.nj] = jet.getPFPz();
+    ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.nmeson++;
     //ev_.nj++;
   }
@@ -158,6 +159,12 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.meson_id[ev_.nmeson] = abs(pfCands[0].getMotherId());
     if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13)
       ev_.meson_id[ev_.nmeson] = 42113;
+    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
+      float mass123 = (D0+pfCands[2].getVec()).M();
+      float deltam = mass123 - D0.M();
+      if(deltam<0.14 || deltam>0.16) return;
+      ev_.ds_mass[ev_.nmeson] = mass123;
+    }
     /*
     if(abs(pfCands[0].getMotherId())==42113) {
       ev_.meson_id[ev_.nmeson] = 42113;
@@ -227,6 +234,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.j_pz[ev_.nj] = jet.getPz();
     ev_.j_pz_charged[ev_.nj] = jet.getChargedPz();
     ev_.j_pz_pf[ev_.nj] = jet.getPFPz();
+    ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.nmeson++;
     //ev_.nj++;
     //std::cout << "tree done" << std::endl;

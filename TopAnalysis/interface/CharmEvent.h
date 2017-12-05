@@ -25,15 +25,15 @@ struct CharmEvent_t
   //reco level event
   Int_t nvtx;
   Int_t nl,nleptons;
-  Int_t l_id[50],l_charge[50],l_pid[50],l_g[200];
+  Int_t l_id[50],l_charge[50],l_pid[50],l_g[500];
   Float_t l_pt[50],l_eta[50],l_phi[50], l_mass[50];
   Float_t l_chi2norm[50], l_dxy[50], l_dxyE[50], l_dz[50], l_dzE[50];
 
   Int_t nj;
-  Float_t j_pt[200],j_pt_pf[200],j_pt_charged[200],j_eta[200],j_phi[200],j_mass[200];
-  Float_t j_p[200],j_p_pf[200],j_p_charged[200];
-  Float_t j_pz[200],j_pz_pf[200],j_pz_charged[200];
-  Float_t j_csv[200];
+  Float_t j_pt[500],j_pt_pf[500],j_pt_charged[500],j_eta[500],j_phi[500],j_mass[500];
+  Float_t j_p[500],j_p_pf[500],j_p_charged[500];
+  Float_t j_pz[500],j_pz_pf[500],j_pz_charged[500];
+  Float_t j_csv[500];
 
   //PF candidates
   Int_t npf,nmu,pf_j[5000];
@@ -52,6 +52,7 @@ struct CharmEvent_t
   //D meson candidates
   Int_t nmeson, meson_id[50];
   Float_t d0_mass[50],d0_pt[50],d0_eta[50],d0_phi[50],d0_p[50],d0_pz[50];
+  Float_t ds_mass[50],ds_pt[50],ds_eta[50],ds_phi[50],ds_p[50],ds_pz[50];
   Float_t d0_j[50],d0_ptrel[50],d0_l[50];//,d0_j_dR[50];
   Float_t d0_pi_pt[50],d0_pi_eta[50],d0_pi_phi[50];
   Float_t d0_k_pt[50],d0_k_eta[50],d0_k_phi[50];

@@ -34,7 +34,7 @@ void KalmanEvent::buildJets() {
   for(int ij=0; ij<ev_.nj; ij++) {
     TLorentzVector jp4;
     jp4.SetPtEtaPhiM(ev_.j_pt[ij],ev_.j_eta[ij],ev_.j_phi[ij],ev_.j_mass[ij]);
-    Jet tmpj(jp4, 0, ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracijs and gen matched index
+    Jet tmpj(jp4, ev_.j_csv[ij], ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracijs and gen matched index
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
       if(ev_.k_j[ipf] != ij) continue; //skip if PF track doesn't belong to current jet

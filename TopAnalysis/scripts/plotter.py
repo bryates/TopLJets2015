@@ -137,7 +137,7 @@ class Plot(object):
             p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
             p1.SetLeftMargin(0.12)
-            p1.SetTopMargin(0.01)
+            p1.SetTopMargin(0.1)
             p1.SetBottomMargin(0.01)
         else:
             p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
@@ -253,7 +253,7 @@ class Plot(object):
         txt.SetTextSize(16)
         txt.SetTextAlign(12)
         iniy=0.9 if self.wideCanvas else 0.95
-        inix=0.12 if noStack else 0.18
+        inix=0.12 if noStack else 0.12
         if lumi<100:
             txt.DrawLatex(inix,iniy,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )
         else:
@@ -501,7 +501,7 @@ def main():
             #fix pileup weighting normalization
             puNormSF=1
             if opt.puNormSF and not isData:
-                if(opt.run == "BCDEFGH" and 0):
+                if(opt.run == "BCDEFGH"):
                   puBCDEF = opt.puNormSF.split("_")
                   puBCDEF[-1] = "BCDEF"
                   puBCDEF = "_".join(puBCDEF)
