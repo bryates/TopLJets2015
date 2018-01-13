@@ -10,12 +10,16 @@ struct CharmEvent_t
     ttbar_nw=0;
     nl=0; nj=0; npf=0;
     njpsi=0; nmeson=0;
+    ht=0; met=0; st=0;
+    nlj=0; event=0; nvtx=0;
   }
 
   Bool_t isData;
   Int_t run,event,lumi,epoch[50];
   Float_t norm,puwgt[50],topptwgt;
   Float_t sfs[50]; //need to split into separate parts
+  Float_t ht,met,st;
+  Int_t nlj;
 
 
   //gen level event
@@ -56,6 +60,8 @@ struct CharmEvent_t
   Float_t d0_j[50],d0_ptrel[50],d0_l[50];//,d0_j_dR[50];
   Float_t d0_pi_pt[50],d0_pi_eta[50],d0_pi_phi[50];
   Float_t d0_k_pt[50],d0_k_eta[50],d0_k_phi[50];
+  Float_t d0_mu_pt[50],d0_mu_eta[50],d0_mu_phi[50];
+  Float_t ds_pi2_pt[50],ds_pi2_eta[50],ds_pi2_phi[50];
   Float_t d0_l_mass[50],d0_l_dR[50];
   Float_t d0_l3d[50],d0_sigmal3d[50];
 

@@ -63,7 +63,7 @@ void Leptons::addParticle(Particle p) {
   if(abs(p.Eta()) > maxEta_) return;
   if(debug_) std::cout << "eta passed!!" << std::endl;
   if(debug_) std::cout << "Checking if particle relIso less than required. (" << p.getRelIso() << " < " << maxRelIso_ << ")" << std::endl;
-  if(p.getRelIso() > maxRelIso_) return;
+  if(p.getRelIso() > maxRelIso_ && maxRelIso_>0.) return;
   if(debug_) std::cout << "relIso passed!!" << std::endl;
   if(debug_) std::cout << "Checking if particle type is correct." << std::endl;
   if(p.getType() < reqType_) return;

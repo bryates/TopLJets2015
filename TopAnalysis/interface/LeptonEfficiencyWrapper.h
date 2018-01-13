@@ -11,6 +11,7 @@
 
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
+#include "TopLJets2015/TopAnalysis/interface/Jet.h"
 
 typedef std::pair<float,float> EffCorrection_t;
 
@@ -21,7 +22,7 @@ class LeptonEfficiencyWrapper
   EffCorrection_t getTriggerCorrection(Leptons leptons);
   //EffCorrection_t getTriggerCorrection(std::vector<int> pdgId,std::vector<TLorentzVector> leptons);
   EffCorrection_t getOfflineCorrection(Particle lep, int nvtx);
-  //EffCorrection_t getOfflineCorrection(int pdgId,float pt,float eta, TString runPeriod);
+  EffCorrection_t getOfflineCorrection(pfTrack lep);
   ~LeptonEfficiencyWrapper();  
  private:
   void init(TString era,TString runPeriod);

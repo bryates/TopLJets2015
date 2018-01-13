@@ -1316,7 +1316,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
         if(abs(pf3.pdgId())!=13) continue;
         if(pf3.pt()<3.0) continue; //lep pT > 3 GeV
-        if(pf2.pdgId()*pf3.pdgId() < 0) continue; //K and lep must have same sign
+        if(pf1.pdgId()*pf3.pdgId() > 0) continue; //K and lep must have same sign
         //This currently reads pi and mu ss -> K and mu opposite sign but gives a peak, ss does not!
 
         if(!pf3.trackHighPurity());
@@ -1350,13 +1350,14 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       }
 
       // D*
-      for (unsigned int id3 = 0; id3 < 4; ++id3) {
+      for (unsigned int id3 = 0; id3 < ndau; ++id3) {
 	if(id1 == id3) continue;
 	if(id2 == id3) continue;
 
 	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
 	if(pf2.pdgId()*pf3.pdgId() != -211*211) continue;
         if(!pf3.trackHighPurity());
+        if(pf1.pdgId()*pf3.pdgId() > 0) continue; //K and pi must have opposite sign
 
 	if(fabs(pf3.eta()) > 2.4) continue;
 

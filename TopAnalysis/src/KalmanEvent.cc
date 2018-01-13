@@ -22,8 +22,11 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   nmeson_ = ev_.nmeson;
   vtxProb_ = 0.02;
   chi2_ = 5.; //Same as Elvire's, chi2=5.365 at vtxProb>0.02
-  l3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/l3d_ratio_B.png
-  csv_ = 0.5426;
+  l3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
+                 //D^0 https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/10v20.png
+                 //J/Psi https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/Data/10v20.png
+  csv_ = 0.3;
+  //csv_ = 0.5426;
   //csv_ = 0.8484;
   //buildJets();
   if(nmeson_) buildJets();
@@ -38,6 +41,7 @@ void KalmanEvent::buildJets() {
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
       if(ev_.k_j[ipf] != ij) continue; //skip if PF track doesn't belong to current jet
+      if(ev_.k_pf_eta[ipf]>2.4) continue; // |eta|<2.4
       //if(ev_.k_vtxProb[ipf]<vtxProb_) continue;
       if(ev_.k_chi2[ipf]>chi2_) continue;
       if(debug_) std::cout << "passed chi^2 < " << chi2_ << std::endl; 
@@ -48,9 +52,10 @@ void KalmanEvent::buildJets() {
       if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
+      if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
       TLorentzVector tkP4(0,0,0,0);
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
-      pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf]);
+      pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);
       if(debug_) { std::cout << "pfTrack "; pftk.print(); }
       if(debug_) std::cout << "Kalman jet " << ev_.k_j[ipf] << " with pT=" << ev_.j_pt[ev_.k_j[ipf]] << std::endl;
       tmpj.addTrack(pftk);

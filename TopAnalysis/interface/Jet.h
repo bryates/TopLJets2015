@@ -11,7 +11,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, float dxy, float dxyE, float dz, float dzE, int pfid, int quality, bool highPurity);
   pfTrack(TLorentzVector p4, int pfid);
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
-  pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId);
+  pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -40,10 +40,12 @@ class pfTrack {
   inline float getKalmanMass() { return k_mass_; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
+  inline bool isMuon() { return isMuon_; }
   void setPfid(int pfid);
   void setMass(float mass);
   void setGlobalMuon(bool);
   void setTrackerMuon(bool);
+  void setIsMuon(bool);
   void setGenT(int);
   void print();
 
@@ -65,6 +67,7 @@ class pfTrack {
   bool highPurity_;
   bool globalMuon_;
   bool trackerMuon_;
+  bool isMuon_;
 
 };
 
@@ -89,6 +92,8 @@ class Jet {
   TLorentzVector &getVec();
   float &getCSV();
   float getPt();
+  inline float Pt() { return p4_.Pt(); }
+  inline float P() { return p4_.P(); }
   float &getChargedPt();
   float &getPFPt();
   float getP();

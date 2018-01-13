@@ -46,7 +46,7 @@ class Plot(object):
         self.savelog = False
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
-        if "_jpsi" in name:
+        if "_jpsi" in name: #or "_meson" in name:
             self.ratiorange = (0.47,1.57)
 
     def add(self, h, title, color, isData):
@@ -68,7 +68,8 @@ class Plot(object):
                 self.dataH=h
                 self.dataH.SetDirectory(0)
                 self.dataH.SetMarkerStyle(20)
-                self.dataH.SetMarkerSize(1.4)
+                self.dataH.SetMarkerSize(0.9)
+                #self.dataH.SetMarkerSize(1.4)
                 self.dataH.SetMarkerColor(color)
                 self.dataH.SetLineColor(ROOT.kBlack)
                 self.dataH.SetLineWidth(2)
@@ -503,7 +504,10 @@ def main():
             if opt.puNormSF and not isData:
                 if(opt.run == "BCDEFGH"):
                   puBCDEF = opt.puNormSF.split("_")
-                  puBCDEF[-1] = "BCDEF"
+                  if puBCDEF[-1] in opt.run:
+                      puBCDEF[-1] = "BCDEF"
+                  else:
+                      puBCDEF.append("BCDEF")
                   puBCDEF = "_".join(puBCDEF)
                   try:
                       puCorrHBCDEF=fIn.Get(puBCDEF)
@@ -511,7 +515,10 @@ def main():
                       wgtBCDEF=puCorrHBCDEF.GetBinContent(2)
                   except: pass
                   puGH = opt.puNormSF.split("_")
-                  puGH[-1] = "GH"
+                  if puGH[-1] in opt.run:
+                      puGH[-1] = "GH"
+                  else:
+                      puGH.append("GH")
                   puGH = "_".join(puGH)
                   try:
                       puCorrHGH=fIn.Get(puGH)
@@ -591,6 +598,8 @@ def main():
                     if "meson" in key: under=False
                     if "l3d" in key: over=False
                     if "l3d" in key: under=False
+                    if "mass" in key: over=False
+                    if "mass" in key: under=False
                     if "oJet" in key: over=False
                     fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
                     if opt.rebin>1:  obj.Rebin(opt.rebin)

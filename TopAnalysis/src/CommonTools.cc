@@ -1,5 +1,6 @@
 #include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
 #include "TSystem.h"
+#include "TMatrixDSymEigen.h"
 
 
 //
@@ -271,4 +272,44 @@ std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt)
   res[2] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF+ptSF_err)*(pt-genjpt)))/pt;
   
   return res;
+}
+
+//Sphericity and planarity adapted from Long Wang's tttt code
+std::pair<float,float> Sphericity(std::vector<Jet> parts)
+{
+  if(parts.size() > 0) {
+    double spTensor[3 * 3] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+    int counter = 0;
+    float tensorNorm = 0;//, y1 = 0, y2 = 0, y3 = 0;
+
+    for(size_t tenx = 0; tenx < 3; tenx++) {
+      for(size_t teny = 0; teny < 3; teny++) {
+        for(size_t selpart = 0; selpart < parts.size(); selpart++) {
+          spTensor[counter] += ((parts[selpart].getVec()[tenx]) * (parts[selpart].getVec()[teny]));
+          if(tenx == 0 && teny == 0) {
+              tensorNorm += parts[selpart].getVec().Vect().Mag2();
+          }
+        }
+        if((tenx == 0 && teny == 2) || (tenx == 2 && teny == 1)) {
+        }
+        spTensor[counter] /= tensorNorm;
+        counter++;
+      }
+    }
+    TMatrixDSym m(3, spTensor);
+    TMatrixDSymEigen me(m);
+    TVectorD eigenval = me.GetEigenValues();
+    std::vector<float> eigenVals;
+    eigenVals.push_back(eigenval[0]);
+    eigenVals.push_back(eigenval[1]);
+    eigenVals.push_back(eigenval[2]);
+    sort(eigenVals.begin(), eigenVals.end(), [](float a, float b) { return a < b; } );
+    //std::cout << eigenVals[0] << " " << eigenVals[1] << " " << eigenVals[2] << std::endl;
+    //std::cout << eigenVals[0] + eigenVals[1] + eigenVals[2] << std::endl;
+    float sp = 3.0 * (eigenVals[0] + eigenVals[1]) / 2.0;
+    return std::pair<float,float>(sp,(3.0/2.0) * eigenVals[0]);
+  }
+  else {
+    return std::pair<float,float>(-1.,-1.);
+  }
 }

@@ -5,6 +5,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
+#include "TopLJets2015/TopAnalysis/interface/Jet.h"
 
 #include "TVector2.h"
 #include "TGraph.h"
@@ -29,5 +30,6 @@ struct JetPullInfo_t
   TVector2 pull,chPull;
 };
 JetPullInfo_t getPullVector( MiniEvent_t &ev, int ijet);
+std::pair<float,float> Sphericity(std::vector<Jet> parts);
 
 #endif

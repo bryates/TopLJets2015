@@ -69,7 +69,6 @@ void RunTopSync(TString filename,
   allPlots["nevt_em"]     = new TH1F("nevt_em",";N_{events};Events" ,5,0.,5.);
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
 
-  TString chTag("");
   //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
@@ -84,7 +83,7 @@ void RunTopSync(TString filename,
       //Basic lepton kinematics
       std::vector<int> tightLeptons,vetoLeptons;
       Leptons Muons(Tight,debug);
-      Leptons Electrons(Medium,debug);
+      Leptons Electrons(Tight,debug);
 
       Muons.setMinPt(20);
       Muons.setMaxEta(2.4);
@@ -92,7 +91,7 @@ void RunTopSync(TString filename,
 
       Electrons.setMinPt(20);
       Electrons.setMaxEta(2.4);
-      Electrons.setMaxRelIso(0);
+      Electrons.setMaxRelIso(0.0678);
 
       for(int il=0; il<ev.nl; il++)
 	{
@@ -104,18 +103,17 @@ void RunTopSync(TString filename,
 
       if(debug) cout << "lepton selection DONE" << endl;
       Leptons leptons(Tight,debug);
-      if(chargeSelection==13*13) leptons = Muons;
-      else if(chargeSelection==11*11) leptons = Electrons;
-      else if(chargeSelection==11*13) { leptons.combineLeptons(Muons); leptons.combineLeptons(Electrons); }
-      else;
+      leptons.combineLeptons(Muons);
+      leptons.combineLeptons(Electrons);
       if(debug) cout << "sorting leptons" << endl;
       leptons.sortLeptonsByPt();
       if(leptons.size()<2) continue; // di-lepton events
       int ch = leptons[0].getPdgId()*leptons[1].getPdgId();
       if(ch > 0) continue; // opposite sign only
-      if(ch==-13*13 && ch==-chargeSelection) chTag = "_mm";
-      else if(ch==-11*11 && ch==-chargeSelection) chTag = "_ee";
-      else if(ch==-11*13 && ch==-chargeSelection) chTag = "_em";
+      TString chTag("");
+      if(ch==-13*13) chTag = "_mm";
+      else if(ch==-11*11) chTag = "_ee";
+      else if(ch==-11*13) chTag = "_em";
       else continue;
       if((leptons[0].getVec()+leptons[1].getVec()).M()<20) continue; // mass > 20 GeV
 
@@ -180,8 +178,6 @@ void RunTopSync(TString filename,
   TString selPrefix("");  
   TString selPostfix("");  
   if(flavourSplitting!=NOFLAVOURSPLITTING) selPrefix=Form("%d_",flavourSplitting);
-  if(chargeSelection) outname.ReplaceAll(".root",chTag+".root");
-  cout << selPostfix << endl;
   TString baseName=gSystem->BaseName(outname); 
   TString dirName=gSystem->DirName(outname);
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");

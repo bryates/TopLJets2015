@@ -66,6 +66,15 @@ void CharmTree::SetTopPtWgt(float top_pt_wgt) {
   //ev_.topptwgt = top_pt_wgt_;
 }
 
+void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets) {
+  if(!isGood_) return;
+  ev_.ht = HT;
+  ev_.met = MET;
+  ev_.st = ST;
+  ev_.nlj = lightJets.size();
+  ev_.nvtx = nvtx;
+}
+
 void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name, int event, std::vector<float> frag) {
   if(!isGood_) return;
   //attachToCharmEventTree(t_,ev_);
@@ -157,13 +166,20 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
     ev_.d0_mass[ev_.nmeson] = D0.M();
     ev_.meson_id[ev_.nmeson] = abs(pfCands[0].getMotherId());
-    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13)
+    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
       ev_.meson_id[ev_.nmeson] = 42113;
+      ev_.d0_mu_pt[ev_.nmeson] = pfCands[2].Pt();
+      ev_.d0_mu_eta[ev_.nmeson] = pfCands[2].Eta();
+      ev_.d0_mu_phi[ev_.nmeson] = pfCands[2].Phi();
+    }
     if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
       float mass123 = (D0+pfCands[2].getVec()).M();
       float deltam = mass123 - D0.M();
       if(deltam<0.14 || deltam>0.16) return;
       ev_.ds_mass[ev_.nmeson] = mass123;
+      ev_.ds_pi2_pt[ev_.nmeson] = pfCands[2].Pt();
+      ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
+      ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
     }
     /*
     if(abs(pfCands[0].getMotherId())==42113) {

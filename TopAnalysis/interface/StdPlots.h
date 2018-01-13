@@ -22,10 +22,12 @@ class StdPlots {
   //StdPlots Combine(const StdPlots&);
   friend StdPlots Combine(const StdPlots&, const StdPlots&);
   inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
-  inline float getWgt() { return norm_ * sfs_ * puWgt_ * top_pt_wgt_; };
+  inline float getWgt() { return norm_ * sfs_ * puWgt_ * top_pt_wgt_ * tracker_wgt_; };
   void Fill(Leptons, TString, TString name="");
   void FillGen(std::vector<Particle>, TString, TString name="");
-  void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
+  //void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> kJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
+  void Fill(std::vector<Jet>&, std::vector<Jet>&, std::vector<Jet>&, TString, TString name="");
+  void Fill(Leptons&, std::vector<Jet>&, std::vector<Jet>&, std::vector<Jet>&, TString, TString name="");
   void Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name="");
   void Fill(Double_t weight, Int_t N, Double_t pt, Double_t eta, Double_t phi);
   void Fill(std::vector<pfTrack>&, TString, TString name=""); //e.g. J/Psi plots
@@ -36,6 +38,7 @@ class StdPlots {
   void SetSFs(float);
   void SetPuWgt(float);
   void SetTopPtWgt(float);
+  void SetTrackerWgt(float);
   void Write();
 
  private:
@@ -48,6 +51,7 @@ class StdPlots {
   float sfs_;
   float puWgt_;
   float top_pt_wgt_;
+  float tracker_wgt_;
   //std::vector<float> top_pt_wgt_vec;
 
 };

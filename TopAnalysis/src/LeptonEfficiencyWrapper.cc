@@ -413,6 +413,102 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
 
 }
 
+EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(pfTrack lep)
+{
+  int pdgId = lep.getPdgId();
+  float pt(lep.Pt()), eta(lep.Eta());
+  EffCorrection_t corr(1.0,0.0);
+
+  //update correction from histo, if found
+  TString idstr(abs(pdgId)==11 ? "e" : "m");
+  TString hname(idstr);
+  hname+="_sel";
+  if( lepEffH_.find(hname)!=lepEffH_.end() )
+    {
+      /*
+      //for ID only
+      TH2 *h=lepEffH_[hname];
+      float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
+      float etaForEff;
+      if (minEtaForEff >= 0.) //axis is abseta
+        etaForEff=TMath::Max(TMath::Min(float(fabs(eta)),maxEtaForEff),minEtaForEff);
+      else //axis is signed eta
+        etaForEff=TMath::Max(TMath::Min(float(eta),maxEtaForEff),minEtaForEff);
+      Int_t etaBinForEff=h->GetXaxis()->FindBin(etaForEff);
+
+      float minPtForEff( h->GetYaxis()->GetXmin() ), maxPtForEff( h->GetYaxis()->GetXmax()-0.01 );
+      float ptForEff=TMath::Max(TMath::Min(pt,maxPtForEff),minPtForEff);
+      Int_t ptBinForEff=h->GetYaxis()->FindBin(ptForEff);
+      
+      corr.first=h->GetBinContent(etaBinForEff,ptBinForEff);
+      corr.second=h->GetBinError(etaBinForEff,ptBinForEff);
+      */
+
+      //tracking efficiency (if available)
+      hname=idstr+"_tk_aeta_"+runPeriod_;
+      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+        {
+          if(debug_) std::cout << hname << std::endl;
+          Double_t x(0.),xdiff(9999.),y(0.);
+          float tkEffSF(1.0),tkEffSFUnc(0);
+          for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
+            {
+              lepEffGr_[hname]->GetPoint(ip,x,y);
+              float ixdiff(TMath::Abs(fabs(eta)-x));
+              if(ixdiff>xdiff) continue;
+              xdiff=ixdiff;
+              tkEffSF=y;
+              tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
+            }
+          corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
+          if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
+          corr.first  = corr.first*tkEffSF;
+        }
+      /*
+      hname=idstr+"_tk_vtx_"+runPeriod_;
+      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+        {
+          if(debug_) std::cout << hname << std::endl;
+          Double_t x(0.),xdiff(9999.),y(0.);
+          float tkEffSF(1.0),tkEffSFUnc(0);
+          for(Int_t ip=0; ip<lepEffGr_[hname]->GetN(); ip++)
+            {
+              lepEffGr_[hname]->GetPoint(ip,x,y);
+              float ixdiff(TMath::Abs(fabs(nvtx)-x));
+              if(ixdiff>xdiff) continue;
+              xdiff=ixdiff;
+              tkEffSF=y;
+              tkEffSFUnc=lepEffGr_[hname]->GetErrorY(ip);
+            }
+          corr.second = sqrt(pow(tkEffSFUnc*corr.first,2)+pow(tkEffSF*corr.second,2));
+          if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
+          corr.first  = corr.first*tkEffSF;
+        }
+ 
+      //reco efficiency (if available)
+      hname=idstr+"_reco";
+      if(lepEffH_.find(hname)!=lepEffH_.end() )
+	{
+	  TH2 *h=lepEffH_[hname];
+	  float minEtaForEff( h->GetXaxis()->GetXmin() ), maxEtaForEff( h->GetXaxis()->GetXmax()-0.01 );
+	  float etaForEff=TMath::Max(TMath::Min(float(fabs(eta)),maxEtaForEff),minEtaForEff);
+	  Int_t etaBinForEff=h->GetXaxis()->FindBin(etaForEff);
+	  
+	  float minPtForEff( h->GetYaxis()->GetXmin() ), maxPtForEff( h->GetYaxis()->GetXmax()-0.01 );
+	  float ptForEff=TMath::Max(TMath::Min(pt,maxPtForEff),minPtForEff);
+	  Int_t ptBinForEff=h->GetYaxis()->FindBin(ptForEff);
+	  
+	  corr.second = sqrt(pow(h->GetBinError(etaBinForEff,ptBinForEff)*corr.first,2)+pow(h->GetBinError(etaBinForEff,ptBinForEff)*corr.second,2));
+	  corr.first  = corr.first*h->GetBinContent(etaBinForEff,ptBinForEff);
+	  
+	}
+      */
+    }
+
+  return corr;
+
+}
+
 LeptonEfficiencyWrapper::~LeptonEfficiencyWrapper()
 {
   //for(auto& it : lepEffH_) it.second->Delete();
