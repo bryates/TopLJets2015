@@ -29,6 +29,7 @@ class pfTrack {
   bool highPurity();
   bool globalMuon();
   bool trackerMuon();
+  inline bool isPromoted() { return promoted_; }
   float getDxy();
   float getDxyE();
   float getDz();
@@ -47,6 +48,8 @@ class pfTrack {
   void setTrackerMuon(bool);
   void setIsMuon(bool);
   void setGenT(int);
+  void setMother(int);
+  inline void setPromoted() { promoted_ = true; }
   void print();
 
  private:
@@ -68,6 +71,7 @@ class pfTrack {
   bool globalMuon_;
   bool trackerMuon_;
   bool isMuon_;
+  bool promoted_;
 
 };
 

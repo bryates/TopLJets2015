@@ -46,7 +46,7 @@ class Plot(object):
         self.savelog = False
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
-        if "_jpsi" in name: #or "_meson" in name:
+        if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
 
     def add(self, h, title, color, isData):

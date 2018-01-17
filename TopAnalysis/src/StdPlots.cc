@@ -23,10 +23,11 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   else isGood_ = false;
   debug_ = debug;
   norm_ = 1.;
-  sfs_ = 1.;
+  sfs_.first = 1.; sfs_.second = 0.;
   puWgt_ = 1.;
   top_pt_wgt_ = 1.;
   tracker_wgt_ = 1.;
+  pi_wgt_.first = 1.; pi_wgt_.second = 0.;
 
   if(debug_ && isGood_)
     std::cout << "Initializing run" << runPeriod_ << std::endl;
@@ -342,7 +343,15 @@ void StdPlots::SetNorm(float norm) {
 void StdPlots::SetSFs(float sfs) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting SFs= " << sfs << std::endl;
-  sfs_ = sfs;
+  sfs_.first = sfs;
+  sfs_.second = 0.;
+}
+
+void StdPlots::SetSFs(float sfs, float unc) {
+  if(!isGood_) return;
+  if(debug_) std::cout << "Setting SFs= " << sfs << std::endl;
+  sfs_.first = sfs;
+  sfs_.second = unc;
 }
 
 void StdPlots::SetPuWgt(float puWgt) {
@@ -370,9 +379,23 @@ void StdPlots::SetTrackerWgt(float tracker_wgt) {
   tracker_wgt_ = tracker_wgt;
 }
 
+void StdPlots::SetPiWgt(float pi_wgt, float unc) {
+  if(!isGood_) return;
+  if(debug_) std::cout << "Setting SFs= " << pi_wgt << std::endl;
+  pi_wgt_.first = pi_wgt;
+  pi_wgt_.second = unc;
+}
+
+void StdPlots::CheckRunPeriod(TString runPeriod) {
+  if(runPeriod_.EqualTo(runPeriod))
+    isGood_ = true;
+  else
+    isGood_ = false;
+}
+
 void StdPlots::Fill(double nevt, double nvtx, double HT, double ST, double MET, TString chTag, TString name) {
   if(!isGood_) return;
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling nvtx" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
 
@@ -397,7 +420,7 @@ void StdPlots::Fill(double nevt, double nvtx, double HT, double ST, double MET, 
 
 void StdPlots::FillGen(std::vector<Particle> tops, TString chTag, TString name) {
   if(!isGood_) return;
-  float wgt = norm_ * sfs_ * puWgt_; //No top_pt_wgt_
+  float wgt = norm_ * sfs_.first * puWgt_; //No top_pt_wgt_
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling gen-level top" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
   for(auto& it : tops)
@@ -407,7 +430,7 @@ void StdPlots::FillGen(std::vector<Particle> tops, TString chTag, TString name) 
 void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
   if(!isGood_) return;
   if(debug_) std::cout << "Filling leptons only" << std::endl;
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling lep" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
 
@@ -444,7 +467,7 @@ void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
 void StdPlots::Fill(Leptons &leptons, std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, std::vector<Jet> &allJetsVec, TString chTag, TString name) {
   if(!isGood_) return;
   Fill(lightJetsVec, kJetsVec, allJetsVec, chTag, name);
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
 
@@ -459,7 +482,7 @@ void StdPlots::Fill(Leptons &leptons, std::vector<Jet> &lightJetsVec, std::vecto
 
 void StdPlots::Fill(std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, std::vector<Jet> &allJetsVec, TString chTag, TString name) {
   if(!isGood_) return;
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
 
@@ -523,7 +546,7 @@ void StdPlots::Fill(std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, 
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) {
   if(!isGood_) return;
   if(debug_) std::cout << "Filling meson only" << std::endl;
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
     if(debug_) std::cout << "Filling J/Psi" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
@@ -870,7 +893,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, T
   if(!isGood_) return;
   Fill(pfCands, chTag, name); //Fill meson only plots
   Fill(lep, chTag, name);       //Fill lepton only plots
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   //J/Psi events
   if(name.Contains("jpsi")) {
@@ -1022,7 +1045,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, T
 //Called by Fill(std::vector<pfTrack> pfCands, Leptons lep, Jet jet, TString chTag, TString name)
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TString name) {
   if(!isGood_) return;
-  float wgt = norm_ * sfs_ * puWgt_ * top_pt_wgt_;
+  float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
     if(debug_) std::cout << "Filling J/Psi+jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;

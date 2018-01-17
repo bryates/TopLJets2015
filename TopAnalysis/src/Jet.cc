@@ -37,6 +37,7 @@ void pfTrack::setGlobalMuon(bool globalMuon) { globalMuon_ = globalMuon; }
 void pfTrack::setTrackerMuon(bool trackerMuon) { trackerMuon_ = trackerMuon; }
 void pfTrack::setIsMuon(bool isMuon) { isMuon_ = isMuon; }
 void pfTrack::setGenT(int genT) { genT_ = genT; }
+void pfTrack::setMother(int motherId) { motherId_ = motherId; }
 void pfTrack::print() { std:: cout << "pdgId=" << getPdgId() << " pT=" << Pt() << " eta=" << Eta() << " phi=" << Phi() << " mass=" << M() << std::endl; }
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }

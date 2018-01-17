@@ -22,7 +22,8 @@ class StdPlots {
   //StdPlots Combine(const StdPlots&);
   friend StdPlots Combine(const StdPlots&, const StdPlots&);
   inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
-  inline float getWgt() { return norm_ * sfs_ * puWgt_ * top_pt_wgt_ * tracker_wgt_; };
+  inline float getWgt() { return norm_ * sfs_.first * puWgt_ * top_pt_wgt_ * tracker_wgt_ * pi_wgt_.first; };
+  inline float getUnc() { return sqrt( pow(sfs_.first,2) + pow(pi_wgt_.second,2) ); }//return norm_ * sfs_.first * puWgt_ * top_pt_wgt_ * tracker_wgt_ * pi_wgt_.first; };
   void Fill(Leptons, TString, TString name="");
   void FillGen(std::vector<Particle>, TString, TString name="");
   //void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> kJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
@@ -36,9 +37,12 @@ class StdPlots {
   void Fill(std::vector<pfTrack>&, Leptons, Jet, TString, TString name="");
   void SetNorm(float);
   void SetSFs(float);
+  void SetSFs(float,float);
   void SetPuWgt(float);
   void SetTopPtWgt(float);
   void SetTrackerWgt(float);
+  void SetPiWgt(float,float);
+  void CheckRunPeriod(TString);
   void Write();
 
  private:
@@ -48,10 +52,11 @@ class StdPlots {
   bool debug_;
   bool isGood_;
   float norm_;
-  float sfs_;
+  std::pair <float,float> sfs_;
   float puWgt_;
   float top_pt_wgt_;
   float tracker_wgt_;
+  std::pair <float,float> pi_wgt_;
   //std::vector<float> top_pt_wgt_vec;
 
 };

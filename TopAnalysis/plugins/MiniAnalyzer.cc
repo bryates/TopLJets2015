@@ -384,6 +384,7 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.gpf_eta[ev_.ngpf]    = genIt.eta();
       ev_.gpf_phi[ev_.ngpf]    = genIt.phi();
       ev_.gpf_m[ev_.ngpf]      = genIt.mass();
+      ev_.gpf_mother[ev_.ngpf] = genIt.motherRef()->pdgId();
       ev_.ngpf++;    
     }
 

@@ -59,6 +59,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gpf_id",      ev.gpf_id,     "gpf_id[ngpf]/I");
   t->Branch("gpf_c",       ev.gpf_c,      "gpf_c[ngpf]/I");
   t->Branch("gpf_g",       ev.gpf_g,      "gpf_g[ngpf]/I");
+  t->Branch("gpf_mother",  ev.gpf_mother, "gpf_mother[ngpf]/I");
   t->Branch("gpf_pt",      ev.gpf_pt,     "gpf_pt[ngpf]/F");
   t->Branch("gpf_eta",     ev.gpf_eta,    "gpf_eta[ngpf]/F");
   t->Branch("gpf_phi",     ev.gpf_phi,    "gpf_phi[ngpf]/F");
@@ -141,6 +142,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_jnpf",     ev.pf_jnpf,     "pf_jnpf[npf]/I");
   t->Branch("pf_jnhppf",   ev.pf_jnhppf,   "pf_jnhppf[npf]/I");
   t->Branch("pf_id",       ev.pf_id,       "pf_id[npf]/I");
+  t->Branch("pf_mother",   ev.pf_mother,   "pf_mother[npf]/I");
   t->Branch("pf_fromPV",   ev.pf_fromPV,   "pf_fromPV[npf]/I");
   t->Branch("pf_c",        ev.pf_c,        "pf_c[npf]/I");
   t->Branch("pf_pt",       ev.pf_pt,       "pf_pt[npf]/F");
@@ -242,6 +244,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("gpf_id",      ev.gpf_id);
       t->SetBranchAddress("gpf_c",       ev.gpf_c);
       t->SetBranchAddress("gpf_g",       ev.gpf_g); 
+      t->SetBranchAddress("gpf_mother",  ev.gpf_mother); 
       t->SetBranchAddress("gpf_pt",      ev.gpf_pt);
       t->SetBranchAddress("gpf_eta",     ev.gpf_eta);
       t->SetBranchAddress("gpf_phi",     ev.gpf_phi);
@@ -343,6 +346,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("pf_jnpf",     ev.pf_jnpf);
       t->SetBranchAddress("pf_jnhppf",   ev.pf_jnhppf);
       t->SetBranchAddress("pf_id",       ev.pf_id);
+      t->SetBranchAddress("pf_mother",   ev.pf_mother); 
       t->SetBranchAddress("pf_fromPV",   ev.pf_fromPV);
       t->SetBranchAddress("pf_c",        ev.pf_c);
       t->SetBranchAddress("pf_pt",       ev.pf_pt);

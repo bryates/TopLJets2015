@@ -259,6 +259,11 @@ void RunTopKalman(TString filename,
         norm =  normH ? normH->GetBinContent(1) : 1.0;
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
+
+        //Random run period based on lumi
+        runPeriod = assignRunPeriod(era);
+        runBCDEF.CheckRunPeriod(runPeriod);
+        runGH.CheckRunPeriod(runPeriod);
       }
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);
@@ -537,6 +542,8 @@ void RunTopKalman(TString filename,
 	  //save jet
           //Jet tmpj(jp4, csv, k);
           //Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          //applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
+          //applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
           Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
 	    if(ev.pf_j[ipf] != k) continue; //skip if PF track doesn't belong to current jet
@@ -548,6 +555,10 @@ void RunTopKalman(TString filename,
             if(abs(pftk.getPdgId())==13) {
               pftk.setGlobalMuon(ev.pf_globalMuon[ipf]);
               pftk.setTrackerMuon(ev.pf_trackerMuon[ipf]);
+            }
+            if(abs(pftk.getPdgId())==211 && ev.pf_mother[ipf]!=0) { //Handle promoted GEN particles from pion SFs
+              pftk.setPromoted();
+              pftk.setMother(ev.pf_mother[ipf]);
             }
 	    tmpj.addTrack(pftk); //,ev.pf_id[ipf]);
             /*
@@ -564,7 +575,7 @@ void RunTopKalman(TString filename,
           //if(debug && kalman.isGoodJet(k)) cout << "k=" << k << " jet pT=" << jp4.Pt() << endl;
           //if(kalman.isGoodJet(k)) kJetsVec.push_back(tmpj);
           if(!kalman.isGoodJet(k)) lightJetsVec.push_back(tmpj);
-          if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu
+          if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu)
           allJetsVec.push_back(tmpj);
 	}
       for (int k=0; k<ev.ng;k++) {
@@ -660,10 +671,10 @@ void RunTopKalman(TString filename,
 	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first;
 	    lepSelCorrWgt_GH.first *= selSF_GH.first;
 	  }
-          runBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
-          runGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
-          treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);
-          treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);
+          runBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first,lepSelCorrWgt_BCDEF.second);
+          runGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first,lepSelCorrWgt_GH.second);
+          treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);//,lepSelCorrWgt_BCDEF.second);
+          treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);//,lepSelCorrWgt_GH.second);
           // **
           runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
 	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[0]->GetBinContent(ev.putrue))*norm;
@@ -675,6 +686,21 @@ void RunTopKalman(TString filename,
       else
         if(debug) cout << "weight=" << wgt << " norm=" << norm << endl;
       if(debug) cout << "Lepton scale factors DONE!" << endl;
+
+      if(debug) cout << "Pion scale factors" << endl;
+      std::map<TString, std::map<TString, std::vector<double> > > trackEffMap = getTrackingEfficiencyMap(era);
+      /*
+      if(!ev.isData) {
+        //tracking efficiency
+        if (vSystVar[0] == "tracking") {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap[period][vSystVar[1]], trackEffMap[period]["binning"]);
+        }
+        else {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap[period]["nominal"], trackEffMap[period]["binning"]);
+        }
+      }
+      */
+      if(debug) cout << "Pion scale factors DONE!" << endl;
 
       //sort by Pt
       if(debug) cout << "sorting jets" << endl;
@@ -1184,8 +1210,8 @@ void RunTopKalman(TString filename,
 
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
-            //for(size_t j = i+1; j < piTracks.size(); j++) {
-            for(size_t j = 0; j < piTracks.size(); j++) {
+            for(size_t j = i+1; j < piTracks.size(); j++) {
+            //for(size_t j = 0; j < piTracks.size(); j++) {
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;
@@ -1196,9 +1222,10 @@ void RunTopKalman(TString filename,
               //ensure same Kalman mass (sorting tracks by pT might mess up order in which Kalman masses were saved)
               //if(piTracks[i].getKalmanMass() != piTracks[j].getKalmanMass()) continue;
               //Set mass assmumption
-              piTracks[i].setMass(gMassPi); piTracks[j].setMass(gMassK);
-              //sort(piTracks.begin(), piTracks.end(),
-              //     [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
+              //piTracks[i].setMass(gMassPi); piTracks[j].setMass(gMassK);
+              //Mass already set by Kalman filter
+              sort(piTracks.begin(), piTracks.end(),
+                   [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
               //Check masses from Kalman class
               //if(piTracks[i].M()!=gMassPi) continue;
               //if(piTracks[j].M()!=gMassK) continue;

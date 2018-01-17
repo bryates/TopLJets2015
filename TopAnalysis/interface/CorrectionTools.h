@@ -40,4 +40,10 @@ std::map<BTagEntry::JetFlavor,BTagCalibrationReader *> getBTVcalibrationReaders(
 //the expections are created with the script scripts/saveExpectedBtagEff.py (cf README)
 std::map<BTagEntry::JetFlavor, TGraphAsymmErrors *> readExpectedBtagEff(TString era,TString btagExpPostFix="");
 
+std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficiencyMap(TString era);
+void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas);
+void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta);
+
+TString assignRunPeriod(TString era, TRandom *rand=0);
+
 #endif
