@@ -5,7 +5,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 #include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
 
-StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {  
+StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   runPeriod_ = "_"+runPeriod;
   name_ = name;
   //Check for multiple run periods
@@ -387,7 +387,8 @@ void StdPlots::SetPiWgt(float pi_wgt, float unc) {
 }
 
 void StdPlots::CheckRunPeriod(TString runPeriod) {
-  if(runPeriod_.EqualTo(runPeriod))
+  if(name_.Contains("Data")) return;
+  if(runPeriod_.Contains(runPeriod))
     isGood_ = true;
   else
     isGood_ = false;

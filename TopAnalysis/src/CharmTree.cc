@@ -75,6 +75,11 @@ void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, doubl
   ev_.nvtx = nvtx;
 }
 
+void StdPlots::CheckRunPeriod(TString runPeriod) {
+  if(name_.Contains("Data")) return;
+  runPeriod_ = runPeriod;
+}
+
 void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name, int event, std::vector<float> frag) {
   if(!isGood_) return;
   //attachToCharmEventTree(t_,ev_);

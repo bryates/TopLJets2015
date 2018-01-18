@@ -300,6 +300,6 @@ TString assignRunPeriod(TString era, TRandom *rand) {
     else iLumi++;
   }
 
-  //return runPeriods[iLumi]; //return selected period
-  return iLumi;
+  return runPeriods[iLumi].first; //return selected period
+  //return iLumi;
 }

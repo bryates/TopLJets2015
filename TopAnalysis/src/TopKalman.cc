@@ -261,9 +261,11 @@ void RunTopKalman(TString filename,
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
 
         //Random run period based on lumi
-        runPeriod = assignRunPeriod(era);
-        runBCDEF.CheckRunPeriod(runPeriod);
-        runGH.CheckRunPeriod(runPeriod);
+        /*
+        TString period = assignRunPeriod(era);
+        runBCDEF.CheckRunPeriod(period);
+        runGH.CheckRunPeriod(period);
+        */
       }
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);

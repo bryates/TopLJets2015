@@ -29,6 +29,7 @@ class CharmTree {
   void SetSFs(float);
   void SetPuWgt(float);
   void SetTopPtWgt(float);
+  void CheckRunPeriod(TString);
   void Write();
 
  private:
