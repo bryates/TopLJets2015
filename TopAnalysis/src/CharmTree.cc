@@ -75,7 +75,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, doubl
   ev_.nvtx = nvtx;
 }
 
-void StdPlots::CheckRunPeriod(TString runPeriod) {
+void CharmTree::CheckRunPeriod(TString runPeriod) {
   if(name_.Contains("Data")) return;
   runPeriod_ = runPeriod;
 }

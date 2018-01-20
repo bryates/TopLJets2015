@@ -170,7 +170,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["massD0_e"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_e"+tag+cut+weight+runPeriod_,";M_{K#pi+e};Events / 10 GeV" ,30,0,300);
     allPlots["massD0_l"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_l"+tag+cut+weight+runPeriod_,";M_{K#pi+l};Events / 10 GeV" ,30,0,300);
     allPlots["D0_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["D0_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["D0_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_pt"+tag+cut+weight+runPeriod_,";D^{0} #mu P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_eta"+tag+cut+weight+runPeriod_,";D^{0} K #eta; Events / 0.1", 30, -2.5,2.5);
@@ -187,20 +187,20 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     */
     //loose Ds
     allPlots["D0_fromDsloose_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["D0_fromDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_fromDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["D0_fromDsloose_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_fromDsloose_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_eta"+tag+cut+weight+runPeriod_,";D^{0} K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_fromDsloose_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_pi_phi"+tag+cut+weight+runPeriod_,";D^{0} #pi #phi; Events", 50, -3.14,3.14);
     allPlots["D0_fromDsloose_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDsloose_K_phi"+tag+cut+weight+runPeriod_,";D^{0} K #phi; Events", 50, -3.14,3.14);
     allPlots["Ds_fromDsloose_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_pi_pt"+tag+cut+weight+runPeriod_,";D* #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["Ds_fromDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["Ds_fromDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["Ds_fromDsloose_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_pi_eta"+tag+cut+weight+runPeriod_,";D* #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_fromDsloose_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_K_eta"+tag+cut+weight+runPeriod_,";D* K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_fromDsloose_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_pi_phi"+tag+cut+weight+runPeriod_,";D* #pi #phi; Events", 50, -3.14,3.14);
     allPlots["Ds_fromDsloose_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDsloose_K_phi"+tag+cut+weight+runPeriod_,";D* K #phi; Events", 50, -3.14,3.14);
     //tight D^0
     allPlots["D0_fromDs_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["D0_fromDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_fromDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["D0_fromDs_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_fromDs_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_K_eta"+tag+cut+weight+runPeriod_,";D^{0} K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_fromDs_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_fromDs_pi_phi"+tag+cut+weight+runPeriod_,";D^{0} #pi #phi; Events", 50, -3.14,3.14);
@@ -208,7 +208,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     //tight D*
     allPlots["Ds_fromDs_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_pi_pt"+tag+cut+weight+runPeriod_,";D* #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["Ds_fromDs_pi2_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_pi2_pt"+tag+cut+weight+runPeriod_,";D* #pi_{2} P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["Ds_fromDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["Ds_fromDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["Ds_fromDs_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_pi_eta"+tag+cut+weight+runPeriod_,";D* #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_fromDs_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_K_eta"+tag+cut+weight+runPeriod_,";D* K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_fromDs_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_fromDs_pi_phi"+tag+cut+weight+runPeriod_,";D* #pi #phi; Events", 50, -3.14,3.14);
@@ -244,7 +244,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
 
     allPlots["Ds_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_pi_pt"+tag+cut+weight+runPeriod_,";D* #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["Ds_pi2_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_pi2_pt"+tag+cut+weight+runPeriod_,";D* #pi_{2} P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["Ds_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["Ds_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["Ds_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_pi_eta"+tag+cut+weight+runPeriod_,";D* #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_K_eta"+tag+cut+weight+runPeriod_,";D* K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_pi_phi"+tag+cut+weight+runPeriod_,";D* #pi #phi; Events", 50, -3.14,3.14);
@@ -264,28 +264,28 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["massDs_notDs"+tag+cut+weight+runPeriod_]  = new TH1F("massDs_notDs"+tag+cut+weight+runPeriod_,";M_{D* not from D*-D^{0} peak};Events / 5 MeV" ,40,1.9,2.1);
     allPlots["massDs_notDsloose"+tag+cut+weight+runPeriod_]  = new TH1F("massDs_notDsloose"+tag+cut+weight+runPeriod_,";M_{D* not from D*-D^{0} peak};Events / 5 MeV" ,40,1.9,2.1);
     allPlots["D0_notDsloose_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["D0_notDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_notDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["D0_notDsloose_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_notDsloose_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_K_eta"+tag+cut+weight+runPeriod_,";D^{0} K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_notDsloose_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_pi_phi"+tag+cut+weight+runPeriod_,";D^{0} #pi #phi; Events", 50, -3.14,3.14);
     allPlots["D0_notDsloose_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDsloose_K_phi"+tag+cut+weight+runPeriod_,";D^{0} K #phi; Events", 50, -3.14,3.14);
     allPlots["D0_notDs_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_notDs_pi2_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_pi2_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi_{2} P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["D0_notDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_notDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["D0_notDs_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_pi_eta"+tag+cut+weight+runPeriod_,";D^{0} #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_notDs_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_K_eta"+tag+cut+weight+runPeriod_,";D^{0} K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["D0_notDs_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_pi_phi"+tag+cut+weight+runPeriod_,";D^{0} #pi #phi; Events", 50, -3.14,3.14);
     allPlots["D0_notDs_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_notDs_K_phi"+tag+cut+weight+runPeriod_,";D^{0} K #phi; Events", 50, -3.14,3.14);
 
     allPlots["Ds_notDsloose_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_pi_pt"+tag+cut+weight+runPeriod_,";D* #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["Ds_notDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["Ds_notDsloose_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["Ds_notDsloose_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_pi_eta"+tag+cut+weight+runPeriod_,";D* #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_notDsloose_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_K_eta"+tag+cut+weight+runPeriod_,";D* K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_notDsloose_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_pi_phi"+tag+cut+weight+runPeriod_,";D* #pi #phi; Events", 50, -3.14,3.14);
     allPlots["Ds_notDsloose_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDsloose_K_phi"+tag+cut+weight+runPeriod_,";D* K #phi; Events", 50, -3.14,3.14);
     allPlots["Ds_notDs_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_pi_pt"+tag+cut+weight+runPeriod_,";D* #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["Ds_notDs_pi2_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_pi2_pt"+tag+cut+weight+runPeriod_,";D* #pi_{2} P_{T} [GeV];Events / 1 GeV", 50, 0,50);
-    allPlots["Ds_notDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["Ds_notDs_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_K_pt"+tag+cut+weight+runPeriod_,";D* K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
     allPlots["Ds_notDs_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_pi_eta"+tag+cut+weight+runPeriod_,";D* #pi #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_notDs_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_K_eta"+tag+cut+weight+runPeriod_,";D* K #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["Ds_notDs_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("Ds_notDs_pi_phi"+tag+cut+weight+runPeriod_,";D* #pi #phi; Events", 50, -3.14,3.14);

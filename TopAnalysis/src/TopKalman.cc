@@ -1222,15 +1222,15 @@ void RunTopKalman(TString filename,
               if(piTracks[j].Pt() < 1) continue;
               */
               //ensure same Kalman mass (sorting tracks by pT might mess up order in which Kalman masses were saved)
-              //if(piTracks[i].getKalmanMass() != piTracks[j].getKalmanMass()) continue;
+              if(piTracks[i].getKalmanMass() != piTracks[j].getKalmanMass()) continue;
               //Set mass assmumption
               //piTracks[i].setMass(gMassPi); piTracks[j].setMass(gMassK);
               //Mass already set by Kalman filter
               sort(piTracks.begin(), piTracks.end(),
                    [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
               //Check masses from Kalman class
-              //if(piTracks[i].M()!=gMassPi) continue;
-              //if(piTracks[j].M()!=gMassK) continue;
+              if(piTracks[i].M()!=gMassPi) continue;
+              if(piTracks[j].M()!=gMassK) continue;
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               float mass12t = (piTracks[i].getVec()+piTracks[j].getVec()).Mt();
               if (mass12>1.65 && mass12<2.0) {
