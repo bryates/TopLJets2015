@@ -1223,15 +1223,18 @@ void RunTopKalman(TString filename,
               */
               //ensure same Kalman mass (sorting tracks by pT might mess up order in which Kalman masses were saved)
               if(piTracks[i].getKalmanMass() != piTracks[j].getKalmanMass()) continue;
+              if(((piTracks[i].getKalmanMass() - piTracks[j].getKalmanMass()) / piTracks[i].getKalmanMass()) > 0.01) continue;
               //Set mass assmumption
               //piTracks[i].setMass(gMassPi); piTracks[j].setMass(gMassK);
               //Mass already set by Kalman filter
               sort(piTracks.begin(), piTracks.end(),
                    [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
+              //std::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << (piTracks[i].getKalmanMass() - piTracks[j].getKalmanMass()) / piTracks[i].getKalmanMass() << std::endl;
               //Check masses from Kalman class
               if(piTracks[i].M()!=gMassPi) continue;
               if(piTracks[j].M()!=gMassK) continue;
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
+              //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
               float mass12t = (piTracks[i].getVec()+piTracks[j].getVec()).Mt();
               if (mass12>1.65 && mass12<2.0) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
