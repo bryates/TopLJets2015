@@ -25,7 +25,7 @@ CharmTree::CharmTree(TTree *t, TString runPeriod, TString name, bool debug) {
   else isGood_ = false;
   debug_ = debug;
   norm_ = 1.;
-  sfs_ = 1.;
+  sfs_ = std::pair<float,float>(1.,0.);
   puWgt_ = 1.;
   top_pt_wgt_ = 1.;
   //t_ = t;
@@ -48,6 +48,13 @@ void CharmTree::SetNorm(float norm) {
 void CharmTree::SetSFs(float sfs) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting SFs= " << sfs << std::endl;
+  sfs_.first = sfs;
+  //ev_.sfs = sfs_;
+}
+
+void CharmTree::SetSFs(std::pair<float,float> sfs) {
+  if(!isGood_) return;
+  if(debug_) std::cout << "Setting SFs= " << sfs.first << std::endl;
   sfs_ = sfs;
   //ev_.sfs = sfs_;
 }
@@ -103,7 +110,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.norm = norm_;
     ev_.puwgt[ev_.nmeson] = puWgt_;
     ev_.topptwgt = top_pt_wgt_;
-    ev_.sfs[ev_.nmeson] = sfs_;
+    ev_.sfs[ev_.nmeson] = sfs_.first;
+    ev_.sfsu[ev_.nmeson] = sfs_.second;
 
     ev_.peterson[ev_.nj] = frag[0];
     ev_.up[ev_.nj] = frag[1];
@@ -203,7 +211,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.norm = norm_;
     ev_.puwgt[ev_.nmeson] = puWgt_;
     ev_.topptwgt = top_pt_wgt_;
-    ev_.sfs[ev_.nmeson] = sfs_;
+    ev_.sfs[ev_.nmeson] = sfs_.first;
+    ev_.sfsu[ev_.nmeson] = sfs_.second;
 
     ev_.peterson[ev_.nj] = frag[0];
     ev_.up[ev_.nj] = frag[1];

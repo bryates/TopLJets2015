@@ -15,7 +15,7 @@ class CharmTree {
  public:
   CharmTree(TTree *t, TString, TString, bool debug=false);
   ~CharmTree();
-  inline float getWgt() { return norm_ * sfs_ * puWgt_ * top_pt_wgt_; };
+  inline float getWgt() { return norm_ * sfs_.first * puWgt_ * top_pt_wgt_; };
   void Fill(Leptons, TString, TString name="");
   void FillGen(std::vector<Particle>, TString, TString name="");
   void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
@@ -27,6 +27,7 @@ class CharmTree {
   void Fill(CharmEvent_t &ev_, std::vector<pfTrack>&, Leptons, Jet, TString, TString name="", int event=0, std::vector<float> frag={1.,1.,1.,1.});
   void SetNorm(float);
   void SetSFs(float);
+  void SetSFs(std::pair<float,float>);
   void SetPuWgt(float);
   void SetTopPtWgt(float);
   void CheckRunPeriod(TString);
@@ -39,7 +40,7 @@ class CharmTree {
   bool debug_;
   bool isGood_;
   float norm_;
-  float sfs_;
+  std::pair <float,float> sfs_;
   float puWgt_;
   float top_pt_wgt_;
   //CharmEvent_t ev_;

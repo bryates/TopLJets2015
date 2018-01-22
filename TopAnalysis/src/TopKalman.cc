@@ -261,11 +261,9 @@ void RunTopKalman(TString filename,
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
 
         //Random run period based on lumi
-        /*
         TString period = assignRunPeriod(era);
         runBCDEF.CheckRunPeriod(period);
         runGH.CheckRunPeriod(period);
-        */
       }
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);
@@ -306,6 +304,7 @@ void RunTopKalman(TString filename,
       }
 
       allPlots["nevt_all"]->Fill(1,norm);
+      allPlots["nevt_all_no_weight"]->Fill(1);
       allPlots["norm_all"]->Fill(norm,norm);
       allPlots["nvtx_all"]->Fill(ev.nvtx,norm);
 
@@ -690,7 +689,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Lepton scale factors DONE!" << endl;
 
       if(debug) cout << "Pion scale factors" << endl;
-      std::map<TString, std::map<TString, std::vector<double> > > trackEffMap = getTrackingEfficiencyMap(era);
+      //std::map<TString, std::map<TString, std::vector<double> > > trackEffMap = getTrackingEfficiencyMap(era);
       /*
       if(!ev.isData) {
         //tracking efficiency
@@ -964,6 +963,14 @@ void RunTopKalman(TString filename,
 
       //Require b-tagged and light jets
       if(!minJets) continue;
+
+      //******************************
+      //Pion tracker SFs
+      /*
+      std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
+      applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
+      */
+      //******************************
 
       pmt = TLorentzVector();
       for(auto &it : allJetsVec)
@@ -1383,6 +1390,7 @@ void RunTopKalman(TString filename,
               }
               //Use full jet to find third pi
               //if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
+              /*
               for(auto &kjet : allKJetsVec) {
                 if(kjet.getJetIndex() != jet.getJetIndex()) continue;
                 for(auto &track : kjet.getTracks()) {
@@ -1408,12 +1416,13 @@ void RunTopKalman(TString filename,
                   treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 }
               } //end D*
+              */
               /*
-              if(piTracks.size()<3) continue;
               for(size_t k = 0; k < piTracks.size(); k++) {
                 if(i==k) continue;
                 if(j==k) continue;
                 if(abs(piTracks[k].getMotherId())!=413) continue;
+                if(piTracks[j].getKalmanMass() != piTracks[k].getKalmanMass()) continue;
                 if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
                 //if(abs(piTracks[0].getMotherId())!=413 || piTracks.size()<3) continue;
                 if( piTracks[j].charge() == piTracks[k].charge() ) continue;
@@ -1429,6 +1438,23 @@ void RunTopKalman(TString filename,
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
               } //end D*
               */
+              if(piTracks.size()<3) continue;
+              for(auto &track : piTracks) {
+                if(abs(track.getMotherId())!=413) continue;
+                if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
+                if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
+                if( piTracks[j].charge() == track.charge() ) continue;
+                  // Kaon and pion have opposite charges
+                  // I.e. correct mass assumption
+                track.setMass(gMassPi);
+                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+              } //end D*
             } //end D^0 j
           } //end D^0 i
           evch.nj++;

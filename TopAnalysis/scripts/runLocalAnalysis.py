@@ -183,7 +183,7 @@ def main():
             pool.map(RunMethodPacked, task_list)
     else:
         queue = opt.queue
-        if queue is "8nh": queue = "longlunch"
+        if "8nh" in queue: queue = "longlunch"
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),queue)
         for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug in task_list:
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)

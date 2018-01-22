@@ -76,6 +76,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("epoch" ,        ev.epoch,        "epoch[nmeson]/I");
   t->Branch("puwgt",         ev.puwgt,        "puwgt[nmeson]/F");
   t->Branch("sfs",           ev.sfs,          "sfs[nmeson]/F");
+  t->Branch("sfsu",          ev.sfsu,         "sfsu[nmeson]/F");
 
   t->Branch("jpsi_mass",    ev.jpsi_mass,     "jpsi_mass[nmeson]/F");
   t->Branch("jpsi_pt",      ev.jpsi_pt,       "jpsi_pt[nmeson]/F");
@@ -150,6 +151,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("puwgt",      ev.puwgt);
   t->SetBranchAddress("topptwgt",  &ev.topptwgt);
   t->SetBranchAddress("sfs",        ev.sfs);
+  t->SetBranchAddress("sfsu",       ev.sfsu);
 
   //generator level event
   t->SetBranchAddress("ttbar_nw",      &ev.ttbar_nw);
