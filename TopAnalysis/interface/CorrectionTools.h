@@ -44,6 +44,8 @@ std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficienc
 void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas);
 void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta);
 
-TString assignRunPeriod(TString era, TRandom *rand=0);
+typedef std::pair<TString,float> RunPeriod_t;
+std::vector<RunPeriod_t> getRunPeriods(TString era);
+TString assignRunPeriod(std::vector<RunPeriod_t> &runPeriods, TRandom *rand=0);
 
 #endif

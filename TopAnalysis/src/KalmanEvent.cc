@@ -52,7 +52,7 @@ void KalmanEvent::buildJets() {
       if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
-      if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
+      //if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
       TLorentzVector tkP4(0,0,0,0);
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);

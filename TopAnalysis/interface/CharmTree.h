@@ -26,8 +26,7 @@ class CharmTree {
   void Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets);
   void Fill(CharmEvent_t &ev_, std::vector<pfTrack>&, Leptons, Jet, TString, TString name="", int event=0, std::vector<float> frag={1.,1.,1.,1.});
   void SetNorm(float);
-  void SetSFs(float);
-  void SetSFs(std::pair<float,float>);
+  void SetSFs(float, float unc=0.);
   void SetPuWgt(float);
   void SetTopPtWgt(float);
   void CheckRunPeriod(TString);

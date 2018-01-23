@@ -45,17 +45,11 @@ void CharmTree::SetNorm(float norm) {
   //ev_.norm = norm_;
 }
 
-void CharmTree::SetSFs(float sfs) {
+void CharmTree::SetSFs(float sfs, float unc) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting SFs= " << sfs << std::endl;
   sfs_.first = sfs;
-  //ev_.sfs = sfs_;
-}
-
-void CharmTree::SetSFs(std::pair<float,float> sfs) {
-  if(!isGood_) return;
-  if(debug_) std::cout << "Setting SFs= " << sfs.first << std::endl;
-  sfs_ = sfs;
+  sfs_.second= unc;
   //ev_.sfs = sfs_;
 }
 

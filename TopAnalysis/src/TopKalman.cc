@@ -247,6 +247,12 @@ void RunTopKalman(TString filename,
   for (auto& it : allPlots)   { it.second->Sumw2(); it.second->SetDirectory(0); }
   //for (auto& it : all2dPlots) { it.second->Sumw2(); it.second->SetDirectory(0); }
 
+  //GET LUMI INFO
+  std::vector<RunPeriod_t> runPeriods = getRunPeriods(era);
+  float totalLumi(0.);
+  for(auto &it : runPeriods)
+    totalLumi += it.second;
+
   //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
@@ -261,9 +267,18 @@ void RunTopKalman(TString filename,
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
 
         //Random run period based on lumi
-        TString period = assignRunPeriod(era);
+        /*
+        TString period = assignRunPeriod(runPeriods);
         runBCDEF.CheckRunPeriod(period);
         runGH.CheckRunPeriod(period);
+        */
+        //Scale wgt to run period's portion of total lumi
+        /*
+        for(auto &it : runPeriods) {
+          if(it.first != period) continue;
+          norm *= totalLumi/it.second;
+        }
+        */
       }
       runBCDEF.SetNorm(norm);
       runGH.SetNorm(norm);
@@ -364,7 +379,7 @@ void RunTopKalman(TString filename,
 	  allPlots["lp_pt_veto_m"]->Fill(Muons.getElement(0).Pt(),norm);
       }
       if(Electrons.size() == 1) {
-        Electrons.changeMinPt(30);
+        Electrons.changeMinPt(35);
         Electrons.changeParticleType(Tight); //TightNoIso -> Tight
       }
       if(Electrons.size() == 1) {
@@ -677,7 +692,6 @@ void RunTopKalman(TString filename,
           treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);//,lepSelCorrWgt_BCDEF.second);
           treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);//,lepSelCorrWgt_GH.second);
           // **
-          runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
 	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[0]->GetBinContent(ev.putrue))*norm;
 
           if(debug) cout << "weight=" << wgt << endl;
@@ -1856,6 +1870,10 @@ void RunTopKalman(TString filename,
     it.second->SetDirectory(fOut); it.second->Write(); 
     //fOut->cd();
   }
+  //restore run period for writing
+  runBCDEF.CheckRunPeriod("BCDEF");
+  runGH.CheckRunPeriod("GH");
+  
   runBCDEF.Write();
   runGH.Write();
   if(debug) cout << "writing histograms DONE" << endl;

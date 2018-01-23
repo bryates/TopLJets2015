@@ -280,13 +280,17 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
   delete random;
 }
 
-TString assignRunPeriod(TString era, TRandom *rand) {
+std::vector<RunPeriod_t> getRunPeriods(TString era) {
   std::vector<std::pair<TString,float>> runPeriods;
   if(era.Contains("era2016")) {
     runPeriods.push_back(std::pair<TString,float>("BCDEF", 19712.86));
     runPeriods.push_back(std::pair<TString,float>("GH",    16146.178));
   }
 
+  return runPeriods;
+}
+
+TString assignRunPeriod(std::vector<RunPeriod_t> &runPeriods, TRandom *rand) {
   float totalLumi(0.);
   for(auto periodLumi : runPeriods) totalLumi += periodLumi.second;
 
