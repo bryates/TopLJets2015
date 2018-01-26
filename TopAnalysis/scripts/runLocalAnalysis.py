@@ -148,10 +148,11 @@ def main():
             condorFile.write('Should_Transfer_Files = NO\n')
             condorFile.write('queue %d' % (len(input_list)-ext_len))
             condorFile.close()
-            #os.system('condor_submit %s -batch-name %s' % (target,tag))
+            os.system('condor_submit %s -batch-name %s' % (target,tag))
             os.system('rm %s' % (tag))
             ############### Special case for ext samples ###############
-            if "WJets" in tag:
+            #if "WJets" in tag:
+            if ext_len>0:
               target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag+"_ext")
               condorFile = open(target,'w')
               condorFile.write('universe              = vanilla\n')
@@ -165,7 +166,7 @@ def main():
               condorFile.write('Should_Transfer_Files = NO\n')
               condorFile.write('queue %d' % ext_len)
               condorFile.close()
-              #os.system('condor_submit %s -batch-name %s' % (target,tag+"_ext"))
+              os.system('condor_submit %s -batch-name %s' % (target,tag+"_ext"))
               os.system('rm %s' % (tag+"_ext"))
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
@@ -190,8 +191,8 @@ def main():
             if debug : localrun += ' --verbose %s' % (debug)
             if runSysts : localRun += ' --runSysts'            
             ############### Now using condor instead of LSF (bsub) ###############
-            cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
-            os.system(cmd)
+            #cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
+            #os.system(cmd)
 
 """
 for execution from another script

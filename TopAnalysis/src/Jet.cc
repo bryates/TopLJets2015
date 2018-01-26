@@ -11,7 +11,7 @@ pfTrack::pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, floa
 pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }
 int pfTrack::getMotherId() { return motherId_; }
-int pfTrack::charge() { return pfid_ / abs(pfid_); }
+int pfTrack::charge() { return (pfid_ > 10 && pfid_ < 20) ? -1 : 1 * pfid_ / abs(pfid_); } //NEGATIVE leptons have the POSITIVE PDGID
 int pfTrack::getQuality() { return quality_; }
 int pfTrack::getGenT() { return genT_; }
 bool pfTrack::highPurity() { return highPurity_; }

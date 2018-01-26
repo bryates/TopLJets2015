@@ -614,7 +614,8 @@ void RunTopKalman(TString filename,
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
-      if(htsum<160) continue;
+      if(htsum<180) continue;
+      //if(htsum<160) continue;
       //if(allJetsVec[0].getVec().Pt()<50) continue;
       stsum += htsum;
 
@@ -1364,6 +1365,7 @@ void RunTopKalman(TString filename,
                   //if(track.Pt() < 3.0) continue;
                   if(debug) cout << "third lepton found" << endl;
                   //if(piTracks[j].charge()*track.charge()>0) continue; //FIXME should be <0 but that gives background only
+                  //PDGID 13 is NEGATIVE mu
                   //Kaon and lepton have same charge (e.g. b^-1/3 -> c^+2/3 W^- -> c^+2/3 l^- nubar)
                   //correct mass assumption
                   if(debug) cout << "correct mass assumption" << endl;

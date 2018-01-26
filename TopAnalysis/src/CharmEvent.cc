@@ -18,9 +18,9 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
 
   //reco level event
   t->Branch("nvtx",      &ev.nvtx,      "nvtx/I");
-  t->Branch("HT",           &ev.ht,           "HT/F");
+  t->Branch("HT",           &ev.ht,           "H_{T}/F");
   t->Branch("MET",          &ev.met,          "MET/F");
-  t->Branch("ST",           &ev.st,           "ST/F");
+  t->Branch("ST",           &ev.st,           "S_{T}/F");
   t->Branch("nlj",          &ev.nlj,          "nlj/I");
 
   t->Branch("nleptons",  &ev.nleptons, "nleptons/I");

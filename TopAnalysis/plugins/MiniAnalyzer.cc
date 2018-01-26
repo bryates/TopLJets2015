@@ -1029,6 +1029,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
       
       // correct charge combination and not muons
+      if(abs(pf1.pdgId()) != 13) continue;
+      if(abs(pf2.pdgId()) != 13) continue;
       if(pf1.pdgId()*pf2.pdgId() != -13*13) continue;
       
       if(pf1.pt() <3.0 || pf2.pt()<3.0) continue;
@@ -1179,6 +1181,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
 
       // correct charge combination and not muons
+      if(abs(pf1.pdgId()) != 211) continue;
+      if(abs(pf2.pdgId()) != 211) continue;
       if(pf1.pdgId()*pf2.pdgId() != -211*211) continue;
       
       if(pf1.pt()<1.0 || pf2.pt()<5.0) continue; //K pT > 1 GeV, pi pT > 5 GeV
@@ -1318,7 +1322,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
         if(abs(pf3.pdgId())!=13) continue;
         if(pf3.pt()<3.0) continue; //lep pT > 3 GeV
         if(pf1.pdgId()*pf3.pdgId() > 0) continue; //K and lep must have same sign
-        //This currently reads pi and mu ss -> K and mu opposite sign but gives a peak, ss does not!
+        //mu^- is POSITVE 13, PDGID and charge are flipped for leptons
 
         if(!pf3.trackHighPurity());
         if(!pf3.isTrackerMuon() && !pf3.isGlobalMuon()) continue;
@@ -1356,7 +1360,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 	if(id2 == id3) continue;
 
 	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
-	if(pf2.pdgId()*pf3.pdgId() != -211*211) continue;
+        if(abs(pf3.pdgId()) != 211) continue;
         if(!pf3.trackHighPurity());
         if(pf1.pdgId()*pf3.pdgId() > 0) continue; //K and pi must have opposite sign
 
@@ -1374,10 +1378,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 	    
         //pf3
         ev_.k_j[ev_.nkpf]=ev_.nj;
-        ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
-        ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
-        ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
-        ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
+        ev_.k_pf_id[ev_.nkpf]=pf3.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf3.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf3.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf3.phi();
         ev_.k_pf_m[ev_.nkpf]=gMassPi;
         ev_.k_id[ev_.nkpf]=413;
         ev_.k_mass[ev_.nkpf]=mass123;

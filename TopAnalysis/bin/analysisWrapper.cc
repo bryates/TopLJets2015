@@ -32,7 +32,7 @@ void printHelp()
 int main(int argc, char* argv[])
 {
   //get input arguments
-  TString in(""),out(""),era(""),runPeriod("BCDEF"),normTag(""),method("");
+  TString in(""),out(""),era(""),runPeriod("BCDEF"),normTag(""),method(""),weight("genweights.root");
   bool runSysts(false),verbose(false);
   int channel(0),charge(0),flav(0);
   for(int i=1;i<argc;i++){
@@ -53,7 +53,8 @@ int main(int argc, char* argv[])
 
   //open normalization file
   TH1F *normH=0;
-  TString normUrl(era+"/genweights.root");
+  TString normUrl(era+"/"+weight);
+  //TString normUrl(era+"/genweights.root");
   if(TString(normTag).Contains("MC13TeV_TTJets_m1")) normUrl.ReplaceAll("genweights","genweights_mass");
   gSystem->ExpandPathName(normUrl);
   TFile *normF=TFile::Open(normUrl);
