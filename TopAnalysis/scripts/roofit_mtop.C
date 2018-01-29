@@ -406,8 +406,8 @@ void roofit_mtop(std::vector<float> &names,
   mean->GetYaxis()->SetRangeUser(64,82);
   sigma->GetYaxis()->SetRangeUser(10,30);
   alpha->GetYaxis()->SetRangeUser(0.3,0.6);
-  gamma->GetYaxis()->SetRangeUser(1,5);
-  beta->GetYaxis()->SetRangeUser(25,50);
+  gamma->GetYaxis()->SetRangeUser(1,3);
+  beta->GetYaxis()->SetRangeUser(40,50);
   mu->GetYaxis()->SetRangeUser(6,20);
   /*
   int lbin = mean->FindFirstBinAbove(0);

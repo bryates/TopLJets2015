@@ -41,6 +41,7 @@ class Plot(object):
         #self.mc = {}
         self.dataH = None
         self.data = None
+        self.totalMCUnc = None
         self._garbageList = []
         self.plotformats = ['pdf','png']
         self.savelog = False
@@ -181,6 +182,7 @@ class Plot(object):
                 else:
                     refH.SetLineWidth(2)
 
+            if 'FSR' in h: continue
             leg.AddEntry(self.mc[h], self.mc[h].GetTitle(), 'f')
             nlegCols += 1
         if nlegCols ==0 :
@@ -192,6 +194,8 @@ class Plot(object):
 
         # Build the stack to plot from all backgrounds
         totalMC = None
+        nominalTTbar=None
+        totalMCUnc=None
         stack = ROOT.THStack('mc','mc')
         for h in self.mc:
 
@@ -199,6 +203,7 @@ class Plot(object):
                 self.mc[h].SetFillStyle(0)
                 self.mc[h].SetLineColor(self.mc[h].GetFillColor())
                 
+            if 'FSR' in h: continue
             stack.Add(self.mc[h],'hist')
             
             try:
@@ -207,6 +212,42 @@ class Plot(object):
                 totalMC = self.mc[h].Clone('totalmc')
                 self._garbageList.append(totalMC)
                 totalMC.SetDirectory(0)
+        for h in self.mc:
+            if 't#bar{t}' not in h: continue
+            if h=='t#bar{t}':
+                nominalTTbar = self.mc[h].Clone('nomttbar')
+                self._garbageList.append(nominalTTbar)
+                nominalTTbar.SetDirectory(0)
+
+        nominalIntegral = 1.
+        if nominalTTbar:
+            nominalIntegral = nominalTTbar.Integral()
+            for hname in self.mc:
+                if 'FSR' not in hname: continue
+                self.mc[hname].Scale(nominalIntegral/self.mc[hname].Integral())
+        if totalMC and nominalTTbar:# and 'FSR' in h:
+            systUp=[0.]
+            systDown=[0.]
+            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                systUp.append(0.)
+                systDown.append(0.)
+                for hname in self.mc:
+                    if 'FSR' not in hname: continue
+                    diff = self.mc[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    if (diff > 0):
+                        systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
+                    else:
+                        systDown[xbin] = math.sqrt(systDown[xbin]**2 + diff**2)
+            totalMCUnc = totalMC.Clone('totalmcunc')
+            self._garbageList.append(totalMCUnc)
+            totalMCUnc.SetDirectory(0)
+            totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            ROOT.gStyle.SetHatchesLineWidth(1)
+            totalMCUnc.SetFillStyle(3254)
+            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
+                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
+            self.totalMCUnc = totalMCUnc
 
         #test for null plots
         if totalMC :
@@ -243,7 +284,10 @@ class Plot(object):
         frame.Draw()
         if totalMC is not None   : 
             if noStack: stack.Draw('nostack same')
-            else      : stack.Draw('hist same')
+            else      : 
+               stack.Draw('hist same')
+               if totalMCUnc: self.totalMCUnc.Draw("e2 same")
+               leg.AddEntry(totalMCUnc, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
 
 
@@ -284,13 +328,34 @@ class Plot(object):
             ratioframe.GetXaxis().SetLabelSize(0.15)
             ratioframe.GetXaxis().SetTitleSize(0.2)
             ratioframe.GetXaxis().SetTitleOffset(0.8)
+            ratioframeshape=ratioframe.Clone('ratioframeshape')
+            self._garbageList.append(ratioframeshape)
+            ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
+            for xbin in xrange(1,totalMC.GetNbinsX()+1):
+                val=totalMC.GetBinContent(xbin)
+                unc=totalMC.GetBinError(xbin)
+                if val>0:
+                    totalUnc=ROOT.TMath.Sqrt((unc/val)**2)# + unc**2)
+                    ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
+                    ratioframeshape.SetBinError(xbin,totalUnc)
+
+
             ratioframe.Draw()
+            ratioframeshape.Draw("e2 same")
 
             try:
                 ratio=self.dataH.Clone('ratio')
                 ratio.SetDirectory(0)
                 self._garbageList.append(ratio)
-                ratio.Divide(totalMC)
+                #ratio.Divide(totalMC)
+                for xbin in xrange(1,ratio.GetNbinsX()+1):
+                    if totalMC.GetBinContent(xbin) > 0.:
+                        ratio.SetBinError(xbin, ratio.GetBinError(xbin)/totalMC.GetBinContent(xbin))
+                        ratio.SetBinContent(xbin, ratio.GetBinContent(xbin)/totalMC.GetBinContent(xbin))
+                    else:
+                        ratio.SetBinError  (xbin, 0.)
+                        ratio.SetBinContent(xbin, 0.)
                 gr=ROOT.TGraphAsymmErrors(ratio)
                 gr.SetMarkerStyle(self.data.GetMarkerStyle())
                 gr.SetMarkerSize(self.data.GetMarkerSize())
@@ -591,6 +656,7 @@ def main():
                         if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
                         elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
                         lumi=lumiList[lumi]
+                        #if("TTJets" in tag): lumi=lumi*0.733417
                         obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
                     over=True
                     under=True

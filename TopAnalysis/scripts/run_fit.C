@@ -70,7 +70,8 @@
     std::cout << it << " GeV -> RooFit mass: " << mfits[&it - &names[0]].first
               << " GeV Calibration line mass: " << calibm << " GeV ("  << deltam << " GeV) +/-" << abs(deltam_unc) << " GeV " << deltag << " GeV" << std::endl;
   }
-  avg_delta /= ndelta;
+  //avg_delta /= ndelta;
+  avg_delta /= names.size();
   //avg_delta = sqrt(avg_delta);
   avg_deltag /= names.size();
   //avg_deltag = sqrt(avg_deltag);

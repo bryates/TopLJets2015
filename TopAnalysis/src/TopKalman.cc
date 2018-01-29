@@ -1168,13 +1168,14 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
-          vector<pfTrack> piTracks,muTracks;
+          vector<pfTrack> piTracks,muTracks,piSoftTracks;
           size_t tmax = 4;
           tmax = jet.getTracks().size() >= tmax ? tmax : jet.getTracks().size();
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
+            if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue; //save soft pions separately
+            if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211 && piSoftTracks.size()<tmax)) piSoftTracks.push_back(track);
             if((size_t)(&track - &jet.getTracks()[0]) >= tmax) break;
-            if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
             if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << track.Pt() << " " << track.Eta() << " " << track.Phi() <<  " " << ev.k_mass[0] << endl; }
@@ -1377,93 +1378,18 @@ void RunTopKalman(TString filename,
                   treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                   treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 }
-                /*
-                for(size_t k = 0; k < muTracks.size(); k++) {
-                  if(abs(muTracks[k].getMotherId())!=42113) continue;
-                  if(muTracks[k].M()!=gMassK) continue;
-                  if(piTracks[i].getKalmanMass() != muTracks[k].getKalmanMass()) continue;
-                  if(!muTracks[k].highPurity()) continue; //only use high purity tracks FIXME
-                  if(!muTracks[k].trackerMuon() && !muTracks[k].globalMuon()) continue;
-                  if(muTracks[k].Pt() < 3.0) continue;
-                  if(debug) cout << "third lepton found" << endl;
-
-                  if(piTracks[j].charge() == -muTracks[k].charge()) {
-                    //Kaon and lepton have same charge (e.g. b^- -> c^+ W^- -> c^+ l^- nubar)
-                    //correct mass assumption
-                    if(debug) cout << "correct mass assumption" << endl;
-
-                    std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
-                    tmp_cands.push_back(muTracks[k]);
-                    runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                    runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                    treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                    treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                    treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                    treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                  }
-                }
-                */
               }
-              //Use full jet to find third pi
-              //if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
-              /*
-              for(auto &kjet : allKJetsVec) {
-                if(kjet.getJetIndex() != jet.getJetIndex()) continue;
-                for(auto &track : kjet.getTracks()) {
-                  if(abs(track.getPdgId())!=211) continue;
-                  if(!track.highPurity()) continue; //only use high purity tracks FIXME
-                  //track.setMass(gMassPi);
-                  if(track.M()!=gMassPi) continue;
-                  if(track.getVec().DeltaR(piTracks[i].getVec())<0.01) continue;// && (track.Pt()-piTracks[i].Pt()/track.Pt())<0.10) continue;
-                  if(track.getVec().DeltaR(piTracks[j].getVec())<0.01) continue;// && (track.Pt()-piTracks[j].Pt()/track.Pt())<0.10) continue;
-                  //if(track.Pt() < 3.0) continue;
-                  // Kaon and pion have opposite charges
-                  // I.e. correct mass assumption
-                  if(piTracks[j].charge()*track.charge()>0) continue;
-                  //float dmass = (piTracks[i].getVec()+piTracks[j].getVec()+track.getVec()).M() - mass12;
-                  //if(dmass<0.14 || dmass>0.16) continue;
-                  std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
-                  tmp_cands.push_back(track);
-                  runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                  runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                  treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                  treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                }
-              } //end D*
-              */
-              /*
-              for(size_t k = 0; k < piTracks.size(); k++) {
-                if(i==k) continue;
-                if(j==k) continue;
-                if(abs(piTracks[k].getMotherId())!=413) continue;
-                if(piTracks[j].getKalmanMass() != piTracks[k].getKalmanMass()) continue;
-                if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
-                //if(abs(piTracks[0].getMotherId())!=413 || piTracks.size()<3) continue;
-                if( piTracks[j].charge() == piTracks[k].charge() ) continue;
-                  // Kaon and pion have opposite charges
-                  // I.e. correct mass assumption
-                piTracks[k].setMass(gMassPi);
-                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],piTracks[k] };
-                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-              } //end D*
-              */
-              if(piTracks.size()<3) continue;
-              for(auto &track : piTracks) {
+              if(piSoftTracks.size()<3) continue;
+              for(auto &track : piSoftTracks) {
                 if(abs(track.getMotherId())!=413) continue;
-                if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
+                if(piSoftTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
+                cout << track.getKalmanMass() - mass12 << endl;
                 if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
-                if( piTracks[j].charge() == track.charge() ) continue;
+                if( piSoftTracks[j].charge() == track.charge() ) continue;
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
                 track.setMass(gMassPi);
-                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                std::vector<pfTrack> tmp_cands = { piSoftTracks[i],piSoftTracks[j],track };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
