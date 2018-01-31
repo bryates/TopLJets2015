@@ -1,5 +1,6 @@
 {
-  std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
+  //std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
+  std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
   std::vector<pair<float,float>> mfits = {};
   std::vector<pair<float,float>> fit_par;
   std::vector<pair<float,float>> fit_err;

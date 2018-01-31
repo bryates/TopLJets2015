@@ -43,7 +43,10 @@ lumi=`jq -r '.Data13TeV_SingleMuon["'$RUN'"]' ${lumiFile}`
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}
 outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016
-wwwdir=~/www/Top2016/2016
+subdir='/test'
+if [ -z $4 ]; then
+    subdir=$4
+wwwdir=~/www/Top2016/2016/subdir
 
 
 RED='\e[31m'
@@ -76,13 +79,13 @@ case $WHAT in
 	mkdir -p ${outdir}/plots/${RUN}/em
 	mkdir -p ${outdir}/plots/${RUN}/mumu
 	mkdir -p ${outdir}/plots/${RUN}/mu
-	mkdir -p ${wwwdir}/test/${RUN}
-	mkdir -p ${wwwdir}/test/${RUN}/log
-	mkdir -p ${wwwdir}/test/${RUN}/ee
-	mkdir -p ${wwwdir}/test/${RUN}/e
-	mkdir -p ${wwwdir}/test/${RUN}/em
-	mkdir -p ${wwwdir}/test/${RUN}/mumu
-	mkdir -p ${wwwdir}/test/${RUN}/mu
+	mkdir -p ${wwwdir}/${RUN}
+	mkdir -p ${wwwdir}/${RUN}/log
+	mkdir -p ${wwwdir}/${RUN}/ee
+	mkdir -p ${wwwdir}/${RUN}/e
+	mkdir -p ${wwwdir}/${RUN}/em
+	mkdir -p ${wwwdir}/${RUN}/mumu
+	mkdir -p ${wwwdir}/${RUN}/mu
 	mv  ${outdir}/plots/*_${RUN}.{png,pdf} ${outdir}/plots/${RUN}/
 	mv  ${outdir}/plots/*_${RUN}_log.{png,pdf} ${outdir}/plots/${RUN}/
         rename _${RUN}. . ${outdir}/plots/${RUN}/*_${RUN}.*
@@ -93,21 +96,21 @@ case $WHAT in
         mv ${outdir}/plots/${RUN}/*_mm_*.{png,pdf} ${outdir}/plots/${RUN}/mumu/
         mv ${outdir}/plots/${RUN}/*_e_*.{png,pdf} ${outdir}/plots/${RUN}/e/
         mv ${outdir}/plots/${RUN}/*_m_*.{png,pdf} ${outdir}/plots/${RUN}/mu/
-	cp -p ${outdir}/plots/${RUN}/*.{png,pdf} ${wwwdir}/test/${RUN}/
-	cp -p ${outdir}/plots/${RUN}/log/*.{png,pdf} ${wwwdir}/test/${RUN}/log/
-	cp -p ${outdir}/plots/${RUN}/ee/*.{png,pdf} ${wwwdir}/test/${RUN}/ee/
-	cp -p ${outdir}/plots/${RUN}/em/*.{png,pdf} ${wwwdir}/test/${RUN}/em/
-	cp -p ${outdir}/plots/${RUN}/e/*.{png,pdf} ${wwwdir}/test/${RUN}/e/
-	cp -p ${outdir}/plots/${RUN}/mumu/*.{png,pdf} ${wwwdir}/test/${RUN}/mumu/
-	cp -p ${outdir}/plots/${RUN}/mu/*.{png,pdf} ${wwwdir}/test/${RUN}/mu/
-	cp -p test/index.php ${wwwdir}/test/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/log/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/ee/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/e/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/em/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/mumu/
-	cp -p test/index.php ${wwwdir}/test/${RUN}/mu/
+	cp -p ${outdir}/plots/${RUN}/*.{png,pdf} ${wwwdir}/${RUN}/
+	cp -p ${outdir}/plots/${RUN}/log/*.{png,pdf} ${wwwdir}/${RUN}/log/
+	cp -p ${outdir}/plots/${RUN}/ee/*.{png,pdf} ${wwwdir}/${RUN}/ee/
+	cp -p ${outdir}/plots/${RUN}/em/*.{png,pdf} ${wwwdir}/${RUN}/em/
+	cp -p ${outdir}/plots/${RUN}/e/*.{png,pdf} ${wwwdir}/${RUN}/e/
+	cp -p ${outdir}/plots/${RUN}/mumu/*.{png,pdf} ${wwwdir}/${RUN}/mumu/
+	cp -p ${outdir}/plots/${RUN}/mu/*.{png,pdf} ${wwwdir}/${RUN}/mu/
+	cp -p test/index.php ${wwwdir}/
+	cp -p test/index.php ${wwwdir}/${RUN}/
+	cp -p test/index.php ${wwwdir}/${RUN}/log/
+	cp -p test/index.php ${wwwdir}/${RUN}/ee/
+	cp -p test/index.php ${wwwdir}/${RUN}/e/
+	cp -p test/index.php ${wwwdir}/${RUN}/em/
+	cp -p test/index.php ${wwwdir}/${RUN}/mumu/
+	cp -p test/index.php ${wwwdir}/${RUN}/mu/
 	;;
     ANA )
 	python scripts/runTopWidthAnalysis.py -i ${summaryeosdir} -o ${outdir}/analysis -q ${queue};

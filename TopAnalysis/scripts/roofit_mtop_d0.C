@@ -38,7 +38,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   TChain *t = new TChain("data");
   t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   //f->ls(); 
-  TString name = "massD0_l_all_meson";
+  //TString name = "massD0_l_all_meson";
+  TString name = "massD0_mu_tag_l_all_meson";
   //TString name = "massJPsi_l_all_meson_BCDEF";
   cout << "loading " << name+"_BCDEF mass="+mass << endl;
   cout << "loading " << name+"_GH mass="+mass << endl;

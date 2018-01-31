@@ -519,6 +519,12 @@ void RunTopKalman(TString filename,
         kJetsVec.push_back(jet);
         //allJetsVec.push_back(jet);
       }
+      //******************************
+      //Pion tracker SFs
+      std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
+      applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
+      applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+      //******************************
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -558,8 +564,6 @@ void RunTopKalman(TString filename,
 	  //save jet
           //Jet tmpj(jp4, csv, k);
           //Jet tmpj(jp4, 0, k, ev.j_pt_charged[k], ev.j_pt_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
-          //applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
-          //applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
           Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
 	    if(ev.pf_j[ipf] != k) continue; //skip if PF track doesn't belong to current jet
@@ -1070,26 +1074,24 @@ void RunTopKalman(TString filename,
 
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
-            for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
+            for(int ig = 0; ig < ev.ngpf; ig++) {
               //if(!isJPsiEvent) continue;
               //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
               TLorentzVector gen;
-              gen.SetPtEtaPhiM(ev.gmeson_daug_pt[ig], ev.gmeson_daug_eta[ig], ev.gmeson_daug_phi[ig], gMassMu);
-              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gmeson_daug_id[ig],3,true));
-              int mother = ev.gmeson_daug_meson_index[ig]; //daug -> mother id -> mother ttbar
-              genTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+              gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], gMassMu);
+              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gpf_id[ig],3,true));
+              genTracks.back().setMother(ev.gpf_mother[ig]); //daug -> mother id -> mother ttbar
               //cout << genTracks.back().getGenT() << endl;
-              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
-              if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
+              if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gpf_id[ig],3,true));
             }
 
             for(auto & it : muTracks) { //FIXME reference might not work
-              double dR = 0.3; //initial dR
+              double dR = 0.1; //initial dR
               int best_idx = -1;
               for(auto & itg : genMuTracks) {
                 if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
                 if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
-                if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
+                //if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
                 dR = it.getVec().DeltaR(itg.getVec());
                 best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
               }
@@ -1097,7 +1099,7 @@ void RunTopKalman(TString filename,
                 pfmuReject.push_back(it);
               }
               else {
-                it.setGenT(genMuTracks[best_idx].getGenT());
+                it.setMother(genMuTracks[best_idx].getMotherId());
                 pfmuMatched.push_back(it);
                 genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               }
@@ -1184,7 +1186,7 @@ void RunTopKalman(TString filename,
           }
           if(piTracks.size()<2) continue;
 
-          std::vector<pfTrack> pfmuMatched, pfmuReject;
+          std::vector<pfTrack> pfMatched, pfReject;
           //Gen-matching
           if(!ev.isData) {
             //Don't use as it would skip non-gen events
@@ -1199,6 +1201,7 @@ void RunTopKalman(TString filename,
 
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
+            /*
             for(int ig = 0; ig < ev.ngmeson_daug; ig++) {
               //if(!isJPsiEvent) continue;
               //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
@@ -1211,24 +1214,36 @@ void RunTopKalman(TString filename,
               if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gmeson_daug_id[ig],3,true));
               if(abs(ev.gmeson_daug_id[ig])==13) genMuTracks.back().setGenT(ev.gmeson_mother_id[mother]); //daug -> mother id -> mother ttbar
             }
+            */
+            for(int ig = 0; ig < ev.ngpf; ig++) {
+              //if(!isJPsiEvent) continue;
+              //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+              TLorentzVector gen;
+              gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], gMassMu);
+              genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gpf_id[ig],3,true));
+              genTracks.back().setMother(ev.gpf_mother[ig]); //daug -> mother id -> mother ttbar
+              //cout << genTracks.back().getGenT() << endl;
+              if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gpf_id[ig],3,true));
+            }
 
             for(auto & it : piTracks) { //FIXME reference might not work
               double dR = 0.3; //initial dR
               int best_idx = -1;
-              for(auto & itg : genMuTracks) {
+              for(auto & itg : genTracks) {
                 if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
                 if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
                 if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
                 dR = it.getVec().DeltaR(itg.getVec());
-                best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
+                best_idx = &itg - &genTracks[0]; //get index on current closest gen particle
               }
               if(best_idx<0) { //no gen track matched
-                pfmuReject.push_back(it);
+                pfReject.push_back(it);
               }
               else {
-                it.setGenT(genMuTracks[best_idx].getGenT());
-                pfmuMatched.push_back(it);
-                genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                //it.setGenT(genMuTracks[best_idx].getGenT());
+                it.setMother(genTracks[best_idx].getMotherId());
+                pfMatched.push_back(it);
+                genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               }
             }
           }
@@ -1294,13 +1309,13 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
 
-                if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
-                  runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gmeson");
-                  runGH.Fill(pfmuMatched, leptons, jet, chTag, "gmeson");
+                if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
+                  runBCDEF.Fill(pfMatched, leptons, jet, chTag, "gmeson");
+                  runGH.Fill(pfMatched, leptons, jet, chTag, "gmeson");
                 }
-                if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
-                  runBCDEF.Fill(pfmuReject, leptons, jet, chTag, "rgmeson");
-                  runGH.Fill(pfmuReject, leptons, jet, chTag, "rgmeson");
+                if(!ev.isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
+                  runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                  runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
                 }
 
                 runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
