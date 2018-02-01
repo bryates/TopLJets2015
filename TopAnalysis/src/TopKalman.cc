@@ -521,9 +521,11 @@ void RunTopKalman(TString filename,
       }
       //******************************
       //Pion tracker SFs
+      /*
       std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
       applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
       applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+      */
       //******************************
       for (int k=0; k<ev.nj;k++)
 	{
@@ -1077,6 +1079,7 @@ void RunTopKalman(TString filename,
             for(int ig = 0; ig < ev.ngpf; ig++) {
               //if(!isJPsiEvent) continue;
               //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+              if(abs(ev.gpf_id[ig])!=13) continue;
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], gMassMu);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gpf_id[ig],3,true));
@@ -1099,8 +1102,8 @@ void RunTopKalman(TString filename,
                 pfmuReject.push_back(it);
               }
               else {
-                it.setMother(genMuTracks[best_idx].getMotherId());
                 pfmuMatched.push_back(it);
+                pfmuMatched.back().setMother(genMuTracks[best_idx].getMotherId());
                 genMuTracks.erase(genMuTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               }
             }
@@ -1218,6 +1221,7 @@ void RunTopKalman(TString filename,
             for(int ig = 0; ig < ev.ngpf; ig++) {
               //if(!isJPsiEvent) continue;
               //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
+              if(abs(ev.gpf_id[ig])!=13 && abs(ev.gpf_id[ig])!=211) continue;
               TLorentzVector gen;
               gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], gMassMu);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gpf_id[ig],3,true));
@@ -1241,8 +1245,8 @@ void RunTopKalman(TString filename,
               }
               else {
                 //it.setGenT(genMuTracks[best_idx].getGenT());
-                it.setMother(genTracks[best_idx].getMotherId());
                 pfMatched.push_back(it);
+                pfMatched.back().setMother(genTracks[best_idx].getMotherId());
                 genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
               }
             }

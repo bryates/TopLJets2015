@@ -1,13 +1,12 @@
 {
-  //std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
-  std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
+  std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
   std::vector<pair<float,float>> mfits = {};
   std::vector<pair<float,float>> fit_par;
   std::vector<pair<float,float>> fit_err;
   std::vector<RooRealVar> masses;
   //Fit MC and get fit parameters
             //0b vary binned
-  short flags(0b01);
+  short flags(0b11);
   gROOT->ProcessLine(".L roofit_mtop.C");
   roofit_mtop(names,fit_par,fit_err,flags);
 
@@ -28,9 +27,9 @@
       mass->SetBinContent(mass->FindBin(it),m);
     }
     */
-    mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV());
+    mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
     mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
-    mfits.push_back(pair<float,float>(mt.getValV(),mt.getError()));
+    mfits.push_back(pair<float,float>(mt.getValV()+172.5,mt.getError()));
     //float m = (mt.getValV() - 154.426) / 0.125373;
     //float m = (mt.getValV() - 1.71024) / 1.00499;
     //std::cout << "Calibrated mass: " << m << "GeV" << std::endl;

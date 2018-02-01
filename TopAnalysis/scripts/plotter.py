@@ -634,6 +634,7 @@ def main():
                               report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                           else :
                               report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFGH,"GH")
+
                     else:
                         puCorrH=fIn.Get(opt.puNormSF)
                         nonWgt=puCorrH.GetBinContent(1)

@@ -396,12 +396,12 @@ void roofit_mtop(std::vector<float> &names,
     params.push_back(param);
   }
 
-  TH1F *mean  = new TH1F("mean","mean;Guassian #mu", 100, 165, 180);
-  TH1F *sigma = new TH1F("sigma","sigma;Guassian #sigma", 100, 165, 180);
-  TH1F *alpha = new TH1F("alpha","alpha;Guassian #alpha", 100, 165, 180);
-  TH1F *gamma = new TH1F("gamma","gamma;Gamma #gamma", 100, 165, 180);
-  TH1F *beta = new TH1F("beta","beta;Gamma #beta", 100, 165, 180);
-  TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, 165, 180);
+  TH1F *mean  = new TH1F("mean","mean;Guassian #mu", 100, -8, 8);
+  TH1F *sigma = new TH1F("sigma","sigma;Guassian #sigma", 100, -8, 8);
+  TH1F *alpha = new TH1F("alpha","alpha;Guassian #alpha", 100, -8, 8);
+  TH1F *gamma = new TH1F("gamma","gamma;Gamma #gamma", 100, -8, 8);
+  TH1F *beta = new TH1F("beta","beta;Gamma #beta", 100, -8, 8);
+  TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, -8, 8);
 
   mean->GetYaxis()->SetRangeUser(64,82);
   sigma->GetYaxis()->SetRangeUser(10,30);
@@ -454,7 +454,7 @@ void roofit_mtop(std::vector<float> &names,
       float &mass = names[in];
       pair<float,float> &p = params[in][ip];
       cout << p.first << " " << p.second << endl;
-      binx = hists[ip]->GetXaxis()->FindBin(mass);
+      binx = hists[ip]->GetXaxis()->FindBin(mass-172.5);
       hists[ip]->SetBinContent(binx, p.first);
       hists[ip]->SetBinError(binx, p.second);
     }
