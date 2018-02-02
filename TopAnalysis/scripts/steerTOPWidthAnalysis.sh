@@ -46,6 +46,7 @@ outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJet
 subdir='/test'
 if [ -z $4 ]; then
     subdir=$4
+fi
 wwwdir=~/www/Top2016/2016/subdir
 
 

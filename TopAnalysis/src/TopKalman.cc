@@ -521,11 +521,9 @@ void RunTopKalman(TString filename,
       }
       //******************************
       //Pion tracker SFs
-      /*
       std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
       applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
       applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
-      */
       //******************************
       for (int k=0; k<ev.nj;k++)
 	{
@@ -1087,6 +1085,9 @@ void RunTopKalman(TString filename,
               //cout << genTracks.back().getGenT() << endl;
               if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gpf_id[ig],3,true));
             }
+            //sort GEN traks
+            sort(genMuTracks.begin(), genMuTracks.end(),
+                 [] (pfTrack a, pfTrack b) { return a.Pt() > b.Pt(); } );
 
             for(auto & it : muTracks) { //FIXME reference might not work
               double dR = 0.1; //initial dR
@@ -1174,13 +1175,16 @@ void RunTopKalman(TString filename,
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
+          /*
           size_t tmax = 4;
           tmax = jet.getTracks().size() >= tmax ? tmax : jet.getTracks().size();
+          */
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue; //save soft pions separately
-            if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211 && piSoftTracks.size()<tmax)) piSoftTracks.push_back(track);
-            if((size_t)(&track - &jet.getTracks()[0]) >= tmax) break;
+            //if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211 && piSoftTracks.size()<tmax)) piSoftTracks.push_back(track);
+            if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track);
+            //if((size_t)(&track - &jet.getTracks()[0]) >= tmax) break;
             if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << track.Pt() << " " << track.Eta() << " " << track.Phi() <<  " " << ev.k_mass[0] << endl; }
@@ -1188,6 +1192,8 @@ void RunTopKalman(TString filename,
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[1] << " " << ev.k_pf_eta[1] << " " << ev.k_pf_phi[1] <<  " " << ev.k_mass[1] << endl; }
           }
           if(piTracks.size()<2) continue;
+          size_t tmax = 4;
+          tmax = piTracks().size() >= tmax ? tmax : piTracks().size();
 
           std::vector<pfTrack> pfMatched, pfReject;
           //Gen-matching
@@ -1229,6 +1235,9 @@ void RunTopKalman(TString filename,
               //cout << genTracks.back().getGenT() << endl;
               if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gpf_id[ig],3,true));
             }
+            //sort GEN tracks
+            sort(genTracks.begin(), genTracks.end(),
+                 [] (pfTrack a, pfTrack b) { return a.Pt() > b.Pt(); } );
 
             for(auto & it : piTracks) { //FIXME reference might not work
               double dR = 0.3; //initial dR
@@ -1254,7 +1263,9 @@ void RunTopKalman(TString filename,
 
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
+            if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) {
+              if(j > tmax) break;
             //for(size_t j = 0; j < piTracks.size(); j++) {
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;

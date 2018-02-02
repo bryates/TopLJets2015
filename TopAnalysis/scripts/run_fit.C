@@ -41,8 +41,9 @@
     std::cout << fit_err[i].first << "   " << fit_err[i].second << std::endl;
   }
   TFitResultPtr f = mass->Fit("pol1","FS");
+  std::pair<float,float> f_err = std::pair<float,float>(f->ParError(0),f->ParError(1));
   std::cout << f->Parameter(0) << " + " << f->Parameter(1) << " * mt" << std::endl;
-  std::cout << "(" << f->ParError(0) << ") + (" << f->ParError(1) << ")" << std::endl;
+  std::cout << "(" << f_err.first << ") + (" << f_err.second << ")" << std::endl;
   std::cout << f->Chi2() << " " << f->Ndf() << " " << f->Chi2()/f->Ndf() << std::endl;
   mass->Draw();
   float avg_delta(0.);
@@ -96,7 +97,7 @@
   //mass->GetYaxis()->SetRangeUser(174,177.5);
   int lbin = mass->FindFirstBinAbove(0);
   int ubin = mass->FindLastBinAbove(0);
-  mass->GetYaxis()->SetRangeUser(min((int)(mass->GetBinContent(lbin) - mass->GetBinError(lbin)), (int)(mass->GetBinContent(lbin) + mass->GetBinError(lbin))),
+  mass->GetYaxis()->SetRangeUser(min((int)(mass->GetBinContent(lbin) - mass->GetBinError(lbin))-1, (int)(mass->GetBinContent(lbin) + mass->GetBinError(lbin))-1),
                                  max((int)(mass->GetBinContent(ubin) - mass->GetBinError(ubin))+5, (int)(mass->GetBinContent(ubin) + mass->GetBinError(ubin))+1)+5);
   TString name("");
   if(flags&0x2) name = "_jpsi_vary";
