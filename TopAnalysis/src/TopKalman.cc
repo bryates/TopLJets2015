@@ -1183,7 +1183,7 @@ void RunTopKalman(TString filename,
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue; //save soft pions separately
             //if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211 && piSoftTracks.size()<tmax)) piSoftTracks.push_back(track);
-            if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track);
+            if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211)) piSoftTracks.push_back(track);
             //if((size_t)(&track - &jet.getTracks()[0]) >= tmax) break;
             if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
@@ -1193,7 +1193,7 @@ void RunTopKalman(TString filename,
           }
           if(piTracks.size()<2) continue;
           size_t tmax = 4;
-          tmax = piTracks().size() >= tmax ? tmax : piTracks().size();
+          tmax = piTracks.size() >= tmax ? tmax : piTracks.size();
 
           std::vector<pfTrack> pfMatched, pfReject;
           //Gen-matching
