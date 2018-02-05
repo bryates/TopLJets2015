@@ -160,18 +160,19 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   RooPolynomial m1("m1", "m1", jpsi_l_mass, RooArgList(a0,a1));
 
   // Gamma terms
-  RooRealVar g("g","g", 2,1.9,2.1);
-  //RooRealVar g("g","g", 2.5, 0, 10);
+  //RooRealVar g("g","g", 2,1.9,2.1);
+  RooRealVar g("g","g", 2.5, 0, 10);
   //RooRealVar g("g","g", 2.5, 2.3, 2.6);
   RooRealVar b("b","b", 32, 30, 100);
+  //RooRealVar b("b","b", 35, 30, 40);
   //RooRealVar b("b","b", 36, 35, 37);
   RooRealVar mu("mu","mu", 9, 5, 14);
   //RooRealVar mu("mu","mu", 11, 10, 12);
 
   // Construct Gaussian PDF for signal
   RooRealVar mean("mean","mean", 70, 60, 90);
-  //RooRealVar sigma("sigma","sigma", 19, 18, 30);
-  RooRealVar sigma("sigma","sigma", 19, 18.5, 19.5);
+  RooRealVar sigma("sigma","sigma", 19, 18, 30);
+  //RooRealVar sigma("sigma","sigma", 19, 18.5, 19.5);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
   RooGaussian gauss("gauss","gauss", jpsi_l_mass, mean, sigma);
   //RooGaussian gauss("gauss","gauss", jpsi_l_mass, m1, sigma);
@@ -182,8 +183,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
 
   cout << "defining model" << endl;
   // Construct a Gaussian+Gamma function to fit the signal component
-  //RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
-  RooRealVar alpha("alpha","alpha", 0.45,0.44,0.46);
+  RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
+  //RooRealVar alpha("alpha","alpha", 0.45,0.44,0.46);
   //RooRealVar alpha("alpha","alpha", 0.4,0.39,0.41);
   RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
 
@@ -263,115 +264,6 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   return;
 }
 
-void mtop(std::vector<pair<float,float>> &p, TString mass="166.5") {
-  //TFile *f = new TFile("../BatchJobs/merged.root"); 
-  TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
-  TString name = "massJPsi_l_all_jpsi_BCDEFGH/massJPsi_l_all_jpsi_BCDEFGH_t#bar{t} m="+mass;
-  //TString name = "massJPsi_l_all_jpsi_BCDEF";
-  gSystem->ExpandPathName(name);
-  cout << "loading " << name << endl;
-  TH1F *h = (TH1F*)f->Get(name); // hJpsi, hJpsiFit
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
-  cout << "loaded!" << endl;
-
-  // Declare observable x
-  RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
-  
-  cout << "creating dataset" << endl;
-  // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
-  RooDataHist dh("dh", "dh", x,  h);
-
-  cout << "plotting dataset" << endl;
-  // Make plot of binned dataset showing Poisson error bars (RooFit default)
-  RooPlot* frame = x.frame() ;
-  dh.plotOn(frame);
-  frame->Draw();
-
-  cout << "defining variables" << endl;
-  // Mean of the J/psi mass peak
-  RooRealVar mean("mean","mean", 70, 60, 90);
-  //RooRealVar alpha("alpha","alpha", 0.45, 0.4, 0.5);
-
-  // Gamma terms
-  RooRealVar g("g","g", 2.5, 2, 3);
-  RooRealVar b("b","b", 32, 30, 100);
-  RooRealVar mu("mu","mu", 9, 8, 50);
-
-  // Construct Gaussian PDF for signal
-  RooRealVar sigma("sigma","sigma", 19, 18, 30);
-  RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
-  RooGaussian gauss("gauss","gauss", x, mean, sigma);
-
-  //  Construct Gamma PDF for signal
-  RooRealVar nbsig("nbsig","nbsignal", 100, 0 , 10000);
-  RooGamma gamma("gamma","gamma", x, g, b, mu);
-
-  cout << "defining model" << endl;
-  // Construct a Gaussian+Gamma function to fit the signal component
-  RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
-  RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
-
-  // Construct exponential PDF to fit the bkg component
-  //RooRealVar lambda("lambda", "slope", -2, -5, 5.);
-  //RooExponential expo("expo", "exponential PDF", x, lambda);
-  
-  // Construct signal + bkg PDF
-  //RooRealVar nsig("nsig","#signal events", 4000, 0, 10000) ;
-  //RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
-  //RooAddPdf model("model","g+a", RooArgList(signalGauss, expo), RooArgList(nsig,nbkg)) ;
-  cout << "fitting model" << endl;
-  signalModel.fitTo(dh);
-  signalModel.plotOn(frame);
-  signalModel.plotOn(frame, Components(gauss),LineStyle(kDashed),LineColor(kRed));
-  signalModel.plotOn(frame, Components(gamma),LineStyle(kDashed),LineColor(kBlue));
-  //model.plotOn(frame, Components(expo),LineStyle(kDashed));
-  //model.paramOn(frame);
-
-  frame->Draw();
-
-  mass.ReplaceAll(".","v");
-  mass += "_jpsi";
-
-  c1->SaveAs("MC13TeV_TTJets_m"+mass+".png");
-  c1->SaveAs("MC13TeV_TTJets_m"+mass+".pdf");
-
-  //x.setRange("signal model",3.0,3.2);
-  //RooAbsReal *intModel = signalGauss.createIntegral(x);
-  //cout << ngsig.getVal() << endl;
-  //cout << nbkg.getVal() << endl;
-  //cout << nsig.getVal() * intModel->getVal() << endl;
-
-  cout << "mean," << mean.getValV() << "," << mean.getError() << endl;
-  cout << "sigma," << sigma.getValV() << "," << sigma.getError() << endl;
-  cout << "a," << alpha.getValV() << "," << alpha.getError() << endl;
-  cout << "g," << g.getValV() << "," << g.getError() << endl;
-  cout << "b," << b.getValV() << "," << b.getError() << endl;
-  cout << "mu," << mu.getValV() << "," << mu.getError() << endl;
-
-  p.push_back(pair<float,float>(mean.getValV(),mean.getError()));
-  p.push_back(pair<float,float>(sigma.getValV(),sigma.getError()));
-  p.push_back(pair<float,float>(alpha.getValV(),alpha.getError()));
-  p.push_back(pair<float,float>(g.getValV(),g.getError()));
-  p.push_back(pair<float,float>(b.getValV(),b.getError()));
-  p.push_back(pair<float,float>(mu.getValV(),mu.getError()));
-
-  //x.setRange("sigma",mean.getValV()-sigma.getValV(),mean.getValV()+sigma.getValV());
-  //x.setRange("sigma",0,150);
-  RooAbsReal *intModel = signalModel.createIntegral(x);//,NormSet(x),Range("sigma"));
-  RooAbsReal *intgauss = gauss.createIntegral(x);//,NormSet(x),Range(0,"sigma"));
-  RooAbsReal *intgamma = gamma.createIntegral(x);//,NormSet(x));
-  cout << "model= " << intModel->getVal() << endl;
-  cout << "Gaussian= " << intgauss->getVal() << endl;
-  cout << "gamma= " << intgamma->getVal() << endl;
-  /*
-  RooArgSet *params = signalModel.getVariables();
-  params->Print("v");
-  */
-
-
-  return;
-}
 
 
 void roofit_mtop(std::vector<float> &names,
@@ -400,41 +292,15 @@ void roofit_mtop(std::vector<float> &names,
   TH1F *sigma = new TH1F("sigma","sigma;Guassian #sigma", 100, -8, 8);
   TH1F *alpha = new TH1F("alpha","alpha;Guassian #alpha", 100, -8, 8);
   TH1F *gamma = new TH1F("gamma","gamma;Gamma #gamma", 100, -8, 8);
-  TH1F *beta = new TH1F("beta","beta;Gamma #beta", 100, -8, 8);
+  TH1F *beta  = new TH1F("beta","beta;Gamma #beta", 100, -8, 8);
   TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, -8, 8);
 
   mean->GetYaxis()->SetRangeUser(64,82);
   sigma->GetYaxis()->SetRangeUser(10,30);
   alpha->GetYaxis()->SetRangeUser(0.3,0.6);
-  gamma->GetYaxis()->SetRangeUser(1,3);
-  beta->GetYaxis()->SetRangeUser(40,50);
+  gamma->GetYaxis()->SetRangeUser(1,5);
+  beta->GetYaxis()->SetRangeUser(20,50);
   mu->GetYaxis()->SetRangeUser(6,20);
-  /*
-  int lbin = mean->FindFirstBinAbove(0);
-  int ubin = mean->FindLastBinAbove(0);
-  mean->GetYaxis()->SetRangeUser(min((int)(mean->GetBinContent(lbin) - mean->GetBinError(lbin)), (int)(mean->GetBinContent(lbin) + mean->GetBinError(lbin))),
-                                 max((int)(mean->GetBinContent(ubin) - mean->GetBinError(ubin))+1, (int)(mean->GetBinContent(ubin) + mean->GetBinError(ubin))+1)+1);
-  lbin = sigma->FindFirstBinAbove(0);
-  ubin = sigma->FindLastBinAbove(0);
-  sigma->GetYaxis()->SetRangeUser(min((int)(sigma->GetBinContent(lbin) - sigma->GetBinError(lbin)), (int)(sigma->GetBinContent(lbin) + sigma->GetBinError(lbin))),
-                                 max((int)(sigma->GetBinContent(ubin) - sigma->GetBinError(ubin))+1, (int)(sigma->GetBinContent(ubin) + sigma->GetBinError(ubin))+1)+1);
-  lbin = alpha->FindFirstBinAbove(0);
-  ubin = alpha->FindLastBinAbove(0);
-  alpha->GetYaxis()->SetRangeUser(min((int)(alpha->GetBinContent(lbin) - alpha->GetBinError(lbin)), (int)(alpha->GetBinContent(lbin) + alpha->GetBinError(lbin))),
-                                 max((int)(alpha->GetBinContent(ubin) - alpha->GetBinError(ubin))+1, (int)(alpha->GetBinContent(ubin) + alpha->GetBinError(ubin))+1)+1);
-  lbin = gamma->FindFirstBinAbove(0);
-  ubin = gamma->FindLastBinAbove(0);
-  gamma->GetYaxis()->SetRangeUser(min((int)(gamma->GetBinContent(lbin) - gamma->GetBinError(lbin)), (int)(gamma->GetBinContent(lbin) + gamma->GetBinError(lbin))),
-                                 max((int)(gamma->GetBinContent(ubin) - gamma->GetBinError(ubin))+1, (int)(gamma->GetBinContent(ubin) + gamma->GetBinError(ubin))+1)+1);
-  lbin = beta->FindFirstBinAbove(0);
-  ubin = beta->FindLastBinAbove(0);
-  beta->GetYaxis()->SetRangeUser(min((int)(beta->GetBinContent(lbin) - beta->GetBinError(lbin)), (int)(beta->GetBinContent(lbin) + beta->GetBinError(lbin))),
-                                 max((int)(beta->GetBinContent(ubin) - beta->GetBinError(ubin))+1, (int)(beta->GetBinContent(ubin) + beta->GetBinError(ubin))+1)+1);
-  lbin = mu->FindFirstBinAbove(0);
-  ubin = mu->FindLastBinAbove(0);
-  mu->GetYaxis()->SetRangeUser(min((int)(mu->GetBinContent(lbin) - mu->GetBinError(lbin)), (int)(mu->GetBinContent(lbin) + mu->GetBinError(lbin))),
-                                 max((int)(mu->GetBinContent(ubin) - mu->GetBinError(ubin))+1, (int)(mu->GetBinContent(ubin) + mu->GetBinError(ubin))+1)+1);
-  */
   //int minbin = mean->FindFirstBinAbove(0);
   //cout << minbin << endl;
   //cout << mean->GetBinContent(minbin) << " " << mean->GetBinError(minbin) << endl;
@@ -463,6 +329,50 @@ void roofit_mtop(std::vector<float> &names,
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
   gStyle->SetOptStat(0);
+  /*
+  int lbin = mean->FindFirstBinAbove(0);
+  int ubin = mean->FindLastBinAbove(0);
+  lbin = min(lbin, ubin);
+  ubin = max(lbin, ubin);
+  std::cout << "lbin" << lbin << " " << ubin << std::endl;
+  mean->GetYaxis()->SetRangeUser(min((int)(mean->GetBinContent(lbin) - mean->GetBinError(lbin)), (int)(mean->GetBinContent(lbin) + mean->GetBinError(lbin))),
+                                 max((int)(mean->GetBinContent(ubin) - mean->GetBinError(ubin))+1, (int)(mean->GetBinContent(ubin) + mean->GetBinError(ubin))+1)+1);
+  lbin = sigma->FindFirstBinAbove(0)
+  ubin = sigma->FindLastBinAbove(0);
+  lbin = min(lbin, ubin);
+  ubin = max(lbin, ubin);
+  std::cout << "lbin" << lbin << " " << ubin << std::endl;
+  sigma->GetYaxis()->SetRangeUser(min((int)(sigma->GetBinContent(lbin) - sigma->GetBinError(lbin)), (int)(sigma->GetBinContent(lbin) + sigma->GetBinError(lbin))),
+                                 max((int)(sigma->GetBinContent(ubin) - sigma->GetBinError(ubin))+1, (int)(sigma->GetBinContent(ubin) + sigma->GetBinError(ubin))+1)+1);
+  lbin = alpha->FindFirstBinAbove(0);
+  ubin = alpha->FindLastBinAbove(0);
+  lbin = min(lbin, ubin);
+  ubin = max(lbin, ubin);
+  std::cout << "lbin" << lbin << " " << ubin << std::endl;
+  alpha->GetYaxis()->SetRangeUser(min((int)(alpha->GetBinContent(lbin) - alpha->GetBinError(lbin)), (int)(alpha->GetBinContent(lbin) + alpha->GetBinError(lbin))),
+                                 max((int)(alpha->GetBinContent(ubin) - alpha->GetBinError(ubin))+1, (int)(alpha->GetBinContent(ubin) + alpha->GetBinError(ubin))+1)+1);
+  lbin = gamma->FindFirstBinAbove(0);
+  ubin = gamma->FindLastBinAbove(0);
+  lbin = min(lbin, ubin);
+  ubin = max(lbin, ubin);
+  std::cout << "lbin" << lbin << " " << ubin << std::endl;
+  gamma->GetYaxis()->SetRangeUser(min((int)(gamma->GetBinContent(lbin) - gamma->GetBinError(lbin)), (int)(gamma->GetBinContent(lbin) + gamma->GetBinError(lbin))),
+                                 max((int)(gamma->GetBinContent(ubin) - gamma->GetBinError(ubin))+1, (int)(gamma->GetBinContent(ubin) + gamma->GetBinError(ubin))+1)+1);
+  lbin = beta->FindFirstBinAbove(0);
+  ubin = beta->FindLastBinAbove(0);
+  lbin = min(lbin, ubin);
+  ubin = max(lbin, ubin);
+  std::cout << "lbin" << lbin << " " << ubin << std::endl;
+  beta->GetYaxis()->SetRangeUser(min((int)(beta->GetBinContent(lbin) - beta->GetBinError(lbin)), (int)(beta->GetBinContent(lbin) + beta->GetBinError(lbin))),
+                                 max((int)(beta->GetBinContent(ubin) - beta->GetBinError(ubin))+1, (int)(beta->GetBinContent(ubin) + beta->GetBinError(ubin))+1)+1);
+  lbin = mu->FindFirstBinAbove(0);
+  ubin = mu->FindLastBinAbove(0);
+  lbin = min(lbin, ubin);
+  ubin = max(lbin, ubin);
+  std::cout << "lbin" << lbin << " " << ubin << std::endl;
+  mu->GetYaxis()->SetRangeUser(min((int)(mu->GetBinContent(lbin) - mu->GetBinError(lbin)), (int)(mu->GetBinContent(lbin) + mu->GetBinError(lbin))),
+                                 max((int)(mu->GetBinContent(ubin) - mu->GetBinError(ubin))+1, (int)(mu->GetBinContent(ubin) + mu->GetBinError(ubin))+1)+1);
+  */
   for(int i = 0; i < hists.size(); i++) {
     hists[i]->Draw();
     TFitResultPtr fit = hists[i]->Fit("pol1","FS");

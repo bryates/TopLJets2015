@@ -5,6 +5,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/KalmanEvent.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 KalmanEvent::KalmanEvent(bool debug) {
   debug_ = debug;
@@ -54,7 +55,18 @@ void KalmanEvent::buildJets() {
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
       if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
       TLorentzVector tkP4(0,0,0,0);
+      //Match with PF tracks
+      int pf_match(-1);
+      for(int ip = 0; ip < ev_.npf; ip++) {
+        if(deltaR(ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.pf_eta[ip],ev_.pf_phi[ip])>0.01) continue;
+        pf_match = ip;
+      }
+      if(pf_match==-1) continue; //No match found
+      /*
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
+      pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);
+      */
+      tkP4.SetPtEtaPhiM(ev_.pf_pt[pf_match],ev_.pf_eta[pf_match],ev_.pf_phi[pf_match],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);
       if(debug_) { std::cout << "pfTrack "; pftk.print(); }
       if(debug_) std::cout << "Kalman jet " << ev_.k_j[ipf] << " with pT=" << ev_.j_pt[ev_.k_j[ipf]] << std::endl;

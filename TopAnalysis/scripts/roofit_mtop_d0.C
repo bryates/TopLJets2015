@@ -163,11 +163,13 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
 
   // Gamma terms
   RooRealVar g("g","g", 2.5, 2, 3);
-  RooRealVar b("b","b", 32, 30, 100);
+  //RooRealVar b("b","b", 32, 30, 100);
+  RooRealVar b("b","b", 32, 30, 34);
   RooRealVar mu("mu","mu", 9, 8, 50);
 
   // Construct Gaussian PDF for signal
-  RooRealVar sigma("sigma","sigma", 19, 18, 30);
+  //RooRealVar sigma("sigma","sigma", 19, 18, 30);
+  RooRealVar sigma("sigma","sigma", 20, 19.8, 20.2);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
   RooGaussian gauss("gauss","gauss", meson_l_mass, mean, sigma);
   //RooGaussian gauss("gauss","gauss", meson_l_mass, m1, sigma);
@@ -281,19 +283,19 @@ void roofit_mtop(std::vector<float> &names,
     params.push_back(param);
   }
 
-  TH1F *mean  = new TH1F("mean","mean;Guassian #mu", 100, 165, 180);
-  TH1F *sigma = new TH1F("sigma","sigma;Guassian #sigma", 100, 165, 180);
-  TH1F *alpha = new TH1F("alpha","alpha;Guassian #alpha", 100, 165, 180);
-  TH1F *gamma = new TH1F("gamma","gamma;Gamma #gamma", 100, 165, 180);
-  TH1F *beta = new TH1F("beta","beta;Gamma #beta", 100, 165, 180);
-  TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, 165, 180);
+  TH1F *mean  = new TH1F("mean","mean;Guassian #mu", 100, -8, 8);
+  TH1F *sigma = new TH1F("sigma","sigma;Guassian #sigma", 100, -8, 8);
+  TH1F *alpha = new TH1F("alpha","alpha;Guassian #alpha", 100, -8, 8);
+  TH1F *gamma = new TH1F("gamma","gamma;Gamma #gamma", 100, -8, 8);
+  TH1F *beta  = new TH1F("beta","beta;Gamma #beta", 100, -8, 8);
+  TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, -8, 8);
 
-  mean->GetYaxis()->SetRangeUser(48,56);
+  mean->GetYaxis()->SetRangeUser(48,58);
   sigma->GetYaxis()->SetRangeUser(18,22);
-  alpha->GetYaxis()->SetRangeUser(0.4,0.45);
+  alpha->GetYaxis()->SetRangeUser(0,1);
   gamma->GetYaxis()->SetRangeUser(1.8,2.2);
-  beta->GetYaxis()->SetRangeUser(30,35);
-  mu->GetYaxis()->SetRangeUser(19,21);
+  beta->GetYaxis()->SetRangeUser(28,35);
+  mu->GetYaxis()->SetRangeUser(10,25);
   /*
   int lbin = mean->FindFirstBinAbove(0);
   int ubin = mean->FindLastBinAbove(0);
@@ -339,7 +341,7 @@ void roofit_mtop(std::vector<float> &names,
       float &mass = names[in];
       pair<float,float> &p = params[in][ip];
       cout << p.first << " " << p.second << endl;
-      binx = hists[ip]->GetXaxis()->FindBin(mass);
+      binx = hists[ip]->GetXaxis()->FindBin(mass-172.5);
       hists[ip]->SetBinContent(binx, p.first);
       hists[ip]->SetBinError(binx, p.second);
     }
@@ -355,8 +357,11 @@ void roofit_mtop(std::vector<float> &names,
     Double_t err = fit->ParError(1);
     fit_par.push_back(std::pair<float,float>(fit->Parameter(0),fit->Parameter(1)));
     fit_err.push_back(std::pair<float,float>(fit->ParError(0),fit->ParError(1)));
-    TString leg_title = TString::Format("Calibration curve : slope of %0.2f #pm %0.2f + %0.2f",slope,err,fit->Parameter(0));
+    char sign = '+';
+    if(fit->Parameter(1)<0) sign = '-';
+    TString leg_title = TString::Format("Calibration curve : %0.2f (#pm%0.2f) %c m_{t} %0.2f (#pm%0.2f)",fit->Parameter(0),abs(fit->ParError(0)),sign,abs(slope),abs(err));
     TLegend *leg_calib = new TLegend(0.14,0.75,0.67,0.88,NULL,"brNDC");
+    leg_calib->SetBorderSize(0);
     leg_calib->AddEntry(hists[i],leg_title,"lp");
     leg_calib->Draw();
     TString name = hists[i]->GetName();

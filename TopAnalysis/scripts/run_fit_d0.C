@@ -6,23 +6,24 @@
   std::vector<RooRealVar> masses;
   //Fit MC and get fit parameters
             //0b vary binned
-  short flags(0b01);
+  short flags(0b11);
   gROOT->ProcessLine(".L roofit_mtop_d0.C");
   roofit_mtop(names,fit_par,fit_err,flags);
 
   //Fit and plot fitted masses
   gROOT->ProcessLine(".L fit_constrain_d0.C");
-  RooWorkspace w = create_workspace();
+  bool isData(false);
+  RooWorkspace w = create_workspace(isData);
   //TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN};m_{t}^{FIT}",100,165,179);//,50,163,180);
   TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN}-172.5 (GeV);m_{t}^{FIT} (GeV)",100,-8,8);//,50,163,180);
   for(auto & it : names) {
     TString tmp_mass = Form("%.1f",it);
-    tmp_mass.ReplaceAll(".","v");                     //0b vary binned
+    tmp_mass.ReplaceAll(".","v");
     RooRealVar mt = fit_constrain(w,fit_par,fit_err,tmp_mass,flags);
     mt.Print();
-    mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV());
+    mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
     mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
-    mfits.push_back(pair<float,float>(mt.getValV(),mt.getError()));
+    mfits.push_back(pair<float,float>(mt.getValV()+172.5,mt.getError()));
   }
 
   //Print fit parameters
@@ -31,8 +32,9 @@
     std::cout << fit_err[i].first << "   " << fit_err[i].second << std::endl;
   }
   TFitResultPtr f = mass->Fit("pol1","FS");
+  std::pair<float,float> f_err = std::pair<float,float>(f->ParError(0),f->ParError(1));
   std::cout << f->Parameter(0) << " + " << f->Parameter(1) << " * mt" << std::endl;
-  std::cout << "(" << f->ParError(0) << ") + (" << f->ParError(1) << ")" << std::endl;
+  std::cout << "(" << f_err.first << ") + (" << f_err.second << ")" << std::endl;
   std::cout << f->Chi2() << " " << f->Ndf() << " " << f->Chi2()/f->Ndf() << std::endl;
   mass->Draw();
   float avg_delta(0.);
@@ -60,25 +62,32 @@
     std::cout << it << " GeV -> RooFit mass: " << mfits[&it - &names[0]].first
               << " GeV Calibration line mass: " << calibm << " GeV ("  << deltam << " GeV) +/-" << abs(deltam_unc) << " GeV " << deltag << " GeV" << std::endl;
   }
-  avg_delta /= ndelta;
+  //avg_delta /= ndelta;
+  avg_delta /= names.size();
   //avg_delta = sqrt(avg_delta);
   avg_deltag /= names.size();
   //avg_deltag = sqrt(avg_deltag);
   avg_var /= names.size();
+  float mmin(172), mmax(172);
   for(auto & it : names) {
     float itg(it -172.5);
     TString tmp_mass = Form("%.1f",it);
     tmp_mass.ReplaceAll(".","v");
     float calibm = f->Parameter(0) + f->Parameter(1)*itg;
     std::cout << "Mass: " << it << " GeV -> " << calibm - avg_deltag << " GeV +/- " << sqrt(pow(f->ParError(0),2)+pow(f->ParError(1),2)) << " GeV" << std::endl;
+    mmin = min(mmin, calibm - avg_deltag);
+    mmax = max(mmax, calibm - avg_deltag);
   }
   std::cout << "AVG difference: " << avg_delta << " GeV" << std::endl;
   std::cout << "AVG from GEN: " << avg_deltag << " GeV" << std::endl;
   //mass->GetYaxis()->SetRangeUser(174,177.5);
   int lbin = mass->FindFirstBinAbove(0);
   int ubin = mass->FindLastBinAbove(0);
-  mass->GetYaxis()->SetRangeUser(min((int)(mass->GetBinContent(lbin) - mass->GetBinError(lbin)), (int)(mass->GetBinContent(lbin) + mass->GetBinError(lbin))),
+  /*
+  mass->GetYaxis()->SetRangeUser(min((int)(mass->GetBinContent(lbin) - mass->GetBinError(lbin))-1, (int)(mass->GetBinContent(lbin) + mass->GetBinError(lbin))-1),
                                  max((int)(mass->GetBinContent(ubin) - mass->GetBinError(ubin))+5, (int)(mass->GetBinContent(ubin) + mass->GetBinError(ubin))+1)+5);
+  */
+  mass->GetYaxis()->SetRangeUser((int)mmin-1, (int)mmax+5);
   TString name("");
   if(flags&0x2) name = "_meson_vary";
   else name = "_meson";

@@ -3,7 +3,7 @@
 WHAT=$1; 
 ERA=$2;
 RUN=$3;
-if [ "$#" -ne 3 ]; then 
+if [ "$#" -lt 3 ]; then 
     echo "steerTOPWidthAnalysis.sh <SEL/MERGESEL/PLOTSEL/WWWSEL/ANA/MERGE/BKG/PLOT/WWW> <ERA> <RUN.";
     echo "        SEL          - launches selection jobs to the batch, output will contain summary trees and control plots"; 
     echo "        MERGESEL     - merge the output of the jobs";
@@ -44,10 +44,11 @@ summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}
 outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016
 subdir='/test'
-if [ -z $4 ]; then
+if [ ! -z $4 ]; then
     subdir=$4
 fi
-wwwdir=~/www/Top2016/2016/subdir
+wwwdir=~/www/Top2016/2016/$subdir
+echo $wwwdir
 
 
 RED='\e[31m'

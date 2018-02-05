@@ -30,7 +30,7 @@ RooWorkspace create_workspace(bool isData=false) {
   if(isData)
     w.factory("expr::mt('(a*mtg + b)', a[0.125373], b[154.426], mtg[173,165,183])");
   else
-    w.factory("mt[173,150,200]");
+    w.factory("mt[0,-8,8]");
   w.factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
   w.factory("expr::gaus_sigma('(a3*mt + a2)', a2[14.159], a3[0.03039], mt)");
   w.factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
@@ -61,14 +61,14 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   float topSF1 = top1->GetBinContent(2)/top1->GetBinContent(1);
   float topSF2 = top2->GetBinContent(2)/top1->GetBinContent(1);
   //TTree *t = (TTree*)f->Get("data");
-  RooRealVar meson_l_mass("meson_l_mass","J/#psi+l mass", 0, 250, "GeV") ;
+  RooRealVar meson_l_mass("meson_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
   std::cout << "loaded" << std::endl;
   if(doBinned) {
     TH1F *h1 = (TH1F*)gDirectory->Get("massD0_l_all_meson_BCDEF");
     TH1F *h2 = (TH1F*)gDirectory->Get("massD0_l_all_meson_GH");
     /*
-    t->Draw("meson_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(meson_l_mass>0 && meson_l_mass<250 && meson_mass>3.0 && meson_mass<3.2 && epoch==1)", "goff");
-    t->Draw("meson_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(meson_l_mass>0 && meson_l_mass<250 && meson_mass>3.0 && meson_mass<3.2 && epoch==2)", "goff");
+    t->Draw("meson_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(meson_l_mass>0 && meson_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==1)", "goff");
+    t->Draw("meson_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(meson_l_mass>0 && meson_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==2)", "goff");
     TH1F *h1 = (TH1F*)gDirectory->Get("h1");
     TH1F *h2 = (TH1F*)gDirectory->Get("h2");
     */
@@ -99,8 +99,8 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
       t->GetEntry(i);
       for(int j=0; j<2; j++) {
         if(meson_id[j] != 443) continue;
-        if(meson_mass[j] < 3.0) continue;
-        if(meson_mass[j] > 3.2) continue;
+        if(meson_mass[j] < 1.7) continue;
+        if(meson_mass[j] > 2.0) continue;
         if(!(mesonlm[j] > 0)) continue;
         if(mesonlm[j] > 250) continue;
         if(l3d[j]/sl3d[j]<20.) continue;
@@ -122,7 +122,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     w.import(ds);
     std::cout << "parse done!" << std::endl;
   }
-  //w.import(jpsi_l_mass);
+  //w.import(meson_l_mass);
   std::cout << "loading fit parameters" << std::endl;
   int i(0);
   for(auto & it : fit_par) {
