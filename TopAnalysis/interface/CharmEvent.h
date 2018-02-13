@@ -64,6 +64,7 @@ struct CharmEvent_t
   Float_t ds_pi2_pt[50],ds_pi2_eta[50],ds_pi2_phi[50];
   Float_t d0_l_mass[50],d0_l_dR[50];
   Float_t d0_l3d[50],d0_sigmal3d[50];
+  Float_t d0_pi_mother[50],d0_k_mother[50];
 
   //Fragmentation
   Float_t peterson[50], up[50], down[50], central[50];

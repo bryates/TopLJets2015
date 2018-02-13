@@ -1067,8 +1067,8 @@ void RunTopKalman(TString filename,
                 runBCDEF.Fill(muTracks, leptons, jet, chTag, "jpsi");
                 runGH.Fill(muTracks, leptons, jet, chTag, "jpsi");
 
-                treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event, frag);
-                treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event, frag);
+                treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event);//, frag);
+                treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
 
@@ -1182,6 +1182,8 @@ void RunTopKalman(TString filename,
               //Mass already set by Kalman filter
               sort(piTracks.begin(), piTracks.end(),
                    [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
+              sort(pfMatched.begin(), pfMatched.end(),
+                   [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
               //std::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << (piTracks[i].getKalmanMass() - piTracks[j].getKalmanMass()) / piTracks[i].getKalmanMass() << std::endl;
               //Check masses from Kalman class
               if(piTracks[i].M()!=gMassPi) continue;
@@ -1267,8 +1269,14 @@ void RunTopKalman(TString filename,
                   std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
                   runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                   runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                  if(!ev.isData) {
+                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, pfMatched);
+                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, pfMatched);
+                  }
+                  else {
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                  }
                   treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                   treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 }
@@ -1276,14 +1284,14 @@ void RunTopKalman(TString filename,
               if(piSoftTracks.size()<3) continue;
               for(auto &track : piSoftTracks) {
                 if(abs(track.getMotherId())!=413) continue;
-                if(piSoftTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
+                if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
                 cout << track.getKalmanMass() - mass12 << endl;
                 if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
-                if( piSoftTracks[j].charge() == track.charge() ) continue;
+                if( piTracks[j].charge() == track.charge() ) continue;
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
                 track.setMass(gMassPi);
-                std::vector<pfTrack> tmp_cands = { piSoftTracks[i],piSoftTracks[j],track };
+                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");

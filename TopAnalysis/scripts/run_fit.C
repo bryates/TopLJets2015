@@ -21,18 +21,9 @@
     tmp_mass.ReplaceAll(".","v");
     RooRealVar mt = fit_constrain(w,fit_par,fit_err,tmp_mass,flags);
     mt.Print();
-    /*
-    if(isData) {
-      float m = (mt.getValV() - 154.412) / 0.125451;
-      mass->SetBinContent(mass->FindBin(it),m);
-    }
-    */
     mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
     mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
     mfits.push_back(pair<float,float>(mt.getValV()+172.5,mt.getError()));
-    //float m = (mt.getValV() - 154.426) / 0.125373;
-    //float m = (mt.getValV() - 1.71024) / 1.00499;
-    //std::cout << "Calibrated mass: " << m << "GeV" << std::endl;
   }
 
   //Print fit parameters

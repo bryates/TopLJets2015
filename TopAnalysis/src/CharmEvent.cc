@@ -130,6 +130,8 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("d0_l_dR",       ev.d0_l_dR,        "d0_l_dR[nmeson]/F");
   t->Branch("d0_l3d",        ev.d0_l3d,         "d0_l3d[nmeson]/F");
   t->Branch("d0_sigmal3d",   ev.d0_sigmal3d,    "d0_sigmal3d[nmeson]/F");
+  t->Branch("d0_pi_mother",  ev.d0_pi_mother,   "d0_pi_mother[nmeson]/F");
+  t->Branch("d0_k_mother",   ev.d0_k_mother,    "d0_k_mother[nmeson]/F");
 
   //Fragmentation
   t->Branch("peterson",   &ev.peterson,     "peterson[nj]/F");
@@ -267,6 +269,8 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("d0_l_dR",       ev.d0_l_dR);
   t->SetBranchAddress("d0_l3d",        ev.d0_l3d);
   t->SetBranchAddress("d0_sigmal3d",   ev.d0_sigmal3d);
+  t->SetBranchAddress("d0_pi_mother",  ev.d0_pi_mother);
+  t->SetBranchAddress("d0_k_mother",   ev.d0_k_mother);
 
   //Fragmentation
   t->SetBranchAddress("peterson",    ev.peterson);

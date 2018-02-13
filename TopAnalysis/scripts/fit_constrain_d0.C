@@ -30,7 +30,7 @@ RooWorkspace create_workspace(bool isData=false) {
   if(isData)
     w.factory("expr::mt('(a*mtg + b)', a[0.125373], b[154.426], mtg[173,165,183])");
   else
-    w.factory("mt[0,-8,8]");
+    w.factory("mt[0,-20,20]");
   w.factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
   w.factory("expr::gaus_sigma('(a3*mt + a2)', a2[14.159], a3[0.03039], mt)");
   w.factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
@@ -38,7 +38,6 @@ RooWorkspace create_workspace(bool isData=false) {
   w.factory("expr::gamma_beta('(a9*mt + a8)', a9[-36.71], a8[0.427], mt)");
   w.factory("expr::gamma_mu('(a11*mt + a10)', a10[-53.504], a11[0.3873], mt)");
 
-  w.Print();
   return w;
 }
 
@@ -85,15 +84,15 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     float l3d[50],sl3d[50];
     int epoch[50],meson_id[50];
     t->SetBranchAddress("meson_id", meson_id);
-    t->SetBranchAddress("meson_l_mass", mesonlm);
-    t->SetBranchAddress("meson_mass", meson_mass);
+    t->SetBranchAddress("d0_l_mass", mesonlm);
+    t->SetBranchAddress("d0_mass", meson_mass);
     t->SetBranchAddress("norm", &norm);
     t->SetBranchAddress("topptwgt", &topptwgt);
     t->SetBranchAddress("sfs", sfs);
     t->SetBranchAddress("puwgt", puwgt);
     t->SetBranchAddress("epoch", epoch);
-    t->SetBranchAddress("meson_l3d", l3d);
-    t->SetBranchAddress("meson_sigmal3d", sl3d);
+    t->SetBranchAddress("d0_l3d", l3d);
+    t->SetBranchAddress("d0_sigmal3d", sl3d);
     RooDataSet ds("data", "ds", RooArgSet(meson_l_mass));
     for(int i=0; i< t->GetEntries(); i++) {
       t->GetEntry(i);
@@ -132,7 +131,9 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     if(allowVary) {
       int j = &it - &fit_par[0];
       w.var(par)->setRange(it.first - fit_err[j].first, it.first + fit_err[j].first);
+      std::cout << "Fit error" << fit_err[j].first << " " <<fit_err[j].second << std::endl;
     }
+    w.var(par)->Print();
     i++;
     par = Form("a%d",(int)i);
     w.var(par)->setVal(it.second);
@@ -141,6 +142,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
       int j = &it - &fit_par[0];
       w.var(par)->setRange(it.second - fit_err[j].second, it.second + fit_err[j].second);
     }
+    w.var(par)->Print();
     i++;
   }
   /*
@@ -168,6 +170,9 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   m.migrad();
   m.hesse();
   RooFitResult *r = m.save();
+  /*
+  w.pdf("signalModel")->fitTo(*w.data("data"),Extended(kTRUE),SumW2Error(kTRUE));
+  */
   w.pdf("signalModel")->plotOn(frame);
   w.pdf("signalModel")->plotOn(frame, Components(*w.pdf("gauss")),LineStyle(kDashed),LineColor(kRed));
   w.pdf("signalModel")->plotOn(frame, Components(*w.pdf("gamma")),LineStyle(kDashed),LineColor(kBlue));

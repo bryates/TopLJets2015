@@ -4,16 +4,19 @@
   std::vector<pair<float,float>> fit_par;
   std::vector<pair<float,float>> fit_err;
   std::vector<RooRealVar> masses;
+
   //Fit MC and get fit parameters
             //0b vary binned
   short flags(0b11);
-  gROOT->ProcessLine(".L roofit_mtop_d0.C");
-  roofit_mtop(names,fit_par,fit_err,flags);
-
+  gROOT->ProcessLine(".L splot.C");
   //Fit and plot fitted masses
   gROOT->ProcessLine(".L fit_constrain_d0.C");
+  gROOT->ProcessLine(".L roofit_mtop_d0.C");//_unfold.C");
+
   bool isData(false);
   RooWorkspace w = create_workspace(isData);
+  roofit_mtop(w,names,fit_par,fit_err,flags);
+  return;
   //TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN};m_{t}^{FIT}",100,165,179);//,50,163,180);
   TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN}-172.5 (GeV);m_{t}^{FIT} (GeV)",100,-8,8);//,50,163,180);
   for(auto & it : names) {
@@ -41,6 +44,7 @@
   float avg_deltag(0.);
   float avg_var(0.);
   int ndelta(0);
+  float mmin(172), mmax(172);
   for(auto & it : names) {
     float itg(it -172.5);
     TString tmp_mass = Form("%.1f",it);
@@ -61,6 +65,8 @@
     avg_var += sqrt( pow( deltam_unc, 2) );
     std::cout << it << " GeV -> RooFit mass: " << mfits[&it - &names[0]].first
               << " GeV Calibration line mass: " << calibm << " GeV ("  << deltam << " GeV) +/-" << abs(deltam_unc) << " GeV " << deltag << " GeV" << std::endl;
+    mmin = min(mmin, mfits[&it - &names[0]].first);
+    mmax = max(mmax, mfits[&it - &names[0]].first);
   }
   //avg_delta /= ndelta;
   avg_delta /= names.size();
@@ -68,15 +74,12 @@
   avg_deltag /= names.size();
   //avg_deltag = sqrt(avg_deltag);
   avg_var /= names.size();
-  float mmin(172), mmax(172);
   for(auto & it : names) {
     float itg(it -172.5);
     TString tmp_mass = Form("%.1f",it);
     tmp_mass.ReplaceAll(".","v");
     float calibm = f->Parameter(0) + f->Parameter(1)*itg;
     std::cout << "Mass: " << it << " GeV -> " << calibm - avg_deltag << " GeV +/- " << sqrt(pow(f->ParError(0),2)+pow(f->ParError(1),2)) << " GeV" << std::endl;
-    mmin = min(mmin, calibm - avg_deltag);
-    mmax = max(mmax, calibm - avg_deltag);
   }
   std::cout << "AVG difference: " << avg_delta << " GeV" << std::endl;
   std::cout << "AVG from GEN: " << avg_deltag << " GeV" << std::endl;

@@ -81,7 +81,7 @@ void CharmTree::CheckRunPeriod(TString runPeriod) {
   runPeriod_ = runPeriod;
 }
 
-void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString chTag, TString name, int event, std::vector<float> frag) {
+void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) {
   if(!isGood_) return;
   //attachToCharmEventTree(t_,ev_);
   //Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
@@ -248,6 +248,11 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack> &pfCands, Leptons l
     ev_.d0_k_pt[ev_.nmeson] = pfCands[1].Pt();
     ev_.d0_k_eta[ev_.nmeson] = pfCands[1].Eta();
     ev_.d0_k_phi[ev_.nmeson] = pfCands[1].Phi();
+
+    if(genMatch.size()>0) {
+      ev_.d0_pi_mother[ev_.nmeson] = genMatch[0].getMotherId();
+      ev_.d0_k_mother[ev_.nmeson]  = genMatch[1].getMotherId();
+    }
 
     ev_.j_pt[ev_.nj] = jet.getPt();
     ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();

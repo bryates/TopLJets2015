@@ -163,11 +163,11 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar g("g","g", 2,1.9,2.1);
   RooRealVar g("g","g", 2.5, 0, 10);
   //RooRealVar g("g","g", 2.5, 2.3, 2.6);
-  RooRealVar b("b","b", 32, 30, 100);
-  //RooRealVar b("b","b", 35, 30, 40);
-  //RooRealVar b("b","b", 36, 35, 37);
-  RooRealVar mu("mu","mu", 9, 5, 14);
-  //RooRealVar mu("mu","mu", 11, 10, 12);
+  //RooRealVar b("b","b", 32, 30, 100);
+  RooRealVar b("b","b", 35, 30, 40);
+  //RooRealVar b("b","b", 35, 34, 36);
+  //RooRealVar mu("mu","mu", 9, 5, 14);
+  RooRealVar mu("mu","mu", 12, 11, 13);
 
   // Construct Gaussian PDF for signal
   RooRealVar mean("mean","mean", 70, 60, 90);
@@ -297,7 +297,7 @@ void roofit_mtop(std::vector<float> &names,
 
   mean->GetYaxis()->SetRangeUser(64,82);
   sigma->GetYaxis()->SetRangeUser(10,30);
-  alpha->GetYaxis()->SetRangeUser(0.3,0.6);
+  alpha->GetYaxis()->SetRangeUser(0.3,0.7);
   gamma->GetYaxis()->SetRangeUser(1,5);
   beta->GetYaxis()->SetRangeUser(20,50);
   mu->GetYaxis()->SetRangeUser(6,20);
@@ -330,48 +330,16 @@ void roofit_mtop(std::vector<float> &names,
   c1->cd();
   gStyle->SetOptStat(0);
   /*
-  int lbin = mean->FindFirstBinAbove(0);
-  int ubin = mean->FindLastBinAbove(0);
+  for(auto &it : hists) {
+  int lbin = it->FindBin(it->GetMinimumStored());
+  int ubin = it->FindBin(it->GetMaximumStored());
   lbin = min(lbin, ubin);
   ubin = max(lbin, ubin);
   std::cout << "lbin" << lbin << " " << ubin << std::endl;
-  mean->GetYaxis()->SetRangeUser(min((int)(mean->GetBinContent(lbin) - mean->GetBinError(lbin)), (int)(mean->GetBinContent(lbin) + mean->GetBinError(lbin))),
-                                 max((int)(mean->GetBinContent(ubin) - mean->GetBinError(ubin))+1, (int)(mean->GetBinContent(ubin) + mean->GetBinError(ubin))+1)+1);
-  lbin = sigma->FindFirstBinAbove(0)
-  ubin = sigma->FindLastBinAbove(0);
-  lbin = min(lbin, ubin);
-  ubin = max(lbin, ubin);
-  std::cout << "lbin" << lbin << " " << ubin << std::endl;
-  sigma->GetYaxis()->SetRangeUser(min((int)(sigma->GetBinContent(lbin) - sigma->GetBinError(lbin)), (int)(sigma->GetBinContent(lbin) + sigma->GetBinError(lbin))),
-                                 max((int)(sigma->GetBinContent(ubin) - sigma->GetBinError(ubin))+1, (int)(sigma->GetBinContent(ubin) + sigma->GetBinError(ubin))+1)+1);
-  lbin = alpha->FindFirstBinAbove(0);
-  ubin = alpha->FindLastBinAbove(0);
-  lbin = min(lbin, ubin);
-  ubin = max(lbin, ubin);
-  std::cout << "lbin" << lbin << " " << ubin << std::endl;
-  alpha->GetYaxis()->SetRangeUser(min((int)(alpha->GetBinContent(lbin) - alpha->GetBinError(lbin)), (int)(alpha->GetBinContent(lbin) + alpha->GetBinError(lbin))),
-                                 max((int)(alpha->GetBinContent(ubin) - alpha->GetBinError(ubin))+1, (int)(alpha->GetBinContent(ubin) + alpha->GetBinError(ubin))+1)+1);
-  lbin = gamma->FindFirstBinAbove(0);
-  ubin = gamma->FindLastBinAbove(0);
-  lbin = min(lbin, ubin);
-  ubin = max(lbin, ubin);
-  std::cout << "lbin" << lbin << " " << ubin << std::endl;
-  gamma->GetYaxis()->SetRangeUser(min((int)(gamma->GetBinContent(lbin) - gamma->GetBinError(lbin)), (int)(gamma->GetBinContent(lbin) + gamma->GetBinError(lbin))),
-                                 max((int)(gamma->GetBinContent(ubin) - gamma->GetBinError(ubin))+1, (int)(gamma->GetBinContent(ubin) + gamma->GetBinError(ubin))+1)+1);
-  lbin = beta->FindFirstBinAbove(0);
-  ubin = beta->FindLastBinAbove(0);
-  lbin = min(lbin, ubin);
-  ubin = max(lbin, ubin);
-  std::cout << "lbin" << lbin << " " << ubin << std::endl;
-  beta->GetYaxis()->SetRangeUser(min((int)(beta->GetBinContent(lbin) - beta->GetBinError(lbin)), (int)(beta->GetBinContent(lbin) + beta->GetBinError(lbin))),
-                                 max((int)(beta->GetBinContent(ubin) - beta->GetBinError(ubin))+1, (int)(beta->GetBinContent(ubin) + beta->GetBinError(ubin))+1)+1);
-  lbin = mu->FindFirstBinAbove(0);
-  ubin = mu->FindLastBinAbove(0);
-  lbin = min(lbin, ubin);
-  ubin = max(lbin, ubin);
-  std::cout << "lbin" << lbin << " " << ubin << std::endl;
-  mu->GetYaxis()->SetRangeUser(min((int)(mu->GetBinContent(lbin) - mu->GetBinError(lbin)), (int)(mu->GetBinContent(lbin) + mu->GetBinError(lbin))),
-                                 max((int)(mu->GetBinContent(ubin) - mu->GetBinError(ubin))+1, (int)(mu->GetBinContent(ubin) + mu->GetBinError(ubin))+1)+1);
+  it->GetYaxis()->SetRangeUser(min((int)(it->GetBinContent(lbin) - it->GetBinError(lbin)), (int)(it->GetBinContent(lbin) + it->GetBinError(lbin))),
+                                 max((int)(it->GetBinContent(ubin) - it->GetBinError(ubin))+1, (int)(it->GetBinContent(ubin) + it->GetBinError(ubin))+1)+1);
+  it->GetYaxis()->SetRangeUser((int)(it->GetBinContent(lbin) - it->GetBinError(lbin)), (int)(it->GetBinContent(ubin) + it->GetBinError(ubin))+1);
+  }
   */
   for(int i = 0; i < hists.size(); i++) {
     hists[i]->Draw();
