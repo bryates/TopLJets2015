@@ -4,20 +4,17 @@
   std::vector<pair<float,float>> fit_par;
   std::vector<pair<float,float>> fit_err;
   std::vector<RooRealVar> masses;
-
   //Fit MC and get fit parameters
             //0b vary binned
   short flags(0b11);
   gROOT->ProcessLine(".L splot.C");
   //Fit and plot fitted masses
-  gROOT->ProcessLine(".L fit_constrain_d0.C");
-  gROOT->ProcessLine(".L roofit_mtop_d0_unfold.C");
-  //gROOT->ProcessLine(".L roofit_mtop_d0.C");
+  gROOT->ProcessLine(".L fit_constrain_d0_mu.C");
+  gROOT->ProcessLine(".L roofit_mtop_d0_mu.C");
+  roofit_mtop(names,fit_par,fit_err,flags);
 
   bool isData(false);
   RooWorkspace w = create_workspace(isData);
-  roofit_mtop(w,names,fit_par,fit_err,flags);
-  return;
   //TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN};m_{t}^{FIT}",100,165,179);//,50,163,180);
   TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN}-172.5 (GeV);m_{t}^{FIT} (GeV)",100,-8,8);//,50,163,180);
   for(auto & it : names) {
@@ -88,13 +85,14 @@
   int lbin = mass->FindFirstBinAbove(0);
   int ubin = mass->FindLastBinAbove(0);
   /*
-  mass->GetYaxis()->SetRangeUser(min((int)(mass->GetBinContent(lbin) - mass->GetBinError(lbin))-1, (int)(mass->GetBinContent(lbin) + mass->GetBinError(lbin))-1),
+  mass->GetYaxis()->SetRangeUser(min((int)(mass->GetBinContent(lbin) - mass->GetBinError(lbin)), (int)(mass->GetBinContent(lbin) + mass->GetBinError(lbin))),
                                  max((int)(mass->GetBinContent(ubin) - mass->GetBinError(ubin))+5, (int)(mass->GetBinContent(ubin) + mass->GetBinError(ubin))+1)+5);
   */
   mass->GetYaxis()->SetRangeUser((int)mmin-1, (int)mmax+5);
+  mass->GetYaxis()->SetRangeUser(155, 210);
   TString name("");
-  if(flags&0x2) name = "_meson_vary";
-  else name = "_meson";
+  if(flags&0x2) name = "_meson_tag_vary";
+  else name = "_meson_tag";
   char sign = '+';
   if(f->Parameter(1)<0) sign = '-';
   TString leg_title = TString::Format("Calibration curve : %0.2f (#pm%0.2f) %c m_{t} %0.2f (#pm%0.2f)",f->Parameter(0),abs(f->ParError(0)),sign,f->Parameter(1),abs(f->ParError(1)));

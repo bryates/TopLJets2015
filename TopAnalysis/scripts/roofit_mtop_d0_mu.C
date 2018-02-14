@@ -27,8 +27,10 @@
 #include <vector>
 using namespace RooFit;
 
+//bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
+
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="meson_fit.root") {
-void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
+void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   //splot(w, mass);
@@ -38,7 +40,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   //f->ls(); 
   //TString name = "massD0_l_all_meson";
-  TString name = "massD0_l_all_meson";
+  TString name = "massD0_mu_tag_l_all_meson";
   //TString name = "massJPsi_l_all_meson_BCDEF";
   cout << "loading " << name+"_BCDEF mass="+mass << endl;
   cout << "loading " << name+"_GH mass="+mass << endl;
@@ -70,7 +72,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
 
   // Declare observable x
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
-  RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
+  RooRealVar meson_l_mass("D^{0}+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   //RooRealVar meson_mass("meson_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
   
   //cout << "creating dataset" << endl;
@@ -84,8 +86,8 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   //h2->Sumw2();
   //h2->SetDirectory(0);
   if(!GET_BIT(flags,0)) {
-  t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && meson_id==42113 && d0_l3d/d0_sigmal3d>20 && epoch==1)", "goff");
-  t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && meson_id==42113 && d0_l3d/d0_sigmal3d>20 && epoch==2)", "goff");
+  t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1)", "goff");
+  t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2)", "goff");
   h1 = (TH1F*)gDirectory->Get("h1");
   h2 = (TH1F*)gDirectory->Get("h2");
   }
@@ -141,47 +143,31 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   h->Draw();
   RooDataHist dh("dh", "dh", meson_l_mass, h);
   /*
-  RooDataSet *dsw = (RooDataSet*)w.data("nsig_sw");
-  RooDataSet dhw = RooDataSet(dsw->GetName(), dsw->GetTitle(), dsw, *dsw->get(), "", "meson_l_mass_sw");
-  */
-  w.Print();
-  meson_l_mass.setBins(60);
-  //RooDataHist dh = *dhw.binnedClone();
-  /*
   */
 
   cout << "plotting dataset" << endl;
   // Make plot of binned dataset showing Poisson error bars (RooFit default)
-  int binning(30);
   RooPlot* frame = meson_l_mass.frame() ;
-  /*
-  dsw->plotOn(frame, DataError(RooAbsData::SumW2),
-                 RooFit::Name("massD0_signal"), RooFit::MarkerColor(1),
-                 RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
-                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
-  c1->SaveAs("d0_l_sw.pdf");
-  */
   //dh.plotOn(frame);
   //ds.plotOn(frame,Binning(50));
   //frame->Draw();
 
   cout << "defining variables" << endl;
 
-  RooRealVar a0("a0", "a0", 1);
-  RooRealVar a1("a1", "a1", 1);
-  RooPolynomial m1("m1", "m1", meson_l_mass, RooArgList(a0,a1));
-
   // Gamma terms
-  RooRealVar g("g","g", 2., 1, 2.5);
-  //RooRealVar g("g","g", 2.5, 2, 3);
-  RooRealVar b("b","b", 33, 30, 40);
+  //RooRealVar g("g","g", 2.5, 0, 5);
+  RooRealVar g("g","g", 2., 1.5, 2.4);
+  RooRealVar b("b","b", 32, 28, 40);
+  //RooRealVar b("b","b", 32, 27, 40);
   //RooRealVar b("b","b", 30, 28, 32);
-  RooRealVar mu("mu","mu", 12, 8, 12);
+  RooRealVar mu("mu","mu", 11, 9, 14);
+  //RooRealVar mu("mu","mu", 12, 9, 14);
   //RooRealVar mu("mu","mu", 12, 11.8, 12.2);
 
   // Construct Gaussian PDF for signal
-  RooRealVar mean("mean","mean", 58, 55, 65);
-  RooRealVar sigma("sigma","sigma", 17, 14, 20);
+  RooRealVar mean("mean","mean", 58, 55, 62);
+  //RooRealVar mean("mean","mean", 55, 40, 70);
+  RooRealVar sigma("sigma","sigma", 17, 15.5, 18.);
   //RooRealVar sigma("sigma","sigma", 18, 17.99, 18.01);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
   RooGaussian gauss("gauss","gauss", meson_l_mass, mean, sigma);
@@ -193,7 +179,8 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
 
   cout << "defining model" << endl;
   // Construct a Gaussian+Gamma function to fit the signal component
-  RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
+  RooRealVar alpha("alpha","alpha", 0.3, 0.2, 0.38);
+  //RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
   RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
 
   // Construct exponential PDF to fit the bkg component
@@ -208,7 +195,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   /*
   signalModel.fitTo(ds);//,Extended());
   */
-  signalModel.fitTo(dh, Extended(kTRUE), SumW2Error(kTRUE));
+  signalModel.fitTo(dh,Extended(kTRUE),SumW2Error(kFALSE));
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
   //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
@@ -230,7 +217,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   frame->Draw();
 
   mass.ReplaceAll(".","v");
-  mass += "_meson";
+  mass += "_meson_mu_tag";
 
   c1->SaveAs("MC13TeV_TTJets_m"+mass+".png");
   c1->SaveAs("MC13TeV_TTJets_m"+mass+".pdf");
@@ -274,7 +261,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
 
 
 
-void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
+void roofit_mtop(std::vector<float> &names,
                  std::vector<pair<float,float>> &fit_par,
                  std::vector<pair<float,float>> &fit_err,
                  short flags=0b00, TString file="meson_fit.root") {
@@ -289,7 +276,7 @@ void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
     TString tmp_mass = Form("%.1f",it);
     //tmp_mass.ReplaceAll(".","v");
     //if(it == 171.5)
-      mtop_norm(w, param, tmp_mass, flags);
+      mtop_norm(param, tmp_mass, flags);
       //return;
     //else
       //mtop(param, tmp_mass);
@@ -304,11 +291,11 @@ void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
   TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, -8, 8);
 
   mean->GetYaxis()->SetRangeUser(50,65);
-  sigma->GetYaxis()->SetRangeUser(10,22);
-  alpha->GetYaxis()->SetRangeUser(0,1);
-  gamma->GetYaxis()->SetRangeUser(0,5);
-  beta->GetYaxis()->SetRangeUser(20,65);
-  mu->GetYaxis()->SetRangeUser(10,15);
+  sigma->GetYaxis()->SetRangeUser(10,25);
+  alpha->GetYaxis()->SetRangeUser(0.1,0.5);
+  gamma->GetYaxis()->SetRangeUser(1,3);
+  beta->GetYaxis()->SetRangeUser(20,40);
+  mu->GetYaxis()->SetRangeUser(8,15);
   /*
   int lbin = mean->FindFirstBinAbove(0);
   int ubin = mean->FindLastBinAbove(0);
@@ -370,19 +357,16 @@ void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
     Double_t err = fit->ParError(1);
     fit_par.push_back(std::pair<float,float>(fit->Parameter(0),fit->Parameter(1)));
     fit_err.push_back(std::pair<float,float>(fit->ParError(0),fit->ParError(1)));
-    std::cout << hists[i]->GetName() << std::endl;
-    std::cout << "Fit error" << fit_err[i].first << " " << fit_err[i].second << std::endl;
-    std::cout << "         " << fit->ParError(0) << " " << fit->ParError(1) << std::endl;
     char sign = '+';
     if(fit->Parameter(1)<0) sign = '-';
     TString leg_title = TString::Format("Calibration curve : %0.2f (#pm%0.2f) %c m_{t} %0.2f (#pm%0.2f)",fit->Parameter(0),abs(fit->ParError(0)),sign,abs(slope),abs(err));
-    std::cout << leg_title << std::endl;
     TLegend *leg_calib = new TLegend(0.14,0.75,0.67,0.88,NULL,"brNDC");
     leg_calib->SetBorderSize(0);
+    leg_calib->SetFillColor(4000);
     leg_calib->AddEntry(hists[i],leg_title,"lp");
     leg_calib->Draw();
     TString name = hists[i]->GetName();
-    name += "_meson";
+    name += "_meson_tag";
     c1->SaveAs("fit_"+name+".pdf");
     c1->SaveAs("fit_"+name+".png");
   }
