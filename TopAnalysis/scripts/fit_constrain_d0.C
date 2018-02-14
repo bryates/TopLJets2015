@@ -160,10 +160,10 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.factory("SUM::signalModel(alpha*gauss,gamma)");
   RooPlot* frame = w.var("meson_l_mass")->frame() ;
   if(doBinned) w.data("data")->plotOn(frame);
-  else w.data("data")->plotOn(frame,Binning(50));
+  else w.data("data")->plotOn(frame,Binning(25));
   //frame->Draw();
   RooAbsReal *nll;
-  nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
+  nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kFALSE));
   RooMinuit m(*nll);
   m.setPrintLevel(-1); 
   m.setPrintEvalErrors(-1);
@@ -176,7 +176,13 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.pdf("signalModel")->plotOn(frame);
   w.pdf("signalModel")->plotOn(frame, Components(*w.pdf("gauss")),LineStyle(kDashed),LineColor(kRed));
   w.pdf("signalModel")->plotOn(frame, Components(*w.pdf("gamma")),LineStyle(kDashed),LineColor(kBlue));
+  TCanvas *c1 = new TCanvas("c1","c1");
+  c1->cd();
   frame->Draw();
+  mass += "_meson_fit";
+
+  c1->SaveAs("MC13TeV_TTJets_m"+mass+".png");
+  c1->SaveAs("MC13TeV_TTJets_m"+mass+".pdf");
   w.Print();
   r->Print();
   return *w.var("mt");

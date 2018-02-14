@@ -1113,8 +1113,8 @@ void RunTopKalman(TString filename,
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue; //save soft pions separately
-            if(abs(track.getMotherId()==413 && abs(track.getPdgId())==211)) piSoftTracks.push_back(track);
-            if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
+            if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track);
+            if((abs(track.getMotherId())==421 || abs(track.getMotherId())==42113) && abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << track.Pt() << " " << track.Eta() << " " << track.Phi() <<  " " << ev.k_mass[0] << endl; }
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[0] << " " << ev.k_pf_eta[0] << " " << ev.k_pf_phi[0] <<  " " << ev.k_mass[0] << endl; }

@@ -1029,8 +1029,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
       
       // correct charge combination and not muons
+      /*
       if(abs(pf1.pdgId()) != 13) continue;
       if(abs(pf2.pdgId()) != 13) continue;
+      */
       if(pf1.pdgId()*pf2.pdgId() != -13*13) continue;
       
       if(pf1.pt() <3.0 || pf2.pt()<3.0) continue;
@@ -1181,8 +1183,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
 
       // correct charge combination and not muons
+      /*
       if(abs(pf1.pdgId()) != 211) continue;
       if(abs(pf2.pdgId()) != 211) continue;
+      */
       if(pf1.pdgId()*pf2.pdgId() != -211*211) continue;
       
       if(pf1.pt()<1.0 || pf2.pt()<5.0) continue; //K pT > 1 GeV, pi pT > 5 GeV
@@ -1360,9 +1364,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 	if(id2 == id3) continue;
 
 	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
-        if(abs(pf3.pdgId()) != 211) continue;
+        //if(abs(pf3.pdgId()) != 211) continue;
         if(!pf3.trackHighPurity());
-        if(pf1.pdgId()*pf3.pdgId() > 0) continue; //K and pi must have opposite sign
+        //if(pf1.pdgId()*pf3.pdgId() > 0) continue; //K and pi must have opposite sign
+        if(pf1.pdgId()*pf3.pdgId() != -211*211) continue;
 
 	if(fabs(pf3.eta()) > 2.4) continue;
 

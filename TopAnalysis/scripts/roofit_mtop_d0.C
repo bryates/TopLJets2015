@@ -70,7 +70,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
 
   // Declare observable x
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
-  RooRealVar meson_l_mass("D^{0}+l mass","J/#psi+l mass", 0, 250, "GeV") ;
+  RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
   //RooRealVar meson_mass("meson_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
   
   //cout << "creating dataset" << endl;
@@ -208,7 +208,7 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   /*
   signalModel.fitTo(ds);//,Extended());
   */
-  signalModel.fitTo(dh);//,Extended(kTRUE));
+  signalModel.fitTo(dh, Extended(kTRUE), SumW2Error(kTRUE));
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
   //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
@@ -308,7 +308,7 @@ void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
   alpha->GetYaxis()->SetRangeUser(0,1);
   gamma->GetYaxis()->SetRangeUser(0,5);
   beta->GetYaxis()->SetRangeUser(20,45);
-  mu->GetYaxis()->SetRangeUser(15,35);
+  mu->GetYaxis()->SetRangeUser(8,12);
   /*
   int lbin = mean->FindFirstBinAbove(0);
   int ubin = mean->FindLastBinAbove(0);
