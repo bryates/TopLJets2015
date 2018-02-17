@@ -500,7 +500,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!ev.isData) {
+      if(!ev.isData && 0) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
@@ -1114,8 +1114,8 @@ void RunTopKalman(TString filename,
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue; //save soft pions separately
             if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track);
-            //if((abs(track.getMotherId())==421 || abs(track.getMotherId())==42113) && abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
-            if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
+            if(abs(track.getMotherId())==421 && abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
+            //if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << track.Pt() << " " << track.Eta() << " " << track.Phi() <<  " " << ev.k_mass[0] << endl; }
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[0] << " " << ev.k_pf_eta[0] << " " << ev.k_pf_phi[0] <<  " " << ev.k_mass[0] << endl; }
@@ -1169,9 +1169,9 @@ void RunTopKalman(TString filename,
 
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
-            if(i > tmax) break;
+            //if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) {
-              if(j > tmax) break;
+              //if(j > tmax) break;
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;
@@ -1262,8 +1262,7 @@ void RunTopKalman(TString filename,
                   //if(!track.trackerMuon() && !track.globalMuon()) continue;
                   //if(track.Pt() < 3.0) continue;
                   if(debug) cout << "third lepton found" << endl;
-                  if(piTracks[j].charge()*track.charge()>0) continue;
-                  //PDGID 13 is NEGATIVE mu
+                  if(piTracks[j].charge()*track.charge()<0) continue; //PDGID 13 is NEGATIVE mu but charge function in pfTrack acconts for this
                   //Kaon and lepton have same charge (e.g. b^-1/3 -> c^+2/3 W^- -> c^+2/3 l^- nubar)
                   //correct mass assumption
                   if(debug) cout << "correct mass assumption" << endl;
@@ -1287,7 +1286,8 @@ void RunTopKalman(TString filename,
                 if(abs(track.getMotherId())!=413) continue;
                 if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
                 cout << track.getKalmanMass() - mass12 << endl;
-                if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
+                //if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
+                if(fabs(mass12-1.864) > 0.1) continue; // tighter mass window cut
                 if( piTracks[j].charge() == track.charge() ) continue;
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption

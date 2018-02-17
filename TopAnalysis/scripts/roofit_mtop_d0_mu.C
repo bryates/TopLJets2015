@@ -33,9 +33,12 @@ using namespace RooFit;
 void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
-  //splot(w, mass);
+  //splot_d0_mu(w, mass);
   mass.ReplaceAll(".","v");
   TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
+  TFile *fin = new TFile("TopMass_"+mass+"_unfold.root");
+  if(!fin) splot_d0_mu(w, mass);
+  RooWorkspace w = *(RooWorkspace*)fin->Get("w");
   TChain *t = new TChain("data");
   t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   //f->ls(); 
@@ -86,8 +89,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //h2->Sumw2();
   //h2->SetDirectory(0);
   if(!GET_BIT(flags,0)) {
-  t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1)", "goff");
-  t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2)", "goff");
+  t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1)", "goff");
+  t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2)", "goff");
   h1 = (TH1F*)gDirectory->Get("h1");
   h2 = (TH1F*)gDirectory->Get("h2");
   }
@@ -104,7 +107,11 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   t->SetBranchAddress("sfs", sfs);
   t->SetBranchAddress("puwgt", puwgt);
   t->SetBranchAddress("epoch", epoch);
-  RooDataSet ds("ds", "ds", RooArgSet(meson_l_mass));
+  RooDataSet ds;
+  if(!GET_BIT(flags,0)) {
+    ds = *w.data("dsSWeights");
+  }
+  //RooDataSet ds("ds", "ds", RooArgSet(meson_l_mass));
   /*
   TH1F *h1 = new TH1F("h1","h1",100,0,250);
   TH1F *h2 = new TH1F("h2","h2",100,0,250);
@@ -113,7 +120,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
     for(int j=0; j<2; j++) {
       if(meson_id[j] != 42113) continue;
       if(meson_mass[j] < 1.8) continue;
-      if(meson_mass[j] > 1.9) continue;
+      if(meson_mass[j] > 1.93) continue;
       if(!(mesonlm[j] > 0)) continue;
       if(mesonlm[j] > 250) continue;
       float scale = 1.;
@@ -148,6 +155,16 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   cout << "plotting dataset" << endl;
   // Make plot of binned dataset showing Poisson error bars (RooFit default)
   RooPlot* frame = meson_l_mass.frame() ;
+  /*
+  RooDataSet dsn = *(RooDataSet*)w.data("dsSWeights");
+  RooRealVar weight = *w.var("weight");
+  RooRealVar nsig_sw = *w.var("nsig_sw");
+  dsn.add(weight);
+  dsn.Print();
+  weight.Print();
+  RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "nsig_sw");
+  ds.Print();
+  */
   //dh.plotOn(frame);
   //ds.plotOn(frame,Binning(50));
   //frame->Draw();
@@ -156,22 +173,16 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
 
   // Gamma terms
   //RooRealVar g("g","g", 2.5, 0, 5);
+  /*
   RooRealVar g("g","g", 2., 1.5, 2.4);
   RooRealVar b("b","b", 32, 28, 40);
-  //RooRealVar b("b","b", 32, 27, 40);
-  //RooRealVar b("b","b", 30, 28, 32);
   RooRealVar mu("mu","mu", 11, 9, 14);
-  //RooRealVar mu("mu","mu", 12, 9, 14);
-  //RooRealVar mu("mu","mu", 12, 11.8, 12.2);
 
   // Construct Gaussian PDF for signal
   RooRealVar mean("mean","mean", 58, 55, 62);
-  //RooRealVar mean("mean","mean", 55, 40, 70);
   RooRealVar sigma("sigma","sigma", 17, 15.5, 18.);
-  //RooRealVar sigma("sigma","sigma", 18, 17.99, 18.01);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
   RooGaussian gauss("gauss","gauss", meson_l_mass, mean, sigma);
-  //RooGaussian gauss("gauss","gauss", meson_l_mass, m1, sigma);
 
   //  Construct Gamma PDF for signal
   RooRealVar nbsig("nbsig","nbsignal", 100, 0 , 10000);
@@ -180,7 +191,27 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   cout << "defining model" << endl;
   // Construct a Gaussian+Gamma function to fit the signal component
   RooRealVar alpha("alpha","alpha", 0.3, 0.2, 0.38);
-  //RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
+  RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
+  */
+  //RooRealVar g("g","g", 2.5, 0, 5);
+  RooRealVar g("g","g", 2., 1.9, 2.1);
+  RooRealVar b("b","b", 32, 0, 100);
+  RooRealVar mu("mu","mu", 11, 0, 50);
+
+  // Construct Gaussian PDF for signal
+  RooRealVar mean("mean","mean", 58, 0, 100);
+  //RooRealVar sigma("sigma","sigma", 17, 0, 50);
+  RooRealVar sigma("sigma","sigma", 17, 15.5, 18.);
+  RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
+  RooGaussian gauss("gauss","gauss", meson_l_mass, mean, sigma);
+
+  //  Construct Gamma PDF for signal
+  RooRealVar nbsig("nbsig","nbsignal", 100, 0 , 10000);
+  RooGamma gamma("gamma","gamma", meson_l_mass, g, b, mu);
+
+  cout << "defining model" << endl;
+  // Construct a Gaussian+Gamma function to fit the signal component
+  RooRealVar alpha("alpha","alpha", 0.3, 0., 1.);
   RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
 
   // Construct exponential PDF to fit the bkg component
@@ -195,7 +226,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   /*
   signalModel.fitTo(ds);//,Extended());
   */
-  signalModel.fitTo(dh,Extended(kTRUE),SumW2Error(kFALSE));
+  signalModel.fitTo(ds,Extended(kTRUE),SumW2Error(kFALSE));
+  //signalModel.fitTo(dh,Extended(kTRUE),SumW2Error(kFALSE));
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
   //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
@@ -206,8 +238,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   m.hesse();
   RooFitResult *r = m.save();
   */
-  dh.plotOn(frame);
-  //ds.plotOn(frame,Binning(50));
+  //dh.plotOn(frame);
+  ds.plotOn(frame,Binning(25));
   signalModel.plotOn(frame);
   signalModel.plotOn(frame, Components(gauss),LineStyle(kDashed),LineColor(kRed));
   signalModel.plotOn(frame, Components(gamma),LineStyle(kDashed),LineColor(kBlue));
@@ -294,7 +326,7 @@ void roofit_mtop(std::vector<float> &names,
   sigma->GetYaxis()->SetRangeUser(10,25);
   alpha->GetYaxis()->SetRangeUser(0.1,0.5);
   gamma->GetYaxis()->SetRangeUser(1,3);
-  beta->GetYaxis()->SetRangeUser(20,40);
+  beta->GetYaxis()->SetRangeUser(20,50);
   mu->GetYaxis()->SetRangeUser(8,15);
   /*
   int lbin = mean->FindFirstBinAbove(0);

@@ -1159,7 +1159,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     }
     if(pfCands.size()<3) return; // D^0+mu and D^*
 
-    if(fabs(pfCands[2].getPdgId()) == 13 && abs(mass12-1.864) > 0.05) {  // Plot D0+mu tighter mass window cut
+    //if(abs(pfCands[2].getPdgId()) == 13 && abs(mass12-1.864) > 0.05) {  // Plot D0+mu tighter mass window cut
+    if(fabs(pfCands[2].getPdgId()) == 13 && mass12>1.8 && mass12<1.93) {
       allPlots["D0_mu_tag_oJet_pt"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
       allPlots["D0_mu_tag_oJet_pt_all"+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
       allPlots["D0_mu_tag_oJet_pt_charged"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt_charged,getWgt());

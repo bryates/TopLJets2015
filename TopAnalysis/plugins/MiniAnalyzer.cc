@@ -106,7 +106,8 @@ private:
   int genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j, const reco::Vertex &primVtx);
-  std::pair<float,float> ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex, const reco::Vertex &primVtx);
+  std::pair<float,float> ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex,
+                              const reco::Vertex &primVtx, std::vector<std::pair<float,float>> &lsigma);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   float getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
@@ -1099,7 +1100,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       */
       //*************************
       TLorentzVector jpsi = (p_track1+p_track2);
-      std::pair<float,float> l3d = ctau(jpsi, fittedVertex, primVtx);
+      std::vector<std::pair<float,float>> lsigma = {};
+      std::pair<float,float> l3d = ctau(jpsi, fittedVertex, primVtx, lsigma);
       //BPH version
       /*
       TVector3 disp( fittedVertex.x() - primVtx.x(),
@@ -1144,6 +1146,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_dxyE[ev_.nkpf]=dxyE;
       ev_.k_l3d[ev_.nkpf]=l3d.first;
       ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+      ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+      ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+      ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+      ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+      ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+      ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
       ev_.nkpf++;
       //pf2
       ev_.k_j[ev_.nkpf]=ev_.nj;
@@ -1161,6 +1169,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_dxyE[ev_.nkpf]=dxyE;
       ev_.k_l3d[ev_.nkpf]=l3d.first;
       ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+      ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+      ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+      ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+      ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+      ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+      ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
       ev_.nkpf++;
 
       ev_.njpsi++;
@@ -1251,7 +1265,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       */
       //*************************
       TLorentzVector d0 = (p_track1+p_track2);
-      std::pair<float,float> l3d = ctau(d0, fittedVertex, primVtx);
+      std::vector<std::pair<float,float>> lsigma = {};
+      std::pair<float,float> l3d = ctau(d0, fittedVertex, primVtx, lsigma);
       //BPH version
       /*
       TVector3 disp( fittedVertex.x() - primVtx.x(),
@@ -1296,6 +1311,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_dxyE[ev_.nkpf]=dxyE;
       ev_.k_l3d[ev_.nkpf]=l3d.first;
       ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+      ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+      ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+      ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+      ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+      ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+      ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
       ev_.nkpf++;
       //pf2
       ev_.k_j[ev_.nkpf]=ev_.nj;
@@ -1313,6 +1334,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_dxyE[ev_.nkpf]=dxyE;
       ev_.k_l3d[ev_.nkpf]=l3d.first;
       ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+      ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+      ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+      ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+      ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+      ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+      ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
       ev_.nkpf++;
 
       ev_.njpsi++;
@@ -1351,6 +1378,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
         ev_.k_dxyE[ev_.nkpf]=dxyE;
         ev_.k_l3d[ev_.nkpf]=l3d.first;
         ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+        ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+        ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+        ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+        ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+        ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
         ev_.nkpf++;
 
         ev_.njpsi++;
@@ -1397,6 +1430,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
         ev_.k_dxyE[ev_.nkpf]=dxyE;
         ev_.k_l3d[ev_.nkpf]=l3d.first;
         ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+        ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+        ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+        ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+        ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+        ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
         ev_.nkpf++;
 
         ev_.njpsi++;
@@ -1409,7 +1448,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
 }
 
-std::pair<float,float> MiniAnalyzer::ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex, const reco::Vertex &primVtx) {
+std::pair<float,float> MiniAnalyzer::ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex,
+                                          const reco::Vertex &primVtx, std::vector<std::pair<float,float>> &lsigma) {
     //*** L3D and sigmaL3D ****
     //http://www.phys.ufl.edu/~avery/fitting/lifetime.pdf eqn 10
     float sigmax = sqrt(pow(fittedVertex.xError(),2) + pow(primVtx.xError(),2));
@@ -1424,6 +1464,9 @@ std::pair<float,float> MiniAnalyzer::ctau(const TLorentzVector &p4, const reco::
                 (p4.Py()/p4.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()) +
                 (p4.Pz()/p4.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z());
     //*************************
+    lsigma.push_back(std::pair<float,float>((p4.Px()/p4.M()) * pow(sigmaL3D/sigmax,2) * (fittedVertex.x()-primVtx.x()), sigmax));
+    lsigma.push_back(std::pair<float,float>((p4.Py()/p4.M()) * pow(sigmaL3D/sigmay,2) * (fittedVertex.y()-primVtx.y()), sigmay));
+    lsigma.push_back(std::pair<float,float>((p4.Pz()/p4.M()) * pow(sigmaL3D/sigmaz,2) * (fittedVertex.z()-primVtx.z()), sigmaz));
     
     return std::pair<float,float>(L3D,sigmaL3D);
   }

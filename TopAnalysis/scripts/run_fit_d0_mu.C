@@ -6,8 +6,8 @@
   std::vector<RooRealVar> masses;
   //Fit MC and get fit parameters
             //0b vary binned
-  short flags(0b11);
-  gROOT->ProcessLine(".L splot.C");
+  short flags(0b10);
+  gROOT->ProcessLine(".L splot_d0_mu.C");
   //Fit and plot fitted masses
   gROOT->ProcessLine(".L fit_constrain_d0_mu.C");
   gROOT->ProcessLine(".L roofit_mtop_d0_mu.C");

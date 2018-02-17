@@ -30,7 +30,8 @@ RooWorkspace create_workspace(bool isData=false) {
   if(isData)
     w.factory("expr::mt('(a*mtg + b)', a[0.125373], b[154.426], mtg[173,165,183])");
   else
-    w.factory("mt[0,-15,15]");
+    //w.factory("mt[0,-15,15]");
+    w.factory("mt[0,-150,150]");
   w.factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
   w.factory("expr::gaus_sigma('(a3*mt + a2)', a2[14.159], a3[0.03039], mt)");
   w.factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
