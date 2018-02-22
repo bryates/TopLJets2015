@@ -688,7 +688,9 @@ def main():
                             elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
                             lumi=lumiList[lumi]
                             #if("TTJets" in tag): lumi=lumi*0.733417
-                            obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
+                            #xsec=1. #now stored in normH
+                            #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
+                            obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                         over=True
                         under=True
                         if "meson" in key: over=False

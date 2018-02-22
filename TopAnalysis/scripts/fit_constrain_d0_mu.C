@@ -72,8 +72,12 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     TH1F *h1 = (TH1F*)gDirectory->Get("h1");
     TH1F *h2 = (TH1F*)gDirectory->Get("h2");
     */
+    /*
     h1->Scale(puSF1*topSF1*832*19716.102);
     h2->Scale(puSF2*topSF2*832*16146.178);
+    */
+    h1->Scale(puSF1*topSF1*19716.102);
+    h2->Scale(puSF2*topSF2*16146.178);
     TH1F *h = (TH1F*)h1->Clone("meson_l_mass");
     h->Add(h2);
     RooDataHist dh("data", "dh", meson_l_mass, h);

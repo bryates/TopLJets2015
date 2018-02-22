@@ -12,6 +12,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, int pfid);
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
+  pfTrack(TLorentzVector p4,float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -35,7 +36,13 @@ class pfTrack {
   float getDz();
   float getDzE();
   float getL3D();
+  inline float getLX() { return lx_; }
+  inline float getLY() { return ly_; }
+  inline float getLZ() { return lz_; }
   float getSigmaL3D();
+  inline float getSigmaX() { return sigmax_; }
+  inline float getSigmaY() { return sigmay_; }
+  inline float getSigmaZ() { return sigmaz_; }
   inline float chi2() { return chi2_; }
   inline float vtxProb() { return vtxProb_; }
   inline float getKalmanMass() { return k_mass_; }
@@ -60,7 +67,9 @@ class pfTrack {
   float dzE_;
   float k_mass_;
   float l3d_;
+  float lx_,ly_,lz_;
   float sigmal3d_;
+  float sigmax_,sigmay_,sigmaz_;
   float chi2_;
   float vtxProb_;
   int pfid_;

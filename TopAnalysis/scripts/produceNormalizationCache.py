@@ -2,8 +2,10 @@
 
 import optparse
 import os,sys
+import json
 import ROOT
 from subprocess import Popen, PIPE
+from collections import OrderedDict
 
 """
 steer the script
@@ -16,7 +18,14 @@ def main():
     parser.add_option('-i', '--inDir',       dest='inDir',       help='input directory with files',   default='/store/cmst3/user/psilva/LJets2015/5736a2c',        type='string')
     parser.add_option(      '--HiForest',    dest='HiForest',    help='flag if these are HiForest',   default=False, action='store_true')
     parser.add_option('-o', '--output',      dest='cache',       help='output file',                  default='data/era2016/genweights.root',                      type='string')
+    parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
     (opt, args) = parser.parse_args()
+
+    #read list of samples
+    jsonFile = open(opt.json,'r')
+    samplesList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
+    #samplesList=list(reversed(samplesList))
+    jsonFile.close()
 
     #mount locally EOS
     eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
@@ -90,6 +99,10 @@ def main():
             if val==0: continue
             wgtCounter.SetBinContent(xbin,1./val)
             wgtCounter.SetBinError(xbin,0.)
+        for tag,samples in samplesList:
+            if tag[0] is None: continue
+            if sample in tag: print tag,' xsec=',samples[0]
+            if sample in tag: wgtCounter.SetBinContent(2, samples[0])
        
         genweights[sample]=wgtCounter
 

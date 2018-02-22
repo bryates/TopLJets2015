@@ -30,15 +30,22 @@ using namespace RooFit;
 //bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="meson_fit.root") {
-void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
+void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
+  bool doBinned = GET_BIT(flags, 0);
+  bool allowVary = GET_BIT(flags, 1);
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   //splot_d0_mu(w, mass);
   mass.ReplaceAll(".","v");
   TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
+  if(!doBinned) {
   TFile *fin = new TFile("TopMass_"+mass+"_unfold.root");
-  if(!fin) splot_d0_mu(w, mass);
-  RooWorkspace w = *(RooWorkspace*)fin->Get("w");
+  if(fin->IsZombie()) { splot_d0_mu(w,mass); fin = new TFile("TopMass_"+mass+"_unfold.root"); }
+  w = *(RooWorkspace*)fin->Get("w");
+  }
+  //ds = *(RooDataSet*)w.data("dsSWeights");
+  w.Print();
+  //RooWorkspace w = *(RooWorkspace*)fin->Get("w");
   TChain *t = new TChain("data");
   t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   //f->ls(); 
@@ -49,10 +56,6 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   cout << "loading " << name+"_GH mass="+mass << endl;
   TH1F *h1;
   TH1F *h2;
-  if(GET_BIT(flags,0)) {
-  h1 = (TH1F*)f->Get(name+"_BCDEF"); // hJpsi, hJpsiFit
-  h2 = (TH1F*)f->Get(name+"_GH"); // hJpsi, hJpsiFit
-  }
   TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
   TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
   TH1F *top1 = (TH1F*) f->Get("topptwgt_BCDEF");
@@ -74,9 +77,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   cout << "loaded!" << endl;
 
   // Declare observable x
-  //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
-  RooRealVar meson_l_mass("D^{0}+l mass","J/#psi+l mass", 0, 250, "GeV") ;
-  //RooRealVar meson_mass("meson_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
+  RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
   
   //cout << "creating dataset" << endl;
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
@@ -88,15 +89,19 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //h1->SetDirectory(0);
   //h2->Sumw2();
   //h2->SetDirectory(0);
-  if(!GET_BIT(flags,0)) {
-  t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1)", "goff");
-  t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2)", "goff");
+  if(doBinned) {
+  h1 = (TH1F*)f->Get(name+"_BCDEF"); // hJpsi, hJpsiFit
+  h2 = (TH1F*)f->Get(name+"_GH"); // hJpsi, hJpsiFit
+  }
+  else {
+  t->Draw("d0_l_mass>>h1(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1)", "goff");
+  t->Draw("d0_l_mass>>h2(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2)", "goff");
   h1 = (TH1F*)gDirectory->Get("h1");
   h2 = (TH1F*)gDirectory->Get("h2");
   }
   //RooDataHist dh("dh", "dh", meson_l_mass,  h);
   //RooDataSet ds("ds", "ds", RooArgSet(meson_l_mass,meson_mass), Import(*t), Cut("meson_mass>3.0 && meson_mass<3.2"));
-  //RooDataSet ds("ds", "ds", t, meson_l_mass);
+  RooDataSet ds("ds", "ds", t, meson_l_mass);
   float mesonlm[50],meson_mass[50],norm,topptwgt,sfs[50],puwgt[50];
   int epoch[50],meson_id[50];
   t->SetBranchAddress("meson_id", meson_id);
@@ -107,10 +112,12 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   t->SetBranchAddress("sfs", sfs);
   t->SetBranchAddress("puwgt", puwgt);
   t->SetBranchAddress("epoch", epoch);
-  RooDataSet ds;
-  if(!GET_BIT(flags,0)) {
+  w.Print();
+  /*
+  if(!doBinned) {
     ds = *w.data("dsSWeights");
   }
+  */
   //RooDataSet ds("ds", "ds", RooArgSet(meson_l_mass));
   /*
   TH1F *h1 = new TH1F("h1","h1",100,0,250);
@@ -141,11 +148,13 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   }
   */
   //RooDataHist dh = *ds.binnedClone();
-  h1->Scale(topSF1*puSF1);
-  h2->Scale(topSF2*puSF2);
-  h1->Scale(832 * 19716.102);
-  h2->Scale(832 * 16146.178);
-  TH1F *h = (TH1F*)h1->Clone("h");
+  /*
+  h1->Scale(puSF1*topSF1*832*19716.102);
+  h2->Scale(puSF2*topSF2*832*16146.178);
+  */
+  h1->Scale(puSF1*topSF1*19716.102);
+  h2->Scale(puSF2*topSF2*16146.178);
+  TH1F *h = (TH1F*)h1->Clone("meson_l_mass");
   h->Add(h2);
   h->Draw();
   RooDataHist dh("dh", "dh", meson_l_mass, h);
@@ -226,8 +235,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   /*
   signalModel.fitTo(ds);//,Extended());
   */
-  signalModel.fitTo(ds,Extended(kTRUE),SumW2Error(kFALSE));
-  //signalModel.fitTo(dh,Extended(kTRUE),SumW2Error(kFALSE));
+  //signalModel.fitTo(ds,Extended(kTRUE),SumW2Error(kFALSE));
+  signalModel.fitTo(dh,Extended(kTRUE),SumW2Error(kFALSE));
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
   //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
@@ -238,8 +247,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   m.hesse();
   RooFitResult *r = m.save();
   */
-  //dh.plotOn(frame);
-  ds.plotOn(frame,Binning(25));
+  dh.plotOn(frame);
+  //ds.plotOn(frame,Binning(25));
   signalModel.plotOn(frame);
   signalModel.plotOn(frame, Components(gauss),LineStyle(kDashed),LineColor(kRed));
   signalModel.plotOn(frame, Components(gamma),LineStyle(kDashed),LineColor(kBlue));
@@ -293,7 +302,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
 
 
 
-void roofit_mtop(std::vector<float> &names,
+void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
                  std::vector<pair<float,float>> &fit_par,
                  std::vector<pair<float,float>> &fit_err,
                  short flags=0b00, TString file="meson_fit.root") {
@@ -308,7 +317,7 @@ void roofit_mtop(std::vector<float> &names,
     TString tmp_mass = Form("%.1f",it);
     //tmp_mass.ReplaceAll(".","v");
     //if(it == 171.5)
-      mtop_norm(param, tmp_mass, flags);
+      mtop_norm(w, param, tmp_mass, flags);
       //return;
     //else
       //mtop(param, tmp_mass);
@@ -401,7 +410,24 @@ void roofit_mtop(std::vector<float> &names,
     name += "_meson_tag";
     c1->SaveAs("fit_"+name+".pdf");
     c1->SaveAs("fit_"+name+".png");
+    /*
+    for(auto & it : fit_par) {
+      TString par = Form("a%d",(int)i);
+      w.var(par)->setVal(it.first);
+      int j = &it - &fit_par[0];
+      w.var(par)->setRange(it.first - fit_err[j].first, it.first + fit_err[j].first);
+      std::cout << "Fit error" << fit_err[j].first << " " <<fit_err[j].second << std::endl;
+      w.var(par)->Print();
+      i++;
+      par = Form("a%d",(int)i);
+      w.var(par)->setVal(it.second);
+      w.var(par)->setRange(it.second - fit_err[j].second, it.second + fit_err[j].second);
+      w.var(par)->Print();
+      i++;
+    }
+    */
   }
+  return;
 }
 
 

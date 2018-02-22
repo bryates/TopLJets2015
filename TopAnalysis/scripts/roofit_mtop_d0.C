@@ -134,8 +134,8 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   //RooDataHist dh = *ds.binnedClone();
   h1->Scale(topSF1*puSF1);
   h2->Scale(topSF2*puSF2);
-  h1->Scale(832 * 19716.102);
-  h2->Scale(832 * 16146.178);
+  h1->Scale(19716.102);
+  h2->Scale(16146.178);
   TH1F *h = (TH1F*)h1->Clone("h");
   h->Add(h2);
   h->Draw();

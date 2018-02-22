@@ -263,6 +263,8 @@ void RunTopKalman(TString filename,
       float norm(1.0);
       if(!ev.isData) {
         norm =  normH ? normH->GetBinContent(1) : 1.0;
+        float xsec = normH ? normH->GetBinContent(2) : 0.;
+        if(xsec) norm*=xsec;
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
 
@@ -500,7 +502,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!ev.isData && 0) {
+      if(!ev.isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
@@ -1112,11 +1114,11 @@ void RunTopKalman(TString filename,
           */
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
-            if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue; //save soft pions separately
-            if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track);
-            if(abs(track.getMotherId())==421 && abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
+            if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
+            if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track); //save soft pions for D* separately
+            else if(abs(track.getMotherId())==421 && abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0
             //if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
-            if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
+            else if(abs(track.getMotherId())==42113 && abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); } //mu for D^0 + mu (flavor tagging)
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << track.Pt() << " " << track.Eta() << " " << track.Phi() <<  " " << ev.k_mass[0] << endl; }
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[0] << " " << ev.k_pf_eta[0] << " " << ev.k_pf_phi[0] <<  " " << ev.k_mass[0] << endl; }
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[1] << " " << ev.k_pf_eta[1] << " " << ev.k_pf_phi[1] <<  " " << ev.k_mass[1] << endl; }

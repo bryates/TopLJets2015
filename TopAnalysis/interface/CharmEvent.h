@@ -52,6 +52,8 @@ struct CharmEvent_t
   Float_t jpsi_mu2_pt[50],jpsi_mu2_eta[50],jpsi_mu2_phi[50];
   Float_t jpsi_l_mass[50],jpsi_l_dR[50];
   Float_t jpsi_l3d[50],jpsi_sigmal3d[50];
+  Float_t jpsi_lx[5000],jpsi_ly[5000],jpsi_lz[5000];
+  Float_t jpsi_sigmax[5000],jpsi_sigmay[5000],jpsi_sigmaz[5000];
 
   //D meson candidates
   Int_t nmeson, meson_id[50];
@@ -64,6 +66,8 @@ struct CharmEvent_t
   Float_t ds_pi2_pt[50],ds_pi2_eta[50],ds_pi2_phi[50];
   Float_t d0_l_mass[50],d0_l_dR[50];
   Float_t d0_l3d[50],d0_sigmal3d[50];
+  Float_t d0_lx[5000],d0_ly[5000],d0_lz[5000];
+  Float_t d0_sigmax[5000],d0_sigmay[5000],d0_sigmaz[5000];
   Float_t d0_pi_mother[50],d0_k_mother[50];
 
   //Fragmentation
