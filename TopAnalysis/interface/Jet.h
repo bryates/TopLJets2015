@@ -23,6 +23,7 @@ class pfTrack {
   float DeltaR(pfTrack &rhs);
   int getPfid();
   inline int getPdgId() { return getPfid(); }
+  inline int getGenIdx() { return genidx_; }
   int getMotherId();
   int charge();
   int getQuality();
@@ -57,6 +58,7 @@ class pfTrack {
   void setGenT(int);
   void setMother(int);
   inline void setPromoted() { promoted_ = true; }
+  inline void setGenIdx(int genidx) { genidx_ = genidx; }
   void print();
 
  private:
@@ -76,6 +78,7 @@ class pfTrack {
   int motherId_;
   int quality_;
   int genT_ = 0;
+  int genidx_ = -1;
   bool highPurity_;
   bool globalMuon_;
   bool trackerMuon_;
@@ -102,6 +105,7 @@ class Jet {
   void addDxy(float dxy, float dxyE);
   void addDz(float dz, float dzE);
   void addDz(int idx);
+  inline void setHadFlav(int hadflav) { hadflav_ = hadflav; }
   TLorentzVector &getVec();
   float &getCSV();
   float getPt();
@@ -118,6 +122,7 @@ class Jet {
   int &getGenJet();
   int &getJetIndex();
   int &getIndex(int idx);
+  inline int getHadFlav() { return hadflav_; }
   float &getDxy(int idx);
   float &getDz(int idx);
   float &getDxyE(int idx);
@@ -138,6 +143,7 @@ class Jet {
   float PFPz_;
   float PFP_;
   int genJet_;
+  int hadflav_;
   std::vector<pfTrack> trks_;
   std::vector<int> index_;
   std::vector<float> dxy_;

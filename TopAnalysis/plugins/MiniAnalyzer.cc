@@ -1187,9 +1187,9 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
   // D0  
 
-  if(ndau < 4) return;
-  for (unsigned int id1 = 0; id1 < 4; ++id1) {
-    for (unsigned int id2 = 0; id2 < 4; ++id2) {
+  if(ndau < 2) return;
+  for (unsigned int id1 = 0; id1 < ndau; ++id1) {
+    for (unsigned int id2 = 0; id2 < ndau; ++id2) {
 	
       if(id1 == id2) continue;
 	

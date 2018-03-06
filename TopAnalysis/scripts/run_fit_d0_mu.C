@@ -7,19 +7,21 @@
   //Fit MC and get fit parameters
             //0b vary binned
   short flags(0b11);
-  gROOT->ProcessLine(".L splot_d0_mu.C");
+  //gROOT->ProcessLine(".L splot_d0_mu.C");
   //Fit and plot fitted masses
   gROOT->ProcessLine(".L fit_constrain_d0_mu.C");
   gROOT->ProcessLine(".L roofit_mtop_d0_mu.C");
+  bool isData(false);
   RooWorkspace w = create_workspace(isData);
   roofit_mtop(w,names,fit_par,fit_err,flags);
+  std::cout << "Done with initial mass fits" << std::endl;
 
-  bool isData(false);
   //TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN};m_{t}^{FIT}",100,165,179);//,50,163,180);
   TH1F *mass = new TH1F("mass","mass;m_{t}^{GEN}-172.5 (GeV);m_{t}^{FIT} (GeV)",100,-8,8);//,50,163,180);
   for(auto & it : names) {
     TString tmp_mass = Form("%.1f",it);
     tmp_mass.ReplaceAll(".","v");
+    std::cout << "Fitting " << tmp_mass << std::endl;
     RooRealVar mt = fit_constrain(w,fit_par,fit_err,tmp_mass,flags);
     mt.Print();
     mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);

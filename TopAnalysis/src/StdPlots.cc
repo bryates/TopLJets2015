@@ -163,7 +163,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["massD0_notDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDs"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_notDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDsloose"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_lep_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_lep_tag"+tag+cut+weight+runPeriod_,";M_{K#pi}(D^{0})+l;Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_mu_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tag"+tag+cut+weight+runPeriod_,";M_{K#pi+#mu_{tag}}(D^{0})+#mu_{tag};Events / 10 MeV" ,30,1.7,2.0);
+    allPlots["massD0_mu_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tag"+tag+cut+weight+runPeriod_,";M_{K#pi+#mu_{tag}}(D^{0}_{#mu_{tag})};Events / 10 MeV" ,30,1.7,2.0);
     allPlots["massD0_mu_tagB"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tagB"+tag+cut+weight+runPeriod_,";M_{K#pi+#mu+#mu_{tag}}(B);Events / 5 MeV" ,200,5,7);
     allPlots["massD0_e_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_e_tag"+tag+cut+weight+runPeriod_,";M_{K#pi+e}(D^{0})+e;Events / 5 MeV" ,60,1.7,2.0);
     allPlots["massD0_mu"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu"+tag+cut+weight+runPeriod_,";M_{K#pi+#mu_{tag}};Events / 10 GeV" ,30,0,300);
@@ -231,15 +231,15 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0_mu_tag_oJet_pt_pf"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_oJet_pt_pf"+tag+cut+weight+runPeriod_,";P_{T}(D^{0}_{#mu_{tag}})/P_{T}(jet PF tracks);Events / 0.05", 20, 0,1);
 
     allPlots["D0dotJet"+tag+cut+weight+runPeriod_] = new TH1F("D0dotJet"+tag+cut+weight+runPeriod_,";P(D^{0})#upointP(jet)/|P(jet)|;Events / 1", 200, 0, 200);
-    allPlots["D0cosJet"+tag+cut+weight+runPeriod_] = new TH1F("D0cosJet"+tag+cut+weight+runPeriod_,";cos(P(D^{0}),P(jet));Events / 0.02", 100, 0.9, 1.0);
+    allPlots["D0cosJet"+tag+cut+weight+runPeriod_] = new TH1F("D0cosJet"+tag+cut+weight+runPeriod_,";cos(P(D^{0}),P(jet));Events / 0.0002", 200, 0.98, 1.0);
     allPlots["D0oJet_pt_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(D^{0})/P_{T}(jet) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
     allPlots["D0oJet_pt_mu_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_mu_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(#mu)/P_{T}(jet) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
     allPlots["D0oJet_pt_hard_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_hard_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(hardest)/P_{T}(jet) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
     allPlots["D0oJet_pt_charged_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_charged_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(D^{0})/P_{T}(jet charged PF tracks) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
     allPlots["D0oJet_pt_pf_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("D0oJet_pt_pf_fromDs"+tag+cut+weight+runPeriod_,";P_{T}(#pf)/P_{T}(jet PF tracks) from D*-D^{0} peak};Events / 0.02", 10, 0, 1);
-    allPlots["D0_l3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_l3d"+tag+cut+weight+runPeriod_,";D^{0} c#tau;Events / 0.001",200, -0.1,0.1);
+    allPlots["D0_l3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_l3d"+tag+cut+weight+runPeriod_,";D^{0} c#tau;Events / 0.002",100, -0.1,0.1);
     allPlots["D0_sigmal3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_sigmal3d"+tag+cut+weight+runPeriod_,";D^{0} #sigma_{c#tau};Events / 0.0001", 50, 0,0.01);
-    allPlots["D0_mu_tag_l3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_l3d"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} c#tau;Events / 0.001",200, -0.1,0.1);
+    allPlots["D0_mu_tag_l3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_l3d"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} c#tau;Events / 0.002",100, -0.1,0.1);
     allPlots["D0_mu_tag_sigmal3d"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_sigmal3d"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} #sigma_{c#tau};Events / 0.002", 50, 0,0.01);
     if(cut.Contains("gmeson")) {
     allPlots["D0_l3d_good"+tag+cut+weight+runPeriod_] = new TH1F("D0_l3d_good"+tag+cut+weight+runPeriod_,";D^{0} c#tau;Events / 0.001",200, -0.1,0.1);
@@ -630,16 +630,18 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
   else if(name.Contains("meson")) {
     if(debug_) std::cout << "Filling D_meson" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
     if(pfCands.size()<2) return;
+    if(pfCands[0].getMotherId()!=421) return;
+    if(pfCands[1].getMotherId()!=421) return;
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
     float mass12 = D0.M();
     pfTrack *pi, *k;
-    if(pfCands[0].M() > 0.15) { //m_pi = 0.1396 and m_K = 0.4937
-      k = &pfCands[0];
-      pi = &pfCands[1];
+    if(pfCands[0].M() < 0.15) { //m_pi = 0.1396 and m_K = 0.4937
+      pi = &pfCands[0];
+      k = &pfCands[1];
     }
     else {
-      k = &pfCands[1];
-      pi = &pfCands[0];
+      k = &pfCands[0];
+      pi = &pfCands[1];
     }
     //if(pi->Pt() < 6) return; //cut from ovelaying D0_pi and D0_formDs_pi
     //if(!pi->highPurity()) return;
@@ -689,7 +691,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
         }
       }
     }
-    if(abs(pfCands[2].getPdgId())==13) {
+    if(pfCands.size()<3) return; // D^* and flavor tagging D^0 
+    if(abs(pfCands[2].getPdgId())==13 && pfCands[2].getMotherId()==42113) {
     //if(abs(pfCands[0].getMotherId())==42113) {
       //if(pfCands[1].charge() == pfCands[2].charge()) { //reinforce kaon and lepton have same sign
         if(mass12>1.7 && mass12<2.0) { //Plot D0 only
@@ -736,15 +739,16 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
       //}
     }
     */
-    if(pfCands.size()<3) return; // D^* and flavor tagging D^0 
     //recheck first pi and K
     if(pfCands[0].getPdgId()*pfCands[1].getPdgId() != -211*211) return;
     //if (mass12<1.65 && mass12>2.0) return;
 
     if(fabs(pfCands[2].getPdgId()) != 211) return; //reinforce pion
+    if(pfCands[2].getMotherId()!=413) return;
     // Kaon and pion have opposite charges
     // I.e. correct mass assumption
-    if(pfCands[1].charge() != -pfCands[2].charge()) return;
+    //if(pfCands[1].charge() != -pfCands[2].charge()) return;
+    if(k->charge() != -pfCands[2].charge()) return;
 
     pfTrack *pi2;
     pi2 = &pfCands[2];

@@ -1,5 +1,7 @@
 #include <TTree.h>
 #include <TH1.h>
+#include <TGraphAsymmErrors.h>
+#include <TRandom3.h>
 #include <TLorentzVector.h>
 #include <iostream>
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
@@ -7,11 +9,12 @@
 #include "TopLJets2015/TopAnalysis/interface/KalmanEvent.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-KalmanEvent::KalmanEvent(bool debug) {
+KalmanEvent::KalmanEvent(TGraphAsymmErrors *expKtagEff, bool debug) {
   debug_ = debug;
   row_ = 0;
   njpsi_ = 0;
   nmeson_ = 0;
+  expKtagEff_ = expKtagEff;
 }
 
 KalmanEvent::~KalmanEvent() { ev_ = {}; jets_.clear(); }
@@ -39,6 +42,7 @@ void KalmanEvent::buildJets() {
     TLorentzVector jp4;
     jp4.SetPtEtaPhiM(ev_.j_pt[ij],ev_.j_eta[ij],ev_.j_phi[ij],ev_.j_mass[ij]);
     Jet tmpj(jp4, ev_.j_csv[ij], ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracijs and gen matched index
+    tmpj.setHadFlav(ev_.j_hadflav[ij]);
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
       if(ev_.k_j[ipf] != ij) continue; //skip if PF track doesn't belong to current jet
@@ -54,6 +58,14 @@ void KalmanEvent::buildJets() {
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
       if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
+      //Correct for Kalman efficiency
+      /*
+      if(!ev_.isData && rand_.Uniform(0,1) > expKtagEff_->Eval(jp4.Pt())) {
+        nmeson_--;
+        if(ev_.k_id[ipf]==443) njpsi_--;
+        continue;
+      }
+      */
       TLorentzVector tkP4(0,0,0,0);
       //Match with PF tracks
       int pf_match(-1);

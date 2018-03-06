@@ -1,6 +1,8 @@
 #ifndef _KalmanEvent_h
 #define _KalmanEvent_h
 #include <TTree.h>
+#include <TGraphAsymmErrors.h>
+#include <TRandom3.h>
 #include <vector>
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
@@ -8,7 +10,7 @@
 class KalmanEvent
 {
  public:
-  KalmanEvent(bool debug);
+  KalmanEvent(TGraphAsymmErrors *expKtagEff, bool debug);
   ~KalmanEvent();
   void loadEvent(const MiniEvent_t &ev);
   void buildJets();
@@ -33,6 +35,8 @@ class KalmanEvent
   float l3dsig_;
   float csv_;
   std::vector<Jet> jets_ {};
+  TGraphAsymmErrors *expKtagEff_;
+  TRandom3 rand_;
 
 };
 

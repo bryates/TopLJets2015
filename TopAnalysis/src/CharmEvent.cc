@@ -7,8 +7,8 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("isData",       &ev.isData,       "isData/O");
   t->Branch("run",          &ev.run,          "run/I");
   t->Branch("event",        &ev.event,        "event/I");
-  t->Branch("lumi",         &ev.lumi,         "lumi/I");
   t->Branch("norm",         &ev.norm,         "norm/F");
+  t->Branch("lumi",         &ev.lumi,         "lumi/F");
   t->Branch("topptwgt",     &ev.topptwgt,     "topptwgt/F");
 
 
@@ -54,6 +54,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("j_pz_charged",  ev.j_pz_charged,   "j_pz_charged[nj]/F");
   t->Branch("j_mass",     ev.j_mass,     "j_mass[nj]/F");
   t->Branch("j_csv",      ev.j_csv,     "j_csv[nj]/F");
+  t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
 
   //pf candidates (only charged if outside jets)
   t->Branch("npf",        &ev.npf,         "npf/I");
@@ -126,12 +127,13 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("d0_mu_pt",      ev.d0_mu_pt,       "d0_mu_pt[nmeson]/F");
   t->Branch("d0_mu_eta",     ev.d0_mu_eta,      "d0_mu_eta[nmeson]/F");
   t->Branch("d0_mu_phi",     ev.d0_mu_phi,      "d0_mu_phi[nmeson]/F");
+  t->Branch("d0_mu_tag_mu_pt",      ev.d0_mu_tag_mu_pt,       "d0_mu_tag_mu_pt[nmeson]/F");
   t->Branch("ds_pi2_pt",     ev.ds_pi2_pt,      "ds_pi2_pt[nmeson]/F");
   t->Branch("ds_pi2_eta",    ev.ds_pi2_eta,     "ds_pi2_eta[nmeson]/F");
   t->Branch("ds_pi2_phi",    ev.ds_pi2_phi,     "ds_pi2_phi[nmeson]/F");
-  t->Branch("d0_j",          ev.d0_j,           "d0_j[nmeson]/F");
+  t->Branch("d0_j",          ev.d0_j,           "d0_j[nmeson]/I");
   t->Branch("d0_ptrel",      ev.d0_ptrel,       "d0_ptrel[nmeson]/F");
-  t->Branch("d0_l",          ev.d0_l,           "d0_l[nmeson]/F");
+  t->Branch("d0_l",          ev.d0_l,           "d0_l[nmeson]/I");
   t->Branch("d0_l_mass",     ev.d0_l_mass,      "d0_l_mass[nmeson]/F");
   t->Branch("d0_l_dR",       ev.d0_l_dR,        "d0_l_dR[nmeson]/F");
   t->Branch("d0_l3d",        ev.d0_l3d,         "d0_l3d[nmeson]/F");
@@ -207,6 +209,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("j_phi",      ev.j_phi);
   t->SetBranchAddress("j_mass",     ev.j_mass);
   t->SetBranchAddress("j_csv",      ev.j_csv);
+  t->SetBranchAddress("j_hadflav",     ev.j_hadflav);
 
   //pf candidates (only charged if outside jets)
   t->SetBranchAddress("npf",        &ev.npf);
@@ -278,6 +281,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("d0_mu_pt",      ev.d0_mu_pt);
   t->SetBranchAddress("d0_mu_eta",     ev.d0_mu_eta);
   t->SetBranchAddress("d0_mu_phi",     ev.d0_mu_phi);
+  t->SetBranchAddress("d0_mu_tag_mu_pt",  ev.d0_mu_tag_mu_pt);
   t->SetBranchAddress("ds_pi2_pt",     ev.ds_pi2_pt);
   t->SetBranchAddress("ds_pi2_eta",    ev.ds_pi2_eta);
   t->SetBranchAddress("ds_pi2_phi",    ev.ds_pi2_phi);

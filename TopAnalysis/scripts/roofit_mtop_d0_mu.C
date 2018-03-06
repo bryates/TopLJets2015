@@ -38,11 +38,13 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   //splot_d0_mu(w, mass);
   mass.ReplaceAll(".","v");
   TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
+  /*
   if(!doBinned) {
   TFile *fin = new TFile("TopMass_"+mass+"_unfold.root");
   if(fin->IsZombie()) { splot_d0_mu(w,mass); fin = new TFile("TopMass_"+mass+"_unfold.root"); }
   w = *(RooWorkspace*)fin->Get("w");
   }
+  */
   //ds = *(RooDataSet*)w.data("dsSWeights");
   w.Print();
   //RooWorkspace w = *(RooWorkspace*)fin->Get("w");
@@ -94,8 +96,12 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   h2 = (TH1F*)f->Get(name+"_GH"); // hJpsi, hJpsiFit
   }
   else {
+  /*
   t->Draw("d0_l_mass>>h1(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1)", "goff");
   t->Draw("d0_l_mass>>h2(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2)", "goff");
+  */
+  t->Draw("d0_l_mass>>h1(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1 && d0_pi_mother==421 && d0_k_mother==421)", "goff");
+  t->Draw("d0_l_mass>>h2(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2 && d0_pi_mother==421 && d0_k_mother==421)", "goff");
   h1 = (TH1F*)gDirectory->Get("h1");
   h2 = (TH1F*)gDirectory->Get("h2");
   }
@@ -152,8 +158,8 @@ void mtop_norm(RooWorkspace &w, std::vector<pair<float,float>> &p, TString mass=
   h1->Scale(puSF1*topSF1*832*19716.102);
   h2->Scale(puSF2*topSF2*832*16146.178);
   */
-  h1->Scale(puSF1*topSF1*19716.102);
-  h2->Scale(puSF2*topSF2*16146.178);
+  h1->Scale(19716.102);
+  h2->Scale(16146.178);
   TH1F *h = (TH1F*)h1->Clone("meson_l_mass");
   h->Add(h2);
   h->Draw();
@@ -410,6 +416,7 @@ void roofit_mtop(RooWorkspace &w, std::vector<float> &names,
     name += "_meson_tag";
     c1->SaveAs("fit_"+name+".pdf");
     c1->SaveAs("fit_"+name+".png");
+    std::cout << "done fitting " << name << std::endl;
     /*
     for(auto & it : fit_par) {
       TString par = Form("a%d",(int)i);

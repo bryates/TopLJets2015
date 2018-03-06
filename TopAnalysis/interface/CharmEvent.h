@@ -15,8 +15,8 @@ struct CharmEvent_t
   }
 
   Bool_t isData;
-  Int_t run,event,lumi,epoch[50];
-  Float_t norm,puwgt[50],topptwgt;
+  Int_t run,event,epoch[50];
+  Float_t norm,lumi,puwgt[50],topptwgt;
   Float_t sfs[50],sfsu[50]; //need to split into separate parts
   Float_t ht,met,st;
   Int_t nlj;
@@ -38,6 +38,7 @@ struct CharmEvent_t
   Float_t j_p[500],j_p_pf[500],j_p_charged[500];
   Float_t j_pz[500],j_pz_pf[500],j_pz_charged[500];
   Float_t j_csv[500];
+  Int_t j_hadflav[500];
 
   //PF candidates
   Int_t npf,nmu,pf_j[5000];
@@ -56,13 +57,13 @@ struct CharmEvent_t
   Float_t jpsi_sigmax[5000],jpsi_sigmay[5000],jpsi_sigmaz[5000];
 
   //D meson candidates
-  Int_t nmeson, meson_id[50];
+  Int_t nmeson, meson_id[50],d0_j[50],d0_l[50];
   Float_t d0_mass[50],d0_pt[50],d0_eta[50],d0_phi[50],d0_p[50],d0_pz[50];
   Float_t ds_mass[50],ds_pt[50],ds_eta[50],ds_phi[50],ds_p[50],ds_pz[50];
-  Float_t d0_j[50],d0_ptrel[50],d0_l[50];//,d0_j_dR[50];
+  Float_t d0_ptrel[50];//,d0_j_dR[50];
   Float_t d0_pi_pt[50],d0_pi_eta[50],d0_pi_phi[50];
   Float_t d0_k_pt[50],d0_k_eta[50],d0_k_phi[50];
-  Float_t d0_mu_pt[50],d0_mu_eta[50],d0_mu_phi[50];
+  Float_t d0_mu_pt[50],d0_mu_eta[50],d0_mu_phi[50],d0_mu_tag_mu_pt[50];
   Float_t ds_pi2_pt[50],ds_pi2_eta[50],ds_pi2_phi[50];
   Float_t d0_l_mass[50],d0_l_dR[50];
   Float_t d0_l3d[50],d0_sigmal3d[50];

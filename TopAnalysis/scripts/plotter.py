@@ -256,7 +256,8 @@ class Plot(object):
             totalMCUnc = totalMC.Clone('totalmcunc')
             self._garbageList.append(totalMCUnc)
             totalMCUnc.SetDirectory(0)
-            totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            totalMCUnc.SetFillColor(ROOT.kRed)
+            #totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ROOT.gStyle.SetHatchesLineWidth(1)
             totalMCUnc.SetFillStyle(3254)
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
@@ -346,7 +347,9 @@ class Plot(object):
             ratioframe.GetXaxis().SetTitleOffset(0.8)
             ratioframeshape=ratioframe.Clone('ratioframeshape')
             self._garbageList.append(ratioframeshape)
-            ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            ratioframeshape.SetFillColor(ROOT.kRed)
+            #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            ratioframeshape.SetFillStyle(3254)
             #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             if len(self.mcsyst)>0:
                 for xbin in xrange(1,totalMC.GetNbinsX()+1):

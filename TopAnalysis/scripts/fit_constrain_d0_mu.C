@@ -22,7 +22,7 @@
 #include <vector>
 using namespace RooFit;
 
-//bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
+bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 
 RooWorkspace create_workspace(bool isData=false) {
   RooWorkspace w("w");
@@ -44,6 +44,7 @@ RooWorkspace create_workspace(bool isData=false) {
 
 
 RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, TString mass="166v5", short flags=0b10) {
+  std::cout << "Starting fit for " << mass << std::endl;
   bool doBinned = GET_BIT(flags, 0);
   bool allowVary = GET_BIT(flags, 1);
   bool isData(false);
@@ -67,8 +68,12 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     TH1F *h1 = (TH1F*)gDirectory->Get("massD0_mu_tag_l_all_meson_BCDEF");
     TH1F *h2 = (TH1F*)gDirectory->Get("massD0_mu_tag_l_all_meson_GH");
     /*
-    t->Draw("meson_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(meson_l_mass>0 && meson_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==1)", "goff");
-    t->Draw("meson_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(meson_l_mass>0 && meson_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==2)", "goff");
+    t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==1)", "goff");
+    t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==2)", "goff");
+    */
+    /*
+    t->Draw("d0_l_mass>>h1(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==1 && d0_pi_mother==421 && d0_k_mother==421)", "goff");
+    t->Draw("d0_l_mass>>h2(25,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>1.8 && d0_mass<1.93 && meson_id==42113 && d0_l3d/d0_sigmal3d>10 && epoch==2 && d0_pi_mother==421 && d0_k_mother==421)", "goff");
     TH1F *h1 = (TH1F*)gDirectory->Get("h1");
     TH1F *h2 = (TH1F*)gDirectory->Get("h2");
     */
@@ -76,8 +81,8 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     h1->Scale(puSF1*topSF1*832*19716.102);
     h2->Scale(puSF2*topSF2*832*16146.178);
     */
-    h1->Scale(puSF1*topSF1*19716.102);
-    h2->Scale(puSF2*topSF2*16146.178);
+    h1->Scale(19716.102);
+    h2->Scale(16146.178);
     TH1F *h = (TH1F*)h1->Clone("meson_l_mass");
     h->Add(h2);
     RooDataHist dh("data", "dh", meson_l_mass, h);

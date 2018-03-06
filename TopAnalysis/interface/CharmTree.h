@@ -29,6 +29,9 @@ class CharmTree {
   void SetSFs(float, float unc=0.);
   void SetPuWgt(float);
   void SetTopPtWgt(float);
+  void SetTrackerWgt(float tracker_wgt);
+  void SetPiWgt(float pi_wgt, float unc);
+  void SetLumi(float);
   void CheckRunPeriod(TString);
   void Write();
 
@@ -42,6 +45,9 @@ class CharmTree {
   std::pair <float,float> sfs_;
   float puWgt_;
   float top_pt_wgt_;
+  float tracker_wgt_;
+  float lumi_;
+  std::pair <float,float> pi_wgt_;
   //CharmEvent_t ev_;
 
 };
