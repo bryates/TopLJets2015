@@ -1067,7 +1067,7 @@ void RunTopKalman(TString filename,
             for(size_t j = 0; j < muTracks.size(); j++) {
             //int i(0),j(1);
               float mass12 = (muTracks[i].getVec()+muTracks[j].getVec()).M();
-              if(mass12>2.5 && mass12<3.4) {
+              if(mass12>2.8 && mass12<3.4) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
                 //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
                 if(debug) cout << mass12 << endl << endl;
@@ -1076,11 +1076,12 @@ void RunTopKalman(TString filename,
                 allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	        allPlots["massJPsi_all"]->Fill(mass12,wgt);
 
-                runBCDEF.Fill(muTracks, leptons, jet, chTag, "jpsi");
-                runGH.Fill(muTracks, leptons, jet, chTag, "jpsi");
+                std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
+                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
+                runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
 
-                treeBCDEF.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event);//, frag);
-                treeGH.Fill(evch, muTracks, leptons, jet, chTag, "jpsi", ev.event);//, frag);
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
 

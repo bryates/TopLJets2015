@@ -60,8 +60,10 @@ class Plot(object):
             tmptitle = h.GetXaxis().GetTitle()
             tmptitle = tmptitle.replace("cm","#mum")
             h.GetXaxis().SetTitle(tmptitle)
-        if "massJPsi" in h.GetName():
+        if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
+        if "D0_mu_tag_mu" in h.GetName():
+            h.GetXaxis().SetTitle("P_{T}(D^{0}_{#mu}+#mu_{tag})/#Sigma p_{T}^{ch}")
 
         h.SetTitle(title)
         if isData:
