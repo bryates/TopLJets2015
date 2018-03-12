@@ -151,6 +151,10 @@ class Plot(object):
         c.SetLeftMargin(0.0)
         c.SetTopMargin(0)
         c.SetRightMargin(0.00)
+        c.SetFillStyle(4000)
+        c.SetFillColor(400)
+        c.SetBorderSize(0)
+        c.SetLineWidth(0)
 
         #holds the main plot
         c.cd()
