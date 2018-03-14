@@ -7,6 +7,52 @@ import ROOT
 from subprocess import Popen, PIPE
 from collections import OrderedDict
 
+def sampleLoop(inDir,sample,HiForest,weightCounter,wgtCounter,labelH):
+   for f in os.listdir('eos/cms/%s/%s' % (inDir,sample ) ):
+       fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (inDir,sample,f ) )
+       if not HiForest:
+           if wgtCounter is None:
+               try:
+                   wgtCounter=fIn.Get('weightCounter/Event_weight').Clone('genwgts')
+                   weightCounter=True
+               except:
+                   weightCounter=False
+               try:
+                   if not weightCounter:
+                       wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
+               except:
+                   print 'Check eos/cms/%s/%s/%s probably corrupted?' % (inDir,sample,f )
+                   continue
+               wgtCounter.SetDirectory(0)
+               wgtCounter.Reset('ICE')
+           labelH=fIn.Get('analysis/generator_initrwgt')
+           if labelH : labelH.SetDirectory(0)                
+           #if 'MC13TeV' in sample:
+               #tree=fIn.Get('analysis/data')
+               #Nall=tree.Draw('ttbar_w[0]','','goff')
+               #Nneg=tree.Draw('ttbar_w[0]','ttbar_w[0]<0','goff')
+               #Nnet=Nall - 2*Nneg
+               #print Nnet
+           if weightCounter:
+               wgtCounter.Add(fIn.Get('weightCounter/Event_weight'))
+           else:
+               wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
+       else:
+           if wgtCounter is None:
+               wgtCounter=ROOT.TH1F('genwgts','genwgts',500,0,500)
+               wgtCounter.SetDirectory(0)
+           hiTree=fIn.Get('hiEvtAnalyzer/HiTree')
+           for i in xrange(0,hiTree.GetEntriesFast()):
+               hiTree.GetEntry(i)
+               try:
+                   ttbar_w=getattr(hiTree,'ttbar_w')
+                   for ibin in xrange(0,ttbar_w.size()):
+                       wgtCounter.Fill(ibin,ttbar_w[ibin])
+                   if ttbar_w.size()==0: raise ValueError('simple count required')
+               except:
+                   wgtCounter.Fill(0,1)
+       fIn.Close()
+
 """
 steer the script
 """
@@ -16,9 +62,10 @@ def main():
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-i', '--inDir',       dest='inDir',       help='input directory with files',   default='/store/cmst3/user/psilva/LJets2015/5736a2c',        type='string')
+    parser.add_option('-e', '--extDir',      dest='extDir',      help='ext directory with files',     default='/store/group/phys_top/byates/ext/',        type='string')
     parser.add_option(      '--HiForest',    dest='HiForest',    help='flag if these are HiForest',   default=False, action='store_true')
     parser.add_option('-o', '--output',      dest='cache',       help='output file',                  default='data/era2016/genweights.root',                      type='string')
-    parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
+    parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default='data/era2016/samples.json',              type='string')
     (opt, args) = parser.parse_args()
 
     #read list of samples
@@ -37,8 +84,10 @@ def main():
 
         #sum weight generator level weights
         wgtCounter=None
+        weightCounter=False
         labelH=None
         Nnet=None
+        #sampleLoop(opt.inDir,sample,opt.HiForest,weightCounter,wgtCounter,labelH)
         for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
             fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
             if not opt.HiForest:
@@ -83,6 +132,37 @@ def main():
                     except:
                         wgtCounter.Fill(0,1)
             fIn.Close()
+        if os.path.isdir('eos/cms/%s/%s' % (opt.extDir,sample)):
+            for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
+                fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
+                #sampleLoop(opt.extDir,sample,opt.HiForest,weightCounter,wgtCounter,labelH)
+                if wgtCounter is None:
+                    try:
+                        wgtCounter=fIn.Get('weightCounter/Event_weight').Clone('genwgts')
+                        weightCounter=True
+                    except:
+                        weightCounter=False
+                    try:
+                        if not weightCounter:
+                            wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
+                    except:
+                        print 'Check eos/cms/%s/%s/%s probably corrupted?' % (opt.extDir,sample,f )
+                        continue
+                    wgtCounter.SetDirectory(0)
+                    wgtCounter.Reset('ICE')
+                labelH=fIn.Get('analysis/generator_initrwgt')
+                if labelH : labelH.SetDirectory(0)                
+                #if 'MC13TeV' in sample:
+                    #tree=fIn.Get('analysis/data')
+                    #Nall=tree.Draw('ttbar_w[0]','','goff')
+                    #Nneg=tree.Draw('ttbar_w[0]','ttbar_w[0]<0','goff')
+                    #Nnet=Nall - 2*Nneg
+                    #print Nnet
+                if weightCounter:
+                    wgtCounter.Add(fIn.Get('weightCounter/Event_weight'))
+                else:
+                    wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
+                fIn.Close()
 
         if wgtCounter is None: continue
         if labelH:

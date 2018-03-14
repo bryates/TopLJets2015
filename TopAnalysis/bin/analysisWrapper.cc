@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
   if(TString(normTag).Contains("MC13TeV_TTJets_m1")) normUrl.ReplaceAll("genweights","genweights_mass");
   else if(TString(normTag).Contains("MC13TeV_TTJets_fsr")) normUrl.ReplaceAll("genweights","genweights_syst");
   else if(TString(normTag).Contains("MC13TeV_TTJets_isr")) normUrl.ReplaceAll("genweights","genweights_syst");
+  //else if(TString(normTag).Contains("MC13TeV_DY50toInf")) normUrl.ReplaceAll("genweights","genweights_DY50");
   gSystem->ExpandPathName(normUrl);
   TFile *normF=TFile::Open(normUrl);
   if(normF)
