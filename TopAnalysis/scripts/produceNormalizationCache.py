@@ -7,7 +7,9 @@ import ROOT
 from subprocess import Popen, PIPE
 from collections import OrderedDict
 
-def sampleLoop(inDir,sample,HiForest,weightCounter,wgtCounter,labelH):
+#def sampleLoop(inDir,sample,HiForest,weightCounter,wgtCounter,labelH):
+def sampleLoop(args):
+   inDir,sample,HiForest,weightCounter,wgtCounter,labelH=args
    for f in os.listdir('eos/cms/%s/%s' % (inDir,sample ) ):
        fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (inDir,sample,f ) )
        if not HiForest:
@@ -132,9 +134,9 @@ def main():
                     except:
                         wgtCounter.Fill(0,1)
             fIn.Close()
-        if os.path.isdir('eos/cms/%s/%s' % (opt.extDir,sample)):
-            for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
-                fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
+        if os.path.isdir('eos/cms/%s/%s' % (opt.extDir,sample)) and 0:
+            for f in os.listdir('eos/cms/%s/%s' % (opt.extDir,sample ) ):
+                fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.extDir,sample,f ) )
                 #sampleLoop(opt.extDir,sample,opt.HiForest,weightCounter,wgtCounter,labelH)
                 if wgtCounter is None:
                     try:

@@ -31,6 +31,7 @@ lumiUnc=0.062
 lumiFile=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/data/era2016/lumi.json
 #eosdir=/store/cmst3/user/psilva/LJets2016/${githash}
 eosdir=/store/user/byates/LJets2015/${githash}
+extdir=/store/group/phys_top/byates/ext
 case $ERA in
     era2015)
 	githash=8c1e7c9;
@@ -58,8 +59,10 @@ case $WHAT in
         if [ "${RUN}" == "BCDEFGH" ]; then
 	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} --dataOnly -m TOP::RunTop --ch 0;
 	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod B --MCOnly -m TOP::RunTop --ch 0;
+	  python scripts/runLocalAnalysis.py -i ${extdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod B --MCOnly -m TOP::RunTop --ch 0;
         else
   	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
+  	  python scripts/runLocalAnalysis.py -i ${extdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
         fi
 	;;
     MERGESEL )
