@@ -140,6 +140,7 @@ def main():
             target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
+            #condorFile.write('executable            = condor/cond_crab.sh\n')
             condorFile.write('executable            = condor/cond_submit.sh\n')
             condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method))
             condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag)

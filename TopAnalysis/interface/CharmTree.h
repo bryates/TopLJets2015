@@ -32,6 +32,7 @@ class CharmTree {
   void SetTrackerWgt(float tracker_wgt);
   void SetPiWgt(float pi_wgt, float unc);
   void SetLumi(float);
+  void SetXsec(float);
   void CheckRunPeriod(TString);
   void Write();
 
@@ -47,6 +48,7 @@ class CharmTree {
   float top_pt_wgt_;
   float tracker_wgt_;
   float lumi_;
+  float xsec_;
   std::pair <float,float> pi_wgt_;
   //CharmEvent_t ev_;
 

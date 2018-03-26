@@ -167,11 +167,11 @@ def main():
                 fIn.Close()
 
         if wgtCounter is None: continue
-        if labelH:
-            for xbin in range(1,labelH.GetNbinsX()):
-                label=labelH.GetXaxis().GetBinLabel(xbin)
-                for tkn in ['<','>',' ','\"','/','weight','=']: label=label.replace(tkn,'')
-                wgtCounter.GetXaxis().SetBinLabel(xbin+1,label)
+        #if labelH:
+            #for xbin in range(1,labelH.GetNbinsX()):
+                #label=labelH.GetXaxis().GetBinLabel(xbin)
+                #for tkn in ['<','>',' ','\"','/','weight','=']: label=label.replace(tkn,'')
+                #wgtCounter.GetXaxis().SetBinLabel(xbin+1,label)
 
         #invert to set normalization
         print sample,' initial sum of weights=',wgtCounter.GetBinContent(1)
@@ -184,6 +184,7 @@ def main():
         for tag,samples in samplesList:
             if tag[0] is None: continue
             if sample in tag: print tag,' xsec=',samples[0]
+            #wgtCounter.SetBinContent(2, samples[0])
             if sample in tag: wgtCounter.SetBinContent(2, samples[0])
        
         genweights[sample]=wgtCounter

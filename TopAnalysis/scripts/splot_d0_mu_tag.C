@@ -43,7 +43,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
-  TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
+  //TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
   TChain *data = new TChain("data");
   if(isData) {
     data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/Data13TeV_Single*");
@@ -73,6 +73,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //f->ls(); 
   TString name = "massJPsi_l_all_d0";
   //TString name = "massJPsi_l_all_d0_BCDEF";
+  /*
   TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
   TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
   TH1F *top1 = (TH1F*) f->Get("topptwgt_BCDEF");
@@ -87,6 +88,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   cout << "PU normalization " << puSF2 << endl;
   cout << "top pT normalization " << topSF2 << endl;
   }
+  */
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
   cout << "loaded!" << endl;
@@ -129,7 +131,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       */
       float scale = 1.;
       if(!isData) {
-        scale = ev.norm * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
           scale =  scale * 19716.102;// * puSF1 * topSF1;

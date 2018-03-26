@@ -8,6 +8,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("run",          &ev.run,          "run/I");
   t->Branch("event",        &ev.event,        "event/I");
   t->Branch("norm",         &ev.norm,         "norm/F");
+  t->Branch("xsec",         &ev.xsec,         "xsec/F");
   t->Branch("lumi",         &ev.lumi,         "lumi/F");
   t->Branch("topptwgt",     &ev.topptwgt,     "topptwgt/F");
 
@@ -164,6 +165,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("lumi",      &ev.lumi);
   t->SetBranchAddress("epoch",      ev.epoch);
   t->SetBranchAddress("norm",      &ev.norm);
+  t->SetBranchAddress("xsec",      &ev.xsec);
   t->SetBranchAddress("puwgt",      ev.puwgt);
   t->SetBranchAddress("topptwgt",  &ev.topptwgt);
   t->SetBranchAddress("sfs",        ev.sfs);

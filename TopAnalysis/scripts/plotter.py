@@ -64,6 +64,8 @@ class Plot(object):
             h.GetXaxis().SetRangeUser(2.5,3.4)
         if "D0_mu_tag_mu" in h.GetName():
             h.GetXaxis().SetTitle("P_{T}(D^{0}_{#mu}+#mu_{tag})/#Sigma p_{T}^{ch}")
+        if "JPsioJet" in h.GetName():
+            h.GetXaxis().SetTitle("P_{T}(J/#Psi)/#Sigma p_{T}^{ch}")
 
         h.SetTitle(title)
         if isData:
@@ -247,28 +249,38 @@ class Plot(object):
         if totalMC and nominalTTbar and len(self.mcsyst)>0:
             nominalIntegral = nominalTTbar.Integral()
             for hname in self.mcsyst:#.iteritems():
-                if(self.mcsyst[hname].Integral()>0): self.mcsyst[hname].Scale(nominalIntegral/self.mcsyst[hname].Integral())
+                if self.mcsyst[hname].Integral()>0: print "%s: %s" % (hname, nominalIntegral/self.mcsyst[hname].Integral())
+                #if(self.mcsyst[hname].Integral()>0): self.mcsyst[hname].Scale(nominalIntegral/self.mcsyst[hname].Integral())
             systUp=[0.]
             systDown=[0.]
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
                 systUp.append(0.)
                 systDown.append(0.)
                 for hname in self.mcsyst:#.iteritems():
+                    if totalMCUnc is None:
+                        totalMCUnc = self.mcsyst[hname].Clone()
+                    else: totalMCUnc.Add(self.mcsyst[hname].Clone())
                     diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
                     if (diff > 0):
                         systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
                     else:
                         systDown[xbin] = math.sqrt(systDown[xbin]**2 + diff**2)
-            totalMCUnc = totalMC.Clone('totalmcunc')
+            #totalMCUnc = totalMC.Clone('totalmcunc')
             self._garbageList.append(totalMCUnc)
+            if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
+            totalMCUnc.Add(totalMC) #1) add total MC
+            totalMCUnc.Add(nominalTTbar,-1) #2) subtract nominal MC to add background only
             totalMCUnc.SetDirectory(0)
-            totalMCUnc.SetFillColor(ROOT.kRed)
+            totalMCUnc.SetFillColor(0)
+            totalMCUnc.SetLineColor(ROOT.kRed)
+            totalMCUnc.SetMarkerColor(ROOT.kRed)
             #totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ROOT.gStyle.SetHatchesLineWidth(1)
-            totalMCUnc.SetFillStyle(3254)
-            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
-                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
+            totalMCUnc.SetFillStyle(400)
+            #totalMCUnc.SetFillStyle(3254)
+            #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                #totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
+                #totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
             self.totalMCUnc = totalMCUnc
 
         #test for null plots
@@ -309,7 +321,8 @@ class Plot(object):
             else      : 
                stack.Draw('hist same')
                if len(self.mcsyst)>0:
-                   self.totalMCUnc.Draw("e2 same")
+                   self.totalMCUnc.Draw("hist same")
+                   #self.totalMCUnc.Draw("e2 same")
                    leg.AddEntry(totalMCUnc, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
 
@@ -341,7 +354,8 @@ class Plot(object):
             self._garbageList.append(p2)
             p2.cd()
             ratioframe=frame.Clone('ratioframe')
-            ratioframe.GetYaxis().SetTitle('Ratio')
+            ratioframe.GetYaxis().SetTitle('Data/MC')
+            #ratioframe.GetYaxis().SetTitle('Ratio')
             ratioframe.GetYaxis().SetRangeUser(self.ratiorange[0], self.ratiorange[1])
             self._garbageList.append(frame)
             ratioframe.GetYaxis().SetNdivisions(5)
@@ -354,6 +368,8 @@ class Plot(object):
             ratioframeshape=ratioframe.Clone('ratioframeshape')
             self._garbageList.append(ratioframeshape)
             ratioframeshape.SetFillColor(ROOT.kRed)
+            ratioframeshape.SetMarkerColor(ROOT.kRed)
+            ratioframeshape.SetMarkerStyle(20)
             #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ratioframeshape.SetFillStyle(3254)
             #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
@@ -363,12 +379,14 @@ class Plot(object):
                     unc=totalMC.GetBinError(xbin)
                     if val>0:
                         totalUnc=ROOT.TMath.Sqrt((unc/val)**2)# + unc**2)
-                        ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
+                        if self.totalMCUnc.GetBinContent(xbin) > 0:
+                            ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
                         ratioframeshape.SetBinError(xbin,totalUnc)
 
 
             ratioframe.Draw()
-            if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
+            if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
+            #if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
 
             try:
                 ratio=self.dataH.Clone('ratio')
@@ -697,9 +715,10 @@ def main():
                             elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
                             lumi=lumiList[lumi]
                             #if("TTJets" in tag): lumi=lumi*0.733417
-                            #xsec=1. #now stored in normH
-                            #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
-                            obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
+                            #if "fsr" not in sp[0] and "isr" not in sp[0]:
+                                #xsec=1. #now stored in normH
+                            obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
+                            #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                         over=True
                         under=True
                         if "meson" in key: over=False

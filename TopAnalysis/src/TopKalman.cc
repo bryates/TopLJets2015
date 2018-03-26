@@ -269,10 +269,11 @@ void RunTopKalman(TString filename,
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       //Normalize to XSec and lumi
       float norm(1.0);
+      float xsec(1.0);
       if(!ev.isData) {
         norm =  normH ? normH->GetBinContent(1) : 1.0;
-        float xsec = normH ? normH->GetBinContent(2) : 0.;
-        if(xsec) norm*=xsec;
+        xsec = normH ? normH->GetBinContent(2) : 0.;
+        //if(xsec) norm*=xsec;
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
 
@@ -296,6 +297,8 @@ void RunTopKalman(TString filename,
       treeGH.SetNorm(norm);
       treeBCDEF.SetLumi(19712.86);
       treeGH.SetLumi(16146.178);
+      treeBCDEF.SetXsec(xsec);
+      treeGH.SetXsec(xsec);
 
       //Apply top pT weight to ttbar events
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#Run_2_strategy
