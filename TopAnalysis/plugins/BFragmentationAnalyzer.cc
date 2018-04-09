@@ -15,7 +15,6 @@
 #include "TopLJets2015/TopAnalysis/interface/BFragmentationAnalyzerUtils.h"
 
 #include "TTree.h"
-#include "TGraph.h"
 
 using namespace std;
 
@@ -37,7 +36,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
   TTree *data_;
   Int_t nB_;
-  Float_t xb_[100], model_[100];
+  Float_t xb_[100], xbc_[100], model_[100];
 };
 
 
@@ -67,8 +66,8 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
   //sumary tree for xb and fragmentation re-weighting
   data_ = fs->make<TTree>("FragTree", "FragTree");
   data_->Branch("nB",    &nB_,    "nB/I");
-  data_->Branch("fragModel",   model_,  "fragModel[nB]/F");
   data_->Branch("xb",    xb_,    "xb[nB]F");
+  data_->Branch("xbc",   xbc_,   "xbc[nB]F");
 }
 
 
@@ -117,7 +116,8 @@ void FragmentationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 	    }
 	  histos_[buf]->Fill(jinfo.xb);
 	}
-      xb_[nB_] = jinfo.xb_charged;
+      xb_[nB_] = jinfo.xb;
+      xbc_[nB_] = jinfo.xb_charged;
       nB_++;
     }
   //Fill ntuple
@@ -131,13 +131,7 @@ void FragmentationAnalyzer::beginJob(){ }
 void  FragmentationAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup){ }
 
 //
-void FragmentationAnalyzer::endJob(){
-  data_->Draw("xb","xb>0 && xb<2","goff");
-  TGraph *g = new TGraph(data_->GetSelectedRows(),data_->GetV2(),data_->GetV1());
-  g->SetName("xb_{charged}");
-  g->Draw("AP");
-  g->Write();
-}
+void FragmentationAnalyzer::endJob(){}
 
 //
 void FragmentationAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
