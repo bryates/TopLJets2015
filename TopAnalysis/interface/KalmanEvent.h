@@ -10,7 +10,7 @@
 class KalmanEvent
 {
  public:
-  KalmanEvent(TGraphAsymmErrors *expKtagEff, bool debug);
+  KalmanEvent(bool debug);
   ~KalmanEvent();
   void loadEvent(const MiniEvent_t &ev);
   void buildJets();
@@ -35,8 +35,6 @@ class KalmanEvent
   float l3dsig_;
   float csv_;
   std::vector<Jet> jets_ {};
-  TGraphAsymmErrors *expKtagEff_;
-  TRandom3 rand_;
 
 };
 

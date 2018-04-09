@@ -133,14 +133,6 @@ void RunTopKalman(TString filename,
   LeptonEfficiencyWrapper lepEffH_BCDEF(filename.Contains("Data13TeV"),era,"BCDEF",debug);
   LeptonEfficiencyWrapper lepEffH_GH(filename.Contains("Data13TeV"),era,"GH",debug);
 
-  //Kalman Calibration
-  TString ktagEffExpUrl(era+"/expKalmanTageff.root");
-  gSystem->ExpandPathName(ktagEffExpUrl);
-  TFile *keffIn=TFile::Open(ktagEffExpUrl);
-  TGraphAsymmErrors *expKtagEff;
-  expKtagEff = (TGraphAsymmErrors*)keffIn->Get("b");
-  keffIn->Close();
-
 
   //jet energy uncertainties
   TString jecUncUrl(era+"/Summer16_23Sep2016V4_MC_UncertaintySources_AK4PFchs.txt");
@@ -535,7 +527,7 @@ void RunTopKalman(TString filename,
       int nbj(0);
       TLorentzVector jetDiff(0,0,0,0);
       std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec, genJetsVec;
-      KalmanEvent kalman(expKtagEff, debug);
+      KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
       for(auto &jet : kalman.getJets()) {
         if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
