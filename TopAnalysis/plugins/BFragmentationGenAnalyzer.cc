@@ -37,10 +37,10 @@
 
 
 
-class FragmentationAnalyzer : public edm::EDAnalyzer {
+class FragmentationGenAnalyzer : public edm::EDAnalyzer {
 
  public:
-  FragmentationAnalyzer(const edm::ParameterSet &);
+  FragmentationGenAnalyzer(const edm::ParameterSet &);
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
   virtual void fragAnalyze(const edm::Event &, const edm::EventSetup &);
   virtual void endJob() override;
@@ -63,7 +63,7 @@ class FragmentationAnalyzer : public edm::EDAnalyzer {
 
 };
  
-FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
+FragmentationGenAnalyzer::FragmentationGenAnalyzer(const edm::ParameterSet &cfg) :
   fragModel(cfg.getParameter< std::string >("fragModel")),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles")))
@@ -134,14 +134,14 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet &cfg) :
 
 }
 
-void FragmentationAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
+void FragmentationGenAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
   fragAnalyze(evt, setup);
 
   //Fill ntuple
   if((nL_ && nB_) || nM_) data_->Fill();
 }
 
-void FragmentationAnalyzer::endJob() {
+void FragmentationGenAnalyzer::endJob() {
   data_->Draw("fragModel:xb","","goff");
   TGraph *g = new TGraph(data_->GetSelectedRows(),data_->GetV2(),data_->GetV1());
   g->SetName(TString(fragModel));
@@ -149,7 +149,7 @@ void FragmentationAnalyzer::endJob() {
   g->Write();
 }
 
-void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventSetup &setup) {
+void FragmentationGenAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventSetup &setup) {
   std::vector<int> leptons,bHadrons;//,JPsi;
 
   //gen jets
@@ -366,4 +366,4 @@ void FragmentationAnalyzer::fragAnalyze(const edm::Event &evt, const edm::EventS
 }
 
 
-DEFINE_FWK_MODULE(FragmentationAnalyzer);
+DEFINE_FWK_MODULE(FragmentationGenAnalyzer);

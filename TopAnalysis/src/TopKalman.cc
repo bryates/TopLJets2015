@@ -10,6 +10,7 @@
 
 #include "TopLJets2015/TopAnalysis/interface/MiniEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/CharmEvent.h"
+#include "TopLJets2015/TopAnalysis/interface/FragEvent.h"
 #include "TopLJets2015/TopAnalysis/interface/TOPWidth.h"
 #include "TopLJets2015/TopAnalysis/interface/LeptonEfficiencyWrapper.h"
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
@@ -65,6 +66,12 @@ void RunTopKalman(TString filename,
   attachToMiniEventTree(t,ev,true);
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
+
+  //READ FRAG TREE FROM FILE
+  FragEvent_t evtune;
+  TTree *ttune = (TTree*)f->Get("bfragAnalysis/FragTree");
+  attachToFragEventTree(ttune,evtune,true);
+  ttune->GetEntry(0);
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
@@ -206,7 +213,7 @@ void RunTopKalman(TString filename,
     allPlots["massD0_e"+tag+cut+weight]     = new TH1F("massD0_ele"+tag+cut+weight,";M_{K#pi};Events / 3 MeV" ,100,1.7,2.0);
     allPlots["massDsmD0loose"+tag+cut+weight]     = new TH1F("massDsmD0loose"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.5 MeV" ,20,0.14,0.16);
     allPlots["massDsmD0"+tag+cut+weight]     = new TH1F("massDsmD0"+tag+cut+weight,";M_{K#pi#pi} - M_{K#pi};Events / 0.5 MeV" ,20,0.14,0.16);
-    allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D^{*}};Events / 10 MeV" ,200,0.,2.0);
+    allPlots["massDs"+tag+cut+weight]     = new TH1F("massDs"+tag+cut+weight,";M_{D*};Events / 6 MeV" ,200,1.6,2.2);
     allPlots["pi_pt"+tag+cut+weight] = new TH1F("pi_pt"+tag+cut+weight,";#pi^{#pm} P_{T} [GeV];Events / 5 GeV", 10, 0,50);
     allPlots["MET"+tag+cut+weight] = new TH1F("MET"+tag+cut+weight,";MET [GeV];Events / 20 GeV", 10,0,200);
     allPlots["HT"+tag+cut+weight] = new TH1F("HT"+tag+cut+weight,";HT [GeV];Events / 20 GeV", 55,0,1100);
@@ -579,6 +586,24 @@ void RunTopKalman(TString filename,
 	  htsum += jp4.Pt();
           hsum += jp4.P();
           if(ev.j_csv[k]>0.8484) { htbsum += jp4.Pt(); nbj++; }
+
+      //**** cleaning tests ****
+      for(auto &tracks : kJetsVec) {
+        vector<pfTrack> piTracks,softTracks;
+	for(auto &track : tracks.getTracks()) {
+          if(abs(track.getPdgId())==211 && track.getMotherId()==421) piTracks.push_back(track);
+          else if(abs(track.getPdgId())==211 && track.getMotherId()==413) softTracks.push_back(track);
+          
+        }
+        if(piTracks.size()>1) {
+          float mass12 = (piTracks[0].getVec()+piTracks[1].getVec()).M();
+          if(softTracks.size()>1) {
+            float mass123 = (piTracks[0].getVec()+piTracks[1].getVec()+softTracks[0].getVec()).M();
+            if(mass12>1.7 && mass12<2.0) allPlots["massDs_all_lepjets"]->Fill(mass123-mass12);
+          }
+        }
+      }
+      //************************
 
 	  //save jet
           Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
@@ -1000,6 +1025,24 @@ void RunTopKalman(TString filename,
       if(allJetsVec.size()>0)   allPlots["j_pt"+chTag+"_lepjets"]->Fill(allJetsVec[0].getVec().Pt(),wgt);
       if(lightJetsVec.size()>0) allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
       if(kJetsVec.size()>0)     allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
+
+      //**** cleaning tests ****
+      for(auto &tracks : kJetsVec) {
+        vector<pfTrack> piTracks,softTracks;
+	for(auto &track : tracks.getTracks()) {
+          if(abs(track.getPdgId())==211 && track.getMotherId()==421) piTracks.push_back(track);
+          else if(abs(track.getPdgId())==211 && track.getMotherId()==413) softTracks.push_back(track);
+          
+        }
+        if(piTracks.size()>1) {
+          float mass12 = (piTracks[0].getVec()+piTracks[1].getVec()).M();
+          if(softTracks.size()>1) {
+            float mass123 = (piTracks[0].getVec()+piTracks[1].getVec()+softTracks[0].getVec()).M();
+            if(mass12>1.7 && mass12<2.0) allPlots["massDs_all_csv"]->Fill(mass123-mass12);
+          }
+        }
+      }
+      //************************
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
       evch.njpsi=0;

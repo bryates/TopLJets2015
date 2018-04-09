@@ -11,7 +11,7 @@
 
 struct JetFragInfo_t
 {
-  float xb;
+  float xb,xb_charged;
   int leadTagId;
   bool hasSemiLepDecay,hasTauSemiLepDecay;
   int nbtags,nctags,ntautags;

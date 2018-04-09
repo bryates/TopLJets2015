@@ -27,6 +27,7 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/RooPeterson.h"
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;
 using namespace RooStats;
@@ -57,8 +58,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
       mcname += it;
       mcname += "_*.root";
-      std::cout << "Adding " << it << std::endl;
-      data->Add(mcname);
+      std::cout << "Adding " << it;
+      int num = data->Add(mcname);
+      std::cout << " (" << num << " files)" << std::endl;
     }
   }
   TFile *fout = new TFile("TopMass_"+mass+"_unfold_mu_tag_mu.root","RECREATE");
@@ -97,13 +99,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar d0_mass("d0_mass","D^{0} mass", 1.7, 2, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
-  RooRealVar ptfrac("ptfrac","D^{0} p_{T} / #Sigma_{ch} p_{T}", 0, 1.2, "") ;
+  RooRealVar ptfrac("ptfrac","D^{0} p_{T} / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
+  RooRealVar d0_pt("d0_pt","D^{0} p_{T}", 0, 250, "GeV");
   
   //cout << "creating dataset" << endl;
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt));
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
@@ -149,11 +152,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       d0_mass.setVal(ev.d0_mass[j]);
       if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
+      d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
       //meson_l_mass = ev.d0_l_mass[j];
       meson_l_mass.setVal(ev.d0_l_mass[j]);
       }
       weight.setVal(scale);
-      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight));
+      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)
       //if(ev.d0_l_mass[j] > 1.8 && ev.d0_l_mass[j] < 1.93)
@@ -247,7 +251,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   c1->SaveAs("massD0_"+mass+".png");
 
   frame = ptfrac.frame();
-  ds.plotOn(frame,Binning(24));
+  ds.plotOn(frame,Binning(22));
  
   //model.paramOn(frame);
 
@@ -274,9 +278,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(d0_mass);
   w.import(meson_l_mass);
   w.import(ptfrac);
+  w.import(d0_pt);
   w.import(weight);
-  w.import(sigData);
-  w.import(bkgData);
+  w.import(sigData, Rename("sigData"));
+  w.import(bkgData, Rename("bkgData"));
   w.import(ds, Rename("dsSWeights"));
   /*
   for(int i=0; i < 10; i++) {
@@ -288,7 +293,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   frame->Draw();
 
-  int binning(24);
+  int binning(22);
 
   frame = d0_mass.frame();
   sigData.plotOn(frame, DataError(RooAbsData::SumW2),
@@ -340,6 +345,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   c1->SaveAs("ptfrac_signal_"+mass+".pdf");
   c1->SaveAs("ptfrac_signal_"+mass+".png");
+
 
   frame2 = ptfrac.frame();
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),
