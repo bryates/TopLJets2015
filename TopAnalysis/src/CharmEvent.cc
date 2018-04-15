@@ -56,6 +56,9 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("j_mass",     ev.j_mass,     "j_mass[nj]/F");
   t->Branch("j_csv",      ev.j_csv,     "j_csv[nj]/F");
   t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
+  t->Branch("gj_pt",       ev.gj_pt,      "gj_pt[nj]/F");
+  t->Branch("gj_eta",      ev.gj_eta,     "gj_eta[nj]/F");
+  t->Branch("gj_phi",      ev.gj_phi,     "gj_phi[nj]/F");
 
   //pf candidates (only charged if outside jets)
   t->Branch("npf",        &ev.npf,         "npf/I");
@@ -149,10 +152,12 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("d0_k_mother",   ev.d0_k_mother,    "d0_k_mother[nmeson]/F");
 
   //Fragmentation
-  t->Branch("peterson",   &ev.peterson,     "peterson[nj]/F");
-  t->Branch("up",         &ev.up,           "up[nj]/F");
-  t->Branch("central",    &ev.central,      "central[nj]/F");
-  t->Branch("down",       &ev.down,         "down[nj]/F");
+  t->Branch("peterson",    ev.peterson,     "peterson[nj]/F");
+  t->Branch("up",          ev.up,           "up[nj]/F");
+  t->Branch("central",     ev.central,      "central[nj]/F");
+  t->Branch("down",        ev.down,         "down[nj]/F");
+  t->Branch("xb",          ev.xb,           "xb[nj]/F");
+  t->Branch("xbc",         ev.xbc,          "xbc[nj]/F");
 }
 
 //
@@ -212,6 +217,9 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("j_mass",     ev.j_mass);
   t->SetBranchAddress("j_csv",      ev.j_csv);
   t->SetBranchAddress("j_hadflav",     ev.j_hadflav);
+  t->SetBranchAddress("gj_pt",       ev.gj_pt);
+  t->SetBranchAddress("gj_eta",      ev.gj_eta);
+  t->SetBranchAddress("gj_phi",      ev.gj_phi);
 
   //pf candidates (only charged if outside jets)
   t->SetBranchAddress("npf",        &ev.npf);
@@ -308,4 +316,6 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("up",          ev.up);
   t->SetBranchAddress("central",     ev.central);
   t->SetBranchAddress("down",        ev.down);
+  t->SetBranchAddress("xb",          ev.xb);
+  t->SetBranchAddress("xbc",         ev.xbc);
 }

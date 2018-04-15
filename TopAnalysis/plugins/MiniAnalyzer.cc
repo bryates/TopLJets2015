@@ -122,7 +122,8 @@ private:
   edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > petersonFragToken_, upFragToken_, centralFragToken_, downFragToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > upFragToken_, downFragToken_;
+  //edm::EDGetTokenT<edm::ValueMap<float> > petersonFragToken_, upFragToken_, centralFragToken_, downFragToken_;
   edm::EDGetTokenT<pat::PackedGenParticleCollection> genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> pseudoTopToken_;
@@ -181,9 +182,12 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   puToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"))),  
   genLeptonsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:leptons"))),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
+  /*
+  xbToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:xb"))),
   petersonFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:PetersonFrag"))),
+  */
   upFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:upFrag"))),
-  centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
+  //centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
   downFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:downFrag"))),
   genParticlesToken_(consumes<pat::PackedGenParticleCollection>(edm::InputTag("packedGenParticles"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
@@ -293,15 +297,21 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   //
   // GENERATOR LEVEL EVENT
   //
-  ev_.ng=0; ev_.ngjets=0; ev_.ngbjets=0;
+  ev_.ng=0; ev_.ngjets=0; ev_.ngbjets=0; ev_.ngj=0;
   edm::Handle<std::vector<reco::GenJet> > genJets;
   iEvent.getByToken(genJetsToken_,genJets);  
+  /*
+  edm::Handle<edm::ValueMap<float> > xb;
+  iEvent.getByToken(xbToken_,xb);
   edm::Handle<edm::ValueMap<float> > petersonFrag;
   iEvent.getByToken(petersonFragToken_,petersonFrag);
+  */
   edm::Handle<edm::ValueMap<float> > upFrag;
   iEvent.getByToken(upFragToken_,upFrag);
+  /*
   edm::Handle<edm::ValueMap<float> > centralFrag;
   iEvent.getByToken(centralFragToken_,centralFrag);
+  */
   edm::Handle<edm::ValueMap<float> > downFrag;
   iEvent.getByToken(downFragToken_,downFrag);
   std::map<const reco::Candidate *,int> jetConstsMap;
@@ -325,11 +335,15 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
 	  if(abs(genJet->pdgId())) ev_.ngbjets++;
 	}
       edm::Ref<std::vector<reco::GenJet> > genJetRef(genJets,genJet-genJets->begin());
+      /*
+      ev_.xb[ev_.ngj] = (*xb)[genJetRef];
       ev_.peterson[ev_.ng] = (*petersonFrag)[genJetRef];
+      */
       ev_.up[ev_.ng] = (*upFrag)[genJetRef];
-      ev_.central[ev_.ng] = (*centralFrag)[genJetRef];
+      //ev_.central[ev_.ng] = (*centralFrag)[genJetRef];
       ev_.down[ev_.ng] = (*downFrag)[genJetRef];
       ev_.ng++;
+      ev_.ngj++;
     }
 
   //leptons
@@ -1137,6 +1151,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
       ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
       ev_.k_pf_m[ev_.nkpf]=gMassMu;
+      ev_.k_pf_tracker[ev_.nkpf]=pf1.isTrackerMuon();
+      ev_.k_pf_global[ev_.nkpf]=pf1.isGlobalMuon();
       ev_.k_id[ev_.nkpf]=443;
       ev_.k_mass[ev_.nkpf]=mass12;
       ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
@@ -1160,6 +1176,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
       ev_.k_pf_phi[ev_.nkpf]=pf2.phi();
       ev_.k_pf_m[ev_.nkpf]=gMassMu;
+      ev_.k_pf_tracker[ev_.nkpf]=pf1.isTrackerMuon();
+      ev_.k_pf_global[ev_.nkpf]=pf1.isGlobalMuon();
       ev_.k_id[ev_.nkpf]=443;
       ev_.k_mass[ev_.nkpf]=mass12;
       ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
@@ -1188,8 +1206,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
   // D0  
 
   if(ndau < 4) return;
+  /*
   for (unsigned int id1 = 0; id1 < ndau; ++id1) {
     for (unsigned int id2 = 0; id2 < ndau; ++id2) {
+  */
+  for (unsigned int id1 = 0; id1 < 4; ++id1) {
+    for (unsigned int id2 = 0; id2 < 4; ++id2) {
 	
       if(id1 == id2) continue;
 	

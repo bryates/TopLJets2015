@@ -65,7 +65,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TFile *fout = new TFile("TopMass_"+mass+"_unfold_mu_tag_mu.root","RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
-  data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*topptwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
+  //disabled top pT reweighting
+  data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
+  //data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*topptwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
   
   CharmEvent_t ev;
   attachToCharmEventTree(data,ev);
@@ -134,7 +136,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       */
       float scale = 1.;
       if(!isData) {
-        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j];// * topSF * puSF;
+        //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
           scale =  scale * 19716.102;// * puSF1 * topSF1;
@@ -150,7 +153,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.epoch[j]!=1 && ev.epoch[j]!=2) continue;
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
+      if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9) {
+      //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
       //meson_l_mass = ev.d0_l_mass[j];

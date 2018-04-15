@@ -20,7 +20,7 @@ struct MiniEvent_t
   Int_t pu,putrue;
   Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
   Float_t ttbar_w[500];
-  Int_t ng,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson,ngmeson_daug;
+  Int_t ng,ngj,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson,ngmeson_daug;
   Float_t gtop_pt_wgt;
   Int_t g_id[500];
   Float_t g_pt[500],g_eta[500],g_phi[500],g_m[500]; 
@@ -65,7 +65,7 @@ struct MiniEvent_t
   Int_t pf_idx[5000];
   Int_t k_j[5000],k_ndof[5000],k_id[5000];
   Float_t k_j_pt[5000],k_j_eta[5000],k_j_phi[5000],k_j_mass[5000];
-  Float_t k_pf_id[5000],k_pf_pt[5000],k_pf_eta[5000],k_pf_phi[5000],k_pf_m[5000];
+  Float_t k_pf_id[5000],k_pf_pt[5000],k_pf_eta[5000],k_pf_phi[5000],k_pf_m[5000],k_pf_tracker[5000],k_pf_global[5000];
   Float_t k_mass[5000],k_chi2[5000],k_vtxProb[5000];
   Float_t k_dxy[5000],k_dxyE[5000];
   Float_t k_l3d[5000],k_sigmal3d[5000];
@@ -74,6 +74,7 @@ struct MiniEvent_t
 
   //Fragmentation
   Float_t peterson[500], up[500], down[500], central[500];
+  Float_t xb[500];
 };
 
 void createMiniEventTree(TTree *t,MiniEvent_t &ev);

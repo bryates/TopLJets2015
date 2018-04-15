@@ -13,10 +13,30 @@
 #include <algorithm>
 
 #include "TopLJets2015/TopAnalysis/interface/BFragmentationAnalyzerUtils.h"
+#include "TopLJets2015/TopAnalysis/interface/FragEvent.h"
+
+#include <memory>
+#include <string>
+#include <map>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "Utilities/General/interface/FileInPath.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "TTree.h"
+#include "TGraph.h"
 
 using namespace std;
+#define IS_BQUARK_PDGID(id) ( abs(id) == 5 )
 
 
 class FragmentationAnalyzer : public edm::EDAnalyzer {
@@ -34,9 +54,10 @@ private:
   std::map<std::string, TH1F *> histos_;
   edm::Service<TFileService> fs;
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
+  /*
   TTree *data_;
-  Int_t nB_;
-  Float_t xb_[100], xbc_[100], model_[100];
+  FragEvent_t ev_;
+  */
 };
 
 
@@ -58,16 +79,23 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
       histos_["xb_"+name] = fs->make<TH1F>(("xb_"+name).c_str(), (name+";x_{b}=p_{T}(B)/p_{T}(jet); Jets").c_str(), 100, 0, 2);
     }
   for(auto it : histos_) it.second->Sumw2();
+  //produces<edm::ValueMap<float> >("xb");
 
   //Load TFile Service
   if(!fs)
     throw edm::Exception( edm::errors::Configuration, "TFile Service is not registered in cfg file" );
 
   //sumary tree for xb and fragmentation re-weighting
-  data_ = fs->make<TTree>("FragTree", "FragTree");
+  //data_ = fs->make<TTree>("FragTree", "FragTree");
+  /*
+  data_ = fs->make<TTree>("fragTree","fragTree");
+  createFragEventTree(data_,ev_);
   data_->Branch("nB",    &nB_,    "nB/I");
-  data_->Branch("xb",    xb_,    "xb[nB]F");
-  data_->Branch("xbc",   xbc_,   "xbc[nB]F");
+  data_->Branch("xb",    xb_,    "xb[nB]/F");
+  data_->Branch("xbc",   xbc_,   "xbc[nB]/F");
+  data_->Branch("id",    id_,    "id[nB]/F");
+  data_->Branch("pt",    pt_,    "pt[nB]/F");
+  */
 }
 
 
@@ -81,9 +109,19 @@ FragmentationAnalyzer::~FragmentationAnalyzer()
 void FragmentationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //
+  /*
+  ev_.run     = iEvent.id().run();
+  ev_.lumi    = iEvent.luminosityBlock();
+  ev_.event   = iEvent.id().event(); 
+  */
+
   edm::Handle<std::vector<reco::GenJet> > genJets;
   iEvent.getByToken(genJetsToken_,genJets);  
-  nB_ = 0;
+  /*
+  ev_.nB = 0;
+  std::map< std::string, std::vector<float> > jetWeights;
+  jetWeights["xb"]=std::vector<float>();
+  */
   for(auto genJet : *genJets)
     {
       //map the gen particles which are clustered in this jet
@@ -116,12 +154,30 @@ void FragmentationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 	    }
 	  histos_[buf]->Fill(jinfo.xb);
 	}
-      xb_[nB_] = jinfo.xb;
-      xbc_[nB_] = jinfo.xb_charged;
-      nB_++;
+      /*
+      if(jinfo.hasCharm) {
+        ev_.xb[ev_.nB] = jinfo.xb;
+        //jetWeights["xb"].push_back(jinfo.xb);
+        ev_.xbc[ev_.nB] = jinfo.xb_charged;
+        ev_.id[ev_.nB] = jinfo.charmId;
+        ev_.pt[ev_.nB] = jinfo.pt;
+        ev_.nB++;
+      }
+      */
     }
   //Fill ntuple
-  if(nB_) data_->Fill();
+  //if(ev_.nB) data_->Fill();
+
+  //put in event
+  /*
+  for(auto it : jetWeights) {
+    auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+    typename edmValueMap<float>::Filler filler(*valMap);
+    filler.insert(genJets, it.second.begin(), it.second.end());
+    filler.fill();
+    iEvent.put(valMap, it.first);
+  }
+  */
 }
 
 //
@@ -131,7 +187,16 @@ void FragmentationAnalyzer::beginJob(){ }
 void  FragmentationAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup){ }
 
 //
-void FragmentationAnalyzer::endJob(){}
+void FragmentationAnalyzer::endJob() {
+  /*
+  data_->Draw("xb:pt","","goff");
+  TGraph *g = new TGraph(data_->GetSelectedRows(),data_->GetV2(),data_->GetV1());
+  g->SetName("xb");
+  g->SetTitle("x_{b}");
+  g->Draw("AP");
+  g->Write();
+  */
+}
 
 //
 void FragmentationAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 

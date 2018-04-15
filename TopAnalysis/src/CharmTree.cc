@@ -110,7 +110,7 @@ void CharmTree::CheckRunPeriod(TString runPeriod) {
   runPeriod_ = runPeriod;
 }
 
-void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) {
+void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag, Jet genJet) {
   if(!isGood_) return;
   //attachToCharmEventTree(t_,ev_);
   //Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
@@ -137,10 +137,14 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.sfs[ev_.nmeson] = sfs_.first;
     ev_.sfsu[ev_.nmeson] = sfs_.second;
 
+    /*
     ev_.peterson[ev_.nj] = frag[0];
     ev_.up[ev_.nj] = frag[1];
     ev_.central[ev_.nj] = frag[2];
     ev_.down[ev_.nj] = frag[3];
+    */
+    ev_.up[ev_.nj] = frag[0];
+    ev_.down[ev_.nj] = frag[1];
 
     //if(jpsi.M()<3.0 || jpsi.M()>3.2) ev_.nmeson++;
     //if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
@@ -244,10 +248,15 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.sfs[ev_.nmeson] = sfs_.first*tracker_wgt_*pi_wgt_.first;
     ev_.sfsu[ev_.nmeson] = sqrt(pow(sfs_.second,2)+pow(pi_wgt_.second,2));
 
+    /*
     ev_.peterson[ev_.nj] = frag[0];
-    ev_.up[ev_.nj] = frag[1];
     ev_.central[ev_.nj] = frag[2];
-    ev_.down[ev_.nj] = frag[3];
+    */
+    ev_.up[ev_.nj] = frag[0];
+    ev_.down[ev_.nj] = frag[1];
+    ev_.gj_pt[ev_.nj] = genJet.Pt();
+    ev_.gj_eta[ev_.nj] = genJet.getVec().Eta();
+    ev_.gj_phi[ev_.nj] = genJet.getVec().Phi();
 
     float mass123((D0 + lep[0].getVec()).M());
     int ilep = 0;
@@ -297,6 +306,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     }
 
     ev_.j_pt[ev_.nj] = jet.getPt();
+    ev_.j_eta[ev_.nj] = genJet.getVec().Eta();
+    ev_.j_phi[ev_.nj] = genJet.getVec().Phi();
     ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();

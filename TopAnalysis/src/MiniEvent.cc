@@ -19,9 +19,10 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
 
   //gen event (jets and dressed leptons)
   t->Branch("ngjets",       &ev.ngjets,       "ngjets/I");
+  t->Branch("ng",           &ev.ng,           "ng/I");
   t->Branch("ngbjets",       &ev.ngbjets,       "ngbjets/I");
   t->Branch("ngleptons",       &ev.ngleptons,       "ngleptons/I");
-  t->Branch("ng",       &ev.ng,       "ng/I");
+  t->Branch("ngj",      &ev.ngj,      "ngj/I");
   t->Branch("g_id",      ev.g_id,     "g_id[ng]/I");
   t->Branch("g_pt",      ev.g_pt,     "g_pt[ng]/F");
   t->Branch("g_eta",     ev.g_eta,    "g_eta[ng]/F");
@@ -184,6 +185,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("k_pf_eta",    ev.k_pf_eta,     "k_pf_eta[nkpf]/F");
   t->Branch("k_pf_phi",    ev.k_pf_phi,     "k_pf_phi[nkpf]/F");
   t->Branch("k_pf_m",      ev.k_pf_m,       "k_pf_m[nkpf]/F");
+  t->Branch("k_pf_tracker",      ev.k_pf_tracker,       "k_pf_tracker[nkpf]/F");
+  t->Branch("k_pf_global",      ev.k_pf_global,       "k_pf_global[nkpf]/F");
   t->Branch("k_mass",      ev.k_mass,       "k_mass[nkpf]/F");
   t->Branch("k_chi2",      ev.k_chi2,       "k_chi2[nkpf]/F");
   t->Branch("k_ndof",      ev.k_ndof,       "k_ndof[nkpf]/I");
@@ -205,6 +208,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("up",          ev.up,           "up[ng]/F");
   t->Branch("central",     ev.central,      "central[ng]/F");
   t->Branch("down",        ev.down,         "downp[ng]/F");
+  t->Branch("xb",          ev.xb,           "xb[ngjets]/F");
 }
 
 //
@@ -226,6 +230,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
 
   //gen event (jets and dressed leptons)
   t->SetBranchAddress("ngjets",       &ev.ngjets);
+  t->SetBranchAddress("ng",           &ev.ng);
   t->SetBranchAddress("ngbjets",       &ev.ngbjets);
   t->SetBranchAddress("ngleptons",       &ev.ngleptons);
   t->SetBranchAddress("ng",       &ev.ng);
@@ -395,6 +400,8 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("k_pf_eta",    ev.k_pf_eta);
   t->SetBranchAddress("k_pf_phi",    ev.k_pf_phi);
   t->SetBranchAddress("k_pf_m",      ev.k_pf_m);
+  t->SetBranchAddress("k_pf_tracker",      ev.k_pf_tracker);
+  t->SetBranchAddress("k_pf_global",      ev.k_pf_global);
   t->SetBranchAddress("k_mass",      ev.k_mass);
   t->SetBranchAddress("k_chi2",      ev.k_chi2);
   t->SetBranchAddress("k_ndof",      ev.k_ndof);
@@ -416,4 +423,5 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("up",          ev.up);
   t->SetBranchAddress("central",     ev.central);
   t->SetBranchAddress("down",        ev.down);
+  t->SetBranchAddress("xb",          ev.xb);
 }

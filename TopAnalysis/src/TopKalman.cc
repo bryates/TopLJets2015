@@ -67,12 +67,6 @@ void RunTopKalman(TString filename,
   Int_t nentries(t->GetEntriesFast());
   t->GetEntry(0);
 
-  //READ FRAG TREE FROM FILE
-  FragEvent_t evtune;
-  TTree *ttune = (TTree*)f->Get("bfragAnalysis/FragTree");
-  attachToFragEventTree(ttune,evtune,true);
-  ttune->GetEntry(0);
-
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
   
   //PILEUP WEIGHTING
@@ -643,7 +637,7 @@ void RunTopKalman(TString filename,
 	if(fabs(jp4.Eta()) > 2.4) continue;
 	
 	//save jet
-        Jet tmpgj(jp4, ev.g_id[k], k);
+        Jet tmpgj(jp4, ev.g_id[k], k, ev.xb[k]);
         genJetsVec.push_back(tmpgj);
       }
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
@@ -1060,7 +1054,8 @@ void RunTopKalman(TString filename,
             genJet = gjet;
             break;
           }
-          std::vector<float> frag = {ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()],};
+          //std::vector<float> frag = {ev.xb[genJet.getJetIndex()],ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()],};
+          std::vector<float> ffrag = {ev.up[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
@@ -1240,6 +1235,19 @@ void RunTopKalman(TString filename,
               }
             }
           }
+          Jet genJet;
+          int genIdx(-1);
+          for(auto & gjet : genJetsVec) {
+            if(gjet.getVec().DeltaR(jet.getVec())>0.1) continue; //find good dR match
+            if(gjet.getVec().DeltaR(jet.getVec()) > genJet.getVec().DeltaR(jet.getVec())) continue; //find tighter dR match
+            genJet = gjet;
+            genIdx = genJet.getJetIndex();
+            break;
+          }
+          std::vector<float> frag;
+          if(genIdx>-1)
+            frag = {ev.up[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+            //frag = {ev.xb[genJet.getJetIndex()]};//,ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
 
           sort(piTracks.begin(), piTracks.end(),
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
@@ -1303,8 +1311,18 @@ void RunTopKalman(TString filename,
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
 
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                std::vector<pfTrack> tmp_match;
+                if(!ev.isData && pfMatched.size() >1)
+                  tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
+                //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
+                if(genIdx>-1) {
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                }
+                else {
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                }
 
                 if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
                   std::vector<pfTrack> tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };

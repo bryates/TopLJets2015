@@ -108,39 +108,6 @@ process.countJets = cms.EDFilter("CandViewCountFilter",
 
 process.preYieldFilter = cms.Sequence(process.selectedMuons+process.selectedElectrons+process.allLeps+process.countLeps+process.selectedJets+process.countJets)
 
-#Fragmentation tuning
-process.generator = cms.EDFilter("Pythia8GeneratorFilter",
-    comEnergy = cms.double(91.2),
-    ElectronPositronInitialState = cms.untracked.bool(True),
-    crossSection = cms.untracked.double(1),
-    filterEfficiency = cms.untracked.double(1),
-    maxEventsToPrint = cms.untracked.int32(1),
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    pythiaPylistVerbosity = cms.untracked.int32(1),
-    PythiaParameters = cms.PSet(
-        processParameters = cms.vstring(
-            'Beams:idA =  11',
-            'Beams:idB = -11',
-            'Beams:eCM =  91.2',
-            # Pythia 8 settings for LEP
-            # Hadronic decays including b quarks, with ISR photons switched off
-            'WeakSingleBoson:ffbar2gmZ = on',
-            '23:onMode = off',
-            '23:onIfAny = 1 2 3 4 5',
-            'PDF:lepton = off',
-            'SpaceShower:QEDshowerByL = off',
-            # LEP : Make particles with c*tau > 100 mm stable:
-            'ParticleDecays:limitTau0 = On',
-            'ParticleDecays:tau0Max = 100.0',
-            'StringZ:rFactB = 2',
-        ),
-        parameterSets = cms.vstring(
-        'processParameters',
-        )
-    )
-)
-#process.generation_step = cms.Path(process.pgen)
-
 ######### Kalman Filter
 #process.kalman = cms.EDAnalyzer("KalmanFilter",
     #electrons = cms.InputTag("slimmedElectrons"),
@@ -175,8 +142,7 @@ if not options.runOnData:
     process.pseudoTop.jetMaxEta=cms.double(5.0)
 
 # b-frag weight producer
-process.load('TopQuarkAnalysis.BFragmentationAnalyzer.bfragWgtProducer_cfi')
-process.generation_step = cms.Path(process.generator)
+process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
 
 # Set up electron ID (VID framework)
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
