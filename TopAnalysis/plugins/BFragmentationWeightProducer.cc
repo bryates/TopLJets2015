@@ -43,7 +43,7 @@ class BFragmentationProducer : public edm::stream::EDProducer<> {
 BFragmentationProducer::BFragmentationProducer(const edm::ParameterSet& iConfig):
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets")))
 {
-  std::string weights[]={"upFrag","downFrag","semilepbrUp","semilepbrDown"};
+  std::string weights[]={"upFrag","centralFrag","downFrag","semilepbrUp","semilepbrDown"};
   //std::string weights[]={"upFrag","centralFrag","downFrag","PetersonFrag","semilepbrUp","semilepbrDown"};
 
   //readout weights from file and declare them for the producer

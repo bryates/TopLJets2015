@@ -122,7 +122,7 @@ private:
   edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > upFragToken_, downFragToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > upFragToken_, centralFragToken_, downFragToken_;
   //edm::EDGetTokenT<edm::ValueMap<float> > petersonFragToken_, upFragToken_, centralFragToken_, downFragToken_;
   edm::EDGetTokenT<pat::PackedGenParticleCollection> genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
@@ -187,7 +187,7 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   petersonFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:PetersonFrag"))),
   */
   upFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:upFrag"))),
-  //centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
+  centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
   downFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:downFrag"))),
   genParticlesToken_(consumes<pat::PackedGenParticleCollection>(edm::InputTag("packedGenParticles"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
@@ -308,10 +308,8 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   */
   edm::Handle<edm::ValueMap<float> > upFrag;
   iEvent.getByToken(upFragToken_,upFrag);
-  /*
   edm::Handle<edm::ValueMap<float> > centralFrag;
   iEvent.getByToken(centralFragToken_,centralFrag);
-  */
   edm::Handle<edm::ValueMap<float> > downFrag;
   iEvent.getByToken(downFragToken_,downFrag);
   std::map<const reco::Candidate *,int> jetConstsMap;
@@ -340,7 +338,7 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.peterson[ev_.ng] = (*petersonFrag)[genJetRef];
       */
       ev_.up[ev_.ng] = (*upFrag)[genJetRef];
-      //ev_.central[ev_.ng] = (*centralFrag)[genJetRef];
+      ev_.central[ev_.ng] = (*centralFrag)[genJetRef];
       ev_.down[ev_.ng] = (*downFrag)[genJetRef];
       ev_.ng++;
       ev_.ngj++;
