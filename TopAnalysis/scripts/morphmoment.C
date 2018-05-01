@@ -204,7 +204,7 @@ bins.addBoundary(1.0);
   sample.defineType("d0_mu_tag");
   sample.defineType("d0");
   sample.defineType("jpsi");
-  RooDataHist combined("combined", "combined", RooArgSet(ptfrac, rB), Index(sample), Import("d0_mu_tag", *ptfrac_mc_hist[0]), Import("d0", *ptfrac_mc_hist[1]), Import("jpsi", *ptfrac_mc_hist[2]));
+  RooDataHist combined("combined", "combined", RooArgSet(ptfrac, rB), Index(sample), Import("d0_mu_tag", *ptfrac_data_hist[0]), Import("d0", *ptfrac_data_hist[1]), Import("jpsi", *ptfrac_data_hist[2]));
 
   RooSimultaneous simPdf("simPdf", "simPdf", sample);
   simPdf.addPdf(morph[0], "d0_mu_tag");
