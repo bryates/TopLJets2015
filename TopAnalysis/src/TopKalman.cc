@@ -1055,7 +1055,7 @@ void RunTopKalman(TString filename,
             break;
           }
           //std::vector<float> frag = {ev.xb[genJet.getJetIndex()],ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()],};
-          std::vector<float> ffrag = {ev.up[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+          std::vector<float> frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
@@ -1246,7 +1246,7 @@ void RunTopKalman(TString filename,
           }
           std::vector<float> frag;
           if(genIdx>-1)
-            frag = {ev.up[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+            frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
             //frag = {ev.xb[genJet.getJetIndex()]};//,ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
 
           sort(piTracks.begin(), piTracks.end(),

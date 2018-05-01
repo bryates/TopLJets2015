@@ -144,7 +144,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.down[ev_.nj] = frag[3];
     */
     ev_.up[ev_.nj] = frag[0];
-    ev_.down[ev_.nj] = frag[1];
+    ev_.central[ev_.nj] = frag[1];
+    ev_.down[ev_.nj] = frag[2];
 
     //if(jpsi.M()<3.0 || jpsi.M()>3.2) ev_.nmeson++;
     //if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN

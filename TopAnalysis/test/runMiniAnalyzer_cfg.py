@@ -68,8 +68,8 @@ process.source = cms.Source("PoolSource",
                             #fileNames = cms.untracked.vstring('/store/mc/RunIISummer16MiniAODv2/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/F8B2494E-1ABF-E611-8FB5-70106F4A9248.root'),
                             #fileNames = cms.untracked.vstring('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/50000/F254D922-4BE3-E611-AE37-0CC47A78A426.root'),
                             #fileNames = cms.untracked.vstring(Compressed_T2tt_2),
-                            duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
-                            skipEvents = cms.untracked.uint32(options.skipEvents)
+                            duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+                            #skipEvents = cms.untracked.uint32(options.skipEvents)
                             )
 #if options.skipEvents > 0: process.skipEvents = cms.untracked.uint32(options.skipEvents)
 if options.runOnData:

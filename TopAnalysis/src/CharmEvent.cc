@@ -156,8 +156,6 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("up",          ev.up,           "up[nj]/F");
   t->Branch("central",     ev.central,      "central[nj]/F");
   t->Branch("down",        ev.down,         "down[nj]/F");
-  t->Branch("xb",          ev.xb,           "xb[nj]/F");
-  t->Branch("xbc",         ev.xbc,          "xbc[nj]/F");
 }
 
 //
@@ -316,6 +314,4 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("up",          ev.up);
   t->SetBranchAddress("central",     ev.central);
   t->SetBranchAddress("down",        ev.down);
-  t->SetBranchAddress("xb",          ev.xb);
-  t->SetBranchAddress("xbc",         ev.xbc);
 }

@@ -73,7 +73,7 @@ struct CharmEvent_t
   Float_t d0_pi_mother[50],d0_k_mother[50];
 
   //Fragmentation
-  Float_t xb[50],xbc[50],peterson[50], up[50], down[50], central[50];
+  Float_t peterson[50], up[50], down[50], central[50];
 
 };
 

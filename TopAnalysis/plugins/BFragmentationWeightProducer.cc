@@ -73,7 +73,7 @@ void BFragmentationProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
    iEvent.getByToken(genJetsToken_,genJets);
    std::map< std::string, std::vector<float> > jetWeights;
    jetWeights["upFrag"]=std::vector<float>();
-   //jetWeights["centralFrag"]=std::vector<float>();
+   jetWeights["centralFrag"]=std::vector<float>();
    jetWeights["downFrag"]=std::vector<float>();
    //jetWeights["PetersonFrag"]=std::vector<float>();
    jetWeights["semilepbrUp"]=std::vector<float>();
@@ -87,14 +87,14 @@ void BFragmentationProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
        if(jinfo.leadTagId != 0)
        {
         jetWeights["upFrag"].push_back(wgtGr_["upFrag"]->Eval(jinfo.xb));
-        //jetWeights["centralFrag"].push_back(wgtGr_["centralFrag"]->Eval(jinfo.xb));
+        jetWeights["centralFrag"].push_back(wgtGr_["centralFrag"]->Eval(jinfo.xb));
         jetWeights["downFrag"].push_back(wgtGr_["downFrag"]->Eval(jinfo.xb));
         //jetWeights["PetersonFrag"].push_back(wgtGr_["PetersonFrag"]->Eval(jinfo.xb));
        }
        else
        {
         jetWeights["upFrag"].push_back(1.);
-        //jetWeights["centralFrag"].push_back(1.);
+        jetWeights["centralFrag"].push_back(1.);
         jetWeights["downFrag"].push_back(1.);
         //jetWeights["PetersonFrag"].push_back(1.);
        }
