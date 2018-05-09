@@ -28,12 +28,12 @@ std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
 //std::vector<TString> samples = { "_d0_mu_tag_mu" };
 //std::vector<TString> samples = { "_d0" };
 //TUNES=[ ('up','BL',1.055),  ('uup','BL',1.000), ('uuup','BL',0.975), ('central','BL',0.955), ('ccentral','BL',0.900), ('cccentral','BL',0.875), ('cuetp8m2t4','BL',0.855), ('ddown','BL',0.800), ('dddown','BL',0.775), ('down','BL',0.755)]
+/*
 std::vector<TString> tunes = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
-/*
+*/
 std::vector<TString> tunes = {"_down", "", "_central", "_up" };
 std::vector<float> param = {0.755, 0.855, 0.955, 1.055};
-*/
 std::vector<RooDataHist*> ptfrac_mc_hist, ptfrac_data_hist;
 std::vector<RooHistPdf*> ptfrac_mc_pdf, ptfrac_data_pdf;
 std::vector<RooHistPdf*> histMC, histData;
@@ -54,9 +54,38 @@ bins.addBoundary(0.8);
 bins.addBoundary(0.9);
 bins.addBoundary(1.0);
 */
+  std::vector<TFile*> filesdata;
+  std::vector<RooWorkspace*> wdata;
+  for(auto it : samples) {
+    TString fname = TString::Format("TopMass_Data_sPlot%s.root",it.Data());
+    std::cout << "Opening " << fname << std::endl;
+    filesdata.push_back(TFile::Open(fname));
+  }
+  //load Data into RooDataHist
+  for(auto &file : filesdata) {
+    wdata.push_back((RooWorkspace*)file->Get("w"));
+    wdata.back()->var("ptfrac")->setBins(bins);
+  }
+  ptfrac=*(RooRealVar*)(wdata[0]->var("ptfrac")->Clone());
+  frame = ptfrac.frame();
+  for(auto &w : wdata) {
+    RooDataSet *sigData = (RooDataSet*)w->data("sigData");
+    int pos = &w - &wdata[0];
+    std::cout << pos << std::endl;
+    //if(samples[pos] == "_d0")
+    sigData = (RooDataSet*)sigData;
+    //sigData = (RooDataSet*)sigData->reduce(cut);
+    TString title(TString::Format("ptfrac_hist_Data%s",samples[pos].Data()));
+    ptfrac_data_hist.push_back(new RooDataHist(title, title, ptfrac, *sigData));
+    //ptfrac_data_hist.push_back(new RooDataHist(title, title, ptfrac, *w->data("sigData")));
+    title.ReplaceAll("hist","pdf");
+    std::cout << title << " " << ptfrac_data_hist.back()->sumEntries() << std::endl;
+    //ptfrac_data_pdf.push_back(new RooHistPdf(title, title, ptfrac, *ptfrac_data_hist.back()));//*mcData);
+    //histData.push_back(new RooHistPdf(title, title, ptfrac, *ptfrac_data_hist.back()));
+  }
   for(auto tune : tunes) {
-    std::vector<TFile*> filesmc, filesdata;
-    std::vector<RooWorkspace*> wmc, wdata;
+    std::vector<TFile*> filesmc;//, filesdata;
+    std::vector<RooWorkspace*> wmc;//, wdata;
     std::vector<double> tuneWgts;
     for(auto it : samples) {
       TString fname = TString::Format("TopMass_172v5%s_sPlot%s.root",tune.Data(),it.Data());
@@ -70,9 +99,11 @@ bins.addBoundary(1.0);
       //nominal sample, no weight needed
       else tuneWgts.push_back(1.);
       //loading data is not optimal
+      /*
       fname = TString::Format("TopMass_Data_sPlot%s.root",it.Data());
       std::cout << "Opening " << fname << std::endl;
       filesdata.push_back(TFile::Open(fname));
+      */
     }
     
     //load RooWorkspace and set binning
@@ -86,10 +117,12 @@ bins.addBoundary(1.0);
     }
 
     //loading data is not optimal
+    /*
     for(auto &file : filesdata) {
       wdata.push_back((RooWorkspace*)file->Get("w"));
       wdata.back()->var("ptfrac")->setBins(bins);
     }
+    */
     
     //load MC into RooDataHist
     std::cout << "building DataHists" << std::endl;
@@ -115,6 +148,7 @@ bins.addBoundary(1.0);
 
     //load Data into RooDataHist
     //loading data is not optimal
+    /*
     for(auto &w : wdata) {
       RooDataSet *sigData = (RooDataSet*)w->data("sigData");
       int pos = &w - &wdata[0];
@@ -126,9 +160,10 @@ bins.addBoundary(1.0);
       //ptfrac_data_hist.push_back(new RooDataHist(title, title, ptfrac, *w->data("sigData")));
       title.ReplaceAll("hist","pdf");
       std::cout << title << " " << ptfrac_data_hist.back()->sumEntries() << std::endl;
-      ptfrac_data_pdf.push_back(new RooHistPdf(title, title, ptfrac, *ptfrac_data_hist.back()));//*mcData);
+      ptfrac_data_pdf.push_back(new RooHistPdf(title, title, ptfrac, *ptfrac_data_hist.back()));//x*mcData);
       histData.push_back(new RooHistPdf(title, title, ptfrac, *ptfrac_data_hist.back()));
     }
+    */
   }
 
 
@@ -200,7 +235,7 @@ bins.addBoundary(1.0);
 
     //fit morph to data
     //rB = RooRealVar("rB", "r_{B}", 0.855, 0.755, 1.055);
-    RooFitResult *rBFit = morph[i].fitTo(*ptfrac_data_hist[i],"rse");
+    RooFitResult *rBFit = morph[i].fitTo(*ptfrac_data_hist[i]);//,"rse");
     //std::cout << "Best fit rB = " << rBFit->getVal() << std::endl;
     frame = ptfrac.frame();
     ptfrac_data_hist[i]->plotOn(frame, RooFit::Binning(bins));
