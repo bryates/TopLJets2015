@@ -578,6 +578,9 @@ def main():
     plots=OrderedDict()
     #plots={}
     report=''
+    opt.puNormSF += "_"
+    opt.puNormSF += opt.run
+    print "Using PU SF " + opt.puNormSF
     for slist,isSyst in [(reversed(samplesList),False),(systSamplesList,True)]:
         if slist is None: continue
         for tag,sample in slist:
