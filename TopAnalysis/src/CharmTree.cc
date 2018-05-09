@@ -255,9 +255,11 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     */
     ev_.up[ev_.nj] = frag[0];
     ev_.down[ev_.nj] = frag[1];
+    /*
     ev_.gj_pt[ev_.nj] = genJet.Pt();
     ev_.gj_eta[ev_.nj] = genJet.getVec().Eta();
     ev_.gj_phi[ev_.nj] = genJet.getVec().Phi();
+    */
 
     float mass123((D0 + lep[0].getVec()).M());
     int ilep = 0;

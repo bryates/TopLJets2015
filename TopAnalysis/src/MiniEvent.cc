@@ -185,8 +185,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("k_pf_eta",    ev.k_pf_eta,     "k_pf_eta[nkpf]/F");
   t->Branch("k_pf_phi",    ev.k_pf_phi,     "k_pf_phi[nkpf]/F");
   t->Branch("k_pf_m",      ev.k_pf_m,       "k_pf_m[nkpf]/F");
-  t->Branch("k_pf_tracker",      ev.k_pf_tracker,       "k_pf_tracker[nkpf]/F");
-  t->Branch("k_pf_global",      ev.k_pf_global,       "k_pf_global[nkpf]/F");
+  t->Branch("k_pf_tracker",      ev.k_pf_tracker,       "k_pf_tracker[nkpf]/O");
+  t->Branch("k_pf_global",      ev.k_pf_global,       "k_pf_global[nkpf]/O");
   t->Branch("k_mass",      ev.k_mass,       "k_mass[nkpf]/F");
   t->Branch("k_chi2",      ev.k_chi2,       "k_chi2[nkpf]/F");
   t->Branch("k_ndof",      ev.k_ndof,       "k_ndof[nkpf]/I");

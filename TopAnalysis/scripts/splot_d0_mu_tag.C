@@ -106,17 +106,20 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   // Declare observable x
   RooRealVar d0_mass("d0_mass","D^{0} mass", 1.7, 2, "GeV") ;
-  RooRealVar weight("weight","weight",1.,0.,36000.);
+  RooRealVar weight("weight","weight",1.,0.,2.);
+  //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
   RooRealVar ptfrac("ptfrac","D^{0} p_{T} / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
   RooRealVar d0_pt("d0_pt","D^{0} p_{T}", 0, 250, "GeV");
   RooRealVar j_pt_ch("j_pt_ch","j p_{T} charged", 0, 400, "GeV");
+  RooRealVar epoch("epoch","epoch",1,2);
+  RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
   
   //cout << "creating dataset" << endl;
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,j_pt_ch));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,j_pt_ch,epoch,tuneW));
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
@@ -143,6 +146,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(mesonlm[j] > 250) continue;
       */
       float scale = 1.;
+      tuneW.setVal(1.);
       if(!isData) {
         scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j];// * topSF * puSF;
         //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
@@ -161,12 +165,16 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(fragWeight.Length() > 0) {
           scale *= g->Eval(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
           tuneWgt->Fill(1.,g->Eval(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]));
+          tuneW.setVal(g->Eval(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]));
         }
+        else tuneWgt->Fill(1., 1.0); //unit weights to make re-weighting easier to loop over
       }
       if(ev.epoch[j]!=1 && ev.epoch[j]!=2) continue;
+      epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9) {
+      if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
+      //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
@@ -175,7 +183,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       meson_l_mass.setVal(ev.d0_l_mass[j]);
       }
       weight.setVal(scale);
-      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch));
+      tuneW.setVal(scale * tuneW.getVal());
+      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,epoch,tuneW));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)
       //if(ev.d0_l_mass[j] > 1.8 && ev.d0_l_mass[j] < 1.93)
@@ -184,9 +193,41 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     }
   }
 
+  /*
+  tuneW.setConstant();
+  if(tuneWgt->GetBinContent(2) > 0) tuneW.setVal(tuneWgt->GetBinContent(2)/tuneWgt->GetBinContent(1));
+  RooDataSet tmp("tmp", "tmp", &dsn, *dsn.get(), 0, "weight");
+  RooDataSet ds("ds", "ds", &tmp, *tmp.get(), 0, "tuneW");
+  */
+  double tuneShape = 1.;
+  if(tuneWgt->GetBinContent(2) > 0) tuneShape = tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2);
+  std::cout << "Norm weight: " << tuneShape << std::endl;
+  /*
+  */
+  //very inefficient second loop to adjust normalization
+  std::cout << "Re-weighting based on norm weight" << std::endl;
+  for(int i = 0; i < dsn.numEntries(); i++) {
+    double tmpW = dsn.get(i)->getRealValue("tuneW");
+    tuneW.setVal(tmpW * tuneShape);
+    weight.setVal(tmpW * tuneW.getVal()*tuneShape);
+    //std::cout << tuneW.getVal() << " " << weight.getVal() << std::endl;;
+  }
+  std::cout << "Re-weighting done!" << std::endl;
+  /*
+  tmp.Print();
+  tmp.addColumn(tuneW, tuneShape);
+  tmp.Print();
+  //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
+  RooDataSet ds("ds", "ds", &tmp, *tmp.get(), 0, "tuneW");
+  RooDataSet tmp("tmp", "tmp", &dsn, *dsn.get(), 0, "weight");
+  tmp.add(tuneW, tuneShape);
+  */
+  //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
+  //RooRealVar *wgt = (RooRealVar*)dsn.addColumn(tuneW, tuneShape);
+  //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "tuneW");
   RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
+  //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, wgt->GetName());
   dsn.Print("v");
-  std::cout << dsn.weight() << std::endl;
   ds.Print("v");
   ds.Print();
   std::cout << ds.weight() << std::endl;
@@ -298,7 +339,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(ptfrac);
   w.import(d0_pt);
   w.import(j_pt_ch);
+  w.import(epoch);
   w.import(weight);
+  w.import(tuneW);
   w.import(sigData, Rename("sigData"));
   w.import(bkgData, Rename("bkgData"));
   w.import(ds, Rename("dsSWeights"));
@@ -360,6 +403,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->Draw();
   std::cout << "Signal: " << frame2->getHist()->Integral() << std::endl;
   frame2->SetName("ptfrac_mu_tag_signal");
+  frame2->SetTitle("");
   frame2->Write();
 
   c1->SaveAs("ptfrac_signal_"+mass+".pdf");

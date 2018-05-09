@@ -53,14 +53,19 @@ def main():
         fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%(tag,MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%tag
         fIn=ROOT.TFile.Open(fName)
         xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
+        xb[tag].Rebin(2);
         xb[tag].SetDirectory(0)
         fIn.Close()
 
     #save to file
     fOut=ROOT.TFile.Open(outf,'RECREATE')
-    for tag in ['up','uup','uuup','central','ccentral','cccentral','down','ddown','dddown']:
+    #for tag in ['up','uup','uuup','central','ccentral','cccentral','down','ddown','dddown']:
+    #for tag in [ ('sup','BL',0.865), ('scentral','BL',0.854), ('sdown','BL',0.845) ]
+    for tag,frag,param in TUNES:
     #for tag in ['up','central','down']:
     #for tag in ['up','central','down','Peterson']:
+        if tag == 'cuetp8m2t4': continue
+        print tag
         xb[tag].Divide(xb['cuetp8m2t4'])
         gr=ROOT.TGraphErrors(xb[tag])
         gr.SetMarkerStyle(20)

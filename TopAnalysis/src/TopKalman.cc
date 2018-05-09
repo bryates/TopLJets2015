@@ -538,6 +538,23 @@ void RunTopKalman(TString filename,
         kJetsVec.push_back(jet);
         //allJetsVec.push_back(jet);
       }
+      //**** cleaning tests ****
+      for(auto &tracks : kJetsVec) {
+        vector<pfTrack> piTracks,softTracks;
+	for(auto &track : tracks.getTracks()) {
+          if(abs(track.getPdgId())==211 && track.getMotherId()==421) piTracks.push_back(track);
+          else if(abs(track.getPdgId())==211 && track.getMotherId()==413) softTracks.push_back(track);
+          
+        }
+        if(piTracks.size()>1) {
+          float mass12 = (piTracks[0].getVec()+piTracks[1].getVec()).M();
+          if(softTracks.size()>1) {
+            float mass123 = (piTracks[0].getVec()+piTracks[1].getVec()+softTracks[0].getVec()).M();
+            if(mass12>1.7 && mass12<2.0) allPlots["massDs_all"]->Fill(mass123-mass12);
+          }
+        }
+      }
+      //************************
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics

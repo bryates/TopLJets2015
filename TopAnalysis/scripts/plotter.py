@@ -732,7 +732,7 @@ def main():
                         if opt.rebin>1:  obj.Rebin(opt.rebin)
                         if opt.run != "BCDEFGH":
                             if not key in plots : plots[key]=Plot(key)
-                            plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1])
+                            plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
                         else:
                             if key.split("_")[-1] in ("BCDEF","GH"):
                                 tmpkey = key.split("_")

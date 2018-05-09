@@ -39,7 +39,7 @@ struct CharmEvent_t
   Float_t j_pz[500],j_pz_pf[500],j_pz_charged[500];
   Float_t j_csv[500];
   Int_t j_hadflav[500];
-  Float_t gj_pt[500],gj_eta[500],gj_phi[500];
+  //Float_t gj_pt[500],gj_eta[500],gj_phi[500];
 
   //PF candidates
   Int_t npf,nmu,pf_j[5000];
