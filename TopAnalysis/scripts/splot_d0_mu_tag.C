@@ -43,11 +43,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
-  //TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
-  TChain *data = new TChain("data");
   TFile *fin;
   TGraph *g;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
+  TChain *data = new TChain("data");
   if(isData) {
     data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/Data13TeV_Single*");
     mass="Data";
@@ -73,7 +72,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TFile *fout = new TFile("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root","RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
   //disabled top pT reweighting
-  data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
+  //data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
   //data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*topptwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
   
   CharmEvent_t ev;
@@ -131,7 +130,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.d0_mass[j] > 2.0) continue;
       if(ev.d0_l3d[j]/ev.d0_sigmal3d[j]<10) continue;
       if(ev.d0_sigmal3d[j]<2E-4) continue;
-      //if(ev.d0_mu_tag_mu_pt[j]==0) continue;
       if(ev.ht<180) continue;
       /*
       if(!ev.isData) {
@@ -255,7 +253,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar nbkg("nbkg","#background events", 5000, 0, 10000) ;
   RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
   */
-  RooRealVar mean("mean","mean", 1.86, 1.8, 1.93);
+  RooRealVar mean("mean","mean", 1.86, 1.864-0.036, 1.864+0.036);
 
   // Construct Crystal Ball PDF for signal
   /*
@@ -408,7 +406,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   c1->SaveAs("ptfrac_signal_"+mass+".pdf");
   c1->SaveAs("ptfrac_signal_"+mass+".png");
-
 
   frame2 = ptfrac.frame();
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),

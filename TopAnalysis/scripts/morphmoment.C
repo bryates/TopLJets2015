@@ -23,8 +23,8 @@
 
 using namespace RooFit;
 
-std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
-//std::vector<TString> samples = { "_d0_mu_tag_mu", "_jpsi" };
+//std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
+std::vector<TString> samples = { "_d0_mu_tag_mu", "_jpsi" };
 //std::vector<TString> samples = { "_d0_mu_tag_mu" };
 //std::vector<TString> samples = { "_d0" };
 //TUNES=[ ('up','BL',1.055),  ('uup','BL',1.000), ('uuup','BL',0.975), ('central','BL',0.955), ('ccentral','BL',0.900), ('cccentral','BL',0.875), ('cuetp8m2t4','BL',0.855), ('ddown','BL',0.800), ('dddown','BL',0.775), ('down','BL',0.755)]
@@ -68,15 +68,17 @@ bins.addBoundary(1.0);
   }
   ptfrac=*(RooRealVar*)(wdata[0]->var("ptfrac")->Clone());
   frame = ptfrac.frame();
+  TString cut = "j_pt_ch<200";
   for(auto &w : wdata) {
     RooDataSet *sigData = (RooDataSet*)w->data("sigData");
     int pos = &w - &wdata[0];
-    std::cout << pos << std::endl;
     //if(samples[pos] == "_d0")
     sigData = (RooDataSet*)sigData;
     //sigData = (RooDataSet*)sigData->reduce(cut);
     TString title(TString::Format("ptfrac_hist_Data%s",samples[pos].Data()));
     ptfrac_data_hist.push_back(new RooDataHist(title, title, ptfrac, *sigData));
+    //ptfrac_data_hist.back()->plotOn(frame);
+    frame->Draw();
     //ptfrac_data_hist.push_back(new RooDataHist(title, title, ptfrac, *w->data("sigData")));
     title.ReplaceAll("hist","pdf");
     std::cout << title << " " << ptfrac_data_hist.back()->sumEntries() << std::endl;
@@ -128,7 +130,6 @@ bins.addBoundary(1.0);
     std::cout << "building DataHists" << std::endl;
     std::cout << "building HistPdfs" << std::endl;
     int num(0);
-    TString cut = "j_pt_ch>50 && j_pt_ch<100";
     for(auto &w : wmc) {
       RooDataSet *sigData = (RooDataSet*)w->data("sigData");
       int pos = &w - &wmc[0];
@@ -138,7 +139,6 @@ bins.addBoundary(1.0);
       TString title(TString::Format("ptfrac_hist_MC%s%s",tune.Data(),samples[pos].Data()));
       //tuneWgts[pos] to scale hist back to N_no_weight (shape only)
       ptfrac_mc_hist.push_back(new RooDataHist(title, title, ptfrac, *sigData));//, tuneWgts[pos]));
-      std::cout << tuneWgts[pos] << std::endl;
       //ptfrac_mc_hist.push_back(new RooDataHist(title, title, ptfrac, *w->data("sigData")));//*mcData);
       title.ReplaceAll("hist","pdf");
       std::cout << title << " " << ptfrac_mc_hist.back()->sumEntries() << std::endl;
@@ -178,7 +178,6 @@ bins.addBoundary(1.0);
   for(size_t i = 0; i < tunes.size(); i++) {
     for(size_t j = 0; j < samples.size(); j++) {
       int pos = j + i * samples.size();
-      std::cout << pos << std::endl;
       std::cout << histMC.size() << std::endl;
       histMC[pos]->Print();
       histMC[pos]->plotOn(frame, RooFit::Binning(bins));
@@ -215,6 +214,7 @@ bins.addBoundary(1.0);
     hh->Draw("lego");
     c1->SaveAs(Form("TemplateMorph_172v5%s_rB_%d-%d.pdf",samples[i].Data(),(int)(param.front()*1000),(int)(param.back()*1000)));
     c1->SaveAs(Form("TemplateMorph_172v5%s_rB_%d-%d.png",samples[i].Data(),(int)(param.front()*1000),(int)(param.back()*1000)));
+    RooFitResult *rBFit = morph[i].fitTo(*ptfrac_data_hist[i]);//,"rse");
 
     //draw overlays
     //rB = RooRealVar("rB", "r_{B}", 0.855, 0.755, 1.055);
@@ -235,9 +235,9 @@ bins.addBoundary(1.0);
 
     //fit morph to data
     //rB = RooRealVar("rB", "r_{B}", 0.855, 0.755, 1.055);
-    RooFitResult *rBFit = morph[i].fitTo(*ptfrac_data_hist[i]);//,"rse");
     //std::cout << "Best fit rB = " << rBFit->getVal() << std::endl;
     frame = ptfrac.frame();
+    std::cout << ptfrac_data_hist[i]->GetName();
     ptfrac_data_hist[i]->plotOn(frame, RooFit::Binning(bins));
     report += TString::Format("%s r_B = %.3f +/- %.2e\n", samples[i].Data(), rB.getVal(), rB.getError());
     //rB->setVal(rBFit->getVal());
@@ -262,8 +262,8 @@ bins.addBoundary(1.0);
     frame->Draw();
     c1->SaveAs(TString::Format("BestFit_rB%s.pdf", samples[i].Data()));
     c1->SaveAs(TString::Format("BestFit_rB%s.png", samples[i].Data()));
-    frame = rB.frame(Bins(100), Range(rB.getMin(), rB.getMax()-0.1));
-    //frame = rB.frame(Bins(100), Range(0.755,0.955));
+    //frame = rB.frame(Bins(100), Range(rB.getMin(), rB.getMax()-0.1));
+    frame = rB.frame(Bins(100), Range(0.755,0.955));
     RooNLLVar nll("nll", "nll", morph[i], *ptfrac_data_hist[i]);
     nll.plotOn(frame, ShiftToZero());
     frame->GetYaxis()->SetRangeUser(-1,20);
@@ -298,7 +298,7 @@ bins.addBoundary(1.0);
   sample.defineType("jpsi");
   RooDataHist combined("combined", "combined", RooArgSet(ptfrac), Index(sample), Import("d0_mu_tag", *ptfrac_data_hist[0]), Import("d0", *ptfrac_data_hist[1]), Import("jpsi", *ptfrac_data_hist[2]));
 
-  rB.setConstant(false);
+  //rB.setConstant(false);
   RooSimultaneous simPdf("simPdf", "simPdf", sample);
   /*
   for(int i = 0; i < samples.size(); i++) {
@@ -337,6 +337,22 @@ bins.addBoundary(1.0);
   c1->SaveAs("NLL-Scan_rB_Simultaneous.pdf");
   c1->SaveAs("NLL-Scan_rB_Simultaneous.png");
   std::cout << rB.getVal() << " +/- " << rB.getError() << std::endl;
+  for(size_t i = 0; i < samples.size(); i++) {
+    //draw overlays
+    rB = RooRealVar("rB", "r_{B}", 0.855, 0.755, 1.055);
+    frame = ptfrac.frame();
+    std::vector<int> colors = {kBlue, kBlue+3, kGreen, kGreen+3, kOrange, kOrange+3, kCyan, kCyan+3, kMagenta, kMagenta+3};
+    int loops(colors.size());
+    for(int j = 0; j < loops; j++) {
+      float step = (rB.getMax() - rB.getMin())/loops;
+      rB.setVal(rB.getMin() + step);
+      rB.Print();
+      morph[i].plotOn(frame, RooFit::Binning(bins), RooFit::LineColor(colors[j]));
+    }
+    frame->Draw();
+    c1->SaveAs(TString::Format("MorphOverlay_rB%s.pdf", samples[i].Data()));
+    c1->SaveAs(TString::Format("MorphOverlay_rB%s.png", samples[i].Data()));
+  }
   //mg.Draw();
   //frame->Draw();
   /*
@@ -348,5 +364,6 @@ bins.addBoundary(1.0);
   morph.plotOn(frame, LineColor(kBlue+2), RooFit::Binning(22));
   frame->Draw();
   */
+  return;
 
 }
