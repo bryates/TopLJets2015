@@ -578,8 +578,9 @@ def main():
     plots=OrderedDict()
     #plots={}
     report=''
-    opt.puNormSF += "_"
-    opt.puNormSF += opt.run
+    if opt.puNormSF.split('_')[-1] not in "BCDEFGH":
+        opt.puNormSF += "_"
+        opt.puNormSF += opt.run
     print "Using PU SF " + opt.puNormSF
     for slist,isSyst in [(reversed(samplesList),False),(systSamplesList,True)]:
         if slist is None: continue
@@ -685,6 +686,8 @@ def main():
                         keep=False if len(onlyList)>0 else True
                         for pname in onlyList:
                             if pname in key: keep=True
+                            #if "_ljet_" in pname and "_m_" in key: keep=True
+                            #if "_ljet_" in pname and "_m_" in key: keep=True
                         #hack to ignore WJets in D meson mass plots FIXME
                         #if "massD" in key and "WJets" in tag:
                             #keep=False
@@ -694,7 +697,8 @@ def main():
                         #if "_jpsi" in key and "DY" in tag: continue
                         #if "_tag" in key and "WJets" in tag: continue
                         #if "mass" in key and "_meson" in key and "WJets" in tag: continue
-                        if "_"+opt.run not in key and opt.run != "BCDEFGH" :
+                        #if "_"+opt.run not in key and opt.run != "BCDEFGH" :
+                        if opt.run not in key and opt.run != "BCDEFGH" :
                              keep=False
                         #if key.split("_")[-1] != opt.run: continue
                         if "_BCDEFGH" in key: continue

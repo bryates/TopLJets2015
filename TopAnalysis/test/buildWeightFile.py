@@ -67,6 +67,7 @@ def main():
         if tag == 'cuetp8m2t4': continue
         print tag
         xb[tag].Divide(xb['cuetp8m2t4'])
+        xb[tag].Smooth()
         gr=ROOT.TGraphErrors(xb[tag])
         gr.SetMarkerStyle(20)
 

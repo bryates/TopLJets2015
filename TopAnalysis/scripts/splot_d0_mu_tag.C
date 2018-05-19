@@ -161,9 +161,13 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           continue;
         tuneWgt->Fill(0.,1.0);
         if(fragWeight.Length() > 0) {
-          scale *= g->Eval(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
-          tuneWgt->Fill(1.,g->Eval(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]));
-          tuneW.setVal(g->Eval(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]));
+          double frac(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
+          /*
+          if(frac>1.) frac = 1.;
+          if(frac<0.1) frac = 0.1;
+          */
+          scale *= g->Eval(frac);
+          tuneWgt->Fill(1.,g->Eval(frac));
         }
         else tuneWgt->Fill(1., 1.0); //unit weights to make re-weighting easier to loop over
       }
@@ -171,8 +175,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
-      //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9) {
+      //if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
+      if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);

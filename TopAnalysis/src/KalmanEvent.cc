@@ -52,11 +52,11 @@ void KalmanEvent::buildJets() {
       //if(ev_.k_mass[ipf]<2.5 || ev_.k_mass[ipf]>3.4) continue;
       if(!ev_.k_mass[ipf]) continue;
       if(debug_) std::cout << "passed mass window" << std::endl; 
-      if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue;
+      //if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue;
       if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
-      if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
+      //if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
       //Correct for Kalman efficiency
       TLorentzVector tkP4(0,0,0,0);
       //Match with PF tracks

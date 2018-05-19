@@ -48,12 +48,14 @@ public:
 private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void genAnalysis(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() override;
 
   std::vector<int> hadronList_;
   std::map<std::string, TH1F *> histos_;
   edm::Service<TFileService> fs;
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
+  std::vector<int> numEntries_;
   /*
   TTree *data_;
   FragEvent_t ev_;
@@ -64,7 +66,8 @@ private:
 //
 FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
   hadronList_(iConfig.getParameter<std::vector<int> >("hadronList")),
-  genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets")))
+  genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
+  numEntries_(iConfig.getParameter<std::vector<int> >("numEntries"))
 {
   //prepare monitoring histograms
   size_t nhadrons=hadronList_.size()+1;
@@ -106,7 +109,11 @@ FragmentationAnalyzer::~FragmentationAnalyzer()
 
 
 //
-void FragmentationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void FragmentationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  genAnalysis(iEvent, iSetup);
+  if(histos_["xb_inc"]->GetEntries() > numEntries_[0]) return;
+}
+void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //
   /*
