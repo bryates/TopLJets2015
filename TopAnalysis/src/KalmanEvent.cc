@@ -1,7 +1,5 @@
 #include <TTree.h>
 #include <TH1.h>
-#include <TGraphAsymmErrors.h>
-#include <TRandom3.h>
 #include <TLorentzVector.h>
 #include <iostream>
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
@@ -60,6 +58,7 @@ void KalmanEvent::buildJets() {
       //Correct for Kalman efficiency
       TLorentzVector tkP4(0,0,0,0);
       //Match with PF tracks
+      /*
       int pf_match(-1);
       for(int ip = 0; ip < ev_.npf; ip++) {
         if(ev_.k_j[ipf] != ev_.pf_j[ip]) continue; //check jet first
@@ -69,10 +68,9 @@ void KalmanEvent::buildJets() {
       if(pf_match==-1) continue; //No match found
       tkP4.SetPtEtaPhiM(ev_.pf_pt[pf_match],ev_.pf_eta[pf_match],ev_.pf_phi[pf_match],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_lx[ipf], ev_.k_ly[ipf], ev_.k_lz[ipf], ev_.k_sigmal3d[ipf], ev_.k_sigmax[ipf], ev_.k_sigmay[ipf], ev_.k_sigmaz[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);
-      /*
+      */
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);
-      */
       //pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity) : vec_(p4),k_mass_(k_mass), l3d_(l3d), sigmal3d_(sigmal3d), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid), motherId_(motherId), highPurity_(highPurity)
       if(debug_) { std::cout << "pfTrack "; pftk.print(); }
       if(debug_) std::cout << "Kalman jet " << ev_.k_j[ipf] << " with pT=" << ev_.j_pt[ev_.k_j[ipf]] << std::endl;

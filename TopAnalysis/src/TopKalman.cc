@@ -538,23 +538,6 @@ void RunTopKalman(TString filename,
         kJetsVec.push_back(jet);
         //allJetsVec.push_back(jet);
       }
-      //**** cleaning tests ****
-      for(auto &tracks : kJetsVec) {
-        vector<pfTrack> piTracks,softTracks;
-	for(auto &track : tracks.getTracks()) {
-          if(abs(track.getPdgId())==211 && track.getMotherId()==421) piTracks.push_back(track);
-          else if(abs(track.getPdgId())==211 && track.getMotherId()==413) softTracks.push_back(track);
-          
-        }
-        if(piTracks.size()>1) {
-          float mass12 = (piTracks[0].getVec()+piTracks[1].getVec()).M();
-          if(softTracks.size()>1) {
-            float mass123 = (piTracks[0].getVec()+piTracks[1].getVec()+softTracks[0].getVec()).M();
-            if(mass12>1.7 && mass12<2.0) allPlots["massDs_all"]->Fill(mass123-mass12);
-          }
-        }
-      }
-      //************************
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -590,23 +573,6 @@ void RunTopKalman(TString filename,
           hsum += jp4.P();
           if(ev.j_csv[k]>0.8484) { htbsum += jp4.Pt(); nbj++; }
 
-      //**** cleaning tests ****
-      for(auto &tracks : kJetsVec) {
-        vector<pfTrack> piTracks,softTracks;
-	for(auto &track : tracks.getTracks()) {
-          if(abs(track.getPdgId())==211 && track.getMotherId()==421) piTracks.push_back(track);
-          else if(abs(track.getPdgId())==211 && track.getMotherId()==413) softTracks.push_back(track);
-          
-        }
-        if(piTracks.size()>1) {
-          float mass12 = (piTracks[0].getVec()+piTracks[1].getVec()).M();
-          if(softTracks.size()>1) {
-            float mass123 = (piTracks[0].getVec()+piTracks[1].getVec()+softTracks[0].getVec()).M();
-            if(mass12>1.7 && mass12<2.0) allPlots["massDs_all_lepjets"]->Fill(mass123-mass12);
-          }
-        }
-      }
-      //************************
 
 	  //save jet
           Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
@@ -1029,23 +995,6 @@ void RunTopKalman(TString filename,
       if(lightJetsVec.size()>0) allPlots["lj_pt"+chTag+"_lepjets"]->Fill(lightJetsVec[0].getVec().Pt(),wgt);
       if(kJetsVec.size()>0)     allPlots["kj_pt"+chTag+"_lepjets"]->Fill(kJetsVec[0].getPt(),wgt);
 
-      //**** cleaning tests ****
-      for(auto &tracks : kJetsVec) {
-        vector<pfTrack> piTracks,softTracks;
-	for(auto &track : tracks.getTracks()) {
-          if(abs(track.getPdgId())==211 && track.getMotherId()==421) piTracks.push_back(track);
-          else if(abs(track.getPdgId())==211 && track.getMotherId()==413) softTracks.push_back(track);
-          
-        }
-        if(piTracks.size()>1) {
-          float mass12 = (piTracks[0].getVec()+piTracks[1].getVec()).M();
-          if(softTracks.size()>1) {
-            float mass123 = (piTracks[0].getVec()+piTracks[1].getVec()+softTracks[0].getVec()).M();
-            if(mass12>1.7 && mass12<2.0) allPlots["massDs_all_csv"]->Fill(mass123-mass12);
-          }
-        }
-      }
-      //************************
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
       evch.njpsi=0;
