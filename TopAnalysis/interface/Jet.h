@@ -4,6 +4,7 @@
 #include <TLorentzVector.h>
 #include <vector>
 #include <iostream>
+#include <map>
 
 class pfTrack {
 
@@ -47,6 +48,7 @@ class pfTrack {
   inline float chi2() { return chi2_; }
   inline float vtxProb() { return vtxProb_; }
   inline float getKalmanMass() { return k_mass_; }
+  //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
   inline bool isMuon() { return isMuon_; }
@@ -59,6 +61,7 @@ class pfTrack {
   void setMother(int);
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
+  //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
   void print();
 
  private:
@@ -84,6 +87,7 @@ class pfTrack {
   bool trackerMuon_;
   bool isMuon_;
   bool promoted_;
+  //std::map<TString,bool> epoch_;
 
 };
 

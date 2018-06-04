@@ -43,7 +43,7 @@ lumi=`jq -r '.Data13TeV_SingleMuon["'$RUN'"]' ${lumiFile}`
 
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}
-outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016
+outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/
 subdir='/test'
 if [ ! -z $4 ]; then
     subdir=$4
@@ -74,7 +74,7 @@ case $WHAT in
 	#python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
         echo "Processing with lumi=${lumi} pb^-1"
 	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr_${RUN}  -j data/${ERA}/samples.json -l ${lumiFile} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
-	#python scripts/plotter.py -i LJets2015/2016 --puNormSF puwgtctr_BCDEFGH  -j data/era2016/samples.json -l data/era2016/lumi.json --saveLog --run BCDEFGH
+	#python scripts/plotter.py -i LJets2015/2016 --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --saveLog --run BCDEFGH
         #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )

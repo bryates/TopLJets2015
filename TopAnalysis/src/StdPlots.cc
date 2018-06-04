@@ -71,6 +71,8 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["kj_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("kj_pt_low"+tag+cut+weight+runPeriod_,";Leading Kalman Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
     allPlots["nlp"+tag+cut+weight+runPeriod_]     = new TH1F("nlp"+tag+cut+weight+runPeriod_,";Lepton Multiplicity;Events" ,3,0.,3.);
     allPlots["nj"+tag+cut+weight+runPeriod_]     = new TH1F("nj"+tag+cut+weight+runPeriod_,";Jet Multiplicity (P_{T} > 30 GeV);Events" ,10,0,10.);
+    allPlots["njtk"+tag+cut+weight+runPeriod_]     = new TH1F("njtk"+tag+cut+weight+runPeriod_,";Jet Track Multiplicity (Jet P_{T} > 30 GeV);Events" ,20,0,20.);
+    allPlots["j_tk_pt"+tag+cut+weight+runPeriod_] = new TH1F("j_tk_pt"+tag+cut+weight+runPeriod_,";Jet Tracks P_{T} [GeV];Events / 10 GeV", 40, 0,400);
     allPlots["nlj"+tag+cut+weight+runPeriod_]     = new TH1F("nlj"+tag+cut+weight+runPeriod_,";Light-Jet Multiplicity (P_{T} > 30 GeV);Events" ,10,0,10.);
     allPlots["nkj"+tag+cut+weight+runPeriod_]     = new TH1F("nkj"+tag+cut+weight+runPeriod_,";Kalman Jet Multiplicity (#chi^{2} < 5);Events" ,4,1.,5.);
     allPlots["j_sphericity"+tag+cut+weight+runPeriod_] = new TH1F("j_sphericity"+tag+cut+weight+runPeriod_,";Jet Sphericity;Events / 0.01", 100, 0,1);
@@ -175,6 +177,12 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_pt"+tag+cut+weight+runPeriod_,";D^{0} P_{T} [GeV];Events / 1 GeV", 150, 0,150);
     allPlots["D0_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);
+    allPlots["D0_p"+tag+cut+weight+runPeriod_] = new TH1F("D0_p"+tag+cut+weight+runPeriod_,";D^{0} P [GeV];Events / 1 GeV", 150, 0,150);
+    allPlots["D0_pi_p"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_p"+tag+cut+weight+runPeriod_,";D^{0} #pi P [GeV];Events / 1 GeV", 50, 0,50);
+    allPlots["D0_K_p"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_p"+tag+cut+weight+runPeriod_,";D^{0} K P [GeV];Events / 1 GeV", 25, 0,25);
+    allPlots["D0_dEtapik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dEtapik"+tag+cut+weight+runPeriod_,";D^{0} #Delta#eta(pi,K) [GeV];Events / 0.1 GeV", 30, -2.5,2.5);
+    allPlots["D0_dPhipik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dPhipik"+tag+cut+weight+runPeriod_,";D^{0} #Delta#phi(pi,K) [GeV];Events ", 50, -3.14, 3.14);
+    allPlots["D0_dRpik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dRpik"+tag+cut+weight+runPeriod_,";D^{0} #DeltaR(pi,K) [GeV];Events / 0.01", 100, 0, 1.);
     allPlots["D0_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_pt"+tag+cut+weight+runPeriod_,";D^{0} #mu P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_mu_tag_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pt"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} P_{T} [GeV];Events / 1 GeV", 150, 0,150);
     allPlots["D0_mu_tag_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pi_pt"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
@@ -663,6 +671,12 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
       allPlots["D0_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt());
       allPlots["D0_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt());
       allPlots["D0_K_pt_all"+name+runPeriod_]->Fill(k->Pt(),getWgt());
+      allPlots["D0_p"+chTag+name+runPeriod_]->Fill(D0.P(),getWgt());
+      allPlots["D0_p_all"+name+runPeriod_]->Fill(D0.P(),getWgt());
+      allPlots["D0_pi_p"+chTag+name+runPeriod_]->Fill(pi->P(),getWgt());
+      allPlots["D0_pi_p_all"+name+runPeriod_]->Fill(pi->P(),getWgt());
+      allPlots["D0_K_p"+chTag+name+runPeriod_]->Fill(k->P(),getWgt());
+      allPlots["D0_K_p_all"+name+runPeriod_]->Fill(k->P(),getWgt());
       allPlots["D0_pi_eta"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt());
       allPlots["D0_pi_eta_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt());
       allPlots["D0_K_eta"+chTag+name+runPeriod_]->Fill(k->Eta(),getWgt());
@@ -671,6 +685,12 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
       allPlots["D0_pi_phi_all"+name+runPeriod_]->Fill(pi->Phi(),getWgt());
       allPlots["D0_K_phi"+chTag+name+runPeriod_]->Fill(k->Phi(),getWgt());
       allPlots["D0_K_phi_all"+name+runPeriod_]->Fill(k->Phi(),getWgt());
+      allPlots["D0_dRpik"+chTag+name+runPeriod_]->Fill(pi->DeltaR(*k),getWgt());
+      allPlots["D0_dRpik_all"+name+runPeriod_]->Fill(pi->DeltaR(*k),getWgt());
+      allPlots["D0_dEtapik"+chTag+name+runPeriod_]->Fill((pi->Eta())-(k->Eta()),getWgt());
+      allPlots["D0_dEtapik_all"+name+runPeriod_]->Fill((pi->Eta())-(k->Eta()),getWgt());
+      allPlots["D0_dPhipik"+chTag+name+runPeriod_]->Fill(pi->getVec().DeltaPhi(k->getVec()),getWgt());
+      allPlots["D0_dPhipik_all"+name+runPeriod_]->Fill(pi->getVec().DeltaPhi(k->getVec()),getWgt());
 
       /*
       allPlots["D0_pi_quality"+chTag+name+runPeriod_]->Fill(pi->getQuality(),getWgt());
@@ -1156,6 +1176,10 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
       std::vector<pfTrack> &tracks = jet.getTracks();
       allPlots["D0oJet_pt_hard"+chTag+name+runPeriod_]->Fill(tracks[0].Pt()/jpt_charged,getWgt());
       allPlots["D0oJet_pt_hard_all"+name+runPeriod_]->Fill(tracks[0].Pt()/jpt_charged,getWgt());
+      allPlots["njtk"+chTag+name+runPeriod_]->Fill(tracks.size(),getWgt());
+      allPlots["njtk_all"+name+runPeriod_]->Fill(tracks.size(),getWgt());
+      allPlots["j_tk_pt"+chTag+name+runPeriod_]->Fill(jpt,getWgt());
+      allPlots["j_tk_pt_all"+name+runPeriod_]->Fill(jpt,getWgt());
       int mu=-1;
       for(size_t itk=0;itk<tracks.size();itk++) {
         if(abs(tracks[itk].getPdgId())==13) {

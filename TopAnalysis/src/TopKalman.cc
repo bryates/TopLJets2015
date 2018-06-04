@@ -259,6 +259,7 @@ void RunTopKalman(TString filename,
     {
       //evch = {};
       t->GetEntry(iev);
+      //if(ev.nvtx>20) continue;
       if(iev%5000==0) printf ("\r [%3.0f/100] done",100.*(float)(iev)/(float)(nentries));
       //Normalize to XSec and lumi
       float norm(1.0);
@@ -508,7 +509,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!ev.isData) {
+      if(!ev.isData && 0) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
@@ -1242,6 +1243,7 @@ void RunTopKalman(TString filename,
               if(piTracks[i].M()!=gMassPi) continue;
               if(piTracks[j].M()!=gMassK) continue;
               if(piTracks[i].Pt() < 5) continue;
+              //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;

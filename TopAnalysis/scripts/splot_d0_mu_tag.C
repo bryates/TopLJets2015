@@ -45,7 +45,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   mass.ReplaceAll(".","v");
   TFile *fin;
   TGraph *g;
+  //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
+  //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
   if(isData) {
     data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/Data13TeV_Single*");
@@ -63,6 +65,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
     }
+    /*
+    std::vector<TString> tunes = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
+    for(auto &it : tunes) {
+      fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
+      fwgt.push_back((TGraph*)fin->Get(it+"Frag"));
+      frgWgt.push_back(RooRealVar(it+"Frag", it+"Frag", 1., 0, 2.));
+    }
+    */
     if(fragWeight.Length() > 0) {
       fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
       g = (TGraph*)fin->Get(fragWeight+"Frag");
@@ -113,12 +123,19 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar j_pt_ch("j_pt_ch","j p_{T} charged", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
+  /*
+  RooArgSet args(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,j_pt_ch,epoch,tuneW);
+  for(auto &it : frgWgt)
+    args.add(it);
+  args.Print();
+  */
   
   //cout << "creating dataset" << endl;
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
   RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,j_pt_ch,epoch,tuneW));
+  //RooDataSet dsn("dsn", "dsn", args);
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
@@ -162,9 +179,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         tuneWgt->Fill(0.,1.0);
         if(fragWeight.Length() > 0) {
           double frac(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
-          /*
           if(frac>1.) frac = 1.;
           if(frac<0.1) frac = 0.1;
+          /*
+          for(auto &it : fwgt)
+            args.setRealValue(it->GetName(),scale*it->Eval(frac));
           */
           scale *= g->Eval(frac);
           tuneWgt->Fill(1.,g->Eval(frac));
@@ -175,8 +194,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      //if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
-      if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
+      if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
+      //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
@@ -347,6 +366,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(sigData, Rename("sigData"));
   w.import(bkgData, Rename("bkgData"));
   w.import(ds, Rename("dsSWeights"));
+  /*
+  for(auto &it : frgWgt)
+    w.import(it);
+  */
   /*
   for(int i=0; i < 10; i++) {
     std::cout << "Weight" << sData.GetSWeight(i,"nsig") << std::endl;

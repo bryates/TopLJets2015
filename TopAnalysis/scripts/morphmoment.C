@@ -226,7 +226,7 @@ bins.addBoundary(1.0);
   for(auto &it : ptfrac_data_hist)
     std::cout << it->GetName() << std::endl;
   for(size_t i = 0; i < samples.size(); i++) {
-    morph.push_back(RooMomentMorph(Form("morph%s",samples[i].Data()),Form("morph%s",samples[i].Data()), rB, varlist, pdfs[i], paramVec, RooMomentMorph::Linear));
+    morph.push_back(RooMomentMorph(Form("morph%s",samples[i].Data()),Form("morph%s",samples[i].Data()), rB, ptfrac, pdfs[i], paramVec, RooMomentMorph::Linear));
     TH1* hh = morph[i].createHistogram("hh",ptfrac,Binning(22),RooFit::YVar(rB,Binning(15)));
     TString name(Form("%s vs p_{T} and r_{B}",samples[i].Data()));
     name.ReplaceAll("_d0_mu_tag_mu","D^{0}_{#mu}+#mu_{tag}");

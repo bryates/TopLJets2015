@@ -370,6 +370,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
           if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
           corr.first  = corr.first*tkEffSF;
         }
+      /*
       hname=idstr+"_tk_vtx_"+runPeriod_;
       if(lepEffGr_.find(hname)!=lepEffGr_.end())
         {
@@ -389,6 +390,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
           if(debug_) std::cout << "tk eff= " << tkEffSF << std::endl;
           corr.first  = corr.first*tkEffSF;
         }
+      */
  
       //reco efficiency (if available)
       hname=idstr+"_reco";

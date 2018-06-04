@@ -1041,6 +1041,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf1 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id1));
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
       
+      if(pf1.pt()<1 || pf2.pt()<1) continue;
       // correct charge combination and not muons
       /*
       if(abs(pf1.pdgId()) != 13) continue;
@@ -1204,18 +1205,20 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
   // D0  
 
   if(ndau < 4) return;
-  /*
+  unsigned int maxdau = min(ndau, (unsigned)4);
   for (unsigned int id1 = 0; id1 < ndau; ++id1) {
     for (unsigned int id2 = 0; id2 < ndau; ++id2) {
+  /*
+  for (unsigned int id1 = 0; id1 < maxdau; ++id1) {
+    for (unsigned int id2 = 0; id2 < maxdau; ++id2) {
   */
-  for (unsigned int id1 = 0; id1 < 4; ++id1) {
-    for (unsigned int id2 = 0; id2 < 4; ++id2) {
 	
       if(id1 == id2) continue;
 	
       const pat::PackedCandidate &pf1 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id1));
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
 
+      //if(pf1.pt()<1 || pf2.pt()<1) continue;
       // correct charge combination and not muons
       /*
       if(abs(pf1.pdgId()) != 211) continue;
