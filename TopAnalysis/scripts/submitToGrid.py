@@ -15,7 +15,8 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     muCorFile='RoccoR_13tev.txt'
     os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/era2016/%s'%muCorFile)
 
-    os.system("rm -rvf %s/*%s* "%(workDir,tag))
+    os.system("rm -rvf %s/*%s "%(workDir,tag))
+    os.system("rm -rvf %s/*%s.* "%(workDir,tag))
     crabConfigFile=workDir+'/'+tag+'_cfg.py'
     config_file=open(crabConfigFile,'w')
     config_file.write('from WMCore.Configuration import Configuration\n')

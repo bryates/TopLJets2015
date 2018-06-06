@@ -509,7 +509,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!ev.isData && 0) {
+      if(!ev.isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);

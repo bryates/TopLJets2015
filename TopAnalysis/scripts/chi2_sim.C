@@ -14,7 +14,7 @@
 #include "RooFitResult.h"
 #include "RooAddition.h"
 #include "RooArgSet.h"
-#include "convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
 
@@ -26,9 +26,14 @@ int bins(22);
 float chi2vals[12];
 
 void chi2_sim() {
+//std::vector<TString> samples = { "_d0_mu_tag_mu", "_jpsi" };
 std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
-std::vector<TString> tunes = {"_down", "", "_central", "_up" };
-std::vector<float> param = {0.755, 0.855, 0.955, 1.055};
+/*
+std::vector<TString> tunes = {"_down", "", "_cccentral", "_central", "_up" };
+std::vector<float> param = {0.755, 0.855, 0.875, 0.955, 1.055};
+*/
+std::vector<TString> tunes = {"_sdown", "_down", "_scentral", "", "_cccentral", "_central", "_up" };
+std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 /*
 std::vector<TString> tunes = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};

@@ -14,7 +14,7 @@
 #include "RooFitResult.h"
 #include "RooAddition.h"
 #include "RooArgSet.h"
-#include "convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
 
