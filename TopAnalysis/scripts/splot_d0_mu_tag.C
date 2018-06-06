@@ -47,6 +47,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TGraph *g;
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
+  TFile *f = new TFile("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_TTJets_powheg_0.root"); //open a randome file to get correction histograms
   //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
   if(isData) {
@@ -93,7 +94,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //f->ls(); 
   TString name = "massJPsi_l_all_d0";
   //TString name = "massJPsi_l_all_d0_BCDEF";
-  /*
   TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
   TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
   TH1F *top1 = (TH1F*) f->Get("topptwgt_BCDEF");
@@ -102,13 +102,17 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   float puSF2 = pu2->GetBinContent(1)/pu2->GetBinContent(2);
   float topSF1 = top1->GetBinContent(2)/top1->GetBinContent(1);
   float topSF2 = top2->GetBinContent(2)/top2->GetBinContent(1);
+  pu1->SetDirectory(0);
+  pu2->SetDirectory(0);
+  top1->SetDirectory(0);
+  top2->SetDirectory(0);
+  f->Close();
   if(!isData) {
   cout << "PU normalization " << puSF1 << endl;
   cout << "top pT normalization " << topSF1 << endl;
   cout << "PU normalization " << puSF2 << endl;
   cout << "top pT normalization " << topSF2 << endl;
   }
-  */
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
   cout << "loaded!" << endl;
@@ -163,8 +167,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       float scale = 1.;
       tuneW.setVal(1.);
       if(!isData) {
-        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j];// * topSF * puSF;
-        //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
           scale =  scale * 19716.102;// * puSF1 * topSF1;
