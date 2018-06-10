@@ -90,13 +90,31 @@ for(size_t i = 0; i < tunes.size(); i++) {
   chiTest->SetBinContent(chiTest->FindBin(param[i]),chi);
 }
 */
-chiTest->GetXaxis()->SetRangeUser(0.6,1.2);
-//chiTest->GetYaxis()->SetRangeUser(0,5);
+chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
+chiTest->GetYaxis()->SetRangeUser(75,375);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FS");
 std:cout << report << std::endl;
-std::cout << "Minimum at x= " << (-1)*fit->Parameter(1)/(2*fit->Parameter(2)) << std::endl;
+float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
+float chimin = fit->Parameter(0) * pow(min,2) + fit->Parameter(1)*min + fit->Parameter(2);
+float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(0)) - sqrt(pow(fit->Parameter(1),2)
+            - 4 * fit->Parameter(0) * (fit->Parameter(2) - chimin - 1)) / (2 * fit->Parameter(0));
+//std::cout << "Minimum at x= " << (-1)*fit->Parameter(1)/(2*fit->Parameter(2)) << " +/- " << err << std::endl;
+report = Form("Minimum at x= %0.3g +/- %0.2g",min, abs(min-err));
+std::cout << report << std::endl;
+std::cout << "chi^2_min + 1 at x= " << err << std::endl;
+
+TPaveText *pt = new TPaveText(0.12,0.85,0.3,0.65,"NDC"); //NB blNDC
+pt->SetFillStyle(0);
+pt->SetTextAlign(11);
+pt->SetBorderSize(0);
+pt->SetTextFont(42);
+pt->SetTextSize(0.046);
+TString text = TString::Format("r_{B}= %.3f +/- %.2g",min,abs(min-err));
+pt->AddText(text);
+pt->Draw();
+gStyle->SetOptStat(0);
 
 }
 
@@ -112,12 +130,17 @@ RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 wmc->var("ptfrac")->setBins(22);
 wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
+RooDataSet *sigData;
 
 //load MC into RooDataHist
-RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *wmc->data("sigData"));//*mcData);
+sigData = (RooDataSet*)wmc->data("sigData")->reduce("j_pt_ch<150");
+//RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *wmc->data("sigData"));//*mcData);
+RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *sigData);
 
+sigData = (RooDataSet*)wdata->data("sigData")->reduce("j_pt_ch<150");
 //load Data into RooDataHist
-RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_data_hist", "ptfrac_data_hist", *wdata->var("ptfrac"), *wdata->data("sigData"));//*dataData);
+//RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_data_hist", "ptfrac_data_hist", *wdata->var("ptfrac"), *wdata->data("sigData"));//*dataData);
+RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_data_hist", "ptfrac_data_hist", *wdata->var("ptfrac"), *sigData);
 
 //Chi2 fit
 /*

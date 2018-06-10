@@ -42,11 +42,11 @@ void KalmanEvent::buildJets() {
     Jet tmpj(jp4, ev_.j_csv[ij], ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracks and gen matched index
     tmpj.setHadFlav(ev_.j_hadflav[ij]);
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
-    int npi(0);
+    //int npi(0);
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
       //if(npi>15) break; //only first 4 tracks in jet per loop (4pi*4K=16 total)
       //D^* has only 3rd pi and D^0_mu has only mu
-      if(abs(ev_.k_pf_id[ipf])==211 && ev_.k_id[ipf]==421) npi++; //D^0 only
+      //if(abs(ev_.k_pf_id[ipf])==211 && ev_.k_id[ipf]==421) npi++; //D^0 only
 
       if(ev_.k_j[ipf] != ij) continue; //skip if PF track doesn't belong to current jet
       if(ev_.k_pf_eta[ipf]>2.4) continue; // |eta|<2.4
@@ -66,6 +66,7 @@ void KalmanEvent::buildJets() {
       //Match with PF tracks
       int pf_match(-1);
       for(int ip = 0; ip < ev_.npf; ip++) {
+        //if(abs(ev_.k_pf_id[ipf])==211 && ev_.k_id[ipf]==421 && ip>3) break; //D^0 only from hardest 4
         if(ev_.k_j[ipf] != ev_.pf_j[ip]) continue; //check jet first
         if(deltaR(ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.pf_eta[ip],ev_.pf_phi[ip])>0.01) continue;
         pf_match = ip; //match deltaR < 0.01

@@ -1220,9 +1220,9 @@ void RunTopKalman(TString filename,
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
-            //if(i > tmax) break;
+            if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) {
-              //if(j > tmax) break;
+              if(j > tmax) break;
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;

@@ -272,6 +272,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       ev.pf_m[k]   = ev.gpf_m[g];
       ev.pf_mother[k] = ev.gpf_mother[g]; //Store mother ID for D mesons (since Kalman filter wasn't run on GEN particles)
       //Update Kalman tracks
+      /*
       if(ev.gpf_mother[k]==443 || ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) {
         int kpf = ++ev.nkpf;
         ev.njpsi++;
@@ -289,6 +290,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         else if(ev.gpf_mother[k]==421) ev.k_mass[kpf] = 1.864;
         else if(ev.gpf_mother[k]==413) ev.k_mass[kpf] = 2.010;
       }
+      */
       ev.pf_dxy[k] = 0.;
       ev.pf_dz[k]  = 0.;
     }

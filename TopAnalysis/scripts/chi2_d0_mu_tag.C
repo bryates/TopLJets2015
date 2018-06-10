@@ -74,13 +74,31 @@ frame->Draw();
 */
 
 
-chiTest->GetXaxis()->SetRangeUser(0.6,1.2);
+chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
 //chiTest->GetYaxis()->SetRangeUser(0,5);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FS");
 std:cout << report << std::endl;
-std::cout << "Minimum at x= " << (-1)*fit->Parameter(1)/(2*fit->Parameter(2)) << std::endl;
+float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
+float chimin = fit->Parameter(0) * pow(min,2) + fit->Parameter(1)*min + fit->Parameter(2);
+float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(0)) - sqrt(pow(fit->Parameter(1),2)
+            - 4 * fit->Parameter(0) * (fit->Parameter(2) - chimin - 1)) / (2 * fit->Parameter(0));
+report = Form("Minimum at x= %0.3g +/- %0.2g",min, abs(min-err));
+//std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
+std::cout << report << std::endl;
+std::cout << "chi^2_min + 1 at x= " << err << std::endl;
+
+TPaveText *pt = new TPaveText(0.12,0.85,0.3,0.65,"NDC"); //NB blNDC
+pt->SetFillStyle(0);
+pt->SetTextAlign(11);
+pt->SetBorderSize(0);
+pt->SetTextFont(42);
+pt->SetTextSize(0.046);
+TString text = TString::Format("r_{B}= %.3f +/- %.2g",min,abs(min-err));
+pt->AddText(text);
+pt->Draw();
+gStyle->SetOptStat(0);
 
 }
 
