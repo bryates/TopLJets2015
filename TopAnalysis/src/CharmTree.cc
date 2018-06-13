@@ -299,9 +299,13 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.d0_pi_pt[ev_.nmeson] = pfCands[0].Pt();
     ev_.d0_pi_eta[ev_.nmeson] = pfCands[0].Eta();
     ev_.d0_pi_phi[ev_.nmeson] = pfCands[0].Phi();
+    ev_.d0_pi_dxy[ev_.nmeson] = pfCands[0].getDxy();
+    ev_.d0_pi_dz[ev_.nmeson] = pfCands[0].getDz();
     ev_.d0_k_pt[ev_.nmeson] = pfCands[1].Pt();
     ev_.d0_k_eta[ev_.nmeson] = pfCands[1].Eta();
     ev_.d0_k_phi[ev_.nmeson] = pfCands[1].Phi();
+    ev_.d0_k_dxy[ev_.nmeson] = pfCands[1].getDxy();
+    ev_.d0_k_dz[ev_.nmeson] = pfCands[1].getDz();
 
     ev_.d0_chi2[ev_.nmeson] = pfCands[0].chi2();
 
