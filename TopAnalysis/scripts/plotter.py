@@ -389,6 +389,7 @@ class Plot(object):
             #if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
 
             try:
+                #ratio=nominalTTbar.Clone('ratio') #use for purity plots (S/(S+B))
                 ratio=self.dataH.Clone('ratio')
                 ratio.SetDirectory(0)
                 self._garbageList.append(ratio)

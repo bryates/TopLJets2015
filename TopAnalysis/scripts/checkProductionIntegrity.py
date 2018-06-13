@@ -22,7 +22,7 @@ def main():
     parser.add_option(      '--only',        dest='only',        help='only this tag',                            default=None,   type='string')
     (opt, args) = parser.parse_args()
 
-    Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
 
     #prepare output directory
     if opt.outDir is None: opt.outDir=opt.inDir
@@ -97,9 +97,9 @@ def main():
                             mergedFileName='/tmp/MergedMiniEvents_%d.root '%ilist
                         toAdd='%s ' % mergedFileName
                         for f in split_file_lists[ilist]:                            
-                            toAdd += 'eos/cms/%s '%f 
+                            toAdd += '/eos/cms/%s '%f 
 
-                        finalOutput='eos/cms/%s/%s'%(newDir,mergedFileName.replace('/tmp/',''))
+                        finalOutput='/eos/cms/%s/%s'%(newDir,mergedFileName.replace('/tmp/',''))
                         fIn=ROOT.TFile.Open(finalOutput)
                         try:
                             if fIn or not fIn.IsZombie():
@@ -110,7 +110,7 @@ def main():
                             pass
                         
                         os.system('hadd -f -k %s'%toAdd)
-                        os.system('cp %s eos/cms/%s/'%(mergedFileName,newDir))
+                        os.system('cp %s /eos/cms/%s/'%(mergedFileName,newDir))
                         os.system('rm %s'%mergedFileName)
                         #os.system('xrdcp  -f %s root://eoscms//eos/cms/%s/MergedMiniEvents_%d.root' %(mergedFileName,newDir,ilist))
 
@@ -122,7 +122,7 @@ def main():
                         if pubExt:
                             newF=f.replace('.root','_%s.root'%pubExt)
 
-                        os.system('cp %s eos/cms/%s/%s' % (f, newDir,newF) )
+                        os.system('cp %s /eos/cms/%s/%s' % (f, newDir,newF) )
 
             if not opt.nocheck and opt.cleanup : 
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()

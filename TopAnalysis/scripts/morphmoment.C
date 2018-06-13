@@ -237,7 +237,7 @@ bins.addBoundary(1.0);
     hh->GetXaxis()->SetTitleOffset(2.0);
     hh->GetYaxis()->SetTitleOffset(2.0);
     hh->GetZaxis()->SetTitleOffset(1.5);
-    hh->Draw("lego");
+    hh->Draw("surf");
     c1->SaveAs(Form("TemplateMorph_172v5%s_rB_%d-%d.pdf",samples[i].Data(),(int)(param.front()*1000),(int)(param.back()*1000)));
     c1->SaveAs(Form("TemplateMorph_172v5%s_rB_%d-%d.png",samples[i].Data(),(int)(param.front()*1000),(int)(param.back()*1000)));
     std::cout << "Fitting to: " << ptfrac_data_hist[i]->GetName() << std::endl;

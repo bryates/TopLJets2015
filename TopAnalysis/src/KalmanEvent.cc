@@ -65,9 +65,11 @@ void KalmanEvent::buildJets() {
       TLorentzVector tkP4(0,0,0,0);
       //Match with PF tracks
       int pf_match(-1);
+      int nip(0);
       for(int ip = 0; ip < ev_.npf; ip++) {
-        //if(abs(ev_.k_pf_id[ipf])==211 && ev_.k_id[ipf]==421 && ip>3) break; //D^0 only from hardest 4
+        if(ev_.k_id[ipf]==421 && nip>7) break; //D^0 only from hardest 4
         if(ev_.k_j[ipf] != ev_.pf_j[ip]) continue; //check jet first
+        nip++;
         if(deltaR(ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.pf_eta[ip],ev_.pf_phi[ip])>0.01) continue;
         pf_match = ip; //match deltaR < 0.01
       }
