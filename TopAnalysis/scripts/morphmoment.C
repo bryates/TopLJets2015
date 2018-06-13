@@ -21,7 +21,7 @@
 #include "RooNLLVar.h"
 #include "RooBinning.h"
 #include "RooKeysPdf.h"
-#include "TKDE.h"
+//#include "TKDE.h"
 #include "TF1.h"
 #include "RooTFnBinding.h"
 
@@ -42,7 +42,7 @@ std::vector<RooDataHist*> ptfrac_mc_hist, ptfrac_data_hist;
 std::vector<RooHistPdf*> ptfrac_mc_pdf, ptfrac_data_pdf;
 std::vector<RooHistPdf*> histMC, histData;
 std::vector<RooKeysPdf*> ptfrac_mc_key, ptfrac_data_key;
-std::vector<TKDE*>       ptfrac_mc_kde;
+//std::vector<TKDE*>       ptfrac_mc_kde;
 std::vector<RooAbsPdf*>  ptfrac_mc_func;
 RooRealVar ptfrac;
 RooPlot *frame;
@@ -164,9 +164,11 @@ bins.addBoundary(1.0);
       for(int i = 0; i < sigData->numEntries(); i++) {
         x[i] = sigData->get(i)->getRealValue("ptfrac");
       }
+      /*
       ptfrac_mc_kde.push_back(new TKDE(sigData->numEntries(), x, 0, 1.1, "Mirror:MirrorBoth,Iteration:Adaptive,Binning:RelaxedBinning", 1.0));
       RooAbsPdf *rfa1 = bindPdf(ptfrac_mc_kde.back()->GetFunction(),ptfrac);
       ptfrac_mc_func.push_back(rfa1);
+      */
       delete sigData;
     }
 
@@ -207,7 +209,7 @@ bins.addBoundary(1.0);
       histMC[pos]->Print();
       histMC[pos]->plotOn(frame, RooFit::Binning(bins));
       pdfs[j].add(*histMC[pos]);
-      pdfkeys[j].add(*ptfrac_mc_func[pos]);
+      //pdfkeys[j].add(*ptfrac_mc_func[pos]);
       if(j == 0)
         paramVec[i] = param[i];
     }
@@ -343,6 +345,7 @@ bins.addBoundary(1.0);
   }
   std::cout << report << std::endl;
   //kernel
+  /*
   for(size_t i = 0; i < samples.size(); i++) {
     morphkeys.push_back(RooMomentMorph(Form("morph%s",samples[i].Data()),Form("morph%s",samples[i].Data()), rB, varlist, pdfkeys[i], paramVec, RooMomentMorph::Linear));
     //Kernel pdf
@@ -423,6 +426,7 @@ bins.addBoundary(1.0);
     delete nll;
     delete rBFit;
   }
+  */
 
   rB.setBins(15);
   RooCategory sample("sample","sample");
