@@ -130,6 +130,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("d0_k_pt",       ev.d0_k_pt,        "d0_k_pt[nmeson]/F");
   t->Branch("d0_k_eta",      ev.d0_k_eta,       "d0_k_eta[nmeson]/F");
   t->Branch("d0_k_phi",      ev.d0_k_phi,       "d0_k_phi[nmeson]/F");
+  t->Branch("d0_chi2",       ev.d0_chi2,        "d0_chi2[nmeson]/F");
   t->Branch("d0_mu_pt",      ev.d0_mu_pt,       "d0_mu_pt[nmeson]/F");
   t->Branch("d0_mu_eta",     ev.d0_mu_eta,      "d0_mu_eta[nmeson]/F");
   t->Branch("d0_mu_phi",     ev.d0_mu_phi,      "d0_mu_phi[nmeson]/F");
@@ -290,6 +291,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("d0_k_pt",       ev.d0_k_pt);
   t->SetBranchAddress("d0_k_eta",      ev.d0_k_eta);
   t->SetBranchAddress("d0_k_phi",      ev.d0_k_phi);
+  t->SetBranchAddress("d0_chi2",       ev.d0_chi2);
   t->SetBranchAddress("d0_mu_pt",      ev.d0_mu_pt);
   t->SetBranchAddress("d0_mu_eta",     ev.d0_mu_eta);
   t->SetBranchAddress("d0_mu_phi",     ev.d0_mu_phi);
