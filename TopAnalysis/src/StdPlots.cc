@@ -85,7 +85,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["pf_dxy_sig"+tag+cut+weight+runPeriod_] = new TH1F("pf_dxy_significance"+tag+cut+weight+runPeriod_,";d_{xy};Events / 1", 30, 0, 30);
     allPlots["pf_dz_sig"+tag+cut+weight+runPeriod_] = new TH1F("pf_dz_significance"+tag+cut+weight+runPeriod_,";d_{z};Events / 1", 30, 0, 30);
 
-    allPlots["mt"+tag+cut+weight+runPeriod_]         = new TH1F("mt"+tag+cut+weight+runPeriod_,";m_{T};Events / 1 GeV" ,2000,0,2000);
+    allPlots["mt"+tag+cut+weight+runPeriod_]         = new TH1F("mt"+tag+cut+weight+runPeriod_,";m_{T};Events / 10 GeV" ,200,0,2000);
     
     //J/Psi plots
     if(cut.Contains("jpsi")) { // reduce number of empty histograms

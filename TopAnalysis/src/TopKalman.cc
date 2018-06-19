@@ -718,7 +718,7 @@ void RunTopKalman(TString filename,
       met.SetPtEtaPhiM(ev.met_pt[0],0,ev.met_phi[0],0.);
       met+=jetDiff;
       met.SetPz(0.); met.SetE(met.Pt());
-      //float mt( computeMT(isZ ? dilp4: lp4,met) );
+      float mt( computeMT(isZ ? dilp4: leptons[0].getVec(),met) );
 
       //simple fill
       bool singleLep(false);
@@ -942,6 +942,7 @@ void RunTopKalman(TString filename,
         allPlots["kj_pt"+chTag+"_lep"]->Fill(kJetsVec[0].getVec().Pt(),wgt);
       }
 
+      /*
       TLorentzVector pmt;
       for(auto &it : allJetsVec)
         pmt += it.getVec();
@@ -961,6 +962,9 @@ void RunTopKalman(TString filename,
         pmt += leptons[il].getVec();
       allPlots["mt"+chTag+"_lepjets"]->Fill(pmt.Mt(),wgt);
       allPlots["mt_all_lepjets"]->Fill(pmt.Mt(),wgt);
+      */
+      allPlots["mt"+chTag+"_lep"]->Fill(mt,wgt);
+      allPlots["mt_all_lep"]->Fill(mt,wgt);
 
       if(debug) cout << "passed jet requirements" << endl;
 
@@ -1247,7 +1251,6 @@ void RunTopKalman(TString filename,
               if(piTracks[j].Pt() < 1) continue;
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
-              float mass12t = (piTracks[i].getVec()+piTracks[j].getVec()).Mt();
               if (mass12>1.65 && mass12<2.0) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
                 //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
@@ -1256,8 +1259,8 @@ void RunTopKalman(TString filename,
                 if(debug && (mass12>1.8 && mass12<1.9)) cout << "and it's good!" << endl;
                 allPlots["massD0"+chTag]->Fill(mass12,wgt);
 	        allPlots["massD0_all"]->Fill(mass12,wgt);
-                allPlots["mt"+chTag+"_meson"]->Fill(mass12t,wgt);
-	        allPlots["mt_all_meson"]->Fill(mass12t,wgt);
+                allPlots["mt"+chTag+"_meson"]->Fill(mt,wgt);
+	        allPlots["mt_all_meson"]->Fill(mt,wgt);
                 if(lightJetsVec.size()>1) {
                   allPlots["massD0_1j"+chTag]->Fill(mass12,wgt);
                   allPlots["massD0_1j_all"]->Fill(mass12,wgt);
