@@ -180,8 +180,8 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0_p"+tag+cut+weight+runPeriod_] = new TH1F("D0_p"+tag+cut+weight+runPeriod_,";D^{0} P [GeV];Events / 1 GeV", 150, 0,150);
     allPlots["D0_pi_p"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_p"+tag+cut+weight+runPeriod_,";D^{0} #pi P [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_K_p"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_p"+tag+cut+weight+runPeriod_,";D^{0} K P [GeV];Events / 1 GeV", 25, 0,25);
-    allPlots["D0_dEtapik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dEtapik"+tag+cut+weight+runPeriod_,";D^{0} #Delta#eta(pi,K) [GeV];Events / 0.1 GeV", 30, -2.5,2.5);
-    allPlots["D0_dPhipik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dPhipik"+tag+cut+weight+runPeriod_,";D^{0} #Delta#phi(pi,K) [GeV];Events ", 50, -3.14, 3.14);
+    allPlots["D0_dEtapik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dEtapik"+tag+cut+weight+runPeriod_,";D^{0} #Delta#eta(pi,K) [GeV];Events / 0.05", 40, -1., 1.);
+    allPlots["D0_dPhipik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dPhipik"+tag+cut+weight+runPeriod_,";D^{0} #Delta#phi(pi,K) [GeV];Events / 0.05", 40, -1., 1.);
     allPlots["D0_dRpik"+tag+cut+weight+runPeriod_] = new TH1F("D0_dRpik"+tag+cut+weight+runPeriod_,";D^{0} #DeltaR(pi,K) [GeV];Events / 0.01", 100, 0, 1.);
     allPlots["D0_mu_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_pt"+tag+cut+weight+runPeriod_,";D^{0} #mu P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_mu_tag_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pt"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} P_{T} [GeV];Events / 1 GeV", 150, 0,150);

@@ -14,6 +14,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
+  pfTrack(TLorentzVector p4, float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity, float dxy, float dxyE, float dz, float dzE);
   ~pfTrack();
   float Pt();
   float Eta();

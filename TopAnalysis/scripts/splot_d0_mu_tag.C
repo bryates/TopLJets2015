@@ -47,11 +47,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TGraph *g;
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
-  TFile *f = new TFile("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_TTJets_powheg_0.root"); //open a randome file to get correction histograms
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
+  TFile *f = new TFile(dir+"MC13TeV_TTJets_powheg_0.root"); //open a randome file to get correction histograms
   //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
   if(isData) {
-    data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/Data13TeV_Single*");
+    data->Add(dir+"Data13TeV_Single*");
     mass="Data";
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
@@ -59,7 +60,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
-      TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
+      //TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
+      TString mcname(dir);
       mcname += it;
       mcname += "_*.root";
       std::cout << "Adding " << it;

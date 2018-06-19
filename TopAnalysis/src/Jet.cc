@@ -9,8 +9,10 @@ pfTrack::pfTrack(TLorentzVector p4, int pfid) : vec_(p4), dxy_(0), dxyE_(0), dz_
 pfTrack::pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity) : vec_(p4),k_mass_(k_mass), l3d_(l3d), sigmal3d_(sigmal3d), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid), motherId_(motherId), highPurity_(highPurity)
 { }
 pfTrack::pfTrack(TLorentzVector p4,float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity) : vec_(p4),k_mass_(k_mass), l3d_(l3d), lx_(lx), ly_(ly), lz_(lz), sigmal3d_(sigmal3d), sigmax_(sigmax), sigmay_(sigmay), sigmaz_(sigmaz), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid), motherId_(motherId), highPurity_(highPurity)
-
 { }
+pfTrack::pfTrack(TLorentzVector p4,float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity, float dxy, float dxyE, float dz, float dzE) : vec_(p4),k_mass_(k_mass), l3d_(l3d), lx_(lx), ly_(ly), lz_(lz), sigmal3d_(sigmal3d), sigmax_(sigmax), sigmay_(sigmay), sigmaz_(sigmaz), chi2_(chi2), vtxProb_(vtxProb), pfid_(pfid), motherId_(motherId), highPurity_(highPurity)
+{ dxy_ = dxy; dxyE_ = dxyE; dz_ = dz; dzE_ = dzE; }
+
 pfTrack::~pfTrack() {};
 int pfTrack::getPfid() { return pfid_ ; }
 int pfTrack::getMotherId() { return motherId_; }

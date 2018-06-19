@@ -97,6 +97,12 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("jpsi_mu2_pt",  ev.jpsi_mu2_pt,   "jpsi_mu2_pt[nmeson]/F");
   t->Branch("jpsi_mu2_eta", ev.jpsi_mu2_eta,  "jpsi_mu2_eta[nmeson]/F");
   t->Branch("jpsi_mu2_phi", ev.jpsi_mu2_phi,  "jpsi_mu2_phi[nmeson]/F");
+  t->Branch("jpsi_k_pt",   ev.jpsi_k_pt,      "jpsi_k_pt[nmeson]/F");
+  t->Branch("jpsi_k_eta",  ev.jpsi_k_eta,     "jpsi_k_eta[nmeson]/F");
+  t->Branch("jpsi_k_phi",  ev.jpsi_k_phi,     "jpsi_k_phi[nmeson]/F");
+  t->Branch("jpsi_k_dxy",  ev.jpsi_k_dxy,     "jpsi_k_dxy[nmeson]/F");
+  t->Branch("jpsi_k_dz",   ev.jpsi_k_dz,      "jpsi_k_dz[nmeson]/F");
+  t->Branch("jpsi_chi2",   ev.jpsi_chi2,      "jpsi_chi2[nmeson]/F");
   t->Branch("jpsi_j",       ev.jpsi_j,        "jpsi_j[nmeson]/F");
   t->Branch("jpsi_ptrel",   ev.jpsi_ptrel,    "jpsi_ptrel[nmeson]/F");
   t->Branch("jpsi_l",       ev.jpsi_l,        "jpsi_l[nmeson]/F");
@@ -220,6 +226,8 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("j_eta",      ev.j_eta);
   t->SetBranchAddress("j_phi",      ev.j_phi);
   t->SetBranchAddress("j_mass",     ev.j_mass);
+  t->SetBranchAddress("j_ntk",      ev.j_ntk);
+  t->SetBranchAddress("j_ntk",      ev.j_ntk);
   t->SetBranchAddress("j_csv",      ev.j_csv);
   t->SetBranchAddress("j_hadflav",     ev.j_hadflav);
   /*
@@ -259,6 +267,12 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("jpsi_mu2_pt",  ev.jpsi_mu2_pt);
   t->SetBranchAddress("jpsi_mu2_eta", ev.jpsi_mu2_eta);
   t->SetBranchAddress("jpsi_mu2_phi", ev.jpsi_mu2_phi);
+  t->SetBranchAddress("jpsi_k_pt",    ev.jpsi_k_pt);
+  t->SetBranchAddress("jpsi_k_eta",   ev.jpsi_k_eta);
+  t->SetBranchAddress("jpsi_k_phi",   ev.jpsi_k_phi);
+  t->SetBranchAddress("jpsi_k_dxy",   ev.jpsi_k_dxy);
+  t->SetBranchAddress("jpsi_k_dz",    ev.jpsi_k_dz);
+  t->SetBranchAddress("jpsi_chi2",    ev.jpsi_chi2);
   t->SetBranchAddress("jpsi_j",       ev.jpsi_j);
   t->SetBranchAddress("jpsi_ptrel",   ev.jpsi_ptrel);
   t->SetBranchAddress("jpsi_l",       ev.jpsi_l);

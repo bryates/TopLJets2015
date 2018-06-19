@@ -97,9 +97,9 @@ chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FS");
 std:cout << report << std::endl;
 float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
-float chimin = fit->Parameter(0) * pow(min,2) + fit->Parameter(1)*min + fit->Parameter(2);
-float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(0)) - sqrt(pow(fit->Parameter(1),2)
-            - 4 * fit->Parameter(0) * (fit->Parameter(2) - chimin - 1)) / (2 * fit->Parameter(0));
+float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2);
+float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
+            - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 //std::cout << "Minimum at x= " << (-1)*fit->Parameter(1)/(2*fit->Parameter(2)) << " +/- " << err << std::endl;
 report = Form("Minimum at x= %0.3g +/- %0.2g",min, abs(min-err));
 std::cout << report << std::endl;
@@ -133,11 +133,12 @@ if(tune == "") ptfrac=*wmc->var("ptfrac");
 RooDataSet *sigData;
 
 //load MC into RooDataHist
-sigData = (RooDataSet*)wmc->data("sigData")->reduce("j_pt_ch<150");
+TString cut("j_pt_ch<50");// && j_pt_ch<100");
+sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
 //RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *wmc->data("sigData"));//*mcData);
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *sigData);
 
-sigData = (RooDataSet*)wdata->data("sigData")->reduce("j_pt_ch<150");
+sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
 //load Data into RooDataHist
 //RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_data_hist", "ptfrac_data_hist", *wdata->var("ptfrac"), *wdata->data("sigData"));//*dataData);
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_data_hist", "ptfrac_data_hist", *wdata->var("ptfrac"), *sigData);

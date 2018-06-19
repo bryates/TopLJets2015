@@ -43,7 +43,7 @@ lumi=`jq -r '.Data13TeV_SingleMuon["'$RUN'"]' ${lumiFile}`
 
 summaryeosdir=/store/cmst3/group/top/summer2016/TopWidth_${ERA}
 #outdir=~/work/TopWidth_${ERA}
-outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/
+outdir=/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/ndau/
 subdir='/test'
 if [ ! -z $4 ]; then
     subdir=$4

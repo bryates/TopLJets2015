@@ -34,7 +34,7 @@ struct CharmEvent_t
   Float_t l_chi2norm[50], l_dxy[50], l_dxyE[50], l_dz[50], l_dzE[50];
 
   Int_t nj;
-  Float_t j_pt[500],j_pt_pf[500],j_pt_charged[500],j_eta[500],j_phi[500],j_mass[500];
+  Float_t j_pt[500],j_pt_pf[500],j_pt_charged[500],j_eta[500],j_phi[500],j_mass[500],j_ntk[50];
   Float_t j_p[500],j_p_pf[500],j_p_charged[500];
   Float_t j_pz[500],j_pz_pf[500],j_pz_charged[500];
   Float_t j_csv[500];
@@ -52,6 +52,7 @@ struct CharmEvent_t
   Float_t jpsi_j[50],jpsi_ptrel[50],jpsi_l[50];//,jpsi_j_dR[50];
   Float_t jpsi_mu1_pt[50],jpsi_mu1_eta[50],jpsi_mu1_phi[50];
   Float_t jpsi_mu2_pt[50],jpsi_mu2_eta[50],jpsi_mu2_phi[50];
+  Float_t jpsi_k_pt[50],jpsi_k_eta[50],jpsi_k_phi[50],jpsi_k_dxy[50],jpsi_k_dz[50],jpsi_chi2[50];
   Float_t jpsi_l_mass[50],jpsi_l_dR[50];
   Float_t jpsi_l3d[50],jpsi_sigmal3d[50];
   Float_t jpsi_lx[5000],jpsi_ly[5000],jpsi_lz[5000];
