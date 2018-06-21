@@ -23,9 +23,9 @@ class StdPlots {
   friend StdPlots Combine(const StdPlots&, const StdPlots&);
   inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
   inline float getWgt() { return norm_ * sfs_.first * puWgt_ * top_pt_wgt_ * tracker_wgt_ * pi_wgt_.first; };
-  inline float getUnc() { return sqrt( pow(sfs_.second,2) + pow(pi_wgt_.second,2) ); }
-  //inline std::pair<float,float> getUnc() { return std::pair<float, float>(sqrt( pow(sfs_.second.first,2) + pow(pi_wgt_.second.first,2) ),
-                                                            //sqrt( pow(sfs_.second.second,2) + pow(pi_wgt_.second.second,2) ));
+  //inline float getUnc() { return sqrt( pow(sfs_.second,2) + pow(pi_wgt_.second,2) ); }
+  inline std::pair<float,float> getUnc() { return std::pair<float, float>(sqrt( pow(sfs_.second.first,2) + pow(pi_wgt_.second.first,2) ),
+                                                            sqrt( pow(sfs_.second.second,2) + pow(pi_wgt_.second.second,2) )); }
   void Fill(Leptons, TString, TString name="");
   void FillGen(std::vector<Particle>, TString, TString name="");
   //void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> kJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
@@ -56,13 +56,13 @@ class StdPlots {
   bool debug_;
   bool isGood_;
   float norm_;
-  std::pair <float,float> sfs_;
-  //std::pair <float,std::pair<float,float>> sfs_;
+  //std::pair <float,float> sfs_;
+  std::pair <float,std::pair<float,float>> sfs_;
   float puWgt_;
   float top_pt_wgt_;
   float tracker_wgt_;
-  std::pair <float,float> pi_wgt_;
-  //std::pair <float,std::pair<float,float>> pi_wgt_;
+  //std::pair <float,float> pi_wgt_;
+  std::pair <float,std::pair<float,float>> pi_wgt_;
   //std::vector<float> top_pt_wgt_vec;
 
 };

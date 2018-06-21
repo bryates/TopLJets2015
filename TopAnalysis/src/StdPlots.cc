@@ -23,11 +23,11 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   else isGood_ = false;
   debug_ = debug;
   norm_ = 1.;
-  sfs_.first = 1.; sfs_.second = 0.;//.first = 0.; //sfs_.second.second = 0.;
+  sfs_.first = 1.; sfs_.second.first = 0.; sfs_.second.second = 0.;
   puWgt_ = 1.;
   top_pt_wgt_ = 1.;
   tracker_wgt_ = 1.;
-  pi_wgt_.first = 1.; pi_wgt_.second = 0.;//.first = 0.; //pi_wgt_.second.second = 0.;
+  pi_wgt_.first = 1.; pi_wgt_.second.first = 0.; pi_wgt_.second.second = 0.;
 
   if(debug_ && isGood_)
     std::cout << "Initializing run" << runPeriod_ << std::endl;
@@ -49,7 +49,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     TString weight(wgtVec[k]);
 
     //Plots to hold up/down uncertainties
-    allPlots["unc"+tag+cut+weight+runPeriod_] = new TH1F("unc"+tag+cut+weight+runPeriod_,";Uncertainties (up,down);Events", 2, 0,2);
+    //allPlots["unc"+tag+cut+weight+runPeriod_] = new TH1F("unc"+tag+cut+weight+runPeriod_,";Uncertainties (up,down);Events", 2, 0,2);
 
     // Lepton plots
     allPlots["lp_pt_iso"+tag+cut+weight+runPeriod_] = new TH1F("lp_pt_iso"+tag+cut+weight+runPeriod_,";Lepton P_{T} [GeV] after cleaning;Events / 10 GeV", 50, 0,500);
@@ -370,9 +370,9 @@ void StdPlots::SetSFs(float sfs) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting SFs= " << sfs << std::endl;
   sfs_.first = sfs;
-  sfs_.second = 0.;
-  //sfs_.second.first = 0.;
-  //sfs_.second.second = 0.;
+  //sfs_.second = 0.;
+  sfs_.second.first = 0.;
+  sfs_.second.second = 0.;
 }
 
 void StdPlots::SetSFs(float sfs, float unc) {
@@ -383,9 +383,9 @@ void StdPlots::SetSFs(float sfs, float unc_u, float unc_d) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting SFs= " << sfs << std::endl;
   sfs_.first = sfs;
-  sfs_.second = unc_u;
-  //sfs_.second.first = unc_u;
-  //sfs_.second.second = unc_d;
+  //sfs_.second = unc_u;
+  sfs_.second.first = unc_u;
+  sfs_.second.second = unc_d;
 }
 
 void StdPlots::SetPuWgt(float puWgt) {
@@ -421,9 +421,9 @@ void StdPlots::SetPiWgt(float pi_wgt, float unc_u, float unc_d) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting SFs= " << pi_wgt << std::endl;
   pi_wgt_.first = pi_wgt;
-  pi_wgt_.second = unc_u;
-  //pi_wgt_.second.first = unc_u;
-  //pi_wgt_.second.second = unc_d;
+  //pi_wgt_.second = unc_u;
+  pi_wgt_.second.first = unc_u;
+  pi_wgt_.second.second = unc_d;
 }
 
 void StdPlots::CheckRunPeriod(TString runPeriod) {
@@ -1139,13 +1139,16 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
   //add unc^2 from hist and take sqrt
   unc.first = sqrt(unc.first + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(1),2));
   unc.second = sqrt(unc.second + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(2),2));
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,unc.fist);
+  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,unc.first);
+  allPlots["unc_all"+name+runPeriod_]->SetBinContent(1,unc.first);
   allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(2,unc.second);
+  allPlots["unc_all"+name+runPeriod_]->SetBinContent(2,unc.second);
+  float unc = sqrt(getUnc() + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(1),2));
+  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,unc);
+  allPlots["unc_all"+name+runPeriod_]->SetBinContent(1,unc);
+  //allPlots["unc"+chTag+name+runPeriod_]->SetBinError(1,0);
+  //allPlots["unc"+chTag+name+runPeriod_]->SetBinError(2,0);
   */
-  //reset bin error to 0 just in case
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,getUnc());
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinError(1,0);
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinError(2,0);
   if(name.Contains("jpsi")) {
     if(debug_) std::cout << "Filling J/Psi+jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
     if(debug_) std::cout << "is " << name << std::endl;
