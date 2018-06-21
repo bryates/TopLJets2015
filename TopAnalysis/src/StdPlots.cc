@@ -1136,14 +1136,15 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
   /*
   std::pair<float, float> unc = getUnc();
   //add unc^2 from hist and take sqrt
-  unc.first = sqrt(unc.first + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(0),2));
-  unc.second = sqrt(unc.second + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(0),2));
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(0,unc.fist);
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,unc.second);
+  unc.first = sqrt(unc.first + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(1),2));
+  unc.second = sqrt(unc.second + pow(allPlots["unc"+chTag+name+runPeriod_]->GetBinContent(2),2));
+  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,unc.fist);
+  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(2,unc.second);
   */
   //reset bin error to 0 just in case
-  allPlots["unc"+chTag+name+runPeriod_]->SetBinError(0,0);
+  std::cout << "unc"+chTag+name+runPeriod_ << std::endl;
   allPlots["unc"+chTag+name+runPeriod_]->SetBinError(1,0);
+  allPlots["unc"+chTag+name+runPeriod_]->SetBinError(2,0);
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
     if(debug_) std::cout << "Filling J/Psi+jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
