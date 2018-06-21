@@ -1130,6 +1130,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, T
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TString name) {
   if(!isGood_) return;
   float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
+  if(!name.EqualTo("")) name = "_" + name;
   //set unc^2
   //std::pair<float, float> unc = std::pair<float,float>(pow(sfs_.second.first,2), pow(pi_wgt_.second.first,2),
                                                        //pow(sfs_.second.second,2), pow(pi_wgt_.second.second,2));
@@ -1142,10 +1143,9 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
   allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(2,unc.second);
   */
   //reset bin error to 0 just in case
-  std::cout << "unc"+chTag+name+runPeriod_ << std::endl;
+  allPlots["unc"+chTag+name+runPeriod_]->SetBinContent(1,getUnc());
   allPlots["unc"+chTag+name+runPeriod_]->SetBinError(1,0);
   allPlots["unc"+chTag+name+runPeriod_]->SetBinError(2,0);
-  if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
     if(debug_) std::cout << "Filling J/Psi+jet" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
     if(debug_) std::cout << "is " << name << std::endl;
