@@ -207,7 +207,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("peterson",    ev.peterson,     "peterson[ng]/F");
   t->Branch("up",          ev.up,           "up[ng]/F");
   t->Branch("central",     ev.central,      "central[ng]/F");
-  t->Branch("down",        ev.down,         "downp[ng]/F");
+  t->Branch("down",        ev.down,         "down[ng]/F");
   t->Branch("xb",          ev.xb,           "xb[ngjets]/F");
 }
 

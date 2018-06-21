@@ -1190,7 +1190,7 @@ void RunTopKalman(TString filename,
               for(auto & itg : genMuTracks) {
                 if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
                 if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
-                if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
+                //if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
                 dR = it.getVec().DeltaR(itg.getVec());
                 best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
               }
@@ -1224,9 +1224,9 @@ void RunTopKalman(TString filename,
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
-            if(i > tmax) break;
+            //if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) {
-              if(j > tmax) break;
+              //if(j > tmax) break;
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;

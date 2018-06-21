@@ -113,13 +113,16 @@ RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 wmc->var("ptfrac")->setBins(22);
 wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
+TString cut("j_pt_ch>150 && j_pt_ch<200");
 
 //load MC into RooDataHist
-RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *wmc->data("sigData"));//*mcData);
+RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
+RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);//*mcData);
 RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
 
 //load Data into RooDataHist
-RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *wdata->data("sigData"));//*dataData);
+sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);//*dataData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
 
 //Chi2 fit
