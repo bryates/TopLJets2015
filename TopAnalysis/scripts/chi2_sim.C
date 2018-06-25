@@ -133,7 +133,7 @@ if(tune == "") ptfrac=*wmc->var("ptfrac");
 RooDataSet *sigData;
 
 //load MC into RooDataHist
-TString cut("j_pt_ch<50");// && j_pt_ch<100");
+TString cut("j_pt_ch>150 && j_pt_ch<200");
 sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
 //RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *wmc->data("sigData"));//*mcData);
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *sigData);
@@ -162,21 +162,11 @@ RooAddPdf model("model","c*ptfrac_mc_pdf + (1 - c)*g", *ptfrac_mc_pdf, g, c);
 model.fitTo(*ptfrac_data_hist);
 */
 
-RooPlot *frame = wdata->var("ptfrac")->frame();
-ptfrac_data_hist->plotOn(frame);
-//ptfrac_mc_hist->plotOn(frame,MarkerColor(38));
-//model.plotOn(frame,LineColor(38));
-frame->Draw();
-//std::cout << frame->chiSquare("model","ptfrac_data_pdf") << std::endl;
-/*
-RooPlot *ptfrac_data = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal");
-RooPlot *ptfrac_mc = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal");
-*/
-RooPlot *ptfrac_data = ptfrac_data_hist->plotOn(frame, RooFit::Binning(bins));
+RooPlot *ptfrac_data = wdata->var("ptfrac")->frame();
+ptfrac_data_hist->plotOn(ptfrac_data);
+RooPlot *ptfrac_mc = wdata->var("ptfrac")->frame();
+ptfrac_mc_hist->plotOn(ptfrac_mc);
 TH1F *data = (TH1F*)convert(ptfrac_data);
-//data->Rebin(2);
-frame = wdata->var("ptfrac")->frame();
-RooPlot *ptfrac_mc = ptfrac_mc_hist->plotOn(frame, RooFit::Binning(bins));
 TH1F *mc = (TH1F*)convert(ptfrac_mc);
 /*
 if(tune.Length() > 0) {
