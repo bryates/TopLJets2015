@@ -1314,6 +1314,40 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
       vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
 
+      //Openeing angle with respect to primary vertex
+      GlobalPoint vtxPos(fittedVertex.x(), fittedVertex.y(), fittedVertex.z());
+      std::auto_ptr<TrajectoryStateClosestToPoint> trajPlus;
+      std::auto_ptr<TrajectoryStateClosestToPoint> trajMins;
+      std::vector<reco::TransientTrack> theRefTracks;
+      if (tv.hasRefittedTracks()) {
+        theRefTracks = tv.refittedTracks();
+      }
+    
+      reco::TransientTrack* thePositiveRefTrack = nullptr;
+      reco::TransientTrack* theNegativeRefTrack = nullptr;
+      for (std::vector<reco::TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
+        if (iTrack->track().charge() > 0.) {
+          thePositiveRefTrack = &*iTrack;
+        } else if (iTrack->track().charge() < 0.) {
+          theNegativeRefTrack = &*iTrack;
+        }
+      }
+      if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr) continue;
+      trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
+      trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
+      
+      if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid()) continue;
+      GlobalVector positiveP(trajPlus->momentum());
+      GlobalVector negativeP(trajMins->momentum());
+      GlobalVector totalP(positiveP + negativeP);
+    
+      double dx = fittedVertex.x()-(primVtx.position().x());
+      double dy = fittedVertex.y()-(primVtx.position().y());
+      double px = totalP.x();
+      double py = totalP.y();
+      double angleXY = (dx*px+dy*py)/(sqrt(dx*dx+dy*dy)*sqrt(px*px+py*py));
+      if(angleXY<0.99) continue; //Cut on opnening cos(angle) < 0.99
+
       ev_.k_j_pt[ev_.nj]=j.pt();
       ev_.k_j_eta[ev_.nj]=j.eta();
       ev_.k_j_phi[ev_.nj]=j.phi();
