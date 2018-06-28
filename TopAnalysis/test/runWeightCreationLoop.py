@@ -6,7 +6,7 @@ import os
 #TUNES=[ ('sup','BL',0.865), ('scentral','BL',0.854), ('sdown','BL',0.845), ('cuetp8m2t4','BL',0.855) ]
 #TUNES=[ ('scentral','BL',0.825), ('sdown','BL',0.655) ]
 #TUNES=[ ('sdown','BL',0.655), ('up','BL',1.055),  ('uup','BL',1.000), ('uuup','BL',0.975), ('central','BL',0.955), ('ccentral','BL',0.900), ('cccentral','BL',0.875), ('cuetp8m2t4','BL',0.855), ('scentral','BL',0.825), ('ddown','BL',0.800), ('dddown','BL',0.775), ('down','BL',0.755)]
-TUNES=[ ('1025','BL',1.025),  ('1075','BL',1.075), ('675','BL',0.675), ('625','BL',0.625) ]
+TUNES=[ ('1025','BL',1.025),  ('1075','BL',1.075), ('675','BL',0.675), ('625','BL',0.625), ('sdown','BL',0.655), ('up','BL',1.055),  ('uup','BL',1.000), ('uuup','BL',0.975), ('central','BL',0.955), ('ccentral','BL',0.900), ('cccentral','BL',0.875), ('cuetp8m2t4','BL',0.855), ('scentral','BL',0.825), ('ddown','BL',0.800), ('dddown','BL',0.775), ('down','BL',0.755) ]
 #TUNES=[ ('sup','BL',0.900), ('scentral','BL',0.875), ('cuetp8m2t4','BL',0.855), ('sdown','BL',0.825)]
 #TUNES=[ ('up','BL',1.055), ('central','BL',0.955), ('cuetp8m2t4','BL',0.855), ('down','BL',0.755)]
 #TUNES=[ ('up','BL',1.079), ('central','BL',0.8949), ('cuetp8m2t4','BL',0.855), ('down','BL',0.6981)]

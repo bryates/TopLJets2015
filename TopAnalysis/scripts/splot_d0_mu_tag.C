@@ -48,6 +48,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
   TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
+  //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ndau/Chunks/");
   TFile *f = new TFile(dir+"MC13TeV_TTJets_powheg_0.root"); //open a randome file to get correction histograms
   //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
@@ -82,6 +83,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       mass += "_" + fragWeight;
     }
   }
+  std::cout << "creating file" << std::endl;
   TFile *fout = new TFile("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root","RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
   //disabled top pT reweighting
@@ -520,9 +522,13 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   signalGr->SaveAs("ptfrac_signal.png");
   */
 
+  std::cout << "writting workspace to file" << std::endl;
   w.Write();
+  std::cout << "writting tuneWgt to file" << std::endl;
   tuneWgt->Write();
+  std::cout << "closing file" << std::endl;
   fout->Close();
+  std::cout << "DONE!" << std::endl;
 
   return;
 }

@@ -1224,9 +1224,9 @@ void RunTopKalman(TString filename,
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
-            if(i > tmax) break;
+            //if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) {
-              if(j > tmax) break;
+              //if(j > tmax) break;
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;
@@ -1251,11 +1251,11 @@ void RunTopKalman(TString filename,
               if(piTracks[j].Pt() < 1) continue;
               if(abs(piTracks[i].Eta()) > 1.) continue;
               if(abs(piTracks[j].Eta()) > 1.) continue;
+              if(abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) < 0.5) continue;
+              if(abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) < 0.5) continue;
               /*
               TLorentzVector D0 = piTracks[i].getVec() + piTracks[j].getVec();
               float cosDjet = (D0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P() * D0.P());
-              if(piTracks[i].getDxy()/piTracks[i].getDxyE() < 0.5) continue;
-              if(piTracks[j].getDxy()/piTracks[j].getDxyE() < 0.5) continue;
               if(cosDjet < 0.99) continue;
               */
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();

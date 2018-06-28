@@ -100,11 +100,14 @@ pt->AddText(text);
 pt->Draw();
 gStyle->SetOptStat(0);
 
+c1->SaveAs("chi2_d0_mu_tag.pdf");
+c1->SaveAs("chi2_d0_mu_tag.png");
+
 }
 
 float chi2_d0_mu_tag_test(TString tune="") {
-TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
-TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+TFile *fdata = TFile::Open("4dau/TopMass_Data_sPlot_d0_mu_tag_mu.root");
+TFile *fmc = TFile::Open(TString::Format("4dau/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open("TopMass_172v5_matched.root");
 
 //load RooWorkspace and set binning
@@ -113,7 +116,7 @@ RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 wmc->var("ptfrac")->setBins(22);
 wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
-TString cut("j_pt_ch<100");// && j_pt_ch<100");
+TString cut("j_pt_ch>50 && j_pt_ch<75");// && j_pt_ch<100");
 
 //load MC into RooDataHist
 RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
