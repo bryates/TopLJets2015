@@ -1249,10 +1249,17 @@ void RunTopKalman(TString filename,
               if(piTracks[i].Pt() < 5) continue;
               //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
+              bool cuts = true;
+              cuts &= abs(piTracks[i].Eta()) > 1.;
+              cuts &= abs(piTracks[j].Eta()) > 1.;
+              cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) < 0.5;
+              cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) < 0.5;
+              /*
               if(abs(piTracks[i].Eta()) > 1.) continue;
               if(abs(piTracks[j].Eta()) > 1.) continue;
               if(abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) < 0.5) continue;
               if(abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) < 0.5) continue;
+              */
               /*
               TLorentzVector D0 = piTracks[i].getVec() + piTracks[j].getVec();
               float cosDjet = (D0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P() * D0.P());
@@ -1260,7 +1267,9 @@ void RunTopKalman(TString filename,
               */
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
-              if (mass12>1.65 && mass12<2.0) {
+              cuts &= (mass12>1.65 && mass12<2.0);
+              //if (mass12>1.65 && mass12<2.0) {
+              if (cuts) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
                 //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
                 if(debug) cout << mass12 << endl << endl;
@@ -1380,7 +1389,7 @@ void RunTopKalman(TString filename,
                   treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                   */
                 }
-              } //end mass within D^0 window
+              } //end extra cuts within D^0 window
               if(piSoftTracks.size()<1) continue;
               for(auto &track : piSoftTracks) {
                 if(abs(track.getMotherId())!=413) continue;
@@ -1395,10 +1404,8 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                //FIXME
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                //FIXME
               } //end D*
             } //end D^0 j
           } //end D^0 i
