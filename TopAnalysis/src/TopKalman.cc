@@ -627,7 +627,6 @@ void RunTopKalman(TString filename,
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
-      if(htsum<180) continue;
       //if(htsum<160) continue;
       //if(allJetsVec[0].getVec().Pt()<50) continue;
       stsum += htsum;
@@ -1117,6 +1116,7 @@ void RunTopKalman(TString filename,
       }
       //end better J/Psi
 
+      if(htsum<180) continue;
       //Better D meson
       //const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
       evch.nj=0;
