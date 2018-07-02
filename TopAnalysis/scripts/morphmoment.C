@@ -27,9 +27,9 @@
 
 using namespace RooFit;
 
-std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
+//std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
 //std::vector<TString> samples = { "_d0_mu_tag_mu", "_jpsi" };
-//std::vector<TString> samples = { "_d0_mu_tag_mu" };
+std::vector<TString> samples = { "_d0_mu_tag_mu" };
 //std::vector<TString> samples = { "_d0" };
 //TUNES=[ ('up','BL',1.055),  ('uup','BL',1.000), ('uuup','BL',0.975), ('central','BL',0.955), ('ccentral','BL',0.900), ('cccentral','BL',0.875), ('cuetp8m2t4','BL',0.855), ('ddown','BL',0.800), ('dddown','BL',0.775), ('down','BL',0.755)]
 /*

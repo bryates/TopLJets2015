@@ -80,6 +80,7 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
       histos_["semilepbr"]->GetXaxis()->SetBinLabel(i+1,name.c_str());
       histos_["semilepbrinc"]->GetXaxis()->SetBinLabel(i+1,name.c_str());
       histos_["xb_"+name] = fs->make<TH1F>(("xb_"+name).c_str(), (name+";x_{b}=p_{T}(B)/p_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_semilep"+name] = fs->make<TH1F>(("xb_semilep"+name).c_str(), (name+";x_{b}=p_{T}(B)/p_{T}(jet); Jets").c_str(), 100, 0, 2);
     }
   for(auto it : histos_) it.second->Sumw2();
   //produces<edm::ValueMap<float> >("xb");
@@ -111,7 +112,8 @@ FragmentationAnalyzer::~FragmentationAnalyzer()
 //
 void FragmentationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   genAnalysis(iEvent, iSetup);
-  if(histos_["xb_inc"]->GetEntries() > numEntries_[0]) return;
+  if(histos_["xb_semilepinc"]->GetEntries() > numEntries_[0]) endJob();
+  if(histos_["xb_semilepinc"]->GetEntries() > numEntries_[0]) return;
 }
 void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -144,6 +146,8 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 	  if(!jinfo.hasTauSemiLepDecay)
 	    histos_["semilepbr"]->Fill(0);
 	  histos_["semilepbrinc"]->Fill(0);
+          //xb for semi-leptonic ttbar decay
+          histos_["xb_semilepinc"]->Fill(jinfo.xb);
 	}
       histos_["xb_inc"]->Fill(jinfo.xb);
       

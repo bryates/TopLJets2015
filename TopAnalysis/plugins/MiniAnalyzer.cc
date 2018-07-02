@@ -1359,6 +1359,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
       ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
       ev_.k_pf_m[ev_.nkpf]=gMassK;
+      ev_.k_pf_dxy[ev_.nkpf]=trk1->dxy(primVtx.position());
+      ev_.k_pf_dxyE[ev_.nkpf]=trk1->dxyError();
+      ev_.k_pf_dz[ev_.nkpf]=trk1->dz(primVtx.position());
+      ev_.k_pf_dzE[ev_.nkpf]=trk1->dzError();
       ev_.k_id[ev_.nkpf]=421;
       ev_.k_mass[ev_.nkpf]=mass12;
       ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
@@ -1382,6 +1386,10 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
       ev_.k_pf_phi[ev_.nkpf]=pf2.phi();
       ev_.k_pf_m[ev_.nkpf]=gMassPi;
+      ev_.k_pf_dxy[ev_.nkpf]=trk2->dxy(primVtx.position());
+      ev_.k_pf_dxyE[ev_.nkpf]=trk2->dxyError();
+      ev_.k_pf_dz[ev_.nkpf]=trk2->dz(primVtx.position());
+      ev_.k_pf_dzE[ev_.nkpf]=trk2->dzError();
       ev_.k_id[ev_.nkpf]=421;
       ev_.k_mass[ev_.nkpf]=mass12;
       ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
