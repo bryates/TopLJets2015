@@ -1250,10 +1250,10 @@ void RunTopKalman(TString filename,
               //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
               bool cuts = true;
-              cuts &= abs(piTracks[i].Eta()) > 1.;
-              cuts &= abs(piTracks[j].Eta()) > 1.;
-              cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) < 0.5;
-              cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) < 0.5;
+              cuts &= abs(piTracks[i].Eta()) < 1.;
+              cuts &= abs(piTracks[j].Eta()) < 1.;
+              cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
+              cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*
               if(abs(piTracks[i].Eta()) > 1.) continue;
               if(abs(piTracks[j].Eta()) > 1.) continue;
