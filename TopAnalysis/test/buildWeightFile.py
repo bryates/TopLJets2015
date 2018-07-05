@@ -52,8 +52,8 @@ def main():
     for tag,_,_ in TUNES:
         fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%(tag,MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%tag
         fIn=ROOT.TFile.Open(fName)
-        xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
-        xb[tag].Rebin(2);
+        xb[tag]=fIn.Get('bfragAnalysis/xb_semilepinc').Clone(tag)
+        #xb[tag].Rebin(2);
         xb[tag].SetDirectory(0)
         fIn.Close()
 
@@ -67,7 +67,7 @@ def main():
         if tag == 'cuetp8m2t4': continue
         print tag
         xb[tag].Divide(xb['cuetp8m2t4'])
-        xb[tag].Smooth()
+        #xb[tag].Smooth()
         gr=ROOT.TGraphErrors(xb[tag])
         gr.SetMarkerStyle(20)
 
