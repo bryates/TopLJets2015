@@ -12,7 +12,8 @@ TUNES=[ ('1025','BL',1.025),  ('1075','BL',1.075), ('675','BL',0.675), ('625','B
 #TUNES=[ ('up','BL',1.079), ('central','BL',0.8949), ('cuetp8m2t4','BL',0.855), ('down','BL',0.6981)]
 #TUNES=[ ('up','BL',1.079), ('central','BL',0.8949), ('cuetp8m2t4','BL',0.855), ('down','BL',0.6981),('Peterson','P',0.003271)]
 #MAXEVENTS=500
-MAXEVENTS=500000
+#MAXEVENTS=500000
+MAXEVENTS=-1
 CFG='${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runBFragmentationAnalyzer_cfg.py'
 
 def main():

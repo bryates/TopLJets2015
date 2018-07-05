@@ -30,9 +30,11 @@ void chi2_d0_mu_tag() {
 /*
 std::vector<TString> tune = {"_down", "", "_cccentral", "_central", "_up" };
 std::vector<float> param = {0.755, 0.855, 0.875, 0.955, 1.055};
-*/
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
+*/
+std::vector<TString> tune = {"_sdown", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
+std::vector<float> param = {0.655, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 /*
 std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
