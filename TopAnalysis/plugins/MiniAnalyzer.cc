@@ -1314,7 +1314,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
       vtxProb = TMath::Prob( tv.totalChiSquared(),tv.degreesOfFreedom() );
 
-      //Openeing angle with respect to primary vertex
+      //Openening angle with respect to primary vertex
       GlobalPoint vtxPos(fittedVertex.x(), fittedVertex.y(), fittedVertex.z());
       std::auto_ptr<TrajectoryStateClosestToPoint> trajPlus;
       std::auto_ptr<TrajectoryStateClosestToPoint> trajMins;
