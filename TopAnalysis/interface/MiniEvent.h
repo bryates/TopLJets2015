@@ -69,7 +69,7 @@ struct MiniEvent_t
   Float_t k_pf_dxy[5000],k_pf_dxyE[5000],k_pf_dz[5000],k_pf_dzE[5000];
   Bool_t k_pf_tracker[5000],k_pf_global[5000];
   Float_t k_mass[5000],k_chi2[5000],k_vtxProb[5000];
-  Float_t k_dxy[5000],k_dxyE[5000];
+  Float_t k_dxy[5000],k_dxyE[5000],k_opang[5000];
   Float_t k_l3d[5000],k_sigmal3d[5000];
   Float_t k_lx[5000],k_ly[5000],k_lz[5000];
   Float_t k_sigmax[5000],k_sigmay[5000],k_sigmaz[5000];

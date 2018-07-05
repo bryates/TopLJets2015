@@ -198,6 +198,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("k_id",        ev.k_id,         "k_id[nkpf]/I");
   t->Branch("k_dxy",       ev.k_dxy,        "k_dxy[nkpf]/F");
   t->Branch("k_dxyE",      ev.k_dxyE,       "k_dxyE[nkpf]/F");
+  t->Branch("k_opang",     ev.k_opang,      "k_opang[nkpf]/F");
   t->Branch("k_l3d",       ev.k_l3d,        "k_l3d[nkpf]/F");
   t->Branch("k_lx",        ev.k_lx,         "k_lx[nkpf]/F");
   t->Branch("k_ly",        ev.k_ly,         "k_ly[nkpf]/F");
@@ -417,6 +418,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("k_id",        ev.k_id);
   t->SetBranchAddress("k_dxy",       ev.k_dxy);
   t->SetBranchAddress("k_dxyE",      ev.k_dxyE);
+  t->SetBranchAddress("k_opang",  ev.k_opang);
   t->SetBranchAddress("k_l3d",       ev.k_l3d);
   t->SetBranchAddress("k_lx",        ev.k_lx);
   t->SetBranchAddress("k_ly",        ev.k_ly);

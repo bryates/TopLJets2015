@@ -1346,7 +1346,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       double px = totalP.x();
       double py = totalP.y();
       double angleXY = (dx*px+dy*py)/(sqrt(dx*dx+dy*dy)*sqrt(px*px+py*py));
-      if(angleXY<0.99) continue; //Cut on opnening cos(angle) < 0.99
+      //if(angleXY<0.99) continue; //Cut on opnening cos(angle) < 0.99
 
       ev_.k_j_pt[ev_.nj]=j.pt();
       ev_.k_j_eta[ev_.nj]=j.eta();
@@ -1378,6 +1378,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
       ev_.k_lz[ev_.nkpf]=lsigma[2].first;
       ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
+      ev_.k_opang[ev_.nkpf]=angleXY;
       ev_.nkpf++;
       //pf2
       ev_.k_j[ev_.nkpf]=ev_.nj;
@@ -1405,6 +1406,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
       ev_.k_lz[ev_.nkpf]=lsigma[2].first;
       ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
+      ev_.k_opang[ev_.nkpf]=angleXY;
       ev_.nkpf++;
 
       ev_.njpsi++;
