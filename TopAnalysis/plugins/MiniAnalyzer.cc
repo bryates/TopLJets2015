@@ -1206,12 +1206,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
   if(ndau < 4) return;
   unsigned int maxdau = min(ndau, (unsigned)4);
-  /*
   for (unsigned int id1 = 0; id1 < ndau; ++id1) {
     for (unsigned int id2 = 0; id2 < ndau; ++id2) {
-  */
+  /*
   for (unsigned int id1 = 0; id1 < maxdau; ++id1) {
     for (unsigned int id2 = 0; id2 < maxdau; ++id2) {
+  */
 	
       if(id1 == id2) continue;
 	
