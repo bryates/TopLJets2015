@@ -1140,7 +1140,7 @@ void RunTopKalman(TString filename,
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[1] << " " << ev.k_pf_eta[1] << " " << ev.k_pf_phi[1] <<  " " << ev.k_mass[1] << endl; }
           }
           if(piTracks.size()<2) continue;
-          size_t tmax = 2;
+          size_t tmax = 4;
           tmax = piTracks.size() >= tmax ? tmax : piTracks.size();
 
           std::vector<pfTrack> pfMatched, pfReject, pfMuMatched;
