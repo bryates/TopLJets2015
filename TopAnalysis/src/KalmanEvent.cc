@@ -27,6 +27,7 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   l3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
                  //D^0 https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/10v20.png
                  //J/Psi https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/Data/10v20.png
+  opang_ = 0.99;
   csv_ = 0.3;
   //csv_ = 0.5426;
   //csv_ = 0.8484;
@@ -58,6 +59,8 @@ void KalmanEvent::buildJets() {
       if(debug_) std::cout << "passed mass window" << std::endl; 
       if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue;
       if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
+      //if(ev_.k_opang[ipf] < opang_) continue;
+      if(debug_) std::cout << "passed opening angle < " << opang_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
       if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
@@ -76,7 +79,7 @@ void KalmanEvent::buildJets() {
       }
       if(pf_match==-1) continue; //No match found
       tkP4.SetPtEtaPhiM(ev_.pf_pt[pf_match],ev_.pf_eta[pf_match],ev_.pf_phi[pf_match],ev_.k_pf_m[ipf]);
-      pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_lx[ipf], ev_.k_ly[ipf], ev_.k_lz[ipf], ev_.k_sigmal3d[ipf], ev_.k_sigmax[ipf], ev_.k_sigmay[ipf], ev_.k_sigmaz[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1, ev_.pf_dxy[pf_match], ev_.pf_dxyE[pf_match], ev_.pf_dz[pf_match], ev_.pf_dzE[pf_match]);
+      pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_lx[ipf], ev_.k_ly[ipf], ev_.k_lz[ipf], ev_.k_sigmal3d[ipf], ev_.k_sigmax[ipf], ev_.k_sigmay[ipf], ev_.k_sigmaz[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1, ev_.pf_dxy[pf_match], ev_.pf_dxyE[pf_match], ev_.pf_dz[pf_match], ev_.pf_dzE[pf_match], ev_.k_opang[ipf]);
       /*
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_sigmal3d[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1);

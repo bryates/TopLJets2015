@@ -14,7 +14,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
-  pfTrack(TLorentzVector p4, float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity, float dxy, float dxyE, float dz, float dzE);
+  pfTrack(TLorentzVector p4, float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity, float dxy, float dxyE, float dz, float dzE, float opAng);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -49,6 +49,7 @@ class pfTrack {
   inline float chi2() { return chi2_; }
   inline float vtxProb() { return vtxProb_; }
   inline float getKalmanMass() { return k_mass_; }
+  inline float getOpeningAngle() { return opAng_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
@@ -78,6 +79,7 @@ class pfTrack {
   float sigmax_,sigmay_,sigmaz_;
   float chi2_;
   float vtxProb_;
+  float opAng_;
   int pfid_;
   int motherId_;
   int quality_;

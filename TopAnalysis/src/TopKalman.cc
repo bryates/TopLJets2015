@@ -1224,9 +1224,9 @@ void RunTopKalman(TString filename,
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
-            if(i > tmax) break;
+            //if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) {
-              if(j > tmax) break;
+              //if(j > tmax) break;
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
               if(abs(piTracks[j].getMotherId())!=421) continue;
@@ -1250,10 +1250,12 @@ void RunTopKalman(TString filename,
               //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
               bool cuts = true;
+              /*
               cuts &= abs(piTracks[i].Eta()) < 1.;
               cuts &= abs(piTracks[j].Eta()) < 1.;
-              cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
-              cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
+              */
+              //cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
+              //cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*
               if(abs(piTracks[i].Eta()) > 1.) continue;
               if(abs(piTracks[j].Eta()) > 1.) continue;
