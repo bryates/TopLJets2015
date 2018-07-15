@@ -63,6 +63,7 @@ void KalmanEvent::buildJets() {
       if(debug_) std::cout << "passed opening angle < " << opang_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
+      if(ev_.k_pf_ndau[ipf]>3) continue;
       if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
       //Correct for Kalman efficiency
       TLorentzVector tkP4(0,0,0,0);
