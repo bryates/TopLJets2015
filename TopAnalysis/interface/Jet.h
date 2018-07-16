@@ -26,6 +26,7 @@ class pfTrack {
   int getPfid();
   inline int getPdgId() { return getPfid(); }
   inline int getGenIdx() { return genidx_; }
+  inline int getNdau() { return ndau_; }
   int getMotherId();
   int charge();
   int getQuality();
