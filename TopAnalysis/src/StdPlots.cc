@@ -198,7 +198,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0_mu_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_phi"+tag+cut+weight+runPeriod_,";D^{0} #mu #phi; Events", 50, -3.14,3.14);
 
     allPlots["D0_mu_tag_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pi_eta"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} #pi #eta [GeV];Events / 0.1", 30, -2.5, 2.5);
-    allPlots["D0_mu_tag_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pi_eta"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} Kpi #eta [GeV];Events / 0.1", 30, -2.5, 2.5);
+    allPlots["D0_mu_tag_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_K_eta"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} Kpi #eta [GeV];Events / 0.1", 30, -2.5, 2.5);
     allPlots["D0_mu_tag_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pi_phi"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} #pi #phi [GeV];Events", 50, -3.14,3.14);
     allPlots["D0_mu_tag_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_K_phi"+tag+cut+weight+runPeriod_,";D^{0}_{#mu_{tag}} K #phi [GeV];Events", 50, -3.14,3.14);
     /*
