@@ -59,7 +59,7 @@ struct CharmEvent_t
   Float_t jpsi_sigmax[5000],jpsi_sigmay[5000],jpsi_sigmaz[5000];
 
   //D meson candidates
-  Int_t nmeson, meson_id[50],d0_j[50],d0_l[50];
+  Int_t nmeson, meson_id[50],d0_j[50],d0_l[50],d0_ndau[50];
   Float_t d0_mass[50],d0_pt[50],d0_eta[50],d0_phi[50],d0_p[50],d0_pz[50];
   Float_t ds_mass[50],ds_pt[50],ds_eta[50],ds_phi[50],ds_p[50],ds_pz[50];
   Float_t d0_ptrel[50];//,d0_j_dR[50];

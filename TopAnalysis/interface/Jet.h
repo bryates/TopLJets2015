@@ -64,6 +64,7 @@ class pfTrack {
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
+  inline void setNdau(int ndau) { ndau_ = ndau;
   void print();
 
  private:
@@ -85,6 +86,7 @@ class pfTrack {
   int quality_;
   int genT_ = 0;
   int genidx_ = -1;
+  int ndau_;
   bool highPurity_;
   bool globalMuon_;
   bool trackerMuon_;
