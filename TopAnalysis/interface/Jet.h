@@ -65,7 +65,7 @@ class pfTrack {
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
-  inline void setNdau(int ndau) { ndau_ = ndau;
+  inline void setNdau(int ndau) { ndau_ = ndau; }
   void print();
 
  private:
