@@ -11,6 +11,8 @@
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
 
+enum CharmMeson { JPsi=0, D0, D0mu };
+
 class StdPlots {
 
  public:
@@ -46,6 +48,7 @@ class StdPlots {
   void SetTrackerWgt(float);
   void SetPiWgt(float,float);
   void SetPiWgt(float,float,float);
+  void SetRbWgt(float,CharmMeson);
   void CheckRunPeriod(TString);
   void Write();
 
@@ -64,6 +67,7 @@ class StdPlots {
   //std::pair <float,float> pi_wgt_;
   std::pair <float,std::pair<float,float>> pi_wgt_;
   //std::vector<float> top_pt_wgt_vec;
+  float rbWgt_[3];
 
 };
 

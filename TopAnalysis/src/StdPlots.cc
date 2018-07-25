@@ -36,6 +36,9 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   //PU plot
   allPlots["puwgtctr"+runPeriod_] = new TH1F("puwgtctr"+runPeriod_,"Weight sums",4,0,4);
   allPlots["topptwgt"+runPeriod_] = new TH1F("topptwgt"+runPeriod_,"Top p_{T} weights", 2, 0, 2);
+  allPlots["rbwgt_jpsi"+runPeriod_] = new TH1F("rbwgt_jpsi"+runPeriod_,"r_{B} event weights", 2, 0, 2);
+  allPlots["rbwgt_d0"+runPeriod_] = new TH1F("rbwgt_d0"+runPeriod_,"r_{B} event weights", 2, 0, 2);
+  allPlots["rbwgt_d0mu"+runPeriod_] = new TH1F("rbwgt_d0mu"+runPeriod_,"r_{B} event weights", 2, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_kjpsi", "_meson", "_gmeson", "_rgmeson" };
   if(name_.Contains("Data")) //Gen plots only for MC
@@ -429,6 +432,23 @@ void StdPlots::SetPiWgt(float pi_wgt, float unc_u, float unc_d) {
   //pi_wgt_.second = unc_u;
   pi_wgt_.second.first = unc_u;
   pi_wgt_.second.second = unc_d;
+}
+
+void StdPlots::SetRbWgt(float rbWgt, CharmMeson idx) {
+  if(!isGood_) return;
+  if(debug_) std::cout << "Setting rbWgt= " << rbWgt << std::endl;
+  rbWgt_[idx] = rbWgt;
+  switch(idx) {
+    case JPSI: allPlots["rbwgt_jpsi"+runPeriod_]->Fill(0.,1.0);
+               allPlots["rbwgt_jpsi"+runPeriod_]->Fill(1.,rbWgt_[0]);
+               break;
+    case D0:   allPlots["rbwgt_d0"+runPeriod_]->Fill(0.,1.0);
+               allPlots["rbwgt_d0"+runPeriod_]->Fill(1.,rbWgt_[1]);
+               break;
+    case D0mu: allPlots["rbwgt_d0mu"+runPeriod_]->Fill(0.,1.0);
+               allPlots["rbwgt_d0mu"+runPeriod_]->Fill(1.,rbWgt_[2]);
+               break;
+  }
 }
 
 void StdPlots::CheckRunPeriod(TString runPeriod) {
