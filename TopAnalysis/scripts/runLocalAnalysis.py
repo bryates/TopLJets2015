@@ -12,7 +12,7 @@ Wrapper to be used when run in parallel
 def RunMethodPacked(args):
 
 
-    method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug=args
+    method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug,rbFit=args
     print 'Running ',method,' on ',inF
     print 'Output file',outF
     print 'Selection ch=',channel,' charge=',charge,' flavSplit=',flav,' systs=',runSysts
@@ -20,6 +20,7 @@ def RunMethodPacked(args):
     print 'Corrections will be retrieved for era=',era
     print 'Run period',runPeriod
     if debug : print 'Verbose mode'
+    if rbFit: print 'Running with fitted rB'
 
     try:
         cmd='analysisWrapper --era %s --runPeriod %s --normTag %s --in %s --out %s --method %s --charge %d --channel %d --flav %d' %(era,
@@ -33,6 +34,7 @@ def RunMethodPacked(args):
                                                                                                                       flav)
         if runSysts : cmd += ' --runSysts'
         if debug : cmd += ' --verbose'
+        if rbFit : cmd += ' --rbFit'
         print cmd
         os.system(cmd)
     except :
@@ -68,6 +70,7 @@ def main():
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                  default=0,          type='int')
     parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,      action='store_true')
+    parser.add_option(      '--rbFit',       dest='rbFit',       help='run with fitted rB [%default]',                          default=False,      action='store_true')
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -99,7 +102,7 @@ def main():
         if '/store/' in inF and not 'root:' in inF : inF='root://eoscms//eos/cms'+opt.input        
         print inF
         outF=opt.output
-        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,opt.tag,opt.debug) )
+        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,opt.tag,opt.debug,opt.rbFit) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')
@@ -190,9 +193,10 @@ def main():
         queue = opt.queue
         if "8nh" in queue: queue = "longlunch"
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),queue)
-        for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug in task_list:
+        for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug,rbFit in task_list:
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
             if debug : localrun += ' --verbose %s' % (debug)
+            if rbFit : localrun += ' --rbFit'
             if runSysts : localRun += ' --runSysts'            
             ############### Now using condor instead of LSF (bsub) ###############
             cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
