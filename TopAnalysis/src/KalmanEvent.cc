@@ -45,6 +45,7 @@ void KalmanEvent::buildJets() {
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     //int npi(0);
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
+      if(ipf>15) break; //only first 4 tracks in jet per loop (4pi*4K=16 total)
       //if(npi>15) break; //only first 4 tracks in jet per loop (4pi*4K=16 total)
       //D^* has only 3rd pi and D^0_mu has only mu
       //if(abs(ev_.k_pf_id[ipf])==211 && ev_.k_id[ipf]==421) npi++; //D^0 only
@@ -63,7 +64,7 @@ void KalmanEvent::buildJets() {
       if(debug_) std::cout << "passed opening angle < " << opang_ << std::endl; 
       //testing CSV
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
-      if(ev_.k_pf_ndau[ipf]>3) continue;
+      //if(ev_.k_pf_ndau[ipf]>3) continue;
       if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
       //Correct for Kalman efficiency
       TLorentzVector tkP4(0,0,0,0);

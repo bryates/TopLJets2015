@@ -77,10 +77,10 @@ frame->Draw();
 
 
 chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
-//chiTest->GetYaxis()->SetRangeUser(0,5);
+chiTest->GetYaxis()->SetRangeUser(6,15);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
-TFitResultPtr fit = chiTest->Fit("pol2","FS");
+TFitResultPtr fit = chiTest->Fit("pol2","FSEMQ");
 std:cout << report << std::endl;
 float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
 float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2);
@@ -169,8 +169,8 @@ if(tune.Length() > 0) {
   report += '\n';
   mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
-float chi2 = data->Chi2Test(mc, "CHI2");
-std::cout << tune << " Chi2/ndf= " << chi2 << std::endl;
+float chi2 = data->Chi2Test(mc, "CHI2 WW");
+std::cout << tune << " Chi2= " << chi2 << std::endl;
 
 /*
 delete ptfrac_data;

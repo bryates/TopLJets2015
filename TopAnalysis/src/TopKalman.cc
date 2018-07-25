@@ -627,6 +627,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
+      if(htsum<100) continue;
       //if(htsum<160) continue;
       //if(allJetsVec[0].getVec().Pt()<50) continue;
       stsum += htsum;
@@ -1001,6 +1002,7 @@ void RunTopKalman(TString filename,
 
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
+      if(htsum<100) continue;
       evch.njpsi=0;
       evch.nmeson=0;
       evch.nj=0;
@@ -1250,10 +1252,8 @@ void RunTopKalman(TString filename,
               //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
               bool cuts = true;
-              /*
-              cuts &= abs(piTracks[i].Eta()) < 1.;
-              cuts &= abs(piTracks[j].Eta()) < 1.;
-              */
+              cuts &= abs(piTracks[i].Eta()) < 1.5;
+              cuts &= abs(piTracks[j].Eta()) < 1.5;
               //cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
               //cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*
@@ -1269,7 +1269,7 @@ void RunTopKalman(TString filename,
               */
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
-              cuts &= (mass12>1.65 && mass12<2.0);
+              cuts &= (mass12>1.7 && mass12<2.0);
               //if (mass12>1.65 && mass12<2.0) {
               if (cuts) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
