@@ -28,6 +28,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   top_pt_wgt_ = 1.;
   tracker_wgt_ = 1.;
   pi_wgt_.first = 1.; pi_wgt_.second.first = 0.; pi_wgt_.second.second = 0.;
+  for(int i=0;i<3;i++) rbWgt_[i] = 1.;
 
   if(debug_ && isGood_)
     std::cout << "Initializing run" << runPeriod_ << std::endl;
@@ -439,7 +440,7 @@ void StdPlots::SetRbWgt(float rbWgt, CharmMeson idx) {
   if(debug_) std::cout << "Setting rbWgt= " << rbWgt << std::endl;
   rbWgt_[idx] = rbWgt;
   switch(idx) {
-    case JPSI: allPlots["rbwgt_jpsi"+runPeriod_]->Fill(0.,1.0);
+    case JPsi: allPlots["rbwgt_jpsi"+runPeriod_]->Fill(0.,1.0);
                allPlots["rbwgt_jpsi"+runPeriod_]->Fill(1.,rbWgt_[0]);
                break;
     case D0:   allPlots["rbwgt_d0"+runPeriod_]->Fill(0.,1.0);

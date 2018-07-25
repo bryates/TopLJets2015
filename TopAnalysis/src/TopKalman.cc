@@ -125,9 +125,8 @@ void RunTopKalman(TString filename,
   //r_B EVENT WEIGHT
   TString rbWgtUrl(era+"/bfragweights.root");
   gSystem->ExpandPathName(rbWgtUrl);
-  TFile *fIn=TFile::Open(rbWgtUrL);
+  TFile *fIn=TFile::Open(rbWgtUrl);
   TGraph *rbWgt=(TGraph*)fIn->Get("fitFrag");
-  rgWgt->SetDirectory(0);
   fIn->Close();
 
   //LEPTON EFFICIENCIES
@@ -1089,8 +1088,8 @@ void RunTopKalman(TString filename,
                 allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	        allPlots["massJPsi_all"]->Fill(mass12,wgt);
 
-                TLorentzVector JPsi = piTracks[i].getVec() + piTracks[j].getVec();
-                float rbWgtJPsi(rbWgt->Eval(JPsi.Pt() / jet.getChargedPt()));
+                TLorentzVector jpsi = muTracks[i].getVec() + muTracks[j].getVec();
+                float rbWgtJPsi(rbWgt->Eval(jpsi.Pt() / jet.getChargedPt()));
                 runBCDEF.SetRbWgt(rbWgtJPsi, JPsi);
                 runGH.SetRbWgt(rbWgtJPsi, JPsi);
                 std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
@@ -1274,16 +1273,16 @@ void RunTopKalman(TString filename,
               if(abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) < 0.5) continue;
               if(abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) < 0.5) continue;
               */
-              TLorentzVector D0 = piTracks[i].getVec() + piTracks[j].getVec();
+              TLorentzVector d0 = piTracks[i].getVec() + piTracks[j].getVec();
               /*
-              float cosDjet = (D0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P() * D0.P());
+              float cosDjet = (d0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P() * d0.P());
               if(cosDjet < 0.99) continue;
               */
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
               cuts &= (mass12>1.7 && mass12<2.0);
               //if (mass12>1.65 && mass12<2.0) {
-              float rbWgtD0(rbWgt->Eval(D0.Pt() / jet.getChargedPt()));
+              float rbWgtD0(rbWgt->Eval(d0.Pt() / jet.getChargedPt()));
               runBCDEF.SetRbWgt(rbWgtD0, D0);
               runGH.SetRbWgt(rbWgtD0, D0);
               if (cuts) {
@@ -1372,10 +1371,10 @@ void RunTopKalman(TString filename,
                 //Kaon and lepton have same charge (e.g. b^-1/3 -> c^+2/3 W^- -> c^+2/3 l^- nubar)
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
-                TLorentzVector D0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
-                float rbWgtD0mu(rbWgt->Eval(D0mu.Pt() / jet.getChargedPt()));
-                runBCDEF.SetRbWgt(rbWgt, D0mu);
-                runGH.SetRbWgt(rbWgt, D0mu);
+                TLorentzVector d0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
+                float rbWgtD0mu(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt()));
+                runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
+                runGH.SetRbWgt(rbWgtD0mu, D0mu);
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
