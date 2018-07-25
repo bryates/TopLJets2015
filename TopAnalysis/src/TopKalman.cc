@@ -43,7 +43,8 @@ void RunTopKalman(TString filename,
 		 Bool_t runSysts,
                  TString era,
                  TString runPeriod,
-                 Bool_t debug=false)
+                 Bool_t debug=false,
+                 Bool_t rbFit=false)
 {
   if(debug) cout << "in RunTopKalman" << endl;
 

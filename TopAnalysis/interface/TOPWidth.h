@@ -56,7 +56,8 @@ void RunTopKalman(TString filename,
 		 Bool_t runSysts,
 		 TString era,
                  TString runPeriod,
-                 Bool_t debug);
+                 Bool_t debug,
+                 Bool_t rbFit);
 void RunTopAOD(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 

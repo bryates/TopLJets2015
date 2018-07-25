@@ -25,7 +25,8 @@ void printHelp()
        << "\t --runPeriod   - runs to include" << endl
        << "\t --normTag  - normalization tag" << endl
        << "\t --method   - method to run" << endl
-       << "\t --verbose   - verbose to run" << endl;
+       << "\t --verbose   - verbose" << endl
+       << "\t --rbFit   - run with fitted rB weights" << endl;
 }
 
 //
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 {
   //get input arguments
   TString in(""),out(""),era(""),runPeriod("BCDEF"),normTag(""),method(""),weight("genweights.root");
-  bool runSysts(false),verbose(false);
+  bool runSysts(false),verbose(false),rbFit(false);
   int channel(0),charge(0),flav(0);
   for(int i=1;i<argc;i++){
     string arg(argv[i]);
@@ -49,6 +50,7 @@ int main(int argc, char* argv[])
     else if(arg.find("--runPeriod")!=string::npos && i+1<argc)      { runPeriod=argv[i+1]; i++;}
     else if(arg.find("--method")!=string::npos && i+1<argc)   { method=argv[i+1]; i++;}
     else if(arg.find("--verbose")!=string::npos )        { verbose=true;  }
+    else if(arg.find("--rbFit")!=string::npos )          { rbFit=true;  }
   }
 
   //open normalization file
@@ -91,7 +93,7 @@ int main(int argc, char* argv[])
   //if(method=="TOP-16-006::RunTop16006")    RunTop16006(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   //else if(method=="TOPWidth::RunTopWidth") RunTopWidth(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   if(method=="TOP::RunTop") RunTop(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
-  else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
+  else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose,rbFit);
   else if(method=="TOP::RunTopAOD") RunTopAOD(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   else if(method=="TOP::RunTopSync") RunTopSync(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   //else if(method=="Run5TeVAnalysis::Run5TeVAnalysis") Run5TeVAnalysis(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
