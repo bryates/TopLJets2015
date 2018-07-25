@@ -28,7 +28,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   top_pt_wgt_ = 1.;
   tracker_wgt_ = 1.;
   pi_wgt_.first = 1.; pi_wgt_.second.first = 0.; pi_wgt_.second.second = 0.;
-  for(int i=0;i<3;i++) rbWgt_[i] = 1.;
+  rbWgt_ = 1.;
 
   if(debug_ && isGood_)
     std::cout << "Initializing run" << runPeriod_ << std::endl;
@@ -435,19 +435,19 @@ void StdPlots::SetPiWgt(float pi_wgt, float unc_u, float unc_d) {
   pi_wgt_.second.second = unc_d;
 }
 
-void StdPlots::SetRbWgt(float rbWgt, CharmMeson idx) {
+void StdPlots::SetRbWgt(float rbWgt, CharmMeson meson) {
   if(!isGood_) return;
   if(debug_) std::cout << "Setting rbWgt= " << rbWgt << std::endl;
-  rbWgt_[idx] = rbWgt;
-  switch(idx) {
+  rbWgt_ = rbWgt;
+  switch(meson) {
     case JPsi: allPlots["rbwgt_jpsi"+runPeriod_]->Fill(0.,1.0);
-               allPlots["rbwgt_jpsi"+runPeriod_]->Fill(1.,rbWgt_[0]);
+               allPlots["rbwgt_jpsi"+runPeriod_]->Fill(1.,rbWgt);
                break;
     case D0:   allPlots["rbwgt_d0"+runPeriod_]->Fill(0.,1.0);
-               allPlots["rbwgt_d0"+runPeriod_]->Fill(1.,rbWgt_[1]);
+               allPlots["rbwgt_d0"+runPeriod_]->Fill(1.,rbWgt);
                break;
     case D0mu: allPlots["rbwgt_d0mu"+runPeriod_]->Fill(0.,1.0);
-               allPlots["rbwgt_d0mu"+runPeriod_]->Fill(1.,rbWgt_[2]);
+               allPlots["rbwgt_d0mu"+runPeriod_]->Fill(1.,rbWgt);
                break;
   }
 }
