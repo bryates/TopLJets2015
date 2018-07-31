@@ -538,6 +538,7 @@ def main():
     parser.add_option(      '--run',         dest='run',         help='plot only in run',               default="BCDEFGH",         type='string')
     parser.add_option(      '--puNormSF',    dest='puNormSF',    help='Use this histogram to correct pu weight normalization', default=None, type='string')
     parser.add_option(      '--procSF',      dest='procSF',      help='Use this to scale a given process component e.g. "W":.wjetscalefactors.pck,"DY":dyscalefactors.pck', default=None, type='string')
+    parser.add_option(      '--rbFit',       dest='rbFit' ,      help='Adjust normalization for r_B fit', default=False,            action='store_true')
     (opt, args) = parser.parse_args()
 
     #read list of samples
@@ -679,6 +680,50 @@ def main():
                             else :
                                 report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
 
+                #fix r_B fit weighting normalization
+                rbFitSF=1
+                rbFitSFs=[[1,1],[1,1],[1,1]]
+                if opt.rbFit and not isData:
+                    if(opt.run == "BCDEFGH"):
+                      for num,rbFit in enumerate(["rbwgt_jpsi_BCDEFGH","rbwgt_d0_BCDEFGH","rbwgt_d0mu_BCDEFGH"]):
+                          rbBCDEF = rbFit.split("_")
+                          if rbBCDEF[-1] in opt.run:
+                              rbBCDEF[-1] = "BCDEF"
+                          else:
+                              rbBCDEF.append("BCDEF")
+                          rbBCDEF = "_".join(rbBCDEF)
+                          try:
+                              rbCorrHBCDEF=fIn.Get(rbBCDEF)
+                              nonWgtBCDEF=rbCorrHBCDEF.GetBinContent(1)
+                              wgtBCDEF=rbCorrHBCDEF.GetBinContent(2)
+                          except: pass
+                          rbGH = rbFit.split("_")
+                          if rbGH[-1] in opt.run:
+                              rbGH[-1] = "GH"
+                          else:
+                              rbGH.append("GH")
+                          rbGH = "_".join(rbGH)
+                          try:
+                              rbCorrHGH=fIn.Get(rbGH)
+                              nonWgtGH=rbCorrHGH.GetBinContent(1)
+                              wgtGH=rbCorrHGH.GetBinContent(2)
+                          except: pass
+                          if wgtBCDEF>0 :
+                              rbFitSFBCDEF=nonWgtBCDEF/wgtBCDEF
+                              if rbFitSFBCDEF>1.3 or rbFitSF<0.7 : 
+                                  rbFitSFBCDEF=1
+                                  report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                              else :
+                                  report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFBCDEF,rbFit.split("_")[1],"BCDEF")
+                              rbFitSFs[num][0]=wgtBCDEF
+                          if wgtGH>0 :
+                              rbFitSFGH=nonWgtGH/wgtGH
+                              if rbFitSF>1.3 or rbFitSF<0.7 : 
+                                  rbFitSFGH=1
+                                  report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                              else :
+                                  report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFGH,rbFit.split("_")[1],"GH")
+                              rbFitSFs[num][1]=wgtGH
                 try:
                     for tkey in fIn.GetListOfKeys():
 
@@ -725,7 +770,17 @@ def main():
                             #if("TTJets" in tag): lumi=lumi*0.733417
                             #if "fsr" not in sp[0] and "isr" not in sp[0]:
                                 #xsec=1. #now stored in normH
-                            obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
+                            
+                            if("_jpsi_" in obj.GetName()): 
+                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[0][0]
+                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[0][1]
+                            elif("_meson_" in obj.GetName() and "mu_tag" in obj.GetName()): 
+                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[2][0]
+                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[2][1]
+                            elif("_meson_" in obj.GetName()): 
+                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[1][0]
+                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
+                            obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
                             #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                         over=True
                         under=True

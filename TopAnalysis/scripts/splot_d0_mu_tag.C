@@ -96,7 +96,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //if(!isData) h->Scale(35864);
   //if(!isData) h->Scale(832*35864);
   //f->ls(); 
-  TString name = "massJPsi_l_all_d0";
+  TString name = "massD0_mu_tag_l_all_d0";
   //TString name = "massJPsi_l_all_d0_BCDEF";
   TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
   TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
@@ -174,11 +174,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
-          scale =  scale * 19716.102;// * puSF1 * topSF1;
+          scale =  scale * 19716.102 * puSF1 * topSF1;
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
-          scale = scale * 16146.178;// * puSF2 * topSF2;
+          scale = scale * 16146.178 * puSF2 * topSF2;
           //h2->Fill(mesonlm[j], scale);
         }
         else
@@ -252,8 +252,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   */
   //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
   //RooRealVar *wgt = (RooRealVar*)dsn.addColumn(tuneW, tuneShape);
-  //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "tuneW");
-  RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
+  RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "tuneW");
+  //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
   //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, wgt->GetName());
   dsn.Print("v");
   ds.Print("v");

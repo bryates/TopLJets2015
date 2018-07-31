@@ -26,7 +26,7 @@ void printHelp()
        << "\t --normTag  - normalization tag" << endl
        << "\t --method   - method to run" << endl
        << "\t --verbose   - verbose" << endl
-       << "\t --rbFit   - run with fitted rB weights" << endl;
+       << "\t --rbFit   - run with fitted rB weights (1 for total fit, 2 for each)" << endl;
 }
 
 //
@@ -34,8 +34,9 @@ int main(int argc, char* argv[])
 {
   //get input arguments
   TString in(""),out(""),era(""),runPeriod("BCDEF"),normTag(""),method(""),weight("genweights.root");
-  bool runSysts(false),verbose(false),rbFit(false);
+  bool runSysts(false),verbose(false)
   int channel(0),charge(0),flav(0);
+  short rbFit(0);
   for(int i=1;i<argc;i++){
     string arg(argv[i]);
     if(arg.find("--help") !=string::npos)                     { printHelp(); return -1;} 
@@ -49,8 +50,8 @@ int main(int argc, char* argv[])
     else if(arg.find("--era")!=string::npos && i+1<argc)      { era=argv[i+1]; i++;}
     else if(arg.find("--runPeriod")!=string::npos && i+1<argc)      { runPeriod=argv[i+1]; i++;}
     else if(arg.find("--method")!=string::npos && i+1<argc)   { method=argv[i+1]; i++;}
-    else if(arg.find("--verbose")!=string::npos )        { verbose=true;  }
-    else if(arg.find("--rbFit")!=string::npos )          { rbFit=true;  }
+    else if(arg.find("--verbose")!=string::npos )             { verbose=true;  }
+    else if(arg.find("--rbFit")!=string::npos )               { rbFit=argv[i+1]; i++; }
   }
 
   //open normalization file

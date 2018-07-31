@@ -32,9 +32,13 @@ std::vector<TString> tune = {"_down", "", "_cccentral", "_central", "_up" };
 std::vector<float> param = {0.755, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
-*/
+std::vector<TString> tune = {"_sdown", "_down", "_ddown", "_dddown", "_scentral", "", "_d0mu", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
+std::vector<float> param = {0.655, 0.755, 0.775, 0.800, 0.825, 0.855, 0.859, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
+*/
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
 /*
 std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
@@ -77,7 +81,7 @@ frame->Draw();
 
 
 chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
-chiTest->GetYaxis()->SetRangeUser(6,15);
+chiTest->GetYaxis()->SetRangeUser(7,32);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FSEMQ");
@@ -118,7 +122,7 @@ RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 wmc->var("ptfrac")->setBins(22);
 wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
-TString cut("j_pt_ch>50 && j_pt_ch<75");// && j_pt_ch<100");
+TString cut("j_pt_ch<75");// && j_pt_ch<100");
 
 //load MC into RooDataHist
 RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
