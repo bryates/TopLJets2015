@@ -70,7 +70,7 @@ def main():
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                  default=0,          type='int')
     parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,      action='store_true')
-    parser.add_option(      '--rbFit',       dest='rbFit',       help='run with fitted rB [%default]',                          default=0,a         action=int)
+    parser.add_option(      '--rbFit',       dest='rbFit',       help='run with fitted rB [%default]',                          default=0,          type=int)
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -146,7 +146,7 @@ def main():
             #condorFile.write('executable            = condor/cond_crab.sh\n')
             if(opt.rbFit): condorFile.write('executable            = condor/cond_rbFit.sh\n')
             else :condorFile.write('executable            = condor/cond_submit.sh\n')
-            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit))
+            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit))
             condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag)
             condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % tag)
             condorFile.write('log                   = condor/log/%s.log\n' % tag)
@@ -197,7 +197,7 @@ def main():
         for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug,rbFit in task_list:
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
             if debug : localrun += ' --verbose %s' % (debug)
-            if rbFit : localrun += ' --rbFit' % (rbFit)
+            if rbFit : localrun += ' --rbFit %hd' % (rbFit)
             if runSysts : localRun += ' --runSysts'            
             ############### Now using condor instead of LSF (bsub) ###############
             cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
