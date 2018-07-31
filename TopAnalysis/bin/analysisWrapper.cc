@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 {
   //get input arguments
   TString in(""),out(""),era(""),runPeriod("BCDEF"),normTag(""),method(""),weight("genweights.root");
-  bool runSysts(false),verbose(false)
+  bool runSysts(false),verbose(false);
   int channel(0),charge(0),flav(0);
   short rbFit(0);
   for(int i=1;i<argc;i++){
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
     else if(arg.find("--runPeriod")!=string::npos && i+1<argc)      { runPeriod=argv[i+1]; i++;}
     else if(arg.find("--method")!=string::npos && i+1<argc)   { method=argv[i+1]; i++;}
     else if(arg.find("--verbose")!=string::npos )             { verbose=true;  }
-    else if(arg.find("--rbFit")!=string::npos )               { rbFit=argv[i+1]; i++; }
+    else if(arg.find("--rbFit")!=string::npos && i+1<argc )   { sscanf(argv[i+1],"%hd",&rbFit); i++; }
   }
 
   //open normalization file
