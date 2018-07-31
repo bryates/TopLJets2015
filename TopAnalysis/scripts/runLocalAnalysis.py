@@ -196,8 +196,8 @@ def main():
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),queue)
         for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug,rbFit in task_list:
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
-            if debug : localrun += ' --verbose %s' % (debug)
-            if rbFit : localrun += ' --rbFit %hd' % (rbFit)
+            if debug : localRun += ' --verbose %s' % (debug)
+            if rbFit : localRun += ' --rbFit %hd' % (rbFit)
             if runSysts : localRun += ' --runSysts'            
             ############### Now using condor instead of LSF (bsub) ###############
             cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
