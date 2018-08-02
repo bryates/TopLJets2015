@@ -211,7 +211,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       meson_l_mass.setVal(ev.d0_l_mass[j]);
       }
       weight.setVal(scale);
-      tuneW.setVal(scale * tuneW.getVal());
+      tuneW.setVal(scale);// * tuneW.getVal());
       dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,epoch,tuneW));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)

@@ -44,7 +44,7 @@ std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_c
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
 TCanvas *c1 = new TCanvas("c1","c1");
-TH1F *chiTest = new TH1F("chiTest","#chi^{2} test",100,0,2);
+TH1F *chiTest = new TH1F("chiTest","#chi^{2} test",400,0,2);
 for(auto & it : tune) {
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it);
@@ -112,8 +112,8 @@ c1->SaveAs("chi2_d0_mu_tag.png");
 }
 
 float chi2_d0_mu_tag_test(TString tune="") {
-TFile *fdata = TFile::Open("4dau/TopMass_Data_sPlot_d0_mu_tag_mu.root");
-TFile *fmc = TFile::Open(TString::Format("4dau/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
+TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open("TopMass_172v5_matched.root");
 
 //load RooWorkspace and set binning
