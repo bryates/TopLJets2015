@@ -101,7 +101,7 @@ pt->SetTextAlign(11);
 pt->SetBorderSize(0);
 pt->SetTextFont(42);
 pt->SetTextSize(0.046);
-TString text = TString::Format("r_{B}= %.3f +/- %.2g",min,abs(min-err));
+TString text = TString::Format("r_{B}= %.2f +/- %.2f",min,abs(min-err));
 pt->AddText(text);
 pt->Draw();
 gStyle->SetOptStat(0);

@@ -554,6 +554,7 @@ void RunTopKalman(TString filename,
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
+          if(ev.j_pt[k]>150) continue;
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
 	  //jp4=updateJES(jp4,ev.j_rawsf[k],ev.j_area[k],ev.rho,ev.nvtx,jetCorr);
