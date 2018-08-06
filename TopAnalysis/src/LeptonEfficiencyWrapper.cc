@@ -352,7 +352,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(Particle lep, int 
 
       //tracking efficiency (if available)
       hname=idstr+"_tk_aeta_"+runPeriod_;
-      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+      if(lepEffGr_.find(hname)!=lepEffGr_.end() && 0) //No muon tracking SF per POG recommendation https://hypernews.cern.ch/HyperNews/CMS/get/top/2671.html
         {
           if(debug_) std::cout << hname << std::endl;
           Double_t x(0.),xdiff(9999.),y(0.);
@@ -448,7 +448,7 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(pfTrack lep)
 
       //tracking efficiency (if available)
       hname=idstr+"_tk_aeta_"+runPeriod_;
-      if(lepEffGr_.find(hname)!=lepEffGr_.end())
+      if(lepEffGr_.find(hname)!=lepEffGr_.end() && 0) //No muon tracking SF per POG recommendation https://hypernews.cern.ch/HyperNews/CMS/get/top/2671.html
         {
           if(debug_) std::cout << hname << std::endl;
           Double_t x(0.),xdiff(9999.),y(0.);
