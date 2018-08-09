@@ -1331,26 +1331,33 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
 
                 std::vector<pfTrack> tmp_match;
-                if(!isData && pfMatched.size() >1)
-                  tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
-                //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
-                if(genIdx>-1) {
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
-                }
-                else {
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                }
+                if(!isData && pfMatched.size() >1) {
+                  for(int i = 0; i < pfMatched.size(); i++ {
+                    for(int j = 0; j < pfMatched.size(); j++ {
+                      tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
+                      //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
+                      if(genIdx>-1) {  
+                        treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                        treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                      }
+                      else {
+                        treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                        treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                      }
 
-                if(!isData && pfMatched.size() > 1) { //save gen-matched J/Psi
-                  std::vector<pfTrack> tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
-                  runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
-                  runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                      runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                      runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                    }
+                  }
                 }
                 if(!isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
-                  runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
-                  runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                  for(int i = 0; i < pfReject.size(); i++ {
+                    for(int j = 0; j < pfReject.size(); j++ {
+                      tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
+                      runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                      runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                    }
+                  }
                 }
 
                 runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");

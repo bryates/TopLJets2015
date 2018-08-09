@@ -59,14 +59,16 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
       fIn->Close();
 
+      //No muon tracking SF per POG recommendation https://hypernews.cern.ch/HyperNews/CMS/get/top/2671.html
+      /*
                     //Tracking_EfficienciesAndSF_RunBCDEF_23SepReReco.root
       lepEffUrl=era+"/Tracking_EfficienciesAndSF_Run"+runPeriod+"_23SepReReco.root";
       gSystem->ExpandPathName(lepEffUrl);
       fIn=TFile::Open(lepEffUrl);
-      //No muon tracking SF per POG recommendation https://hypernews.cern.ch/HyperNews/CMS/get/top/2671.html
       lepEffGr_["m_tk_aeta_"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_aeta_dr030e030_corr");
       lepEffGr_["m_tk_vtx_"+runPeriod]=(TGraphAsymmErrors *)fIn->Get("ratio_eff_vtx_dr030e030_corr");
       fIn->Close();
+      */
 
                     //MuonID_RunBCDEFF_23SepReReco.root
       lepEffUrl=era+"/MuonID_Run"+runPeriod+"_23SepReReco.root";
