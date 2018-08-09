@@ -49,7 +49,7 @@ void RunTopKalman(TString filename,
   if(debug) cout << "in RunTopKalman" << endl;
 
   bool isTTbar( filename.Contains("_TTJets") );
-  //bool isData( filename.Contains("Data13TeV") );
+  bool isData( filename.Contains("Data13TeV") );
 
   //CREATE CHARM TREE IN FILE
   TTree *cht = new TTree("data","Charm tree");
@@ -76,7 +76,7 @@ void RunTopKalman(TString filename,
   std::vector<TH1D *>puWgt;
   TString tmpRun ("BCDEFGH");
   std::vector<TH1D*> puWgtsRun;
-  if(!ev.isData)
+  if(!isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
       /*
@@ -276,7 +276,7 @@ void RunTopKalman(TString filename,
       //Normalize to XSec and lumi
       float norm(1.0);
       float xsec(1.0);
-      if(!ev.isData) {
+      if(!isData) {
         norm =  normH ? normH->GetBinContent(1) : 1.0;
         xsec = normH ? normH->GetBinContent(2) : 0.;
         //if(xsec) norm*=xsec;
@@ -521,7 +521,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!ev.isData) {
+      if(!isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
         applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
@@ -572,7 +572,7 @@ void RunTopKalman(TString filename,
 	  //jetDiff -= jp4;
 	  float genJet_pt(0);
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
-	  if(!ev.isData && genJet_pt>0) 
+	  if(!isData && genJet_pt>0) 
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
 	      jp4 *= jerSmear;
@@ -652,7 +652,7 @@ void RunTopKalman(TString filename,
       std::vector<float> puWgts(3,1.0),topPtWgts(2,1.0);
       EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
       if(debug) cout << "Lepton scale factors" << endl;
-      if(!ev.isData)
+      if(!isData)
 	{
 	  //account for pu weights and effect on normalization
 	  allPlots["puwgtctr"]->Fill(0.,1.0);
@@ -1044,7 +1044,7 @@ void RunTopKalman(TString filename,
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
-          if(!ev.isData) {
+          if(!isData) {
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngpf; ig++) {
@@ -1111,11 +1111,11 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
 
-                if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
+                if(!isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
                   runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
                   runGH.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
                 }
-                if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
+                if(!isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
                   runBCDEF.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
                   runGH.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
                 }
@@ -1168,7 +1168,7 @@ void RunTopKalman(TString filename,
 
           std::vector<pfTrack> pfMatched, pfReject, pfMuMatched;
           //Gen-matching
-          if(!ev.isData) {
+          if(!isData) {
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngpf; ig++) {
@@ -1331,7 +1331,7 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
 
                 std::vector<pfTrack> tmp_match;
-                if(!ev.isData && pfMatched.size() >1)
+                if(!isData && pfMatched.size() >1)
                   tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
                 //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
                 if(genIdx>-1) {
@@ -1343,12 +1343,12 @@ void RunTopKalman(TString filename,
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 }
 
-                if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
+                if(!isData && pfMatched.size() > 1) { //save gen-matched J/Psi
                   std::vector<pfTrack> tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
                   runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
                   runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
                 }
-                if(!ev.isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
+                if(!isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
                   runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
                   runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
                 }
@@ -1398,7 +1398,7 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 std::vector<pfTrack> tmp_match;
                 /*
-                if(!ev.isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
+                if(!isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
                   //std::vector<pfTrack> tmp_matched_cands = { pfMatched[0],pfMatched[1],pfMuMatched[0] };
                   tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()],pfMuMatched[track.getGenIdx()] };
                   runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
@@ -1406,7 +1406,7 @@ void RunTopKalman(TString filename,
                 }
                 */
                 /*
-                if(!ev.isData) {
+                if(!isData) {
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 }
