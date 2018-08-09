@@ -49,8 +49,8 @@ class Plot(object):
         self.savelog = False
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
-        #if "_jpsi" in name or "_meson" in name:
-            #self.ratiorange = (0.47,1.57)
+        if "_jpsi" in name or "_meson" in name:
+            self.ratiorange = (0.47,1.57)
 
     def add(self, h, title, color, isData, isSyst):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -782,6 +782,7 @@ def main():
                                 elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
                             obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
                             #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
+                        if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                         over=True
                         under=True
                         if "meson" in key: over=False
