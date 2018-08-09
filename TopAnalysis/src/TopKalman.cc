@@ -1095,7 +1095,7 @@ void RunTopKalman(TString filename,
 	        allPlots["massJPsi_all"]->Fill(mass12,wgt);
 
                 TLorentzVector jpsi = muTracks[i].getVec() + muTracks[j].getVec();
-                if(rbFit) {
+                if(rbFit && !isData) {
                   float rbWgtJPsi(1.);
                   if(rbFit==1) rbWgtJPsi=(rbWgt->Eval(jpsi.Pt() / jet.getChargedPt()));
                   else if(rbFit==2) rbWgtJPsi=(rbWgts[JPsi]->Eval(jpsi.Pt() / jet.getChargedPt()));
@@ -1292,7 +1292,7 @@ void RunTopKalman(TString filename,
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
               cuts &= (mass12>1.7 && mass12<2.0);
               //if (mass12>1.65 && mass12<2.0) {
-              if(rbFit) {
+              if(rbFit && !isData) {
                 float rbWgtD0(1.);
                 if(rbFit==1) rbWgtD0=(rbWgt->Eval(d0.Pt() / jet.getChargedPt()));
                 else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt()));
@@ -1393,7 +1393,7 @@ void RunTopKalman(TString filename,
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
                 TLorentzVector d0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
-                if(rbFit) {
+                if(rbFit && !isData) {
                   float rbWgtD0mu(1.);
                   if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt()));
                   else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt()));
