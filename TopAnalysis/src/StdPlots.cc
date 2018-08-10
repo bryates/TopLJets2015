@@ -1227,6 +1227,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     if(pfCands.size()<2) return;
     //recheck first pi and K
     if(pfCands[0].getPdgId()*pfCands[1].getPdgId() != -211*211) return;
+    if(pfCands[0].getMotherId()!=421) return;
+    if(pfCands[1].getMotherId()!=421) return;
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
     float mass12 = D0.M();
     float jpt(jet.getPt());
