@@ -628,7 +628,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["massJPsi_all"+name+runPeriod_]->Fill(jpsi.M(),getWgt());
     //float pt12((pfCands[0].getVec() + pfCands[1].getVec()).Pt());
 
-    if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    //if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    if(abs(jpsi.M()-3.097) > 0.1) return;
     allPlots["JPsi_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt(),getWgt());
     allPlots["JPsi_pt_all"+name+runPeriod_]->Fill(jpsi.Pt(),getWgt());
     allPlots["JPsi_eta"+chTag+name+runPeriod_]->Fill(jpsi.Eta(),getWgt());
@@ -1188,7 +1189,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     if(debug_) std::cout << "is " << name << std::endl;
     if(pfCands[0].getPfid() != -pfCands[1].getPfid()) return;
     TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
-    if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    //if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    if(abs(jpsi.M()-3.097) > 0.1) return;
     if(debug_) std::cout << "is J/Psi" << name << std::endl;
     float jpt(jet.getPt());
     float jpt_charged(jet.getChargedPt());
@@ -1232,7 +1234,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     float jpt_pf(jet.getPFPt());
     if (mass12<1.7 && mass12>2.0) return;
     if(pfCands.size()==2) { //Plot D0 only
-      if(abs(mass12-1.864) > 0.05) return;  // tighter mass window cut
+      if(abs(mass12-1.864) > 0.034) return;  // tighter mass window cut
       if(debug_) std::cout << "Filling D0" << chTag << name << runPeriod_ << " with wgt=" << getWgt() << std::endl;
       allPlots["nkj"+chTag+name+runPeriod_]->Fill(1,getWgt());
       allPlots["D0oJet_pt"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
@@ -1271,7 +1273,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     if(pfCands.size()<3) return; // D^0+mu and D^*
 
     //if(abs(pfCands[2].getPdgId()) == 13 && abs(mass12-1.864) > 0.05) {  // Plot D0+mu tighter mass window cut
-    if(fabs(pfCands[2].getPdgId()) == 13 && mass12>1.8 && mass12<1.93) {
+    if(fabs(pfCands[2].getPdgId()) == 13 && abs(mass12-1.864)<0.036) {
       TLorentzVector D0mu = D0 + pfCands[2].getVec();
       allPlots["D0_mu_tag_oJet_pt"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
       allPlots["D0_mu_tag_oJet_pt_all"+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
@@ -1348,7 +1350,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString
   if(!name.EqualTo("")) name = "_" + name;
   if(name.Contains("jpsi")) {
     TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
-    if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    //if(jpsi.M()<3.0 || jpsi.M()>3.2) return; //Window in Elvire's AN
+    if(abs(jpsi.M()-3.097) > 0.1) return;
     float jpt(jet.getPt());
     float jpt_charged(jet.getChargedPt());
     float jpt_pf(jet.getPFPt());

@@ -554,7 +554,6 @@ void RunTopKalman(TString filename,
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
-          if(ev.j_pt[k]>150) continue;
 	  TLorentzVector jp4;
 	  jp4.SetPtEtaPhiM(ev.j_pt[k],ev.j_eta[k],ev.j_phi[k],ev.j_mass[k]);
 	  //jp4=updateJES(jp4,ev.j_rawsf[k],ev.j_area[k],ev.rho,ev.nvtx,jetCorr);
@@ -1151,6 +1150,8 @@ void RunTopKalman(TString filename,
           tmax = jet.getTracks().size() >= tmax ? tmax : jet.getTracks().size();
           */
           for(auto &track : jet.getTracks()) {
+            if(jet.getPt()>150) continue;
+            if(jet.jet.getChargedPt()>75) continue;
             //Only save up to first 4 hardest tracks (sorted by pT already)
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
@@ -1331,9 +1332,9 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
 
                 std::vector<pfTrack> tmp_match;
-                if(!isData && pfMatched.size() >1) {
-                  for(int i = 0; i < pfMatched.size(); i++ {
-                    for(int j = 0; j < pfMatched.size(); j++ {
+                if(!isData && pfMatched.size() >1 && 0) {
+                  for(size_t i = 0; i < pfMatched.size(); i++) {
+                    for(size_t j = 0; j < pfMatched.size(); j++) {
                       tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
                       //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
                       if(genIdx>-1) {  
@@ -1350,9 +1351,9 @@ void RunTopKalman(TString filename,
                     }
                   }
                 }
-                if(!isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
-                  for(int i = 0; i < pfReject.size(); i++ {
-                    for(int j = 0; j < pfReject.size(); j++ {
+                if(!isData && pfReject.size() > 1 &&0) { //save gen-unmatched J/Psi
+                  for(size_t i = 0; i < pfReject.size(); i++) {
+                    for(size_t j = 0; j < pfReject.size(); j++) {
                       tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
                       runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
                       runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
