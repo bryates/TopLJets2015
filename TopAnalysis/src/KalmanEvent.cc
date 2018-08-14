@@ -45,7 +45,7 @@ void KalmanEvent::buildJets() {
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     //int npi(0);
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
-      if(ipf>15) break; //only first 4 tracks in jet per loop (4pi*4K=16 total)
+      //if(ipf>15) break; //only first 4 tracks in jet per loop (4pi*4K=16 total)
       //if(npi>15) break; //only first 4 tracks in jet per loop (4pi*4K=16 total)
       //D^* has only 3rd pi and D^0_mu has only mu
       //if(abs(ev_.k_pf_id[ipf])==211 && ev_.k_id[ipf]==421) npi++; //D^0 only

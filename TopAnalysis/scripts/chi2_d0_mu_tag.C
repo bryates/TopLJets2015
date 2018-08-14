@@ -80,8 +80,9 @@ frame->Draw();
 */
 
 
+chiTest->SetDirectory(0);
 chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
-chiTest->GetYaxis()->SetRangeUser(7,32);
+chiTest->GetYaxis()->SetRangeUser(12,36);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FSEMQ");
@@ -113,6 +114,7 @@ c1->SaveAs("chi2_d0_mu_tag.png");
 
 float chi2_d0_mu_tag_test(TString tune="") {
 TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
+//TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open("TopMass_172v5_matched.root");
 

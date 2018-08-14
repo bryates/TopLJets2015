@@ -1144,14 +1144,14 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
+          if(jet.getPt()>150) continue;
+          //if(jet.getChargedPt()>75) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*
           size_t tmax = 4;
           tmax = jet.getTracks().size() >= tmax ? tmax : jet.getTracks().size();
           */
           for(auto &track : jet.getTracks()) {
-            if(jet.getPt()>150) continue;
-            if(jet.jet.getChargedPt()>75) continue;
             //Only save up to first 4 hardest tracks (sorted by pT already)
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
@@ -1351,7 +1351,7 @@ void RunTopKalman(TString filename,
                     }
                   }
                 }
-                if(!isData && pfReject.size() > 1 &&0) { //save gen-unmatched J/Psi
+                if(!isData && pfReject.size() > 1 && 0) { //save gen-unmatched J/Psi
                   for(size_t i = 0; i < pfReject.size(); i++) {
                     for(size_t j = 0; j < pfReject.size(); j++) {
                       tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
@@ -1360,6 +1360,8 @@ void RunTopKalman(TString filename,
                     }
                   }
                 }
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
 
                 runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
                 runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");

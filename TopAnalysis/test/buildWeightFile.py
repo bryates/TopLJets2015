@@ -16,7 +16,7 @@ Interpolate extremes and then derive the weights based on a 2nd order spline for
 def smoothWeights(gr):
 
     #interpolate for low xb
-    gr.Fit('pol9','QR+','',0,0.6)
+    gr.Fit('pol9','QR+','',0,0.7)
     lowxb=gr.GetFunction('pol9')
 
     #flatten tail for xb>1

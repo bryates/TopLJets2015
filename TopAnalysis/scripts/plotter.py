@@ -710,7 +710,7 @@ def main():
                           except: pass
                           if wgtBCDEF>0 :
                               rbFitSFBCDEF=nonWgtBCDEF/wgtBCDEF
-                              if rbFitSFBCDEF>1.3 or rbFitSF<0.7 : 
+                              if rbFitSFBCDEF>1.3 or rbFitSFBCDEF<0.7 : 
                                   rbFitSFBCDEF=1
                                   report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                               else :
@@ -718,7 +718,7 @@ def main():
                               rbFitSFs[num][0]=wgtBCDEF
                           if wgtGH>0 :
                               rbFitSFGH=nonWgtGH/wgtGH
-                              if rbFitSF>1.3 or rbFitSF<0.7 : 
+                              if rbFitSFGH>1.3 or rbFitSFGH<0.7 : 
                                   rbFitSFGH=1
                                   report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                               else :
@@ -771,15 +771,17 @@ def main():
                             #if "fsr" not in sp[0] and "isr" not in sp[0]:
                                 #xsec=1. #now stored in normH
                             
-                            if("_jpsi_" in obj.GetName()): 
-                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[0][0]
-                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[0][1]
-                            elif("_meson_" in obj.GetName() and "mu_tag" in obj.GetName()): 
-                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[2][0]
-                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[2][1]
-                            elif("_meson_" in obj.GetName()): 
-                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[1][0]
-                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
+                            #if("_jpsi_" in obj.GetName()): 
+                                #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[0][0]
+                                #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[0][1]
+                            #elif("_meson_" in obj.GetName() and "mu_tag" in obj.GetName()): 
+                                #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[2][0]
+                                #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[2][1]
+                            #elif("_meson_" in obj.GetName()): 
+                                #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[1][0]
+                                #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
+                            if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
+                            elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
                             obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
                             #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                         if("JPsioJet" in obj.GetName()): obj.Rebin(2)

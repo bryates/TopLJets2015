@@ -34,7 +34,7 @@ def RunMethodPacked(args):
                                                                                                                       flav)
         if runSysts : cmd += ' --runSysts'
         if debug : cmd += ' --verbose'
-        if rbFit : cmd += ' --rbFit'
+        if rbFit : cmd += ' --rbFit %d' % rbFit
         print cmd
         os.system(cmd)
     except :
