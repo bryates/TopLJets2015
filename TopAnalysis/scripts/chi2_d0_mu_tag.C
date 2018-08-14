@@ -82,7 +82,7 @@ frame->Draw();
 
 chiTest->SetDirectory(0);
 chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
-chiTest->GetYaxis()->SetRangeUser(12,36);
+chiTest->GetYaxis()->SetRangeUser(8,32);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FSEMQ");
