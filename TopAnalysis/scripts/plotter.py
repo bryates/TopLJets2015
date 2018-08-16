@@ -323,7 +323,8 @@ class Plot(object):
                if len(self.mcsyst)>0:
                    self.totalMCUnc.Draw("hist same")
                    #self.totalMCUnc.Draw("e2 same")
-                   leg.AddEntry(totalMCUnc, "Total unc.", 'f')
+                   leg.AddEntry(totalMCUnc, "UE-Down", 'f')
+                   #leg.AddEntry(totalMCUnc, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
 
 

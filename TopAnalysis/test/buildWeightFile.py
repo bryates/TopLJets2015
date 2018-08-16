@@ -66,6 +66,8 @@ def main():
     #for tag in ['up','central','down','Peterson']:
         if tag == 'cuetp8m2t4': continue
         print tag
+        xb[tag].Scale(1./xb[tag].Integral())
+        xb['cuetp8m2t4'].Scale(1./xb['cuetp8m2t4'].Integral())
         xb[tag].Divide(xb['cuetp8m2t4'])
         #xb[tag].Smooth()
         gr=ROOT.TGraphErrors(xb[tag])

@@ -114,8 +114,9 @@ c1->SaveAs("chi2_d0_mu_tag.png");
 
 float chi2_d0_mu_tag_test(TString tune="") {
 TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
+//TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+TFile *fmc = TFile::Open(TString::Format("TopMass_uedown%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
-TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open("TopMass_172v5_matched.root");
 
 //load RooWorkspace and set binning
@@ -178,14 +179,12 @@ if(tune.Length() > 0) {
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 
-/*
 delete ptfrac_data;
 delete ptfrac_mc;
 delete data;
 delete mc;
 fdata->Close();
 fmc->Close();
-*/
 /*
 c1->cd();
 c1->SetFillStyle(400);

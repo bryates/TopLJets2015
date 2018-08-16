@@ -43,7 +43,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
-  if(mass.Contains("sr")) {
+  if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("ue")) { //ISR,FSR,CR,UE
     syst = mass;
     //mass = "172.5";
   }
@@ -245,7 +245,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   for(int i = 0; i < dsn.numEntries(); i++) {
     double tmpW = dsn.get(i)->getRealValue("tuneW");
     tuneW.setVal(tmpW * tuneShape);
-    weight.setVal(tmpW * tuneW.getVal()*tuneShape);
+    weight.setVal(tuneW.getVal());
     //std::cout << tuneW.getVal() << " " << weight.getVal() << std::endl;;
   }
   std::cout << "Re-weighting done!" << std::endl;
