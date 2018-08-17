@@ -114,8 +114,8 @@ c1->SaveAs("chi2_d0_mu_tag.png");
 
 float chi2_d0_mu_tag_test(TString tune="") {
 TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
-//TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
-TFile *fmc = TFile::Open(TString::Format("TopMass_uedown%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+//TFile *fmc = TFile::Open(TString::Format("TopMass_uedown%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open("TopMass_172v5_matched.root");
 
