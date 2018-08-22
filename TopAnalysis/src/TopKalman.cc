@@ -109,16 +109,31 @@ void RunTopKalman(TString filename,
       TString puWgtRunUrl(era+"/pileupWgtsBCDEF.root");
       gSystem->ExpandPathName(puWgtRunUrl);
       TFile *fIn=TFile::Open(puWgtRunUrl);
-      TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
-      puWgtDataRun->SetDirectory(0);
-      puWgtsRun.push_back(puWgtDataRun);
+      for(size_t i = 0; i < 3; i++) {
+        TString  grName("puwgts_nom");
+        if(i==1) grName="puwgts_up";
+        if(i==2) grName="puwgts_down";
+        TH1D *puWgtDataRun=(TH1D *)fIn->Get(grName);
+        puWgtDataRun->SetDirectory(0);
+        puWgtsRun.push_back(puWgtDataRun);
+      }
       fIn->Close();
       puWgtRunUrl = era+"/pileupWgtsGH.root";
       gSystem->ExpandPathName(puWgtRunUrl);
       fIn=TFile::Open(puWgtRunUrl);
+      /*
       puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
       puWgtDataRun->SetDirectory(0);
       puWgtsRun.push_back(puWgtDataRun);
+      */
+      for(size_t i = 0; i < 3; i++) {
+        TString  grName("puwgts_nom");
+        if(i==1) grName="puwgts_up";
+        if(i==2) grName="puwgts_down";
+        TH1D *puWgtDataRun=(TH1D *)fIn->Get(grName);
+        puWgtDataRun->SetDirectory(0);
+        puWgtsRun.push_back(puWgtDataRun);
+      }
       fIn->Close();
       if(debug) cout << "loading pileup weight DONE" << endl;
     }
@@ -665,11 +680,11 @@ void RunTopKalman(TString filename,
             allPlots["puwgt"]->Fill(xbin,yobs);
           }
           */
-          //Set PU weight for each run period
+          //Set PU weight for each run period [BCDEF, BCDEFup, BCDEFdown, GH, GHup, GHdown]
           runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
-          runGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
+          runGH.SetPuWgt(puWgtsRun[3]->GetBinContent(ev.putrue));
           treeBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
-          treeGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
+          treeGH.SetPuWgt(puWgtsRun[3]->GetBinContent(ev.putrue));
 
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
@@ -1352,6 +1367,7 @@ void RunTopKalman(TString filename,
                     }
                   }
                 }
+                /*
                 if(genIdx>-1) {  
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
@@ -1360,6 +1376,9 @@ void RunTopKalman(TString filename,
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 }
+                */
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
 
                 runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
                 runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
@@ -1423,6 +1442,7 @@ void RunTopKalman(TString filename,
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                 }
                 */
+                /*
                 if(genIdx>-1) {
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
@@ -1431,10 +1451,11 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 }
-                /*
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 */
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
               }
               if(piSoftTracks.size()<1) continue;
               for(auto &track : piSoftTracks) {
