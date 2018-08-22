@@ -40,11 +40,11 @@ void RunTopKalman(TString filename,
 		 Int_t chargeSelection, 
 		 FlavourSplitting flavourSplitting,
 		 TH1F *normH, 
-		 Bool_t runSysts,
                  TString era,
                  TString runPeriod,
                  Bool_t debug=false,
-                 short rbFit=0)
+                 short runSysts, //0 for nominal, 1 for up, -1 for down
+                 short rbFit)
 {
   if(debug) cout << "in RunTopKalman" << endl;
 
@@ -69,6 +69,7 @@ void RunTopKalman(TString filename,
   t->GetEntry(0);
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
+  int runSyst(0); //0 for nominal, 1 for up, -1 for down
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
@@ -126,10 +127,10 @@ void RunTopKalman(TString filename,
       puWgtDataRun->SetDirectory(0);
       puWgtsRun.push_back(puWgtDataRun);
       */
-      for(size_t i = 0; i < 3; i++) {
-        TString  grName("puwgts_nom");
-        if(i==1) grName="puwgts_up";
-        if(i==2) grName="puwgts_down";
+      for(size_t i = 0; i < 3; i++) { // [BCDEFup, BCDEF, BCDEFdown, GHup, GH, GHdown]
+        TString  grName("puwgts_down");
+        if(i==1) grName="puwgts_norm";
+        if(i==2) grName="puwgts_up";
         TH1D *puWgtDataRun=(TH1D *)fIn->Get(grName);
         puWgtDataRun->SetDirectory(0);
         puWgtsRun.push_back(puWgtDataRun);
@@ -538,8 +539,18 @@ void RunTopKalman(TString filename,
       //Pion tracker SFs
       if(!isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
-        applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
-        applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+        if(runSyst==0) {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+        }
+        else if(runSyst<0) {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"]);
+        }
+        else if(runSyst>0) {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["up"], trackEffMap["BCDEF"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["up"], trackEffMap["GH"]["binning"]);
+        }
       }
       //******************************
       if(debug) cout << "Pion scale factors DONE!" << endl;
@@ -680,11 +691,11 @@ void RunTopKalman(TString filename,
             allPlots["puwgt"]->Fill(xbin,yobs);
           }
           */
-          //Set PU weight for each run period [BCDEF, BCDEFup, BCDEFdown, GH, GHup, GHdown]
-          runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
-          runGH.SetPuWgt(puWgtsRun[3]->GetBinContent(ev.putrue));
-          treeBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
-          treeGH.SetPuWgt(puWgtsRun[3]->GetBinContent(ev.putrue));
+          //Set PU weight for each run period [BCDEFup, BCDEF, BCDEFdown, GHup, GH, GHdown]
+          runBCDEF.SetPuWgt(puWgtsRun[1+runSyst]->GetBinContent(ev.putrue));
+          runGH.SetPuWgt(puWgtsRun[4+runSyst]->GetBinContent(ev.putrue));
+          treeBCDEF.SetPuWgt(puWgtsRun[1+runSyst]->GetBinContent(ev.putrue));
+          treeGH.SetPuWgt(puWgtsRun[4+runSyst]->GetBinContent(ev.putrue));
 
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
@@ -698,6 +709,9 @@ void RunTopKalman(TString filename,
           EffCorrection_t lepSelCorrWgt_GH(1.0,0.0), triggerCorrWgt_GH(1.0,0.0);
 	  triggerCorrWgt_BCDEF=lepEffH_BCDEF.getTriggerCorrection(leptons);
 	  triggerCorrWgt_GH=lepEffH_GH.getTriggerCorrection(leptons);
+          // Systematics for Trigger
+	  triggerCorrWgt_BCDEF.first*=(1+runSyst*triggerCorrWgt_BCDEF.second);
+	  triggerCorrWgt_GH.first*=(1+runSyst*triggerCorrWgt_GH.second);
 	  for(size_t il=0; il<leptons.size(); il++) {
 	    EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il], ev.nvtx);
 	    EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il], ev.nvtx);
@@ -707,15 +721,16 @@ void RunTopKalman(TString filename,
             if(debug) cout << "selSF=" << selSF_BCDEF.first << endl;
             if(debug) cout << "lepSelCorrWgt_GH=" << lepSelCorrWgt_GH.first << endl;
             if(debug) cout << "selSF=" << selSF_GH.first << endl;
-	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first;
-	    lepSelCorrWgt_GH.first *= selSF_GH.first;
+                                                                // Systematics for lepton selection
+	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first * (1+runSyst*selSF_BCDEF.second);
+	    lepSelCorrWgt_GH.first *= selSF_GH.first * (1+runSyst*selSF_GH.second);
 	  }
           runBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first,lepSelCorrWgt_BCDEF.second);
           runGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first,lepSelCorrWgt_GH.second);
           treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);//,lepSelCorrWgt_BCDEF.second);
           treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);//,lepSelCorrWgt_GH.second);
           // **
-	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[0]->GetBinContent(ev.putrue))*norm;
+	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[1+runSyst]->GetBinContent(ev.putrue))*norm;
 
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;

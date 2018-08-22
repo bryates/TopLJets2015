@@ -32,9 +32,9 @@ def RunMethodPacked(args):
                                                                                                                       charge,
                                                                                                                       channel,
                                                                                                                       flav)
-        if runSysts : cmd += ' --runSysts'
+        if runSysts : cmd += ' --runSysts %hd' % runSysts
         if debug : cmd += ' --verbose'
-        if rbFit : cmd += ' --rbFit %d' % rbFit
+        if rbFit : cmd += ' --rbFit %hd' % rbFit
         print cmd
         os.system(cmd)
     except :
@@ -57,7 +57,7 @@ def main():
     parser.add_option('-e', '--ext',         dest='ext',         help='extput directory with files or single file [%default]',  default='/store/group/phys_top/byates/ext/',       type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process  [%default]',             default=None,       type='string')
     parser.add_option(      '--skip',        dest='skip'  ,      help='skip all these (csv)',         default=None,    type='string')
-    parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics  [%default]',                            default=False,      action='store_true')
+    parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics  [%default]',                            default=0,          type=int)
     parser.add_option(      '--flav',        dest='flav',        help='split according to heavy flavour content  [%default]',   default=0,          type=int)
     parser.add_option(      '--ch',          dest='channel',     help='channel  [%default]',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge  [%default]',                                     default=0,          type=int)
@@ -198,7 +198,7 @@ def main():
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
             if debug : localRun += ' --verbose %s' % (debug)
             if rbFit : localRun += ' --rbFit %hd' % (rbFit)
-            if runSysts : localRun += ' --runSysts'            
+            if runSysts : localRun += ' --runSysts %hd' % (runSysts)
             ############### Now using condor instead of LSF (bsub) ###############
             cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
             #os.system(cmd)

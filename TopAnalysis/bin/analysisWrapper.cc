@@ -34,13 +34,13 @@ int main(int argc, char* argv[])
 {
   //get input arguments
   TString in(""),out(""),era(""),runPeriod("BCDEF"),normTag(""),method(""),weight("genweights.root");
-  bool runSysts(false),verbose(false);
+  bool verbose(false);
   int channel(0),charge(0),flav(0);
-  short rbFit(0);
+  short runSysts(0),rbFit(0);
   for(int i=1;i<argc;i++){
     string arg(argv[i]);
     if(arg.find("--help") !=string::npos)                     { printHelp(); return -1;} 
-    else if(arg.find("--runSysts")!=string::npos )            { runSysts=true;  }
+    else if(arg.find("--runSysts")!=string::npos )            { sscanf(argv[i+1],"%hd",&runSysts); i++;  }
     else if(arg.find("--channel")!=string::npos && i+1<argc)  { sscanf(argv[i+1],"%d",&channel); i++;}
     else if(arg.find("--charge")!=string::npos && i+1<argc)   { sscanf(argv[i+1],"%d",&charge); i++;}
     else if(arg.find("--flav")!=string::npos && i+1<argc)     { sscanf(argv[i+1],"%d",&flav); i++;}
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
   //if(method=="TOP-16-006::RunTop16006")    RunTop16006(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   //else if(method=="TOPWidth::RunTopWidth") RunTopWidth(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
   if(method=="TOP::RunTop") RunTop(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
-  else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose,rbFit);
+  else if(method=="TOP::RunTopKalman") RunTopKalman(in,out,channel,charge,FlavourSplitting(flav),normH,era,runPeriod,verbose,runSysts,rbFit);
   else if(method=="TOP::RunTopAOD") RunTopAOD(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   else if(method=="TOP::RunTopSync") RunTopSync(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era,runPeriod,verbose);
   //else if(method=="Run5TeVAnalysis::Run5TeVAnalysis") Run5TeVAnalysis(in,out,channel,charge,FlavourSplitting(flav),normH,runSysts,era);
