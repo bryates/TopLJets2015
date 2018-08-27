@@ -20,7 +20,7 @@ void printHelp()
        << "\t --channel - channel to analyze" << endl
        << "\t --charge  - charge selection to apply" << endl
        << "\t --flav    - flavour selection to apply" << endl
-       << "\t --runSysts - activate running systematics" << endl
+       << "\t --runSysts - activate running systematics (1 for up, -1 for down)" << endl
        << "\t --era      - era directory to use for corrections, uncertainties" << endl
        << "\t --runPeriod   - runs to include" << endl
        << "\t --normTag  - normalization tag" << endl
