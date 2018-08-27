@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   for(int i=1;i<argc;i++){
     string arg(argv[i]);
     if(arg.find("--help") !=string::npos)                     { printHelp(); return -1;} 
-    else if(arg.find("--runSysts")!=string::npos )            { sscanf(argv[i+1],"%hd",&runSysts); i++;  }
+    else if(arg.find("--runSysts")!=string::npos && i+1<argc )   { sscanf(argv[i+1],"%hd",&runSysts); i++; }
     else if(arg.find("--channel")!=string::npos && i+1<argc)  { sscanf(argv[i+1],"%d",&channel); i++;}
     else if(arg.find("--charge")!=string::npos && i+1<argc)   { sscanf(argv[i+1],"%d",&charge); i++;}
     else if(arg.find("--flav")!=string::npos && i+1<argc)     { sscanf(argv[i+1],"%d",&flav); i++;}

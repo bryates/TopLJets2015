@@ -117,6 +117,7 @@ TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
 TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_uedown%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+//TFile *fmc = TFile::Open(TString::Format("TopMass_erdOn%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open("TopMass_172v5_matched.root");
 
 //load RooWorkspace and set binning
@@ -164,9 +165,11 @@ ptfrac_mc_hist->plotOn(ptfrac_mc);
 RooPlot *ptfrac_data = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal");
 RooPlot *ptfrac_mc = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal");
 */
-TH1F *data = (TH1F*)convert(ptfrac_data);
+TH1F *data = (TH1F*)convert(ptfrac_data,true,0,1.1);
+//data->Scale(1./data->Integral());
 //data->Rebin(2);
-TH1F *mc = (TH1F*)convert(ptfrac_mc);
+TH1F *mc = (TH1F*)convert(ptfrac_mc,true,0,1.1);
+//mc->Scale(1./mc->Integral());
 if(tune.Length() > 0) {
   TH1F *tuneWgt = (TH1F*)fmc->Get("tuneWgt");
   report += "ptfrac";
