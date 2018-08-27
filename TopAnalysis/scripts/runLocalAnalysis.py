@@ -140,6 +140,9 @@ def main():
             ############### Submit to condor ###############
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
             ext_len=",".join(input_list).count("_ext")
+            sys=""
+            if(opt.runSysts==1): sys="_up"
+            if(opt.runSysts==-1): sys="_down"
             target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
@@ -147,9 +150,9 @@ def main():
             if(opt.rbFit): condorFile.write('executable            = condor/cond_rbFit.sh\n')
             else :condorFile.write('executable            = condor/cond_submit.sh\n')
             condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,opt.runSysts))
-            condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag)
-            condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % tag)
-            condorFile.write('log                   = condor/log/%s.log\n' % tag)
+            condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag,sys))
+            condorFile.write('error                 = condor/log/%s_$(ProcId)%s.err\n' % (tag,sys))
+            condorFile.write('log                   = condor/log/%s%s.log\n' % (tag,sys))
             condorFile.write('Rank                  = Memory >= 64\n')
             condorFile.write('Request_Memory        = 32 Mb\n')
             condorFile.write('+JobFlavour           = "workday"\n')
@@ -166,9 +169,9 @@ def main():
               condorFile.write('universe              = vanilla\n')
               condorFile.write('executable            = condor/cond_ext.sh\n')
               condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,opt.runSysts))
-              condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % (tag+"_ext"))
-              condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % (tag+"_ext"))
-              condorFile.write('log                   = condor/log/%s.log\n' % (tag+"_ext"))
+              condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag+"_ext",sys))
+              condorFile.write('error                 = condor/log/%s_$(ProcId)%s.err\n' % (tag+"_ext",sys))
+              condorFile.write('log                   = condor/log/%s%s.log\n' % (tag+"_ext",sys))
               condorFile.write('Request_Memory        = 32 Mb\n')
               condorFile.write('+JobFlavour           = "workday"\n')
               condorFile.write('Should_Transfer_Files = NO\n')

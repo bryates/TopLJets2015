@@ -250,7 +250,7 @@ class Plot(object):
             nominalIntegral = nominalTTbar.Integral()
             for hname in self.mcsyst:#.iteritems():
                 if self.mcsyst[hname].Integral()>0: print "%s: %s" % (hname, nominalIntegral/self.mcsyst[hname].Integral())
-                #if(self.mcsyst[hname].Integral()>0): self.mcsyst[hname].Scale(nominalIntegral/self.mcsyst[hname].Integral())
+                if(self.mcsyst[hname].Integral()>0): self.mcsyst[hname].Scale(nominalIntegral/self.mcsyst[hname].Integral())
             systUp=[0.]
             systDown=[0.]
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
@@ -272,15 +272,15 @@ class Plot(object):
             totalMCUnc.Add(nominalTTbar,-1) #2) subtract nominal MC to add background only
             totalMCUnc.SetDirectory(0)
             totalMCUnc.SetFillColor(0)
-            totalMCUnc.SetLineColor(ROOT.kRed)
-            totalMCUnc.SetMarkerColor(ROOT.kRed)
-            #totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            #totalMCUnc.SetLineColor(ROOT.kRed)
+            #totalMCUnc.SetMarkerColor(ROOT.kRed)
+            totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ROOT.gStyle.SetHatchesLineWidth(1)
             totalMCUnc.SetFillStyle(400)
-            #totalMCUnc.SetFillStyle(3254)
-            #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                #totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
-                #totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
+            totalMCUnc.SetFillStyle(3254)
+            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
+                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
             self.totalMCUnc = totalMCUnc
 
         #test for null plots
@@ -321,10 +321,10 @@ class Plot(object):
             else      : 
                stack.Draw('hist same')
                if len(self.mcsyst)>0:
-                   self.totalMCUnc.Draw("hist same")
-                   #self.totalMCUnc.Draw("e2 same")
-                   leg.AddEntry(totalMCUnc, "UE-Down", 'f')
-                   #leg.AddEntry(totalMCUnc, "Total unc.", 'f')
+                   #self.totalMCUnc.Draw("hist same")
+                   self.totalMCUnc.Draw("e2 same")
+                   #leg.AddEntry(totalMCUnc, "UE-Down", 'f')
+                   leg.AddEntry(totalMCUnc, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
 
 
@@ -368,10 +368,10 @@ class Plot(object):
             ratioframe.GetXaxis().SetTitleOffset(0.8)
             ratioframeshape=ratioframe.Clone('ratioframeshape')
             self._garbageList.append(ratioframeshape)
-            ratioframeshape.SetFillColor(ROOT.kRed)
+            #ratioframeshape.SetFillColor(ROOT.kRed)
             ratioframeshape.SetMarkerColor(ROOT.kRed)
             ratioframeshape.SetMarkerStyle(20)
-            #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
+            ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ratioframeshape.SetFillStyle(3254)
             #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             if len(self.mcsyst)>0:
@@ -386,8 +386,8 @@ class Plot(object):
 
 
             ratioframe.Draw()
-            if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
-            #if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
+            #if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
+            if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
 
             try:
                 #ratio=nominalTTbar.Clone('ratio') #use for purity plots (S/(S+B))
