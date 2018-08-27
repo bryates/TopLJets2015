@@ -599,6 +599,8 @@ void RunTopKalman(TString filename,
 	  if(!isData && genJet_pt>0) 
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+	      if(runSysts<0) jerSmear+=runSysts*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
+	      if(runSysts>0) jerSmear+=runSysts*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
 	      jp4 *= jerSmear;
 	    }
 	  //jetDiff += jp4;
