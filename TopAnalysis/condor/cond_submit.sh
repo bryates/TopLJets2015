@@ -34,8 +34,8 @@ fi
 
 #python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6/${tag}/MergedMiniEvents_${num}.root -o LJets2015/2016/${tag}_${num}.root --tag ${tag} --method TOP::RunTop --era era2016 --runPeriod ${period}
 
-echo "Running: python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}_${num}${append}.root --tag ${tag} --method ${method} --era era2016 --runPeriod ${period} --runSysts ${syst}"
+echo "Running: python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}${append}_${num}.root --tag ${tag} --method ${method} --era era2016 --runPeriod ${period} --runSysts ${syst}"
 
-python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}_${num}${append}.root --tag ${tag} --method ${method} --era era2016 --runPeriod ${period} --rbFit ${fit} --runSysts ${syst}
+python scripts/runLocalAnalysis.py -i ${in}/${tag}/MergedMiniEvents_${num}.root -o ${out}/${tag}${append}_${num}.root --tag ${tag} --method ${method} --era era2016 --runPeriod ${period} --rbFit ${fit} --runSysts ${syst}
 #mv *.root $dir/condor
 #rm *
