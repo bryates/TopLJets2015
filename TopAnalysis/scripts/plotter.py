@@ -52,6 +52,7 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
         if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
+        self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -277,14 +278,14 @@ class Plot(object):
             #totalMCUnc.SetLineColor(ROOT.kRed)
             #totalMCUnc.SetMarkerColor(ROOT.kRed)
             totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
-            totalMCUnc.SetFillColor(ROOT.kBlue+3)
+            totalMCUnc.SetFillColor(ROOT.kBlue-3)
             ROOT.gStyle.SetHatchesLineWidth(1)
             totalMCUnc.SetFillStyle(400)
-            totalMCUnc.SetFillStyle(3254)
+            totalMCUnc.SetFillStyle(3245)
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
                 totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
                 totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
-            if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
+            #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
             for hname,h in self.mcsyst.iteritems():
                 if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
             systUpShape=[0.]
@@ -399,8 +400,11 @@ class Plot(object):
             #ratioframeshape.SetMarkerColor(ROOT.kRed)
             #ratioframeshape.SetMarkerStyle(20)
             ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
-            ratioframeshape.SetFillStyle(3254)
+            ratioframeshape.SetFillStyle(3245)
+            ratioframeunc=ratioframeshape.Clone('ratioframeunc')
+            ratioframeunc.SetFillColor(ROOT.kBlue-3)
             ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
+            ratioframeshape.SetFillStyle(3254)
             if len(self.mcsyst)>0:
                 for xbin in xrange(1,totalMC.GetNbinsX()+1):
                     val=totalMC.GetBinContent(xbin)
@@ -414,10 +418,13 @@ class Plot(object):
                             #ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
                         ratioframeshape.SetBinContent(xbin,self.totalMCUncShape.GetBinContent(xbin)/val)
                         ratioframeshape.SetBinError(xbin,totalMCUncShape)
+                        ratioframeunc.SetBinContent(xbin,self.totalMCUnc.GetBinContent(xbin)/val)
+                        ratioframeunc.SetBinError(xbin,totalMCUnc)
 
 
             ratioframe.Draw()
             #if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
+            if len(self.mcsyst)>0: ratioframeunc.Draw("e2 same")
             if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
 
             try:
