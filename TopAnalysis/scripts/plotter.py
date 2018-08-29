@@ -283,8 +283,11 @@ class Plot(object):
             totalMCUnc.SetFillStyle(400)
             totalMCUnc.SetFillStyle(3245)
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                #scale=nominalIntegral/totalMCUnc.Integral()
+                #scale=len(systUp)
+                scale=1.
                 totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
-                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
+                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2) / math.sqrt(scale))
             #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
             for hname,h in self.mcsyst.iteritems():
                 if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
@@ -400,16 +403,16 @@ class Plot(object):
             #ratioframeshape.SetMarkerColor(ROOT.kRed)
             #ratioframeshape.SetMarkerStyle(20)
             ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
-            ratioframeshape.SetFillStyle(3245)
             ratioframeunc=ratioframeshape.Clone('ratioframeunc')
             ratioframeunc.SetFillColor(ROOT.kBlue-3)
+            ratioframeunc.SetFillStyle(3245)
             ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             ratioframeshape.SetFillStyle(3254)
+            ratio=self.dataH.Clone('ratio')
             if len(self.mcsyst)>0:
                 for xbin in xrange(1,totalMC.GetNbinsX()+1):
                     val=totalMC.GetBinContent(xbin)
                     unc=self.totalMCUnc.GetBinError(xbin)
-                    unc=totalMC.GetBinError(xbin)
                     uncs=self.totalMCUncShape.GetBinError(xbin)
                     if val>0:
                         totalMCUnc=ROOT.TMath.Sqrt((unc/val)**2)# + unc**2)
@@ -420,6 +423,13 @@ class Plot(object):
                         ratioframeshape.SetBinError(xbin,totalMCUncShape)
                         ratioframeunc.SetBinContent(xbin,self.totalMCUnc.GetBinContent(xbin)/val)
                         ratioframeunc.SetBinError(xbin,totalMCUnc)
+                        #ratioframeunc.SetBinError(xbin, ratio.GetBinError(xbin)/self.totalMCUnc.GetBinContent(xbin))
+                        #if(ratio.GetBinContent(xbin)>0): ratioframeunc.SetBinError(xbin, math.sqrt(ratio.GetBinError(xbin)**2/ratio.GetBinContent(xbin)**2 + self.totalMCUnc.GetBinError(xbin)**2/self.totalMCUnc.GetBinContent(xbin)**2))
+                        #ratioframeunc.SetBinContent(xbin, ratio.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
+                        #ratioframeunc=self.totalMCUnc.Clone('ratioframunc')
+                        #ratioframeunc.Divide(self.totalMCUnc,self.totalMCUnc)
+                        #ratioframeunc.SetFillColor(ROOT.kBlue-3)
+                        #ratioframeunc.SetFillStyle(3245)
 
 
             ratioframe.Draw()
