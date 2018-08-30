@@ -17,6 +17,7 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
+TString name("erdOn");
 
 TString report("");
 float chi2_d0_mu_tag_test(TString tune="");
@@ -107,14 +108,20 @@ pt->AddText(text);
 pt->Draw();
 gStyle->SetOptStat(0);
 
-c1->SaveAs("chi2_d0_mu_tag.pdf");
-c1->SaveAs("chi2_d0_mu_tag.png");
+if(name.Length()>0) name = "_" + name;
+c1->SaveAs("chi2_d0_mu_tag"+name+".pdf");
+c1->SaveAs("chi2_d0_mu_tag"+name+".png");
 
 }
 
 float chi2_d0_mu_tag_test(TString tune="") {
 TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
-TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+TFile *fmc; 
+if(name.Length()==0)
+fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+else
+fmc = TFile::Open(TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data()));
+//TFile *fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_uedown%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_erdOn%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
