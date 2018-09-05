@@ -17,7 +17,8 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
-TString name("erdOn");
+TString name("ueup");
+float low(999.), high(0.);
 
 TString report("");
 float chi2_d0_mu_tag_test(TString tune="");
@@ -83,7 +84,8 @@ frame->Draw();
 
 chiTest->SetDirectory(0);
 chiTest->GetXaxis()->SetRangeUser(0.6,1.1);
-chiTest->GetYaxis()->SetRangeUser(8,32);
+chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
+//chiTest->GetYaxis()->SetRangeUser(8,32);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FSEMQ");
@@ -190,6 +192,8 @@ if(tune.Length() > 0) {
 }
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
+if(chi2<low) low = chi2;
+if(chi2>high) high = chi2;
 
 delete ptfrac_data;
 delete ptfrac_mc;
