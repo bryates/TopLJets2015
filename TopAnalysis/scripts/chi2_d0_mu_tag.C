@@ -17,7 +17,7 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
-TString name("erdOn");
+TString name("");
 
 TString report("");
 float chi2_d0_mu_tag_test(TString tune="");
@@ -92,7 +92,7 @@ float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
 float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2);
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
-report = Form("Minimum at x= %0.3g +/- %0.2g",min, abs(min-err));
+report = Form("Minimum at x= %0.4g +/- %0.4g",min, abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
 std::cout << "chi^2_min + 1 at x= " << err << std::endl;
@@ -103,7 +103,9 @@ pt->SetTextAlign(11);
 pt->SetBorderSize(0);
 pt->SetTextFont(42);
 pt->SetTextSize(0.046);
-TString text = TString::Format("r_{B}= %.2f +/- %.2f",min,abs(min-err));
+TString text = TString::Format("r_{B}= %.2f +/- %.2f (stat)",min,abs(min-err));
+if(name.Length() > 0)
+  text += TString::Format(" %c %.2f (syst)",(min<0.84 ? '-' : '+'), abs(0.84-min));
 pt->AddText(text);
 pt->Draw();
 gStyle->SetOptStat(0);

@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   else if(TString(normTag).Contains("MC13TeV_TTJets_fsr")) normUrl.ReplaceAll("genweights","genweights_syst");
   else if(TString(normTag).Contains("MC13TeV_TTJets_isr")) normUrl.ReplaceAll("genweights","genweights_syst");
   else if(TString(normTag).Contains("MC13TeV_TTJets_ue")) normUrl.ReplaceAll("genweights","genweights_syst");
-  else if(TString(normTag).Contains("MC13TeV_TTJets_erdOn")) normUrl.ReplaceAll("genweights","genweights_syst");
+  else if(TString(normTag).Contains("MC13TeV_TTJets_erdON")) normUrl.ReplaceAll("genweights","genweights_syst");
   //else if(TString(normTag).Contains("MC13TeV_DY50toInf")) normUrl.ReplaceAll("genweights","genweights_ext");
   //else if(TString(normTag).Contains("MC13TeV_DY")) normUrl.ReplaceAll("genweights","genweights_DY_madgraph");
   //else if(TString(normTag).Contains("MC13TeV_DY10to50")) normUrl.ReplaceAll("genweights","genweights_DY_madgraph");

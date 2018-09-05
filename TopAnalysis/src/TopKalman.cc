@@ -34,6 +34,12 @@
 
 using namespace std;
 
+enum systBit { TRIGGER_BIT=1, LEP_BIT, TRK_BIT, PU_BIT, PI_BIT, JER_BIT };
+int passBit(int syst, int BIT) {
+  if(syst==0) return 0;
+  return (syst/abs(syst) * ((abs(syst)>>BIT)&0x1));
+}
+
 void RunTopKalman(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 
@@ -69,6 +75,13 @@ void RunTopKalman(TString filename,
   t->GetEntry(0);
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
+
+  if(abs(passBit(runSysts,TRIGGER_BIT))) std::cout << "running trigger systematics" << std::endl;
+  if(abs(passBit(runSysts,LEP_BIT))) std::cout << "running lepton selection systematics" << std::endl;
+  if(abs(passBit(runSysts,TRK_BIT))) std::cout << "running tracker efficiency systematics" << std::endl;
+  if(abs(passBit(runSysts,PU_BIT))) std::cout << "running PU systematics" << std::endl;
+  if(abs(passBit(runSysts,PI_BIT))) std::cout << "running pi systematics" << std::endl;
+  if(abs(passBit(runSysts,JER_BIT))) std::cout << "running JER systematics" << std::endl;
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
@@ -542,11 +555,11 @@ void RunTopKalman(TString filename,
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
         }
-        else if(runSysts<0) {
+        else if(passBit(runSysts,PI_BIT)<0) {
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"]);
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"]);
         }
-        else if(runSysts>0) {
+        else if(passBit(runSysts,PI_BIT)>0) {
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["up"], trackEffMap["BCDEF"]["binning"]);
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["up"], trackEffMap["GH"]["binning"]);
         }
@@ -599,8 +612,10 @@ void RunTopKalman(TString filename,
 	  if(!isData && genJet_pt>0) 
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
-	      if(runSysts<0) jerSmear=runSysts*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
-	      if(runSysts>0) jerSmear=runSysts*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
+              if(debug) std::cout << "JER " << jerSmear << std::endl;
+	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
+	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
+              if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
 	      jp4 *= jerSmear;
 	    }
 	  //jetDiff += jp4;
@@ -693,10 +708,10 @@ void RunTopKalman(TString filename,
           }
           */
           //Set PU weight for each run period [BCDEFup, BCDEF, BCDEFdown, GHup, GH, GHdown]
-          runBCDEF.SetPuWgt(puWgtsRun[1+runSysts]->GetBinContent(ev.putrue));
-          runGH.SetPuWgt(puWgtsRun[4+runSysts]->GetBinContent(ev.putrue));
-          treeBCDEF.SetPuWgt(puWgtsRun[1+runSysts]->GetBinContent(ev.putrue));
-          treeGH.SetPuWgt(puWgtsRun[4+runSysts]->GetBinContent(ev.putrue));
+          runBCDEF.SetPuWgt(puWgtsRun[1+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
+          runGH.SetPuWgt(puWgtsRun[4+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
+          treeBCDEF.SetPuWgt(puWgtsRun[1+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
+          treeGH.SetPuWgt(puWgtsRun[4+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
 
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
@@ -711,8 +726,8 @@ void RunTopKalman(TString filename,
 	  triggerCorrWgt_BCDEF=lepEffH_BCDEF.getTriggerCorrection(leptons);
 	  triggerCorrWgt_GH=lepEffH_GH.getTriggerCorrection(leptons);
           // Systematics for Trigger
-	  triggerCorrWgt_BCDEF.first+=runSysts*triggerCorrWgt_BCDEF.second;
-	  triggerCorrWgt_GH.first+=runSysts*triggerCorrWgt_GH.second;
+	  triggerCorrWgt_BCDEF.first+=passBit(runSysts,TRIGGER_BIT)*triggerCorrWgt_BCDEF.second;
+	  triggerCorrWgt_GH.first+=passBit(runSysts,TRIGGER_BIT)*triggerCorrWgt_GH.second;
 	  for(size_t il=0; il<leptons.size(); il++) {
 	    EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il], ev.nvtx);
 	    EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il], ev.nvtx);
@@ -723,8 +738,12 @@ void RunTopKalman(TString filename,
             if(debug) cout << "lepSelCorrWgt_GH=" << lepSelCorrWgt_GH.first << endl;
             if(debug) cout << "selSF=" << selSF_GH.first << endl;
                                                                 // Systematics for lepton selection
-	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first + runSysts*selSF_BCDEF.second;
-	    lepSelCorrWgt_GH.first *= selSF_GH.first + runSysts*selSF_GH.second;
+	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first + passBit(runSysts,LEP_BIT)*selSF_BCDEF.second;
+	    lepSelCorrWgt_GH.first *= selSF_GH.first + passBit(runSysts,LEP_BIT)*selSF_GH.second;
+            if(passBit(runSysts,LEP_BIT)) {
+              if(debug) cout << "(+syst) lepSelCorrWgt_BCDEF=" << lepSelCorrWgt_BCDEF.first << endl;
+              if(debug) cout << "(+syst) lepSelCorrWgt_GH=" << lepSelCorrWgt_GH.first << endl;
+             }
 	  }
           runBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first,lepSelCorrWgt_BCDEF.second);
           runGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first,lepSelCorrWgt_GH.second);

@@ -141,15 +141,22 @@ def main():
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
             ext_len=",".join(input_list).count("_ext")
             sys=""
-            if(opt.runSysts==1): sys="_up"
-            if(opt.runSysts==-1): sys="_down"
+            runSysts=0
+            syst=["TRIGGER" ,"LEP" ,"TRK" ,"PU" ,"PI" ,"JER"]
+            from runsyst import syst
+            if(opt.runSysts!=0):
+                runSysts=2**opt.runSysts
+                if(opt.runSysts>0): sys="_up"
+                if(opt.runSysts<0): sys="_down"
+                sys = sys + "_"
+                sys = sys + syst[abs(opt.runSysts)]
             target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
             #condorFile.write('executable            = condor/cond_crab.sh\n')
             if(opt.rbFit): condorFile.write('executable            = condor/cond_rbFit.sh\n')
             else :condorFile.write('executable            = condor/cond_submit.sh\n')
-            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,opt.runSysts))
+            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
             condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag,sys))
             condorFile.write('error                 = condor/log/%s_$(ProcId)%s.err\n' % (tag,sys))
             condorFile.write('log                   = condor/log/%s%s.log\n' % (tag,sys))
@@ -159,7 +166,8 @@ def main():
             condorFile.write('Should_Transfer_Files = NO\n')
             condorFile.write('queue %d' % (len(input_list)-ext_len))
             condorFile.close()
-            os.system('condor_submit %s -batch-name %s' % (target,tag))
+            #os.system('condor_submit %s -batch-name %s' % (target,tag))
+            os.system('condor_submit %s -batch-name %s%s' % (target,tag,sys))
             os.system('rm %s' % (tag))
             ############### Special case for ext samples ###############
             #if "WJets" in tag:
@@ -168,7 +176,7 @@ def main():
               condorFile = open(target,'w')
               condorFile.write('universe              = vanilla\n')
               condorFile.write('executable            = condor/cond_ext.sh\n')
-              condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,opt.runSysts))
+              condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
               condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag+"_ext",sys))
               condorFile.write('error                 = condor/log/%s_$(ProcId)%s.err\n' % (tag+"_ext",sys))
               condorFile.write('log                   = condor/log/%s%s.log\n' % (tag+"_ext",sys))
@@ -177,7 +185,7 @@ def main():
               condorFile.write('Should_Transfer_Files = NO\n')
               condorFile.write('queue %d' % ext_len)
               condorFile.close()
-              os.system('condor_submit %s -batch-name %s' % (target,tag+"_ext"))
+              os.system('condor_submit %s -batch-name %s%s' % (target,tag+"_ext",sys))
               os.system('rm %s' % (tag+"_ext"))
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]

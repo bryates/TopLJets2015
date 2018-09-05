@@ -52,7 +52,7 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
         if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
-        self.ratiorange = (0.76,1.24)
+        #self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -264,6 +264,7 @@ class Plot(object):
                     #else: totalMCUnc.Add(self.mcsyst[hname].Clone())
                     #totalMCUnc = self.mcsyst[hname].Clone()
                     diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    print self.mcsyst[hname].GetBinContent(xbin),nominalTTbar.GetBinContent(xbin),diff
                     if (diff > 0):
                         systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
                     else:
