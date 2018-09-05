@@ -17,7 +17,7 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
-TString name("");
+TString name("erdOn");
 
 TString report("");
 float chi2_d0_mu_tag_test(TString tune="");
@@ -92,7 +92,7 @@ float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
 float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2);
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
-report = Form("Minimum at x= %0.4g +/- %0.4g",min, abs(min-err));
+report = Form("Minimum at x= %f +/- %0.4g",min, abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
 std::cout << "chi^2_min + 1 at x= " << err << std::endl;

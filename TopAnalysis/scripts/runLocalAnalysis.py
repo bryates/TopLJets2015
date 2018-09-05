@@ -143,7 +143,6 @@ def main():
             sys=""
             runSysts=0
             syst=["TRIGGER" ,"LEP" ,"TRK" ,"PU" ,"PI" ,"JER"]
-            from runsyst import syst
             if(opt.runSysts!=0):
                 runSysts=2**opt.runSysts
                 if(opt.runSysts>0): sys="_up"
