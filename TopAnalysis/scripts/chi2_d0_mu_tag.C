@@ -17,7 +17,8 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
-TString name("ueup");
+TString name("uedown");
+bool tdr(1);
 float low(999.), high(0.);
 
 TString report("");
@@ -89,12 +90,15 @@ chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 TFitResultPtr fit = chiTest->Fit("pol2","FSEMQ");
+//TFitResultPtr fit = chiTest->Fit("pol2","FSEMQR", "", 0.8, 1.0);
 std:cout << report << std::endl;
 float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
 float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2);
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 report = Form("Minimum at x= %f +/- %0.4g",min, abs(min-err));
+if(name.Length() > 0)
+  report += TString::Format(" %c %.4f (syst)",(min<0.838621 ? '-' : '+'), abs(0.838621-min));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
 std::cout << "chi^2_min + 1 at x= " << err << std::endl;
@@ -105,9 +109,11 @@ pt->SetTextAlign(11);
 pt->SetBorderSize(0);
 pt->SetTextFont(42);
 pt->SetTextSize(0.046);
-TString text = TString::Format("r_{B}= %.2f +/- %.2f (stat)",min,abs(min-err));
-if(name.Length() > 0)
-  text += TString::Format(" %c %.2f (syst)",(min<0.84 ? '-' : '+'), abs(0.84-min));
+TString text = TString::Format("r_{B}= %.4f +/- %.4f (stat)",min,abs(min-err));
+if(tdr)
+  text = TString::Format("r_{B}= %.2f +/- %.2f (stat)",min,abs(min-err));
+if(name.Length() > 0 && !tdr)
+  text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<0.838621 ? '-' : '+'), abs(0.838621-min), abs(0.04338-abs(min-err)));
 pt->AddText(text);
 pt->Draw();
 gStyle->SetOptStat(0);

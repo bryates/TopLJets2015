@@ -585,6 +585,26 @@ void RunTopKalman(TString filename,
         }
         if(overlapsWithLepton) continue;
         if(debug) cout << "Overlap with lepton DONE" << endl;
+
+	//smear jet energy resolution for MC
+	//jetDiff -= jp4;
+        for(auto &jet : kalman.getJets()) {
+	  float genJet_pt(0);
+	  if(jet.getGenJet()>-1) genJet_pt=ev.g_pt[ jet.getGenJet() ];
+	  if(!isData && genJet_pt>0) 
+	    {
+	      TLorentzVector jp4=jet.getVec();
+	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+              if(debug) std::cout << "JER " << jerSmear << std::endl;
+	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
+	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
+              if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
+	      jp4 *= jerSmear;
+              std::cout << jp4.Pt() << std::endl;
+	    }
+	  //jetDiff += jp4;
+	}
+
         jet.sortTracksByPt();
         kJetsVec.push_back(jet);
         //allJetsVec.push_back(jet);

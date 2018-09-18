@@ -39,6 +39,7 @@ class Plot(object):
         self.wideCanvas = True if 'ratevsrun' in self.name else False
         self.mc = OrderedDict()
         self.mcsyst = {}
+        self.rbList = []
         self.drawUnc = True
         #self.mc = {}
         self.dataH = None
@@ -54,7 +55,7 @@ class Plot(object):
             self.ratiorange = (0.47,1.57)
         #self.ratiorange = (0.76,1.24)
 
-    def add(self, h, title, color, isData, isSyst):
+    def add(self, h, title, color, isData, isSyst, rbList):
         ## hack to fix impact parameter range (cm -> um) ##
         if "pf_d" in h.GetName() and "significance" not in h.GetName():
             nbins = h.GetNbinsX()
@@ -113,6 +114,7 @@ class Plot(object):
                 self.mc[title].SetFillColor(color)
                 self.mc[title].SetFillStyle(1001)
                 self._garbageList.append(h)
+        self.rbList=rbList
 
     def finalize(self):
         self.data = convertToPoissonErrorGr(self.dataH)
@@ -259,11 +261,27 @@ class Plot(object):
                 systUp.append(0.)
                 systDown.append(0.)
                 for hname in self.mcsyst:#.iteritems():
+                    rbIdx=-1
+                    mIdx=-1
+                    if 'FSR-down' in hname: rbIdx=2
+                    if 'FSR-up' in hname: rbIdx=4
+                    if 'UEdown' in hname: rbIdx=6
+                    if 'UEdown' in hname: rbIdx=8
+                    if 'CR' in hname: rbIdx=5
+                    #if opt.rbJson is not '': rbIdx=-1
+                    if len(self.rbList)<1: rbIdx=-1
+                    if 'meson' in self.name and 'mu_tag' in self.name: mIdx=0
+                    elif 'meson' in self.name: mIdx=1
+                    elif 'jpsi' in self.name: mIdx=2
                     #if totalMCUnc is None:
                         #totalMCUnc = self.mcsyst[hname].Clone()
                     #else: totalMCUnc.Add(self.mcsyst[hname].Clone())
                     #totalMCUnc = self.mcsyst[hname].Clone()
                     diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    if rbIdx > 0 and diff != 0.0:
+                        diff = abs(diff)
+                        if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
+                        print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
                     print self.mcsyst[hname].GetBinContent(xbin),nominalTTbar.GetBinContent(xbin),diff
                     if (diff > 0):
                         systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
@@ -575,6 +593,7 @@ def main():
     parser = optparse.OptionParser(usage)
     parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
     parser.add_option(      '--systJson',    dest='systJson',    help='json with list of systematics',  default=None,              type='string')
+    parser.add_option(      '--rbJson',      dest='rbJson',      help='json with list of systematics',  default=None,              type='string')
     parser.add_option('-i', '--inDir',       dest='inDir' ,      help='input directory',                default=None,              type='string')
     parser.add_option('-o', '--outName',     dest='outName' ,    help='name of the output file',        default='plotter.root',    type='string')
     parser.add_option(      '--noStack',     dest='noStack',     help='don\'t stack distributions',     default=False,             action='store_true')
@@ -605,6 +624,15 @@ def main():
             systJsonFile = open(jsonPath,'r')
             systSamplesList += json.load(systJsonFile,encoding='utf-8').items()
             systJsonFile.close()
+
+    #read list of r_B systs
+    rbSamplesList = []
+    if opt.rbJson:
+        rbJsonList = opt.rbJson.split(',')
+        for jsonPath in rbJsonList:
+            rbJsonFile = open(jsonPath,'r')
+            rbSamplesList += json.load(rbJsonFile,encoding='utf-8').items()
+            rbJsonFile.close()
 
     #read list of lumis
     jsonFile = open(opt.lumi,'r')
@@ -860,7 +888,7 @@ def main():
                                 tname="_".join(tmp)
                                 obj.SetName(tname)
                                 if not tmpkey in plots : plots[tmpkey]=Plot(tmpkey)
-                                plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
+                                plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst,rbList=rbSamplesList)
                 except:
                     pass
 
