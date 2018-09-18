@@ -95,7 +95,8 @@ while i < len(syst)-1:
         i+=2
         j+=4
     print('\\\\')
-print('Total & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f' % (sys[0],sys[1],sys[2],sys[3],sys[4],sys[5]))
+    print('\hline')
+print('Total & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (sys[0],sys[1],sys[2],sys[3],sys[4],sys[5]))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
 print("'stat'","'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
