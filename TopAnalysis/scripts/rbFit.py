@@ -30,7 +30,7 @@ d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'JER up', 'JER down']
+syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection up', 'Color reconnection down', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'JER up', 'JER down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
 
@@ -61,14 +61,15 @@ for l in xrange(0,3):
 print('LaTex')
 i = 1
 j = 2
-sys=[0.,0.,0.,0.,0.,0.]
+up=[0.,0.,0.,0.,0.,0.]
+down=[0.,0.,0.,0.,0.,0.]
 while i < len(syst)-1:
-    sys[0] = (sys[0]**2 + (rbList[0][1][j]-rbList[0][1][0])**2)**.5
-    sys[2] = (sys[2]**2 + (rbList[1][1][j]-rbList[1][1][0])**2)**.5
-    sys[4] = (sys[4]**2 + (rbList[2][1][j]-rbList[2][1][0])**2)**.5
-    sys[1] = (sys[1]**2 + abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2))**.5
-    sys[3] = (sys[3]**2 + abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2))**.5
-    sys[5] = (sys[5]**2 + abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2))**.5
+    down[0] = (down[0]**2 + (rbList[0][1][j]-rbList[0][1][0])**2)**.5
+    down[2] = (down[2]**2 + (rbList[1][1][j]-rbList[1][1][0])**2)**.5
+    down[4] = (down[4]**2 + (rbList[2][1][j]-rbList[2][1][0])**2)**.5
+    down[1] = (down[1]**2 + abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2))**.5
+    down[3] = (down[3]**2 + abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2))**.5
+    down[5] = (down[5]**2 + abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2))**.5
     
     if syst[i] == 'Color reconnection':
         print(syst[i], ' & ', end='')
@@ -86,20 +87,21 @@ while i < len(syst)-1:
         print('%.3f$\pm$%.3f & ' % (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
         print('%.3f$\pm$%.3f & ' % (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
         print('%.3f$\pm$%.3f ' %   (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
-        sys[0] = (sys[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
-        sys[2] = (sys[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
-        sys[4] = (sys[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
-        sys[1] = (sys[1]**2 + abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2))**.5
-        sys[3] = (sys[3]**2 + abs(rbList[1][1][j+3]**2-rbList[1][1][1]**2))**.5
-        sys[5] = (sys[5]**2 + abs(rbList[2][1][j+3]**2-rbList[2][1][1]**2))**.5
+        up[0] = (up[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
+        up[2] = (up[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
+        up[4] = (up[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
+        up[1] = (up[1]**2 + abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2))**.5
+        up[3] = (up[3]**2 + abs(rbList[1][1][j+3]**2-rbList[1][1][1]**2))**.5
+        up[5] = (up[5]**2 + abs(rbList[2][1][j+3]**2-rbList[2][1][1]**2))**.5
         i+=2
         j+=4
     print('\\\\')
     print('\hline')
-print('Total & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (sys[0],sys[1],sys[2],sys[3],sys[4],sys[5]))
+print('Total up & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (up[0],up[1],up[2],up[3],up[4],up[5]))
+print('Total down & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (down[0],down[1],down[2],down[3],down[4],down[5]))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("'stat'","'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
+print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
 for l in xrange(0,3):
     i = 1
     j = 2
@@ -125,7 +127,7 @@ for l in xrange(0,3):
 
 print('Syst up')
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("'stat'","'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
+print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
 for l in xrange(0,3):
     i = 1
     j = 2
@@ -151,7 +153,7 @@ for l in xrange(0,3):
 
 print('Syst down')
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("'stat'","'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
+print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
 for l in xrange(0,3):
     i = 1
     j = 2

@@ -17,7 +17,7 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
-TString name("uedown");
+TString name("fsr-up");
 bool tdr(1);
 float low(999.), high(0.);
 

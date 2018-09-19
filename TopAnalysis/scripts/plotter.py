@@ -53,7 +53,7 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
         if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
-        #self.ratiorange = (0.76,1.24)
+        self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst, rbList):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -316,7 +316,23 @@ class Plot(object):
                 systUpShape.append(0.)
                 systDownShape.append(0.)
                 for hname in self.mcsyst:
+                    rbIdx=-1
+                    mIdx=-1
+                    if 'FSR-down' in hname: rbIdx=2
+                    if 'FSR-up' in hname: rbIdx=4
+                    if 'UEdown' in hname: rbIdx=6
+                    if 'UEdown' in hname: rbIdx=8
+                    if 'CR' in hname: rbIdx=5
+                    #if opt.rbJson is not '': rbIdx=-1
+                    if len(self.rbList)<1: rbIdx=-1
+                    if 'meson' in self.name and 'mu_tag' in self.name: mIdx=0
+                    elif 'meson' in self.name: mIdx=1
+                    elif 'jpsi' in self.name: mIdx=2
                     diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    if rbIdx > 0 and diff != 0.0:
+                        diff = abs(diff)
+                        if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
+                        print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
                     if(diff > 0):
                         systUpShape[xbin] = math.sqrt(systUpShape[xbin]**2 + diff**2)
                     else:
@@ -370,9 +386,9 @@ class Plot(object):
                stack.Draw('hist same')
                if len(self.mcsyst)>0:
                    #self.totalMCUnc.Draw("hist same")
-                   self.totalMCUnc.Draw("e2 same")
+                   #self.totalMCUnc.Draw("e2 same")
                    #leg.AddEntry(totalMCUnc, "UE-Down", 'f')
-                   leg.AddEntry(totalMCUnc, "Total unc.", 'f')
+                   #leg.AddEntry(totalMCUnc, "Total unc.", 'f')
                    self.totalMCUncShape.Draw("e2 same")
                    leg.AddEntry(totalMCUncShape, "Total shape unc.", 'f')
         if self.data is not None : self.data.Draw('p')
@@ -453,7 +469,7 @@ class Plot(object):
 
             ratioframe.Draw()
             #if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
-            if len(self.mcsyst)>0: ratioframeunc.Draw("e2 same")
+            #if len(self.mcsyst)>0: ratioframeunc.Draw("e2 same")
             if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
 
             try:
