@@ -632,6 +632,12 @@ def main():
     #samplesList=list(reversed(samplesList))
     jsonFile.close()
 
+    systs = ['/TRIGGER', '/TRK', '/LEP', '/PU', '/PI', '/JER' ]
+    inDir = [opt.inDir]
+    for syst in systs:
+        for s in ['/up','/down']:
+            inDir+=[opt.inDir+s+syst]
+
     #read list of syst samples
     systSamplesList = []
     if opt.systJson:
@@ -697,216 +703,235 @@ def main():
                 for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
                     subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+3*len(subProcs)))
             for sp in subProcs:
+                for Dir in inDir:
 
-                fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
-                if not fIn : continue
-                print 'Loading file: %s' % sp[0]
+                    tmp=''
+                    if '/up/' in Dir:
+                        tmp = Dir.split('/')[-1]
+                        if tmp not in sp[0]: continue
+                        tmp = 'up/' + tmp
+                        if 'powheg' not in sp[0]: continue
+                        #sp[0]+=tmp
+                    if '/down/' in Dir:
+                        tmp = Dir.split('/')[-1]
+                        if tmp not in sp[0]: continue
+                        if 'powheg' not in sp[0]: continue
+                        tmp = 'down/' + tmp
+                        #sp[0]+=tmp
+                    if 'up' in Dir and '_up_' not in sp[0]: continue
+                    if 'down' in Dir and '_down_' not in sp[0]: continue
+                    if 'up' not in Dir and '_up_' in sp[0]: continue
+                    if 'down' not in Dir and '_down_' in sp[0]: continue
+                    fIn=ROOT.TFile.Open('%s/%s.root' % ( Dir, sp[0]) )
+                    #fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
+                    if not fIn : continue
+                    print 'Loading file: %s' % sp[0]
 
-                #fix top pT weighting normalization
-                topPtNorm=1
-                if not isData and "TTJets" in tag:
-                    try:
-                        topPtBCDEF=fIn.Get("topptwgt_BCDEF")
-                        nonTopWgtBCDEF=topPtBCDEF.GetBinContent(1)
-                        topWgtBCDEF=topPtBCDEF.GetBinContent(2)
-                    except: pass
-                    try:
-                        topPtGH=fIn.Get("topptwgt_GH")
-                        nonTopWgtGH=topPtGH.GetBinContent(1)
-                        topWgtGH=topPtGH.GetBinContent(2)
-                    except: pass
-                    if topWgtBCDEF>0 :
-                        topPtNormBCDEF=topWgtBCDEF/nonTopWgtBCDEF
-                        report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormBCDEF,"BCDEF")
-                    if topWgtGH>0 :
-                        topPtNormGH=topWgtGH/nonTopWgtGH
-                        report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
+                    #fix top pT weighting normalization
+                    topPtNorm=1
+                    if not isData and "TTJets" in tag:
+                        try:
+                            topPtBCDEF=fIn.Get("topptwgt_BCDEF")
+                            nonTopWgtBCDEF=topPtBCDEF.GetBinContent(1)
+                            topWgtBCDEF=topPtBCDEF.GetBinContent(2)
+                        except: pass
+                        try:
+                            topPtGH=fIn.Get("topptwgt_GH")
+                            nonTopWgtGH=topPtGH.GetBinContent(1)
+                            topWgtGH=topPtGH.GetBinContent(2)
+                        except: pass
+                        if topWgtBCDEF>0 :
+                            topPtNormBCDEF=topWgtBCDEF/nonTopWgtBCDEF
+                            report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormBCDEF,"BCDEF")
+                        if topWgtGH>0 :
+                            topPtNormGH=topWgtGH/nonTopWgtGH
+                            report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
 
-                #fix pileup weighting normalization
-                puNormSF=1
-                if opt.puNormSF and not isData:
-                    if(opt.run == "BCDEFGH"):
-                      puBCDEF = opt.puNormSF.split("_")
-                      if puBCDEF[-1] in opt.run:
-                          puBCDEF[-1] = "BCDEF"
-                      else:
-                          puBCDEF.append("BCDEF")
-                      puBCDEF = "_".join(puBCDEF)
-                      try:
-                          puCorrHBCDEF=fIn.Get(puBCDEF)
-                          nonWgtBCDEF=puCorrHBCDEF.GetBinContent(1)
-                          wgtBCDEF=puCorrHBCDEF.GetBinContent(2)
-                      except: pass
-                      puGH = opt.puNormSF.split("_")
-                      if puGH[-1] in opt.run:
-                          puGH[-1] = "GH"
-                      else:
-                          puGH.append("GH")
-                      puGH = "_".join(puGH)
-                      try:
-                          puCorrHGH=fIn.Get(puGH)
-                          nonWgtGH=puCorrHGH.GetBinContent(1)
-                          wgtGH=puCorrHGH.GetBinContent(2)
-                      except: pass
-                      if wgtBCDEF>0 :
-                          puNormSFBCDEF=nonWgtBCDEF/wgtBCDEF
-                          if puNormSFBCDEF>1.3 or puNormSF<0.7 : 
-                              puNormSFBCDEF=1
-                              report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                          else :
-                              report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFBCDEF,"BCDEF")
-                      if wgtGH>0 :
-                          puNormSFGH=nonWgtGH/wgtGH
-                          if puNormSF>1.3 or puNormSF<0.7 : 
-                              puNormSFGH=1
-                              report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                          else :
-                              report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFGH,"GH")
-
-                    else:
-                        puCorrH=fIn.Get(opt.puNormSF)
-                        nonWgt=puCorrH.GetBinContent(1)
-                        wgt=puCorrH.GetBinContent(2)
-                        if wgt>0 :
-                            puNormSF=nonWgt/wgt
-                            if puNormSF>1.3 or puNormSF<0.7 : 
-                                puNormSF=1
-                                report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                            else :
-                                report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
-
-                #fix r_B fit weighting normalization
-                rbFitSF=1
-                rbFitSFs=[[1,1],[1,1],[1,1]]
-                if opt.rbFit and not isData:
-                    if(opt.run == "BCDEFGH"):
-                      for num,rbFit in enumerate(["rbwgt_jpsi_BCDEFGH","rbwgt_d0_BCDEFGH","rbwgt_d0mu_BCDEFGH"]):
-                          rbBCDEF = rbFit.split("_")
-                          if rbBCDEF[-1] in opt.run:
-                              rbBCDEF[-1] = "BCDEF"
+                    #fix pileup weighting normalization
+                    puNormSF=1
+                    if opt.puNormSF and not isData:
+                        if(opt.run == "BCDEFGH"):
+                          puBCDEF = opt.puNormSF.split("_")
+                          if puBCDEF[-1] in opt.run:
+                              puBCDEF[-1] = "BCDEF"
                           else:
-                              rbBCDEF.append("BCDEF")
-                          rbBCDEF = "_".join(rbBCDEF)
+                              puBCDEF.append("BCDEF")
+                          puBCDEF = "_".join(puBCDEF)
                           try:
-                              rbCorrHBCDEF=fIn.Get(rbBCDEF)
-                              nonWgtBCDEF=rbCorrHBCDEF.GetBinContent(1)
-                              wgtBCDEF=rbCorrHBCDEF.GetBinContent(2)
+                              puCorrHBCDEF=fIn.Get(puBCDEF)
+                              nonWgtBCDEF=puCorrHBCDEF.GetBinContent(1)
+                              wgtBCDEF=puCorrHBCDEF.GetBinContent(2)
                           except: pass
-                          rbGH = rbFit.split("_")
-                          if rbGH[-1] in opt.run:
-                              rbGH[-1] = "GH"
+                          puGH = opt.puNormSF.split("_")
+                          if puGH[-1] in opt.run:
+                              puGH[-1] = "GH"
                           else:
-                              rbGH.append("GH")
-                          rbGH = "_".join(rbGH)
+                              puGH.append("GH")
+                          puGH = "_".join(puGH)
                           try:
-                              rbCorrHGH=fIn.Get(rbGH)
-                              nonWgtGH=rbCorrHGH.GetBinContent(1)
-                              wgtGH=rbCorrHGH.GetBinContent(2)
+                              puCorrHGH=fIn.Get(puGH)
+                              nonWgtGH=puCorrHGH.GetBinContent(1)
+                              wgtGH=puCorrHGH.GetBinContent(2)
                           except: pass
                           if wgtBCDEF>0 :
-                              rbFitSFBCDEF=nonWgtBCDEF/wgtBCDEF
-                              if rbFitSFBCDEF>1.3 or rbFitSFBCDEF<0.7 : 
-                                  rbFitSFBCDEF=1
+                              puNormSFBCDEF=nonWgtBCDEF/wgtBCDEF
+                              if puNormSFBCDEF>1.3 or puNormSF<0.7 : 
+                                  puNormSFBCDEF=1
                                   report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                               else :
-                                  report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFBCDEF,rbFit.split("_")[1],"BCDEF")
-                              rbFitSFs[num][0]=wgtBCDEF
+                                  report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFBCDEF,"BCDEF")
                           if wgtGH>0 :
-                              rbFitSFGH=nonWgtGH/wgtGH
-                              if rbFitSFGH>1.3 or rbFitSFGH<0.7 : 
-                                  rbFitSFGH=1
+                              puNormSFGH=nonWgtGH/wgtGH
+                              if puNormSF>1.3 or puNormSF<0.7 : 
+                                  puNormSFGH=1
                                   report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
                               else :
-                                  report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFGH,rbFit.split("_")[1],"GH")
-                              rbFitSFs[num][1]=wgtGH
-                try:
-                    for tkey in fIn.GetListOfKeys():
+                                  report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFGH,"GH")
 
-                        key=tkey.GetName()
-                        keep=True
-                        keep=False if len(onlyList)>0 else True
-                        for pname in onlyList:
-                            if pname in key: keep=True
-                            #if "_ljet_" in pname and "_m_" in key: keep=True
-                            #if "_ljet_" in pname and "_m_" in key: keep=True
-                        #hack to ignore WJets in D meson mass plots FIXME
-                        #if "massD" in key and "WJets" in tag:
-                            #keep=False
-                        #hack to ignoe WJets and DY in JPSi plots
-                          #Single event with large weight
-                        #if "_jpsi" in key and "WJets" in tag: continue
-                        #if "_jpsi" in key and "DY" in tag: continue
-                        #if "_tag" in key and "WJets" in tag: continue
-                        #if "mass" in key and "_meson" in key and "WJets" in tag: continue
-                        #if "_"+opt.run not in key and opt.run != "BCDEFGH" :
-                        if opt.run not in key and opt.run != "BCDEFGH" :
-                             keep=False
-                        #if key.split("_")[-1] != opt.run: continue
-                        if "_BCDEFGH" in key: continue
-                        if not keep: continue
-                        obj=fIn.Get(key)
-                        if not obj.InheritsFrom('TH1') : continue
-                        if not isData and not '(data)' in sp[1]: 
-                            sfVal=1.0
-                            for procToScale in procSF:
-                                if sp[1]==procToScale:
-                                #if procToScale in sp[1]:
-                                    for pcat in procSF[procToScale]:                                    
-                                        if pcat not in key: continue
-                                        sfVal=procSF[procToScale][pcat][0]
-                                    #print 'Applying scale factor for ',sp[1],key,sfVal
-                            lumi=obj.GetName().split("_")[-1]
-                            if(lumi not in opt.run): lumi=opt.run
-                            if(opt.run == "BCDEFGH" and lumi == "BCDEF"): puNormSF=puNormSFBCDEF
-                            elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
-                            if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
-                            elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
-                            lumi=lumiList[lumi]
-                            #if("TTJets" in tag): lumi=lumi*0.733417
-                            #if "fsr" not in sp[0] and "isr" not in sp[0]:
-                                #xsec=1. #now stored in normH
-                            
-                            #if("_jpsi_" in obj.GetName()): 
-                                #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[0][0]
-                                #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[0][1]
-                            #elif("_meson_" in obj.GetName() and "mu_tag" in obj.GetName()): 
-                                #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[2][0]
-                                #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[2][1]
-                            #elif("_meson_" in obj.GetName()): 
-                                #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[1][0]
-                                #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
-                            if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
-                            elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
-                            obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
-                            #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
-                        if("JPsioJet" in obj.GetName()): obj.Rebin(2)
-                        over=True
-                        under=True
-                        if "meson" in key: over=False
-                        if "meson" in key: under=False
-                        if "l3d" in key: over=False
-                        if "l3d" in key: under=False
-                        if "mass" in key: over=False
-                        if "mass" in key: under=False
-                        if "oJet" in key: over=False
-                        fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
-                        if opt.rebin>1:  obj.Rebin(opt.rebin)
-                        if opt.run != "BCDEFGH":
-                            if not key in plots : plots[key]=Plot(key)
-                            plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
                         else:
-                            if key.split("_")[-1] in ("BCDEF","GH"):
-                                tmpkey = key.split("_")
-                                tmpkey[-1]="BCDEFGH"
-                                tmpkey="_".join(tmpkey)
-                                tmp = obj.GetName().split("_")
-                                tmp[-1]="BCDEFGH"
-                                tname="_".join(tmp)
-                                obj.SetName(tname)
-                                if not tmpkey in plots : plots[tmpkey]=Plot(tmpkey)
-                                plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst,rbList=rbSamplesList)
-                except:
-                    pass
+                            puCorrH=fIn.Get(opt.puNormSF)
+                            nonWgt=puCorrH.GetBinContent(1)
+                            wgt=puCorrH.GetBinContent(2)
+                            if wgt>0 :
+                                puNormSF=nonWgt/wgt
+                                if puNormSF>1.3 or puNormSF<0.7 : 
+                                    puNormSF=1
+                                    report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                                else :
+                                    report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
+
+                    #fix r_B fit weighting normalization
+                    rbFitSF=1
+                    rbFitSFs=[[1,1],[1,1],[1,1]]
+                    if opt.rbFit and not isData:
+                        if(opt.run == "BCDEFGH"):
+                          for num,rbFit in enumerate(["rbwgt_jpsi_BCDEFGH","rbwgt_d0_BCDEFGH","rbwgt_d0mu_BCDEFGH"]):
+                              rbBCDEF = rbFit.split("_")
+                              if rbBCDEF[-1] in opt.run:
+                                  rbBCDEF[-1] = "BCDEF"
+                              else:
+                                  rbBCDEF.append("BCDEF")
+                              rbBCDEF = "_".join(rbBCDEF)
+                              try:
+                                  rbCorrHBCDEF=fIn.Get(rbBCDEF)
+                                  nonWgtBCDEF=rbCorrHBCDEF.GetBinContent(1)
+                                  wgtBCDEF=rbCorrHBCDEF.GetBinContent(2)
+                              except: pass
+                              rbGH = rbFit.split("_")
+                              if rbGH[-1] in opt.run:
+                                  rbGH[-1] = "GH"
+                              else:
+                                  rbGH.append("GH")
+                              rbGH = "_".join(rbGH)
+                              try:
+                                  rbCorrHGH=fIn.Get(rbGH)
+                                  nonWgtGH=rbCorrHGH.GetBinContent(1)
+                                  wgtGH=rbCorrHGH.GetBinContent(2)
+                              except: pass
+                              if wgtBCDEF>0 :
+                                  rbFitSFBCDEF=nonWgtBCDEF/wgtBCDEF
+                                  if rbFitSFBCDEF>1.3 or rbFitSFBCDEF<0.7 : 
+                                      rbFitSFBCDEF=1
+                                      report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                                  else :
+                                      report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFBCDEF,rbFit.split("_")[1],"BCDEF")
+                                  rbFitSFs[num][0]=wgtBCDEF
+                              if wgtGH>0 :
+                                  rbFitSFGH=nonWgtGH/wgtGH
+                                  if rbFitSFGH>1.3 or rbFitSFGH<0.7 : 
+                                      rbFitSFGH=1
+                                      report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                                  else :
+                                      report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFGH,rbFit.split("_")[1],"GH")
+                                  rbFitSFs[num][1]=wgtGH
+                    try:
+                        for tkey in fIn.GetListOfKeys():
+
+                            key=tkey.GetName()
+                            keep=True
+                            keep=False if len(onlyList)>0 else True
+                            for pname in onlyList:
+                                if pname in key: keep=True
+                                #if "_ljet_" in pname and "_m_" in key: keep=True
+                                #if "_ljet_" in pname and "_m_" in key: keep=True
+                            #hack to ignore WJets in D meson mass plots FIXME
+                            #if "massD" in key and "WJets" in tag:
+                                #keep=False
+                            #hack to ignoe WJets and DY in JPSi plots
+                              #Single event with large weight
+                            #if "_jpsi" in key and "WJets" in tag: continue
+                            #if "_jpsi" in key and "DY" in tag: continue
+                            #if "_tag" in key and "WJets" in tag: continue
+                            #if "mass" in key and "_meson" in key and "WJets" in tag: continue
+                            #if "_"+opt.run not in key and opt.run != "BCDEFGH" :
+                            if opt.run not in key and opt.run != "BCDEFGH" :
+                                 keep=False
+                            #if key.split("_")[-1] != opt.run: continue
+                            if "_BCDEFGH" in key: continue
+                            if not keep: continue
+                            obj=fIn.Get(key)
+                            if not obj.InheritsFrom('TH1') : continue
+                            if not isData and not '(data)' in sp[1]: 
+                                sfVal=1.0
+                                for procToScale in procSF:
+                                    if sp[1]==procToScale:
+                                    #if procToScale in sp[1]:
+                                        for pcat in procSF[procToScale]:                                    
+                                            if pcat not in key: continue
+                                            sfVal=procSF[procToScale][pcat][0]
+                                        #print 'Applying scale factor for ',sp[1],key,sfVal
+                                lumi=obj.GetName().split("_")[-1]
+                                if(lumi not in opt.run): lumi=opt.run
+                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): puNormSF=puNormSFBCDEF
+                                elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
+                                if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
+                                elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
+                                lumi=lumiList[lumi]
+                                #if("TTJets" in tag): lumi=lumi*0.733417
+                                #if "fsr" not in sp[0] and "isr" not in sp[0]:
+                                    #xsec=1. #now stored in normH
+                                
+                                #if("_jpsi_" in obj.GetName()): 
+                                    #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[0][0]
+                                    #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[0][1]
+                                #elif("_meson_" in obj.GetName() and "mu_tag" in obj.GetName()): 
+                                    #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[2][0]
+                                    #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[2][1]
+                                #elif("_meson_" in obj.GetName()): 
+                                    #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[1][0]
+                                    #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
+                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
+                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
+                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
+                                #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
+                            if("JPsioJet" in obj.GetName()): obj.Rebin(2)
+                            over=True
+                            under=True
+                            if "meson" in key: over=False
+                            if "meson" in key: under=False
+                            if "l3d" in key: over=False
+                            if "l3d" in key: under=False
+                            if "mass" in key: over=False
+                            if "mass" in key: under=False
+                            if "oJet" in key: over=False
+                            fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
+                            if opt.rebin>1:  obj.Rebin(opt.rebin)
+                            if opt.run != "BCDEFGH":
+                                if not key in plots : plots[key]=Plot(key)
+                                plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
+                            else:
+                                if key.split("_")[-1] in ("BCDEF","GH"):
+                                    tmpkey = key.split("_")
+                                    tmpkey[-1]="BCDEFGH"
+                                    tmpkey="_".join(tmpkey)
+                                    tmp = obj.GetName().split("_")
+                                    tmp[-1]="BCDEFGH"
+                                    tname="_".join(tmp)
+                                    obj.SetName(tname)
+                                    if not tmpkey in plots : plots[tmpkey]=Plot(tmpkey)
+                                    plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst,rbList=rbSamplesList)
+                    except:
+                        pass
 
     #show plots
     ROOT.gStyle.SetOptTitle(0)
