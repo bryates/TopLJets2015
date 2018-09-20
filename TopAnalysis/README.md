@@ -78,9 +78,10 @@ python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_SingleMuon_l
 ```
 python scripts/saveExpectedBtagEff.py -i /store/user/byates/LJets2015/8db9ad6/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root
 ```
-* MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
+* MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.root and data/genweights_syst.root
 ```
 python scripts/produceNormalizationCache.py -i /store/user/byates/LJets2015/8db9ad6 -o data/era2016/genweights.root
+python scripts/produceNormalizationCache.py -i /store/group/phys_top/byates/syst_samples/ -o data/era2016/genweights_syst.root
 ```
 You're now ready to start locally the analysis.
 

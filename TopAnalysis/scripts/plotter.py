@@ -281,8 +281,8 @@ class Plot(object):
                     if rbIdx > 0 and diff != 0.0:
                         diff = abs(diff)
                         if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
-                        print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
-                    print self.mcsyst[hname].GetBinContent(xbin),nominalTTbar.GetBinContent(xbin),diff
+                        #print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
+                    #print self.mcsyst[hname].GetBinContent(xbin),nominalTTbar.GetBinContent(xbin),diff
                     if (diff > 0):
                         systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
                     else:
@@ -309,7 +309,11 @@ class Plot(object):
                 totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2) / math.sqrt(scale))
             #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
             for hname,h in self.mcsyst.iteritems():
-                if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
+                name = hname.split(" ")[0]
+                integral=self.mc[name].Integral()
+                print name, integral
+                if(h.Integral>0): h.Scale(integral/h.Integral())
+                #if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
             systUpShape=[0.]
             systDownShape=[0.]
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
@@ -332,7 +336,7 @@ class Plot(object):
                     if rbIdx > 0 and diff != 0.0:
                         diff = abs(diff)
                         if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
-                        print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
+                        #print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
                     if(diff > 0):
                         systUpShape[xbin] = math.sqrt(systUpShape[xbin]**2 + diff**2)
                     else:
@@ -687,7 +691,9 @@ def main():
     for slist,isSyst in [(reversed(samplesList),False),(systSamplesList,True)]:
         if slist is None: continue
         for tag,sample in slist:
-            if isSyst and "t#bar{t}" not in sample[3]: continue
+            if isSyst and "t#bar{t}" not in sample[3]: continue #only TTbar systematics
+            if 'MC13TeV_TTWToLNu' in tag: continue #skip broken files
+            if 'MC13TeV_W4Jets_ext2' in tag: continue #2 merged in with ext
             if tag[0] is None: continue
             splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
             split_run = splitRun( opt.run )
@@ -710,12 +716,12 @@ def main():
                         tmp = Dir.split('/')[-1]
                         if tmp not in sp[0]: continue
                         tmp = 'up/' + tmp
-                        if 'powheg' not in sp[0]: continue
+                        #if 'powheg' not in sp[0]: continue
                         #sp[0]+=tmp
                     if '/down/' in Dir:
                         tmp = Dir.split('/')[-1]
                         if tmp not in sp[0]: continue
-                        if 'powheg' not in sp[0]: continue
+                        #if 'powheg' not in sp[0]: continue
                         tmp = 'down/' + tmp
                         #sp[0]+=tmp
                     if 'up' in Dir and '_up_' not in sp[0]: continue
