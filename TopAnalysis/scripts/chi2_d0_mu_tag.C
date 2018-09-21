@@ -17,7 +17,7 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 
 using namespace RooFit;
-TString name("fsr-up");
+TString name("uedown");
 bool tdr(1);
 float low(999.), high(0.);
 
@@ -115,7 +115,7 @@ if(tdr)
 if(name.Length() > 0 && !tdr)
   text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<0.838621 ? '-' : '+'), abs(0.838621-min), abs(0.04338-abs(min-err)));
 pt->AddText(text);
-pt->Draw();
+if(!tdr) pt->Draw();
 gStyle->SetOptStat(0);
 
 if(name.Length()>0) name = "_" + name;

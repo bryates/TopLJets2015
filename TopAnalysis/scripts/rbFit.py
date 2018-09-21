@@ -30,7 +30,7 @@ d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection up', 'Color reconnection down', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'JER up', 'JER down']
+syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'JER up', 'JER down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
 
@@ -59,6 +59,7 @@ for l in xrange(0,3):
     print('\n')
 
 print('LaTex')
+print('>>>>>>')
 i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
@@ -99,6 +100,8 @@ while i < len(syst)-1:
     print('\hline')
 print('Total up & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (up[0],up[1],up[2],up[3],up[4],up[5]))
 print('Total down & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (down[0],down[1],down[2],down[3],down[4],down[5]))
+print('======')
+print('Don\'t forget to use sed to change 0.00 to <0.001: %s/0\.000/$<$0.001/g\n')
 
 print('Average for BLUE (jpsi, d0, d0mu)')
 print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
@@ -124,9 +127,9 @@ for l in xrange(0,3):
             i+=2
             j+=4
     print('')
+print('')
 
-print('Syst up')
-print('Average for BLUE (jpsi, d0, d0mu)')
+print('Syst up for BLUE (jpsi, d0, d0mu)')
 print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
 for l in xrange(0,3):
     i = 1
@@ -150,9 +153,9 @@ for l in xrange(0,3):
             i+=2
             j+=4
     print('')
+print('')
 
-print('Syst down')
-print('Average for BLUE (jpsi, d0, d0mu)')
+print('Syst down for BLUE (jpsi, d0, d0mu)')
 print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
 for l in xrange(0,3):
     i = 1
@@ -176,6 +179,7 @@ for l in xrange(0,3):
             i+=2
             j+=4
     print('')
+print('')
 
 for name,sample in rbList:
     #if 'crup' in name: continue

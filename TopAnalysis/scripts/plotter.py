@@ -141,7 +141,7 @@ class Plot(object):
             except:
                 pass
 
-    def show(self, outDir,lumi,noStack=False,saveTeX=False):
+    def show(self, outDir,lumi,noStack=False,saveTeX=False,saveNorm=False):
 
         if len(self.mc)<2 and self.dataH is None:
             print '%s has 0 or 1 MC!' % self.name
@@ -200,6 +200,10 @@ class Plot(object):
             if self.data is None: self.finalize()
             leg.AddEntry( self.data, self.data.GetTitle(),'p')
             nlegCols += 1
+            if saveNorm:
+                self.dataH.Scale(1./self.dataH.Integral())
+                for xbin in xrange(1,self.data.GetNbinsX()+1):
+                    xbin/=self.data.Integral()
         for h in self.mc:
             
             #compare
@@ -240,6 +244,13 @@ class Plot(object):
                 totalMC = self.mc[h].Clone('totalmc')
                 self._garbageList.append(totalMC)
                 totalMC.SetDirectory(0)
+        if saveNorm:
+            stack = ROOT.THStack('mc','mc')
+            for h in self.mc:
+                self.mc[h].Scale(1./totalMC)
+                self.mcsyst[h].Scale(1./totalMC)
+                self.mc[h].GetYaxis().SetTitle('1/N' + self.mc[h].GetYaxis().GetTitle())
+                stack.Add(self.mc[h],'hist')
         for h in self.mc:
             if 't#bar{t}' not in h: continue
             if h=='t#bar{t}':
@@ -691,7 +702,7 @@ def main():
     for slist,isSyst in [(reversed(samplesList),False),(systSamplesList,True)]:
         if slist is None: continue
         for tag,sample in slist:
-            if isSyst and "t#bar{t}" not in sample[3]: continue #only TTbar systematics
+            if isSyst and "t#bar{t} " not in sample[3]: continue #only TTbar systematics
             if 'MC13TeV_TTWToLNu' in tag: continue #skip broken files
             if 'MC13TeV_W4Jets_ext2' in tag: continue #2 merged in with ext
             if tag[0] is None: continue
@@ -951,7 +962,7 @@ def main():
         if opt.saveLog    : plots[p].savelog=True
         #if not opt.puNormSF    : plots[p].noPU=True
         lumiTotal=lumiList[opt.run]
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX)
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX,saveNorm=opt.saveNorm)
         outName = opt.outName.replace(".root","_"+opt.run+".root")
         plots[p].appendTo('%s/%s'%(outDir,outName))
         plots[p].reset()

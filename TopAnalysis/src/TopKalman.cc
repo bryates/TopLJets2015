@@ -600,7 +600,6 @@ void RunTopKalman(TString filename,
 	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
               if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
 	      jp4 *= jerSmear;
-              std::cout << jp4.Pt() << std::endl;
 	    }
 	  //jetDiff += jp4;
 	}
