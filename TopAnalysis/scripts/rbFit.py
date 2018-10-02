@@ -3,7 +3,8 @@ import json
 import math
 from collections import OrderedDict
 
-jsonFile = open('data/era2016/rbFit.json','r')
+jsonFile = open('data/era2016/rbFit.range','r')
+#jsonFile = open('data/era2016/rbFit.json','r')
 rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
 jsonFile.close()
 
@@ -30,7 +31,7 @@ d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'JER up', 'JER down']
+syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down']#, 'JER up', 'JER down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
 
@@ -65,6 +66,9 @@ j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
 while i < len(syst)-1:
+    #down[0] = (down[0]**2 + max(rbList[0][1][j]-rbList[0][1][0], abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2)))
+    #down[2] = (down[2]**2 + max(rbList[1][1][j]-rbList[1][1][0], abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2)))
+    #down[4] = (down[4]**2 + max(rbList[2][1][j]-rbList[2][1][0], abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2)))
     down[0] = (down[0]**2 + (rbList[0][1][j]-rbList[0][1][0])**2)**.5
     down[2] = (down[2]**2 + (rbList[1][1][j]-rbList[1][1][0])**2)**.5
     down[4] = (down[4]**2 + (rbList[2][1][j]-rbList[2][1][0])**2)**.5
@@ -88,6 +92,9 @@ while i < len(syst)-1:
         print('%.3f$\pm$%.3f & ' % (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
         print('%.3f$\pm$%.3f & ' % (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
         print('%.3f$\pm$%.3f ' %   (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
+        #up[0] = (up[0]**2 + max(rbList[0][1][j]-rbList[0][1][0], abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2)))
+        #up[2] = (up[2]**2 + max(rbList[1][1][j]-rbList[1][1][0], abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2)))
+        #up[4] = (up[4]**2 + max(rbList[2][1][j]-rbList[2][1][0], abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2)))
         up[0] = (up[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
         up[2] = (up[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
         up[4] = (up[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
@@ -104,8 +111,14 @@ print('======')
 print('Don\'t forget to use sed to change 0.00 to <0.001: %s/0\.000/$<$0.001/g\n')
 
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
+print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
+    if l==0:
+        print("'jpsi'  'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+    if l==1:
+        print("'d0'    'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+    if l==2:
+        print("'d0_mu' 'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
     i = 1
     j = 2
     while i < len(syst):
@@ -130,8 +143,14 @@ for l in xrange(0,3):
 print('')
 
 print('Syst up for BLUE (jpsi, d0, d0mu)')
-print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
+print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
+    if l==0:
+        print("'jpsi'  'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+    if l==1:
+        print("'d0'    'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+    if l==2:
+        print("'d0_mu' 'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
     i = 1
     j = 2
     while i < len(syst):
@@ -156,8 +175,14 @@ for l in xrange(0,3):
 print('')
 
 print('Syst down for BLUE (jpsi, d0, d0mu)')
-print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'","'jer'")
+print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
+    if l==0:
+        print("'jpsi'  'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+    if l==1:
+        print("'d0'    'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+    if l==2:
+        print("'d0_mu' 'rB' %.2f       %.2f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
     i = 1
     j = 2
     while i < len(syst):
