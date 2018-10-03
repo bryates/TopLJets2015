@@ -19,7 +19,7 @@
 using namespace RooFit;
 TString name("");
 float low(999.), high(0.),nom(0.818905),nerr(0.05);
-bool tdr(0);
+bool tdr(1);
 
 TString report("");
 TString json("\"d0_mu\" :      [");
@@ -74,7 +74,7 @@ TH1F *chiTest = new TH1F("chiTest","#chi^{2} test",400,0,2);
 chiTest->SetDirectory(0);
 for(auto & it : tune) {
   int pos = &it - &tune[0];
-  //if(param[pos]>1) continue;
+  if(param[pos]>1) continue;
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
@@ -115,8 +115,8 @@ chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
-TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-//TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);//1.055);
+//TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
+TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);//1.055);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
 std:cout << report << std::endl;
@@ -182,12 +182,12 @@ wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
 
 TString cut("j_pt_ch<75");
-RooDataSet *sigData = (RooDataSet*)wmc->data("sigData");//->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
 //load MC into RooDataHist
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);//*mcData);
 RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
 
-sigData = (RooDataSet*)wdata->data("sigData");//->reduce(cut);
+sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);//*dataData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
