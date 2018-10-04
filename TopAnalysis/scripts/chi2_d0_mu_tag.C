@@ -29,8 +29,6 @@ std::vector<RooChi2Var> chi;
 RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
-  run_chi2_d0_mu_tag("fsr-down");
-  /*
   run_chi2_d0_mu_tag("");
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
@@ -42,7 +40,6 @@ void chi2_d0_mu_tag() {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
-  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -185,12 +182,12 @@ wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
 
 TString cut("j_pt_ch<75");
-RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wmc->data("sigData");//->reduce(cut);
 //load MC into RooDataHist
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);//*mcData);
 RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
 
-sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+sigData = (RooDataSet*)wdata->data("sigData");//->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);//*dataData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
