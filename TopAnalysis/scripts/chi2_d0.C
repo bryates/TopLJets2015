@@ -19,7 +19,7 @@
 using namespace RooFit;
 TString name("");
 float low(50.), high(50.),nom(0.818905),nerr(0.05);
-bool tdr(0);
+bool tdr(1);
 
 TString report("");
 TString json("\"d0\" :      [");
@@ -29,20 +29,17 @@ std::vector<RooChi2Var> chi;
 RooRealVar ptfrac;
 
 void chi2_d0() {
-  run_chi2_d0("down_TRK");
-  /*
   run_chi2_d0("");
   run_chi2_d0("fsr-up");
   run_chi2_d0("fsr-down");
   run_chi2_d0("ueup");
   run_chi2_d0("uedown");
   run_chi2_d0("erdON");
-  std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI"};//, "JER" };
+  std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI", "JER" };
   for(auto & it : syst) {
     run_chi2_d0("up_"+it);
     run_chi2_d0("down_"+it);
   }
-  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -112,7 +109,7 @@ frame->Draw();
 
 
 //chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
-chiTest->GetXaxis()->SetRangeUser(0.65,0.975);//1.055);
+chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
@@ -175,14 +172,14 @@ fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.
 
 //load RooWorkspace and set binning
 TString cut("j_pt_ch<75");
-RooDataSet *sigData;
+
 TH1F *mc,*data;
 if(fmc->GetListOfKeys()->Contains("h_ptfrac_hist")) mc = (TH1F*)fmc->Get("h_ptfrac_hist");
 else {
 RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");
 if(tune == "") ptfrac=*wmc->var("ptfrac");
 wmc->var("ptfrac")->setBins(22);
-sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
 //load MC into RooDataHist
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);//*mcData);
 RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
@@ -200,7 +197,7 @@ else {
 RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 if(tune == "") ptfrac=*wdata->var("ptfrac");
 wdata->var("ptfrac")->setBins(22);
-sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);//*dataData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
@@ -211,6 +208,7 @@ data->SetDirectory(fdata);
 data->SetTitle("ptfrac_sig");
 data->Write();
 delete ptfrac_data;
+delete sigData;
 }
 
 if(tune.Length() > 0) {
@@ -227,7 +225,6 @@ std::cout << tune << " Chi2/ndf= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;
 
-delete sigData;
 delete data;
 delete mc;
 fdata->Close();

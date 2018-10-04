@@ -148,11 +148,11 @@ print("                         'stat'   'fsr'  'ue'   'cr'   'trig' 'trk'  'lep
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
-        print("'jpsi'  'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        print("'jpsi'  'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
     if l==1:
-        print("'d0'    'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        print("'d0'    'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
     if l==2:
-        print("'d0_mu' 'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        print("'d0_mu' 'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
     i = 1
     j = 2
     while i < len(syst):

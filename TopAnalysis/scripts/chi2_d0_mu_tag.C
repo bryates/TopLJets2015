@@ -29,6 +29,8 @@ std::vector<RooChi2Var> chi;
 RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
+  run_chi2_d0_mu_tag("fsr-down");
+  /*
   run_chi2_d0_mu_tag("");
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
@@ -40,6 +42,7 @@ void chi2_d0_mu_tag() {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
+  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -74,7 +77,7 @@ TH1F *chiTest = new TH1F("chiTest","#chi^{2} test",400,0,2);
 chiTest->SetDirectory(0);
 for(auto & it : tune) {
   int pos = &it - &tune[0];
-  if(param[pos]>1) continue;
+  //if(param[pos]>1) continue;
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
@@ -108,15 +111,15 @@ frame->Draw();
 */
 
 
-//chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
-chiTest->GetXaxis()->SetRangeUser(0.65,0.975);
+chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
+//chiTest->GetXaxis()->SetRangeUser(0.65,0.975);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
-//TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);//1.055);
+TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
+//TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);//1.055);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
 std:cout << report << std::endl;
