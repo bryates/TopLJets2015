@@ -1213,7 +1213,6 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
-          if(jet.getPt()>150) continue;
           //if(jet.getChargedPt()>75) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*
@@ -1223,6 +1222,7 @@ void RunTopKalman(TString filename,
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
             //Only save up to first 4 hardest tracks (sorted by pT already)
+            if(jet.getPt()>150 && abs(track.getMotherId())==421) continue;
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
             if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track); //save soft pions for D* separately
             //if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
@@ -1508,6 +1508,8 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 */
+                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
               }

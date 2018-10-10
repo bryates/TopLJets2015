@@ -1,6 +1,8 @@
 {
+  //std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
+  //std::vector<float> names = {166.5,169.5,172.5,173.5,175.5,178.5};
   std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
-  std::vector<pair<float,float>> mfits = {};
+  std::vector<pair<float,float>> mfits;// = {};
   std::vector<pair<float,float>> fit_par;
   std::vector<pair<float,float>> fit_err;
   std::vector<RooRealVar> masses;
@@ -22,7 +24,7 @@
     RooRealVar mt = fit_constrain(w,fit_par,fit_err,tmp_mass,flags);
     mt.Print();
     mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
-    mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
+    //mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
     mfits.push_back(pair<float,float>(mt.getValV()+172.5,mt.getError()));
   }
 
@@ -36,7 +38,7 @@
   std::cout << f->Parameter(0) << " + " << f->Parameter(1) << " * mt" << std::endl;
   std::cout << "(" << f_err.first << ") + (" << f_err.second << ")" << std::endl;
   std::cout << f->Chi2() << " " << f->Ndf() << " " << f->Chi2()/f->Ndf() << std::endl;
-  mass->Draw();
+  mass->Draw("e");
   float avg_delta(0.);
   float avg_deltag(0.);
   float avg_var(0.);
@@ -74,6 +76,7 @@
     tmp_mass.ReplaceAll(".","v");
     float calibm = f->Parameter(0) + f->Parameter(1)*itg;
     std::cout << "Mass: " << it << " GeV -> " << calibm - avg_deltag << " GeV +/- " << sqrt(pow(f->ParError(0),2)+pow(f->ParError(1),2)) << " GeV" << std::endl;
+    std::cout << mass->GetBinError(mass->FindBin(itg)) << std::endl;
   }
   std::cout << "AVG difference: " << avg_delta << " GeV" << std::endl;
   std::cout << "AVG from GEN: " << avg_deltag << " GeV" << std::endl;

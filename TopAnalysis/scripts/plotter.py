@@ -65,10 +65,15 @@ class Plot(object):
             h.GetXaxis().SetTitle(tmptitle)
         if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
+        if "massD0" in h.GetName() and "massD0_l_" not in h.GetName():
+            h.GetXaxis().SetTitle("M_{K#pi} [GeV]");
+        if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
+            h.GetXaxis().SetTitle("M_{K#pi} + #mu [GeV]");
         if "D0_mu_tag_mu" in h.GetName():
-            h.GetXaxis().SetTitle("P_{T}(D^{0}_{#mu}+#mu_{tag})/#Sigma p_{T}^{ch}")
+            h.GetXaxis().SetTitle("(D^{0}_{#mu} p_{T} + #mu_{tag} p_{T})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
             h.GetXaxis().SetTitle("P_{T}(J/#Psi)/#Sigma p_{T}^{ch}")
+        #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
 
         h.SetTitle(title)
         if isData:
@@ -740,6 +745,7 @@ def main():
                     if 'up' not in Dir and '_up_' in sp[0]: continue
                     if 'down' not in Dir and '_down_' in sp[0]: continue
                     fIn=ROOT.TFile.Open('%s/%s.root' % ( Dir, sp[0]) )
+                    print '%s/%s.root' % ( Dir, sp[0])
                     #fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
                     if not fIn : continue
                     print 'Loading file: %s' % sp[0]

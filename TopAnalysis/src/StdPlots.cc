@@ -166,13 +166,13 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
  
     //D meson plots
     if(cut.Contains("meson")) {
-    allPlots["massD0"+tag+cut+weight+runPeriod_]     = new TH1F("massD0"+tag+cut+weight+runPeriod_,";M_{D^{0}};Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDs"+tag+cut+weight+runPeriod_,";M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_fromDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDsloose"+tag+cut+weight+runPeriod_,";M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_notDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDs"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_notDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDsloose"+tag+cut+weight+runPeriod_,";M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_lep_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_lep_tag"+tag+cut+weight+runPeriod_,";M_{K#pi}(D^{0})+l;Events / 5 MeV" ,60,1.7,2.0);
-    allPlots["massD0_mu_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tag"+tag+cut+weight+runPeriod_,";M_{K#pi+#mu}(D^{0}_{#mu});Events / 10 MeV" ,30,1.7,2.0);
+    allPlots["massD0"+tag+cut+weight+runPeriod_]     = new TH1F("massD0"+tag+cut+weight+runPeriod_,";M_{K#pi};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_fromDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDs"+tag+cut+weight+runPeriod_,";M_{K#pi}M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_fromDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_fromDsloose"+tag+cut+weight+runPeriod_,"M_{K#pi};M_{D^{0} from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_notDs"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDs"+tag+cut+weight+runPeriod_,";M_{K#pi}M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_notDsloose"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_notDsloose"+tag+cut+weight+runPeriod_,";M_{K#pi}M_{D^{0} not from D*-D^{0} peak};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_lep_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_lep_tag"+tag+cut+weight+runPeriod_,";M_{K#pi+l};Events / 5 MeV" ,60,1.7,2.0);
+    allPlots["massD0_mu_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tag"+tag+cut+weight+runPeriod_,";M_{K#pi}+#mu;Events / 10 MeV" ,30,1.7,2.0);
     /*
     allPlots["massD0_mu_tagB"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tagB"+tag+cut+weight+runPeriod_,";M_{K#pi+#mu+#mu}(B);Events / 5 MeV" ,200,5,7);
     allPlots["massD0_e_tag"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_e_tag"+tag+cut+weight+runPeriod_,";M_{K#pi+e}(D^{0})+e;Events / 5 MeV" ,60,1.7,2.0);
@@ -180,7 +180,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["massD0_e"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_e"+tag+cut+weight+runPeriod_,";M_{K#pi+e};Events / 10 GeV" ,30,0,300);
     */
     allPlots["massD0_l"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_l"+tag+cut+weight+runPeriod_,";M_{K#pi+l};Events / 10 GeV" ,30,0,300);
-    allPlots["massD0_mu_tag_l"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tag_l"+tag+cut+weight+runPeriod_,";M_{K#pi+l}(D^{0}_{#mu})+l;Events / 10 GeV" ,30,0,300);
+    allPlots["massD0_mu_tag_l"+tag+cut+weight+runPeriod_]     = new TH1F("massD0_mu_tag_l"+tag+cut+weight+runPeriod_,";M_{K#pi+l}+#mu;Events / 10 GeV" ,30,0,300);
     allPlots["D0_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_pt"+tag+cut+weight+runPeriod_,";D^{0} P_{T} [GeV];Events / 1 GeV", 150, 0,150);
     allPlots["D0_pi_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_pt"+tag+cut+weight+runPeriod_,";D^{0} #pi P_{T} [GeV];Events / 1 GeV", 50, 0,50);
     allPlots["D0_K_pt"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_pt"+tag+cut+weight+runPeriod_,";D^{0} K P_{T} [GeV];Events / 1 GeV", 25, 0,25);

@@ -23,6 +23,7 @@
 using namespace RooFit;
 
 //bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
+float err(0.);
 
 RooWorkspace create_workspace(bool isData=false) {
   RooWorkspace w("w");
@@ -76,6 +77,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     h2->Scale(puSF2*topSF2*832*16146.178);
     TH1F *h = (TH1F*)h1->Clone("jpsi_l_mass");
     h->Add(h2);
+    err = 1/sqrt(h->Integral());
     RooDataHist dh("data", "dh", jpsi_l_mass, h);
     w.import(dh);
   }
@@ -158,7 +160,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.factory("SUM::signalModel(alpha*gauss,gamma)");
   RooPlot* frame = w.var("jpsi_l_mass")->frame() ;
   if(doBinned) w.data("data")->plotOn(frame);
-  else w.data("data")->plotOn(frame,Binning(50));
+  else w.data("data")->plotOn(frame,Binning(25));
   //frame->Draw();
   RooAbsReal *nll;
   nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
@@ -174,6 +176,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   frame->Draw();
   w.Print();
   r->Print();
+  //w.var("mt")->setError(err);
   return *w.var("mt");
 }
 

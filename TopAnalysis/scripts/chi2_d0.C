@@ -70,7 +70,7 @@ std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_c
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
 TCanvas *c1 = new TCanvas("c1","c1");
-TH1F *chiTest = new TH1F("chiTest","#chi^{2} test",400,0,2);
+TH1F *chiTest = new TH1F("chiTest","",400,0,2);
 chiTest->SetDirectory(0);
 for(auto & it : tune) {
   int pos = &it - &tune[0];
@@ -115,6 +115,18 @@ chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
+TLatex txt;
+txt.SetNDC(true);
+txt.SetTextFont(43);
+txt.SetTextSize(16);
+txt.SetTextAlign(12);
+float iniy=0.95;// if self.wideCanvas else 0.95
+float inix=0.12;// if noStack else 0.12
+float lumi(35859.038);
+if(lumi<100)
+    txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)", (lumi) ));
+else
+    txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");

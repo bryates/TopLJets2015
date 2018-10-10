@@ -212,7 +212,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
     ev_.d0_mass[ev_.nmeson] = D0.M();
     ev_.meson_id[ev_.nmeson] = abs(pfCands[0].getMotherId());
-    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
+    //if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
+    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13 && pfCands[2].getMotherId()==42113) {
       ev_.meson_id[ev_.nmeson] = 42113;
       //if(D0.M()>1.8 && D0.M()<1.93) {
         ev_.d0_mu_pt[ev_.nmeson] = pfCands[2].Pt();
@@ -230,6 +231,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
       ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
       ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
     }
+    if(pfCands.size()!=2) return;
     /*
     if(abs(pfCands[0].getMotherId())==42113) {
       ev_.meson_id[ev_.nmeson] = 42113;

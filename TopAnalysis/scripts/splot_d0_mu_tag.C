@@ -54,13 +54,13 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TGraph *g;
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
+  TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ndau/Chunks/");
-  TFile *f = new TFile(dir+"MC13TeV_TTJets_powheg_0.root"); //open a randome file to get correction histograms
   //TFile *f = new TFile(dir+"MC13TeV_TTJets_m"+mass+"_0.root"); //open a randome file to get correction histograms
   //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
   if(isData) {
-    data->Add(dir+"Data13TeV_Single*");
+    data->Add(dir+"Data13TeV_*");
     mass="Data";
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
@@ -73,7 +73,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
-    if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_m"+mass,"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
@@ -139,7 +139,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   cout << "loaded!" << endl;
 
   // Declare observable x
-  RooRealVar d0_mass("d0_mass","D^{0} mass", 1.7, 2, "GeV") ;
+  RooRealVar d0_mass("d0_mass","M_{K#pi}", 1.7, 2, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
@@ -191,7 +191,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
-          scale =  scale * 19716.102 * puSF1 * topSF1;
+          scale =  scale * 19712.86 * puSF1 * topSF1;
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
@@ -218,7 +218,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
+      if(ev.d0_mass[j]>(1.864-0.034) && ev.d0_mass[j]<(1.864+0.034)) { //symmetric around PDG mass = 1.864
+      //if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
       //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
@@ -245,13 +246,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooDataSet tmp("tmp", "tmp", &dsn, *dsn.get(), 0, "weight");
   RooDataSet ds("ds", "ds", &tmp, *tmp.get(), 0, "tuneW");
   */
-  double tuneShape = 1.;
-  if(tuneWgt->GetBinContent(2) > 0) tuneShape = tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2);
-  std::cout << "Norm weight: " << tuneShape << std::endl;
   /*
   */
   //very inefficient second loop to adjust normalization
   std::cout << "Re-weighting based on norm weight" << std::endl;
+  if(!isData) {
+  double tuneShape = 1.;
+  if(tuneWgt->GetBinContent(2) > 0) tuneShape = tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2);
+  std::cout << "Norm weight: " << tuneShape << std::endl;
   for(int i = 0; i < dsn.numEntries(); i++) {
     double tmpW = dsn.get(i)->getRealValue("tuneW");
     tuneW.setVal(tmpW * tuneShape);
@@ -259,6 +261,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //std::cout << tuneW.getVal() << " " << weight.getVal() << std::endl;;
   }
   std::cout << "Re-weighting done!" << std::endl;
+  }
   /*
   tmp.Print();
   tmp.addColumn(tuneW, tuneShape);
@@ -301,7 +304,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar nbkg("nbkg","#background events", 5000, 0, 10000) ;
   RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
   */
-  RooRealVar mean("mean","mean", 1.86, 1.864-0.036, 1.864+0.036);
+  RooRealVar mean("mean","mean", 1.86, 1.864-0.034, 1.864+0.034);
 
   // Construct Crystal Ball PDF for signal
   /*
@@ -347,6 +350,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   model.plotOn(frame);
   model.plotOn(frame, Components(expo),LineStyle(kDashed));
+  frame->SetTitle("");
   frame->Draw();
   frame->SetName("massD0");
   frame->Write();
@@ -441,6 +445,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::MarkerStyle(24), RooFit::MarkerStyle(24),
                  RooFit::LineWidth(2), RooFit::LineColor(419), Binning(binning));
   frame2->Draw();
+  frame2->SetTitle("");
   TGraph *h_frac = (TGraph*)c1->GetPrimitive("ptfrac_bkg");
   c1->SaveAs("ptfrac_bkg_"+mass+".pdf");
   c1->SaveAs("ptfrac_bkg_"+mass+".png");
@@ -468,6 +473,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::Name("ptfrac_mu_tag_signal"), RooFit::MarkerColor(1),
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
                  RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
+  frame2->SetTitle("");
   frame2->Draw();
 
   //show a legend
@@ -495,6 +501,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::Name("meson_l_mass_mu_tag_signal"), RooFit::MarkerColor(1),
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
                  RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
+  frame2->SetTitle("");
   frame2->Draw();
   delete leg;
 
@@ -513,6 +520,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   c1->SaveAs("meson_l_mass_"+mass+".png");
 
   frame2 = meson_l_mass.frame();
+  frame2->SetTitle("");
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),
                  RooFit::Name("meson_l_mass_bkg"), RooFit::MarkerColor(419),
                  RooFit::MarkerStyle(24), RooFit::MarkerStyle(24),
@@ -529,6 +537,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->Draw();
   std::cout << "Signal: " << frame2->getHist()->Integral() << std::endl;
   frame2->SetName("meson_l_mass_mu_tag_signal");
+  frame2->SetTitle("");
   frame2->Write();
 
   c1->SaveAs("meson_l_mass_signal_"+mass+".pdf");
