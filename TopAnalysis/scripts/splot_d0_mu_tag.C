@@ -170,9 +170,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.meson_id[j] != 42113) continue;
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
+      /*
       if(ev.d0_l3d[j]/ev.d0_sigmal3d[j]<10) continue;
       if(ev.d0_sigmal3d[j]<2E-4) continue;
       if(ev.ht<180) continue;
+      */
       /*
       if(!ev.isData) {
         if(ev.j_hadflav[ev.d0_j[j]]!=5) continue;
@@ -214,11 +216,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         }
         else tuneWgt->Fill(1., 1.0); //unit weights to make re-weighting easier to loop over
       }
-      if(ev.epoch[j]!=1 && ev.epoch[j]!=2) continue;
       epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      if(ev.d0_mass[j]>(1.864-0.034) && ev.d0_mass[j]<(1.864+0.034)) { //symmetric around PDG mass = 1.864
+      if(ev.d0_mass[j]>(1.864-0.05) && ev.d0_mass[j]<(1.864+0.05)) { //symmetric around PDG mass = 1.864
       //if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
       //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {

@@ -15,11 +15,12 @@
 #include "RooAddition.h"
 #include "RooArgSet.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.C"
 
 using namespace RooFit;
 TString name("");
 float low(999.), high(0.),nom(0.818905),nerr(0.05);
-bool tdr(1);
+bool TDR(1);
 
 TString report("");
 TString json("\"d0_mu\" :      [");
@@ -29,19 +30,18 @@ std::vector<RooChi2Var> chi;
 RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
+  setupCanvas();
   run_chi2_d0_mu_tag("");
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
   run_chi2_d0_mu_tag("uedown");
   run_chi2_d0_mu_tag("ueup");
   run_chi2_d0_mu_tag("erdON");
-  /*
   std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI", "JER" };
   for(auto & it : syst) {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
-  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -81,6 +81,7 @@ for(auto & it : tune) {
   float chi = chi2_d0_mu_tag_test(it);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
 }
+tdr1(chiTest);
 /*
 chi2("");
 */
@@ -166,7 +167,7 @@ if(name.Length() > 0)
   //text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<nom ? '-' : '+'), abs(nom-min), sqrt(abs(pow(0.0507584,2)-pow(abs(min-err),2))));
   //text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<0.818905 ? '-' : '+'), abs(0.818905-min), sqrt(abs(pow(0.0507584,2)-pow(abs(min-err),2))));
 pt->AddText(text);
-if(!tdr) pt->Draw();
+if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
 
 if(name.Length()>0) name = "_" + name;

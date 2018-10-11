@@ -66,9 +66,9 @@ class Plot(object):
         if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
         if "massD0" in h.GetName() and "massD0_l_" not in h.GetName():
-            h.GetXaxis().SetTitle("M_{K#pi} [GeV]");
+            h.GetXaxis().SetTitle("M(K#pi) (untagged) [GeV]");
         if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
-            h.GetXaxis().SetTitle("M_{K#pi} + #mu [GeV]");
+            h.GetXaxis().SetTitle("M(K#pi) (tagged) [GeV]");
         if "D0_mu_tag_mu" in h.GetName():
             h.GetXaxis().SetTitle("(D^{0}_{#mu} p_{T} + #mu_{tag} p_{T})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
@@ -374,6 +374,7 @@ class Plot(object):
                 if self.dataH.Integral()==0: return
         elif self.dataH is None : return
         elif self.dataH.Integral()==0 : return 
+        print self.dataH.Integral()
 
 
         frame = totalMC.Clone('frame') if totalMC is not None else self.dataH.Clone('frame')
@@ -393,11 +394,13 @@ class Plot(object):
         frame.SetDirectory(0)
         frame.Reset('ICE')
         self._garbageList.append(frame)
-        frame.GetYaxis().SetTitleSize(0.045)
+        #frame.GetYaxis().SetTitleSize(0.045)
+        frame.GetYaxis().SetTitleSize(0.047)
         frame.GetYaxis().SetLabelSize(0.04)
         frame.GetYaxis().SetNoExponent()
         frame.GetYaxis().SetTitleOffset(1.3)
-        frame.GetXaxis().SetTitleSize(0.0)
+        #frame.GetXaxis().SetTitleSize(0.0)
+        frame.GetXaxis().SetTitleSize(0.047)
         frame.GetXaxis().SetLabelSize(0.0)
         frame.Draw()
         if totalMC is not None   : 
@@ -745,7 +748,6 @@ def main():
                     if 'up' not in Dir and '_up_' in sp[0]: continue
                     if 'down' not in Dir and '_down_' in sp[0]: continue
                     fIn=ROOT.TFile.Open('%s/%s.root' % ( Dir, sp[0]) )
-                    print '%s/%s.root' % ( Dir, sp[0])
                     #fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
                     if not fIn : continue
                     print 'Loading file: %s' % sp[0]
