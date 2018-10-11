@@ -30,7 +30,6 @@ std::vector<RooChi2Var> chi;
 RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
-  setupCanvas();
   run_chi2_d0_mu_tag("");
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
@@ -71,7 +70,8 @@ std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.8
 std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
-TCanvas *c1 = new TCanvas("c1","c1");
+//TCanvas *c1 = new TCanvas("c1","c1");
+TCanvas *c1 = setupCanvas();
 TH1F *chiTest = new TH1F("chiTest","",400,0,2);
 chiTest->SetDirectory(0);
 for(auto & it : tune) {
@@ -81,7 +81,6 @@ for(auto & it : tune) {
   float chi = chi2_d0_mu_tag_test(it);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
 }
-tdr1(chiTest);
 /*
 chi2("");
 */
@@ -117,7 +116,9 @@ else chiTest->GetXaxis()->SetRangeUser(0.65,0.976);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
+tdr(chiTest);
 chiTest->Draw("p9");
+/*
 TLatex txt;
 txt.SetNDC(true);
 txt.SetTextFont(43);
@@ -130,6 +131,7 @@ if(lumi<100)
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)", (lumi) ));
 else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
+*/
 TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);//1.055);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");

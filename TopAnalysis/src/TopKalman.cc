@@ -1222,7 +1222,7 @@ void RunTopKalman(TString filename,
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
             //Only save up to first 4 hardest tracks (sorted by pT already)
-            if(jet.getPt()>150 && abs(track.getMotherId())==421) continue;
+            //if(jet.getPt()>150 && abs(track.getMotherId())==421) continue;
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
             if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track); //save soft pions for D* separately
             //if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*

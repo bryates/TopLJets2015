@@ -66,9 +66,9 @@ class Plot(object):
         if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
         if "massD0" in h.GetName() and "massD0_l_" not in h.GetName():
-            h.GetXaxis().SetTitle("M(K#pi) (untagged) [GeV]");
+            h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (untagged) [GeV]");
         if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
-            h.GetXaxis().SetTitle("M(K#pi) (tagged) [GeV]");
+            h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (tagged) [GeV]");
         if "D0_mu_tag_mu" in h.GetName():
             h.GetXaxis().SetTitle("(D^{0}_{#mu} p_{T} + #mu_{tag} p_{T})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
