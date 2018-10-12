@@ -198,7 +198,7 @@ wmc->var("ptfrac")->setBins(22);
 wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
 
-TString cut("d0_mass>1.83 && d0_mass<1.898");
+TString cut("j_pt_ch<75");
 RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
 //load MC into RooDataHist
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);//*mcData);

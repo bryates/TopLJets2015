@@ -588,6 +588,7 @@ void RunTopKalman(TString filename,
 
 	//smear jet energy resolution for MC
 	//jetDiff -= jp4;
+	/*
         for(auto &jet : kalman.getJets()) {
 	  float genJet_pt(0);
 	  if(jet.getGenJet()>-1) genJet_pt=ev.g_pt[ jet.getGenJet() ];
@@ -603,6 +604,7 @@ void RunTopKalman(TString filename,
 	    }
 	  //jetDiff += jp4;
 	}
+        */
 
         jet.sortTracksByPt();
         kJetsVec.push_back(jet);
@@ -1213,6 +1215,7 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
+          if(jet.getPt()>150) continue;
           //if(jet.getChargedPt()>75) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*

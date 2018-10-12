@@ -65,12 +65,13 @@ class Plot(object):
             h.GetXaxis().SetTitle(tmptitle)
         if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
+            h.GetXaxis().SetTitle("M(#mu^{#pm}#mu^{#mp}) [GeV]");
         if "massD0" in h.GetName() and "massD0_l_" not in h.GetName():
             h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (untagged) [GeV]");
         if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
             h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (tagged) [GeV]");
         if "D0_mu_tag_mu" in h.GetName():
-            h.GetXaxis().SetTitle("(D^{0}_{#mu} p_{T} + #mu_{tag} p_{T})/#Sigma p_{T}^{ch}")
+            h.GetXaxis().SetTitle("(D^{0} p_{T} + #mu p_{T})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
             h.GetXaxis().SetTitle("P_{T}(J/#Psi)/#Sigma p_{T}^{ch}")
         #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
@@ -146,7 +147,7 @@ class Plot(object):
             except:
                 pass
 
-    def show(self, outDir,lumi,noStack=False,saveTeX=False,saveNorm=False):
+    def show(self, outDir,lumi,noStack=False,saveTeX=False,saveNorm=False,noRatio=False):
 
         if len(self.mc)<2 and self.dataH is None:
             print '%s has 0 or 1 MC!' % self.name
@@ -157,7 +158,7 @@ class Plot(object):
             return
 
         cwid=1000 if self.wideCanvas else 500
-        c = ROOT.TCanvas('c','c',cwid,500)
+        c = ROOT.TCanvas('c','c',cwid,450)#500)
         c.SetBottomMargin(0.0)
         c.SetLeftMargin(0.0)
         c.SetTopMargin(0)
@@ -171,11 +172,12 @@ class Plot(object):
         c.cd()
         p1 = None
         if self.dataH:
-            p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            if noRatio is False: p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            else: p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
             p1.SetLeftMargin(0.12)
-            p1.SetTopMargin(0.1)
-            p1.SetBottomMargin(0.01)
+            p1.SetTopMargin(0.1)# if noRatio is False else p1.SetTopMargin(0.01)
+            p1.SetBottomMargin(0.01) if noRatio is False else p1.SetBottomMargin(0.12)
         else:
             p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
@@ -401,7 +403,7 @@ class Plot(object):
         frame.GetYaxis().SetTitleOffset(1.3)
         #frame.GetXaxis().SetTitleSize(0.0)
         frame.GetXaxis().SetTitleSize(0.047)
-        frame.GetXaxis().SetLabelSize(0.0)
+        if noRatio is False: frame.GetXaxis().SetLabelSize(0.0)
         frame.Draw()
         if totalMC is not None   : 
             if noStack: stack.Draw('nostack same')
@@ -434,7 +436,7 @@ class Plot(object):
         c.cd()
         if len(self.mc)>0 and self.dataH:
             p2 = ROOT.TPad('p2','p2',0.0,0.0,1.0,0.2)
-            p2.Draw()
+            if noRatio is False: p2.Draw()
             p2.SetBottomMargin(0.4)
             p2.SetRightMargin(0.05)
             p2.SetLeftMargin(0.12)
@@ -526,7 +528,10 @@ class Plot(object):
         #save
         #if self.noPU: 
             #self.name += "_noPU"
-        for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
+        if noRatio:
+            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'_noRatio.'+ext))
+        else:
+            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
         if self.savelog:
             p1.cd()
             frame.GetYaxis().SetRangeUser(1,maxY*50)
@@ -640,6 +645,7 @@ def main():
     parser.add_option(      '--saveNorm',    dest='saveNorm' ,   help='save normalised versions of the plots', default=False,             action='store_true')
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
+    parser.add_option(      '--noRatio',     dest='noRatio' ,    help='don\'t save ratio plot',         default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default='data/era2016/lumi.json',        type='string')
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
@@ -970,7 +976,7 @@ def main():
         if opt.saveLog    : plots[p].savelog=True
         #if not opt.puNormSF    : plots[p].noPU=True
         lumiTotal=lumiList[opt.run]
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX,saveNorm=opt.saveNorm)
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX,saveNorm=opt.saveNorm,noRatio=opt.noRatio)
         outName = opt.outName.replace(".root","_"+opt.run+".root")
         plots[p].appendTo('%s/%s'%(outDir,outName))
         plots[p].reset()
