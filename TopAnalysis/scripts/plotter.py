@@ -65,7 +65,7 @@ class Plot(object):
             h.GetXaxis().SetTitle(tmptitle)
         if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
-            h.GetXaxis().SetTitle("M(#mu^{#pm}#mu^{#mp}) [GeV]");
+            h.GetXaxis().SetTitle("M(#mu^{+}#mu^{-}) [GeV]");
         if "massD0" in h.GetName() and "massD0_l_" not in h.GetName():
             h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (untagged) [GeV]");
         if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
@@ -158,7 +158,7 @@ class Plot(object):
             return
 
         cwid=1000 if self.wideCanvas else 500
-        c = ROOT.TCanvas('c','c',cwid,500) if noRatio is False else ROOT.TCanvas('c','c',cwid,450)
+        c = ROOT.TCanvas('c','c',cwid,500)# if noRatio is False else ROOT.TCanvas('c','c',cwid,450)
         c.SetBottomMargin(0.0)
         c.SetLeftMargin(0.0)
         c.SetTopMargin(0)
@@ -173,9 +173,9 @@ class Plot(object):
         p1 = None
         if self.dataH:
             if noRatio is False: p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
-            else: p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            else: p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
-            p1.SetLeftMargin(0.12)
+            p1.SetLeftMargin(0.15)
             p1.SetTopMargin(0.1)# if noRatio is False else p1.SetTopMargin(0.01)
             p1.SetBottomMargin(0.01) if noRatio is False else p1.SetBottomMargin(0.12)
         else:
@@ -400,7 +400,7 @@ class Plot(object):
         frame.GetYaxis().SetTitleSize(0.047)
         frame.GetYaxis().SetLabelSize(0.04)
         frame.GetYaxis().SetNoExponent()
-        frame.GetYaxis().SetTitleOffset(1.3)
+        frame.GetYaxis().SetTitleOffset(1.5)
         #frame.GetXaxis().SetTitleSize(0.0)
         frame.GetXaxis().SetTitleSize(0.047)
         if noRatio is False: frame.GetXaxis().SetLabelSize(0.0)
