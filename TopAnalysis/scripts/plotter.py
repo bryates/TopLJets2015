@@ -158,7 +158,7 @@ class Plot(object):
             return
 
         cwid=1000 if self.wideCanvas else 500
-        c = ROOT.TCanvas('c','c',cwid,450)#500)
+        c = ROOT.TCanvas('c','c',cwid,500) if noRatio is False else ROOT.TCanvas('c','c',cwid,450)
         c.SetBottomMargin(0.0)
         c.SetLeftMargin(0.0)
         c.SetTopMargin(0)

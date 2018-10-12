@@ -163,6 +163,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("pf_trackerMuon",   ev.pf_trackerMuon,   "pf_trackerMuon[npf]/O");
   t->Branch("pf_chi2ndof",   ev.pf_chi2ndof,   "pf_chi2ndof[npf]/F");
   t->Branch("pf_vtxchi2ndof",   ev.pf_vtxchi2ndof,   "pf_vtxchi2ndof[npf]/F");
+  t->Branch("pf_relIso",   ev.pf_relIso,   "pf_relIso[npf]/F");
 
   //MET
   t->Branch("nmet",      &ev.nmet,     "nmet/I");
@@ -384,6 +385,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
       t->SetBranchAddress("pf_trackerMuon",      ev.pf_trackerMuon);
       t->SetBranchAddress("pf_chi2ndof",         ev.pf_chi2ndof);
       t->SetBranchAddress("pf_vtxchi2ndof",      ev.pf_vtxchi2ndof);
+      t->SetBranchAddress("pf_relIso",      ev.pf_relIso);
     }
 
   //MET

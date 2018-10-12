@@ -31,6 +31,7 @@ RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
+  /*
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
   run_chi2_d0_mu_tag("uedown");
@@ -41,6 +42,7 @@ void chi2_d0_mu_tag() {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
+  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -156,6 +158,7 @@ json += Form(" %.4f, %.4f,",min,abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
 std::cout << "chi^2_min + 1 at x= " << err << std::endl;
+std::cout << "chi^2 at min= " << chimin << std::endl;
 
 TPaveText *pt = new TPaveText(0.12,0.85,0.3,0.65,"NDC"); //NB blNDC
 pt->SetFillStyle(0);
