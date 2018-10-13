@@ -324,8 +324,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     }
 
     ev_.j_pt[ev_.nj] = jet.getPt();
-    ev_.j_eta[ev_.nj] = genJet.getVec().Eta();
-    ev_.j_phi[ev_.nj] = genJet.getVec().Phi();
+    ev_.j_eta[ev_.nj] = jet.getVec().Eta();
+    ev_.j_phi[ev_.nj] = jet.getVec().Phi();
     ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();
