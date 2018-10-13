@@ -1225,7 +1225,7 @@ void RunTopKalman(TString filename,
           for(auto &track : jet.getTracks()) {
             //Only save up to first 4 hardest tracks (sorted by pT already)
             //Only save up to first 4 hardest tracks (sorted by pT already)
-            //if(jet.getPt()>150 && abs(track.getMotherId())==421) continue;
+            //if(jet.getChargedPt()>75 && abs(track.getMotherId())==421) continue;
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
             if(abs(track.getMotherId())==413 && abs(track.getPdgId())==211) piSoftTracks.push_back(track); //save soft pions for D* separately
             //if(abs(track.getPdgId())==211) { piTracks.push_back(track); } //pi and K for D^0 and D*
@@ -1348,6 +1348,7 @@ void RunTopKalman(TString filename,
               bool cuts = true;
               cuts &= abs(piTracks[i].Eta()) < 1.5;
               cuts &= abs(piTracks[j].Eta()) < 1.5;
+              cuts &= (jet.getChargedPt()<75);
               //cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
               //cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*
@@ -1371,6 +1372,66 @@ void RunTopKalman(TString filename,
                 else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt()));
                 runBCDEF.SetRbWgt(rbWgtD0, D0);
                 runGH.SetRbWgt(rbWgtD0, D0);
+              }
+              //D^0 + mu for flavor tagging
+              for(auto &track : muTracks) {
+                if(muTracks.size()<1) continue;
+                if(abs(track.getMotherId())!=42113) continue;
+                if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
+                //if(((piTracks[i].getKalmanMass() - track.getKalmanMass()) / piTracks[i].getKalmanMass()) > 0.01) continue;
+                //if(!track.highPurity()) continue; //only use high purity tracks FIXME
+                //if(!track.trackerMuon() && !track.globalMuon()) continue;
+                //if(track.Pt() < 3.0) continue;
+                if(debug) cout << "third lepton found" << endl;
+                if(piTracks[j].charge()*track.charge()<0) continue; //PDGID 13 is NEGATIVE mu but charge function in pfTrack acconts for this
+                //Kaon and lepton have same charge (e.g. b^-1/3 -> c^+2/3 W^- -> c^+2/3 l^- nubar)
+                //correct mass assumption
+                if(debug) cout << "correct mass assumption" << endl;
+                TLorentzVector d0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
+                if(rbFit && !isData) {
+                  float rbWgtD0mu(1.);
+                  if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt()));
+                  else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt()));
+                  runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
+                  runGH.SetRbWgt(rbWgtD0mu, D0mu);
+                }
+                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                std::vector<pfTrack> tmp_match;
+                /*
+                if(!isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
+                  //std::vector<pfTrack> tmp_matched_cands = { pfMatched[0],pfMatched[1],pfMuMatched[0] };
+                  tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()],pfMuMatched[track.getGenIdx()] };
+                  runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                  runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                }
+                */
+                /*
+                if(!isData) {
+                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                }
+                else {
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                }
+                */
+                /*
+                if(genIdx>-1) {
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                }
+                else {
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                }
+                treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                */
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                cuts = false; //skip untagges stage
               }
               if (cuts) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
@@ -1455,65 +1516,6 @@ void RunTopKalman(TString filename,
                   runGH.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                 }
               } //end extra cuts within D^0 window
-              //D^0 + mu for flavor tagging
-              if(muTracks.size()<1) continue;
-              for(auto &track : muTracks) {
-                if(abs(track.getMotherId())!=42113) continue;
-                if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
-                //if(((piTracks[i].getKalmanMass() - track.getKalmanMass()) / piTracks[i].getKalmanMass()) > 0.01) continue;
-                //if(!track.highPurity()) continue; //only use high purity tracks FIXME
-                //if(!track.trackerMuon() && !track.globalMuon()) continue;
-                //if(track.Pt() < 3.0) continue;
-                if(debug) cout << "third lepton found" << endl;
-                if(piTracks[j].charge()*track.charge()<0) continue; //PDGID 13 is NEGATIVE mu but charge function in pfTrack acconts for this
-                //Kaon and lepton have same charge (e.g. b^-1/3 -> c^+2/3 W^- -> c^+2/3 l^- nubar)
-                //correct mass assumption
-                if(debug) cout << "correct mass assumption" << endl;
-                TLorentzVector d0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
-                if(rbFit && !isData) {
-                  float rbWgtD0mu(1.);
-                  if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt()));
-                  else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt()));
-                  runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
-                  runGH.SetRbWgt(rbWgtD0mu, D0mu);
-                }
-                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
-                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                std::vector<pfTrack> tmp_match;
-                /*
-                if(!isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
-                  //std::vector<pfTrack> tmp_matched_cands = { pfMatched[0],pfMatched[1],pfMuMatched[0] };
-                  tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()],pfMuMatched[track.getGenIdx()] };
-                  runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
-                  runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
-                }
-                */
-                /*
-                if(!isData) {
-                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
-                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
-                }
-                else {
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                }
-                */
-                /*
-                if(genIdx>-1) {
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
-                }
-                else {
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
-                }
-                treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                */
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
-              }
               if(piSoftTracks.size()<1) continue;
               for(auto &track : piSoftTracks) {
                 if(abs(track.getMotherId())!=413) continue;
