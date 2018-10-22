@@ -31,7 +31,6 @@ RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
-  /*
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
   run_chi2_d0_mu_tag("uedown");
@@ -42,7 +41,6 @@ void chi2_d0_mu_tag() {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
-  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -64,8 +62,8 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up" };//, "fit" };
-std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055};//, 0.80};
+std::vector<TString> tune = {"_555", "_625", "_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up" };//, "fit" };
+std::vector<float> param = {0.555, 0.625, 0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055};//, 0.80};
 /*
 std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
@@ -78,6 +76,7 @@ TH1F *chiTest = new TH1F("chiTest","",400,0,2);
 chiTest->SetDirectory(0);
 for(auto & it : tune) {
   int pos = &it - &tune[0];
+  if(param[pos]<0.65 && !name.Contains("fsr-up")) continue;
   if(param[pos]>1 && !name.Contains("fsr-down")) continue;
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it);
@@ -113,13 +112,14 @@ frame->Draw();
 
 
 if(name.Contains("fsr-down")) chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
+else if(name.Contains("fsr-up")) chiTest->GetXaxis()->SetRangeUser(0.555,0.976);
 else chiTest->GetXaxis()->SetRangeUser(0.65,0.976);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
-tdr(chiTest);
 chiTest->Draw("p9");
+tdr(chiTest);
 /*
 TLatex txt;
 txt.SetNDC(true);
@@ -134,7 +134,7 @@ if(lumi<100)
 else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
 */
-TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
+TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.5,1.055);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);//1.055);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -145,7 +145,7 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.7,1.0);
+float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.0);
 float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
 float err = chiTest->GetFunction("pol3")->GetX((chimin+1),0.7,1.0);
 //float err = chiTest->GetFunction("pol3")->GetX((chimin+1),min,min+1);
@@ -201,13 +201,13 @@ wmc->var("ptfrac")->setBins(22);
 wdata->var("ptfrac")->setBins(22);
 if(tune == "") ptfrac=*wmc->var("ptfrac");
 
-TString cut("j_pt_ch<75");
-RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
+TString cut("d0_mass>1.819 && d0_mass<1.909");
+RooDataSet *sigData = (RooDataSet*)wmc->data("sigData");//->reduce(cut);
 //load MC into RooDataHist
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);//*mcData);
 RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
 
-sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+sigData = (RooDataSet*)wdata->data("sigData");//->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);//*dataData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
@@ -249,7 +249,7 @@ if(tune.Length() > 0) {
   //mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
-std::cout << tune << " Chi2/ndf= " << chi2 << std::endl;
+std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;
 

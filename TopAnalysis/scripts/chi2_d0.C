@@ -30,18 +30,16 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
-  /*
   run_chi2_d0("fsr-up");
   run_chi2_d0("fsr-down");
   run_chi2_d0("ueup");
   run_chi2_d0("uedown");
   run_chi2_d0("erdON");
-  std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI", "JER" };
+  std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI"};//, "JER" };
   for(auto & it : syst) {
     run_chi2_d0("up_"+it);
     run_chi2_d0("down_"+it);
   }
-  */
 
   json += ("],");
   std::cout << json << std::endl;

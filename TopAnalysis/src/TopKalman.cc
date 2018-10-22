@@ -702,7 +702,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
-      if(htsum<100) continue;
+      if(htsum<80) continue;
       //if(htsum<160) continue;
       //if(allJetsVec[0].getVec().Pt()<50) continue;
       stsum += htsum;
@@ -1215,7 +1215,7 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
-          //if(jet.getPt()>150) continue;
+          if(jet.getPt()>150) continue;
           //if(jet.getChargedPt()>75) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*
@@ -1348,7 +1348,8 @@ void RunTopKalman(TString filename,
               bool cuts = true;
               cuts &= abs(piTracks[i].Eta()) < 1.5;
               cuts &= abs(piTracks[j].Eta()) < 1.5;
-              cuts &= (jet.getChargedPt()<75);
+              //cuts &= (jet.getPt()<150);
+              //cuts &= (jet.getChargedPt()<75);
               //cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
               //cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*

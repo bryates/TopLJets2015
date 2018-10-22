@@ -77,7 +77,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
     h2->Scale(puSF2*topSF2*832*16146.178);
     TH1F *h = (TH1F*)h1->Clone("jpsi_l_mass");
     h->Add(h2);
-    err = 1/sqrt(h->Integral());
+    err = sqrt(h->Integral());
     RooDataHist dh("data", "dh", jpsi_l_mass, h);
     w.import(dh);
   }
