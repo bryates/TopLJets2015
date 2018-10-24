@@ -74,6 +74,9 @@ class Plot(object):
             h.GetXaxis().SetTitle("(D^{0} p_{T} + #mu p_{T})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
             h.GetXaxis().SetTitle("P_{T}(J/#Psi)/#Sigma p_{T}^{ch}")
+            h.GetYaxis().SetTitle("Jets / 25")
+        elif "oJet" in h.GetName():
+            h.GetYaxis().SetTitle("Jets / 5")
         #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
 
         h.SetTitle(title)
@@ -400,7 +403,7 @@ class Plot(object):
         frame.GetYaxis().SetTitleSize(0.047)
         frame.GetYaxis().SetLabelSize(0.04)
         frame.GetYaxis().SetNoExponent()
-        frame.GetYaxis().SetTitleOffset(1.5)
+        frame.GetYaxis().SetTitleOffset(1.7)
         #frame.GetXaxis().SetTitleSize(0.0)
         frame.GetXaxis().SetTitleSize(0.047)
         if noRatio is False: frame.GetXaxis().SetLabelSize(0.0)

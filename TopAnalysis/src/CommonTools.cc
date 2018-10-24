@@ -268,9 +268,14 @@ std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt)
   else if(TMath::Abs(eta)<3.2)  { ptSF=1.328; ptSF_err = 0.022 + 0.1228; }
   else if(TMath::Abs(eta)<5.0)  { ptSF=1.16;  ptSF_err = 0.029 + 0.1437; }
 
+  res[0] = TMath::Max((Float_t)0.,(Float_t)(1+(ptSF-1)*(pt-genjpt)/pt));
+  res[1] = TMath::Max((Float_t)0.,(Float_t)(1+(ptSF-1-(ptSF_err-1))*(pt-genjpt)/pt));
+  res[2] = TMath::Max((Float_t)0.,(Float_t)(1+(ptSF-1+(ptSF_err-1))*(pt-genjpt)/pt));
+  /* old method
   res[0] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF)*(pt-genjpt)))/pt;
   res[1] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF-ptSF_err)*(pt-genjpt)))/pt;
   res[2] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF+ptSF_err)*(pt-genjpt)))/pt;
+  */
   
   return res;
 }

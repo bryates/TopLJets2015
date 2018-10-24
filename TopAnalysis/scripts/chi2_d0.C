@@ -186,7 +186,7 @@ fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.
 TString cut("j_pt_ch<75");
 
 TH1F *mc,*data;
-if(fmc->GetListOfKeys()->Contains("h_ptfrac_hist")) mc = (TH1F*)fmc->Get("h_ptfrac_hist");
+if(fmc->GetListOfKeys()->Contains("h_ptfrac_hist")) mc = (TH1F*)fmc->Get("h_ptfrac_hist;1");
 else {
 RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");
 if(tune == "") ptfrac=*wmc->var("ptfrac");
@@ -202,6 +202,8 @@ mc->SetDirectory(fmc);
 mc->SetTitle("ptfrac_sig");
 mc->Write();
 delete ptfrac_mc;
+delete ptfrac_mc_hist;
+delete ptfrac_mc_pdf;
 }
 
 if(fdata->GetListOfKeys()->Contains("h_ptfrac_hist")) data = (TH1F*)fdata->Get("h_ptfrac_hist");
@@ -233,7 +235,7 @@ if(tune.Length() > 0) {
   //mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
-std::cout << tune << " Chi2/ndf= " << chi2 << std::endl;
+std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;
 

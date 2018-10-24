@@ -574,42 +574,6 @@ void RunTopKalman(TString filename,
       std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec, genJetsVec;
       KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
-      for(auto &jet : kalman.getJets()) {
-        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
-	TLorentzVector jp4 = jet.getVec();
-	//cross clean with respect to leptons deltaR<0.4
-        bool overlapsWithLepton(false);
-        for(size_t il=0; il<leptons.size(); il++) {
-          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
-	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
-        }
-        if(overlapsWithLepton) continue;
-        if(debug) cout << "Overlap with lepton DONE" << endl;
-
-	//smear jet energy resolution for MC
-	//jetDiff -= jp4;
-	/*
-        for(auto &jet : kalman.getJets()) {
-	  float genJet_pt(0);
-	  if(jet.getGenJet()>-1) genJet_pt=ev.g_pt[ jet.getGenJet() ];
-	  if(!isData && genJet_pt>0) 
-	    {
-	      TLorentzVector jp4=jet.getVec();
-	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
-              if(debug) std::cout << "JER " << jerSmear << std::endl;
-	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
-	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
-              if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
-	      jp4 *= jerSmear;
-	    }
-	  //jetDiff += jp4;
-	}
-        */
-
-        jet.sortTracksByPt();
-        kJetsVec.push_back(jet);
-        //allJetsVec.push_back(jet);
-      }
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -685,6 +649,43 @@ void RunTopKalman(TString filename,
           if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu)
           allJetsVec.push_back(tmpj);
 	}
+      //after main jet b/c smearing MiniEvet_t is in there
+      for(auto &jet : kalman.getJets()) {
+        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
+	TLorentzVector jp4 = jet.getVec();
+	//cross clean with respect to leptons deltaR<0.4
+        bool overlapsWithLepton(false);
+        for(size_t il=0; il<leptons.size(); il++) {
+          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
+	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
+        }
+        if(overlapsWithLepton) continue;
+        if(debug) cout << "Overlap with lepton DONE" << endl;
+
+	//smear jet energy resolution for MC
+	//jetDiff -= jp4;
+	/*
+        for(auto &jet : kalman.getJets()) {
+	  float genJet_pt(0);
+	  if(jet.getGenJet()>-1) genJet_pt=ev.g_pt[ jet.getGenJet() ];
+	  if(!isData && genJet_pt>0) 
+	    {
+	      TLorentzVector jp4=jet.getVec();
+	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+              if(debug) std::cout << "JER " << jerSmear << std::endl;
+	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
+	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
+              if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
+	      jp4 *= jerSmear;
+	    }
+	  //jetDiff += jp4;
+	}
+        */
+
+        jet.sortTracksByPt();
+        kJetsVec.push_back(jet);
+        //allJetsVec.push_back(jet);
+      }
       for (int k=0; k<ev.ng;k++) {
         //check kinematics
         if(abs(ev.g_id[k])==13 || abs(ev.g_id[k])==11) continue; //skip leptons since they are stored after genJets
