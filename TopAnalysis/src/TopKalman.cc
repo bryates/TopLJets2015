@@ -1086,7 +1086,7 @@ void RunTopKalman(TString filename,
 
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
-      if(htsum<100) continue;
+      if(htsum<80) continue;
       evch.njpsi=0;
       evch.nmeson=0;
       evch.nj=0;
@@ -1350,7 +1350,7 @@ void RunTopKalman(TString filename,
               cuts &= abs(piTracks[i].Eta()) < 1.5;
               cuts &= abs(piTracks[j].Eta()) < 1.5;
               //cuts &= (jet.getPt()<150);
-              //cuts &= (jet.getChargedPt()<75);
+              cuts &= (jet.getChargedPt()<75);
               //cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
               //cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*

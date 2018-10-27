@@ -9,29 +9,31 @@ rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items(
 jsonFile.close()
 
 nom=0
-fsrdown=2
-fsrup=4
-uedown=6
-ueup=8
-cr=10
-lepd=12
-lepu=14
-trid=16
-triu=18
-trkd=20
-trku=22
-pud=24
-puu=26
-jerd=28
-jeru=30
-pid=32
-piu=34
-pi=32
+isrdown=2
+isrup=4
+fsrdown=6
+fsrup=8
+uedown=8
+ueup=10
+cr=12
+lepd=14
+lepu=16
+trid=18
+triu=20
+trkd=22
+trku=24
+pud=26
+puu=28
+jerd=30
+jeru=32
+pid=34
+piu=36
+pi=34
 d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down']#, 'JER up', 'JER down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down']#, 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
 
@@ -113,7 +115,7 @@ print('$r_{B}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}
 print('$r_{B}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[2][1][0], rbList[2][1][1], max(abs(up[4]),abs(up[5])), max(abs(down[4]),abs(down[5]))))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'fsr'  'ue'   'cr'   'trig' 'trk'  'lep'  'pu'   'pi'")
+print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
@@ -146,7 +148,7 @@ for l in xrange(0,3):
 print('')
 
 print('Syst up for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'fsr'  'ue'   'cr'   'trig' 'trk'  'lep'  'pu'   'pi'")
+print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
@@ -179,7 +181,7 @@ for l in xrange(0,3):
 print('')
 
 print('Syst down for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'fsr'  'ue'   'cr'   'trig' 'trk'  'lep'  'pu'   'pi'")
+print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:

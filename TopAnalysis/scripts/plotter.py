@@ -53,7 +53,7 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
         if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
-        self.ratiorange = (0.76,1.24)
+        #self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst, rbList):
         ## hack to fix impact parameter range (cm -> um) ##

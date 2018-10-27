@@ -15,11 +15,12 @@
 #include "RooAddition.h"
 #include "RooArgSet.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.C"
 
 using namespace RooFit;
 TString name("");
 float low(50.), high(50.),nom(0.818905),nerr(0.05);
-bool tdr(1);
+bool TDR(1);
 
 TString report("");
 TString json("\"d0\" :      [");
@@ -29,17 +30,24 @@ std::vector<RooChi2Var> chi;
 RooRealVar ptfrac;
 
 void chi2_d0() {
-  run_chi2_d0("");
-  run_chi2_d0("fsr-up");
-  run_chi2_d0("fsr-down");
-  run_chi2_d0("ueup");
-  run_chi2_d0("uedown");
   run_chi2_d0("erdON");
-  std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI"};//, "JER" };
+  run_chi2_d0("GluonMove_erdON");
+  run_chi2_d0("QCD_erdON");
+  /*
+  run_chi2_d0("");
+  run_chi2_d0("isr-down");
+  run_chi2_d0("isr-up");
+  run_chi2_d0("fsr-down");
+  run_chi2_d0("fsr-up");
+  run_chi2_d0("uedown");
+  run_chi2_d0("ueup");
+  run_chi2_d0("erdON");
+  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI"};//"TRIGGER", "JER" };
   for(auto & it : syst) {
-    run_chi2_d0("up_"+it);
     run_chi2_d0("down_"+it);
+    run_chi2_d0("up_"+it);
   }
+  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -69,7 +77,8 @@ std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.8
 std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
-TCanvas *c1 = new TCanvas("c1","c1");
+//TCanvas *c1 = new TCanvas("c1","c1");
+TCanvas *c1 = setupCanvas();
 TH1F *chiTest = new TH1F("chiTest","",400,0,2);
 chiTest->SetDirectory(0);
 for(auto & it : tune) {
@@ -115,6 +124,7 @@ chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
+tdr(chiTest);
 TLatex txt;
 txt.SetNDC(true);
 txt.SetTextFont(43);
@@ -160,7 +170,7 @@ if(name.Length() > 0)
   //text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<nom ? '-' : '+'), abs(nom-min), sqrt(abs(pow(0.0507584,2)-pow(abs(min-err),2))));
   //text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<0.818905 ? '-' : '+'), abs(0.818905-min), sqrt(abs(pow(0.0507584,2)-pow(abs(min-err),2))));
 pt->AddText(text);
-if(!tdr) pt->Draw();
+if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
 
 if(name.Length()>0) name = "_" + name;
@@ -173,9 +183,9 @@ float chi2_d0_test(TString tune="") {
 TFile *fdata = TFile::Open("sPlot/sPlot/TopMass_Data_sPlot_d0.root");//,"UPDATE");
 TFile *fmc;
 if(name.Length()==0)
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data()),"UPDATE");
+fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data()));//,"UPDATE");
 else
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()),"UPDATE");
+fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()));//,"UPDATE");
 //TFile *fmc = TFile::Open(TString::Format("TopMass_ueup%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_erdOn%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0.root",tune.Data()));
@@ -186,6 +196,7 @@ fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.
 TString cut("j_pt_ch<75");
 
 TH1F *mc,*data;
+/*
 if(fmc->GetListOfKeys()->Contains("h_ptfrac_hist")) mc = (TH1F*)fmc->Get("h_ptfrac_hist;1");
 else {
 RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");
@@ -201,11 +212,17 @@ mc = (TH1F*)convert(ptfrac_mc,true,0,1.1);
 mc->SetDirectory(fmc);
 mc->SetTitle("ptfrac_sig");
 mc->Write();
+fmc->Write();
+mc->SetDirectory(0);
 delete ptfrac_mc;
 delete ptfrac_mc_hist;
 delete ptfrac_mc_pdf;
 }
+*/
+mc = (TH1F*)convert((RooPlot*)fmc->Get("ptfrac_signal"), true, 0, 1.1);
+data = (TH1F*)convert((RooPlot*)fdata->Get("ptfrac_signal"), true, 0, 1.1);
 
+/*
 if(fdata->GetListOfKeys()->Contains("h_ptfrac_hist")) data = (TH1F*)fdata->Get("h_ptfrac_hist");
 else {
 RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
@@ -221,9 +238,11 @@ data = (TH1F*)convert(ptfrac_data,true,0,1.1);
 data->SetDirectory(fdata);
 data->SetTitle("ptfrac_sig");
 data->Write();
+fdata->Write();
 delete ptfrac_data;
 delete sigData;
 }
+*/
 
 if(tune.Length() > 0) {
   TH1F *tuneWgt = (TH1F*)fmc->Get("tuneWgt");
@@ -239,8 +258,10 @@ std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;
 
+/*
 delete data;
 delete mc;
+*/
 fdata->Close();
 fmc->Close();
 /*

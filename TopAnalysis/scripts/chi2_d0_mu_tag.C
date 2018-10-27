@@ -32,16 +32,20 @@ RooRealVar ptfrac;
 void chi2_d0_mu_tag() {
   /*
   run_chi2_d0_mu_tag("");
+  run_chi2_d0_mu_tag("isr-down");
+  run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
   run_chi2_d0_mu_tag("fsr-up");
   run_chi2_d0_mu_tag("uedown");
   run_chi2_d0_mu_tag("ueup");
-  run_chi2_d0_mu_tag("erdON");
-  */
+  //run_chi2_d0_mu_tag("erdON");
   run_chi2_d0_mu_tag("GluonMove_erdON");
+  //run_chi2_d0_mu_tag("QCD_erdON");
+  */
   /*
+  run_chi2_d0_mu_tag("GluonMove_erdON");
   run_chi2_d0_mu_tag("QCD_erdON");
-  std::vector<TString> syst = {"LEP", "TRIGGER", "TRK", "PU", "PI", "JER" };
+  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI"};//, "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
