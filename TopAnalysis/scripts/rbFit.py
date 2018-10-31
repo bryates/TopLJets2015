@@ -110,9 +110,9 @@ print('Total up & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (up[0],up
 print('Total down & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (down[0],down[1],down[2],down[3],down[4],down[5]))
 print('======')
 print('Don\'t forget to use sed to change 0.00 to <0.001: %s/0\.000/$<$0.001/g\n')
-print('$r_{B}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[0][1][0], rbList[0][1][1], max(abs(up[0]),abs(up[1])), max(abs(down[0]),abs(down[1]))))
-print('$r_{B}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[1][1][0], rbList[1][1][1], max(abs(up[2]),abs(up[3])), max(abs(down[2]),abs(down[3]))))
-print('$r_{B}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[2][1][0], rbList[2][1][1], max(abs(up[4]),abs(up[5])), max(abs(down[4]),abs(down[5]))))
+print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[0][1][0], rbList[0][1][1], max(abs(up[0]),abs(up[1])), max(abs(down[0]),abs(down[1]))))
+print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[1][1][0], rbList[1][1][1], max(abs(up[2]),abs(up[3])), max(abs(down[2]),abs(down[3]))))
+print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[2][1][0], rbList[2][1][1], max(abs(up[4]),abs(up[5])), max(abs(down[4]),abs(down[5]))))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
 print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'")
