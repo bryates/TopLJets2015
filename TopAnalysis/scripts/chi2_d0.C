@@ -39,7 +39,7 @@ void chi2_d0() {
   //run_chi2_d0("erdON");
   run_chi2_d0("GluonMove_erdON");
   //run_chi2_d0("QCD_erdON");
-  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI"};//"TRIGGER", "JER" };
+  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0("down_"+it);
     run_chi2_d0("up_"+it);

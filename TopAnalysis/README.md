@@ -34,6 +34,7 @@ cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.r
 To submit a list of samples, described in a json file to the grid you can use the following script.
 ```
 python scripts/submitToGrid.py -j data/era2016/samples.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn /store/group/phys_top/byates -s
+python scripts/submitToGrid.py -j data/era2016/syst_samples.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn /store/group/phys_top/byates -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
 Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CheatSheet#Environment_setup)

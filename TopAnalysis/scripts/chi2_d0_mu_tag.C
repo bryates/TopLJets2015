@@ -39,7 +39,7 @@ void chi2_d0_mu_tag() {
   //run_chi2_d0_mu_tag("erdON");
   run_chi2_d0_mu_tag("GluonMove_erdON");
   //run_chi2_d0_mu_tag("QCD_erdON");
-  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI"};//"TRIGGER", "JER" };
+  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
