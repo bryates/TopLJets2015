@@ -57,6 +57,15 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       //lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
       lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio")->Clone();
       lepEffH_["m_singleleptrig"]->SetDirectory(0);
+      for(Int_t xbin=1; xbin<=(lepEffH_["m_singleleptrig"])->GetNbinsX(); xbin++)
+	for(Int_t ybin=1; ybin<=(lepEffH_["m_singleleptrig"])->GetNbinsY(); ybin++)
+	  {
+	    float sflep(lepEffH_["m_singleleptrig"]->GetBinContent(xbin,ybin)); 
+	    float sflepUnc(lepEffH_["m_singleleptrig"]->GetBinError(xbin,ybin));
+            sflepUnc = sqrt(pow(sflep,2) + pow(0.005*sflep,2)); //5% systematic unc
+	    lepEffH_["m_sel"]->SetBinContent(xbin,ybin,sflep);
+	    lepEffH_["m_sel"]->SetBinError(xbin,ybin,sflepUnc);
+	  }
       fIn->Close();
 
       //No muon tracking SF per POG recommendation https://hypernews.cern.ch/HyperNews/CMS/get/top/2671.html
@@ -88,7 +97,10 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 	  {
 	    float sfid(lepEffH_["m_sel"]->GetBinContent(xbin,ybin)), sfiso(isoH->GetBinContent(xbin,ybin));
 	    float sfidUnc(lepEffH_["m_sel"]->GetBinError(xbin,ybin)), sfisoUnc(isoH->GetBinError(xbin,ybin));
-	    float sf(sfid*sfiso), sfUnc(sqrt(pow(sfid*sfisoUnc,2)+pow(sfidUnc*sfiso,2)));
+            //sfidUnc = sqrt(pow(sfid,2) + pow(0.01*sfid,2)); //1% systematic unc
+            //sfisoUnc = sqrt(pow(sfisoUnc,2) + pow(0.005*sfiso,2)); //0.5% systematic unc
+	    //float sf(sfid*sfiso), sfUnc(sqrt(pow(sfid*sfisoUnc,2)+pow(sfidUnc*sfiso,2)));
+	    float sf(sfid*sfiso), sfUnc(sqrt(pow(sfidUnc,2) + pow(sfisoUnc,2) + pow(0.01*sfiso,2) + pow(0.005*sfid,2)));
 	    lepEffH_["m_sel"]->SetBinContent(xbin,ybin,sf);
 	    lepEffH_["m_sel"]->SetBinError(xbin,ybin,sfUnc);
 	  }
