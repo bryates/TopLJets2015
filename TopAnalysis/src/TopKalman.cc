@@ -574,21 +574,6 @@ void RunTopKalman(TString filename,
       std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec, genJetsVec;
       KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
-      for(auto &jet : kalman.getJets()) {
-        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
-	TLorentzVector jp4 = jet.getVec();
-	//cross clean with respect to leptons deltaR<0.4
-        bool overlapsWithLepton(false);
-        for(size_t il=0; il<leptons.size(); il++) {
-          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
-	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
-        }
-        if(overlapsWithLepton) continue;
-        if(debug) cout << "Overlap with lepton DONE" << endl;
-        jet.sortTracksByPt();
-        kJetsVec.push_back(jet);
-        //allJetsVec.push_back(jet);
-      }
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -664,6 +649,23 @@ void RunTopKalman(TString filename,
           if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu)
           allJetsVec.push_back(tmpj);
 	}
+      //after main jet b/c smearing MiniEvet_t is in there
+      kalman.loadEvent(ev); //load again to get smeared versions
+      for(auto &jet : kalman.getJets()) {
+        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
+	TLorentzVector jp4 = jet.getVec();
+	//cross clean with respect to leptons deltaR<0.4
+        bool overlapsWithLepton(false);
+        for(size_t il=0; il<leptons.size(); il++) {
+          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
+	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
+        }
+        if(overlapsWithLepton) continue;
+        if(debug) cout << "Overlap with lepton DONE" << endl;
+        jet.sortTracksByPt();
+        kJetsVec.push_back(jet);
+        //allJetsVec.push_back(jet);
+      }
       for (int k=0; k<ev.ng;k++) {
         //check kinematics
         if(abs(ev.g_id[k])==13 || abs(ev.g_id[k])==11) continue; //skip leptons since they are stored after genJets
@@ -681,7 +683,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
-      if(htsum<100) continue;
+      if(htsum<80) continue;
       //if(htsum<160) continue;
       //if(allJetsVec[0].getVec().Pt()<50) continue;
       stsum += htsum;

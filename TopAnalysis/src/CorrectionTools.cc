@@ -188,6 +188,7 @@ std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficienc
   return trackEffMap;
 }
 
+//Pion tracking efficiencies from https://github.com/pfs/TopLJets2015/blob/80x_rereco_rev/TopAnalysis/src/CorrectionTools.cc#L391-L503
 void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas) {
   if (sfs.size() != (etas.size() - 1)) std::cout << "applyEtaDepTrackingEfficiencySF error: need one more bin boundary than scale factors: " << sfs.size() << "," << etas.size() << std::endl;
   for (unsigned int i = 0; i < sfs.size(); i++) {
