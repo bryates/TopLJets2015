@@ -29,6 +29,7 @@ void run_chi2_d0(TString);
 RooRealVar ptfrac;
 
 void chi2_d0() {
+  /*
   run_chi2_d0("");
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
@@ -44,6 +45,9 @@ void chi2_d0() {
     run_chi2_d0("down_"+it);
     run_chi2_d0("up_"+it);
   }
+  */
+  run_chi2_d0("down_LEP");
+  run_chi2_d0("up_LEP");
 
   json += ("],");
   std::cout << json << std::endl;

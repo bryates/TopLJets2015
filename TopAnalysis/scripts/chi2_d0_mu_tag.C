@@ -169,7 +169,8 @@ fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune
 else
 fmc = TFile::Open(TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data()));
 
-TString cut("j_pt_ch<75");
+//TString cut("j_pt_ch<75");
+TString cut("epoch==2"); 
 
 TH1F *mc,*data;
 /*
@@ -187,20 +188,20 @@ ptfrac_mc_hist->plotOn(ptfrac_mc);
 mc = (TH1F*)convert(ptfrac_mc,true,0,1.1);
 mc->SetDirectory(fmc);
 mc->SetTitle("ptfrac_sig");
-mc->Write();
-fmc->Write();
+//mc->Write();
+//fmc->Write();
 mc->SetDirectory(0);
 delete ptfrac_mc;
 delete ptfrac_mc_hist;
 delete ptfrac_mc_pdf;
 }
 */
-RooPlot *tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+RooPlot *tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
-tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);
@@ -213,7 +214,7 @@ else {
 RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 if(tune == "") ptfrac=*wdata->var("ptfrac");
 wdata->var("ptfrac")->setBins(22);
-RooDataSet *sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
@@ -222,8 +223,8 @@ ptfrac_data_hist->plotOn(ptfrac_data);
 data = (TH1F*)convert(ptfrac_data,true,0,1.1);
 data->SetDirectory(fdata);
 data->SetTitle("ptfrac_sig");
-data->Write();
-fdata->Write();
+//data->Write();
+//fdata->Write();
 delete ptfrac_data;
 delete sigData;
 }

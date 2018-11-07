@@ -111,7 +111,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  TString fUrl("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout = new TFile(fUrl,"RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
@@ -369,8 +369,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->Write();
 
   mass = mass + "_mu_tag_mu";
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/massD0_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/massD0_"+mass+".png");
+  c1->SaveAs("massD0_"+mass+".pdf");
+  c1->SaveAs("massD0_"+mass+".png");
 
   frame = ptfrac.frame();
   ds.plotOn(frame,Binning(22));
@@ -432,8 +432,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->SetName("massD0_signal");
   frame->Draw();
   frame->Write();
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/massD0_signal_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/massD0_signal_"+mass+".png");
+  c1->SaveAs("massD0_signal_"+mass+".pdf");
+  c1->SaveAs("massD0_signal_"+mass+".png");
 
   frame = d0_mass.frame();
   bkgData.plotOn(frame, DataError(RooAbsData::SumW2),
@@ -443,8 +443,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->SetName("massD0_background");
   frame->Draw();
   frame->Write();
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/massD0_background_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/massD0_background_"+mass+".png");
+  c1->SaveAs("massD0_background_"+mass+".pdf");
+  c1->SaveAs("massD0_background_"+mass+".png");
 
   /*
   RooPlot *frame2 = d0_mass.frame();
@@ -460,8 +460,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->Draw();
   frame2->SetTitle("");
   TGraph *h_frac = (TGraph*)c1->GetPrimitive("ptfrac_bkg");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_bkg_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_bkg_"+mass+".png");
+  c1->SaveAs("ptfrac_bkg_"+mass+".pdf");
+  c1->SaveAs("ptfrac_bkg_"+mass+".png");
   std::cout << "Background: " << frame2->getHist()->Integral() << std::endl;
   frame2 = ptfrac.frame();
   sigData.plotOn(frame2, DataError(RooAbsData::SumW2),
@@ -474,8 +474,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->SetTitle("");
   frame2->Write();
 
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_signal_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_signal_"+mass+".png");
+  c1->SaveAs("ptfrac_signal_"+mass+".pdf");
+  c1->SaveAs("ptfrac_signal_"+mass+".png");
 
   frame2 = ptfrac.frame();
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),
@@ -500,8 +500,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   leg->AddEntry("ptfrac_mu_tag_bkg","Background","p");
   leg->Draw();
 
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_"+mass+".png");
+  c1->SaveAs("ptfrac_"+mass+".pdf");
+  c1->SaveAs("ptfrac_"+mass+".png");
 
   binning = 25;
 
@@ -529,8 +529,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   leg->AddEntry("meson_l_mass_mu_tag_bkg","Background","p");
   leg->Draw();
 
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/meson_l_mass_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/meson_l_mass_"+mass+".png");
+  c1->SaveAs("meson_l_mass_"+mass+".pdf");
+  c1->SaveAs("meson_l_mass_"+mass+".png");
 
   frame2 = meson_l_mass.frame();
   frame2->SetTitle("");
@@ -539,8 +539,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::MarkerStyle(24), RooFit::MarkerStyle(24),
                  RooFit::LineWidth(2), RooFit::LineColor(419), Binning(binning));
   frame2->Draw();
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/meson_l_mass_bkg_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/meson_l_mass_bkg_"+mass+".png");
+  c1->SaveAs("meson_l_mass_bkg_"+mass+".pdf");
+  c1->SaveAs("meson_l_mass_bkg_"+mass+".png");
   std::cout << "Background: " << frame2->getHist()->Integral() << std::endl;
   frame2 = meson_l_mass.frame();
   sigData.plotOn(frame2, DataError(RooAbsData::SumW2),
@@ -553,8 +553,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->SetTitle("");
   frame2->Write();
 
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/meson_l_mass_signal_"+mass+".pdf");
-  c1->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/meson_l_mass_signal_"+mass+".png");
+  c1->SaveAs("meson_l_mass_signal_"+mass+".pdf");
+  c1->SaveAs("meson_l_mass_signal_"+mass+".png");
 
   /*
   TH1F *signalGr=(TH1F*)c1->GetPrimitive("ptfrac_signal");
