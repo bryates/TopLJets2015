@@ -48,7 +48,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
-  if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue")) { //ISR,FSR,CR,UE
+  if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp")) { //ISR,FSR,CR,UE
     syst = mass;
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_TTJets_%s",syst.Data()) << std::endl;

@@ -39,13 +39,11 @@ class Plot(object):
         self.wideCanvas = True if 'ratevsrun' in self.name else False
         self.mc = OrderedDict()
         self.mcsyst = {}
-        self.rbList = []
         self.drawUnc = True
         #self.mc = {}
         self.dataH = None
         self.data = None
         self.totalMCUnc = None
-        self.totalMCUncShape = None
         self._garbageList = []
         self.plotformats = ['pdf','png']
         self.savelog = False
@@ -53,9 +51,8 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
         if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
-        self.ratiorange = (0.76,1.24)
 
-    def add(self, h, title, color, isData, isSyst, rbList):
+    def add(self, h, title, color, isData, isSyst):
         ## hack to fix impact parameter range (cm -> um) ##
         if "pf_d" in h.GetName() and "significance" not in h.GetName():
             nbins = h.GetNbinsX()
@@ -65,19 +62,10 @@ class Plot(object):
             h.GetXaxis().SetTitle(tmptitle)
         if "massJPsi" in h.GetName() and "massJPsi_l_" not in h.GetName():
             h.GetXaxis().SetRangeUser(2.5,3.4)
-            h.GetXaxis().SetTitle("M(#mu^{+}#mu^{-}) [GeV]");
-        if "massD0" in h.GetName() and "massD0_l_" not in h.GetName():
-            h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (untagged) [GeV]");
-        if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
-            h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (tagged) [GeV]");
         if "D0_mu_tag_mu" in h.GetName():
-            h.GetXaxis().SetTitle("(D^{0} p_{T} + #mu p_{T})/#Sigma p_{T}^{ch}")
+            h.GetXaxis().SetTitle("P_{T}(D^{0}_{#mu}+#mu_{tag})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
             h.GetXaxis().SetTitle("P_{T}(J/#Psi)/#Sigma p_{T}^{ch}")
-            h.GetYaxis().SetTitle("Jets / 25")
-        elif "oJet" in h.GetName():
-            h.GetYaxis().SetTitle("Jets / 5")
-        #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
 
         h.SetTitle(title)
         if isData:
@@ -123,7 +111,6 @@ class Plot(object):
                 self.mc[title].SetFillColor(color)
                 self.mc[title].SetFillStyle(1001)
                 self._garbageList.append(h)
-        self.rbList=rbList
 
     def finalize(self):
         self.data = convertToPoissonErrorGr(self.dataH)
@@ -150,7 +137,7 @@ class Plot(object):
             except:
                 pass
 
-    def show(self, outDir,lumi,noStack=False,saveTeX=False,saveNorm=False,noRatio=False):
+    def show(self, outDir,lumi,noStack=False,saveTeX=False):
 
         if len(self.mc)<2 and self.dataH is None:
             print '%s has 0 or 1 MC!' % self.name
@@ -161,7 +148,7 @@ class Plot(object):
             return
 
         cwid=1000 if self.wideCanvas else 500
-        c = ROOT.TCanvas('c','c',cwid,500)# if noRatio is False else ROOT.TCanvas('c','c',cwid,450)
+        c = ROOT.TCanvas('c','c',cwid,500)
         c.SetBottomMargin(0.0)
         c.SetLeftMargin(0.0)
         c.SetTopMargin(0)
@@ -175,12 +162,11 @@ class Plot(object):
         c.cd()
         p1 = None
         if self.dataH:
-            if noRatio is False: p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
-            else: p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
+            p1=ROOT.TPad('p1','p1',0.0,0.2,1.0,1.0) if cwid!=1000 else ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
-            p1.SetLeftMargin(0.15)
-            p1.SetTopMargin(0.1)# if noRatio is False else p1.SetTopMargin(0.01)
-            p1.SetBottomMargin(0.01) if noRatio is False else p1.SetBottomMargin(0.12)
+            p1.SetLeftMargin(0.12)
+            p1.SetTopMargin(0.1)
+            p1.SetBottomMargin(0.01)
         else:
             p1=ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
             p1.SetRightMargin(0.05)
@@ -210,10 +196,6 @@ class Plot(object):
             if self.data is None: self.finalize()
             leg.AddEntry( self.data, self.data.GetTitle(),'p')
             nlegCols += 1
-            if saveNorm:
-                self.dataH.Scale(1./self.dataH.Integral())
-                for xbin in xrange(1,self.data.GetNbinsX()+1):
-                    xbin/=self.data.Integral()
         for h in self.mc:
             
             #compare
@@ -254,13 +236,6 @@ class Plot(object):
                 totalMC = self.mc[h].Clone('totalmc')
                 self._garbageList.append(totalMC)
                 totalMC.SetDirectory(0)
-        if saveNorm:
-            stack = ROOT.THStack('mc','mc')
-            for h in self.mc:
-                self.mc[h].Scale(1./totalMC)
-                self.mcsyst[h].Scale(1./totalMC)
-                self.mc[h].GetYaxis().SetTitle('1/N' + self.mc[h].GetYaxis().GetTitle())
-                stack.Add(self.mc[h],'hist')
         for h in self.mc:
             if 't#bar{t}' not in h: continue
             if h=='t#bar{t}':
@@ -273,8 +248,8 @@ class Plot(object):
         #if totalMC and nominalTTbar:# and 'FSR' in h:
         if totalMC and nominalTTbar and len(self.mcsyst)>0:
             nominalIntegral = nominalTTbar.Integral()
-            #for hname in self.mcsyst:#.iteritems():
-                #if self.mcsyst[hname].Integral()>0: print "%s: %s" % (hname, nominalIntegral/self.mcsyst[hname].Integral())
+            for hname in self.mcsyst:#.iteritems():
+                if self.mcsyst[hname].Integral()>0: print "%s: %s" % (hname, nominalIntegral/self.mcsyst[hname].Integral())
                 #if(self.mcsyst[hname].Integral()>0): self.mcsyst[hname].Scale(nominalIntegral/self.mcsyst[hname].Integral())
             systUp=[0.]
             systDown=[0.]
@@ -282,95 +257,31 @@ class Plot(object):
                 systUp.append(0.)
                 systDown.append(0.)
                 for hname in self.mcsyst:#.iteritems():
-                    rbIdx=-1
-                    mIdx=-1
-                    if 'FSR-down' in hname: rbIdx=2
-                    if 'FSR-up' in hname: rbIdx=4
-                    if 'UEdown' in hname: rbIdx=6
-                    if 'UEdown' in hname: rbIdx=8
-                    if 'CR' in hname: rbIdx=5
-                    #if opt.rbJson is not '': rbIdx=-1
-                    if len(self.rbList)<1: rbIdx=-1
-                    if 'meson' in self.name and 'mu_tag' in self.name: mIdx=0
-                    elif 'meson' in self.name: mIdx=1
-                    elif 'jpsi' in self.name: mIdx=2
-                    #if totalMCUnc is None:
-                        #totalMCUnc = self.mcsyst[hname].Clone()
-                    #else: totalMCUnc.Add(self.mcsyst[hname].Clone())
-                    #totalMCUnc = self.mcsyst[hname].Clone()
+                    if totalMCUnc is None:
+                        totalMCUnc = self.mcsyst[hname].Clone()
+                    else: totalMCUnc.Add(self.mcsyst[hname].Clone())
                     diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
-                    if rbIdx > 0 and diff != 0.0:
-                        diff = abs(diff)
-                        if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
-                        #print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
-                    #print self.mcsyst[hname].GetBinContent(xbin),nominalTTbar.GetBinContent(xbin),diff
                     if (diff > 0):
                         systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
                     else:
                         systDown[xbin] = math.sqrt(systDown[xbin]**2 + diff**2)
-            totalMCUnc = totalMC.Clone('totalmcunc')
+            #totalMCUnc = totalMC.Clone('totalmcunc')
             self._garbageList.append(totalMCUnc)
-            #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
-            #totalMCUnc.Add(totalMC) #1) add total MC
-            #totalMCUnc.Add(nominalTTbar,-1) #2) subtract nominal MC to add background only
+            if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
+            totalMCUnc.Add(totalMC) #1) add total MC
+            totalMCUnc.Add(nominalTTbar,-1) #2) subtract nominal MC to add background only
             totalMCUnc.SetDirectory(0)
             totalMCUnc.SetFillColor(0)
-            #totalMCUnc.SetLineColor(ROOT.kRed)
-            #totalMCUnc.SetMarkerColor(ROOT.kRed)
-            totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
-            totalMCUnc.SetFillColor(ROOT.kBlue-3)
+            totalMCUnc.SetLineColor(ROOT.kRed)
+            totalMCUnc.SetMarkerColor(ROOT.kRed)
+            #totalMCUnc.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ROOT.gStyle.SetHatchesLineWidth(1)
             totalMCUnc.SetFillStyle(400)
-            totalMCUnc.SetFillStyle(3245)
-            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                #scale=nominalIntegral/totalMCUnc.Integral()
-                #scale=len(systUp)
-                scale=1.
-                totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
-                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2) / math.sqrt(scale))
-            #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
-            for hname,h in self.mcsyst.iteritems():
-                name = hname.split(" ")[0]
-                integral=self.mc[name].Integral()
-                print name, integral
-                if(h.Integral>0): h.Scale(integral/h.Integral())
-                #if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
-            systUpShape=[0.]
-            systDownShape=[0.]
-            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                systUpShape.append(0.)
-                systDownShape.append(0.)
-                for hname in self.mcsyst:
-                    rbIdx=-1
-                    mIdx=-1
-                    if 'FSR-down' in hname: rbIdx=2
-                    if 'FSR-up' in hname: rbIdx=4
-                    if 'UEdown' in hname: rbIdx=6
-                    if 'UEdown' in hname: rbIdx=8
-                    if 'CR' in hname: rbIdx=5
-                    #if opt.rbJson is not '': rbIdx=-1
-                    if len(self.rbList)<1: rbIdx=-1
-                    if 'meson' in self.name and 'mu_tag' in self.name: mIdx=0
-                    elif 'meson' in self.name: mIdx=1
-                    elif 'jpsi' in self.name: mIdx=2
-                    diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
-                    if rbIdx > 0 and diff != 0.0:
-                        diff = abs(diff)
-                        if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
-                        #print self.rbList[mIdx][1][rbIdx],self.rbList[0][mIdx][0]
-                    if(diff > 0):
-                        systUpShape[xbin] = math.sqrt(systUpShape[xbin]**2 + diff**2)
-                    else:
-                        systDownShape[xbin] = math.sqrt(systDownShape[xbin]**2 + diff**2)
-            totalMCUncShape = totalMC.Clone("totaluncshape")
-            self._garbageList.append(totalMCUncShape)
-            totalMCUncShape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
-            totalMCUncShape.SetFillStyle(3254)
-            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                totalMCUncShape.SetBinContent(xbin, totalMCUncShape.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
-                totalMCUncShape.SetBinError(xbin, math.sqrt(totalMCUncShape.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
+            #totalMCUnc.SetFillStyle(3254)
+            #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                #totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
+                #totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2))
             self.totalMCUnc = totalMCUnc
-            self.totalMCUncShape = totalMCUncShape
 
         #test for null plots
         if totalMC :
@@ -379,7 +290,6 @@ class Plot(object):
                 if self.dataH.Integral()==0: return
         elif self.dataH is None : return
         elif self.dataH.Integral()==0 : return 
-        print self.dataH.Integral()
 
 
         frame = totalMC.Clone('frame') if totalMC is not None else self.dataH.Clone('frame')
@@ -399,26 +309,21 @@ class Plot(object):
         frame.SetDirectory(0)
         frame.Reset('ICE')
         self._garbageList.append(frame)
-        #frame.GetYaxis().SetTitleSize(0.045)
-        frame.GetYaxis().SetTitleSize(0.047)
+        frame.GetYaxis().SetTitleSize(0.045)
         frame.GetYaxis().SetLabelSize(0.04)
         frame.GetYaxis().SetNoExponent()
-        frame.GetYaxis().SetTitleOffset(1.7)
-        #frame.GetXaxis().SetTitleSize(0.0)
-        frame.GetXaxis().SetTitleSize(0.047)
-        if noRatio is False: frame.GetXaxis().SetLabelSize(0.0)
+        frame.GetYaxis().SetTitleOffset(1.3)
+        frame.GetXaxis().SetTitleSize(0.0)
+        frame.GetXaxis().SetLabelSize(0.0)
         frame.Draw()
         if totalMC is not None   : 
             if noStack: stack.Draw('nostack same')
             else      : 
                stack.Draw('hist same')
                if len(self.mcsyst)>0:
-                   #self.totalMCUnc.Draw("hist same")
+                   self.totalMCUnc.Draw("hist same")
                    #self.totalMCUnc.Draw("e2 same")
-                   #leg.AddEntry(totalMCUnc, "UE-Down", 'f')
-                   #leg.AddEntry(totalMCUnc, "Total unc.", 'f')
-                   self.totalMCUncShape.Draw("e2 same")
-                   leg.AddEntry(totalMCUncShape, "Total shape unc.", 'f')
+                   leg.AddEntry(totalMCUnc, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
 
 
@@ -439,7 +344,7 @@ class Plot(object):
         c.cd()
         if len(self.mc)>0 and self.dataH:
             p2 = ROOT.TPad('p2','p2',0.0,0.0,1.0,0.2)
-            if noRatio is False: p2.Draw()
+            p2.Draw()
             p2.SetBottomMargin(0.4)
             p2.SetRightMargin(0.05)
             p2.SetLeftMargin(0.12)
@@ -463,56 +368,38 @@ class Plot(object):
             ratioframeshape=ratioframe.Clone('ratioframeshape')
             self._garbageList.append(ratioframeshape)
             ratioframeshape.SetFillColor(ROOT.kRed)
-            #ratioframeshape.SetMarkerColor(ROOT.kRed)
-            #ratioframeshape.SetMarkerStyle(20)
-            ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
-            ratioframeunc=ratioframeshape.Clone('ratioframeunc')
-            ratioframeunc.SetFillColor(ROOT.kBlue-3)
-            ratioframeunc.SetFillStyle(3245)
-            ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
+            ratioframeshape.SetMarkerColor(ROOT.kRed)
+            ratioframeshape.SetMarkerStyle(20)
+            #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#99d8c9'))
             ratioframeshape.SetFillStyle(3254)
-            ratio=self.dataH.Clone('ratio')
+            #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             if len(self.mcsyst)>0:
                 for xbin in xrange(1,totalMC.GetNbinsX()+1):
                     val=totalMC.GetBinContent(xbin)
-                    unc=self.totalMCUnc.GetBinError(xbin)
-                    uncs=self.totalMCUncShape.GetBinError(xbin)
+                    unc=totalMC.GetBinError(xbin)
                     if val>0:
-                        totalMCUnc=ROOT.TMath.Sqrt((unc/val)**2)# + unc**2)
-                        totalMCUncShape=ROOT.TMath.Sqrt((uncs/val)**2)# + unc**2)
-                        #if self.totalMCUnc.GetBinContent(xbin) > 0:
-                            #ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
-                        ratioframeshape.SetBinContent(xbin,self.totalMCUncShape.GetBinContent(xbin)/val)
-                        ratioframeshape.SetBinError(xbin,totalMCUncShape)
-                        ratioframeunc.SetBinContent(xbin,self.totalMCUnc.GetBinContent(xbin)/val)
-                        ratioframeunc.SetBinError(xbin,totalMCUnc)
-                        #ratioframeunc.SetBinError(xbin, ratio.GetBinError(xbin)/self.totalMCUnc.GetBinContent(xbin))
-                        #if(ratio.GetBinContent(xbin)>0): ratioframeunc.SetBinError(xbin, math.sqrt(ratio.GetBinError(xbin)**2/ratio.GetBinContent(xbin)**2 + self.totalMCUnc.GetBinError(xbin)**2/self.totalMCUnc.GetBinContent(xbin)**2))
-                        #ratioframeunc.SetBinContent(xbin, ratio.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
-                        #ratioframeunc=self.totalMCUnc.Clone('ratioframunc')
-                        #ratioframeunc.Divide(self.totalMCUnc,self.totalMCUnc)
-                        #ratioframeunc.SetFillColor(ROOT.kBlue-3)
-                        #ratioframeunc.SetFillStyle(3245)
+                        totalUnc=ROOT.TMath.Sqrt((unc/val)**2)# + unc**2)
+                        if self.totalMCUnc.GetBinContent(xbin) > 0:
+                            ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
+                        ratioframeshape.SetBinError(xbin,totalUnc)
 
 
             ratioframe.Draw()
-            #if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
-            #if len(self.mcsyst)>0: ratioframeunc.Draw("e2 same")
-            if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
+            if len(self.mcsyst)>0: ratioframeshape.Draw("p same")
+            #if len(self.mcsyst)>0: ratioframeshape.Draw("e2 same")
 
             try:
-                #ratio=nominalTTbar.Clone('ratio') #use for purity plots (S/(S+B))
                 ratio=self.dataH.Clone('ratio')
                 ratio.SetDirectory(0)
                 self._garbageList.append(ratio)
-                ratio.Divide(totalMC)
-                #for xbin in xrange(1,ratio.GetNbinsX()+1):
-                    #if totalMC.GetBinContent(xbin) > 0.:
-                        #ratio.SetBinError(xbin, ratio.GetBinError(xbin)/totalMC.GetBinContent(xbin))
-                        #ratio.SetBinContent(xbin, ratio.GetBinContent(xbin)/totalMC.GetBinContent(xbin))
-                    #else:
-                        #ratio.SetBinError  (xbin, 0.)
-                        #ratio.SetBinContent(xbin, 0.)
+                #ratio.Divide(totalMC)
+                for xbin in xrange(1,ratio.GetNbinsX()+1):
+                    if totalMC.GetBinContent(xbin) > 0.:
+                        ratio.SetBinError(xbin, ratio.GetBinError(xbin)/totalMC.GetBinContent(xbin))
+                        ratio.SetBinContent(xbin, ratio.GetBinContent(xbin)/totalMC.GetBinContent(xbin))
+                    else:
+                        ratio.SetBinError  (xbin, 0.)
+                        ratio.SetBinContent(xbin, 0.)
                 gr=ROOT.TGraphAsymmErrors(ratio)
                 gr.SetMarkerStyle(self.data.GetMarkerStyle())
                 gr.SetMarkerSize(self.data.GetMarkerSize())
@@ -531,10 +418,7 @@ class Plot(object):
         #save
         #if self.noPU: 
             #self.name += "_noPU"
-        if noRatio:
-            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'_noRatio.'+ext))
-        else:
-            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
+        for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
         if self.savelog:
             p1.cd()
             frame.GetYaxis().SetRangeUser(1,maxY*50)
@@ -640,7 +524,6 @@ def main():
     parser = optparse.OptionParser(usage)
     parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
     parser.add_option(      '--systJson',    dest='systJson',    help='json with list of systematics',  default=None,              type='string')
-    parser.add_option(      '--rbJson',      dest='rbJson',      help='json with list of systematics',  default=None,              type='string')
     parser.add_option('-i', '--inDir',       dest='inDir' ,      help='input directory',                default=None,              type='string')
     parser.add_option('-o', '--outName',     dest='outName' ,    help='name of the output file',        default='plotter.root',    type='string')
     parser.add_option(      '--noStack',     dest='noStack',     help='don\'t stack distributions',     default=False,             action='store_true')
@@ -648,14 +531,12 @@ def main():
     parser.add_option(      '--saveNorm',    dest='saveNorm' ,   help='save normalised versions of the plots', default=False,             action='store_true')
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
-    parser.add_option(      '--noRatio',     dest='noRatio' ,    help='don\'t save ratio plot',         default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default='data/era2016/lumi.json',        type='string')
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
     parser.add_option(      '--run',         dest='run',         help='plot only in run',               default="BCDEFGH",         type='string')
     parser.add_option(      '--puNormSF',    dest='puNormSF',    help='Use this histogram to correct pu weight normalization', default=None, type='string')
     parser.add_option(      '--procSF',      dest='procSF',      help='Use this to scale a given process component e.g. "W":.wjetscalefactors.pck,"DY":dyscalefactors.pck', default=None, type='string')
-    parser.add_option(      '--rbFit',       dest='rbFit' ,      help='Adjust normalization for r_B fit', default=False,            action='store_true')
     (opt, args) = parser.parse_args()
 
     #read list of samples
@@ -663,12 +544,6 @@ def main():
     samplesList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
     #samplesList=list(reversed(samplesList))
     jsonFile.close()
-
-    systs = ['/TRIGGER', '/TRK', '/LEP', '/PU', '/PI', '/JER' ]
-    inDir = [opt.inDir]
-    for syst in systs:
-        for s in ['/up','/down']:
-            inDir+=[opt.inDir+s+syst]
 
     #read list of syst samples
     systSamplesList = []
@@ -678,15 +553,6 @@ def main():
             systJsonFile = open(jsonPath,'r')
             systSamplesList += json.load(systJsonFile,encoding='utf-8').items()
             systJsonFile.close()
-
-    #read list of r_B systs
-    rbSamplesList = []
-    if opt.rbJson:
-        rbJsonList = opt.rbJson.split(',')
-        for jsonPath in rbJsonList:
-            rbJsonFile = open(jsonPath,'r')
-            rbSamplesList += json.load(rbJsonFile,encoding='utf-8').items()
-            rbJsonFile.close()
 
     #read list of lumis
     jsonFile = open(opt.lumi,'r')
@@ -719,9 +585,6 @@ def main():
     for slist,isSyst in [(reversed(samplesList),False),(systSamplesList,True)]:
         if slist is None: continue
         for tag,sample in slist:
-            if isSyst and "t#bar{t} " not in sample[3]: continue #only TTbar systematics
-            if 'MC13TeV_TTWToLNu' in tag: continue #skip broken files
-            if 'MC13TeV_W4Jets_ext2' in tag: continue #2 merged in with ext
             if tag[0] is None: continue
             splitRun = lambda x: ["2016" + x[i] for i in range(0, len(x), 1)]
             split_run = splitRun( opt.run )
@@ -737,235 +600,159 @@ def main():
                 for flav in [(1,sample[3]+'+l'),(4,sample[3]+'+c'),(5,sample[3]+'+b',sample[4])]:
                     subProcs.append(('%d_%s'%(flav[0],tag),flav[1],sample[4]+3*len(subProcs)))
             for sp in subProcs:
-                for Dir in inDir:
 
-                    tmp=''
-                    if '/up/' in Dir:
-                        tmp = Dir.split('/')[-1]
-                        if tmp not in sp[0]: continue
-                        tmp = 'up/' + tmp
-                        #if 'powheg' not in sp[0]: continue
-                        #sp[0]+=tmp
-                    if '/down/' in Dir:
-                        tmp = Dir.split('/')[-1]
-                        if tmp not in sp[0]: continue
-                        #if 'powheg' not in sp[0]: continue
-                        tmp = 'down/' + tmp
-                        #sp[0]+=tmp
-                    if 'up' in Dir and '_up_' not in sp[0]: continue
-                    if 'down' in Dir and '_down_' not in sp[0]: continue
-                    if 'up' not in Dir and '_up_' in sp[0]: continue
-                    if 'down' not in Dir and '_down_' in sp[0]: continue
-                    fIn=ROOT.TFile.Open('%s/%s.root' % ( Dir, sp[0]) )
-                    #fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
-                    if not fIn : continue
-                    print 'Loading file: %s' % sp[0]
+                fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
+                if not fIn : continue
+                print 'Loading file: %s' % sp[0]
 
-                    #fix top pT weighting normalization
-                    topPtNorm=1
-                    if not isData and "TTJets" in tag:
-                        try:
-                            topPtBCDEF=fIn.Get("topptwgt_BCDEF")
-                            nonTopWgtBCDEF=topPtBCDEF.GetBinContent(1)
-                            topWgtBCDEF=topPtBCDEF.GetBinContent(2)
-                        except: pass
-                        try:
-                            topPtGH=fIn.Get("topptwgt_GH")
-                            nonTopWgtGH=topPtGH.GetBinContent(1)
-                            topWgtGH=topPtGH.GetBinContent(2)
-                        except: pass
-                        if topWgtBCDEF>0 :
-                            topPtNormBCDEF=topWgtBCDEF/nonTopWgtBCDEF
-                            report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormBCDEF,"BCDEF")
-                        if topWgtGH>0 :
-                            topPtNormGH=topWgtGH/nonTopWgtGH
-                            report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
-
-                    #fix pileup weighting normalization
-                    puNormSF=1
-                    if opt.puNormSF and not isData:
-                        if(opt.run == "BCDEFGH"):
-                          puBCDEF = opt.puNormSF.split("_")
-                          if puBCDEF[-1] in opt.run:
-                              puBCDEF[-1] = "BCDEF"
-                          else:
-                              puBCDEF.append("BCDEF")
-                          puBCDEF = "_".join(puBCDEF)
-                          try:
-                              puCorrHBCDEF=fIn.Get(puBCDEF)
-                              nonWgtBCDEF=puCorrHBCDEF.GetBinContent(1)
-                              wgtBCDEF=puCorrHBCDEF.GetBinContent(2)
-                          except: pass
-                          puGH = opt.puNormSF.split("_")
-                          if puGH[-1] in opt.run:
-                              puGH[-1] = "GH"
-                          else:
-                              puGH.append("GH")
-                          puGH = "_".join(puGH)
-                          try:
-                              puCorrHGH=fIn.Get(puGH)
-                              nonWgtGH=puCorrHGH.GetBinContent(1)
-                              wgtGH=puCorrHGH.GetBinContent(2)
-                          except: pass
-                          if wgtBCDEF>0 :
-                              puNormSFBCDEF=nonWgtBCDEF/wgtBCDEF
-                              if puNormSFBCDEF>1.3 or puNormSF<0.7 : 
-                                  puNormSFBCDEF=1
-                                  report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                              else :
-                                  report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFBCDEF,"BCDEF")
-                          if wgtGH>0 :
-                              puNormSFGH=nonWgtGH/wgtGH
-                              if puNormSF>1.3 or puNormSF<0.7 : 
-                                  puNormSFGH=1
-                                  report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                              else :
-                                  report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFGH,"GH")
-
-                        else:
-                            puCorrH=fIn.Get(opt.puNormSF)
-                            nonWgt=puCorrH.GetBinContent(1)
-                            wgt=puCorrH.GetBinContent(2)
-                            if wgt>0 :
-                                puNormSF=nonWgt/wgt
-                                if puNormSF>1.3 or puNormSF<0.7 : 
-                                    puNormSF=1
-                                    report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                                else :
-                                    report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
-
-                    #fix r_B fit weighting normalization
-                    rbFitSF=1
-                    rbFitSFs=[[1,1],[1,1],[1,1]]
-                    if opt.rbFit and not isData:
-                        if(opt.run == "BCDEFGH"):
-                          for num,rbFit in enumerate(["rbwgt_jpsi_BCDEFGH","rbwgt_d0_BCDEFGH","rbwgt_d0mu_BCDEFGH"]):
-                              rbBCDEF = rbFit.split("_")
-                              if rbBCDEF[-1] in opt.run:
-                                  rbBCDEF[-1] = "BCDEF"
-                              else:
-                                  rbBCDEF.append("BCDEF")
-                              rbBCDEF = "_".join(rbBCDEF)
-                              try:
-                                  rbCorrHBCDEF=fIn.Get(rbBCDEF)
-                                  nonWgtBCDEF=rbCorrHBCDEF.GetBinContent(1)
-                                  wgtBCDEF=rbCorrHBCDEF.GetBinContent(2)
-                              except: pass
-                              rbGH = rbFit.split("_")
-                              if rbGH[-1] in opt.run:
-                                  rbGH[-1] = "GH"
-                              else:
-                                  rbGH.append("GH")
-                              rbGH = "_".join(rbGH)
-                              try:
-                                  rbCorrHGH=fIn.Get(rbGH)
-                                  nonWgtGH=rbCorrHGH.GetBinContent(1)
-                                  wgtGH=rbCorrHGH.GetBinContent(2)
-                              except: pass
-                              if wgtBCDEF>0 :
-                                  rbFitSFBCDEF=nonWgtBCDEF/wgtBCDEF
-                                  if rbFitSFBCDEF>1.3 or rbFitSFBCDEF<0.7 : 
-                                      rbFitSFBCDEF=1
-                                      report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                                  else :
-                                      report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFBCDEF,rbFit.split("_")[1],"BCDEF")
-                                  rbFitSFs[num][0]=wgtBCDEF
-                              if wgtGH>0 :
-                                  rbFitSFGH=nonWgtGH/wgtGH
-                                  if rbFitSFGH>1.3 or rbFitSFGH<0.7 : 
-                                      rbFitSFGH=1
-                                      report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
-                                  else :
-                                      report += '%s was scaled by %3.3f for rB fit %s epoch %s normalization\n' % (sp[0],rbFitSFGH,rbFit.split("_")[1],"GH")
-                                  rbFitSFs[num][1]=wgtGH
+                #fix top pT weighting normalization
+                topPtNorm=1
+                if not isData and "TTJets" in tag:
                     try:
-                        for tkey in fIn.GetListOfKeys():
+                        topPtBCDEF=fIn.Get("topptwgt_BCDEF")
+                        nonTopWgtBCDEF=topPtBCDEF.GetBinContent(1)
+                        topWgtBCDEF=topPtBCDEF.GetBinContent(2)
+                    except: pass
+                    try:
+                        topPtGH=fIn.Get("topptwgt_GH")
+                        nonTopWgtGH=topPtGH.GetBinContent(1)
+                        topWgtGH=topPtGH.GetBinContent(2)
+                    except: pass
+                    if topWgtBCDEF>0 :
+                        topPtNormBCDEF=topWgtBCDEF/nonTopWgtBCDEF
+                        report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormBCDEF,"BCDEF")
+                    if topWgtGH>0 :
+                        topPtNormGH=topWgtGH/nonTopWgtGH
+                        report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
 
-                            key=tkey.GetName()
-                            keep=True
-                            keep=False if len(onlyList)>0 else True
-                            for pname in onlyList:
-                                if pname in key: keep=True
-                                #if "_ljet_" in pname and "_m_" in key: keep=True
-                                #if "_ljet_" in pname and "_m_" in key: keep=True
-                            #hack to ignore WJets in D meson mass plots FIXME
-                            #if "massD" in key and "WJets" in tag:
-                                #keep=False
-                            #hack to ignoe WJets and DY in JPSi plots
-                              #Single event with large weight
-                            #if "_jpsi" in key and "WJets" in tag: continue
-                            #if "_jpsi" in key and "DY" in tag: continue
-                            #if "_tag" in key and "WJets" in tag: continue
-                            #if "mass" in key and "_meson" in key and "WJets" in tag: continue
-                            #if "_"+opt.run not in key and opt.run != "BCDEFGH" :
-                            if opt.run not in key and opt.run != "BCDEFGH" :
-                                 keep=False
-                            #if key.split("_")[-1] != opt.run: continue
-                            if "_BCDEFGH" in key: continue
-                            if not keep: continue
-                            obj=fIn.Get(key)
-                            if not obj.InheritsFrom('TH1') : continue
-                            if not isData and not '(data)' in sp[1]: 
-                                sfVal=1.0
-                                for procToScale in procSF:
-                                    if sp[1]==procToScale:
-                                    #if procToScale in sp[1]:
-                                        for pcat in procSF[procToScale]:                                    
-                                            if pcat not in key: continue
-                                            sfVal=procSF[procToScale][pcat][0]
-                                        #print 'Applying scale factor for ',sp[1],key,sfVal
-                                lumi=obj.GetName().split("_")[-1]
-                                if(lumi not in opt.run): lumi=opt.run
-                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): puNormSF=puNormSFBCDEF
-                                elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
-                                if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
-                                elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
-                                lumi=lumiList[lumi]
-                                #if("TTJets" in tag): lumi=lumi*0.733417
-                                #if "fsr" not in sp[0] and "isr" not in sp[0]:
-                                    #xsec=1. #now stored in normH
-                                
-                                #if("_jpsi_" in obj.GetName()): 
-                                    #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[0][0]
-                                    #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[0][1]
-                                #elif("_meson_" in obj.GetName() and "mu_tag" in obj.GetName()): 
-                                    #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[2][0]
-                                    #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[2][1]
-                                #elif("_meson_" in obj.GetName()): 
-                                    #if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSFs[1][0]
-                                    #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
-                                if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
-                                elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
-                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
-                                #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
-                            if("JPsioJet" in obj.GetName()): obj.Rebin(2)
-                            over=True
-                            under=True
-                            if "meson" in key: over=False
-                            if "meson" in key: under=False
-                            if "l3d" in key: over=False
-                            if "l3d" in key: under=False
-                            if "mass" in key: over=False
-                            if "mass" in key: under=False
-                            if "oJet" in key: over=False
-                            fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
-                            if opt.rebin>1:  obj.Rebin(opt.rebin)
-                            if opt.run != "BCDEFGH":
-                                if not key in plots : plots[key]=Plot(key)
-                                plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
-                            else:
-                                if key.split("_")[-1] in ("BCDEF","GH"):
-                                    tmpkey = key.split("_")
-                                    tmpkey[-1]="BCDEFGH"
-                                    tmpkey="_".join(tmpkey)
-                                    tmp = obj.GetName().split("_")
-                                    tmp[-1]="BCDEFGH"
-                                    tname="_".join(tmp)
-                                    obj.SetName(tname)
-                                    if not tmpkey in plots : plots[tmpkey]=Plot(tmpkey)
-                                    plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst,rbList=rbSamplesList)
-                    except:
-                        pass
+                #fix pileup weighting normalization
+                puNormSF=1
+                if opt.puNormSF and not isData:
+                    if(opt.run == "BCDEFGH"):
+                      puBCDEF = opt.puNormSF.split("_")
+                      if puBCDEF[-1] in opt.run:
+                          puBCDEF[-1] = "BCDEF"
+                      else:
+                          puBCDEF.append("BCDEF")
+                      puBCDEF = "_".join(puBCDEF)
+                      try:
+                          puCorrHBCDEF=fIn.Get(puBCDEF)
+                          nonWgtBCDEF=puCorrHBCDEF.GetBinContent(1)
+                          wgtBCDEF=puCorrHBCDEF.GetBinContent(2)
+                      except: pass
+                      puGH = opt.puNormSF.split("_")
+                      if puGH[-1] in opt.run:
+                          puGH[-1] = "GH"
+                      else:
+                          puGH.append("GH")
+                      puGH = "_".join(puGH)
+                      try:
+                          puCorrHGH=fIn.Get(puGH)
+                          nonWgtGH=puCorrHGH.GetBinContent(1)
+                          wgtGH=puCorrHGH.GetBinContent(2)
+                      except: pass
+                      if wgtBCDEF>0 :
+                          puNormSFBCDEF=nonWgtBCDEF/wgtBCDEF
+                          if puNormSFBCDEF>1.3 or puNormSF<0.7 : 
+                              puNormSFBCDEF=1
+                              report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                          else :
+                              report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFBCDEF,"BCDEF")
+                      if wgtGH>0 :
+                          puNormSFGH=nonWgtGH/wgtGH
+                          if puNormSF>1.3 or puNormSF<0.7 : 
+                              puNormSFGH=1
+                              report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                          else :
+                              report += '%s was scaled by %3.3f for pileup epoch %s normalization\n' % (sp[0],puNormSFGH,"GH")
+
+                    else:
+                        puCorrH=fIn.Get(opt.puNormSF)
+                        nonWgt=puCorrH.GetBinContent(1)
+                        wgt=puCorrH.GetBinContent(2)
+                        if wgt>0 :
+                            puNormSF=nonWgt/wgt
+                            if puNormSF>1.3 or puNormSF<0.7 : 
+                                puNormSF=1
+                                report += '%s wasn\'t be scaled as too large SF was found (probably low stats)\n' % sp[0]
+                            else :
+                                report += '%s was scaled by %3.3f for pileup normalization\n' % (sp[0],puNormSF)
+
+                try:
+                    for tkey in fIn.GetListOfKeys():
+
+                        key=tkey.GetName()
+                        keep=True
+                        keep=False if len(onlyList)>0 else True
+                        for pname in onlyList:
+                            if pname in key: keep=True
+                            #if "_ljet_" in pname and "_m_" in key: keep=True
+                            #if "_ljet_" in pname and "_m_" in key: keep=True
+                        #hack to ignore WJets in D meson mass plots FIXME
+                        #if "massD" in key and "WJets" in tag:
+                            #keep=False
+                        #hack to ignoe WJets and DY in JPSi plots
+                          #Single event with large weight
+                        #if "_jpsi" in key and "WJets" in tag: continue
+                        #if "_jpsi" in key and "DY" in tag: continue
+                        #if "_tag" in key and "WJets" in tag: continue
+                        #if "mass" in key and "_meson" in key and "WJets" in tag: continue
+                        #if "_"+opt.run not in key and opt.run != "BCDEFGH" :
+                        if opt.run not in key and opt.run != "BCDEFGH" :
+                             keep=False
+                        #if key.split("_")[-1] != opt.run: continue
+                        if "_BCDEFGH" in key: continue
+                        if not keep: continue
+                        obj=fIn.Get(key)
+                        if not obj.InheritsFrom('TH1') : continue
+                        if not isData and not '(data)' in sp[1]: 
+                            sfVal=1.0
+                            for procToScale in procSF:
+                                if sp[1]==procToScale:
+                                #if procToScale in sp[1]:
+                                    for pcat in procSF[procToScale]:                                    
+                                        if pcat not in key: continue
+                                        sfVal=procSF[procToScale][pcat][0]
+                                    #print 'Applying scale factor for ',sp[1],key,sfVal
+                            lumi=obj.GetName().split("_")[-1]
+                            if(lumi not in opt.run): lumi=opt.run
+                            if(opt.run == "BCDEFGH" and lumi == "BCDEF"): puNormSF=puNormSFBCDEF
+                            elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
+                            if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
+                            elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
+                            lumi=lumiList[lumi]
+                            #if("TTJets" in tag): lumi=lumi*0.733417
+                            #if "fsr" not in sp[0] and "isr" not in sp[0]:
+                                #xsec=1. #now stored in normH
+                            obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm)
+                            #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
+                        over=True
+                        under=True
+                        if "meson" in key: over=False
+                        if "meson" in key: under=False
+                        if "l3d" in key: over=False
+                        if "l3d" in key: under=False
+                        if "mass" in key: over=False
+                        if "mass" in key: under=False
+                        if "oJet" in key: over=False
+                        fixExtremities(h=obj,addOverflow=over,addUnderflow=under)
+                        if opt.rebin>1:  obj.Rebin(opt.rebin)
+                        if opt.run != "BCDEFGH":
+                            if not key in plots : plots[key]=Plot(key)
+                            plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
+                        else:
+                            if key.split("_")[-1] in ("BCDEF","GH"):
+                                tmpkey = key.split("_")
+                                tmpkey[-1]="BCDEFGH"
+                                tmpkey="_".join(tmpkey)
+                                tmp = obj.GetName().split("_")
+                                tmp[-1]="BCDEFGH"
+                                tname="_".join(tmp)
+                                obj.SetName(tname)
+                                if not tmpkey in plots : plots[tmpkey]=Plot(tmpkey)
+                                plots[tmpkey].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
+                except:
+                    pass
 
     #show plots
     ROOT.gStyle.SetOptTitle(0)
@@ -979,7 +766,7 @@ def main():
         if opt.saveLog    : plots[p].savelog=True
         #if not opt.puNormSF    : plots[p].noPU=True
         lumiTotal=lumiList[opt.run]
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX,saveNorm=opt.saveNorm,noRatio=opt.noRatio)
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX)
         outName = opt.outName.replace(".root","_"+opt.run+".root")
         plots[p].appendTo('%s/%s'%(outDir,outName))
         plots[p].reset()

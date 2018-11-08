@@ -214,6 +214,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         ev.pf_c[k]   = 0;
       }
     }
+    /* no need to drop since Kalman tracks are matched to PF in Kalman.cc
     for (int k = 0; k < ev.npf; k++) {
       if (abs(ev.k_pf_id[k]) != 211 && abs(ev.k_pf_id[k]) != 321) continue;
       if (ev.k_pf_eta[k] < minEta) continue;
@@ -225,6 +226,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         ev.k_pf_eta[k] = 999.;
       }
     }
+    */
   }
   else { // sf > 1
     // find charged hadrons that were not reconstructed
@@ -284,7 +286,8 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       ev.pf_m[k]   = ev.gpf_m[g];
       ev.pf_mother[k] = ev.gpf_mother[g]; //Store mother ID for D mesons (since Kalman filter wasn't run on GEN particles)
       //Update Kalman tracks
-      if(ev.gpf_mother[k]==443 || ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) {
+      if(ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) { //don't need J/Psi since this is pion only
+      //if(ev.gpf_mother[k]==443 || ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) {
         int kpf = ++ev.nkpf;
         ev.njpsi++;
         ev.nmeson++;
@@ -298,8 +301,8 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         ev.k_l3d[kpf] = 1.;
         ev.k_sigmal3d[kpf] = 0.01; //random to pass sig cut > 10
         ev.k_j[kpf] = j;
-        if(ev.gpf_mother[k]==443) ev.k_mass[kpf] = 3.096;
-        else if(ev.gpf_mother[k]==421) ev.k_mass[kpf] = 1.864;
+        //if(ev.gpf_mother[k]==443) ev.k_mass[kpf] = 3.097; //no J/Psi
+        if(ev.gpf_mother[k]==421) ev.k_mass[kpf] = 1.864;
         else if(ev.gpf_mother[k]==413) ev.k_mass[kpf] = 2.010;
       }
       ev.pf_dxy[k] = 0.;

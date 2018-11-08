@@ -33,7 +33,7 @@ d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down']#, 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
 
@@ -67,7 +67,11 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-while i < len(syst)-1:
+skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
+while i < len(syst):
+    if syst[i] in skip: 
+      i+=1
+      continue
     down[0] = (down[0]**2 + (rbList[0][1][j]-rbList[0][1][0])**2)**.5
     down[2] = (down[2]**2 + (rbList[1][1][j]-rbList[1][1][0])**2)**.5
     down[4] = (down[4]**2 + (rbList[2][1][j]-rbList[2][1][0])**2)**.5

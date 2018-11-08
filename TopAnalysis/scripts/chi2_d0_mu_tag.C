@@ -21,9 +21,10 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
+int epoch(0);
 
 TString report("");
-TString json("\"d0_mu_tag\" :      [");
+TString json("\"d0_mu\" :      [");
 float chi2_d0_mu_tag_test(TString tune="", TString name="");
 void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
@@ -44,6 +45,8 @@ void chi2_d0_mu_tag() {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
+  run_chi2_d0_mu_tag("hdampdown");
+  run_chi2_d0_mu_tag("hdampup");
 
   json += ("],");
   std::cout << json << std::endl;
@@ -170,10 +173,10 @@ else
 fmc = TFile::Open(TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data()));
 
 //TString cut("j_pt_ch<75");
-TString cut("epoch==2"); 
+TString cut(TString::Format("epoch==%d",epoch));
 
 TH1F *mc,*data;
-/*
+if(epoch>0) {
 if(fmc->GetListOfKeys()->Contains("h_ptfrac_hist")) mc = (TH1F*)fmc->Get("h_ptfrac_hist;1");
 else {
 RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");
@@ -195,7 +198,8 @@ delete ptfrac_mc;
 delete ptfrac_mc_hist;
 delete ptfrac_mc_pdf;
 }
-*/
+}
+else {
 RooPlot *tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
@@ -207,14 +211,15 @@ data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
 delete tmp;
+}
 
-/*
+if(epoch>0) {
 if(fdata->GetListOfKeys()->Contains("h_ptfrac_hist")) data = (TH1F*)fdata->Get("h_ptfrac_hist");
 else {
 RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 if(tune == "") ptfrac=*wdata->var("ptfrac");
 wdata->var("ptfrac")->setBins(22);
-sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
@@ -228,7 +233,7 @@ data->SetTitle("ptfrac_sig");
 delete ptfrac_data;
 delete sigData;
 }
-*/
+}
 
 /*
 if(tune.Length() > 0) {

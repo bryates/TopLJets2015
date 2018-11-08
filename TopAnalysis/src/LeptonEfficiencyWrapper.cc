@@ -62,7 +62,7 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
 	  {
 	    float sflep(lepEffH_["m_singleleptrig"]->GetBinContent(xbin,ybin)); 
 	    float sflepUnc(lepEffH_["m_singleleptrig"]->GetBinError(xbin,ybin));
-            sflepUnc = sqrt(pow(sflep,2) + pow(0.005*sflep,2)); //5% systematic unc
+            sflepUnc = sqrt(pow(sflep,2) + pow(0.005*sflep,2)); //0.5% systematic unc
 	    lepEffH_["m_singleleptrig"]->SetBinContent(xbin,ybin,sflep);
 	    lepEffH_["m_singleleptrig"]->SetBinError(xbin,ybin,sflepUnc);
 	  }
