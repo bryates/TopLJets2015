@@ -122,6 +122,19 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D")->Clone();
       lepEffH_["e_sel"]->SetDirectory(0);     
+      for(Int_t xbin=1; xbin<=(lepEffH_["e_sel"])->GetNbinsX(); xbin++)
+	for(Int_t ybin=1; ybin<=(lepEffH_["e_sel"])->GetNbinsY(); ybin++)
+	  {
+            if(isoH->GetYaxis()->GetBinCenter(ybin) > 20 && isoH->GetYaxis()->GetBinCenter(ybin) < 80) continue; //Add 1% syst for <20 GeV and >80 GeV
+	    float sf(lepEffH_["e_sel"]->GetBinContent(xbin,ybin));
+	    float sfUnc(lepEffH_["e_sel"]->GetBinError(xbin,ybin));
+            //sfidUnc = sqrt(pow(sfid,2) + pow(0.01*sfid,2)); //1% systematic unc
+            //sfisoUnc = sqrt(pow(sfisoUnc,2) + pow(0.005*sfiso,2)); //0.5% systematic unc
+	    //float sf(sfid*sfiso), sfUnc(sqrt(pow(sfid*sfisoUnc,2)+pow(sfidUnc*sfiso,2)));
+	    sfUnc = sqrt(pow(sfUnc,2) + pow(sfUnc,2) + pow(0.01*sf,2));
+	    lepEffH_["e_sel"]->SetBinContent(xbin,ybin,sf);
+	    lepEffH_["e_sel"]->SetBinError(xbin,ybin,sfUnc);
+	  }
       fIn->Close();
                     //ElectronReco_egammaEffi_Moriond17_EGM2D.root
       lepEffUrl=era+"/ElectronReco_egammaEffi_Moriond17_EGM2D.root";
