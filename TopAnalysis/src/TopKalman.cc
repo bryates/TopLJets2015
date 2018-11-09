@@ -389,7 +389,7 @@ void RunTopKalman(TString filename,
 
       //Electrons.setMinPt(12);
       Electrons.setMinPt(30);
-      Electrons.setMaxEta(2.4);
+      Electrons.setMaxEta(2.1); //trigger is eta2p1
       Electrons.setMaxRelIso(0.15);
 
       VetoLeptons.setMinPt(15);

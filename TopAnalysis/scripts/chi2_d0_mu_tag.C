@@ -30,6 +30,7 @@ void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
+  /*
   run_chi2_d0_mu_tag("");
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
@@ -45,6 +46,7 @@ void chi2_d0_mu_tag() {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
   }
+  */
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
 
