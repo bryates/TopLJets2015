@@ -67,7 +67,7 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
+skip=['Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
 while i < len(syst):
     if syst[i] in skip: 
       i+=1
@@ -120,7 +120,7 @@ print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(sys
 print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[2][1][0], rbList[2][1][1], max(abs(up[4]),abs(up[5])), max(abs(down[4]),abs(down[5]))))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'   'hdamp'")
+print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'   'hdamp'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
@@ -157,7 +157,7 @@ for l in xrange(0,3):
 print('')
 
 print('Syst up for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'    'hdamp'")
+print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'    'hdamp'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
@@ -194,7 +194,7 @@ for l in xrange(0,3):
 print('')
 
 print('Syst down for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'trk'  'lep'  'pu'   'pi'    'hdamp'")
+print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'    'hdamp'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:

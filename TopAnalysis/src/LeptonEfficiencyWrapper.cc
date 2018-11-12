@@ -18,7 +18,6 @@ LeptonEfficiencyWrapper::LeptonEfficiencyWrapper(bool isData,TString era,TString
   else if(TString("GH").Contains(runPeriod)) runPeriod_ = "GH";
   else runPeriod_ = "BCDEF";
   debug_ = debug;
-  std::cout << runPeriod_ << " " << era << std::endl;
   if(debug_) std::cout << "Initializing efficiencies for " << era << " runPeriod " << runPeriod_ << std::endl;
   init(era,runPeriod_);
 }
@@ -123,22 +122,6 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_sel"]=(TH2 *)fIn->Get("EGamma_SF2D")->Clone();
       lepEffH_["e_sel"]->SetDirectory(0);     
-      for(Int_t xbin=1; xbin<=(lepEffH_["e_sel"])->GetNbinsX(); xbin++)
-	for(Int_t ybin=1; ybin<=(lepEffH_["e_sel"])->GetNbinsY(); ybin++)
-	  {
-            std::cout << xbin << " " << ybin << std::endl;
-            if(lepEffH_["e_sel"]->GetYaxis()->GetBinCenter(ybin) > 20 && lepEffH_["e_sel"]->GetYaxis()->GetBinCenter(ybin) < 80) continue; //Add 1% syst for <20 GeV and >80 GeV
-	    float sf(lepEffH_["e_sel"]->GetBinContent(xbin,ybin));
-	    float sfUnc(lepEffH_["e_sel"]->GetBinError(xbin,ybin));
-            std::cout << sf << " " << sfUnc << std::endl;
-            //sfidUnc = sqrt(pow(sfid,2) + pow(0.01*sfid,2)); //1% systematic unc
-            //sfisoUnc = sqrt(pow(sfisoUnc,2) + pow(0.005*sfiso,2)); //0.5% systematic unc
-	    //float sf(sfid*sfiso), sfUnc(sqrt(pow(sfid*sfisoUnc,2)+pow(sfidUnc*sfiso,2)));
-	    sfUnc = sqrt(pow(sfUnc,2) + pow(sfUnc,2) + pow(0.01*sf,2));
-            std::cout << sf << " " << sfUnc << std::endl;
-	    lepEffH_["e_sel"]->SetBinContent(xbin,ybin,sf);
-	    lepEffH_["e_sel"]->SetBinError(xbin,ybin,sfUnc);
-	  }
       fIn->Close();
                     //ElectronReco_egammaEffi_Moriond17_EGM2D.root
       lepEffUrl=era+"/ElectronReco_egammaEffi_Moriond17_EGM2D.root";
@@ -146,6 +129,16 @@ void LeptonEfficiencyWrapper::init(TString era,TString runPeriod)
       fIn=TFile::Open(lepEffUrl);
       lepEffH_["e_reco"]=(TH2 *)fIn->Get("EGamma_SF2D");
       lepEffH_["e_reco"]->SetDirectory(0);
+      for(Int_t xbin=1; xbin<=(lepEffH_["e_reco"])->GetNbinsX(); xbin++)
+	for(Int_t ybin=1; ybin<=(lepEffH_["e_reco"])->GetNbinsY(); ybin++)
+	  {
+            if(lepEffH_["e_reco"]->GetYaxis()->GetBinCenter(ybin) > 20 && lepEffH_["e_reco"]->GetYaxis()->GetBinCenter(ybin) < 80) continue; //Add 1% syst for <20 GeV and >80 GeV
+	    float sf(lepEffH_["e_reco"]->GetBinContent(xbin,ybin));
+	    float sfUnc(lepEffH_["e_reco"]->GetBinError(xbin,ybin));
+	    sfUnc = sqrt(pow(sfUnc,2) + pow(sfUnc,2) + pow(0.01*sf,2)); //1% reco systematic unc
+	    lepEffH_["e_reco"]->SetBinContent(xbin,ybin,sf);
+	    lepEffH_["e_reco"]->SetBinError(xbin,ybin,sfUnc);
+	  }
       fIn->Close();
 
       //Load ee SFs from text file
