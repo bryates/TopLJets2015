@@ -113,7 +113,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  TString fUrl("sPlot/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout = new TFile(fUrl,"RECREATE");

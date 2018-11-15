@@ -30,7 +30,7 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
-/*
+  /*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -45,9 +45,9 @@ void chi2_d0() {
     run_chi2_d0("down_"+it);
     run_chi2_d0("up_"+it);
   }
-  run_chi2_d0("down_LEP");
-  run_chi2_d0("up_LEP");
-*/
+  */
+  run_chi2_d0("hdampdown");
+  run_chi2_d0("hdampup");
 
   json += ("],");
   std::cout << json << std::endl;
@@ -117,6 +117,7 @@ if(lumi<100)
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)", (lumi) ));
 else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
+((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
@@ -165,12 +166,13 @@ delete c1;
 }
 
 float chi2_d0_test(TString tune="", TString name="") {
-TFile *fdata = TFile::Open("sPlot/sPlot/TopMass_Data_sPlot_d0.root");//,"UPDATE");
+TFile *fdata = TFile::Open("sPlot/sPlot/TopMass_Data_sPlot_d01.root");//,"UPDATE");
 TFile *fmc;
 if(name.Length()==0)
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data()));//,"UPDATE");
+fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d01.root",tune.Data()));//,"UPDATE");
 else
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()));//,"UPDATE");
+fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d01.root",name.Data(),tune.Data()));//,"UPDATE");
+std::cout << TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d01.root",name.Data(),tune.Data()) << std::endl;
 //TFile *fmc = TFile::Open(TString::Format("TopMass_ueup%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_erdOn%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0.root",tune.Data()));

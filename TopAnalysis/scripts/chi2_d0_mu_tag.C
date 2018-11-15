@@ -118,6 +118,7 @@ if(lumi<100)
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)", (lumi) ));
 else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
+((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
@@ -167,12 +168,12 @@ delete c1;
 }
 
 float chi2_d0_mu_tag_test(TString tune="", TString name="") {
-TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu.root");
+TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu1.root");
 TFile *fmc;
 if(name.Length()==0)
-fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data()));
+fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu1.root",tune.Data()));
 else
-fmc = TFile::Open(TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data()));
+fmc = TFile::Open(TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu1.root",name.Data(),tune.Data()));
 
 //TString cut("j_pt_ch<75");
 TString cut(TString::Format("epoch==%d",epoch));
@@ -184,7 +185,7 @@ else {
 RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");
 if(tune == "") ptfrac=*wmc->var("ptfrac");
 wmc->var("ptfrac")->setBins(22);
-RooDataSet *sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wmc->data("sigData");//->reduce(cut);
 //load MC into RooDataHist
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);
 RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
@@ -202,11 +203,13 @@ delete ptfrac_mc_pdf;
 }
 }
 else {
+//RooPlot *tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 RooPlot *tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
+//tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
@@ -221,7 +224,7 @@ else {
 RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
 if(tune == "") ptfrac=*wdata->var("ptfrac");
 wdata->var("ptfrac")->setBins(22);
-RooDataSet *sigData = (RooDataSet*)wdata->data("sigData")->reduce(cut);
+RooDataSet *sigData = (RooDataSet*)wdata->data("sigData");//->reduce(cut);
 //load Data into RooDataHist
 RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);
 RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
