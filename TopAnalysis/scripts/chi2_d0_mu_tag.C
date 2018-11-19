@@ -24,14 +24,13 @@ bool TDR(1);
 int epoch(0);
 
 TString report("");
-TString json("\"d0_mu\" :      [");
+TString json("\"d0_mu\" :     [");
 float chi2_d0_mu_tag_test(TString tune="", TString name="");
 void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
-  /*
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
@@ -48,7 +47,6 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
-  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -168,12 +166,16 @@ delete c1;
 }
 
 float chi2_d0_mu_tag_test(TString tune="", TString name="") {
-TFile *fdata = TFile::Open("TopMass_Data_sPlot_d0_mu_tag_mu1.root");
+TString fname = TString::Format("TopMass_Data_sPlot_d0_mu_tag_mu.root");
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+TFile *fdata = TFile::Open(fname);
 TFile *fmc;
 if(name.Length()==0)
-fmc = TFile::Open(TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu1.root",tune.Data()));
+fname = TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
 else
-fmc = TFile::Open(TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu1.root",name.Data(),tune.Data()));
+fname = TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+fmc = TFile::Open(fname);
 
 //TString cut("j_pt_ch<75");
 TString cut(TString::Format("epoch==%d",epoch));

@@ -30,12 +30,13 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
-  /*
+/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
   run_chi2_d0("fsr-up");
   run_chi2_d0("uedown");
+*/
   run_chi2_d0("ueup");
   //run_chi2_d0("erdON");
   run_chi2_d0("GluonMove_erdON");
@@ -45,7 +46,6 @@ void chi2_d0() {
     run_chi2_d0("down_"+it);
     run_chi2_d0("up_"+it);
   }
-  */
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
 
@@ -166,13 +166,13 @@ delete c1;
 }
 
 float chi2_d0_test(TString tune="", TString name="") {
-TFile *fdata = TFile::Open("sPlot/sPlot/TopMass_Data_sPlot_d01.root");//,"UPDATE");
+TFile *fdata = TFile::Open("sPlot/sPlot/TopMass_Data_sPlot_d0.root");//,"UPDATE");
 TFile *fmc;
 if(name.Length()==0)
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d01.root",tune.Data()));//,"UPDATE");
+fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data()));//,"UPDATE");
 else
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d01.root",name.Data(),tune.Data()));//,"UPDATE");
-std::cout << TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d01.root",name.Data(),tune.Data()) << std::endl;
+fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()));//,"UPDATE");
+std::cout << TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()) << std::endl;
 //TFile *fmc = TFile::Open(TString::Format("TopMass_ueup%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_erdOn%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0.root",tune.Data()));
@@ -206,12 +206,12 @@ delete ptfrac_mc_hist;
 delete ptfrac_mc_pdf;
 }
 */
-RooPlot *tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+RooPlot *tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
-tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);
