@@ -36,6 +36,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
+  if(mass != "172v5") mass = "m" + mass;
   TFile *f = new TFile("TopMass_"+mass+"_sPlot_jpsi.root");
   //f->ls(); 
   TString name = "meson_l_mass_jpsi_signal";
@@ -49,7 +50,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   //RooRealVar jpsi_l_mass("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   RooWorkspace *w = (RooWorkspace*)f->Get("w");
-  RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("J/#Psi+l mass");
+  //RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("J/#Psi+l mass");
+  RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("jpsi_l_mass");
   //RooRealVar jpsi_mass("jpsi_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
   
   //cout << "creating dataset" << endl;
@@ -76,6 +78,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   RooPolynomial m1("m1", "m1", jpsi_l_mass, RooArgList(a0,a1));
 
   // Gamma terms
+  /*
   //RooRealVar g("g","g", 2,1.9,2.1);
   RooRealVar g("g","g", 2.5, 0, 10);
   //RooRealVar g("g","g", 2.5, 2.3, 2.6);
@@ -84,10 +87,15 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar b("b","b", 35, 34, 36);
   //RooRealVar mu("mu","mu", 9, 5, 14);
   RooRealVar mu("mu","mu", 12, 11, 13);
+  */
+  RooRealVar g("g","g", 2.5, 0, 10);
+  RooRealVar b("b","b", 35, 0, 70);
+  RooRealVar mu("mu","mu", 12, 0, 20);
 
   // Construct Gaussian PDF for signal
   RooRealVar mean("mean","mean", 70, 60, 90);
-  RooRealVar sigma("sigma","sigma", 19, 18, 30);
+  RooRealVar sigma("sigma","sigma", 19, 0, 50);
+  //RooRealVar sigma("sigma","sigma", 19, 18, 30);
   //RooRealVar sigma("sigma","sigma", 19, 18.5, 19.5);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
   RooGaussian gauss("gauss","gauss", jpsi_l_mass, mean, sigma);
@@ -214,6 +222,7 @@ void roofit_mtop(std::vector<float> &names,
   alpha->GetYaxis()->SetRangeUser(0.3,0.7);
   gamma->GetYaxis()->SetRangeUser(1,5);
   beta->GetYaxis()->SetRangeUser(20,50);
+  beta->GetYaxis()->SetRangeUser(50,80);
   mu->GetYaxis()->SetRangeUser(6,20);
   //int minbin = mean->FindFirstBinAbove(0);
   //cout << minbin << endl;

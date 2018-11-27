@@ -664,7 +664,8 @@ def main():
     #samplesList=list(reversed(samplesList))
     jsonFile.close()
 
-    systs = ['/TRIGGER', '/TRK', '/LEP', '/PU', '/PI', '/JER' ]
+    systs = ['/TRIGGER', '/LEP', '/PU', '/PI', '/JER' ]
+    #systs = ['/TRIGGER', '/TRK', '/LEP', '/PU', '/PI', '/JER' ]
     inDir = [opt.inDir]
     for syst in systs:
         for s in ['/up','/down']:

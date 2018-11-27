@@ -34,7 +34,8 @@
 
 using namespace std;
 
-enum systBit { TRIGGER_BIT=1, LEP_BIT, TRK_BIT, PU_BIT, PI_BIT, JER_BIT };
+enum systBit { TRIGGER_BIT=1, LEP_BIT, PU_BIT, PI_BIT, JER_BIT };
+//enum systBit { TRIGGER_BIT=1, LEP_BIT, TRK_BIT, PU_BIT, PI_BIT, JER_BIT };
 int passBit(int syst, int BIT) {
   if(syst==0) return 0;
   return (syst/abs(syst) * ((abs(syst)>>BIT)&0x1));
@@ -78,7 +79,7 @@ void RunTopKalman(TString filename,
 
   if(abs(passBit(runSysts,TRIGGER_BIT))) std::cout << "running trigger systematics" << std::endl;
   if(abs(passBit(runSysts,LEP_BIT))) std::cout << "running lepton selection systematics" << std::endl;
-  if(abs(passBit(runSysts,TRK_BIT))) std::cout << "running tracker efficiency systematics" << std::endl;
+  //if(abs(passBit(runSysts,TRK_BIT))) std::cout << "running tracker efficiency systematics" << std::endl;
   if(abs(passBit(runSysts,PU_BIT))) std::cout << "running PU systematics" << std::endl;
   if(abs(passBit(runSysts,PI_BIT))) std::cout << "running pi systematics" << std::endl;
   if(abs(passBit(runSysts,JER_BIT))) std::cout << "running JER systematics" << std::endl;

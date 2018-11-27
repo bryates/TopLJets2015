@@ -21,7 +21,9 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(0);
+int epoch(1);
+bool fullpt(0);
+TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
 TString json("\"d0_mu\" :     [");
@@ -40,7 +42,8 @@ void chi2_d0_mu_tag() {
   //run_chi2_d0_mu_tag("erdON");
   run_chi2_d0_mu_tag("GluonMove_erdON");
   //run_chi2_d0_mu_tag("QCD_erdON");
-  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
+  std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
+  //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0_mu_tag("down_"+it);
     run_chi2_d0_mu_tag("up_"+it);
@@ -156,6 +159,8 @@ if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
 
 if(name.Length()>0) name = "_" + name;
+name += epoch_name[epoch];
+if(fullpt) name += "_jpT";
 c1->SaveAs("chi2_d0_mu_tag"+name+".pdf");
 c1->SaveAs("chi2_d0_mu_tag"+name+".png");
 
@@ -181,66 +186,21 @@ fmc = TFile::Open(fname);
 TString cut(TString::Format("epoch==%d",epoch));
 
 TH1F *mc,*data;
-if(epoch>0) {
-if(fmc->GetListOfKeys()->Contains("h_ptfrac_hist")) mc = (TH1F*)fmc->Get("h_ptfrac_hist;1");
-else {
-RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");
-if(tune == "") ptfrac=*wmc->var("ptfrac");
-wmc->var("ptfrac")->setBins(22);
-RooDataSet *sigData = (RooDataSet*)wmc->data("sigData");//->reduce(cut);
-//load MC into RooDataHist
-RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wmc->var("ptfrac"), *sigData);
-RooHistPdf *ptfrac_mc_pdf = new RooHistPdf("ptfrac_mc_pdf", "ptfrac_mc_pdf", RooArgList(*wmc->var("ptfrac")), *ptfrac_mc_hist);
-RooPlot *ptfrac_mc = wmc->var("ptfrac")->frame();
-ptfrac_mc_hist->plotOn(ptfrac_mc);
-mc = (TH1F*)convert(ptfrac_mc,true,0,1.1);
-mc->SetDirectory(fmc);
-mc->SetTitle("ptfrac_sig");
-//mc->Write();
-//fmc->Write();
-mc->SetDirectory(0);
-delete ptfrac_mc;
-delete ptfrac_mc_hist;
-delete ptfrac_mc_pdf;
-}
-}
-else {
-//RooPlot *tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
-RooPlot *tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+RooPlot *tmp = nullptr;
+if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+else tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
-//tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+if(fullpt) tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+else tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
 delete tmp;
-}
 
-if(epoch>0) {
-if(fdata->GetListOfKeys()->Contains("h_ptfrac_hist")) data = (TH1F*)fdata->Get("h_ptfrac_hist");
-else {
-RooWorkspace *wdata = (RooWorkspace*)fdata->Get("w");
-if(tune == "") ptfrac=*wdata->var("ptfrac");
-wdata->var("ptfrac")->setBins(22);
-RooDataSet *sigData = (RooDataSet*)wdata->data("sigData");//->reduce(cut);
-//load Data into RooDataHist
-RooDataHist *ptfrac_data_hist = new RooDataHist("ptfrac_hist", "ptfrac_hist", *wdata->var("ptfrac"), *sigData);
-RooHistPdf *ptfrac_data_pdf = new RooHistPdf("ptfrac_data_pdf", "ptfrac_data_pdf", RooArgList(*wdata->var("ptfrac")), *ptfrac_data_hist);
-RooPlot *ptfrac_data = wdata->var("ptfrac")->frame();
-ptfrac_data_hist->plotOn(ptfrac_data);
-data = (TH1F*)convert(ptfrac_data,true,0,1.1);
-data->SetDirectory(fdata);
-data->SetTitle("ptfrac_sig");
-//data->Write();
-//fdata->Write();
-delete ptfrac_data;
-delete sigData;
-}
-}
 
 /*
 if(tune.Length() > 0) {

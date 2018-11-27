@@ -3,7 +3,7 @@ import json
 import math
 from collections import OrderedDict
 
-#jsonFile = open('data/era2016/rbFit.range','r')
+#jsonFile = open('data/era2016/rbFit.range2','r')
 jsonFile = open('data/era2016/rbFit.pt','r')
 #jsonFile = open('data/era2016/rbFit.json','r')
 rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
@@ -34,7 +34,8 @@ d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
+#syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
 
@@ -68,7 +69,7 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
+skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
 while i < len(syst):
     if syst[i] in skip: 
       i+=1

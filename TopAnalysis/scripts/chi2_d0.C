@@ -21,27 +21,29 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
+int epoch(0);
+bool fullpt(1);
+TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
-TString json("\"d0\" :      [");
+TString json("\"d0\" :        [");
 float chi2_d0_test(TString tune="", TString name="");
 void run_chi2_d0(TString);
 RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
-/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
   run_chi2_d0("fsr-up");
   run_chi2_d0("uedown");
-*/
   run_chi2_d0("ueup");
   //run_chi2_d0("erdON");
   run_chi2_d0("GluonMove_erdON");
   //run_chi2_d0("QCD_erdON");
-  std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
+  std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
+  //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0("down_"+it);
     run_chi2_d0("up_"+it);
@@ -156,6 +158,8 @@ if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
 
 if(name.Length()>0) name = "_" + name;
+name += epoch_name[epoch];
+if(fullpt) name += "_jpT";
 c1->SaveAs("chi2_d0"+name+".pdf");
 c1->SaveAs("chi2_d0"+name+".png");
 
@@ -166,13 +170,17 @@ delete c1;
 }
 
 float chi2_d0_test(TString tune="", TString name="") {
-TFile *fdata = TFile::Open("sPlot/sPlot/TopMass_Data_sPlot_d0.root");//,"UPDATE");
+TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0.root");
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+TFile *fdata = TFile::Open(fname);
 TFile *fmc;
 if(name.Length()==0)
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data()));//,"UPDATE");
+fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data());
 else
-fmc = TFile::Open(TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()));//,"UPDATE");
-std::cout << TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data()) << std::endl;
+fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+std::cout << fname << std::endl;
+fmc = TFile::Open(fname);
 //TFile *fmc = TFile::Open(TString::Format("TopMass_ueup%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_erdOn%s_sPlot_d0.root",tune.Data()));
 //TFile *fmc = TFile::Open(TString::Format("TopMass_fsr-down%s_sPlot_d0.root",tune.Data()));
@@ -206,12 +214,15 @@ delete ptfrac_mc_hist;
 delete ptfrac_mc_pdf;
 }
 */
-RooPlot *tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+RooPlot *tmp = nullptr;
+if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+else tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
-tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+if(fullpt) tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+else tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);

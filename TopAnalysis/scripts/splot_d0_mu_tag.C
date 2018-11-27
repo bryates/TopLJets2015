@@ -157,7 +157,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar d0_mass("d0_mass","M_{K#pi}", 1.7, 2, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
-  RooRealVar meson_l_mass("D^{0}+l mass","D^{0}+l mass", 0, 250, "GeV") ;
+  RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
   RooRealVar ptfrac("ptfrac","D^{0} p_{T} / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
   RooRealVar ptfracJ("ptfracJ","D^{0} p_{T} / jet p_{T}", 0, 1.1, "") ;
   RooRealVar d0_pt("d0_pt","D^{0} p_{T}", 0, 250, "GeV");
@@ -375,9 +375,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->SetName("massD0");
   frame->Write();
 
-  mass = mass + "_mu_tag_mu";
-  c1->SaveAs("massD0_"+mass+".pdf");
-  c1->SaveAs("massD0_"+mass+".png");
+  //mass = mass + "_mu_tag_mu";
+  c1->SaveAs("massD0_mu_"+mass+".pdf");
+  c1->SaveAs("massD0_mu_"+mass+".png");
 
   frame = ptfrac.frame();
   ds.plotOn(frame,Binning(22));
