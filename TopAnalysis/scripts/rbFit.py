@@ -2,9 +2,10 @@ from __future__ import print_function
 import json
 import math
 from collections import OrderedDict
+import os
 
-#jsonFile = open('data/era2016/rbFit.range2','r')
-jsonFile = open('data/era2016/rbFit.pt','r')
+jsonFile = open('data/era2016/rbFit.range1','r')
+#jsonFile = open('data/era2016/rbFit.pt','r')
 #jsonFile = open('data/era2016/rbFit.json','r')
 rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
 jsonFile.close()
@@ -48,6 +49,7 @@ report='('
     ##print 'Nom & %.4f $\pm$ %.4f & %.4f $\pm$ %.4f & %.4f $\pm$ %.4f' %(rbList[0][1][i], rbList[0][1][i+1], rbList[1][1][i], rbList[1][1][i+1], rbList[2][1][i], rbList[2][1][i+1])
     #i+=1
 
+total = 9;
 for l in xrange(0,3):
     continue
     i = 1
@@ -122,15 +124,24 @@ print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(sys
 print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[2][1][0], rbList[2][1][1], max(abs(up[4]),abs(up[5])), max(abs(down[4]),abs(down[5]))))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
-print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'   'hdamp'")
+blueFile = open("BLUE/rbSFCor.txt",'w')
+blueFile.write("\./combine<<!\n")
+blueFile.write("'2016 b-quark fragmentation'\n")
+blueFile.write("-1 -1 -1 internal & minuit debug level, dependency flag\n")
+blueFile.write("1 3 %d  # of observables, measurements, error classes\n" % (total))
+blueFile.write("'rB'    name\n")
+blueFile.write("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'   'hdamp'\n")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
         print("'jpsi'  'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'jpsi'  'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     if l==1:
         print("'d0'    'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'d0'    'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     if l==2:
         print("'d0_mu' 'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'d0_mu' 'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     i = 1
     j = 2
     while i < len(syst):
@@ -143,6 +154,7 @@ for l in xrange(0,3):
             lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
             if(low<lowe): low=lowe
             print('%.4f ' % low, end='')
+            blueFile.write('%.4f ' % low)
             i+=1
             j+=2
         else:
@@ -153,21 +165,76 @@ for l in xrange(0,3):
             if(low<lowe): low=lowe
             if(high<highe): high=highe
             print('%.4f ' % ((low+high)/2), end='')
+            blueFile.write('%.4f ' % ((low+high)/2))
             i+=2
             j+=4
     print('')
+    blueFile.write('\n')
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("1.0 0.0 0.0 'stat'\n")
+blueFile.write("0.0 1.0 0.0\n")
+blueFile.write("0.0 0.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'isr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'fsr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'ue'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'cr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'lep'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'pu'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'pi'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'hdamp'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("!\n")
+blueFile.close()
+
 print('')
 
 print('Syst up for BLUE (jpsi, d0, d0mu)')
+blueFile = open("BLUE/asyUp.txt",'w')
+blueFile.write("\./combine<<!\n")
+blueFile.write("'2016 b-quark fragmentation'\n")
+blueFile.write("-1 -1 -1 internal & minuit debug level, dependency flag\n")
+blueFile.write("1 3 %d  # of observables, measurements, error classes\n" % (total))
+blueFile.write("'rB'    name\n")
+blueFile.write("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'   'hdamp'\n")
 print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'    'hdamp'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
-        print("'jpsi'  'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+	print("'jpsi'  'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'jpsi'  'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     if l==1:
         print("'d0'    'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'d0'    'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     if l==2:
         print("'d0_mu' 'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'d0_mu' 'rB' %.4f      %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     i = 1
     j = 2
     while i < len(syst):
@@ -180,6 +247,7 @@ for l in xrange(0,3):
             lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
             if(low<lowe): low=lowe
             print('%.4f ' % low, end='')
+            blueFile.write('%.4f ' % low)
             i+=1
             j+=2
         else:
@@ -190,21 +258,75 @@ for l in xrange(0,3):
             if(low<lowe): low=lowe
             if(high<highe): high=highe
             print('%.4f ' % high, end='')
+            blueFile.write('%.4f ' % high)
             i+=2
             j+=4
     print('')
+    blueFile.write('\n')
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("1.0 0.0 0.0 'stat'\n")
+blueFile.write("0.0 1.0 0.0\n")
+blueFile.write("0.0 0.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'isr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'fsr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'ue'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'cr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'lep'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'pu'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'pi'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'hdamp'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("!\n")
+blueFile.close()
 print('')
 
 print('Syst down for BLUE (jpsi, d0, d0mu)')
+blueFile = open("BLUE/asyDown.txt",'w')
+blueFile.write("\./combine<<!\n")
+blueFile.write("'2016 b-quark fragmentation'\n")
+blueFile.write("-1 -1 -1 internal & minuit debug level, dependency flag\n")
+blueFile.write("1 3 %d  # of observables, measurements, error classes\n" % (total))
+blueFile.write("'rB'    name\n")
+blueFile.write("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'   'hdamp'\n")
 print("                         'stat'   'isr'   'fsr'  'ue'   'cr'   'lep'  'pu'   'pi'    'hdamp'")
 #print("'fsr'","'ue'","'cr'","'lep'","'trig'","'trk'","'pu'","'pi'")#,"'jer'")
 for l in xrange(0,3):
     if l==0:
         print("'jpsi'  'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'jpsi'  'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     if l==1:
         print("'d0'    'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'d0'    'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     if l==2:
         print("'d0_mu' 'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]), end='')
+        blueFile.write("'d0_mu' 'rB' %.4f       %.4f   " % (rbList[l][1][0],rbList[l][1][1]))
     i = 1
     j = 2
     while i < len(syst):
@@ -217,6 +339,7 @@ for l in xrange(0,3):
             lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
             if(low<lowe): low=lowe
             print('%.4f ' % low, end='')
+            blueFile.write('%.4f ' % low)
             i+=1
             j+=2
         else:
@@ -227,9 +350,53 @@ for l in xrange(0,3):
             if(low<lowe): low=lowe
             if(high<highe): high=highe
             print('%.4f ' % low, end='')
+            blueFile.write('%.4f ' % low)
             i+=2
             j+=4
     print('')
+    blueFile.write('\n')
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("\n")
+blueFile.write("1.0 0.0 0.0 'stat'\n")
+blueFile.write("0.0 1.0 0.0\n")
+blueFile.write("0.0 0.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'isr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'fsr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'ue'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'cr'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'lep'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'pu'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'pi'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("1.0 1.0 1.0 'hdamp'\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("1.0 1.0 1.0\n")
+blueFile.write("\n")
+blueFile.write("!\n")
+blueFile.close()
 #print('')
 
 for name,sample in rbList:

@@ -26,7 +26,7 @@ bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
-TString json("\"d0_mu\" :     [");
+TString json("\"d0_mu\" :   [");
 float chi2_d0_mu_tag_test(TString tune="", TString name="");
 void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
@@ -87,7 +87,8 @@ chiTest->Sumw2();
 for(auto & it : tune) {
   int pos = &it - &tune[0];
   if(param[pos]<0.65 && !name.Contains("fsr-up")) continue;
-  if(param[pos]>1 && !name.Contains("fsr-down")) continue;
+  if(!fullpt && param[pos]>1 && !name.Contains("fsr-down")) continue;
+  if(epoch==1 && param[pos]==0.875) continue; //FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it, name);
   if(chi<low) low = chi;
@@ -97,7 +98,9 @@ for(auto & it : tune) {
   //chiTest->SetBinError(chiTest->FindBin(param[pos]),1);
 }
 
-//chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
+if(fullpt)
+chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
+else
 chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
@@ -121,6 +124,9 @@ else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
+if(fullpt)
+chiTest->Fit("pol3","FSMEQW");//,"",0.6,0.976);
+else
 chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");

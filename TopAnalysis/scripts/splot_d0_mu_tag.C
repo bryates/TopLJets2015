@@ -432,6 +432,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   int binning(22);
 
+  /*
   frame = d0_mass.frame();
   sigData.plotOn(frame, DataError(RooAbsData::SumW2),
                  RooFit::Name("massD0_signal"), RooFit::MarkerColor(1),
@@ -454,7 +455,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   c1->SaveAs("massD0_background_"+mass+".pdf");
   c1->SaveAs("massD0_background_"+mass+".png");
 
-  /*
   RooPlot *frame2 = d0_mass.frame();
   sigData.plotOn(frame2, DataError(RooAbsData::SumW2));
   frame2->Draw();
@@ -557,6 +557,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::Name("meson_l_mass_bkg"), RooFit::MarkerColor(419),
                  RooFit::MarkerStyle(24), RooFit::MarkerStyle(24),
                  RooFit::LineWidth(2), RooFit::LineColor(419), Binning(binning));
+  /*
   frame2->Draw();
   c1->SaveAs("meson_l_mass_bkg_"+mass+".pdf");
   c1->SaveAs("meson_l_mass_bkg_"+mass+".png");
@@ -566,6 +567,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::Name("meson_l_mass_signal"), RooFit::MarkerColor(1),
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
                  RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
+  */
   frame2->Draw();
   std::cout << "Signal: " << frame2->getHist()->Integral() << std::endl;
   frame2->SetName("meson_l_mass_mu_tag_signal");

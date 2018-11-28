@@ -21,12 +21,12 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(0);
-bool fullpt(1);
+int epoch(2);
+bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
-TString json("\"d0\" :        [");
+TString json("\"d0\" :      [");
 float chi2_d0_test(TString tune="", TString name="");
 void run_chi2_d0(TString);
 RooRealVar ptfrac;
@@ -88,6 +88,8 @@ chiTest->Sumw2();
 for(auto & it : tune) {
   int pos = &it - &tune[0];
   if(param[pos]>1) continue;
+  if(name == "up_PI" && param[pos]>0.975 && fullpt) continue; //remove up_PI 0.975 with large chi^2
+  //if(name == "down_PU" && it=="_down" && epoch==2) continue; //remove down_UP 0.755 FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_test(it, name);
   if(chi<low) low = chi;
@@ -164,7 +166,7 @@ c1->SaveAs("chi2_d0"+name+".pdf");
 c1->SaveAs("chi2_d0"+name+".png");
 
 delete pt;
-chiTest->Delete();
+//chiTest->Delete();
 //delete chiTest;
 delete c1;
 }
@@ -217,6 +219,7 @@ delete ptfrac_mc_pdf;
 RooPlot *tmp = nullptr;
 if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 else tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+if(tmp==nullptr) {std::cout << fname << std::endl; return 0;}
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
