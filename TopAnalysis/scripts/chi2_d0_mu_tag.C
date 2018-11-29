@@ -33,6 +33,7 @@ RooRealVar ptfrac;
 
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
+  /*
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
@@ -40,7 +41,9 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("uedown");
   run_chi2_d0_mu_tag("ueup");
   //run_chi2_d0_mu_tag("erdON");
+  */
   run_chi2_d0_mu_tag("GluonMove_erdON");
+  /*
   //run_chi2_d0_mu_tag("QCD_erdON");
   std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
   //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
@@ -50,6 +53,7 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
+  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -91,6 +95,7 @@ for(auto & it : tune) {
   if(epoch==1 && param[pos]==0.875) continue; //FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it, name);
+  if(isnan(chi)) continue;
   if(chi<low) low = chi;
   if(chi>high) high = chi;
   chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);

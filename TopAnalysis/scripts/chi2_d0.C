@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(2);
+int epoch(0);
 bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
@@ -89,6 +89,7 @@ for(auto & it : tune) {
   int pos = &it - &tune[0];
   if(param[pos]>1) continue;
   if(name == "up_PI" && param[pos]>0.975 && fullpt) continue; //remove up_PI 0.975 with large chi^2
+  if(name == "GluonMove_erdON." && param[pos]==0.900 && epoch==0) continue; //remove up_PI 0.975 with large chi^2
   //if(name == "down_PU" && it=="_down" && epoch==2) continue; //remove down_UP 0.755 FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_test(it, name);
