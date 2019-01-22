@@ -609,7 +609,7 @@ void RunTopKalman(TString filename,
               if(passBit(runSysts,JER_BIT)<0) smearIdx=1;
               else if(passBit(runSysts,JER_BIT)>0) smearIdx=2;
               */
-	      jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+	      jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),genJet_pt)[0];
               if(debug) std::cout << "JER " << jerSmear << std::endl;
 	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
 	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
@@ -1407,8 +1407,10 @@ void RunTopKalman(TString filename,
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                for(auto& it : tops)
-                  allPlots["gtop_pt_all_meson"+runPeriod]->Fill(it.Pt(),wgt);
+                if(isTTbar) {
+                  runBCDEF.FillGen(tops, chTag, "meson");
+                  runGH.FillGen(tops, chTag, "meson");
+                }
 
                 std::vector<pfTrack> tmp_match;
                 if(!isData && pfMatched.size() >1 && 0) {
