@@ -50,9 +50,17 @@ std::vector<TString> tune = {"_700", "_725", "_down", "_ddown", "_dddown", "_sce
 std::vector<float> param = {0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000};
 std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
+<<<<<<< HEAD
 */
 std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
+=======
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
+*/
+std::vector<TString> tune = {"_555", "_600", "_625", "_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
+std::vector<float> param = {0.555, 0.600, 0.625, 0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
+>>>>>>> fit
 /*
 std::vector<TString> tune = {"_sdown", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
@@ -84,7 +92,11 @@ void calibration_d0(TString in="", bool full=false) {
         chiTest.back()->SetBinContent(chiTest.back()->FindBin(param[pos]),chi);
       }
     
+<<<<<<< HEAD
       chiTest.back()->GetXaxis()->SetRangeUser(0.6,1.1);
+=======
+      chiTest.back()->GetXaxis()->SetRangeUser(0.5,1.1);
+>>>>>>> fit
       chiTest.back()->SetMarkerStyle(20);
       chiTest.back()->Draw("p9");
       //TFitResultPtr fit = chiTest.back()->Fit("pol2","FS");
@@ -155,7 +167,11 @@ TH1F *curveg = new TH1F("curveg","#chi^{2} curve", 40, 0.6, 1.1);
 for(size_t i = 0; i < tune.size(); i++) {
   if(!chiTest[i]) continue;
   std::cout << chiTest[i]->GetTitle() << std::endl;
+<<<<<<< HEAD
   chiTest[i]->GetXaxis()->SetRangeUser(0.6,1.1);
+=======
+  chiTest[i]->GetXaxis()->SetRangeUser(0.5,1.1);
+>>>>>>> fit
   //chiTest->GetYaxis()->SetRangeUser(0,5);
   chiTest[i]->SetMarkerStyle(20);
   chiTest[i]->Draw("p9");
@@ -203,7 +219,11 @@ for(size_t i = 0; i < tune.size(); i++) {
 c1->cd();
 //curve->GetXaxis()->SetRangeUser(0.7,1.1);
 curve->GetXaxis()->SetRangeUser(-0.1,0.2);
+<<<<<<< HEAD
 curve->GetYaxis()->SetRangeUser(0.7,1.2);
+=======
+curve->GetYaxis()->SetRangeUser(0.5,1.05);
+>>>>>>> fit
 curve->Draw();
 TFitResultPtr f = curve->Fit("pol1","FSMEQ");
 float avg_deltag(0.);
@@ -231,11 +251,19 @@ float yint = f->Parameter(0) - 0.855 * f->Parameter(1);
 //TString text = TString::Format("Calibration curve : %0.2f (#pm%0.2f) %c r_{B} %0.2f (#pm%0.2f)",f->Parameter(0),abs(f->ParError(0)),sign,f->Parameter(1),abs(f->ParError(1)));
 TString text = TString::Format("Calibration curve : %0.2f (#pm%0.2f) %c r_{B} %0.2f (#pm%0.2f)",yint,abs(f->ParError(0)),sign,f->Parameter(1),abs(f->ParError(1)));
 curveg->Draw();
+<<<<<<< HEAD
 curveg->GetXaxis()->SetRangeUser(0.6,1.05);
 curveg->GetYaxis()->SetRangeUser(0.6,1.05);
 if(full) {
   curveg->GetXaxis()->SetRangeUser(0.6,1.05);
   curveg->GetYaxis()->SetRangeUser(0.6,1.45);
+=======
+curveg->GetXaxis()->SetRangeUser(0.5,1.05);
+curveg->GetYaxis()->SetRangeUser(0.5,1.05);
+if(full) {
+  curveg->GetXaxis()->SetRangeUser(0.5,1.05);
+  curveg->GetYaxis()->SetRangeUser(0.5,1.45);
+>>>>>>> fit
 }
 TF1 *func = new TF1("pol1","pol1",0.5,1.1);
 func->SetParameter(0, yint);
@@ -257,8 +285,13 @@ c1->SaveAs("chi2_d0-calibration_curve.pdf");
 }
 
 float chi2_d0_test(TString mcTune="", TString tune="") {
+<<<<<<< HEAD
 TFile *fdata = TFile::Open(TString::Format("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/4dau/TopMass_172v5%s_sPlot_d0.root",mcTune.Data()));
 TFile *fmc = TFile::Open(TString::Format("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/4dau/TopMass_172v5%s_sPlot_d0.root",tune.Data()));
+=======
+TFile *fdata = TFile::Open(TString::Format("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/TopMass_172v5%s_sPlot_d0.root",mcTune.Data()));
+TFile *fmc = TFile::Open(TString::Format("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/TopMass_172v5%s_sPlot_d0.root",tune.Data()));
+>>>>>>> fit
 
 //load RooWorkspace and set binning
 RooWorkspace *wmc = (RooWorkspace*)fmc->Get("w");

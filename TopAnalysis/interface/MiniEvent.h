@@ -57,13 +57,13 @@ struct MiniEvent_t
   //PF candidates
   Int_t npf,nmu,pf_j[5000],pf_jnpf[5000],pf_jnhppf[5000];
   Int_t pf_id[5000],pf_c[5000],pf_fromPV[5000],pf_quality[5000],pf_mother[5000];
-  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000], pf_chi2ndof[5000], pf_vtxchi2ndof[5000];
+  Float_t pf_pt[5000],pf_eta[5000],pf_phi[5000],pf_m[5000],pf_puppiWgt[5000],pf_dxy[5000],pf_dxyE[5000],pf_dz[5000],pf_dzE[5000], pf_chi2ndof[5000], pf_vtxchi2ndof[5000],pf_relIso[5000];
   Bool_t pf_highPurity[5000],pf_muon[5000],pf_standAloneMuon[5000],pf_globalMuon[5000],pf_trackerMuon[5000];
 
   //Kalman Filter
   Int_t njpsi,nmeson,nkj,nkpf;
   Int_t pf_idx[5000];
-  Int_t k_j[5000],k_ndof[5000],k_id[5000];
+  Int_t k_j[5000],k_ndof[5000],k_id[5000],k_pf_ndau[5000];
   Float_t k_j_pt[5000],k_j_eta[5000],k_j_phi[5000],k_j_mass[5000];
   Float_t k_pf_id[5000],k_pf_pt[5000],k_pf_eta[5000],k_pf_phi[5000],k_pf_m[5000];
   Float_t k_pf_dxy[5000],k_pf_dxyE[5000],k_pf_dz[5000],k_pf_dzE[5000];

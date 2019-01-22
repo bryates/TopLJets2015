@@ -34,21 +34,29 @@
 
 using namespace std;
 
+enum systBit { TRIGGER_BIT=1, LEP_BIT, PU_BIT, PI_BIT, JER_BIT };
+//enum systBit { TRIGGER_BIT=1, LEP_BIT, TRK_BIT, PU_BIT, PI_BIT, JER_BIT };
+int passBit(int syst, int BIT) {
+  if(syst==0) return 0;
+  return (syst/abs(syst) * ((abs(syst)>>BIT)&0x1));
+}
+
 void RunTopKalman(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 
 		 Int_t chargeSelection, 
 		 FlavourSplitting flavourSplitting,
 		 TH1F *normH, 
-		 Bool_t runSysts,
                  TString era,
                  TString runPeriod,
-                 Bool_t debug=false)
+                 Bool_t debug=false,
+                 short runSysts, //0 for nominal, 1 for up, -1 for down
+                 short rbFit)
 {
   if(debug) cout << "in RunTopKalman" << endl;
 
   bool isTTbar( filename.Contains("_TTJets") );
-  //bool isData( filename.Contains("Data13TeV") );
+  bool isData( filename.Contains("Data13TeV") );
 
   //CREATE CHARM TREE IN FILE
   TTree *cht = new TTree("data","Charm tree");
@@ -68,6 +76,13 @@ void RunTopKalman(TString filename,
   t->GetEntry(0);
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
+
+  if(abs(passBit(runSysts,TRIGGER_BIT))) std::cout << "running trigger systematics" << std::endl;
+  if(abs(passBit(runSysts,LEP_BIT))) std::cout << "running lepton selection systematics" << std::endl;
+  //if(abs(passBit(runSysts,TRK_BIT))) std::cout << "running tracker efficiency systematics" << std::endl;
+  if(abs(passBit(runSysts,PU_BIT))) std::cout << "running PU systematics" << std::endl;
+  if(abs(passBit(runSysts,PI_BIT))) std::cout << "running pi systematics" << std::endl;
+  if(abs(passBit(runSysts,JER_BIT))) std::cout << "running JER systematics" << std::endl;
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
@@ -75,7 +90,7 @@ void RunTopKalman(TString filename,
   std::vector<TH1D *>puWgt;
   TString tmpRun ("BCDEFGH");
   std::vector<TH1D*> puWgtsRun;
-  if(!ev.isData)
+  if(!isData)
     {
       if(debug) cout << "loading pileup weight" << endl;
       /*
@@ -108,19 +123,45 @@ void RunTopKalman(TString filename,
       TString puWgtRunUrl(era+"/pileupWgtsBCDEF.root");
       gSystem->ExpandPathName(puWgtRunUrl);
       TFile *fIn=TFile::Open(puWgtRunUrl);
-      TH1D *puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
-      puWgtDataRun->SetDirectory(0);
-      puWgtsRun.push_back(puWgtDataRun);
+      for(size_t i = 0; i < 3; i++) {
+        TString  grName("puwgts_down");
+        if(i==1) grName="puwgts_nom";
+        if(i==2) grName="puwgts_up";
+        TH1D *puWgtDataRun=(TH1D *)fIn->Get(grName);
+        puWgtDataRun->SetDirectory(0);
+        puWgtsRun.push_back(puWgtDataRun);
+      }
       fIn->Close();
       puWgtRunUrl = era+"/pileupWgtsGH.root";
       gSystem->ExpandPathName(puWgtRunUrl);
       fIn=TFile::Open(puWgtRunUrl);
+      /*
       puWgtDataRun=(TH1D *)fIn->Get("puwgts_nom");
       puWgtDataRun->SetDirectory(0);
       puWgtsRun.push_back(puWgtDataRun);
+      */
+      for(size_t i = 0; i < 3; i++) { // [BCDEFup, BCDEF, BCDEFdown, GHup, GH, GHdown]
+        TString  grName("puwgts_down");
+        if(i==1) grName="puwgts_nom";
+        if(i==2) grName="puwgts_up";
+        TH1D *puWgtDataRun=(TH1D *)fIn->Get(grName);
+        puWgtDataRun->SetDirectory(0);
+        puWgtsRun.push_back(puWgtDataRun);
+      }
       fIn->Close();
       if(debug) cout << "loading pileup weight DONE" << endl;
     }
+
+  //r_B EVENT WEIGHT
+  TString rbWgtUrl(era+"/bfragweights.root");
+  gSystem->ExpandPathName(rbWgtUrl);
+  TFile *fIn=TFile::Open(rbWgtUrl);
+  TGraph *rbWgt=(TGraph*)fIn->Get("fitFrag");
+  TGraph *rbWgts[3];
+  rbWgts[JPsi]=(TGraph*)fIn->Get("jpsiFrag");
+  rbWgts[D0]=(TGraph*)fIn->Get("d0Frag");
+  rbWgts[D0mu]=(TGraph*)fIn->Get("d0muFrag");
+  fIn->Close();
 
   //LEPTON EFFICIENCIES
   //LeptonEfficiencyWrapper lepEffH(filename.Contains("Data13TeV"),era,runPeriod,debug);
@@ -264,7 +305,7 @@ void RunTopKalman(TString filename,
       //Normalize to XSec and lumi
       float norm(1.0);
       float xsec(1.0);
-      if(!ev.isData) {
+      if(!isData) {
         norm =  normH ? normH->GetBinContent(1) : 1.0;
         xsec = normH ? normH->GetBinContent(2) : 0.;
         //if(xsec) norm*=xsec;
@@ -305,12 +346,13 @@ void RunTopKalman(TString filename,
           //Aviod stops stored by ntupelizer
           if(abs(ev.gtop_id[i]) != 6) continue;
           float tpt = ev.gtop_pt[i];
-          if(tpt > 400) tpt = 400;
+          if(tpt > 800) tpt = 800;
           pt.push_back(tpt);
           if(debug) std::cout << "Top pT= " << tpt << std::endl;
           tops.push_back(Particle(ev.gtop_pt[i], ev.gtop_eta[i], ev.gtop_phi[i], ev.gtop_m[i], ev.gtop_id[i], 0, 0));
         }
         //Save onlt hardest two tops (ttbar)
+        //FIXME try max heap (priority_queue) to reduce time sorting
         //Might not need after imopsing |PdgId|==6
         std::sort(pt.begin(), pt.end());
         std::reverse(pt.begin(), pt.end());
@@ -349,7 +391,7 @@ void RunTopKalman(TString filename,
 
       //Electrons.setMinPt(12);
       Electrons.setMinPt(30);
-      Electrons.setMaxEta(2.4);
+      Electrons.setMaxEta(2.1); //trigger is eta2p1
       Electrons.setMaxRelIso(0.15);
 
       VetoLeptons.setMinPt(15);
@@ -401,6 +443,7 @@ void RunTopKalman(TString filename,
       leptons.combineLeptons(Muons);
       leptons.combineLeptons(Electrons);
       if(debug) cout << "sorting leptons" << endl;
+      //FIXME try max heap (priority_queue) to reduce time sorting
       leptons.sortLeptonsByPt();
 
       allPlots["nevt_iso"]->Fill(1,norm);
@@ -509,10 +552,20 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!ev.isData) {
+      if(!isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
-        applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
-        applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+        if(runSysts==0) {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+        }
+        else if(passBit(runSysts,PI_BIT)<0) {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"]);
+        }
+        else if(passBit(runSysts,PI_BIT)>0) {
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["up"], trackEffMap["BCDEF"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["up"], trackEffMap["GH"]["binning"]);
+        }
       }
       //******************************
       if(debug) cout << "Pion scale factors DONE!" << endl;
@@ -521,24 +574,9 @@ void RunTopKalman(TString filename,
       Float_t htsum(0),hsum(0),htbsum(0);
       int nbj(0);
       TLorentzVector jetDiff(0,0,0,0);
-      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec, genJetsVec;
+      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, genJetsVec;
       KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
-      for(auto &jet : kalman.getJets()) {
-        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
-	TLorentzVector jp4 = jet.getVec();
-	//cross clean with respect to leptons deltaR<0.4
-        bool overlapsWithLepton(false);
-        for(size_t il=0; il<leptons.size(); il++) {
-          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
-	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
-        }
-        if(overlapsWithLepton) continue;
-        if(debug) cout << "Overlap with lepton DONE" << endl;
-        jet.sortTracksByPt();
-        kJetsVec.push_back(jet);
-        //allJetsVec.push_back(jet);
-      }
       for (int k=0; k<ev.nj;k++)
 	{
 	  //check kinematics
@@ -559,9 +597,13 @@ void RunTopKalman(TString filename,
 	  //jetDiff -= jp4;
 	  float genJet_pt(0);
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
-	  if(!ev.isData && genJet_pt>0) 
+	  if(!isData && genJet_pt>0)
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+              if(debug) std::cout << "JER " << jerSmear << std::endl;
+	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
+	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
+              if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
 	      jp4 *= jerSmear;
 	    }
 	  //jetDiff += jp4;
@@ -607,9 +649,25 @@ void RunTopKalman(TString filename,
           //if(debug && kalman.isGoodJet(k)) cout << "k=" << k << " jet pT=" << jp4.Pt() << endl;
           //if(kalman.isGoodJet(k)) kJetsVec.push_back(tmpj);
           if(!kalman.isGoodJet(k)) lightJetsVec.push_back(tmpj);
-          if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu)
           allJetsVec.push_back(tmpj);
 	}
+      //after main jet b/c smearing MiniEvet_t is in there
+      kalman.loadEvent(ev); //load again to get smeared versions
+      for(auto &jet : kalman.getJets()) {
+        if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
+	TLorentzVector jp4 = jet.getVec();
+	//cross clean with respect to leptons deltaR<0.4
+        bool overlapsWithLepton(false);
+        for(size_t il=0; il<leptons.size(); il++) {
+          if(jp4.DeltaR(leptons[il].getVec())>0.4) continue;  //Jet is fine
+	  overlapsWithLepton=true;                   //Jet ovelaps with an "isolated" lepton, event is bad
+        }
+        if(overlapsWithLepton) continue;
+        if(debug) cout << "Overlap with lepton DONE" << endl;
+        jet.sortTracksByPt();
+        kJetsVec.push_back(jet);
+        //allJetsVec.push_back(jet);
+      }
       for (int k=0; k<ev.ng;k++) {
         //check kinematics
         if(abs(ev.g_id[k])==13 || abs(ev.g_id[k])==11) continue; //skip leptons since they are stored after genJets
@@ -627,6 +685,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
 
+      if(htsum<80) continue;
       //if(htsum<160) continue;
       //if(allJetsVec[0].getVec().Pt()<50) continue;
       stsum += htsum;
@@ -638,7 +697,7 @@ void RunTopKalman(TString filename,
       std::vector<float> puWgts(3,1.0),topPtWgts(2,1.0);
       EffCorrection_t lepSelCorrWgt(1.0,0.0), triggerCorrWgt(1.0,0.0);
       if(debug) cout << "Lepton scale factors" << endl;
-      if(!ev.isData)
+      if(!isData)
 	{
 	  //account for pu weights and effect on normalization
 	  allPlots["puwgtctr"]->Fill(0.,1.0);
@@ -652,11 +711,11 @@ void RunTopKalman(TString filename,
             allPlots["puwgt"]->Fill(xbin,yobs);
           }
           */
-          //Set PU weight for each run period
-          runBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
-          runGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
-          treeBCDEF.SetPuWgt(puWgtsRun[0]->GetBinContent(ev.putrue));
-          treeGH.SetPuWgt(puWgtsRun[1]->GetBinContent(ev.putrue));
+          //Set PU weight for each run period [BCDEFup, BCDEF, BCDEFdown, GHup, GH, GHdown]
+          runBCDEF.SetPuWgt(puWgtsRun[1+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
+          runGH.SetPuWgt(puWgtsRun[4+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
+          treeBCDEF.SetPuWgt(puWgtsRun[1+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
+          treeGH.SetPuWgt(puWgtsRun[4+passBit(runSysts,PU_BIT)]->GetBinContent(ev.putrue));
 
 	  if(debug) cout << "getting puWgts DONE!" << endl;
 	  //trigger/id+iso efficiency corrections
@@ -670,6 +729,9 @@ void RunTopKalman(TString filename,
           EffCorrection_t lepSelCorrWgt_GH(1.0,0.0), triggerCorrWgt_GH(1.0,0.0);
 	  triggerCorrWgt_BCDEF=lepEffH_BCDEF.getTriggerCorrection(leptons);
 	  triggerCorrWgt_GH=lepEffH_GH.getTriggerCorrection(leptons);
+          // Systematics for Trigger
+	  triggerCorrWgt_BCDEF.first+=passBit(runSysts,TRIGGER_BIT)*triggerCorrWgt_BCDEF.second;
+	  triggerCorrWgt_GH.first+=passBit(runSysts,TRIGGER_BIT)*triggerCorrWgt_GH.second;
 	  for(size_t il=0; il<leptons.size(); il++) {
 	    EffCorrection_t selSF_BCDEF=lepEffH_BCDEF.getOfflineCorrection(leptons[il], ev.nvtx);
 	    EffCorrection_t selSF_GH=lepEffH_GH.getOfflineCorrection(leptons[il], ev.nvtx);
@@ -679,15 +741,20 @@ void RunTopKalman(TString filename,
             if(debug) cout << "selSF=" << selSF_BCDEF.first << endl;
             if(debug) cout << "lepSelCorrWgt_GH=" << lepSelCorrWgt_GH.first << endl;
             if(debug) cout << "selSF=" << selSF_GH.first << endl;
-	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first;
-	    lepSelCorrWgt_GH.first *= selSF_GH.first;
+                                                                // Systematics for lepton selection
+	    lepSelCorrWgt_BCDEF.first *= selSF_BCDEF.first + passBit(runSysts,LEP_BIT)*selSF_BCDEF.second;
+	    lepSelCorrWgt_GH.first *= selSF_GH.first + passBit(runSysts,LEP_BIT)*selSF_GH.second;
+            if(passBit(runSysts,LEP_BIT)) {
+              if(debug) cout << "(+syst) lepSelCorrWgt_BCDEF=" << lepSelCorrWgt_BCDEF.first << endl;
+              if(debug) cout << "(+syst) lepSelCorrWgt_GH=" << lepSelCorrWgt_GH.first << endl;
+             }
 	  }
           runBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first,lepSelCorrWgt_BCDEF.second);
           runGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first,lepSelCorrWgt_GH.second);
           treeBCDEF.SetSFs(triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first);//,lepSelCorrWgt_BCDEF.second);
           treeGH.SetSFs(triggerCorrWgt_GH.first*lepSelCorrWgt_GH.first);//,lepSelCorrWgt_GH.second);
           // **
-	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[0]->GetBinContent(ev.putrue))*norm;
+	  wgt=triggerCorrWgt_BCDEF.first*lepSelCorrWgt_BCDEF.first*(puWgtsRun[1]->GetBinContent(ev.putrue))*norm;
 
           if(debug) cout << "weight=" << wgt << endl;
           if(debug) cout << "Trigger=" << triggerCorrWgt.first << endl << "Lepton=" << lepSelCorrWgt.first << endl << "PU=" << puWgts[0] << endl << "norm=" << norm  << endl;
@@ -699,6 +766,7 @@ void RunTopKalman(TString filename,
 
       //sort by Pt
       if(debug) cout << "sorting jets" << endl;
+      //FIXME try max heap (priority_queue) to reduce time sorting
       sort(lightJetsVec.begin(),    lightJetsVec.end(),   sortJetsByPt);
       sort(kJetsVec.begin(),    kJetsVec.end(),   sortJetsByPt);
       sort(allJetsVec.begin(),  allJetsVec.end(), sortJetsByPt);
@@ -1001,6 +1069,7 @@ void RunTopKalman(TString filename,
 
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
+      if(htsum<100) continue;
       evch.njpsi=0;
       evch.nmeson=0;
       evch.nj=0;
@@ -1029,7 +1098,7 @@ void RunTopKalman(TString filename,
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
-          if(!ev.isData) {
+          if(!isData) {
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngpf; ig++) {
@@ -1079,6 +1148,14 @@ void RunTopKalman(TString filename,
                 allPlots["massJPsi"+chTag]->Fill(mass12,wgt);
 	        allPlots["massJPsi_all"]->Fill(mass12,wgt);
 
+                TLorentzVector jpsi = muTracks[i].getVec() + muTracks[j].getVec();
+                if(rbFit && !isData) {
+                  float rbWgtJPsi(1.);
+                  if(rbFit==1) rbWgtJPsi=(rbWgt->Eval(jpsi.Pt() / jet.getChargedPt()));
+                  else if(rbFit==2) rbWgtJPsi=(rbWgts[JPsi]->Eval(jpsi.Pt() / jet.getChargedPt()));
+                  runBCDEF.SetRbWgt(rbWgtJPsi, JPsi);
+                  runGH.SetRbWgt(rbWgtJPsi, JPsi);
+                }
                 std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
@@ -1088,11 +1165,11 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
 
-                if(!ev.isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
+                if(!isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
                   runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
                   runGH.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
                 }
-                if(!ev.isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
+                if(!isData && pfmuReject.size() > 1) { //save gen-unmatched J/Psi
                   runBCDEF.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
                   runGH.Fill(pfmuReject, leptons, jet, chTag, "rgjpsi");
                 }
@@ -1122,6 +1199,8 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
+          //if(jet.getPt()>150) continue;
+          //if(jet.getChargedPt()>75) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*
           size_t tmax = 4;
@@ -1145,7 +1224,7 @@ void RunTopKalman(TString filename,
 
           std::vector<pfTrack> pfMatched, pfReject, pfMuMatched;
           //Gen-matching
-          if(!ev.isData) {
+          if(!isData) {
             std::vector<pfTrack> genTracks;
             std::vector<pfTrack> genMuTracks;
             for(int ig = 0; ig < ev.ngpf; ig++) {
@@ -1250,25 +1329,32 @@ void RunTopKalman(TString filename,
               //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
               bool cuts = true;
-              cuts &= abs(piTracks[i].Eta()) < 1.;
-              cuts &= abs(piTracks[j].Eta()) < 1.;
-              cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
-              cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
+              cuts &= abs(piTracks[i].Eta()) < 1.5;
+              cuts &= abs(piTracks[j].Eta()) < 1.5;
+              //cuts &= abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) > 0.5;
+              //cuts &= abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) > 0.5;
               /*
               if(abs(piTracks[i].Eta()) > 1.) continue;
               if(abs(piTracks[j].Eta()) > 1.) continue;
               if(abs(piTracks[i].getDxy()/piTracks[i].getDxyE()) < 0.5) continue;
               if(abs(piTracks[j].getDxy()/piTracks[j].getDxyE()) < 0.5) continue;
               */
+              TLorentzVector d0 = piTracks[i].getVec() + piTracks[j].getVec();
               /*
-              TLorentzVector D0 = piTracks[i].getVec() + piTracks[j].getVec();
-              float cosDjet = (D0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P() * D0.P());
+              float cosDjet = (d0.Vect()).Dot(jet.getVec().Vect())/(jet.getVec().P() * d0.P());
               if(cosDjet < 0.99) continue;
               */
               float mass12 = (piTracks[i].getVec()+piTracks[j].getVec()).M();
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
-              cuts &= (mass12>1.65 && mass12<2.0);
+              cuts &= (mass12>1.7 && mass12<2.0);
               //if (mass12>1.65 && mass12<2.0) {
+              if(rbFit && !isData) {
+                float rbWgtD0(1.);
+                if(rbFit==1) rbWgtD0=(rbWgt->Eval(d0.Pt() / jet.getChargedPt()));
+                else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt()));
+                runBCDEF.SetRbWgt(rbWgtD0, D0);
+                runGH.SetRbWgt(rbWgtD0, D0);
+              }
               if (cuts) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
                 //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
@@ -1301,27 +1387,38 @@ void RunTopKalman(TString filename,
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
 
                 std::vector<pfTrack> tmp_match;
-                if(!ev.isData && pfMatched.size() >1)
-                  tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
-                //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
-                if(genIdx>-1) {
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                if(!isData && pfMatched.size() >1 && 0) {
+                  for(size_t i = 0; i < pfMatched.size(); i++) {
+                    for(size_t j = 0; j < pfMatched.size(); j++) {
+                      tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
+                      //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
+
+                      runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                      runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                    }
+                  }
+                }
+                if(!isData && pfReject.size() > 1 && 0) { //save gen-unmatched J/Psi
+                  for(size_t i = 0; i < pfReject.size(); i++) {
+                    for(size_t j = 0; j < pfReject.size(); j++) {
+                      tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
+                      runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                      runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                    }
+                  }
+                }
+                /*
+                if(genIdx>-1) {  
+                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
                 }
                 else {
+                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                }
+                */
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                }
-
-                if(!ev.isData && pfMatched.size() > 1) { //save gen-matched J/Psi
-                  std::vector<pfTrack> tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
-                  runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
-                  runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
-                }
-                if(!ev.isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
-                  runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
-                  runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
-                }
 
                 runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
                 runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
@@ -1355,12 +1452,20 @@ void RunTopKalman(TString filename,
                 //Kaon and lepton have same charge (e.g. b^-1/3 -> c^+2/3 W^- -> c^+2/3 l^- nubar)
                 //correct mass assumption
                 if(debug) cout << "correct mass assumption" << endl;
+                TLorentzVector d0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
+                if(rbFit && !isData) {
+                  float rbWgtD0mu(1.);
+                  if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt()));
+                  else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt()));
+                  runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
+                  runGH.SetRbWgt(rbWgtD0mu, D0mu);
+                }
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 std::vector<pfTrack> tmp_match;
                 /*
-                if(!ev.isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
+                if(!isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
                   //std::vector<pfTrack> tmp_matched_cands = { pfMatched[0],pfMatched[1],pfMuMatched[0] };
                   tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()],pfMuMatched[track.getGenIdx()] };
                   runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
@@ -1368,7 +1473,7 @@ void RunTopKalman(TString filename,
                 }
                 */
                 /*
-                if(!ev.isData) {
+                if(!isData) {
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 }
@@ -1377,6 +1482,7 @@ void RunTopKalman(TString filename,
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                 }
                 */
+                /*
                 if(genIdx>-1) {
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
@@ -1385,10 +1491,11 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 }
-                /*
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 */
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
               }
               if(piSoftTracks.size()<1) continue;
               for(auto &track : piSoftTracks) {

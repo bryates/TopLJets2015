@@ -188,6 +188,7 @@ std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficienc
   return trackEffMap;
 }
 
+//Pion tracking efficiencies from https://github.com/pfs/TopLJets2015/blob/80x_rereco_rev/TopAnalysis/src/CorrectionTools.cc#L391-L503
 void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas) {
   if (sfs.size() != (etas.size() - 1)) std::cout << "applyEtaDepTrackingEfficiencySF error: need one more bin boundary than scale factors: " << sfs.size() << "," << etas.size() << std::endl;
   for (unsigned int i = 0; i < sfs.size(); i++) {
@@ -213,10 +214,24 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         ev.pf_c[k]   = 0;
       }
     }
+    /* no need to drop since Kalman tracks are matched to PF in Kalman.cc
+    for (int k = 0; k < ev.npf; k++) {
+      if (abs(ev.k_pf_id[k]) != 211 && abs(ev.k_pf_id[k]) != 321) continue;
+      if (ev.k_pf_eta[k] < minEta) continue;
+      if (ev.k_pf_eta[k] > maxEta) continue;
+      if (random->Rndm() > sf) {
+        //make sure that particle does not pass any cuts
+        ev.k_pf_pt[k]  = 1e-20;
+        ev.k_mass[k]   = 1e-20;
+        ev.k_pf_eta[k] = 999.;
+      }
+    }
+    */
   }
   else { // sf > 1
     // find charged hadrons that were not reconstructed
-    double dRcut = 0.01;
+    double dRcut = 0.01*0.01; //squared b/c sqrt is expensive!
+    //double dRcut = 0.01;
     std::vector<int> chGenNonRecoHadrons;
     int NchGenHadrons = 0;
     for (int g = 0; g < ev.ngpf; g++) {
@@ -232,7 +247,8 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         if (abs(ev.pf_id[k]) != 211) continue;
         double dEta = ev.gpf_eta[g] - ev.pf_eta[k];
         double dPhi = TVector2::Phi_mpi_pi(ev.gpf_phi[g] - ev.pf_phi[k]);
-        double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2));
+        double dR = pow(dEta, 2) + pow(dPhi, 2);
+        //double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2)); //sqrt is expensive!
         if (dR < dRcut) {
           matched = true;
           break;
@@ -253,11 +269,13 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       int g = chGenNonRecoHadronsToPromote[i];
       // jet association
       int j = -1;
-      double jetR = 0.4;
+      double jetR = 0.4*0.4;
+      //double jetR = 0.4;
       for (int ij = 0; ij < ev.nj; ij++) {
         double dEta = ev.gpf_eta[g] - ev.j_eta[ij];
         double dPhi = TVector2::Phi_mpi_pi(ev.gpf_phi[g] - ev.j_phi[ij]);
-        double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2));
+        double dR = pow(dEta, 2) + pow(dPhi, 2);
+        //double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2)); //sqrt is expensive!
         if (dR < jetR) {
           j = ij;
           break;
@@ -272,25 +290,28 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       ev.pf_m[k]   = ev.gpf_m[g];
       ev.pf_mother[k] = ev.gpf_mother[g]; //Store mother ID for D mesons (since Kalman filter wasn't run on GEN particles)
       //Update Kalman tracks
-      /*
-      if(ev.gpf_mother[k]==443 || ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) {
+      if(ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) { //don't need J/Psi since this is pion only
+      //if(ev.gpf_mother[k]==443 || ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) {
         int kpf = ++ev.nkpf;
-        ev.njpsi++;
+        //ev.njpsi++; //no J/Psi
         ev.nmeson++;
+        ev.k_pf_pt[kpf] = ev.gpf_pt[g];
         ev.k_pf_eta[kpf] = ev.gpf_eta[g];
         ev.k_pf_phi[kpf] = ev.gpf_phi[g];
         ev.k_id[kpf] = ev.gpf_mother[g];
         ev.k_chi2[kpf] = 1.;
         ev.k_vtxProb[kpf] = 1.;
-        ev.k_pf_id[kpf] = ev.gpf_id[g];
+        //save pi and K only (211 and 321)
+        if(ev.gpf_id[g]==211 || ev.gpf_id[g]==321) ev.k_pf_id[kpf] = 211;
+        if(ev.gpf_id[g]==-211 || ev.gpf_id[g]==-321) ev.k_pf_id[kpf] = -211;
+        //ev.k_pf_id[kpf] = ev.gpf_id[g];
         ev.k_l3d[kpf] = 1.;
         ev.k_sigmal3d[kpf] = 0.01; //random to pass sig cut > 10
         ev.k_j[kpf] = j;
-        if(ev.gpf_mother[k]==443) ev.k_mass[kpf] = 3.096;
-        else if(ev.gpf_mother[k]==421) ev.k_mass[kpf] = 1.864;
+        //if(ev.gpf_mother[k]==443) ev.k_mass[kpf] = 3.097; //no J/Psi
+        if(ev.gpf_mother[k]==421) ev.k_mass[kpf] = 1.864;
         else if(ev.gpf_mother[k]==413) ev.k_mass[kpf] = 2.010;
       }
-      */
       ev.pf_dxy[k] = 0.;
       ev.pf_dz[k]  = 0.;
     }

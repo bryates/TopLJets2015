@@ -34,6 +34,7 @@ cmsRun test/runMiniAnalyzer_cfg.py runOnData=False/True outFilename=MiniEvents.r
 To submit a list of samples, described in a json file to the grid you can use the following script.
 ```
 python scripts/submitToGrid.py -j data/era2016/samples.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn /store/group/phys_top/byates -s
+python scripts/submitToGrid.py -j data/era2016/syst_samples.json -c ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/test/runMiniAnalyzer_cfg.py --lfn /store/group/phys_top/byates -s
 ```
 Partial submission can be made adding "-o csv_list" as an option
 Don't forget to init the environment for crab3 (e.g. https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CheatSheet#Environment_setup)
@@ -78,9 +79,10 @@ python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_SingleMuon_l
 ```
 python scripts/saveExpectedBtagEff.py -i /store/user/byates/LJets2015/8db9ad6/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root
 ```
-* MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.pck
+* MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.root and data/genweights_syst.root
 ```
-python scripts/produceNormalizationCache.py -i /store/user/byates/LJets2015/8db9ad6 -o data/era2016/genweights.root
+python scripts/produceNormalizationCache.py -i /store/group/phys_top/byates/LJets2015/8db9ad6 -o data/era2016/genweights.root
+python scripts/produceNormalizationCache.py -i /store/group/phys_top/byates/syst_samples/ -o data/era2016/genweights_syst.root -j data/era2016/syst_samples.json
 ```
 You're now ready to start locally the analysis.
 

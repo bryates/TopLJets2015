@@ -53,10 +53,11 @@ void RunTopKalman(TString filename,
 		 Int_t chargeSelection, 
 		 FlavourSplitting flavourSplitting,
 		 TH1F *normH, 
-		 Bool_t runSysts,
 		 TString era,
                  TString runPeriod,
-                 Bool_t debug);
+                 Bool_t debug,
+		 short runSysts=0,
+                 short rbFit=0);
 void RunTopAOD(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 

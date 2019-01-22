@@ -26,6 +26,7 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "TopLJets2015/TopAnalysis/interface/CharmEvent.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 using namespace RooFit;
 
 bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
@@ -35,123 +36,40 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
-  TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
-  TChain *t = new TChain("data");
-  t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
+  if(mass != "172v5") mass = "m" + mass;
+  TFile *f = new TFile("TopMass_"+mass+"_sPlot_jpsi.root");
   //f->ls(); 
-  TString name = "massJPsi_l_all_jpsi";
+  TString name = "meson_l_mass_jpsi_signal";
   //TString name = "massJPsi_l_all_jpsi_BCDEF";
-  cout << "loading " << name+"_BCDEF mass="+mass << endl;
-  TH1F *h1;
-  TH1F *h2;
-  if(GET_BIT(flags,0)) {
-  h1 = (TH1F*)f->Get(name+"_BCDEF"); // hJpsi, hJpsiFit
-  h2 = (TH1F*)f->Get(name+"_GH"); // hJpsi, hJpsiFit
-  }
-  cout << "loading " << name+"_GH mass="+mass << endl;
-  TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
-  TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
-  TH1F *top1 = (TH1F*) f->Get("topptwgt_BCDEF");
-  TH1F *top2 = (TH1F*) f->Get("topptwgt_GH");
-  float puSF1 = pu1->GetBinContent(1)/pu1->GetBinContent(2);
-  float puSF2 = pu2->GetBinContent(1)/pu2->GetBinContent(2);
-  float topSF1 = top1->GetBinContent(2)/top1->GetBinContent(1);
-  float topSF2 = top2->GetBinContent(2)/top2->GetBinContent(1);
-  cout << "PU normalization " << puSF1 << endl;
-  cout << "top pT normalization " << topSF1 << endl;
-  //h1->Scale(832 * 19716.102 * puSF * topSF);
-  cout << "PU normalization " << puSF2 << endl;
-  cout << "top pT normalization " << topSF2 << endl;
-  //h2->Scale(832 * 16146.178 * puSF * topSF);
-  //TH1F *h = (TH1F*)h1->Clone();
-  //h->Add(h2);
+  cout << "loaded " << mass << endl;
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
   cout << "loaded!" << endl;
 
   // Declare observable x
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
-  RooRealVar jpsi_l_mass("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
+  //RooRealVar jpsi_l_mass("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
+  RooWorkspace *w = (RooWorkspace*)f->Get("w");
+  //RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("J/#Psi+l mass");
+  RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("jpsi_l_mass");
   //RooRealVar jpsi_mass("jpsi_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
   
   //cout << "creating dataset" << endl;
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
-  //TTree *t = (TTree*)f->Get("data");
-  //TH1F *h1 = new TH1F("h1","h1",50,0,250);
-  //TH1F *h2 = new TH1F("h2","h2",50,0,250);
-  //h1->Sumw2();
-  //h1->SetDirectory(0);
-  //h2->Sumw2();
-  //h2->SetDirectory(0);
-  if(!GET_BIT(flags,0)) {
-  t->Draw("jpsi_l_mass>>h1(25,0,250)", "sfs*puwgt*topptwgt*(jpsi_l_mass>0 && jpsi_l_mass<250 && meson_id==443 && jpsi_mass>3.0 && jpsi_mass<3.2 && jpsi_l3d/jpsi_sigmal3d>20 && epoch==1)", "goff");
-  t->Draw("jpsi_l_mass>>h2(25,0,250)", "sfs*puwgt*topptwgt*(jpsi_l_mass>0 && jpsi_l_mass<250 && meson_id==443 && jpsi_mass>3.0 && jpsi_mass<3.2  && jpsi_l3d/jpsi_sigmal3d>20 && epoch==2)", "goff");
-  h1 = (TH1F*)gDirectory->Get("h1");
-  h2 = (TH1F*)gDirectory->Get("h2");
-  }
-  //RooDataHist dh("dh", "dh", jpsi_l_mass,  h);
-  //RooDataSet ds("ds", "ds", RooArgSet(jpsi_l_mass,jpsi_mass), Import(*t), Cut("jpsi_mass>3.0 && jpsi_mass<3.2"));
-  //RooDataSet ds("ds", "ds", t, jpsi_l_mass);
-  //CharmEvent_t ev;
-  //attachToCharmEventTree(t,ev);
-  float jpsilm[50],jpsi_mass[50],norm,topptwgt,sfs[50],puwgt[50];
-  int epoch[50],meson_id[50];
-  t->SetBranchAddress("meson_id", meson_id);
-  t->SetBranchAddress("jpsi_l_mass", jpsilm);
-  t->SetBranchAddress("jpsi_mass", jpsi_mass);
-  t->SetBranchAddress("norm", &norm);
-  t->SetBranchAddress("topptwgt", &topptwgt);
-  t->SetBranchAddress("sfs", sfs);
-  t->SetBranchAddress("puwgt", puwgt);
-  t->SetBranchAddress("epoch", epoch);
-  RooDataSet ds("ds", "ds", RooArgSet(jpsi_l_mass));
-  //TH1F *h1 = new TH1F("h1","h1",100,0,250);
-  //TH1F *h2 = new TH1F("h2","h2",100,0,250);
-  /*
-  for(int i=0; i< t->GetEntries(); i++) {
-    t->GetEntry(i);
-    for(int j=0; j<2; j++) {
-      if(meson_id[j] != 443) continue;
-      if(jpsi_mass[j] < 3.0) continue;
-      if(jpsi_mass[j] > 3.2) continue;
-      if(!(jpsilm[j] > 0)) continue;
-      if(jpsilm[j] > 250) continue;
-      float scale = 1.;
-      scale = sfs[j] * puwgt[j] * topptwgt;// * topSF * puSF;
-      //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
-      if(epoch[j]==1)
-        scale =  scale * 19716.102 * puSF1 * topSF1;
-        //h1->Fill(jpsilm[j], scale);
-      else if(epoch[j]==2)
-        scale = scale * 16146.178 * puSF2 * topSF2;
-        //h2->Fill(jpsilm[j], scale);
-      else
-        continue;
-      jpsi_l_mass = jpsilm[j];
-      ds.add(RooArgSet(jpsi_l_mass), scale);
-
-    }
-  }
-  */
-  //RooDataHist dh = *ds.binnedClone();
-  h1->Scale(topSF1*puSF1);
-  h2->Scale(topSF2*puSF2);
-  h1->Scale(832 * 19716.102);
-  h2->Scale(832 * 16146.178);
-  TH1F *h = (TH1F*)h1->Clone("h");
-  h->Add(h2);
-  h->Draw();
-  RooDataHist dh("dh", "dh", jpsi_l_mass, h);
-  /*
-  */
-
   cout << "plotting dataset" << endl;
-  // Make plot of binned dataset showing Poisson error bars (RooFit default)
+  //RooPlot *frame = (RooPlot*)f->Get("meson_l_mass_jpsi_signal");
   RooPlot* frame = jpsi_l_mass.frame() ;
-  //dh.plotOn(frame);
-  //ds.plotOn(frame,Binning(50));
-  //frame->Draw();
+  //auto frame = w->var("J/#Psi+l mass")->frame();
+  //cout << "converting" << endl;
+  //TH1F *l_mass = (TH1F*)convert(meson_l_mass_jpsi_signal,true,0,250);
+  RooDataSet ds = *(RooDataSet*)w->data("sigData");
+  //ds.plotOn(frame, Binning(50));
+  cout << "making dh" << endl;
+  //RooDataHist dh("dh", "dh", jpsi_l_mass, Import(*l_mass));
+  //RooDataHist dh("dh", "dh", jpsi_l_mass, h);
+  //RooDataHist dh = *ds.binnedClone();
+  cout << "making frame" << endl;
 
   cout << "defining variables" << endl;
 
@@ -160,6 +78,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   RooPolynomial m1("m1", "m1", jpsi_l_mass, RooArgList(a0,a1));
 
   // Gamma terms
+  /*
   //RooRealVar g("g","g", 2,1.9,2.1);
   RooRealVar g("g","g", 2.5, 0, 10);
   //RooRealVar g("g","g", 2.5, 2.3, 2.6);
@@ -168,10 +87,15 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar b("b","b", 35, 34, 36);
   //RooRealVar mu("mu","mu", 9, 5, 14);
   RooRealVar mu("mu","mu", 12, 11, 13);
+  */
+  RooRealVar g("g","g", 2.5, 0, 10);
+  RooRealVar b("b","b", 35, 0, 70);
+  RooRealVar mu("mu","mu", 12, 0, 20);
 
   // Construct Gaussian PDF for signal
   RooRealVar mean("mean","mean", 70, 60, 90);
-  RooRealVar sigma("sigma","sigma", 19, 18, 30);
+  RooRealVar sigma("sigma","sigma", 19, 0, 50);
+  //RooRealVar sigma("sigma","sigma", 19, 18, 30);
   //RooRealVar sigma("sigma","sigma", 19, 18.5, 19.5);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
   RooGaussian gauss("gauss","gauss", jpsi_l_mass, mean, sigma);
@@ -197,10 +121,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
   //RooAddPdf model("model","g+a", RooArgList(signalGauss, expo), RooArgList(nsig,nbkg)) ;
   cout << "fitting model" << endl;
-  /*
   signalModel.fitTo(ds);//,Extended());
-  */
-  signalModel.fitTo(dh,Extended());
+  //signalModel.fitTo(dh,Extended());
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
   //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
@@ -211,8 +133,8 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   m.hesse();
   RooFitResult *r = m.save();
   */
-  dh.plotOn(frame);
-  //ds.plotOn(frame,Binning(50));
+  //dh.plotOn(frame);
+  ds.plotOn(frame,Binning(25));
   signalModel.plotOn(frame);
   signalModel.plotOn(frame, Components(gauss),LineStyle(kDashed),LineColor(kRed));
   signalModel.plotOn(frame, Components(gamma),LineStyle(kDashed),LineColor(kBlue));
@@ -300,6 +222,7 @@ void roofit_mtop(std::vector<float> &names,
   alpha->GetYaxis()->SetRangeUser(0.3,0.7);
   gamma->GetYaxis()->SetRangeUser(1,5);
   beta->GetYaxis()->SetRangeUser(20,50);
+  beta->GetYaxis()->SetRangeUser(50,80);
   mu->GetYaxis()->SetRangeUser(6,20);
   //int minbin = mean->FindFirstBinAbove(0);
   //cout << minbin << endl;

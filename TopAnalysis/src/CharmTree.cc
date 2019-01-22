@@ -202,6 +202,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_pz_pf[ev_.nj] = jet.getPFPz();
     ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
+    ev_.j_mass[ev_.nj] = jet.M();
     ev_.nmeson++;
     ev_.nj++;
   }
@@ -212,29 +213,32 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
     ev_.d0_mass[ev_.nmeson] = D0.M();
     ev_.meson_id[ev_.nmeson] = abs(pfCands[0].getMotherId());
-    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
-      ev_.meson_id[ev_.nmeson] = 42113;
-      //if(D0.M()>1.8 && D0.M()<1.93) {
-        ev_.d0_mu_pt[ev_.nmeson] = pfCands[2].Pt();
-        ev_.d0_mu_eta[ev_.nmeson] = pfCands[2].Eta();
-        ev_.d0_mu_phi[ev_.nmeson] = pfCands[2].Phi();
-        ev_.d0_mu_tag_mu_pt[ev_.nmeson] = (D0+pfCands[2].getVec()).Pt();
-      //}
+    //if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==13) {
+    if(pfCands.size()>2) {
+      if(abs(pfCands[2].getPdgId())==13 && pfCands[2].getMotherId()==42113) {
+        ev_.meson_id[ev_.nmeson] = 42113;
+        //if(D0.M()>1.8 && D0.M()<1.93) {
+          ev_.d0_mu_pt[ev_.nmeson] = pfCands[2].Pt();
+          ev_.d0_mu_eta[ev_.nmeson] = pfCands[2].Eta();
+          ev_.d0_mu_phi[ev_.nmeson] = pfCands[2].Phi();
+          ev_.d0_mu_tag_mu_pt[ev_.nmeson] = (D0+pfCands[2].getVec()).Pt();
+        //}
+      }
+      if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
+        float mass123 = (D0+pfCands[2].getVec()).M();
+        float deltam = mass123 - D0.M();
+        if(deltam<0.14 || deltam>0.16) return;
+        ev_.ds_mass[ev_.nmeson] = mass123;
+        ev_.ds_pi2_pt[ev_.nmeson] = pfCands[2].Pt();
+        ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
+        ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
+      }
+      /*
+      if(abs(pfCands[0].getMotherId())==42113) {
+        ev_.meson_id[ev_.nmeson] = 42113;
+      }
+      */
     }
-    if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
-      float mass123 = (D0+pfCands[2].getVec()).M();
-      float deltam = mass123 - D0.M();
-      if(deltam<0.14 || deltam>0.16) return;
-      ev_.ds_mass[ev_.nmeson] = mass123;
-      ev_.ds_pi2_pt[ev_.nmeson] = pfCands[2].Pt();
-      ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
-      ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
-    }
-    /*
-    if(abs(pfCands[0].getMotherId())==42113) {
-      ev_.meson_id[ev_.nmeson] = 42113;
-    }
-    */
 
     int epoch(0);
     if(runPeriod_.Contains("BCDEF"))
@@ -297,6 +301,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.d0_sigmax[ev_.nmeson] = pfCands[0].getSigmaX();
     ev_.d0_sigmay[ev_.nmeson] = pfCands[0].getSigmaY();
     ev_.d0_sigmaz[ev_.nmeson] = pfCands[0].getSigmaZ();
+    ev_.d0_ndau[ev_.nmeson] = TMath::Max(pfCands[0].getNdau(), pfCands[1].getNdau());
 
     ev_.d0_pi_pt[ev_.nmeson] = pfCands[0].Pt();
     ev_.d0_pi_eta[ev_.nmeson] = pfCands[0].Eta();
@@ -312,6 +317,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.d0_k_dz[ev_.nmeson] = pfCands[1].getDz();
 
     ev_.d0_chi2[ev_.nmeson] = pfCands[0].chi2();
+    ev_.d0_opang[ev_.nmeson] = pfCands[0].getOpeningAngle();
 
     if(genMatch.size()>0) {
       ev_.d0_pi_mother[ev_.nmeson] = genMatch[0].getMotherId();
@@ -319,8 +325,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     }
 
     ev_.j_pt[ev_.nj] = jet.getPt();
-    ev_.j_eta[ev_.nj] = genJet.getVec().Eta();
-    ev_.j_phi[ev_.nj] = genJet.getVec().Phi();
+    ev_.j_eta[ev_.nj] = jet.getVec().Eta();
+    ev_.j_phi[ev_.nj] = jet.getVec().Phi();
     ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();
@@ -331,6 +337,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_pz_pf[ev_.nj] = jet.getPFPz();
     ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
+    ev_.j_mass[ev_.nj] = jet.M();
     ev_.j_ntk[ev_.nj] = jet.getTracks().size();
     ev_.nmeson++;
     ev_.nj++;

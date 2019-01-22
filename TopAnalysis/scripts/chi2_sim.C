@@ -26,18 +26,18 @@ int bins(22);
 float chi2vals[12];
 
 void chi2_sim() {
-//std::vector<TString> samples = { "_d0_mu_tag_mu", "_jpsi" };
-std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
+std::vector<TString> samples = { "_d0_mu_tag_mu", "_jpsi" };
+//std::vector<TString> samples = { "_d0_mu_tag_mu", "_d0", "_jpsi" };
 /*
 std::vector<TString> tunes = {"_down", "", "_cccentral", "_central", "_up" };
 std::vector<float> param = {0.755, 0.855, 0.875, 0.955, 1.055};
-*/
 std::vector<TString> tunes = {"_sdown", "_down", "_scentral", "", "_cccentral", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
-/*
 std::vector<TString> tunes = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
+std::vector<TString> tunes = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
 
 TCanvas *c1 = new TCanvas("c1","c1");
 TH1F *chiTest = new TH1F("chiTest","#chi^{2} test",100,0,2);
@@ -111,7 +111,7 @@ pt->SetTextAlign(11);
 pt->SetBorderSize(0);
 pt->SetTextFont(42);
 pt->SetTextSize(0.046);
-TString text = TString::Format("r_{B}= %.3f +/- %.2g",min,abs(min-err));
+TString text = TString::Format("r_{B}= %.2f +/- %.2f",min,abs(min-err));
 pt->AddText(text);
 pt->Draw();
 gStyle->SetOptStat(0);
@@ -133,7 +133,7 @@ if(tune == "") ptfrac=*wmc->var("ptfrac");
 RooDataSet *sigData;
 
 //load MC into RooDataHist
-TString cut("j_pt_ch>150 && j_pt_ch<200");
+TString cut("j_pt_ch<75");
 sigData = (RooDataSet*)wmc->data("sigData")->reduce(cut);
 //RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *wmc->data("sigData"));//*mcData);
 RooDataHist *ptfrac_mc_hist = new RooDataHist("ptfrac_mc_hist", "ptfrac_mc_hist", *wmc->var("ptfrac"), *sigData);
@@ -182,8 +182,8 @@ if(tune.Length() > 0) {
 //mc->Rebin(2);
 //TH1F *mc = (TH1F*)convert(((RooPlot*)fmc->Get("ptfrac_mu_tag_signal"))->getHist());
 //TH1F *mc = (TH1F*)fmc->Get("ptfrac_signal_mu_tag_mu");
-float chi2 = data->Chi2Test(mc, "CHI2");
-std::cout << tune << " Chi2/ndf= " << chi2 << std::endl;
+float chi2 = data->Chi2Test(mc, "CHI2 WW");
+std::cout << tune << " Chi2= " << chi2 << std::endl;
 
 /*
 delete ptfrac_data;

@@ -98,7 +98,7 @@ for(size_t i = 0; i < tune.size(); i++) {
   //chiTest->GetYaxis()->SetRangeUser(0,5);
   chiTest[i]->SetMarkerStyle(20);
   chiTest[i]->Draw("p9");
-  TFitResultPtr fit = chiTest[i]->Fit("pol2","FS");
+  TFitResultPtr fit = chiTest[i]->Fit("pol2","FSEMQ");
   std:cout << report << std::endl;
   float min = (-1)*fit->Parameter(1)/(2*fit->Parameter(2));
   float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2);
@@ -238,7 +238,7 @@ if(tune.Length() > 0) {
   report += '\n';
   mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
-float chi2 = data->Chi2Test(mc, "CHI2");
+float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 
 /*

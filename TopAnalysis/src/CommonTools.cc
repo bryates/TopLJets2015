@@ -248,28 +248,34 @@ FactorizedJetCorrector *getFactorizedJetEnergyCorrector(TString baseDir, bool is
 
 
 //Sources : https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution#JER_Scaling_factors_and_Uncertai
+//syst errors from Summer16_25nsV1
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt)
 {
   std::vector<float> res(3,1.0);
 
   float ptSF(1.0), ptSF_err(0.0);
-  if(TMath::Abs(eta)<0.5)       { ptSF=1.109; ptSF_err = 0.008; }
-  else if(TMath::Abs(eta)<0.8)  { ptSF=1.138; ptSF_err = 0.013; }
-  else if(TMath::Abs(eta)<1.1)  { ptSF=1.114; ptSF_err = 0.013; }
-  else if(TMath::Abs(eta)<1.3)  { ptSF=1.123; ptSF_err = 0.024; }
-  else if(TMath::Abs(eta)<1.7)  { ptSF=1.084; ptSF_err = 0.011; }
-  else if(TMath::Abs(eta)<1.9)  { ptSF=1.082; ptSF_err = 0.035; }
-  else if(TMath::Abs(eta)<2.1)  { ptSF=1.140; ptSF_err = 0.0047; }
-  else if(TMath::Abs(eta)<2.3)  { ptSF=1.067; ptSF_err = 0.053; }
-  else if(TMath::Abs(eta)<2.5)  { ptSF=1.177; ptSF_err = 0.041; }
-  else if(TMath::Abs(eta)<2.8)  { ptSF=1.364; ptSF_err = 0.039; }
-  else if(TMath::Abs(eta)<3.0)  { ptSF=1.857; ptSF_err = 0.071; }
-  else if(TMath::Abs(eta)<3.2)  { ptSF=1.328; ptSF_err = 0.022; }
-  else if(TMath::Abs(eta)<5.0)  { ptSF=1.16; ptSF_err = 0.029; }
+  if(TMath::Abs(eta)<0.5)       { ptSF=1.109; ptSF_err = 0.008 + 0.0642; }
+  else if(TMath::Abs(eta)<0.8)  { ptSF=1.138; ptSF_err = 0.013 + 0.0642; }
+  else if(TMath::Abs(eta)<1.1)  { ptSF=1.114; ptSF_err = 0.013 + 0.0627; }
+  else if(TMath::Abs(eta)<1.3)  { ptSF=1.123; ptSF_err = 0.024 + 0.0982; }
+  else if(TMath::Abs(eta)<1.7)  { ptSF=1.084; ptSF_err = 0.011 + 0.0979; }
+  else if(TMath::Abs(eta)<1.9)  { ptSF=1.082; ptSF_err = 0.035 + 0.1028; }
+  else if(TMath::Abs(eta)<2.1)  { ptSF=1.140; ptSF_err = 0.0047+ 0.1099; }
+  else if(TMath::Abs(eta)<2.3)  { ptSF=1.067; ptSF_err = 0.053 + 0.1008; }
+  else if(TMath::Abs(eta)<2.5)  { ptSF=1.177; ptSF_err = 0.041 + 0.2064; }
+  else if(TMath::Abs(eta)<2.8)  { ptSF=1.364; ptSF_err = 0.039 + 0.1559; }
+  else if(TMath::Abs(eta)<3.0)  { ptSF=1.857; ptSF_err = 0.071 + 0.1900; }
+  else if(TMath::Abs(eta)<3.2)  { ptSF=1.328; ptSF_err = 0.022 + 0.1228; }
+  else if(TMath::Abs(eta)<5.0)  { ptSF=1.16;  ptSF_err = 0.029 + 0.1437; }
 
+  res[0] = TMath::Max((Float_t)0.,(Float_t)(1+(ptSF-1)*(pt-genjpt)/pt));
+  res[1] = TMath::Max((Float_t)0.,(Float_t)(1+(ptSF-1-(ptSF_err-1))*(pt-genjpt)/pt));
+  res[2] = TMath::Max((Float_t)0.,(Float_t)(1+(ptSF-1+(ptSF_err-1))*(pt-genjpt)/pt));
+  /* old method
   res[0] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF)*(pt-genjpt)))/pt;
   res[1] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF-ptSF_err)*(pt-genjpt)))/pt;
   res[2] = TMath::Max((Float_t)0.,(Float_t)(genjpt+(ptSF+ptSF_err)*(pt-genjpt)))/pt;
+  */
   
   return res;
 }

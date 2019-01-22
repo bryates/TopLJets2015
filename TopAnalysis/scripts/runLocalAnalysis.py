@@ -12,7 +12,7 @@ Wrapper to be used when run in parallel
 def RunMethodPacked(args):
 
 
-    method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug=args
+    method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug,rbFit=args
     print 'Running ',method,' on ',inF
     print 'Output file',outF
     print 'Selection ch=',channel,' charge=',charge,' flavSplit=',flav,' systs=',runSysts
@@ -20,6 +20,7 @@ def RunMethodPacked(args):
     print 'Corrections will be retrieved for era=',era
     print 'Run period',runPeriod
     if debug : print 'Verbose mode'
+    if rbFit: print 'Running with fitted rB'
 
     try:
         cmd='analysisWrapper --era %s --runPeriod %s --normTag %s --in %s --out %s --method %s --charge %d --channel %d --flav %d' %(era,
@@ -31,8 +32,9 @@ def RunMethodPacked(args):
                                                                                                                       charge,
                                                                                                                       channel,
                                                                                                                       flav)
-        if runSysts : cmd += ' --runSysts'
+        if runSysts : cmd += ' --runSysts %hd' % runSysts
         if debug : cmd += ' --verbose'
+        if rbFit : cmd += ' --rbFit %hd' % rbFit
         print cmd
         os.system(cmd)
     except :
@@ -55,7 +57,7 @@ def main():
     parser.add_option('-e', '--ext',         dest='ext',         help='extput directory with files or single file [%default]',  default='/store/group/phys_top/byates/ext/',       type='string')
     parser.add_option(      '--only',        dest='only',        help='csv list of samples to process  [%default]',             default=None,       type='string')
     parser.add_option(      '--skip',        dest='skip'  ,      help='skip all these (csv)',         default=None,    type='string')
-    parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics  [%default]',                            default=False,      action='store_true')
+    parser.add_option(      '--runSysts',    dest='runSysts',    help='run systematics  [%default]',                            default=0,          type=int)
     parser.add_option(      '--flav',        dest='flav',        help='split according to heavy flavour content  [%default]',   default=0,          type=int)
     parser.add_option(      '--ch',          dest='channel',     help='channel  [%default]',                                    default=13,         type=int)
     parser.add_option(      '--charge',      dest='charge',      help='charge  [%default]',                                     default=0,          type=int)
@@ -68,6 +70,7 @@ def main():
     parser.add_option('-q', '--queue',       dest='queue',       help='submit to this queue  [%default]',                       default='local',    type='string')
     parser.add_option('-n', '--njobs',       dest='njobs',       help='# jobs to run in parallel  [%default]',                  default=0,          type='int')
     parser.add_option('-v', '--verbose',     dest='debug',       help='pint debug messages [%default]',                         default=False,      action='store_true')
+    parser.add_option(      '--rbFit',       dest='rbFit',       help='run with fitted rB [%default]',                          default=0,          type=int)
     (opt, args) = parser.parse_args()
 
     #parse selection list
@@ -99,7 +102,7 @@ def main():
         if '/store/' in inF and not 'root:' in inF : inF='root://eoscms//eos/cms'+opt.input        
         print inF
         outF=opt.output
-        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,opt.tag,opt.debug) )
+        task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,opt.tag,opt.debug,opt.rbFit) )
     else:
 
         inputTags=getEOSlslist(directory=opt.input,prepend='')
@@ -137,22 +140,35 @@ def main():
             ############### Submit to condor ###############
             input_list=getEOSlslist(directory='%s/%s' % (opt.input,tag) )
             ext_len=",".join(input_list).count("_ext")
+            sys=""
+            runSysts=0
+            syst=["TRIGGER" ,"LEP", "PU" ,"PI" ,"JER"]
+            #syst=["TRIGGER" ,"LEP" ,"TRK" ,"PU" ,"PI" ,"JER"]
+            if(opt.runSysts!=0):
+                runSysts=2**abs(opt.runSysts)
+                if(opt.runSysts>0): sys="_up"
+                if(opt.runSysts<0): sys="_down"
+                sys = sys + "_"
+                sys = sys + syst[abs(opt.runSysts)-1]
             target = '%s/src/TopLJets2015/TopAnalysis/%s' % (cmsswBase,tag)
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
             #condorFile.write('executable            = condor/cond_crab.sh\n')
-            condorFile.write('executable            = condor/cond_submit.sh\n')
-            condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method))
-            condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % tag)
-            condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % tag)
-            condorFile.write('log                   = condor/log/%s.log\n' % tag)
+            if(opt.rbFit): condorFile.write('executable            = condor/cond_rbFit.sh\n')
+            else :condorFile.write('executable            = condor/cond_submit.sh\n')
+            if (opt.runSysts<0): condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd -%hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
+            else: condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
+            condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag,sys))
+            condorFile.write('error                 = condor/log/%s_$(ProcId)%s.err\n' % (tag,sys))
+            condorFile.write('log                   = condor/log/%s%s.log\n' % (tag,sys))
             condorFile.write('Rank                  = Memory >= 64\n')
             condorFile.write('Request_Memory        = 32 Mb\n')
             condorFile.write('+JobFlavour           = "workday"\n')
             condorFile.write('Should_Transfer_Files = NO\n')
             condorFile.write('queue %d' % (len(input_list)-ext_len))
             condorFile.close()
-            os.system('condor_submit %s -batch-name %s' % (target,tag))
+            #os.system('condor_submit %s -batch-name %s' % (target,tag))
+            os.system('condor_submit %s -batch-name %s%s' % (target,tag,sys))
             os.system('rm %s' % (tag))
             ############### Special case for ext samples ###############
             #if "WJets" in tag:
@@ -161,21 +177,23 @@ def main():
               condorFile = open(target,'w')
               condorFile.write('universe              = vanilla\n')
               condorFile.write('executable            = condor/cond_ext.sh\n')
-              condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method))
-              condorFile.write('output                = condor/log/%s_$(ProcId).out\n' % (tag+"_ext"))
-              condorFile.write('error                 = condor/log/%s_$(ProcId).err\n' % (tag+"_ext"))
-              condorFile.write('log                   = condor/log/%s.log\n' % (tag+"_ext"))
+              #condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
+              if (opt.runSysts<0): condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd -%hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
+              else: condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
+              condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag+"_ext",sys))
+              condorFile.write('error                 = condor/log/%s_$(ProcId)%s.err\n' % (tag+"_ext",sys))
+              condorFile.write('log                   = condor/log/%s%s.log\n' % (tag+"_ext",sys))
               condorFile.write('Request_Memory        = 32 Mb\n')
               condorFile.write('+JobFlavour           = "workday"\n')
               condorFile.write('Should_Transfer_Files = NO\n')
               condorFile.write('queue %d' % ext_len)
               condorFile.close()
-              os.system('condor_submit %s -batch-name %s' % (target,tag+"_ext"))
+              os.system('condor_submit %s -batch-name %s%s' % (target,tag+"_ext",sys))
               os.system('rm %s' % (tag+"_ext"))
             for ifile in xrange(0,len(input_list)):
                 inF=input_list[ifile]
                 outF=os.path.join(opt.output,'%s_%d.root' %(tag,ifile))
-                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,tag,opt.debug) )
+                task_list.append( (opt.method,inF,outF,opt.channel,opt.charge,opt.flav,opt.runSysts,opt.era,opt.runPeriod,tag,opt.debug,opt.rbFit) )
 
     #run the analysis jobs
     if opt.queue=='local':
@@ -190,10 +208,11 @@ def main():
         queue = opt.queue
         if "8nh" in queue: queue = "longlunch"
         print 'launching %d tasks to submit to the %s queue'%(len(task_list),queue)
-        for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug in task_list:
+        for method,inF,outF,channel,charge,flav,runSysts,era,runPeriod,tag,debug,rbFit in task_list:
             localRun='python %s/src/TopLJets2015/TopAnalysis/scripts/runLocalAnalysis.py -i %s -o %s --charge %d --ch %d --era %s --runPeriod %s --tag %s --flav %d --method %s' % (cmsswBase,inF,outF,charge,channel,era,runPeriod,tag,flav,method)
-            if debug : localrun += ' --verbose %s' % (debug)
-            if runSysts : localRun += ' --runSysts'            
+            if debug : localRun += ' --verbose %s' % (debug)
+            if rbFit : localRun += ' --rbFit %hd' % (rbFit)
+            if runSysts : localRun += ' --runSysts %hd' % (runSysts)
             ############### Now using condor instead of LSF (bsub) ###############
             cmd='bsub -q %s -J %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,outF,cmsswBase,localRun)
             #os.system(cmd)

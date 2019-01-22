@@ -14,7 +14,7 @@ class pfTrack {
   pfTrack(TLorentzVector p4, float chi2, float vtxProb, int pfid);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float sigmal3d, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
   pfTrack(TLorentzVector p4,float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity);
-  pfTrack(TLorentzVector p4, float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity, float dxy, float dxyE, float dz, float dzE);
+  pfTrack(TLorentzVector p4, float k_mass, float l3d, float lx, float ly, float lz, float sigmal3d, float sigmax, float sigmay, float sigmaz, float chi2, float vtxProb, int pfid, int motherId, bool highPurity, float dxy, float dxyE, float dz, float dzE, float opAng);
   ~pfTrack();
   float Pt();
   float Eta();
@@ -26,6 +26,7 @@ class pfTrack {
   int getPfid();
   inline int getPdgId() { return getPfid(); }
   inline int getGenIdx() { return genidx_; }
+  inline int getNdau() { return ndau_; }
   int getMotherId();
   int charge();
   int getQuality();
@@ -49,6 +50,7 @@ class pfTrack {
   inline float chi2() { return chi2_; }
   inline float vtxProb() { return vtxProb_; }
   inline float getKalmanMass() { return k_mass_; }
+  inline float getOpeningAngle() { return opAng_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
@@ -63,6 +65,7 @@ class pfTrack {
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
+  inline void setNdau(int ndau) { ndau_ = ndau; }
   void print();
 
  private:
@@ -78,11 +81,13 @@ class pfTrack {
   float sigmax_,sigmay_,sigmaz_;
   float chi2_;
   float vtxProb_;
+  float opAng_;
   int pfid_;
   int motherId_;
   int quality_;
   int genT_ = 0;
   int genidx_ = -1;
+  int ndau_;
   bool highPurity_;
   bool globalMuon_;
   bool trackerMuon_;
@@ -117,6 +122,7 @@ class Jet {
   float getPt();
   inline float Pt() { return p4_.Pt(); }
   inline float P() { return p4_.P(); }
+  inline float M() { return p4_.M(); }
   float &getChargedPt();
   float &getPFPt();
   float getP();

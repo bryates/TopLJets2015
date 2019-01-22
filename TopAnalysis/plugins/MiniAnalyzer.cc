@@ -1206,12 +1206,12 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
 
   if(ndau < 4) return;
   unsigned int maxdau = min(ndau, (unsigned)4);
+  /*
   for (unsigned int id1 = 0; id1 < ndau; ++id1) {
     for (unsigned int id2 = 0; id2 < ndau; ++id2) {
-  /*
+  */
   for (unsigned int id1 = 0; id1 < maxdau; ++id1) {
     for (unsigned int id2 = 0; id2 < maxdau; ++id2) {
-  */
 	
       if(id1 == id2) continue;
 	
@@ -1354,6 +1354,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_j_mass[ev_.nj]=j.mass();
       //pf1
       ev_.k_j[ev_.nkpf]=ev_.nj;
+      ev_.k_pf_ndau[ev_.nkpf]=id1;
       ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
       ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
       ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
@@ -1382,6 +1383,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.nkpf++;
       //pf2
       ev_.k_j[ev_.nkpf]=ev_.nj;
+      ev_.k_pf_ndau[ev_.nkpf]=id2;
       ev_.k_pf_id[ev_.nkpf]=pf2.pdgId();
       ev_.k_pf_pt[ev_.nkpf]=pf2.pt();
       ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
