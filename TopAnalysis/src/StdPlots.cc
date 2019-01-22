@@ -71,11 +71,11 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
 
     //Jet plots
     allPlots["j_pt"+tag+cut+weight+runPeriod_] = new TH1F("j_pt"+tag+cut+weight+runPeriod_,";Leading Jet P_{T} [GeV];Events / 10 GeV", 40, 0,400);
-    allPlots["j_pt_ch"+tag+cut+weight+runPeriod_] = new TH1F("j_pt_ch"+tag+cut+weight+runPeriod_,";PF #sigma P_{T}^{ch} [GeV];Events / 10 GeV", 40, 0,400);
+    allPlots["j_pt_ch"+tag+cut+weight+runPeriod_] = new TH1F("j_pt_ch"+tag+cut+weight+runPeriod_,";PF #Sigma P_{T}^{ch} [GeV];Events / 10 GeV", 40, 0,400);
     allPlots["lj_pt"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 10 GeV", 40, 0, 400);
-    allPlots["lj_pt_ch"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt_ch"+tag+cut+weight+runPeriod_,";Light PF #sigma P_{T}^{ch} [GeV];Events / 10 GeV", 40, 0,400);
+    allPlots["lj_pt_ch"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt_ch"+tag+cut+weight+runPeriod_,";Light PF #Sigma P_{T}^{ch} [GeV];Events / 10 GeV", 40, 0,400);
     allPlots["kj_pt"+tag+cut+weight+runPeriod_] = new TH1F("kj_pt"+tag+cut+weight+runPeriod_,";Leading Kalman Jet P_{T} [GeV];Events / 10 GeV", 40, 0,400);
-    allPlots["kj_pt_ch"+tag+cut+weight+runPeriod_] = new TH1F("kj_pt_ch"+tag+cut+weight+runPeriod_,";Kalman PF #sigma P_{T}^{ch} [GeV];Events / 10 GeV", 40, 0,400);
+    allPlots["kj_pt_ch"+tag+cut+weight+runPeriod_] = new TH1F("kj_pt_ch"+tag+cut+weight+runPeriod_,";Kalman PF #Sigma P_{T}^{ch} [GeV];Events / 10 GeV", 40, 0,400);
     allPlots["j_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("j_pt_low"+tag+cut+weight+runPeriod_,";Leading Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
     allPlots["lj_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("lj_pt_low"+tag+cut+weight+runPeriod_,";Leading light Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
     allPlots["kj_pt_low"+tag+cut+weight+runPeriod_] = new TH1F("kj_pt_low"+tag+cut+weight+runPeriod_,";Leading Kalman Jet P_{T} [GeV];Events / 0.5 GeV", 20, 30,50);
