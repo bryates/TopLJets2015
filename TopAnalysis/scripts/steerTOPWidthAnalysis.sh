@@ -64,7 +64,7 @@ case $WHAT in
   	  python scripts/runLocalAnalysis.py -i ${eosdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
   	  python scripts/runLocalAnalysis.py -i ${extdir} -n 8 -q ${queue} -o ${outdir} --era ${ERA} --runPeriod ${RUN} -m TOP::RunTop --ch 0;
         fi
-        #python scripts/runLocalAnalysis.py -i /store/group/phys_top/byates/LJets2016/8db9ad6/ --method TOP::RunTopKalman --era era2016 --runPeriod BCDEFGH -q 8nh
+        #python scripts/runLocalAnalysis.py -i /store/group/phys_top/byates/LJets2016/8db9ad6/ -o LJets2015/2016/ --method TOP::RunTopKalman --era era2016 --runPeriod BCDEFGH -q 8nh
 	;;
     MERGESEL )
 	./scripts/mergeOutputs.py ${outdir} True;	

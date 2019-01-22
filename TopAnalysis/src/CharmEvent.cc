@@ -230,8 +230,8 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("j_eta",      ev.j_eta);
   t->SetBranchAddress("j_phi",      ev.j_phi);
   t->SetBranchAddress("j_mass",     ev.j_mass);
-  t->SetBranchAddress("j_ntk",      ev.j_ntk);
-  t->SetBranchAddress("j_ntk",      ev.j_ntk);
+  if(t->GetListOfBranches()->FindObject("j_ntk"))
+    t->SetBranchAddress("j_ntk",      ev.j_ntk);
   t->SetBranchAddress("j_csv",      ev.j_csv);
   t->SetBranchAddress("j_hadflav",     ev.j_hadflav);
   /*

@@ -4,9 +4,9 @@ import math
 from collections import OrderedDict
 import os
 
-#jsonFile = open('data/era2016/rbFit.range','r')
+jsonFile = open('data/era2016/rbFit.range','r')
 #jsonFile = open('data/era2016/rbFit.range2','r')
-jsonFile = open('data/era2016/rbFit.pt','r')
+#jsonFile = open('data/era2016/rbFit.pt','r')
 #jsonFile = open('data/era2016/rbFit.json','r')
 rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
 jsonFile.close()

@@ -352,6 +352,7 @@ void RunTopKalman(TString filename,
           tops.push_back(Particle(ev.gtop_pt[i], ev.gtop_eta[i], ev.gtop_phi[i], ev.gtop_m[i], ev.gtop_id[i], 0, 0));
         }
         //Save onlt hardest two tops (ttbar)
+        //FIXME try max heap (priority_queue) to reduce time sorting
         //Might not need after imopsing |PdgId|==6
         std::sort(pt.begin(), pt.end());
         std::reverse(pt.begin(), pt.end());
@@ -442,6 +443,7 @@ void RunTopKalman(TString filename,
       leptons.combineLeptons(Muons);
       leptons.combineLeptons(Electrons);
       if(debug) cout << "sorting leptons" << endl;
+      //FIXME try max heap (priority_queue) to reduce time sorting
       leptons.sortLeptonsByPt();
 
       allPlots["nevt_iso"]->Fill(1,norm);
@@ -572,7 +574,7 @@ void RunTopKalman(TString filename,
       Float_t htsum(0),hsum(0),htbsum(0);
       int nbj(0);
       TLorentzVector jetDiff(0,0,0,0);
-      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, allKJetsVec, genJetsVec;
+      std::vector<Jet> kJetsVec, lightJetsVec, allJetsVec, genJetsVec;
       KalmanEvent kalman(debug);
       kalman.loadEvent(ev);
       for (int k=0; k<ev.nj;k++)
@@ -595,7 +597,7 @@ void RunTopKalman(TString filename,
 	  //jetDiff -= jp4;
 	  float genJet_pt(0);
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
-	  if(!isData && genJet_pt>0) 
+	  if(!isData && genJet_pt>0)
 	    {
 	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
               if(debug) std::cout << "JER " << jerSmear << std::endl;
@@ -647,7 +649,6 @@ void RunTopKalman(TString filename,
           //if(debug && kalman.isGoodJet(k)) cout << "k=" << k << " jet pT=" << jp4.Pt() << endl;
           //if(kalman.isGoodJet(k)) kJetsVec.push_back(tmpj);
           if(!kalman.isGoodJet(k)) lightJetsVec.push_back(tmpj);
-          if(kalman.isGoodJet(k)) allKJetsVec.push_back(tmpj); //store all PF tracks of Kalman jet for extra parsing (not just e.g. mu from J/Psi->mumu)
           allJetsVec.push_back(tmpj);
 	}
       //after main jet b/c smearing MiniEvet_t is in there
@@ -765,6 +766,7 @@ void RunTopKalman(TString filename,
 
       //sort by Pt
       if(debug) cout << "sorting jets" << endl;
+      //FIXME try max heap (priority_queue) to reduce time sorting
       sort(lightJetsVec.begin(),    lightJetsVec.end(),   sortJetsByPt);
       sort(kJetsVec.begin(),    kJetsVec.end(),   sortJetsByPt);
       sort(allJetsVec.begin(),  allJetsVec.end(), sortJetsByPt);
@@ -1197,7 +1199,7 @@ void RunTopKalman(TString filename,
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
         for(auto &jet : kJetsVec) {
-          if(jet.getPt()>150) continue;
+          //if(jet.getPt()>150) continue;
           //if(jet.getChargedPt()>75) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*

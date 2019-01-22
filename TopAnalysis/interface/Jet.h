@@ -122,6 +122,7 @@ class Jet {
   float getPt();
   inline float Pt() { return p4_.Pt(); }
   inline float P() { return p4_.P(); }
+  inline float M() { return p4_.M(); }
   float &getChargedPt();
   float &getPFPt();
   float getP();

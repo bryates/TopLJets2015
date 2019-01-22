@@ -230,7 +230,8 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
   }
   else { // sf > 1
     // find charged hadrons that were not reconstructed
-    double dRcut = 0.01;
+    double dRcut = 0.01*0.01; //squared b/c sqrt is expensive!
+    //double dRcut = 0.01;
     std::vector<int> chGenNonRecoHadrons;
     int NchGenHadrons = 0;
     for (int g = 0; g < ev.ngpf; g++) {
@@ -246,7 +247,8 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         if (abs(ev.pf_id[k]) != 211) continue;
         double dEta = ev.gpf_eta[g] - ev.pf_eta[k];
         double dPhi = TVector2::Phi_mpi_pi(ev.gpf_phi[g] - ev.pf_phi[k]);
-        double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2));
+        double dR = pow(dEta, 2) + pow(dPhi, 2);
+        //double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2)); //sqrt is expensive!
         if (dR < dRcut) {
           matched = true;
           break;
@@ -267,11 +269,13 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       int g = chGenNonRecoHadronsToPromote[i];
       // jet association
       int j = -1;
-      double jetR = 0.4;
+      double jetR = 0.4*0.4;
+      //double jetR = 0.4;
       for (int ij = 0; ij < ev.nj; ij++) {
         double dEta = ev.gpf_eta[g] - ev.j_eta[ij];
         double dPhi = TVector2::Phi_mpi_pi(ev.gpf_phi[g] - ev.j_phi[ij]);
-        double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2));
+        double dR = pow(dEta, 2) + pow(dPhi, 2);
+        //double dR = sqrt(pow(dEta, 2) + pow(dPhi, 2)); //sqrt is expensive!
         if (dR < jetR) {
           j = ij;
           break;
@@ -289,7 +293,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       if(ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) { //don't need J/Psi since this is pion only
       //if(ev.gpf_mother[k]==443 || ev.gpf_mother[k]==421 || ev.gpf_mother[k]==413) {
         int kpf = ++ev.nkpf;
-        ev.njpsi++;
+        //ev.njpsi++; //no J/Psi
         ev.nmeson++;
         ev.k_pf_pt[kpf] = ev.gpf_pt[g];
         ev.k_pf_eta[kpf] = ev.gpf_eta[g];
@@ -297,7 +301,10 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
         ev.k_id[kpf] = ev.gpf_mother[g];
         ev.k_chi2[kpf] = 1.;
         ev.k_vtxProb[kpf] = 1.;
-        ev.k_pf_id[kpf] = ev.gpf_id[g];
+        //save pi and K only (211 and 321)
+        if(ev.gpf_id[g]==211 || ev.gpf_id[g]==321) ev.k_pf_id[kpf] = 211;
+        if(ev.gpf_id[g]==-211 || ev.gpf_id[g]==-321) ev.k_pf_id[kpf] = -211;
+        //ev.k_pf_id[kpf] = ev.gpf_id[g];
         ev.k_l3d[kpf] = 1.;
         ev.k_sigmal3d[kpf] = 0.01; //random to pass sig cut > 10
         ev.k_j[kpf] = j;

@@ -38,7 +38,7 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="d0_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0) {
+void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
   RooWorkspace w("w",mass);
   float wind(0.045);
 /*
@@ -47,14 +47,20 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
-  TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
+  //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
+  mass.ReplaceAll(".","v");
+  if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp")) { //ISR,FSR,CR,UE
     syst = mass;
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_TTJets_%s",syst.Data()) << std::endl;
   }
-  mass.ReplaceAll(".","v");
+  else if(mass.Contains("m1")) { //top mass tunes
+    syst = mass;
+    //mass = "172.5";
+    std::cout << "Processing systematics " << TString::Format("MC13TeV_%s",syst.Data()) << std::endl;
+  }
   TFile *fin;
   TGraph *g;
   //std::vector<TGraph*> fwgt;
@@ -73,8 +79,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     if(mass.Contains("TRK") || mass.Contains("TRIGGER") || mass.Contains("LEP") ||mass.Contains("PU") || mass.Contains("PI") || mass.Contains("JER")) {  // SFs
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
-      dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      //dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/" + tmp + "/Chunks/");
+      //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
@@ -113,8 +119,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  //TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
+  if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout = new TFile(fUrl,"RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
@@ -158,10 +166,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
-  RooRealVar ptfrac("ptfrac","D^{0} p_{T} / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
-  RooRealVar ptfracJ("ptfracJ","D^{0} p_{T} / jet p_{T}", 0, 1.1, "") ;
-  RooRealVar d0_pt("d0_pt","D^{0} p_{T}", 0, 250, "GeV");
-  RooRealVar j_pt_ch("j_pt_ch","j p_{T} charged", 0, 400, "GeV");
+  RooRealVar ptfrac("ptfrac","(D^{0} p_{T} + #mu p_{T}) / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
+  RooRealVar d0_pt("d0_pt","D^{0}_{#mu} p_{T}", 0, 250, "GeV");
+  RooRealVar j_pt_ch("j_pt_ch","#Sigma_{ch} p_{T} charged", 0, 400, "GeV");
+  RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
   /*
@@ -175,7 +183,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,ptfracJ,meson_l_mass,weight,d0_pt,j_pt_ch,epoch,tuneW));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,tuneW));
   //RooDataSet dsn("dsn", "dsn", args);
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {
@@ -187,6 +195,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
       if(ep>0 && ev.epoch[j] != ep) continue;
+      if(!jpT) {
+        if(ev.j_pt[j]>150) continue;
+      }
+      else
+        if(ev.j_pt[j]<50) continue;
       /*
       if(ev.d0_l3d[j]/ev.d0_sigmal3d[j]<10) continue;
       if(ev.d0_sigmal3d[j]<2E-4) continue;
@@ -221,7 +234,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           continue;
         tuneWgt->Fill(0.,1.0);
         if(fragWeight.Length() > 0) {
-          double frac(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
+          double frac(0.);
+          if(jpT) frac=ev.d0_mu_tag_mu_pt[j]/ev.j_pt[j];
+          else frac=ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j];
+
           if(frac>1.) frac = 1.;
           if(frac<0.1) frac = 0.1;
           /*
@@ -240,16 +256,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       //if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
       //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
-      ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
-      ptfracJ.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt[j]);
+      if(!jpT) ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
+      else ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
       j_pt_ch.setVal(ev.j_pt_charged[j]);
+      j_pt.setVal(ev.j_pt[j]);
       //meson_l_mass = ev.d0_l_mass[j];
       meson_l_mass.setVal(ev.d0_l_mass[j]);
       }
       weight.setVal(scale);
       tuneW.setVal(scale);// * tuneW.getVal());
-      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,ptfracJ,weight,d0_pt,j_pt_ch,epoch,tuneW));
+      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,epoch,tuneW));
+      dsn.add(RooArgSet(j_pt));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)
       //if(ev.d0_l_mass[j] > 1.8 && ev.d0_l_mass[j] < 1.93)
@@ -257,6 +275,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
     }
   }
+  delete data;
   std::cout << "Done loading tree" << std::endl;
 
   /*
@@ -353,7 +372,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   cout << "fitting model" << endl;
   meson_l_mass.setConstant();
   ptfrac.setConstant();
-  ptfracJ.setConstant();
   weight.setConstant();
   RooPlot* frame = d0_mass.frame() ;
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
@@ -375,20 +393,24 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->SetName("massD0");
   frame->Write();
 
-  //mass = mass + "_mu_tag_mu";
+  mass = mass + "_d0mu";
   c1->SaveAs("massD0_mu_"+mass+".pdf");
   c1->SaveAs("massD0_mu_"+mass+".png");
 
   frame = ptfrac.frame();
-  ds.plotOn(frame,Binning(22));
+  if(jpT) ds.plotOn(frame,Binning(22));
+  else ds.plotOn(frame,Binning(22));
  
   //model.paramOn(frame);
+  /*
+  RooDataSet sigData;
+  RooDataSet bkgData;
+  */
 
-  SPlot sData("sData","An SPlot from mass", ds, &model, RooArgList(nsig,nbkg));
+  SPlot sData("sData","An SPlot from mass for sum ch pT", ds, &model, RooArgList(nsig,nbkg));
   RooDataSet sigData = RooDataSet(ds.GetName(), ds.GetTitle(), &ds, *ds.get(), "", "nsig_sw");
-  //sigData = *(RooDataSet*)sigData.reduce(Cut("d0_mass>1.8 && d0_mass<1.93"));
-  std::cout << sigData.weight() << std::endl;
   RooDataSet bkgData = RooDataSet(ds.GetName(), ds.GetTitle(), &ds, *ds.get(), "", "nbkg_sw");
+  std::cout << sigData.weight() << std::endl;
   std::cout << sData.GetYieldFromSWeight("nsig") << std::endl;
   std::cout << sData.GetYieldFromSWeight("nbkg") << std::endl;
   std::cout << sData.GetYieldFromSWeight("nsig")/sData.GetYieldFromSWeight("nbkg") << std::endl;
@@ -407,14 +429,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(d0_mass);
   w.import(meson_l_mass);
   w.import(ptfrac);
-  w.import(ptfracJ);
   w.import(d0_pt);
   w.import(j_pt_ch);
+  w.import(j_pt);
   w.import(epoch);
   w.import(weight);
   w.import(tuneW);
+  //w.import(bkgData, Rename("bkgData")); //Redundant, just clone dataset and change weight to nsig_bkg
   w.import(sigData, Rename("sigData"));
-  w.import(bkgData, Rename("bkgData"));
   w.import(ds, Rename("dsSWeights"));
   /*
   for(auto &it : frgWgt)
@@ -431,6 +453,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->Draw();
 
   int binning(22);
+  if(jpT) binning = 22;
 
   /*
   frame = d0_mass.frame();
@@ -466,7 +489,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::MarkerStyle(24), RooFit::MarkerStyle(24),
                  RooFit::LineWidth(2), RooFit::LineColor(419), Binning(binning));
   frame2->Draw();
-  frame2->SetTitle("");
+  frame2->SetName("ptfrac_bkg");
   TGraph *h_frac = (TGraph*)c1->GetPrimitive("ptfrac_bkg");
   c1->SaveAs("ptfrac_bkg_"+mass+".pdf");
   c1->SaveAs("ptfrac_bkg_"+mass+".png");
@@ -482,19 +505,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->SetTitle("");
   frame2->Write();
 
+  if(jpT) mass = mass + "_jpT";
   c1->SaveAs("ptfrac_signal_"+mass+".pdf");
   c1->SaveAs("ptfrac_signal_"+mass+".png");
-
-  frame2 = ptfracJ.frame();
-  sigData.plotOn(frame2, DataError(RooAbsData::SumW2),
-                 RooFit::Name("ptfracJ_signal"), RooFit::MarkerColor(1),
-                 RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
-                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
-  frame2->Draw();
-  std::cout << "Signal: " << frame2->getHist()->Integral() << std::endl;
-  frame2->SetName("ptfracJ_signal");
-  frame2->SetTitle("");
-  frame2->Write();
 
   frame2 = ptfrac.frame();
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),

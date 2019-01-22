@@ -22,7 +22,7 @@ using namespace RooFit;
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
 int epoch(0);
-bool fullpt(0);
+bool fullpt(1);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
@@ -33,6 +33,7 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
+/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -50,6 +51,7 @@ void chi2_d0() {
   }
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
+*/
 
   json += ("],");
   std::cout << json << std::endl;
@@ -89,7 +91,8 @@ for(auto & it : tune) {
   int pos = &it - &tune[0];
   if(param[pos]>1) continue;
   if(name == "up_PI" && param[pos]>0.975 && fullpt) continue; //remove up_PI 0.975 with large chi^2
-  if(name == "GluonMove_erdON." && param[pos]==0.900 && epoch==0) continue; //remove up_PI 0.975 with large chi^2
+  if(name == "GluonMove_erdON" && param[pos]==0.900 && epoch==0) continue; //remove up_PI 0.975 with large chi^2
+  if(name == "GluonMove_erdON" && param[pos]<0.700 && epoch==1) continue; //remove up_PI 0.975 with large chi^2
   //if(name == "down_PU" && it=="_down" && epoch==2) continue; //remove down_UP 0.755 FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_test(it, name);
@@ -218,15 +221,21 @@ delete ptfrac_mc_pdf;
 }
 */
 RooPlot *tmp = nullptr;
+/*
 if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 else tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+*/
+tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 if(tmp==nullptr) {std::cout << fname << std::endl; return 0;}
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
+/*
 if(fullpt) tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 else tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+*/
+tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);

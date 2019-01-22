@@ -21,8 +21,8 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(1);
-bool fullpt(0);
+int epoch(0);
+bool fullpt(1);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
@@ -41,9 +41,7 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("uedown");
   run_chi2_d0_mu_tag("ueup");
   //run_chi2_d0_mu_tag("erdON");
-  */
   run_chi2_d0_mu_tag("GluonMove_erdON");
-  /*
   //run_chi2_d0_mu_tag("QCD_erdON");
   std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
   //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
@@ -53,6 +51,8 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
+  run_chi2_d0_mu_tag("m171v5");
+  run_chi2_d0_mu_tag("m173v5");
   */
 
   json += ("],");
@@ -93,6 +93,7 @@ for(auto & it : tune) {
   if(param[pos]<0.65 && !name.Contains("fsr-up")) continue;
   if(!fullpt && param[pos]>1 && !name.Contains("fsr-down")) continue;
   if(epoch==1 && param[pos]==0.875) continue; //FIXME
+  if(name.Contains("m173v5") and it == "") continue; //FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it, name);
   if(isnan(chi)) continue;
@@ -182,15 +183,18 @@ delete c1;
 }
 
 float chi2_d0_mu_tag_test(TString tune="", TString name="") {
-TString fname = TString::Format("TopMass_Data_sPlot_d0_mu_tag_mu.root");
+TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(fullpt) fname.ReplaceAll(".root",TString::Format("_jpT.root"));
 TFile *fdata = TFile::Open(fname);
 TFile *fmc;
 if(name.Length()==0)
-fname = TString::Format("TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
+fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
 else
-fname = TString::Format("TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
+fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(fullpt) fname.ReplaceAll(".root",TString::Format("_jpT.root"));
+std::cout << fname << std::endl;
 fmc = TFile::Open(fname);
 
 //TString cut("j_pt_ch<75");
@@ -198,14 +202,14 @@ TString cut(TString::Format("epoch==%d",epoch));
 
 TH1F *mc,*data;
 RooPlot *tmp = nullptr;
-if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
-else tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+//if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 mc = (TH1F*)convert(tmp, true, 0, 1.1);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
-if(fullpt) tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-else tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+//if(fullpt) tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
 data = (TH1F*)convert(tmp, true, 0, 1.1);
 data->SetDirectory(0);
@@ -223,6 +227,10 @@ if(tune.Length() > 0) {
   report += '\n';
   //mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
+*/
+/*
+data->Rebin();
+mc->Rebin();
 */
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
