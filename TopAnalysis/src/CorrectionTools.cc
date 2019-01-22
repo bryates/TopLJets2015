@@ -1,5 +1,7 @@
 #include "TopLJets2015/TopAnalysis/interface/CorrectionTools.h"
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 
 
 //
@@ -63,6 +65,18 @@ MiniEvent_t smearJetEnergies(MiniEvent_t ev, std::string option) {
   }
   
   return ev;
+}
+
+void smearJetEnergyStochastic(TLorentzVector &jp4, double resolution, std::string option)
+{
+  TRandom *random = new TRandom3(0);
+  int smearIdx(0);
+  if(option=="up") smearIdx=1;
+  if(option=="down") smearIdx=2;
+  float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),0.)[smearIdx];
+  float jerFactor = 1 + random->Gaus(0, resolution) * sqrt(std::max(pow(jerSmear, 2) - 1., 0.));
+  jp4 *= jerFactor;
+  delete random;
 }
 
 //see working points in https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco

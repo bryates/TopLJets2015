@@ -21,6 +21,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h" //FIXME
 #include "TopLJets2015/TopAnalysis/interface/StdPlots.h"
 #include "TopLJets2015/TopAnalysis/interface/CharmTree.h"
 #include "TopLJets2015/TopAnalysis/interface/KalmanEvent.h"
@@ -267,6 +268,9 @@ void RunTopKalman(TString filename,
     allPlots["pf_dzE"+tag+cut+weight] = new TH1F("pf_dzE"+tag+cut+weight,";#sigma(d_{z}) [cm];Events / 0.02 #mum", 20, 0, 0.1);
     allPlots["pf_dxy_sig"+tag+cut+weight] = new TH1F("pf_dxy_significance"+tag+cut+weight,";d_{xy};Events / 1", 30, 0, 30);
     allPlots["pf_dz_sig"+tag+cut+weight] = new TH1F("pf_dz_significance"+tag+cut+weight,";d_{z};Events / 1", 30, 0, 30);
+
+    //gen-level plots
+    allPlots["gtop_pt"+tag+cut+weight+runPeriod] = new TH1F("gtop_pt"+tag+cut+weight+runPeriod,";Generator top P_{T} [GeV];Events / 10 GeV", 40, 0,400);
 
   }
   }
@@ -597,15 +601,33 @@ void RunTopKalman(TString filename,
 	  //jetDiff -= jp4;
 	  float genJet_pt(0);
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
-	  if(!isData && genJet_pt>0)
-	    {
-	      float jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
+	  if(!isData) { // && genJet_pt>0)
+            float jerSmear(1.);
+	    if(genJet_pt>0 || 1) { //FIXME always on
+              /* FIXME
+              int smearIdx(0);
+              if(passBit(runSysts,JER_BIT)<0) smearIdx=1;
+              else if(passBit(runSysts,JER_BIT)>0) smearIdx=2;
+              */
+	      jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[0];
               if(debug) std::cout << "JER " << jerSmear << std::endl;
 	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
 	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
               if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
-	      jp4 *= jerSmear;
 	    }
+            else { //stochastic smearing
+              int smearIdx(0);
+              if(passBit(runSysts,JER_BIT)<0) smearIdx=1;
+              else if(passBit(runSysts,JER_BIT)>0) smearIdx=2;
+              TString url(era+"/Summer16_25nsV1_MC_EtaResolution_AK4PF.txt");
+              JME::JetResolution *jer = new JME::JetResolution(url.Data());
+              double jet_resolution = jer->getResolution({{JME::Binning::JetPt, ev.j_pt[k]}, {JME::Binning::JetEta, ev.j_eta[k]}, {JME::Binning::Rho, ev.rho}});
+              float jcor=getJetResolutionScales(jp4.Pt(),jp4.Eta(),0.)[smearIdx];
+              TRandom *random;
+              jerSmear = 1 + random->Gaus(0, jet_resolution) * sqrt( std::max(jcor*jcor - 1., 0.) );
+            }
+            jp4 *= jerSmear;
+          }
 	  //jetDiff += jp4;
 
 	  // re-inforce kinematics cuts
@@ -1385,6 +1407,8 @@ void RunTopKalman(TString filename,
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                for(auto& it : tops)
+                  allPlots["gtop_pt_all_meson"+runPeriod]->Fill(it.Pt(),wgt);
 
                 std::vector<pfTrack> tmp_match;
                 if(!isData && pfMatched.size() >1 && 0) {

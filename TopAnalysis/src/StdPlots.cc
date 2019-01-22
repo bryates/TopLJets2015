@@ -493,8 +493,10 @@ void StdPlots::FillGen(std::vector<Particle> tops, TString chTag, TString name) 
   float wgt = norm_ * sfs_.first * puWgt_; //No top_pt_wgt_
   if(!name.EqualTo("")) name = "_" + name;
   if(debug_) std::cout << "Filling gen-level top" << chTag << name << runPeriod_ << " with wgt=" << wgt << std::endl;
-  for(auto& it : tops)
+  for(auto& it : tops) {
     allPlots["gtop_pt"+chTag+name+runPeriod_]->Fill(it.Pt(),wgt);
+    allPlots["gtop_pt_all"+name+runPeriod_]->Fill(it.Pt(),wgt);
+  }
 }
 
 void StdPlots::Fill(Leptons leptons, TString chTag, TString name) {
