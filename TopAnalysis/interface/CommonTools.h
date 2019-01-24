@@ -22,6 +22,7 @@ std::map<Int_t,Float_t> lumiPerRun();
 Float_t computeMT(TLorentzVector &a, TLorentzVector &b);
 FactorizedJetCorrector *getFactorizedJetEnergyCorrector(TString,bool);
 std::vector<float> getJetResolutionScales(float pt, float eta, float genjpt);
+std::vector<float> getJetResolutionScales(float pt, float eta);
 float getLeptonEnergyScaleUncertainty(int l_id,float l_pt,float l_eta);
 
 struct JetPullInfo_t

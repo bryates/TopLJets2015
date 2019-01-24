@@ -782,6 +782,17 @@ def main():
                             topPtNormGH=topWgtGH/nonTopWgtGH
                             report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
 
+                    #fix JER weighting
+                    jerNorm=1
+                    if not isData:
+                        try:
+                            jer=fIn.Get("jerwgt")
+                            nonJerWgt=jer.GetBinContent(1)
+                            jerWgt=jer.GetBinContent(2)
+                        except: pass
+                        if jerWgt>0:
+                            jerNorm=nonJerWgt/jerWgt
+
                     #fix pileup weighting normalization
                     puNormSF=1
                     if opt.puNormSF and not isData:
@@ -937,7 +948,7 @@ def main():
                                     #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
                                 if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
                                 elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
-                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*rbFitSF)
+                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                             over=True

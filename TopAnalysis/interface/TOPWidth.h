@@ -2,6 +2,7 @@
 #define _topwidth_h_
 
 #include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h" //FIXME
 
 #include "TH1.h"
 #include "TString.h"

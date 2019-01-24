@@ -29,6 +29,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <map>
+#include <unordered_map>
 
 #include "TMath.h"
 #include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
@@ -175,6 +177,15 @@ void RunTopKalman(TString filename,
   gSystem->ExpandPathName(jecUncUrl);
   JetCorrectorParameters *jecParam = new JetCorrectorParameters(jecUncUrl.Data(), "Total");
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty( *jecParam );
+
+  //jet energy resolution
+  TString jerUrl(era+"/Summer16_25nsV1_MC_EtaResolution_AK4PF.txt");
+  gSystem->ExpandPathName(jerUrl);
+  JME::JetResolution *jres = new JME::JetResolution(jerUrl.Data());
+  TString jerSFUrl(era+"/Summer16_25nsV1_MC_SF_AK4PFchs.txt");
+  gSystem->ExpandPathName(jerSFUrl);
+  JME::JetResolutionScaleFactor *jres_sf = new JME::JetResolutionScaleFactor(jerSFUrl.Data());
+  
   
   //LIST OF SYSTEMATICS
   
@@ -187,10 +198,15 @@ void RunTopKalman(TString filename,
 
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
+  std::map<TString, TH2 *> allPlots2D; //has map insted of map (hash faster than red-black tree: O(1) vs O(log(N)))
+  //std::unordered_map<TString, TH2 *> allPlots2D; //has map insted of map (hash faster than red-black tree: O(1) vs O(log(N)))
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
   allPlots["puwgtgr"] = new TH1F("puwgtgr","PU Weights (calc)",75,0,75);
   allPlots["puwgt"] = new TH1F("puwgt","PU Weights (data)",75,0,75);
   allPlots["topptwgt"] = new TH1F("topptwgt","Top p_{T} weights", 2, 0, 2);
+  allPlots2D["toppteta"] = new TH2F("toppteta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
+  allPlots["jerwgt"] = new TH1F("jerwgt","JER weights", 2, 0, 2);
+  allPlots2D["jereta"] = new TH2F("jereta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -358,8 +374,15 @@ void RunTopKalman(TString filename,
         //Save onlt hardest two tops (ttbar)
         //FIXME try max heap (priority_queue) to reduce time sorting
         //Might not need after imopsing |PdgId|==6
-        std::sort(pt.begin(), pt.end());
-        std::reverse(pt.begin(), pt.end());
+        std::sort(pt.begin(), pt.end(),
+                  [] (float a, float b) { return a < b; } );
+        //std::reverse(pt.begin(), pt.end());
+        std::sort(tops.begin(), tops.end(), 
+                 [] (Particle a, Particle b) { return a.Pt() < b.Pt(); } );
+/*
+            sort(genTracks.begin(), genTracks.end(),
+                 [] (pfTrack a, pfTrack b) { return a.Pt() > b.Pt(); } );
+*/
         //Calculate SFs based on expontial
         //https://twiki.cern.ch/twiki/bin/view/CMS/TopPtReweighting#Eventweight
         top_pt_wgt *= TMath::Exp(0.0615 - 0.0005*pt[0]);
@@ -367,6 +390,8 @@ void RunTopKalman(TString filename,
         top_pt_wgt = TMath::Sqrt(top_pt_wgt);
         allPlots["topptwgt"]->Fill(0.,1.0);
         allPlots["topptwgt"]->Fill(1.,top_pt_wgt);
+        allPlots2D["toppteta"]->Fill(tops[0].Eta(),top_pt_wgt);
+        allPlots2D["toppteta"]->Fill(tops[1].Eta(),top_pt_wgt);
         runBCDEF.SetTopPtWgt(top_pt_wgt);
         runGH.SetTopPtWgt(top_pt_wgt);
         treeBCDEF.SetTopPtWgt(top_pt_wgt);
@@ -603,30 +628,41 @@ void RunTopKalman(TString filename,
 	  if(ev.j_g[k]>-1) genJet_pt=ev.g_pt[ ev.j_g[k] ];
 	  if(!isData) { // && genJet_pt>0)
             float jerSmear(1.);
-	    if(genJet_pt>0 || 1) { //FIXME always on
+            double jer_sf = jres_sf->getScaleFactor({{JME::Binning::JetEta, jp4.Eta()}}, Variation::NOMINAL);
+	    if(genJet_pt>0) {
               /* FIXME
               int smearIdx(0);
               if(passBit(runSysts,JER_BIT)<0) smearIdx=1;
               else if(passBit(runSysts,JER_BIT)>0) smearIdx=2;
-              */
 	      jerSmear=getJetResolutionScales(jp4.Pt(),jp4.Eta(),genJet_pt)[0];
               if(debug) std::cout << "JER " << jerSmear << std::endl;
-	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[1]; //systematics down
-	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Pt(),genJet_pt)[2]; //systematics up
+	      if(passBit(runSysts,JER_BIT)<0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Eta(),genJet_pt)[1]; //systematics down
+	      if(passBit(runSysts,JER_BIT)>0) jerSmear=abs(passBit(runSysts,JER_BIT))*getJetResolutionScales(jp4.Pt(),jp4.Eta(),genJet_pt)[2]; //systematics up
               if(passBit(runSysts,JER_BIT)!=0 && debug) std::cout << "(+syst) JER " << jerSmear << std::endl;
+              */
+              double dPt = jp4.Pt() - genJet_pt;
+              jerSmear = 1 + (jer_sf - 1.) * dPt / jp4.Pt();
 	    }
             else { //stochastic smearing
+              /*
               int smearIdx(0);
               if(passBit(runSysts,JER_BIT)<0) smearIdx=1;
               else if(passBit(runSysts,JER_BIT)>0) smearIdx=2;
-              TString url(era+"/Summer16_25nsV1_MC_EtaResolution_AK4PF.txt");
-              JME::JetResolution *jer = new JME::JetResolution(url.Data());
-              double jet_resolution = jer->getResolution({{JME::Binning::JetPt, ev.j_pt[k]}, {JME::Binning::JetEta, ev.j_eta[k]}, {JME::Binning::Rho, ev.rho}});
-              float jcor=getJetResolutionScales(jp4.Pt(),jp4.Eta(),0.)[smearIdx];
-              TRandom *random;
-              jerSmear = 1 + random->Gaus(0, jet_resolution) * sqrt( std::max(jcor*jcor - 1., 0.) );
+              */
+              double jet_resolution = jres->getResolution({{JME::Binning::JetPt, ev.j_pt[k]}, {JME::Binning::JetEta, ev.j_eta[k]}, {JME::Binning::Rho, ev.rho}});
+              /*
+              float jcor=getJetResolutionScales(jp4.Pt(),jp4.Eta())[0];
+	      jcor+=passBit(runSysts,JER_BIT)*getJetResolutionScales(jp4.Pt(),jp4.Eta())[1];
+              */
+              //double jer_sf = jres_sf->getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, Variation::NOMINAL);
+              TRandom *random = new TRandom3(0);
+              jerSmear = 1 + random->Gaus(0, jet_resolution) * sqrt( std::max(jer_sf*jer_sf - 1., 0.) );
+              delete random;
             }
             jp4 *= jerSmear;
+            allPlots["jerwgt"]->Fill(0.,1.0);
+            allPlots["jerwgt"]->Fill(1.,jerSmear);
+            allPlots2D["jereta"]->Fill(jp4.Eta(),jerSmear);
           }
 	  //jetDiff += jp4;
 
@@ -1744,6 +1780,10 @@ void RunTopKalman(TString filename,
     it.second->SetDirectory(fOut); it.second->Write(); 
     //fOut->cd();
   }
+  for (auto& it : allPlots2D)  {
+    it.second->SetDirectory(fOut); it.second->Write(); 
+  }
+
   //restore run period for writing
   runBCDEF.CheckRunPeriod("BCDEF");
   runGH.CheckRunPeriod("GH");
@@ -1758,5 +1798,11 @@ void RunTopKalman(TString filename,
 
   if(debug) cout << "closing ROOT file" << endl;
   fOut->Close();
+
+  delete jecParam;
+  delete jecUnc;
+  delete jres;
+  delete jres_sf;
+  delete cht;
 }
 
