@@ -80,7 +80,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/" + tmp + "/test/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
