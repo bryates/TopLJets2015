@@ -73,7 +73,7 @@ process.source = cms.Source("PoolSource",
                             )
 #if options.skipEvents > 0: process.skipEvents = cms.untracked.uint32(options.skipEvents)
 if options.runOnData:
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleMuon/MINIAOD/23Sep2016-v3/00000/00AE0629-1F98-E611-921A-008CFA1112CC.root')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleMuon/MINIAOD/03Feb2017_ver2-v2/80000/001F228D-53EB-E611-A429-0CC47A4C8F30.root')
     #process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleElectron/MINIAOD/23Sep2016-v3/00000/00099863-E799-E611-A876-141877343E6D.root')
     #process.source.fileNames = cms.untracked.vstring('/store/data/Run2016G/DoubleMuon/MINIAOD/23Sep2016-v1/50000/0ADAF1EC-808D-E611-8B6C-008CFA056400.root')
     #process.source.fileNames = cms.untracked.vstring('file://pickevents.root')

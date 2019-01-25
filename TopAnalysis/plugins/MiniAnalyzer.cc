@@ -278,6 +278,13 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.ttbar_matchmepartons = evt->nMEPartonsFiltered();
       ev_.ttbar_w[0]           = evt->weight();
       ev_.ttbar_nw++;
+
+      //PDF info
+      ev_.g_qscale = evt->pdf()->scalePDF;
+      ev_.g_x1     = evt->pdf()->x.first;
+      ev_.g_x2     = evt->pdf()->x.second;
+      ev_.g_id1    = evt->pdf()->id.first;
+      ev_.g_id2    = evt->pdf()->id.second;
     }
   histContainer_["counter"]->Fill(1,ev_.ttbar_w[0]);
   
