@@ -11,12 +11,8 @@ To execute in your lxplus work area.
 cmsrel CMSSW_9_4_12
 cd CMSSW_9_4_12/src
 cmsenv
-git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
-#For BFragmentationAnalyzer
-mkdir TopQuarkAnalysis
-cd TopQuarkAnalysis
-git clone -b 94x https://gitlab.cern.ch/psilva/BFragmentationAnalyzer.git
-cd -
+git cms-init
+git clone -b 94x git@github.com:bryates/TopLJets2015.git
 scram b -j8
 ```
 
