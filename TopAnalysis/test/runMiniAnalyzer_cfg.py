@@ -117,14 +117,6 @@ process.countJets = cms.EDFilter("CandViewCountFilter",
 
 process.preYieldFilter = cms.Sequence(process.selectedMuons+process.selectedElectrons+process.allLeps+process.countLeps+process.selectedJets+process.countJets)
 
-######### Kalman Filter
-#process.kalman = cms.EDAnalyzer("KalmanFilter",
-    #electrons = cms.InputTag("slimmedElectrons"),
-    #muons = cms.InputTag("slimmedMuons"),
-    #jets = cms.InputTag("slimmedJets"),
-    #pfCands = cms.InputTag("packedPFCandidates::PAT"),
-#)
-
 
 #analysis
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
@@ -153,17 +145,9 @@ if not options.runOnData:
 # b-frag weight producer
 process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
 
-# Set up electron ID (VID framework)
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-dataFormat = DataFormat.MiniAOD
-switchOnVIDElectronIdProducer(process, dataFormat)
-#my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff']
-                 #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
-                 #'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
-                 
-for idmod in my_id_modules:
-    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+#EGM customization
+from TopLJets2015.TopAnalysis.customizeEGM_cff import customizeEGM
+customizeEGM(process=process,era='2016')
 
 #jet energy corrections
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
@@ -186,8 +170,6 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 if options.runOnData:
-    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
-    process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    process.p = cms.Path(process.preYieldFilter*process.customizeJetToolsSequence*process.analysis)
 else:
-    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
-    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.bfragWgtProducer*process.analysis)
+    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.bfragWgtProducer*process.analysis)
