@@ -47,7 +47,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 # global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v5' if options.runOnData else '80X_mcRun2_asymptotic_2016_TrancheIV_v6')
+process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v10' if options.runOnData else '94X_mcRun2_asymptotic_v3')
 
 #message logger
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -158,8 +158,10 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
-                 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff']
+                 #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
+                 #'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
+                 
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
@@ -169,13 +171,13 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Summer16_23Sep2016V4_MC.db'
-jecTag='Summer16_23Sep2016V4_MC_AK4PFchs'
+jecFile='Summer16_07Aug2017_V11_MC.db'
+jecTag='Summer16_07Aug2017_V11_MC_AK4PFchs'
 if options.runOnData : 
     #print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
     jecLevels.append( 'L2L3Residual' )
-    jecFile='Summer16_23Sep2016AllV4_DATA.db'
-    jecTag='Summer16_23Sep2016AllV4_DATA_AK4PFchs'
+    jecFile='Summer16_07Aug2017All_V11_DATA.db'
+    jecTag='Summer16_07Aug2017All_V11_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 #tfile service
