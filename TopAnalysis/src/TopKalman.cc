@@ -206,7 +206,7 @@ void RunTopKalman(TString filename,
   allPlots["topptwgt"] = new TH1F("topptwgt","Top p_{T} weights", 2, 0, 2);
   allPlots2D["toppteta"] = new TH2F("toppteta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
   allPlots["jerwgt"] = new TH1F("jerwgt","JER weights", 2, 0, 2);
-  allPlots2D["jereta"] = new TH2F("jereta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
+  allPlots2D["jereta"] = new TH2F("jereta","JER weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -662,7 +662,7 @@ void RunTopKalman(TString filename,
             jp4 *= jerSmear;
             allPlots["jerwgt"]->Fill(0.,1.0);
             allPlots["jerwgt"]->Fill(1.,jerSmear);
-            allPlots2D["jereta"]->Fill(jp4.Eta(),jerSmear);
+            allPlots2D["jereta"]->Fill(jp4.Eta(),jer_sf);
           }
 	  //jetDiff += jp4;
 

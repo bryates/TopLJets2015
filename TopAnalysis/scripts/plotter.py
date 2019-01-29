@@ -792,6 +792,7 @@ def main():
                         except: pass
                         if jerWgt>0:
                             jerNorm=nonJerWgt/jerWgt
+                            report += '%s was scaled by %3.3f for JER smearing\n' % (sp[0],jerNorm)
 
                     #fix pileup weighting normalization
                     puNormSF=1
