@@ -48,7 +48,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp")) { //ISR,FSR,CR,UE

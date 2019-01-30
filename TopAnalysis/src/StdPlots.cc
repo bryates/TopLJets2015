@@ -1297,8 +1297,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
       allPlots["D0_mu_tag_oJet_pt_all"+name+runPeriod_]->Fill(D0.Pt()/jpt,getWgt());
       allPlots["D0_mu_tag_oJet_pt_charged"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt_charged,getWgt());
       allPlots["D0_mu_tag_oJet_pt_charged_all"+name+runPeriod_]->Fill(D0.Pt()/jpt_charged,getWgt());
-      allPlots["D0_mu_tag_mu_oJet_pt"+chTag+name+runPeriod_]->Fill(D0mu.Pt()/jpt_charged,getWgt());
-      allPlots["D0_mu_tag_mu_oJet_pt_all"+name+runPeriod_]->Fill(D0mu.Pt()/jpt_charged,getWgt());
+      allPlots["D0_mu_tag_mu_oJet_pt"+chTag+name+runPeriod_]->Fill(D0mu.Pt()/jpt,getWgt());
+      allPlots["D0_mu_tag_mu_oJet_pt_all"+name+runPeriod_]->Fill(D0mu.Pt()/jpt,getWgt());
       allPlots["D0_mu_tag_mu_oJet_pt_charged"+chTag+name+runPeriod_]->Fill(D0mu.Pt()/jpt_charged,getWgt());
       allPlots["D0_mu_tag_mu_oJet_pt_charged_all"+name+runPeriod_]->Fill(D0mu.Pt()/jpt_charged,getWgt());
       allPlots["D0_mu_tag_oJet_pt_pf"+chTag+name+runPeriod_]->Fill(D0.Pt()/jpt_pf,getWgt());
