@@ -196,11 +196,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.d0_mass[j] > 2.0) continue;
       if(ep>0 && ev.epoch[j] != ep) continue;
       if(!jpT) {
-        if(ev.j_pt[j]>150) continue;
+        //if(ev.j_pt[j]>150) continue;
+        if(ev.j_pt_charged[j]>75) continue;
       }
-      else
-        if(ev.j_pt[j]<50) continue;
       /*
+      else
+        if(ev.j_pt[j]>50) continue;
       if(ev.d0_l3d[j]/ev.d0_sigmal3d[j]<10) continue;
       if(ev.d0_sigmal3d[j]<2E-4) continue;
       if(ev.ht<180) continue;

@@ -22,7 +22,7 @@ using namespace RooFit;
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
 int epoch(0);
-bool fullpt(0);
+bool fullpt(1);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
@@ -75,7 +75,7 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
 /*
 std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
@@ -183,7 +183,7 @@ delete c1;
 float chi2_d0_mu_tag_test(TString tune="", TString name="") {
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
-if(fullpt) fname.ReplaceAll(".root",TString::Format("_jpT.root"));
+if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 TFile *fdata = TFile::Open(fname);
 TFile *fmc;
 if(name.Length()==0)
@@ -191,7 +191,7 @@ fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tu
 else
 fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
-if(fullpt) fname.ReplaceAll(".root",TString::Format("_jpT.root"));
+if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 fmc = TFile::Open(fname);
 

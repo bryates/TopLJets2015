@@ -2,6 +2,7 @@
 #include <TROOT.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TH3.h>
 #include <TSystem.h>
 #include <TGraph.h>
 #include <TLorentzVector.h>
@@ -198,7 +199,8 @@ void RunTopKalman(TString filename,
 
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
-  std::map<TString, TH2 *> allPlots2D; //has map insted of map (hash faster than red-black tree: O(1) vs O(log(N)))
+  std::map<TString, TH2 *> allPlots2D; //hash map insted of map (hash faster than red-black tree: O(1) vs O(log(N)))
+  std::map<TString, TH3 *> allPlots3D;
   //std::unordered_map<TString, TH2 *> allPlots2D; //has map insted of map (hash faster than red-black tree: O(1) vs O(log(N)))
   allPlots["puwgtctr"] = new TH1F("puwgtctr","Weight sums",4,0,4);
   allPlots["puwgtgr"] = new TH1F("puwgtgr","PU Weights (calc)",75,0,75);
@@ -206,7 +208,8 @@ void RunTopKalman(TString filename,
   allPlots["topptwgt"] = new TH1F("topptwgt","Top p_{T} weights", 2, 0, 2);
   allPlots2D["toppteta"] = new TH2F("toppteta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
   allPlots["jerwgt"] = new TH1F("jerwgt","JER weights", 2, 0, 2);
-  allPlots2D["jereta"] = new TH2F("jereta","JER weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
+  allPlots2D["jereta"] = new TH2F("jereta","JER weights vs. #eta", 100, -2.4, 2.4, 200, 0, 2);
+  allPlots3D["jeceta"] = new TH3F("jeceta","JEC weights (uncorrectd p_{T} / corrected p_{T}) vs. p{T} vs. #eta", 500, 0, 500, 100, -2.4, 2.4, 200, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
   std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_jpsi", "_csv", "_meson" };
   std::vector<TString> wgtVec = { "", "_no_weight" };
@@ -663,6 +666,7 @@ void RunTopKalman(TString filename,
             allPlots["jerwgt"]->Fill(0.,1.0);
             allPlots["jerwgt"]->Fill(1.,jerSmear);
             allPlots2D["jereta"]->Fill(jp4.Eta(),jer_sf);
+            allPlots3D["jeceta"]->Fill(jp4.Pt(),jp4.Eta(),ev.j_rawsf[k]);
           }
 	  //jetDiff += jp4;
 
@@ -1781,6 +1785,9 @@ void RunTopKalman(TString filename,
     //fOut->cd();
   }
   for (auto& it : allPlots2D)  {
+    it.second->SetDirectory(fOut); it.second->Write(); 
+  }
+  for (auto& it : allPlots3D)  {
     it.second->SetDirectory(fOut); it.second->Write(); 
   }
 
