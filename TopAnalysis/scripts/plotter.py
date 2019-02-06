@@ -442,7 +442,7 @@ class Plot(object):
             if noRatio is False: p2.Draw()
             p2.SetBottomMargin(0.4)
             p2.SetRightMargin(0.05)
-            p2.SetLeftMargin(0.12)
+            p2.SetLeftMargin(0.15)#.12
             p2.SetTopMargin(0.01)
             p2.SetGridx(False)
             p2.SetGridy(True)
@@ -520,6 +520,8 @@ class Plot(object):
                 gr.SetLineColor(self.data.GetLineColor())
                 gr.SetLineWidth(self.data.GetLineWidth())
                 gr.Draw('p')
+                gr.Fit("pol1", "", "", 5, 25);
+                gr.Fit("pol1", "+", "", 25, 50);
             except:
                 pass
 
@@ -775,12 +777,36 @@ def main():
                             nonTopWgtGH=topPtGH.GetBinContent(1)
                             topWgtGH=topPtGH.GetBinContent(2)
                         except: pass
+                        if "BCDEF" not in  opt.run: topWgtBCDEF=0
+                        if "GH" not in  opt.run: topWgtGH=0
                         if topWgtBCDEF>0 :
                             topPtNormBCDEF=topWgtBCDEF/nonTopWgtBCDEF
                             report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormBCDEF,"BCDEF")
                         if topWgtGH>0 :
                             topPtNormGH=topWgtGH/nonTopWgtGH
                             report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
+
+                    #fix custom pi pt normalization
+                    #piWgtNorm=1
+                    #if not isData:
+                        #try:
+                            #piBCDEF=fIn.Get("piwgt_BCDEF")
+                            #nonPiWgtBCDEF=piBCDEF.GetBinContent(1)
+                            #piWgtBCDEF=piBCDEF.GetBinContent(2)
+                        #except: pass
+                        #try:
+                            #piGH=fIn.Get("piwgt_GH")
+                            #nonPiWgtGH=piGH.GetBinContent(1)
+                            #piWgtGH=piGH.GetBinContent(2)
+                        #except: pass
+                        #if "BCDEF" not in  opt.run: piWgtBCDEF=0
+                        #if "GH" not in  opt.run: piWgtGH=0
+                        #if piWgtBCDEF>0 :
+                            #piNormBCDEF=nonPiWgtBCDEF/piWgtBCDEF
+                            #report += '%s was scaled by %3.3f for pi pT epoch %s reweighting\n' % (sp[0],piNormBCDEF,"BCDEF")
+                        #if piWgtGH>0 :
+                            #piNormGH=nonPiWgtGH/piWgtGH
+                            #report += '%s was scaled by %3.3f for pi pT epoch %s reweighting\n' % (sp[0],piNormGH,"GH")
 
                     #fix JER weighting
                     jerNorm=1
@@ -933,6 +959,11 @@ def main():
                                 elif(opt.run == "BCDEFGH" and lumi == "GH"): puNormSF=puNormSFGH
                                 if(opt.run == "BCDEFGH" and lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
                                 elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
+                                if(lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
+                                elif(lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
+                                #if(lumi == "BCDEF"): piWgtNorm=piNormBCDEF
+                                #elif(lumi == "GH"): piWgtNorm=piNormGH
+                                #if "_meson" not in obj.GetName(): piWgtNorm=1.
                                 lumi=lumiList[lumi]
                                 #if("TTJets" in tag): lumi=lumi*0.733417
                                 #if "fsr" not in sp[0] and "isr" not in sp[0]:
@@ -949,7 +980,11 @@ def main():
                                     #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
                                 if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
                                 elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
+                                #piWgtNorm=piWgtNorm**.5
+                                #piWgtNorm=1.
+                                #print piWgtNorm
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
+                                #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                             over=True
@@ -965,7 +1000,7 @@ def main():
                             if opt.rebin>1:  obj.Rebin(opt.rebin)
                             if opt.run != "BCDEFGH":
                                 if not key in plots : plots[key]=Plot(key)
-                                plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst)
+                                plots[key].add(h=obj,title=sp[1],color=sp[2],isData=sample[1],isSyst=isSyst,rbList=rbSamplesList)
                             else:
                                 if key.split("_")[-1] in ("BCDEF","GH"):
                                     tmpkey = key.split("_")

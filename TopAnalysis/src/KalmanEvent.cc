@@ -82,6 +82,7 @@ void KalmanEvent::buildJets() {
       if(pf_match==-1) continue; //No match found
       tkP4.SetPtEtaPhiM(ev_.pf_pt[pf_match],ev_.pf_eta[pf_match],ev_.pf_phi[pf_match],ev_.k_pf_m[ipf]);
       pfTrack pftk(tkP4, ev_.k_mass[ipf], ev_.k_l3d[ipf], ev_.k_lx[ipf], ev_.k_ly[ipf], ev_.k_lz[ipf], ev_.k_sigmal3d[ipf], ev_.k_sigmax[ipf], ev_.k_sigmay[ipf], ev_.k_sigmaz[ipf], ev_.k_chi2[ipf], ev_.k_vtxProb[ipf], ev_.k_pf_id[ipf], ev_.k_id[ipf], 1, ev_.pf_dxy[pf_match], ev_.pf_dxyE[pf_match], ev_.pf_dz[pf_match], ev_.pf_dzE[pf_match], ev_.k_opang[ipf]);
+      pftk.setIdx(pf_match);
       pftk.setNdau(ev_.k_pf_ndau[ipf]);
       /*
       tkP4.SetPtEtaPhiM(ev_.k_pf_pt[ipf],ev_.k_pf_eta[ipf],ev_.k_pf_phi[ipf],ev_.k_pf_m[ipf]);

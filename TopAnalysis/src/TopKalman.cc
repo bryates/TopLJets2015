@@ -45,6 +45,18 @@ int passBit(int syst, int BIT) {
   return (syst/abs(syst) * ((abs(syst)>>BIT)&0x1));
 }
 
+float customSF(float pt, TString runPeriod) {
+  if(runPeriod=="BCDEF") {
+    if(pt<25) return 0.8139 + 0.0109 * pt;
+    else return 0.9175 + 0.00463 * pt;
+  }
+  else if(runPeriod=="GH") {
+    if(pt<25) return 1.062 + 0.00272 * pt;
+    else return 1.065 + 0.00208 * pt;
+  }
+  else return 1.;
+}
+
 void RunTopKalman(TString filename,
 		 TString outname,
 		 Int_t channelSelection, 
@@ -208,6 +220,8 @@ void RunTopKalman(TString filename,
   allPlots["topptwgt"] = new TH1F("topptwgt","Top p_{T} weights", 2, 0, 2);
   allPlots2D["toppteta"] = new TH2F("toppteta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
   allPlots["jerwgt"] = new TH1F("jerwgt","JER weights", 2, 0, 2);
+  allPlots["piwgt_BCDEF"] = new TH1F("piwgt_BCDEF","pi weights", 2, 0, 2);
+  allPlots["piwgt_GH"] = new TH1F("piwgt_GH","pi weights", 2, 0, 2);
   allPlots2D["jereta"] = new TH2F("jereta","JER weights vs. #eta", 100, -2.4, 2.4, 200, 0, 2);
   allPlots3D["jeceta"] = new TH3F("jeceta","JEC weights (uncorrectd p_{T} / corrected p_{T}) vs. p{T} vs. #eta", 500, 0, 500, 100, -2.4, 2.4, 200, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
@@ -357,6 +371,8 @@ void RunTopKalman(TString filename,
       treeGH.SetLumi(16146.178);
       treeBCDEF.SetXsec(xsec);
       treeGH.SetXsec(xsec);
+      int *piSFB = new int[ev.npf+50]();
+      int *piSFG = new int[ev.npf+50]();
 
       //Apply top pT weight to ttbar events
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#Run_2_strategy
@@ -587,16 +603,16 @@ void RunTopKalman(TString filename,
       if(!isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         if(runSysts==0) {
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"]);
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"], piSFB);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"], piSFG);
         }
         else if(passBit(runSysts,PI_BIT)<0) {
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"]);
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"], piSFB);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"], piSFG);
         }
         else if(passBit(runSysts,PI_BIT)>0) {
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["up"], trackEffMap["BCDEF"]["binning"]);
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["up"], trackEffMap["GH"]["binning"]);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["up"], trackEffMap["BCDEF"]["binning"], piSFB);
+          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["up"], trackEffMap["GH"]["binning"], piSFG);
         }
       }
       //******************************
@@ -1200,6 +1216,7 @@ void RunTopKalman(TString filename,
           for(size_t i = 0; i < muTracks.size(); i++) { //0,1 is only ~35% of all J/Psi
             for(size_t j = 0; j < muTracks.size(); j++) {
             //int i(0),j(1);
+              if(i==j) continue;
               float mass12 = (muTracks[i].getVec()+muTracks[j].getVec()).M();
               if(mass12>2.8 && mass12<3.4) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
@@ -1219,13 +1236,32 @@ void RunTopKalman(TString filename,
                   runGH.SetRbWgt(rbWgtJPsi, JPsi);
                 }
                 std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
+                float sf(1.),tWgt(1.);
+                if(!isData) {
+                  sf  = sqrt(customSF(tmp_cands[0].Pt(), "BCDEF"));
+                  sf *= sqrt(customSF(tmp_cands[1].Pt(), "BCDEF"));
+                }
+                tWgt=runBCDEF.getSF();
+                runBCDEF.SetSFs(tWgt*sf);
+                treeBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
-                runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
-
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                runBCDEF.SetSFs(tWgt);
+                sf=1.;
+                tWgt=1.;
+                if(!isData) {
+                  sf  = sqrt(customSF(tmp_cands[0].Pt(), "GH"));
+                  sf *= sqrt(customSF(tmp_cands[1].Pt(), "GH"));
+                }
+                tWgt=runGH.getSF();
+                runGH.SetSFs(tWgt*sf);
+                treeGH.SetSFs(tWgt*sf);
+                runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                runGH.SetSFs(tWgt);
+
 
                 if(!isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
                   runBCDEF.Fill(pfmuMatched, leptons, jet, chTag, "gjpsi");
@@ -1445,8 +1481,42 @@ void RunTopKalman(TString filename,
                 }
 
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
+                //custom SFs
+                float sf(1.),tWgt(1.);
+                if(!isData) {
+                  if(piSFB[tmp_cands[0].getIdx()]<0) continue;
+                  if(piSFB[tmp_cands[1].getIdx()]<0) continue;
+                  sf = customSF(tmp_cands[0].Pt(), "BCDEF"); //event weight from pi track only
+                  //tmp_candsB[0].getVec() *= sf;
+                  //sf *= customSF(tmp_cands[1].Pt(), "BCDEF");
+                  allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
+                  allPlots["piwgt_BCDEF"]->Fill(1.,sf);
+                  //tmp_candsB[1].getVec() *= sf;
+                }
+                tWgt=runBCDEF.getSF();
+                runBCDEF.SetSFs(tWgt*sf);
+                treeBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                runBCDEF.SetSFs(tWgt);
+                sf=1.;
+                tWgt=1.;
+                if(!isData) {
+                  if(piSFG[tmp_cands[0].getIdx()]<0) continue;
+                  if(piSFG[tmp_cands[1].getIdx()]<0) continue;
+                  sf *= customSF(tmp_cands[0].Pt(), "GH");
+                  //tmp_candsG[0].getVec() *= sf;
+                  //sf *= customSF(tmp_cands[1].Pt(), "GH");
+                  allPlots["piwgt_GH"]->Fill(0.,1.0);
+                  allPlots["piwgt_GH"]->Fill(1.,sf);
+                  //tmp_candsG[1].getVec() *= sf;
+                }
+                tWgt=runGH.getSF();
+                runGH.SetSFs(tWgt*sf);
+                treeGH.SetSFs(tWgt*sf);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                runGH.SetSFs(tWgt);
                 if(isTTbar) {
                   runBCDEF.FillGen(tops, chTag, "meson");
                   runGH.FillGen(tops, chTag, "meson");
@@ -1483,8 +1553,6 @@ void RunTopKalman(TString filename,
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 }
                 */
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
 
                 runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
                 runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");

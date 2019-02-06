@@ -203,14 +203,14 @@ std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficienc
 }
 
 //Pion tracking efficiencies from https://github.com/pfs/TopLJets2015/blob/80x_rereco_rev/TopAnalysis/src/CorrectionTools.cc#L391-L503
-void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas) {
+void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas, int *id) {
   if (sfs.size() != (etas.size() - 1)) std::cout << "applyEtaDepTrackingEfficiencySF error: need one more bin boundary than scale factors: " << sfs.size() << "," << etas.size() << std::endl;
   for (unsigned int i = 0; i < sfs.size(); i++) {
-    applyTrackingEfficiencySF(ev, sfs[i], etas[i], etas[i+1]);
+    applyTrackingEfficiencySF(ev, sfs[i], etas[i], etas[i+1], id);
   }
 }
 
-void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta) {
+void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta, int *id) {
   if(ev.isData) return;
   
   TRandom* random = new TRandom3(0); // random seed
@@ -221,6 +221,8 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
       if (ev.pf_eta[k] < minEta) continue;
       if (ev.pf_eta[k] > maxEta) continue;
       if (random->Rndm() > sf) {
+        id[k] = -1;
+        continue;
         //make sure that particle does not pass any cuts
         ev.pf_pt[k]  = 1e-20;
         ev.pf_m[k]   = 1e-20;
@@ -295,6 +297,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
           break;
         }
       }
+      id[k] = 1;
       ev.pf_j[k]   = j;
       ev.pf_id[k]  = ev.gpf_id[g];
       ev.pf_c[k]   = ev.gpf_c[g];
@@ -362,3 +365,17 @@ TString assignRunPeriod(std::vector<RunPeriod_t> &runPeriods, TRandom *rand) {
   return runPeriods[iLumi].first; //return selected period
   //return iLumi;
 }
+
+/*
+float customSF(float pt, TString runPeriod) {
+  if(runPeriod=="BCDEF") {
+    if(pt<25) return 0.8139 + 0.0109 * pt;
+    else return 0.9175 + 0.00463 * pt;
+  }
+  else if(runPeriod=="GH") {
+    if(pt<25) return 1.062 + 0.00272 * pt;
+    else return 1.065 + 0.00208 * pt;
+  }
+  else return 1.;
+}
+*/

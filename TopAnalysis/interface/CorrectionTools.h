@@ -41,11 +41,12 @@ std::map<BTagEntry::JetFlavor,BTagCalibrationReader *> getBTVcalibrationReaders(
 std::map<BTagEntry::JetFlavor, TGraphAsymmErrors *> readExpectedBtagEff(TString era,TString btagExpPostFix="");
 
 std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficiencyMap(TString era);
-void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas);
-void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta);
+void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas, int *id);
+void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta, int *id);
 
 typedef std::pair<TString,float> RunPeriod_t;
 std::vector<RunPeriod_t> getRunPeriods(TString era);
 TString assignRunPeriod(std::vector<RunPeriod_t> &runPeriods, TRandom *rand=0);
+//float customSF(float pt, TString runPeriod);
 
 #endif

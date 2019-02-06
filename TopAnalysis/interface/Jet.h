@@ -25,6 +25,7 @@ class pfTrack {
   float DeltaR(pfTrack &rhs);
   int getPfid();
   inline int getPdgId() { return getPfid(); }
+  inline int getIdx() { return idx_; }
   inline int getGenIdx() { return genidx_; }
   inline int getNdau() { return ndau_; }
   int getMotherId();
@@ -64,6 +65,7 @@ class pfTrack {
   void setMother(int);
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
+  inline void setIdx(int idx) { idx_ = idx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
   inline void setNdau(int ndau) { ndau_ = ndau; }
   void print();
@@ -87,6 +89,7 @@ class pfTrack {
   int quality_;
   int genT_ = 0;
   int genidx_ = -1;
+  int idx_ = -1;
   int ndau_;
   bool highPurity_;
   bool globalMuon_;
