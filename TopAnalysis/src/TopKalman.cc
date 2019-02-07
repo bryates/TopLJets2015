@@ -1243,11 +1243,11 @@ void RunTopKalman(TString filename,
                 }
                 tWgt=runBCDEF.getSF();
                 runBCDEF.SetSFs(tWgt*sf);
+                runBCDEF.SetPiTrk(sf);
                 treeBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                runBCDEF.SetSFs(tWgt);
                 sf=1.;
                 tWgt=1.;
                 if(!isData) {
@@ -1256,11 +1256,11 @@ void RunTopKalman(TString filename,
                 }
                 tWgt=runGH.getSF();
                 runGH.SetSFs(tWgt*sf);
+                runGH.SetPiTrk(sf);
                 treeGH.SetSFs(tWgt*sf);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                runGH.SetSFs(tWgt);
 
 
                 if(!isData && pfmuMatched.size() > 1) { //save gen-matched J/Psi
@@ -1279,6 +1279,12 @@ void RunTopKalman(TString filename,
                   runBCDEF.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
                   runGH.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "jpsi");
                 }
+                runBCDEF.SetSFs(tWgt);
+                runGH.SetSFs(tWgt);
+                treeBCDEF.SetSFs(tWgt);
+                treeGH.SetSFs(tWgt);
+                runBCDEF.SetPiTrk(1./sf);
+                runGH.SetPiTrk(1./sf);
               }
               //muTracks.clear();
             } //end j
@@ -1402,7 +1408,7 @@ void RunTopKalman(TString filename,
           //only loop over i<j since mass is assigned in Kalman filter
           for(size_t i = 0; i < piTracks.size(); i++) {
             if(i > tmax) break;
-            for(size_t j = i+1; j < piTracks.size(); j++) {
+            for(size_t j = i+1; j < piTracks.size(); j++) { //i<j b/c Kalman filter already loops over all i,j
               if(j > tmax) break;
               if(i==j) continue;
               if(abs(piTracks[i].getMotherId())!=421) continue;
@@ -1495,10 +1501,10 @@ void RunTopKalman(TString filename,
                 }
                 tWgt=runBCDEF.getSF();
                 runBCDEF.SetSFs(tWgt*sf);
+                runBCDEF.SetPiTrk(sf);
                 treeBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                runBCDEF.SetSFs(tWgt);
                 sf=1.;
                 tWgt=1.;
                 if(!isData) {
@@ -1513,10 +1519,10 @@ void RunTopKalman(TString filename,
                 }
                 tWgt=runGH.getSF();
                 runGH.SetSFs(tWgt*sf);
+                runGH.SetPiTrk(sf);
                 treeGH.SetSFs(tWgt*sf);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                runGH.SetSFs(tWgt);
                 if(isTTbar) {
                   runBCDEF.FillGen(tops, chTag, "meson");
                   runGH.FillGen(tops, chTag, "meson");
@@ -1571,8 +1577,15 @@ void RunTopKalman(TString filename,
                   runBCDEF.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                   runGH.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                 }
-              } //end extra cuts within D^0 window
+                //FIXME
+                runBCDEF.SetPiTrk(1./sf);
+                runGH.SetPiTrk(1./sf);
+                treeBCDEF.SetSFs(tWgt);
+                runGH.SetSFs(tWgt);
+                treeBCDEF.SetSFs(tWgt);
+                treeGH.SetSFs(tWgt);
               //D^0 + mu for flavor tagging
+              } //end extra cuts within D^0 window
               if(muTracks.size()<1) continue;
               for(auto &track : muTracks) {
                 if(abs(track.getMotherId())!=42113) continue;

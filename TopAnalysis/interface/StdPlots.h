@@ -45,6 +45,7 @@ class StdPlots {
   void SetSFs(float);
   void SetSFs(float,float);
   void SetSFs(float,float,float);
+  inline void SetPiTrk(float pitrk) { pitrk_ = pitrk; };
   void SetPuWgt(float);
   void SetTopPtWgt(float);
   void SetTrackerWgt(float);
@@ -66,6 +67,7 @@ class StdPlots {
   float puWgt_;
   float top_pt_wgt_;
   float tracker_wgt_;
+  float pitrk_;
   //std::pair <float,float> pi_wgt_;
   std::pair <float,std::pair<float,float>> pi_wgt_;
   //std::vector<float> top_pt_wgt_vec;

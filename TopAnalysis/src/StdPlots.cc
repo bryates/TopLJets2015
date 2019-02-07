@@ -25,6 +25,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   norm_ = 1.;
   sfs_.first = 1.; sfs_.second.first = 0.; sfs_.second.second = 0.;
   puWgt_ = 1.;
+  pitrk_ = 1.;
   top_pt_wgt_ = 1.;
   tracker_wgt_ = 1.;
   pi_wgt_.first = 1.; pi_wgt_.second.first = 0.; pi_wgt_.second.second = 0.;
@@ -122,8 +123,8 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["JPsi_l_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+l) [GeV];Events / 10 GeV", 40, 0,400);
     allPlots["JPsi_l_pt_low_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt_low_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)<2.0);Events / 10 GeV", 40, 0, 400);
     allPlots["JPsi_l_pt_high_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_l_pt_high_dR"+tag+cut+weight+runPeriod_,";P_{T}(J/#Psi+#mu) [GeV] (#DeltaR(J/#Psi,l)>2.0);Events / 10 GeV", 40, 0, 400);
-    allPlots["JPsi_mu1_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_pt"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} P_{T} [GeV];Events / 1 GeV", 150, 0,150);
-    allPlots["JPsi_mu2_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_pt"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} P_{T} [GeV];Events / 1 GeV", 150, 0,150);
+    allPlots["JPsi_mu1_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_pt"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} P_{T} [GeV];Events / 1 GeV", 100, 0,100);
+    allPlots["JPsi_mu2_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_pt"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} P_{T} [GeV];Events / 1 GeV", 100, 0,100);
     allPlots["JPsi_mu_ch_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu_ch_pt"+tag+cut+weight+runPeriod_,";J/#Psi sign(q_{#mu})*#mu P_{T} [GeV];Events / 1 GeV", 100, -50,50);
     allPlots["JPsi_mu1_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu1_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{1} #eta; Events / 0.1", 30, -2.5,2.5);
     allPlots["JPsi_mu2_eta"+tag+cut+weight+runPeriod_] = new TH1F("JPsi_mu2_eta"+tag+cut+weight+runPeriod_,";J/#Psi #mu_{2} #eta; Events / 0.1", 30, -2.5,2.5);
@@ -581,10 +582,10 @@ void StdPlots::Fill(std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, 
     allPlots["HT_all"+name+runPeriod_]->Fill(htsum,getWgt());
     allPlots["H"+chTag+name+runPeriod_]->Fill(hsum,getWgt());
     allPlots["H_all"+name+runPeriod_]->Fill(hsum,getWgt());
-    allPlots["j_pt"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["j_pt"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
     allPlots["j_pt_low"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["j_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(), norm_);
-    allPlots["j_pt_all"+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["j_pt_all"+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
 
     std::pair<float,float> sphericity = Sphericity(allJetsVec);
     if(sphericity.first>=0) {
@@ -597,20 +598,20 @@ void StdPlots::Fill(std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, 
     }
   }
   if(lightJetsVec.size() > 0) {
-    allPlots["lj_pt_low"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
-    allPlots["lj_pt"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["lj_pt_low"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["lj_pt"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
     //allPlots["lj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),norm_);
-    allPlots["lj_pt_all"+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["lj_pt_all"+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
     allPlots["lj_pt_ch"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getChargedPt(),getWgt());
     allPlots["lj_pt_ch_all"+name+runPeriod_]->Fill(lightJetsVec[0].getChargedPt(),getWgt());
   }
   if(kJetsVec.size() > 0) {
-    allPlots["kj_pt_low"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt());
-    allPlots["kj_pt"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["kj_pt_low"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["kj_pt"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
     //allPlots["kj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),norm_);
-    allPlots["kj_pt_all"+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt());
-    allPlots["kj_pt_ch"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(),getWgt());
-    allPlots["kj_pt_ch_all"+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(),getWgt());
+    allPlots["kj_pt_all"+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["kj_pt_ch"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(),getWgt() / pitrk_);
+    allPlots["kj_pt_ch_all"+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(),getWgt() / pitrk_);
     for(size_t ij = 0; ij < kJetsVec.size(); ij++) {
       float csv = kJetsVec.at(ij).getCSV();
       allPlots["csv"+chTag+name+runPeriod_]->Fill(csv,getWgt());
@@ -651,11 +652,11 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     allPlots["JPsi_mu1_pt"+chTag+name+runPeriod_]->Fill(pfCands[0].Pt(),getWgt());
     allPlots["JPsi_mu1_pt_all"+name+runPeriod_]->Fill(pfCands[0].Pt(),getWgt());
     allPlots["JPsi_mu2_pt"+chTag+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
+    allPlots["JPsi_mu2_pt_all"+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
     allPlots["JPsi_mu_ch_pt"+chTag+name+runPeriod_]->Fill(pfCands[0].charge()*pfCands[1].Pt(),getWgt());
     allPlots["JPsi_mu_ch_pt"+chTag+name+runPeriod_]->Fill(pfCands[1].charge()*pfCands[1].Pt(),getWgt());
     allPlots["JPsi_mu_ch_pt_all"+name+runPeriod_]->Fill(pfCands[0].charge()*pfCands[1].Pt(),getWgt());
     allPlots["JPsi_mu_ch_pt_all"+name+runPeriod_]->Fill(pfCands[1].charge()*pfCands[1].Pt(),getWgt());
-    allPlots["JPsi_mu2_pt_all"+name+runPeriod_]->Fill(pfCands[1].Pt(),getWgt());
     allPlots["JPsi_mu1_eta"+chTag+name+runPeriod_]->Fill(pfCands[0].Eta(),getWgt());
     allPlots["JPsi_mu1_eta_all"+name+runPeriod_]->Fill(pfCands[0].Eta(),getWgt());
     allPlots["JPsi_mu2_eta"+chTag+name+runPeriod_]->Fill(pfCands[1].Eta(),getWgt());
@@ -1210,8 +1211,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     float jpt(jet.getPt());
     float jpt_charged(jet.getChargedPt());
     float jpt_pf(jet.getPFPt());
-    allPlots["JPsioJet_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
-    allPlots["JPsioJet_pt_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+    allPlots["JPsioJet_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
+    allPlots["JPsioJet_pt_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
     allPlots["JPsioJet_pt_charged"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
     allPlots["JPsioJet_pt_charged_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
     allPlots["JPsioJet_pt_pf"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_pf,getWgt());
@@ -1382,8 +1383,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString
     float jpt_pf(jet.getPFPt());
     float dRJPsil(jpsi.DeltaR(lep[0].getVec()));
     if(dRJPsil < 2.0) {
-      allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
-      allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+      allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
+      allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
       allPlots["JPsioJet_pt_charged_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
       allPlots["JPsioJet_pt_charged_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
       allPlots["JPsioJet_pt_pf_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_pf,getWgt());
