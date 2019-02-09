@@ -47,12 +47,12 @@ int passBit(int syst, int BIT) {
 
 float customSF(float pt, TString runPeriod) {
   if(runPeriod=="BCDEF") {
-    if(pt<25) return 0.8139 + 0.0109 * pt;
-    else return 0.9175 + 0.00463 * pt;
+    if(pt<25) return 0.8199 + 0.0108 * pt;
+    else return 0.9242 + 0.00463 * pt;
   }
   else if(runPeriod=="GH") {
-    if(pt<25) return 1.062 + 0.00272 * pt;
-    else return 1.065 + 0.00208 * pt;
+    if(pt<25) return 1.070 + 0.00254 * pt;
+    else return 1.073 + 0.00197 * pt;
   }
   else return 1.;
 }
@@ -1214,7 +1214,8 @@ void RunTopKalman(TString filename,
           }
 
           for(size_t i = 0; i < muTracks.size(); i++) { //0,1 is only ~35% of all J/Psi
-            for(size_t j = 0; j < muTracks.size(); j++) {
+            //FIXME for(size_t j = 0; j < muTracks.size(); j++) {
+            for(size_t j = i+1; j < muTracks.size(); j++) {
             //int i(0),j(1);
               if(i==j) continue;
               float mass12 = (muTracks[i].getVec()+muTracks[j].getVec()).M();
@@ -1244,6 +1245,7 @@ void RunTopKalman(TString filename,
                 tWgt=runBCDEF.getSF();
                 runBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.SetPiTrk(sf);
+                treeBCDEF.SetPiTrk(sf);
                 treeBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
@@ -1258,6 +1260,7 @@ void RunTopKalman(TString filename,
                 runGH.SetSFs(tWgt*sf);
                 runGH.SetPiTrk(sf);
                 treeGH.SetSFs(tWgt*sf);
+                treeGH.SetPiTrk(sf);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
@@ -1285,6 +1288,8 @@ void RunTopKalman(TString filename,
                 treeGH.SetSFs(tWgt);
                 runBCDEF.SetPiTrk(1./sf);
                 runGH.SetPiTrk(1./sf);
+                treeBCDEF.SetPiTrk(1./sf);
+                treeGH.SetPiTrk(1./sf);
               }
               //muTracks.clear();
             } //end j
@@ -1459,6 +1464,42 @@ void RunTopKalman(TString filename,
                 runBCDEF.SetRbWgt(rbWgtD0, D0);
                 runGH.SetRbWgt(rbWgtD0, D0);
               }
+              //custom SFs
+              float sf(1.),tWgt(1.);
+              if(!isData) {
+                //skip if dropped by pi tracking eff
+                if(piSFB[tmp_cands[0].getIdx()]<0) continue;
+                if(piSFB[tmp_cands[1].getIdx()]<0) continue;
+                sf = customSF(tmp_cands[0].Pt(), "BCDEF"); //event weight from pi track only
+                //tmp_candsB[0].getVec() *= sf;
+                //sf *= customSF(tmp_cands[1].Pt(), "BCDEF");
+                allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
+                allPlots["piwgt_BCDEF"]->Fill(1.,sf);
+                //tmp_candsB[1].getVec() *= sf;
+              }
+              tWgt=runBCDEF.getSF();
+              runBCDEF.SetSFs(tWgt*sf);
+              runBCDEF.SetPiTrk(sf);
+              treeBCDEF.SetSFs(tWgt*sf);
+              treeBCDEF.SetPiTrk(sf);
+              sf=1.;
+              tWgt=1.;
+              if(!isData) {
+                //skip if dropped by pi tracking eff
+                if(piSFG[tmp_cands[0].getIdx()]<0) continue;
+                if(piSFG[tmp_cands[1].getIdx()]<0) continue;
+                sf *= customSF(tmp_cands[0].Pt(), "GH");
+                //tmp_candsG[0].getVec() *= sf;
+                //sf *= customSF(tmp_cands[1].Pt(), "GH");
+                allPlots["piwgt_GH"]->Fill(0.,1.0);
+                allPlots["piwgt_GH"]->Fill(1.,sf);
+                //tmp_candsG[1].getVec() *= sf;
+              }
+              tWgt=runGH.getSF();
+              runGH.SetSFs(tWgt*sf);
+              runGH.SetPiTrk(sf);
+              treeGH.SetSFs(tWgt*sf);
+              treeGH.SetPiTrk(sf);
               if (cuts) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
                 //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
@@ -1487,40 +1528,8 @@ void RunTopKalman(TString filename,
                 }
 
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
-                //custom SFs
-                float sf(1.),tWgt(1.);
-                if(!isData) {
-                  if(piSFB[tmp_cands[0].getIdx()]<0) continue;
-                  if(piSFB[tmp_cands[1].getIdx()]<0) continue;
-                  sf = customSF(tmp_cands[0].Pt(), "BCDEF"); //event weight from pi track only
-                  //tmp_candsB[0].getVec() *= sf;
-                  //sf *= customSF(tmp_cands[1].Pt(), "BCDEF");
-                  allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
-                  allPlots["piwgt_BCDEF"]->Fill(1.,sf);
-                  //tmp_candsB[1].getVec() *= sf;
-                }
-                tWgt=runBCDEF.getSF();
-                runBCDEF.SetSFs(tWgt*sf);
-                runBCDEF.SetPiTrk(sf);
-                treeBCDEF.SetSFs(tWgt*sf);
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                sf=1.;
-                tWgt=1.;
-                if(!isData) {
-                  if(piSFG[tmp_cands[0].getIdx()]<0) continue;
-                  if(piSFG[tmp_cands[1].getIdx()]<0) continue;
-                  sf *= customSF(tmp_cands[0].Pt(), "GH");
-                  //tmp_candsG[0].getVec() *= sf;
-                  //sf *= customSF(tmp_cands[1].Pt(), "GH");
-                  allPlots["piwgt_GH"]->Fill(0.,1.0);
-                  allPlots["piwgt_GH"]->Fill(1.,sf);
-                  //tmp_candsG[1].getVec() *= sf;
-                }
-                tWgt=runGH.getSF();
-                runGH.SetSFs(tWgt*sf);
-                runGH.SetPiTrk(sf);
-                treeGH.SetSFs(tWgt*sf);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 if(isTTbar) {
@@ -1577,13 +1586,6 @@ void RunTopKalman(TString filename,
                   runBCDEF.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                   runGH.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                 }
-                //FIXME
-                runBCDEF.SetPiTrk(1./sf);
-                runGH.SetPiTrk(1./sf);
-                treeBCDEF.SetSFs(tWgt);
-                runGH.SetSFs(tWgt);
-                treeBCDEF.SetSFs(tWgt);
-                treeGH.SetSFs(tWgt);
               //D^0 + mu for flavor tagging
               } //end extra cuts within D^0 window
               if(muTracks.size()<1) continue;
@@ -1661,6 +1663,14 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
               } //end D*
+              runBCDEF.SetPiTrk(1./sf);
+              runGH.SetPiTrk(1./sf);
+              treeBCDEF.SetSFs(tWgt);
+              runGH.SetSFs(tWgt);
+              treeBCDEF.SetSFs(tWgt);
+              treeGH.SetSFs(tWgt);
+              treeBCDEF.SetPiTrk(1./sf);
+              treeGH.SetPiTrk(1./sf);
             } //end D^0 j
           } //end D^0 i
           //evch.nj++;

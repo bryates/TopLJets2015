@@ -987,6 +987,8 @@ def main():
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("JPsioJet" in obj.GetName()): obj.Rebin(2)
+                            if("JPsi_mu1_pt" in obj.GetName()): obj.Rebin(2)
+                            if("JPsi_mu2_pt" in obj.GetName()): obj.Rebin(2)
                             over=True
                             under=True
                             if "meson" in key: over=False

@@ -21,8 +21,8 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(0);
-bool fullpt(1);
+int epoch(1);
+bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");
@@ -178,6 +178,7 @@ delete c1;
 float chi2_d0_test(TString tune="", TString name="") {
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 TFile *fdata = TFile::Open(fname);
 TFile *fmc;
 if(name.Length()==0)
@@ -185,6 +186,7 @@ fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data())
 else
 fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 fmc = TFile::Open(fname);
 //TFile *fmc = TFile::Open(TString::Format("TopMass_ueup%s_sPlot_d0.root",tune.Data()));
