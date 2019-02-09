@@ -1464,6 +1464,7 @@ void RunTopKalman(TString filename,
                 runBCDEF.SetRbWgt(rbWgtD0, D0);
                 runGH.SetRbWgt(rbWgtD0, D0);
               }
+              std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
               //custom SFs
               float sf(1.),tWgt(1.);
               if(!isData) {
@@ -1527,7 +1528,6 @@ void RunTopKalman(TString filename,
                   allPlots["massD0_4j_all"]->Fill(mass12,wgt);
                 }
 
-                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
@@ -1609,7 +1609,8 @@ void RunTopKalman(TString filename,
                   runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
                   runGH.SetRbWgt(rbWgtD0mu, D0mu);
                 }
-                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                tmp_cands.push_back( track };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 std::vector<pfTrack> tmp_match;
@@ -1655,7 +1656,8 @@ void RunTopKalman(TString filename,
                 if( piTracks[j].charge() == track.charge() ) continue;
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
-                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                tmp_cands.push_back( track };
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
