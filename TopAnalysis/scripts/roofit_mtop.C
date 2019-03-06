@@ -37,7 +37,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("TopMass_"+mass+"_sPlot_jpsi.root");
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi.root");
   //f->ls(); 
   TString name = "meson_l_mass_jpsi_signal";
   //TString name = "massJPsi_l_all_jpsi_BCDEF";

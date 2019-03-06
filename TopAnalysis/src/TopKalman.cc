@@ -45,16 +45,105 @@ int passBit(int syst, int BIT) {
   return (syst/abs(syst) * ((abs(syst)>>BIT)&0x1));
 }
 
-float customSF(float pt, TString runPeriod) {
+float customSF(pfTrack &pi, TString runPeriod, float &ptsf, float &etasf) {
+  float sf(1.11); //normalization derived from GH epoch, may account for MC track discrepancy
+  // pol0
+  /*
   if(runPeriod=="BCDEF") {
-    if(pt<25) return 0.8199 + 0.0108 * pt;
-    else return 0.9242 + 0.00463 * pt;
+    if(pi.Eta() < -0.8) return 0.994531; // +/- 0.00994357
+    else if(pi.Eta() < 0.08) return 0.960121; // +/- 0.00526549
+    else return 1.02152; // +/- 0.0101579
+  }
+  if(runPeriod=="GH") {
+    if(pi.Eta() < -0.8) return 1.10885; // +/- 0.0114724
+    else if(pi.Eta() < 0.08) return 1.11814; // +/- 0.00621636
+    else return 1.09172; // +/- 0.0113799
+  }
+  */
+  // pol1
+  if(runPeriod=="BCDEF") {
+    if(pi.Eta() < -1.1)
+      sf *= 1.32057e+00 + pi.Eta() * 3.32181e-01;
+    else if(pi.Eta() > -1.1 && pi.Eta() < -0.8)
+      sf *= 5.43447e-01 + pi.Eta() * -3.97289e-01;
+    else if(pi.Eta() > -0.8 && pi.Eta() < -0.4)
+      sf *= 8.11365e-01 + pi.Eta() * -8.38234e-02;
+    else if(pi.Eta() > -0.4 && pi.Eta() < 0.0)
+      sf *= 8.45402e-01 + pi.Eta() * -1.35970e-01;
+    else if(pi.Eta() > 0.0 && pi.Eta() < 0.5)
+      sf *= 8.26994e-01 + pi.Eta() * 1.98342e-01;
+    else if(pi.Eta() > 0.5 && pi.Eta() < 0.8)
+      sf *= 6.84472e-01 + pi.Eta() * 2.81183e-01;
+    else if(pi.Eta() > 0.8 && pi.Eta() < 1.1)
+      sf *= 8.30364e-01 + pi.Eta() * 8.63701e-02;
+    else
+      sf *= 1.02055e+00 + pi.Eta() * -6.02677e-02;
   }
   else if(runPeriod=="GH") {
-    if(pt<25) return 1.070 + 0.00254 * pt;
-    else return 1.073 + 0.00197 * pt;
+    sf = 1.11; //const normalization
+    /*
+    if(pi.Eta() < -1.1)
+      sf = 1.50378e+00 + pi.Eta() * 2.96783e-01;
+    else if(pi.Eta() > -1.1 && pi.Eta() < -0.8)
+      sf = 8.41962e-01 + pi.Eta() * -2.76284e-01;
+    else if(pi.Eta() > -0.8 && pi.Eta() < -0.4)
+      sf = 1.12870e+00 + pi.Eta() * -7.29029e-03;
+    else if(pi.Eta() > -0.4 && pi.Eta() < 0.0)
+      sf = 1.09081e+00 + pi.Eta() * -1.07503e-01;
+    else if(pi.Eta() > 0.0 && pi.Eta() < 0.5)
+      sf = 1.09216e+00 + pi.Eta() * 6.16644e-02;
+    else if(pi.Eta() > 0.5 && pi.Eta() < 0.8)
+      sf = 1.18840e+00 + pi.Eta() * -9.10853e-02;
+    else if(pi.Eta() > 0.8 && pi.Eta() < 1.1)
+      sf = 1.27394e+00 + pi.Eta() * -2.07942e-01;
+    else
+      sf = 7.13174e-01 + pi.Eta() * 3.09823e-01;
+    */
   }
-  else return 1.;
+  if(etasf > 0) etasf = sf;
+  pi.setEtaCorrection(sf);
+  if(runPeriod=="BCDEF") {
+    sf *= 0.876 + 0.00761 * pi.Pt();
+    if(ptsf > 0) ptsf = 0.876 + 0.00761 * pi.Pt();
+    if(ptsf > 0) pi.setPtCorrection(0.876 + 0.00761 * pi.Pt());
+      }
+  return sf;
+  //return 1.0; //FIXME
+  float v0(1.),v1(1.),t(0.),pt(pi.Pt());
+  if(runPeriod=="BCDEF") {
+    //if(pt<25) return 0.8199 + 0.0108 * pt;
+    //else return 0.9242 + 0.00463 * pt;
+    //tails
+    v0 = 0.8199 + 0.0108 * pt;
+    v1 = 0.9212 + 0.00465 * pt;
+    /*
+    v0 = 0.8027 + 0.0199 * pt;
+    v1 = 0.9331 + 0.00437 * pt;
+    */
+  
+  }
+  else if(runPeriod=="GH") {
+    //if(pt<25) return 1.070 + 0.00254 * pt;
+    //else return 1.073 + 0.00197 * pt;
+    //tails
+    v0 = 1.070 + 0.00256 * pt;
+    v1 = 1.070 + 0.00209 * pt;
+    /*
+    v0 = 1.082 + 0.00190 * pt;
+    v1 = 1.008 + 0.00394 * pt;
+    */
+  }
+  //else return 1.;
+  if(pt>25) t = 1.;
+  else if(pt>24)
+    //map 24-25 to 0-1
+    t = 0 + (1 - 0) * ((pt - 24) / (25 - 24));
+  //lerp
+  return (1 - t) * v0 + t * v1;
+}
+float customSF(pfTrack &pi, TString runPeriod) {
+  float ptsf(0),etasf(0);
+  return customSF(pi, runPeriod, ptsf, etasf); 
 }
 
 void RunTopKalman(TString filename,
@@ -600,7 +689,7 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!isData) {
+      if(!isData && 0) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         if(runSysts==0) {
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"], piSFB);
@@ -619,6 +708,31 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors DONE!" << endl;
 
       //select jets
+      float *pt_chargedB = new float[ev.nj]();
+      float *pt_chargedG = new float[ev.nj]();
+      float pisfB(1.), pisfG(1.);
+      for(int ipf=0; ipf<ev.npf; ipf++) {
+        if(ev.pf_j[ipf]==-1) continue;
+        //if(ev.pf_pt[ipf]<15) continue;
+        if(ev.pf_c[ipf]==0) continue;
+	TLorentzVector tkP4(0,0,0,0);
+	tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
+        pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf],ev.pf_quality[ipf],ev.pf_highPurity[ipf]);
+        float ptsf(1.),etasf(1.);
+        pisfB *= customSF(pftk, "BCDEF", ptsf,etasf);
+        pisfB /= ptsf;
+        if(ptsf > 0) {
+          allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
+          allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
+        }
+        if(piSFB[ipf]>=0) {
+          if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+        }
+        if(piSFG[ipf]>=0) {
+          if(piSFG[ipf]>1 || (piSFG[ipf]==0 && piSFB[ipf]<1)) pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+          pisfG *= customSF(pftk, "GH");
+        }
+      }
       Float_t htsum(0),hsum(0),htbsum(0);
       int nbj(0);
       TLorentzVector jetDiff(0,0,0,0);
@@ -696,7 +810,11 @@ void RunTopKalman(TString filename,
 
 
 	  //save jet
-          Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          //FIXME
+          //Jet tmpj(jp4, ev.j_csv[k], k, pt_charged, ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k]/ev.j_rawsf[k], ev.j_pz_charged[k]/ev.j_rawsf[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          tmpj.updateChargedPt(pt_chargedB[k],pt_chargedG[k]);
+          //delete[] pt_charged;
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
 	    if(ev.pf_j[ipf] != k) continue; //skip if PF track doesn't belong to current jet
 	    if(ev.pf_c[ipf]==0) continue;   //skip if PF track is neutral
@@ -732,6 +850,7 @@ void RunTopKalman(TString filename,
       //after main jet b/c smearing MiniEvet_t is in there
       kalman.loadEvent(ev); //load again to get smeared versions
       for(auto &jet : kalman.getJets()) {
+        jet.updateChargedPt(pt_chargedB[jet.getJetIndex()],pt_chargedG[jet.getJetIndex()]);
         if(jet.getTracks().size()<1) continue; //skip jets with no sub-structure
 	TLorentzVector jp4 = jet.getVec();
 	//cross clean with respect to leptons deltaR<0.4
@@ -762,6 +881,8 @@ void RunTopKalman(TString filename,
       }
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
       if(debug) cout << allJetsVec.size() << " jets found" << endl;
+      //delete[] pt_chargedB;
+      //delete[] pt_chargedG;
 
       if(htsum<80) continue;
       //if(htsum<160) continue;
@@ -1231,16 +1352,17 @@ void RunTopKalman(TString filename,
                 TLorentzVector jpsi = muTracks[i].getVec() + muTracks[j].getVec();
                 if(rbFit && !isData) {
                   float rbWgtJPsi(1.);
-                  if(rbFit==1) rbWgtJPsi=(rbWgt->Eval(jpsi.Pt() / jet.getChargedPt()));
-                  else if(rbFit==2) rbWgtJPsi=(rbWgts[JPsi]->Eval(jpsi.Pt() / jet.getChargedPt()));
+                  int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
+                  if(rbFit==1) rbWgtJPsi=(rbWgt->Eval(jpsi.Pt() / jet.getChargedPt(idx)));
+                  else if(rbFit==2) rbWgtJPsi=(rbWgts[JPsi]->Eval(jpsi.Pt() / jet.getChargedPt(idx)));
                   runBCDEF.SetRbWgt(rbWgtJPsi, JPsi);
                   runGH.SetRbWgt(rbWgtJPsi, JPsi);
                 }
                 std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
                 float sf(1.),tWgt(1.);
                 if(!isData) {
-                  sf  = sqrt(customSF(tmp_cands[0].Pt(), "BCDEF"));
-                  sf *= sqrt(customSF(tmp_cands[1].Pt(), "BCDEF"));
+                  sf *= sqrt(customSF(tmp_cands[0], "BCDEF"));
+                  sf *= sqrt(customSF(tmp_cands[1], "BCDEF"));
                 }
                 tWgt=runBCDEF.getSF();
                 runBCDEF.SetSFs(tWgt*sf);
@@ -1250,11 +1372,11 @@ void RunTopKalman(TString filename,
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                sf=1.;
+                sf=pisfG;
                 tWgt=1.;
                 if(!isData) {
-                  sf  = sqrt(customSF(tmp_cands[0].Pt(), "GH"));
-                  sf *= sqrt(customSF(tmp_cands[1].Pt(), "GH"));
+                  sf *= sqrt(customSF(tmp_cands[0], "GH"));
+                  sf *= sqrt(customSF(tmp_cands[1], "GH"));
                 }
                 tWgt=runGH.getSF();
                 runGH.SetSFs(tWgt*sf);
@@ -1459,48 +1581,82 @@ void RunTopKalman(TString filename,
               //if (mass12>1.65 && mass12<2.0) {
               if(rbFit && !isData) {
                 float rbWgtD0(1.);
-                if(rbFit==1) rbWgtD0=(rbWgt->Eval(d0.Pt() / jet.getChargedPt()));
-                else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt()));
+                int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
+                if(rbFit==1) rbWgtD0=(rbWgt->Eval(d0.Pt() / jet.getChargedPt(idx)));
+                else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt(idx)));
                 runBCDEF.SetRbWgt(rbWgtD0, D0);
                 runGH.SetRbWgt(rbWgtD0, D0);
               }
-              std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
+              //if(D0p4.Pt()<20) cuts=false; //FIXME
               //custom SFs
-              float sf(1.),tWgt(1.);
+              //float sfB(1.),sfG(1.),tWgt(1.);
+              //float sfB(pisfB),sfG(pisfG),tWgt(1.);
               if(!isData) {
+                float ptsf = 1., etasf = 1.;
+                customSF(piTracks[i], "BCDEF", ptsf, etasf); //event weight from pi track only
+                //piTracks[i].setEtaCorrection(etasf);
+                //piTracks[i].setPtCorrection(ptsf);
+                if(ptsf > 0) { //pT shape weight only
+                allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
+                allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
+                }
+                customSF(piTracks[j], "BCDEF", ptsf, etasf); //trk weight for K track only
+                //piTracks[j].setPtCorrection(ptsf);
+                //sfB /= ptsf;
+                if(ptsf > 0) { //pT shape weight only
+                allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
+                allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
+                }
                 //skip if dropped by pi tracking eff
-                if(piSFB[tmp_cands[0].getIdx()]<0) continue;
-                if(piSFB[tmp_cands[1].getIdx()]<0) continue;
-                sf = customSF(tmp_cands[0].Pt(), "BCDEF"); //event weight from pi track only
+                /*
+                if(piSFB[piTracks[i].getIdx()]<0) sfB = 0.;
+                if(piSFB[piTracks[j].getIdx()]<0) sfB = 0.;
+                //skip if only added by othe epoch
+                if(piSFG[piTracks[i].getIdx()]>0 && piSFB[piTracks[i].getIdx()]==1) sfB = 0.;
+                if(piSFG[piTracks[j].getIdx()]>0 && piSFB[piTracks[j].getIdx()]==1) sfB = 0.;
+                */
                 //tmp_candsB[0].getVec() *= sf;
                 //sf *= customSF(tmp_cands[1].Pt(), "BCDEF");
-                allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
-                allPlots["piwgt_BCDEF"]->Fill(1.,sf);
+                //allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
+                //allPlots["piwgt_BCDEF"]->Fill(1.,sfB);
                 //tmp_candsB[1].getVec() *= sf;
               }
+              /*
               tWgt=runBCDEF.getSF();
-              runBCDEF.SetSFs(tWgt*sf);
-              runBCDEF.SetPiTrk(sf);
-              treeBCDEF.SetSFs(tWgt*sf);
-              treeBCDEF.SetPiTrk(sf);
-              sf=1.;
+              runBCDEF.SetSFs(tWgt*sfB);
+              runBCDEF.SetPiTrk(sfB);
+              treeBCDEF.SetSFs(tWgt*sfB);
+              treeBCDEF.SetPiTrk(sfB);
+              sfG=1.;
               tWgt=1.;
+              */
               if(!isData) {
+                customSF(piTracks[i], "GH");
                 //skip if dropped by pi tracking eff
-                if(piSFG[tmp_cands[0].getIdx()]<0) continue;
-                if(piSFG[tmp_cands[1].getIdx()]<0) continue;
-                sf *= customSF(tmp_cands[0].Pt(), "GH");
-                //tmp_candsG[0].getVec() *= sf;
-                //sf *= customSF(tmp_cands[1].Pt(), "GH");
+                /*
+                if(piSFG[piTracks[i].getIdx()]<0) sfG = 0.;
+                if(piSFG[piTracks[j].getIdx()]<0) sfG = 0.;
+                //skip if only added by othe epoch
+                if(piSFB[piTracks[i].getIdx()]>0 && piSFG[piTracks[i].getIdx()]==1) sfG = 0.;
+                if(piSFB[piTracks[j].getIdx()]>0 && piSFG[piTracks[j].getIdx()]==1) sfG = 0.;
+                */
+                //tmp_candsG[0].getVec() *= sfG;
+                //sfG *= customSF(tmp_cands[1].Pt(), "GH");
+                /*
                 allPlots["piwgt_GH"]->Fill(0.,1.0);
-                allPlots["piwgt_GH"]->Fill(1.,sf);
-                //tmp_candsG[1].getVec() *= sf;
+                allPlots["piwgt_GH"]->Fill(1.,sfG);
+                */
+                //tmp_candsG[1].getVec() *= sfG;
               }
+              std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
+              TLorentzVector D0p4 = tmp_cands[0].getVec() + tmp_cands[1].getVec();
+              /*
               tWgt=runGH.getSF();
-              runGH.SetSFs(tWgt*sf);
-              runGH.SetPiTrk(sf);
-              treeGH.SetSFs(tWgt*sf);
-              treeGH.SetPiTrk(sf);
+              runGH.SetSFs(tWgt*sfG);
+              runGH.SetPiTrk(sfG);
+              treeGH.SetSFs(tWgt*sfG);
+              treeGH.SetPiTrk(sfG);
+              */
               if (cuts) {
                 //if(debug) cout << pfmuCands[0].Pt() << " " << pfmuCands[0].Eta() << " " << pfmuCands[0].Phi() << " " << gMassMu << endl;
                 //if(debug) cout << pfmuCands[1].Pt() << " " << pfmuCands[1].Eta() << " " << pfmuCands[1].Phi() << " " << gMassMu << endl;
@@ -1604,13 +1760,14 @@ void RunTopKalman(TString filename,
                 TLorentzVector d0mu = piTracks[i].getVec() + piTracks[j].getVec() + track.getVec();
                 if(rbFit && !isData) {
                   float rbWgtD0mu(1.);
-                  if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt()));
-                  else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt()));
+                  int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
+                  if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt(idx)));
+                  else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt(idx)));
                   runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
                   runGH.SetRbWgt(rbWgtD0mu, D0mu);
                 }
-                //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
-                tmp_cands.push_back( track };
+                std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
+                //tmp_cands.push_back( track );
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 std::vector<pfTrack> tmp_match;
@@ -1657,7 +1814,7 @@ void RunTopKalman(TString filename,
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
                 //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
-                tmp_cands.push_back( track };
+                tmp_cands.push_back( track );
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
@@ -1665,14 +1822,16 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
               } //end D*
-              runBCDEF.SetPiTrk(1./sf);
-              runGH.SetPiTrk(1./sf);
+              /*
+              runBCDEF.SetPiTrk(1./sfB);
+              runGH.SetPiTrk(1./sfG);
               treeBCDEF.SetSFs(tWgt);
               runGH.SetSFs(tWgt);
               treeBCDEF.SetSFs(tWgt);
               treeGH.SetSFs(tWgt);
-              treeBCDEF.SetPiTrk(1./sf);
-              treeGH.SetPiTrk(1./sf);
+              treeBCDEF.SetPiTrk(1./sfB);
+              treeGH.SetPiTrk(1./sfG);
+              */
             } //end D^0 j
           } //end D^0 i
           //evch.nj++;

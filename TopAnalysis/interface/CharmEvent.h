@@ -17,7 +17,7 @@ struct CharmEvent_t
   Bool_t isData;
   Int_t run,event,epoch[50];
   Float_t norm,xsec,lumi,puwgt[50],topptwgt;
-  Float_t sfs[50],sfsu[50],pitrk[50]; //need to split into separate parts
+  Float_t sfs[50],sfsu[50],pitrk[50],piptsf[50],kptsf[50]; //need to split into separate parts
   Float_t ht,met,st;
   Int_t nlj;
 

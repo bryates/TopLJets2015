@@ -52,6 +52,8 @@ class pfTrack {
   inline float vtxProb() { return vtxProb_; }
   inline float getKalmanMass() { return k_mass_; }
   inline float getOpeningAngle() { return opAng_; }
+  inline float getEtaCorrection() { return etaSF_; }
+  inline float getPtCorrection() { return ptSF_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
@@ -68,6 +70,8 @@ class pfTrack {
   inline void setIdx(int idx) { idx_ = idx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
   inline void setNdau(int ndau) { ndau_ = ndau; }
+  inline void setEtaCorrection(float etaSF) { etaSF_ = etaSF; }
+  inline void setPtCorrection(float ptSF) { ptSF_ = ptSF; }
   void print();
 
  private:
@@ -84,6 +88,8 @@ class pfTrack {
   float chi2_;
   float vtxProb_;
   float opAng_;
+  float etaSF_ = 1.;
+  float ptSF_ = 1.;
   int pfid_;
   int motherId_;
   int quality_;
@@ -119,6 +125,7 @@ class Jet {
   void addDxy(float dxy, float dxyE);
   void addDz(float dz, float dzE);
   void addDz(int idx);
+  inline void updateChargedPt(float pt_chB, float pt_chG) { chargedPtEp_[0] = pt_chB; chargedPtEp_[1] = pt_chG; }
   inline void setHadFlav(int hadflav) { hadflav_ = hadflav; }
   TLorentzVector &getVec();
   float &getCSV();
@@ -127,6 +134,7 @@ class Jet {
   inline float P() { return p4_.P(); }
   inline float M() { return p4_.M(); }
   float &getChargedPt();
+  float &getChargedPt(int);
   float &getPFPt();
   float getP();
   float &getChargedP();
@@ -153,6 +161,7 @@ class Jet {
   int jetindex_;
   int idx_;
   float chargedPt_;
+  float chargedPtEp_[2];
   float chargedPz_;
   float chargedP_;
   float PFPt_;

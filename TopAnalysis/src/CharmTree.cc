@@ -194,7 +194,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.jpsi_chi2[ev_.nmeson] = pfCands[0].chi2();
 
     ev_.j_pt[ev_.nj] = jet.getPt();
-    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
+    int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
+    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt(idx);
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();
     ev_.j_p_charged[ev_.nj] = jet.getChargedP();
@@ -254,9 +255,11 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.lumi = lumi_;
     ev_.puwgt[ev_.nmeson] = puWgt_;
     ev_.topptwgt = top_pt_wgt_;
-    ev_.sfs[ev_.nmeson] = sfs_.first*tracker_wgt_*pi_wgt_.first;
+    ev_.sfs[ev_.nmeson] = sfs_.first;//*tracker_wgt_*pi_wgt_.first;
+    ev_.piptsf[ev_.nmeson] = pfCands[0].getPtCorrection();
+    ev_.kptsf[ev_.nmeson] = pfCands[1].getPtCorrection();
     ev_.sfsu[ev_.nmeson] = sqrt(pow(sfs_.second,2)+pow(pi_wgt_.second,2));
-    ev_.pitrk[ev_.nmeson] = pitrk_;
+    ev_.pitrk[ev_.nmeson] = pfCands[0].getEtaCorrection();
 
     /*
     ev_.peterson[ev_.nj] = frag[0];
@@ -330,7 +333,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_pt[ev_.nj] = jet.getPt();
     ev_.j_eta[ev_.nj] = jet.getVec().Eta();
     ev_.j_phi[ev_.nj] = jet.getVec().Phi();
-    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
+    int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
+    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt(idx);
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();
     ev_.j_p_charged[ev_.nj] = jet.getChargedP();

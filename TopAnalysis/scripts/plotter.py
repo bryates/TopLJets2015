@@ -5,6 +5,7 @@ import ROOT
 import math
 import pickle
 from collections import OrderedDict
+from array import array
 
 from TopLJets2015.TopAnalysis.rounding import *
 
@@ -520,8 +521,28 @@ class Plot(object):
                 gr.SetLineColor(self.data.GetLineColor())
                 gr.SetLineWidth(self.data.GetLineWidth())
                 gr.Draw('p')
-                gr.Fit("pol1", "", "", 5, 25);
-                gr.Fit("pol1", "+", "", 25, 50);
+                #gr.Fit("pol1", "", "", 5, 25)
+                #gr.Fit("pol1", "+", "", 25, 50)
+                #gr.Fit("pol1", "", "", -2.4, -1.5)
+                #gr.Fit("pol1", "+", "", -1.5, -0.8)
+                #gr.Fit("pol1", "+", "", -0.8, 0.8)
+                #gr.Fit("pol1", "+", "", 0.8, 1.5)
+                #gr.Fit("pol1", "+", "", 1.5, 2.4)
+                #bins = [ -2.4, -1.5, -0.8, 0.8, 1.5, 2.4]
+                #bins = [ -1.5, -1.1, -0.8, -0.4, 0.0, 0.5, 0.8, 1.1, 1.5] 
+                #for i in range(len(bins)-1):
+                    #print "%1.1f < #eta < %1.1f" % (bins[i], bins[i+1])
+                    #gr.Fit("pol1", "+", "", bins[i], bins[i+1])
+                #gr.Fit("pol1", "+", "", 5, 50)
+                sf = ROOT.TH1F("eta_sf","#pi agreement (|#eta)", len(bins)-1, array("d", bins))
+                for i in gr.GetNbins():
+                  sf.Fill(gr.GetBinContent(i))
+                print sf.GetBInContent(1)
+                outUrl = "/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/piSF.root"
+                outF = ROOT.TFile.Open(outUrl,'UPDATE')
+                sf.Write(sf.GetName(), ROOT.TObject.kOverwrite)
+                outF.Close()
+                
             except:
                 pass
 
@@ -787,26 +808,26 @@ def main():
                             report += '%s was scaled by %3.3f for top pT epoch %s reweighting\n' % (sp[0],topPtNormGH,"GH")
 
                     #fix custom pi pt normalization
-                    #piWgtNorm=1
-                    #if not isData:
-                        #try:
-                            #piBCDEF=fIn.Get("piwgt_BCDEF")
-                            #nonPiWgtBCDEF=piBCDEF.GetBinContent(1)
-                            #piWgtBCDEF=piBCDEF.GetBinContent(2)
-                        #except: pass
-                        #try:
-                            #piGH=fIn.Get("piwgt_GH")
-                            #nonPiWgtGH=piGH.GetBinContent(1)
-                            #piWgtGH=piGH.GetBinContent(2)
-                        #except: pass
-                        #if "BCDEF" not in  opt.run: piWgtBCDEF=0
-                        #if "GH" not in  opt.run: piWgtGH=0
-                        #if piWgtBCDEF>0 :
-                            #piNormBCDEF=nonPiWgtBCDEF/piWgtBCDEF
-                            #report += '%s was scaled by %3.3f for pi pT epoch %s reweighting\n' % (sp[0],piNormBCDEF,"BCDEF")
-                        #if piWgtGH>0 :
-                            #piNormGH=nonPiWgtGH/piWgtGH
-                            #report += '%s was scaled by %3.3f for pi pT epoch %s reweighting\n' % (sp[0],piNormGH,"GH")
+                    piWgtNorm=1
+                    if not isData:
+                        try:
+                            piBCDEF=fIn.Get("piwgt_BCDEF")
+                            nonPiWgtBCDEF=piBCDEF.GetBinContent(1)
+                            piWgtBCDEF=piBCDEF.GetBinContent(2)
+                        except: pass
+                        try:
+                            piGH=fIn.Get("piwgt_GH")
+                            nonPiWgtGH=piGH.GetBinContent(1)
+                            piWgtGH=piGH.GetBinContent(2)
+                        except: pass
+                        if "BCDEF" not in  opt.run: piWgtBCDEF=0
+                        if "GH" not in  opt.run: piWgtGH=0
+                        if piWgtBCDEF>0 :
+                            piNormBCDEF=nonPiWgtBCDEF/piWgtBCDEF
+                            report += '%s was scaled by %3.3f for pi pT epoch %s reweighting\n' % (sp[0],piNormBCDEF,"BCDEF")
+                        if piWgtGH>0 :
+                            piNormGH=nonPiWgtGH/piWgtGH
+                            report += '%s was scaled by %3.3f for pi pT epoch %s reweighting\n' % (sp[0],piNormGH,"GH")
 
                     #fix JER weighting
                     jerNorm=1
@@ -961,8 +982,8 @@ def main():
                                 elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
                                 if(lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
                                 elif(lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
-                                #if(lumi == "BCDEF"): piWgtNorm=piNormBCDEF
-                                #elif(lumi == "GH"): piWgtNorm=piNormGH
+                                if(lumi == "BCDEF"): piWgtNorm=piNormBCDEF
+                                elif(lumi == "GH"): piWgtNorm=piNormGH
                                 #if "_meson" not in obj.GetName(): piWgtNorm=1.
                                 lumi=lumiList[lumi]
                                 #if("TTJets" in tag): lumi=lumi*0.733417
@@ -980,7 +1001,7 @@ def main():
                                     #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
                                 if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
                                 elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
-                                #piWgtNorm=piWgtNorm**.5
+                                piWgtNorm=piWgtNorm**.5
                                 #piWgtNorm=1.
                                 #print piWgtNorm
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)

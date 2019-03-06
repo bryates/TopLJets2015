@@ -84,7 +84,9 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("puwgt",         ev.puwgt,        "puwgt[nmeson]/F");
   t->Branch("sfs",           ev.sfs,          "sfs[nmeson]/F");
   t->Branch("sfsu",          ev.sfsu,         "sfsu[nmeson]/F");
-  t->Branch("pitrk",           ev.pitrk,          "pitrk[nmeson]/F");
+  t->Branch("pitrk",         ev.pitrk,        "pitrk[nmeson]/F");
+  t->Branch("piptsf",        ev.piptsf,       "piptsf[nmeson]/F");
+  t->Branch("kptsf",         ev.kptsf,        "kptsf[nmeson]/F");
 
   t->Branch("jpsi_mass",    ev.jpsi_mass,     "jpsi_mass[nmeson]/F");
   t->Branch("jpsi_pt",      ev.jpsi_pt,       "jpsi_pt[nmeson]/F");

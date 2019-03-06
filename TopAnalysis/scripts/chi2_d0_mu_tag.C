@@ -22,7 +22,7 @@ using namespace RooFit;
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
 int epoch(0);
-bool fullpt(1);
+bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
 TString report("");

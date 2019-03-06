@@ -276,7 +276,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double
     double promotionProb = TMath::Min(1., NchGenHadrons*(sf-1.)/chGenNonRecoHadrons.size());
     std::vector<int> chGenNonRecoHadronsToPromote;
     for (const int g : chGenNonRecoHadrons) {
-      if (random->Rndm() < promotionProb) {
+      if (random->Rndm() < promotionProb) { //FIXME
         chGenNonRecoHadronsToPromote.push_back(g);
       }
     }

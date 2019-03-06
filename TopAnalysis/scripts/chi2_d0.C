@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(1);
+int epoch(2);
 bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 

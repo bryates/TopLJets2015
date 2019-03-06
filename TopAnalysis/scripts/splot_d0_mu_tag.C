@@ -63,9 +63,13 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TFile *fin;
   TGraph *g;
+  float puSF1(1.);
+  float puSF2(1.);
+  float jerSF(1.);
+  float topSF1(1.);
+  float topSF2(1.);
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
-  TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ndau/Chunks/");
   //TFile *f = new TFile(dir+"MC13TeV_TTJets_m"+mass+"_0.root"); //open a randome file to get correction histograms
   //std::vector<RooRealVar> frgWgt;
@@ -83,6 +87,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
+    TFile *gen;
+    if(!syst) gen = new TFile("/eos/cms/store/user/byates/top18012/genweights.root");
+    else gen = new TFile("/eos/cms/store/user/byates/top18012/genweights_syst.root");
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
     if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
@@ -99,6 +106,21 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << "Adding " << it;
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
+      TString normname(dir+"../"+it+".root");
+      TFile *f = new TFile(normname); //get correction histograms
+      TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
+      TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
+      TH1F *jer = (TH1F*) f->Get("jerwgt");
+      puSF1 *= pu1->GetBinContent(1)/pu1->GetBinContent(2);
+      puSF2 *= pu2->GetBinContent(1)/pu2->GetBinContent(2);
+      jerSF *= jer->GetBinContent(1)/jer->GetBinContent(2);
+      if(mcname.Contains("TTJets")) {
+        TH1F *top1 = (TH1F*) f->Get("topptwgt_BCDEF");
+        TH1F *top2 = (TH1F*) f->Get("topptwgt_GH");
+        topSF1 *= top1->GetBinContent(2)/top1->GetBinContent(1);
+        topSF2 *= top2->GetBinContent(2)/top2->GetBinContent(1);
+      }
+      f->Close();
     }
     /*
     std::vector<TString> tunes = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
@@ -138,21 +160,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //f->ls(); 
   TString name = "massD0_mu_tag_l_all_d0";
   //TString name = "massJPsi_l_all_d0_BCDEF";
-  TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
-  TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
-  TH1F *top1 = (TH1F*) f->Get("topptwgt_BCDEF");
-  TH1F *top2 = (TH1F*) f->Get("topptwgt_GH");
-  float puSF1 = pu1->GetBinContent(1)/pu1->GetBinContent(2);
-  float puSF2 = pu2->GetBinContent(1)/pu2->GetBinContent(2);
-  float topSF1 = top1->GetBinContent(2)/top1->GetBinContent(1);
-  float topSF2 = top2->GetBinContent(2)/top2->GetBinContent(1);
-  pu1->SetDirectory(0);
-  pu2->SetDirectory(0);
-  top1->SetDirectory(0);
-  top2->SetDirectory(0);
-  f->Close();
   if(!isData) {
   cout << "PU normalization " << puSF1 << endl;
+  cout << "JER normalization " << jerSF << endl;
   cout << "top pT normalization " << topSF1 << endl;
   cout << "PU normalization " << puSF2 << endl;
   cout << "top pT normalization " << topSF2 << endl;
@@ -195,9 +205,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
       if(ep>0 && ev.epoch[j] != ep) continue;
-      if(!jpT) {
-        //if(ev.j_pt[j]>150) continue;
-        if(ev.j_pt_charged[j]>75) continue;
+      if(!jpT && 0) {
+        if(ev.j_pt[j]>150) continue;
+        //if(ev.j_pt_charged[j]>75) continue;
       }
       /*
       else
@@ -221,7 +231,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       float scale = 1.;
       tuneW.setVal(1.);
       if(!isData) {
-        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        std::cout << ev.xsec << std::endl;
+        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt * jerSF;// * topSF * puSF;
+        if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
           scale =  scale * 19712.86 * puSF1 * topSF1;
@@ -289,7 +301,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   */
   //very inefficient second loop to adjust normalization
   std::cout << "Re-weighting based on norm weight" << std::endl;
-  if(!isData) {
+  if(!isData && 0) {
   double tuneShape = 1.;
   if(tuneWgt->GetBinContent(2) > 0) tuneShape = tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2);
   std::cout << "Norm weight: " << tuneShape << std::endl;

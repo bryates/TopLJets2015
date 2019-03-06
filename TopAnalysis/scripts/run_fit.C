@@ -24,7 +24,10 @@
     RooRealVar mt = fit_constrain(w,fit_par,fit_err,tmp_mass,flags);
     mt.Print();
     mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
-    mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
+    //mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
+    float err = mt.getError();
+    float s = pow(GetBinError(mass->FindBin(it-172.5),2));// + pow(err,2);
+    mass->SetBinError(mass->FindBin(it-172.5),sqrt(s));
     mfits.push_back(pair<float,float>(mt.getValV()+172.5,mt.getError()));
   }
 
