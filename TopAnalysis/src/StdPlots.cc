@@ -385,6 +385,7 @@ void StdPlots::SetNorm(float norm) {
   if(debug_) std::cout << "Setting norm= " << norm << std::endl;
   norm_ = norm;
   pitrk_ = 1.;
+  pi_wgt_.first = 1.;
 }
 
 void StdPlots::SetSFs(float sfs) {
@@ -588,10 +589,10 @@ void StdPlots::Fill(std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, 
     allPlots["HT_all"+name+runPeriod_]->Fill(htsum,getWgt());
     allPlots["H"+chTag+name+runPeriod_]->Fill(hsum,getWgt());
     allPlots["H_all"+name+runPeriod_]->Fill(hsum,getWgt());
-    allPlots["j_pt"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["j_pt"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
     allPlots["j_pt_low"+chTag+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["j_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(), norm_);
-    allPlots["j_pt_all"+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["j_pt_all"+name+runPeriod_]->Fill(allJetsVec[0].getVec().Pt(),getWgt());
 
     std::pair<float,float> sphericity = Sphericity(allJetsVec);
     if(sphericity.first>=0) {
@@ -604,22 +605,22 @@ void StdPlots::Fill(std::vector<Jet> &lightJetsVec, std::vector<Jet> &kJetsVec, 
     }
   }
   if(lightJetsVec.size() > 0) {
-    allPlots["lj_pt_low"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
-    allPlots["lj_pt"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["lj_pt_low"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["lj_pt"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["lj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),norm_);
-    allPlots["lj_pt_all"+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["lj_pt_all"+name+runPeriod_]->Fill(lightJetsVec[0].getVec().Pt(),getWgt());
     int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
     allPlots["lj_pt_ch"+chTag+name+runPeriod_]->Fill(lightJetsVec[0].getChargedPt(idx),getWgt());
     allPlots["lj_pt_ch_all"+name+runPeriod_]->Fill(lightJetsVec[0].getChargedPt(idx),getWgt());
   }
   if(kJetsVec.size() > 0) {
-    allPlots["kj_pt_low"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
-    allPlots["kj_pt"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["kj_pt_low"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt());
+    allPlots["kj_pt"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt());
     //allPlots["kj_pt"+chTag+name+"_no_weight"+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),norm_);
-    allPlots["kj_pt_all"+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt() / pitrk_);
+    allPlots["kj_pt_all"+name+runPeriod_]->Fill(kJetsVec[0].getVec().Pt(),getWgt());
     int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
-    allPlots["kj_pt_ch"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(idx),getWgt() / pitrk_);
-    allPlots["kj_pt_ch_all"+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(idx),getWgt() / pitrk_);
+    allPlots["kj_pt_ch"+chTag+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(idx),getWgt());
+    allPlots["kj_pt_ch_all"+name+runPeriod_]->Fill(kJetsVec[0].getChargedPt(idx),getWgt());
     for(size_t ij = 0; ij < kJetsVec.size(); ij++) {
       float csv = kJetsVec.at(ij).getCSV();
       allPlots["csv"+chTag+name+runPeriod_]->Fill(csv,getWgt());
@@ -727,8 +728,19 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     //if(!pi->highPurity()) return;
     //if(!k->highPurity()) return;
     //float piEtaSF = pi->getEtaCorrection(); //eta is evt weight
+    pi_wgt_.first = 1.11; //normalization derived from GH epoch, may account for MC track discrepancy
+    float piEtaSF = pfCands[0].getEtaCorrection();
+    float kEtaSF = pfCands[1].getEtaCorrection();
     float piPtSF = pi->getPtCorrection();
     float kPtSF = k->getPtCorrection();
+    if(runPeriod_.Contains("GH")) {
+      pi_wgt_.first = 1.11;
+      //GH only needs an overall normalization constant
+      piEtaSF = 1.;
+      kEtaSF = 1.;
+      piPtSF = 1.;
+      kPtSF = 1.;
+    }
 
     //if(mass12<1.7 || mass12>2.0) return; //D^0 mass window
     if(pfCands.size()==2 && mass12>1.7 && mass12<2.0) { //Plot D0 only
@@ -736,40 +748,40 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
       allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt());
       allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt());
 
-      allPlots["D0_pt"+chTag+name+runPeriod_]->Fill(D0.Pt(),getWgt() * piPtSF * kPtSF);
-      allPlots["D0_pt_all"+name+runPeriod_]->Fill(D0.Pt(),getWgt() * piPtSF * kPtSF);
-      allPlots["D0_pi_pt"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
-      allPlots["D0_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
+      allPlots["D0_pt"+chTag+name+runPeriod_]->Fill(D0.Pt(),getWgt() * piEtaSF * piPtSF * kEtaSF * kPtSF);
+      allPlots["D0_pt_all"+name+runPeriod_]->Fill(D0.Pt(),getWgt() * piEtaSF * piPtSF * kEtaSF * kPtSF);
+      allPlots["D0_pi_pt"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_pt_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
       if(mass12<1.824 || mass12>1.902) {
-      allPlots["D0_pi_pt_tails"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
-      allPlots["D0_pi_pt_tails_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
-      allPlots["D0_pi_eta_tails"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piPtSF);
-      allPlots["D0_pi_eta_tails_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piPtSF);
+      allPlots["D0_pi_pt_tails"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_pt_tails_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_eta_tails"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_eta_tails_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piEtaSF * piPtSF);
       }
       if(abs(D0.Eta())<0.8) {
-      allPlots["D0_pi_pt_low"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
-      allPlots["D0_pi_pt_low_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
+      allPlots["D0_pi_pt_low"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_pt_low_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
       }
       else if(abs(D0.Eta())>0.8 && abs(D0.Eta())<1.5) {
-      allPlots["D0_pi_pt_mid"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
-      allPlots["D0_pi_pt_mid_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
+      allPlots["D0_pi_pt_mid"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_pt_mid_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
       }
       else if(abs(D0.Eta())>1.5) {
-      allPlots["D0_pi_pt_high"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
-      allPlots["D0_pi_pt_high_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piPtSF);
+      allPlots["D0_pi_pt_high"+chTag+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_pt_high_all"+name+runPeriod_]->Fill(pi->Pt(),getWgt() * piEtaSF * piPtSF);
       }
-      allPlots["D0_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt() * kPtSF);
-      allPlots["D0_K_pt_all"+name+runPeriod_]->Fill(k->Pt(),getWgt() * kPtSF);
+      allPlots["D0_K_pt"+chTag+name+runPeriod_]->Fill(k->Pt(),getWgt() * kEtaSF * kPtSF);
+      allPlots["D0_K_pt_all"+name+runPeriod_]->Fill(k->Pt(),getWgt() * kEtaSF * kPtSF);
       allPlots["D0_p"+chTag+name+runPeriod_]->Fill(D0.P(),getWgt());
       allPlots["D0_p_all"+name+runPeriod_]->Fill(D0.P(),getWgt());
       allPlots["D0_pi_p"+chTag+name+runPeriod_]->Fill(pi->P(),getWgt());
       allPlots["D0_pi_p_all"+name+runPeriod_]->Fill(pi->P(),getWgt());
       allPlots["D0_K_p"+chTag+name+runPeriod_]->Fill(k->P(),getWgt());
       allPlots["D0_K_p_all"+name+runPeriod_]->Fill(k->P(),getWgt());
-      allPlots["D0_pi_eta"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piPtSF);
-      allPlots["D0_pi_eta_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piPtSF);
-      allPlots["D0_K_eta"+chTag+name+runPeriod_]->Fill(k->Eta(),getWgt() * kPtSF);
-      allPlots["D0_K_eta_all"+name+runPeriod_]->Fill(k->Eta(),getWgt() * kPtSF);
+      allPlots["D0_pi_eta"+chTag+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_pi_eta_all"+name+runPeriod_]->Fill(pi->Eta(),getWgt() * piEtaSF * piPtSF);
+      allPlots["D0_K_eta"+chTag+name+runPeriod_]->Fill(k->Eta(),getWgt() * kEtaSF * kPtSF);
+      allPlots["D0_K_eta_all"+name+runPeriod_]->Fill(k->Eta(),getWgt() * kEtaSF * kPtSF);
       allPlots["D0_pi_phi"+chTag+name+runPeriod_]->Fill(pi->Phi(),getWgt());
       allPlots["D0_pi_phi_all"+name+runPeriod_]->Fill(pi->Phi(),getWgt());
       allPlots["D0_K_phi"+chTag+name+runPeriod_]->Fill(k->Phi(),getWgt());
@@ -1047,7 +1059,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, TString name) {
   if(!isGood_) return;
   //eta is evt weight for D^0
-  if(name.Contains("meson")) pitrk_ = pfCands[0].getEtaCorrection();
+  if(name.Contains("meson")) pi_wgt_.first = 1.11; //normalization derived from GH epoch, may account for MC track discrepancy
   Fill(pfCands, chTag, name); //Fill meson only plots
   Fill(lep, chTag, name);       //Fill lepton only plots
   float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;
@@ -1243,8 +1255,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
     float jpt_charged(jet.getChargedPt(idx));
     float jpt_pf(jet.getPFPt());
-    allPlots["JPsioJet_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
-    allPlots["JPsioJet_pt_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
+    allPlots["JPsioJet_pt"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+    allPlots["JPsioJet_pt_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
     allPlots["JPsioJet_pt_charged"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
     allPlots["JPsioJet_pt_charged_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
     allPlots["JPsioJet_pt_pf"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_pf,getWgt());
@@ -1253,8 +1265,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Jet jet, TString chTag, TStri
     std::vector<pfTrack> &tracks = jet.getTracks();
     allPlots["JPsioJet_pt_hard"+chTag+name+runPeriod_]->Fill(tracks[0].Pt()/jpt_charged,getWgt());
     allPlots["JPsioJet_pt_hard_all"+name+runPeriod_]->Fill(tracks[0].Pt()/jpt_charged,getWgt());
-    allPlots["j_pt_ch"+chTag+name+runPeriod_]->Fill(jpt_charged,getWgt() / pitrk_);
-    allPlots["j_pt_ch_all"+name+runPeriod_]->Fill(jpt_charged,getWgt() / pitrk_);
+    allPlots["j_pt_ch"+chTag+name+runPeriod_]->Fill(jpt_charged,getWgt());
+    allPlots["j_pt_ch_all"+name+runPeriod_]->Fill(jpt_charged,getWgt());
     int mu=-1;
     for(size_t itk=0;itk<tracks.size();itk++) {
       if(abs(tracks[itk].getPdgId())==13) {
@@ -1417,8 +1429,8 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, Jet jet, TString
     float jpt_pf(jet.getPFPt());
     float dRJPsil(jpsi.DeltaR(lep[0].getVec()));
     if(dRJPsil < 2.0) {
-      allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
-      allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt() / pitrk_);
+      allPlots["JPsioJet_pt_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
+      allPlots["JPsioJet_pt_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt,getWgt());
       allPlots["JPsioJet_pt_charged_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
       allPlots["JPsioJet_pt_charged_low_dR_all"+name+runPeriod_]->Fill(jpsi.Pt()/jpt_charged,getWgt());
       allPlots["JPsioJet_pt_pf_low_dR"+chTag+name+runPeriod_]->Fill(jpsi.Pt()/jpt_pf,getWgt());

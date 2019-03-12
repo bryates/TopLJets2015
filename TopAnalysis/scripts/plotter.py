@@ -534,14 +534,14 @@ class Plot(object):
                     #print "%1.1f < #eta < %1.1f" % (bins[i], bins[i+1])
                     #gr.Fit("pol1", "+", "", bins[i], bins[i+1])
                 #gr.Fit("pol1", "+", "", 5, 50)
-                sf = ROOT.TH1F("eta_sf","#pi agreement (|#eta)", len(bins)-1, array("d", bins))
-                for i in gr.GetNbins():
-                  sf.Fill(gr.GetBinContent(i))
-                print sf.GetBInContent(1)
-                outUrl = "/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/piSF.root"
-                outF = ROOT.TFile.Open(outUrl,'UPDATE')
-                sf.Write(sf.GetName(), ROOT.TObject.kOverwrite)
-                outF.Close()
+                #sf = ROOT.TH1F("eta_sf","#pi agreement (|#eta)", len(bins)-1, array("d", bins))
+                #for i in gr.GetNbins():
+                  #sf.Fill(gr.GetBinContent(i))
+                #print sf.GetBInContent(1)
+                #outUrl = "/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/piSF.root"
+                #outF = ROOT.TFile.Open(outUrl,'UPDATE')
+                #sf.Write(sf.GetName(), ROOT.TObject.kOverwrite)
+                #outF.Close()
                 
             except:
                 pass
@@ -1001,7 +1001,7 @@ def main():
                                     #elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSFs[1][1]
                                 if(opt.run == "BCDEFGH" and lumi == "BCDEF"): rbFitSF=rbFitSF
                                 elif(opt.run == "BCDEFGH" and lumi == "GH"): rbFitSF=rbFitSF
-                                piWgtNorm=piWgtNorm**.5
+                                #piWgtNorm=piWgtNorm**.5
                                 #piWgtNorm=1.
                                 #print piWgtNorm
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)

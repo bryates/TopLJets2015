@@ -46,7 +46,7 @@ int passBit(int syst, int BIT) {
 }
 
 float customSF(pfTrack &pi, TString runPeriod, float &ptsf, float &etasf) {
-  float sf(1.11); //normalization derived from GH epoch, may account for MC track discrepancy
+  float sf(1.); //normalization derived from GH epoch, may account for MC track discrepancy
   // pol0
   /*
   if(runPeriod=="BCDEF") {
@@ -63,21 +63,21 @@ float customSF(pfTrack &pi, TString runPeriod, float &ptsf, float &etasf) {
   // pol1
   if(runPeriod=="BCDEF") {
     if(pi.Eta() < -1.1)
-      sf *= 1.32057e+00 + pi.Eta() * 3.32181e-01;
+      sf *= 1.33e+00 + pi.Eta() * 3.35e-01;
     else if(pi.Eta() > -1.1 && pi.Eta() < -0.8)
-      sf *= 5.43447e-01 + pi.Eta() * -3.97289e-01;
+      sf *= 5.490e-01 + pi.Eta() * -3.934e-01;
     else if(pi.Eta() > -0.8 && pi.Eta() < -0.4)
-      sf *= 8.11365e-01 + pi.Eta() * -8.38234e-02;
+      sf *= 8.12e-01 + pi.Eta() * -8.78e-02;
     else if(pi.Eta() > -0.4 && pi.Eta() < 0.0)
-      sf *= 8.45402e-01 + pi.Eta() * -1.35970e-01;
+      sf *= 8.47e-01 + pi.Eta() * -1.37e-01;
     else if(pi.Eta() > 0.0 && pi.Eta() < 0.5)
-      sf *= 8.26994e-01 + pi.Eta() * 1.98342e-01;
+      sf *= 8.30e-01 + pi.Eta() * 1.92e-01;
     else if(pi.Eta() > 0.5 && pi.Eta() < 0.8)
-      sf *= 6.84472e-01 + pi.Eta() * 2.81183e-01;
+      sf *= 6.82e-01 + pi.Eta() * 2.87e-01;
     else if(pi.Eta() > 0.8 && pi.Eta() < 1.1)
-      sf *= 8.30364e-01 + pi.Eta() * 8.63701e-02;
+      sf *= 8.50e-01 + pi.Eta() * 6.62e-02;
     else
-      sf *= 1.02055e+00 + pi.Eta() * -6.02677e-02;
+      sf *= 1.02e+00 + pi.Eta() * -6.01e-02;
   }
   else if(runPeriod=="GH") {
     sf = 1.11; //const normalization
@@ -103,10 +103,12 @@ float customSF(pfTrack &pi, TString runPeriod, float &ptsf, float &etasf) {
   if(etasf > 0) etasf = sf;
   pi.setEtaCorrection(sf);
   if(runPeriod=="BCDEF") {
-    sf *= 0.876 + 0.00761 * pi.Pt();
-    if(ptsf > 0) ptsf = 0.876 + 0.00761 * pi.Pt();
-    if(ptsf > 0) pi.setPtCorrection(0.876 + 0.00761 * pi.Pt());
-      }
+    float ptcor = 8.65e-01 + pi.Pt() * 7.63e-03;
+  ptcor = 1.; //FIXME
+    sf *= ptcor;
+    if(ptsf > 0) ptsf = ptcor;
+    if(ptsf > 0) pi.setPtCorrection(ptcor);
+  }
   return sf;
   //return 1.0; //FIXME
   float v0(1.),v1(1.),t(0.),pt(pi.Pt());
@@ -289,6 +291,14 @@ void RunTopKalman(TString filename,
   JME::JetResolutionScaleFactor *jres_sf = new JME::JetResolutionScaleFactor(jerSFUrl.Data());
   
   
+  //PF TRACK EFFICIENCIES (B-F / GH)
+  TString pfUrl(era+"/pf_tracks.root");
+  gSystem->ExpandPathName(pfUrl);
+  fIn=TFile::Open(pfUrl);
+  TH2 *pf_eff=(TH2 *)fIn->Get("eta_pt")->Clone();
+  pf_eff->SetDirectory(0);
+  fIn->Close();
+
   //LIST OF SYSTEMATICS
   
   //HISTOGRAMS BY RUNPERIOD
@@ -298,6 +308,8 @@ void RunTopKalman(TString filename,
   CharmTree treeBCDEF(t, "BCDEF", outname, debug);
   CharmTree treeGH(t, "GH", outname, debug);
 
+  std::vector<float> dpt;
+  std::vector<float> deta;
   //BOOK HISTOGRAMS
   std::map<TString, TH1 *> allPlots;
   std::map<TString, TH2 *> allPlots2D; //hash map insted of map (hash faster than red-black tree: O(1) vs O(log(N)))
@@ -689,11 +701,12 @@ void RunTopKalman(TString filename,
       if(debug) cout << "Pion scale factors" << endl;
       //******************************
       //Pion tracker SFs
-      if(!isData && 0) {
+      if(!isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
         if(runSysts==0) {
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"], piSFB);
-          applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"], piSFG);
+          applyTrackingEfficiencySF(ev, pf_eff, piSFB);
+          //applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"], piSFB);
+          //applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"], piSFG);
         }
         else if(passBit(runSysts,PI_BIT)<0) {
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"], piSFB);
@@ -719,19 +732,26 @@ void RunTopKalman(TString filename,
 	tkP4.SetPtEtaPhiM(ev.pf_pt[ipf],ev.pf_eta[ipf],ev.pf_phi[ipf],0.);
         pfTrack pftk(tkP4, ev.pf_dxy[ipf], ev.pf_dxyE[ipf], ev.pf_dz[ipf], ev.pf_dzE[ipf], ev.pf_id[ipf],ev.pf_quality[ipf],ev.pf_highPurity[ipf]);
         float ptsf(1.),etasf(1.);
-        pisfB *= customSF(pftk, "BCDEF", ptsf,etasf);
-        pisfB /= ptsf;
+        //pisfB *= customSF(pftk, "BCDEF", ptsf,etasf);
+        //pisfB /= ptsf;
         if(ptsf > 0) {
           allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
           allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
         }
         if(piSFB[ipf]>=0) {
-          if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+          pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+          //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         }
+        /*
         if(piSFG[ipf]>=0) {
           if(piSFG[ipf]>1 || (piSFG[ipf]==0 && piSFB[ipf]<1)) pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
           pisfG *= customSF(pftk, "GH");
         }
+        if(ev.pf_fromPV[ipf]<2) continue;
+        pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+        pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+        */
+        //Stor all PF pT and eta for data driven corrections
       }
       Float_t htsum(0),hsum(0),htbsum(0);
       int nbj(0);
@@ -1360,6 +1380,7 @@ void RunTopKalman(TString filename,
                 }
                 std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
                 float sf(1.),tWgt(1.);
+                /*
                 if(!isData) {
                   sf *= sqrt(customSF(tmp_cands[0], "BCDEF"));
                   sf *= sqrt(customSF(tmp_cands[1], "BCDEF"));
@@ -1383,6 +1404,7 @@ void RunTopKalman(TString filename,
                 runGH.SetPiTrk(sf);
                 treeGH.SetSFs(tWgt*sf);
                 treeGH.SetPiTrk(sf);
+                */
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
@@ -1593,14 +1615,14 @@ void RunTopKalman(TString filename,
               //float sfB(pisfB),sfG(pisfG),tWgt(1.);
               if(!isData) {
                 float ptsf = 1., etasf = 1.;
-                customSF(piTracks[i], "BCDEF", ptsf, etasf); //event weight from pi track only
+                //customSF(piTracks[i], "BCDEF", ptsf, etasf); //event weight from pi track only
                 //piTracks[i].setEtaCorrection(etasf);
                 //piTracks[i].setPtCorrection(ptsf);
                 if(ptsf > 0) { //pT shape weight only
                 allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
                 allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
                 }
-                customSF(piTracks[j], "BCDEF", ptsf, etasf); //trk weight for K track only
+                //customSF(piTracks[j], "BCDEF", ptsf, etasf); //trk weight for K track only
                 //piTracks[j].setPtCorrection(ptsf);
                 //sfB /= ptsf;
                 if(ptsf > 0) { //pT shape weight only
@@ -1608,9 +1630,9 @@ void RunTopKalman(TString filename,
                 allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
                 }
                 //skip if dropped by pi tracking eff
+                if(piSFB[piTracks[i].getIdx()]<0) cuts = false;
+                if(piSFB[piTracks[j].getIdx()]<0) cuts = false;
                 /*
-                if(piSFB[piTracks[i].getIdx()]<0) sfB = 0.;
-                if(piSFB[piTracks[j].getIdx()]<0) sfB = 0.;
                 //skip if only added by othe epoch
                 if(piSFG[piTracks[i].getIdx()]>0 && piSFB[piTracks[i].getIdx()]==1) sfB = 0.;
                 if(piSFG[piTracks[j].getIdx()]>0 && piSFB[piTracks[j].getIdx()]==1) sfB = 0.;
@@ -1630,7 +1652,7 @@ void RunTopKalman(TString filename,
               sfG=1.;
               tWgt=1.;
               */
-              if(!isData) {
+              if(!isData && 0) {
                 customSF(piTracks[i], "GH");
                 //skip if dropped by pi tracking eff
                 /*
@@ -1647,6 +1669,15 @@ void RunTopKalman(TString filename,
                 allPlots["piwgt_GH"]->Fill(1.,sfG);
                 */
                 //tmp_candsG[1].getVec() *= sfG;
+              }
+	      for(int ipf = 0; ipf < ev.npf; ipf++) {
+                if(ev.pf_fromPV[ipf]<2) continue;
+                evch.pf_pt[ipf] = ev.pf_pt[ipf];
+                evch.pf_eta[ipf] = ev.pf_eta[ipf];
+                evch.pf_phi[ipf] = ev.pf_phi[ipf];
+                evch.pf_m[ipf] = ev.pf_m[ipf];
+                evch.pf_id[ipf] = ev.pf_id[ipf];
+                evch.npf++;
               }
               std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };
               TLorentzVector D0p4 = tmp_cands[0].getVec() + tmp_cands[1].getVec();

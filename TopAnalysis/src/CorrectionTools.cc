@@ -4,6 +4,7 @@
 
 
 
+TH2 *pf_eff_;
 //
 std::vector<TGraph *> getPileupWeights(TString era,TH1 *genPU)
 {
@@ -197,6 +198,15 @@ std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficienc
       trackEffMap["GH"]["up"].push_back(trackEffMap["GH"]["nominal"][i]+trackEffMap["GH"]["unc"][i]);
       trackEffMap["GH"]["down"].push_back(trackEffMap["GH"]["nominal"][i]-trackEffMap["GH"]["unc"][i]);
     }
+    /*
+    TString effUrl(era+"/pf_tracks.root");
+    gSystem->ExpandPathName(effUrl);
+    TFile *fIn=TFile::Open(effUrl);
+    //lepEffH_["m_singleleptrig"]=(TH2 *)fIn->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA")->Clone();
+    pf_eff_=(TH2 *)fIn->Get("eta_pt")->Clone();
+    pf_eff_->SetDirectory(0);
+    fIn->Close();
+    */
   }
   
   return trackEffMap;
@@ -208,6 +218,53 @@ void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, s
   for (unsigned int i = 0; i < sfs.size(); i++) {
     applyTrackingEfficiencySF(ev, sfs[i], etas[i], etas[i+1], id);
   }
+}
+
+//Testing data driven SFs
+void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id) {
+  if(ev.isData) return;
+  
+  TRandom* random = new TRandom3(0); // random seed
+
+  for (int k = 0; k < ev.npf; k++) {
+    float minEtaForEff( pf_eff_->GetXaxis()->GetXmin() ), maxEtaForEff( pf_eff_->GetXaxis()->GetXmax()-0.01 );
+    float etaForEff=TMath::Max(TMath::Min(ev.pf_eta[k],maxEtaForEff),minEtaForEff);
+    Int_t etaBinForEff=pf_eff_->GetXaxis()->FindBin(etaForEff);
+    
+    float minPtForEff( pf_eff_->GetYaxis()->GetXmin() ), maxPtForEff( pf_eff_->GetYaxis()->GetXmax()-0.01 );
+    float ptForEff=TMath::Max(TMath::Min(ev.pf_pt[k],maxPtForEff),minPtForEff);
+    Int_t ptBinForEff=pf_eff_->GetYaxis()->FindBin(ptForEff);
+
+    float sf=pf_eff_->GetBinContent(etaBinForEff,ptBinForEff);
+    
+    if (sf <= 1) {
+      //if (abs(ev.pf_id[k]) != 211) continue;
+      if (random->Rndm() > sf) {
+        id[k] = -1;
+        continue;
+        //make sure that particle does not pass any cuts
+        ev.pf_pt[k]  = 1e-20;
+        ev.pf_m[k]   = 1e-20;
+        ev.pf_eta[k] = 999.;
+        ev.pf_c[k]   = 0;
+      }
+    }
+    /* no need to drop since Kalman tracks are matched to PF in Kalman.cc
+    for (int k = 0; k < ev.npf; k++) {
+      if (abs(ev.k_pf_id[k]) != 211 && abs(ev.k_pf_id[k]) != 321) continue;
+      if (ev.k_pf_eta[k] < minEta) continue;
+      if (ev.k_pf_eta[k] > maxEta) continue;
+      if (random->Rndm() > sf) {
+        //make sure that particle does not pass any cuts
+        ev.k_pf_pt[k]  = 1e-20;
+        ev.k_mass[k]   = 1e-20;
+        ev.k_pf_eta[k] = 999.;
+      }
+    }
+    */
+  }
+  
+  delete random;
 }
 
 void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta, int *id) {

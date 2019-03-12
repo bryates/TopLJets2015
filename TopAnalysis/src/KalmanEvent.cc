@@ -38,8 +38,9 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
 void KalmanEvent::buildJets() {
   jets_.clear(); //start off fresh
   for(int ij=0; ij<ev_.nj; ij++) {
-    TLorentzVector jp4;
+    TLorentzVector jp4,kjp4;
     jp4.SetPtEtaPhiM(ev_.j_pt[ij],ev_.j_eta[ij],ev_.j_phi[ij],ev_.j_mass[ij]);
+    kjp4.SetPtEtaPhiM(ev_.k_j_pt[ij],ev_.k_j_eta[ij],ev_.k_j_phi[ij],ev_.k_j_mass[ij]);
     Jet tmpj(jp4, ev_.j_csv[ij], ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracks and gen matched index
     tmpj.setHadFlav(ev_.j_hadflav[ij]);
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
@@ -72,6 +73,7 @@ void KalmanEvent::buildJets() {
       int pf_match(-1);
       int nip(0);
       for(int ip = 0; ip < ev_.npf; ip++) {
+        if(ev_.pf_fromPV[ipf]<2) continue;
         //if(ip>15) continue;
         //if(ev_.k_id[ipf]==421 && nip>20) break; //D^0 only from hardest 4
         if(ev_.k_j[ipf] != ev_.pf_j[ip]) continue; //check jet first
