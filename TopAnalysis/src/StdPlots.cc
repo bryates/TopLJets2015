@@ -728,13 +728,13 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
     //if(!pi->highPurity()) return;
     //if(!k->highPurity()) return;
     //float piEtaSF = pi->getEtaCorrection(); //eta is evt weight
-    pi_wgt_.first = 1.11; //normalization derived from GH epoch, may account for MC track discrepancy
+    //pi_wgt_.first = 1.11; //normalization derived from GH epoch, may account for MC track discrepancy
     float piEtaSF = pfCands[0].getEtaCorrection();
     float kEtaSF = pfCands[1].getEtaCorrection();
     float piPtSF = pi->getPtCorrection();
     float kPtSF = k->getPtCorrection();
     if(runPeriod_.Contains("GH")) {
-      pi_wgt_.first = 1.11;
+      //pi_wgt_.first = 1.11;
       //GH only needs an overall normalization constant
       piEtaSF = 1.;
       kEtaSF = 1.;
@@ -1059,7 +1059,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name) 
 void StdPlots::Fill(std::vector<pfTrack> &pfCands, Leptons lep, TString chTag, TString name) {
   if(!isGood_) return;
   //eta is evt weight for D^0
-  if(name.Contains("meson")) pi_wgt_.first = 1.11; //normalization derived from GH epoch, may account for MC track discrepancy
+  //if(name.Contains("meson")) pi_wgt_.first = 1.11; //normalization derived from GH epoch, may account for MC track discrepancy
   Fill(pfCands, chTag, name); //Fill meson only plots
   Fill(lep, chTag, name);       //Fill lepton only plots
   float wgt = norm_ * sfs_.first * puWgt_ * top_pt_wgt_;

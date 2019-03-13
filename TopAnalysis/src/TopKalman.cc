@@ -46,6 +46,7 @@ int passBit(int syst, int BIT) {
 }
 
 float customSF(pfTrack &pi, TString runPeriod, float &ptsf, float &etasf) {
+  pi.setEtaCorrection(1.11);
   float sf(1.); //normalization derived from GH epoch, may account for MC track discrepancy
   // pol0
   /*
@@ -708,6 +709,7 @@ void RunTopKalman(TString filename,
           //applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"], piSFB);
           //applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"], piSFG);
         }
+        /*
         else if(passBit(runSysts,PI_BIT)<0) {
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"], piSFB);
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"], piSFG);
@@ -716,6 +718,7 @@ void RunTopKalman(TString filename,
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["up"], trackEffMap["BCDEF"]["binning"], piSFB);
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["up"], trackEffMap["GH"]["binning"], piSFG);
         }
+        */
       }
       //******************************
       if(debug) cout << "Pion scale factors DONE!" << endl;
@@ -1614,6 +1617,9 @@ void RunTopKalman(TString filename,
               //float sfB(1.),sfG(1.),tWgt(1.);
               //float sfB(pisfB),sfG(pisfG),tWgt(1.);
               if(!isData) {
+                //skip if dropped by pi tracking eff
+                if(piSFB[piTracks[i].getIdx()]<0) continue;
+                if(piSFB[piTracks[j].getIdx()]<0) continue;
                 float ptsf = 1., etasf = 1.;
                 //customSF(piTracks[i], "BCDEF", ptsf, etasf); //event weight from pi track only
                 //piTracks[i].setEtaCorrection(etasf);
@@ -1629,9 +1635,6 @@ void RunTopKalman(TString filename,
                 allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
                 allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
                 }
-                //skip if dropped by pi tracking eff
-                if(piSFB[piTracks[i].getIdx()]<0) cuts = false;
-                if(piSFB[piTracks[j].getIdx()]<0) cuts = false;
                 /*
                 //skip if only added by othe epoch
                 if(piSFG[piTracks[i].getIdx()]>0 && piSFB[piTracks[i].getIdx()]==1) sfB = 0.;
@@ -1671,12 +1674,13 @@ void RunTopKalman(TString filename,
                 //tmp_candsG[1].getVec() *= sfG;
               }
 	      for(int ipf = 0; ipf < ev.npf; ipf++) {
+                if(ev.pf_j[ipf]  = jet.getJetIndex()) continue;
                 if(ev.pf_fromPV[ipf]<2) continue;
-                evch.pf_pt[ipf] = ev.pf_pt[ipf];
+                evch.pf_pt[ipf]  = ev.pf_pt[ipf];
                 evch.pf_eta[ipf] = ev.pf_eta[ipf];
                 evch.pf_phi[ipf] = ev.pf_phi[ipf];
-                evch.pf_m[ipf] = ev.pf_m[ipf];
-                evch.pf_id[ipf] = ev.pf_id[ipf];
+                evch.pf_m[ipf]   = ev.pf_m[ipf];
+                evch.pf_id[ipf]  = ev.pf_id[ipf];
                 evch.npf++;
               }
               std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j] };

@@ -539,4 +539,9 @@ EffCorrection_t LeptonEfficiencyWrapper::getOfflineCorrection(pfTrack lep)
 LeptonEfficiencyWrapper::~LeptonEfficiencyWrapper()
 {
   //for(auto& it : lepEffH_) it.second->Delete();
+  /* FIXME needs testing
+  for(std::map<TString, TH2*>::iteratorr itr = lepEffH_.begin(); itr != lepEffH_.end(); itr++)
+    delete (itr->second);
+  lepEffH_.clear()
+  */
 }
