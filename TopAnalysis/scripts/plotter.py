@@ -54,7 +54,7 @@ class Plot(object):
         self.ratiorange = (0.76,1.24)
         if "_jpsi" in name or "_meson" in name:
             self.ratiorange = (0.47,1.57)
-        #self.ratiorange = (0.76,1.24)
+        self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst, rbList):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -1004,7 +1004,8 @@ def main():
                                 #piWgtNorm=piWgtNorm**.5
                                 #piWgtNorm=1.
                                 #print piWgtNorm
-                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
+                                normGH=1.3#11; #derived from GH, needed in B-F after corrections
+                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("JPsioJet" in obj.GetName()): obj.Rebin(2)
