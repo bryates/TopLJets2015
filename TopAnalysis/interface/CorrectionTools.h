@@ -45,6 +45,7 @@ std::map<BTagEntry::JetFlavor, TGraphAsymmErrors *> readExpectedBtagEff(TString 
 std::map<TString, std::map<TString, std::vector<double> > > getTrackingEfficiencyMap(TString era);
 void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, std::vector<double> etas, int *id);
 void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id);
+void applyTrackingEfficiencySF(std::vector<pfTrack> &tracks, TH2 *pf_eff_, int *dropId);
 void applyTrackingEfficiencySF(MiniEvent_t &ev, double sf, double minEta, double maxEta, int *id);
 
 typedef std::pair<TString,float> RunPeriod_t;

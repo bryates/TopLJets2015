@@ -227,6 +227,9 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id) {
   TRandom* random = new TRandom3(0); // random seed
 
   for (int k = 0; k < ev.npf; k++) {
+    if(ev.pf_fromPV[k]<2) continue;
+    if(ev.pf_j[k]==-1) continue;
+    if(ev.pf_c[k]==0) continue;
     float minEtaForEff( pf_eff_->GetXaxis()->GetXmin() ), maxEtaForEff( pf_eff_->GetXaxis()->GetXmax()-0.01 );
     float etaForEff=TMath::Max(TMath::Min(ev.pf_eta[k],maxEtaForEff),minEtaForEff);
     Int_t etaBinForEff=pf_eff_->GetXaxis()->FindBin(etaForEff);
@@ -262,6 +265,34 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id) {
       }
     }
     */
+  }
+  
+  delete random;
+}
+
+void applyTrackingEfficiencySF(std::vector<pfTrack> &tracks, TH2 *pf_eff_, int *dropId) {
+  const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
+  TRandom* random = new TRandom3(0); // random seed
+
+  for(unsigned int k = 0; k < tracks.size(); k++) {
+    if(abs(tracks[k].Eta()) > 1.5) continue;
+    //if(tracks[k].M()!=gMassPi) continue; //pi only
+    float minEtaForEff( pf_eff_->GetXaxis()->GetXmin() ), maxEtaForEff( pf_eff_->GetXaxis()->GetXmax()-0.01 );
+    float etaForEff=TMath::Max(TMath::Min(tracks[k].Eta(),maxEtaForEff),minEtaForEff);
+    Int_t etaBinForEff=pf_eff_->GetXaxis()->FindBin(etaForEff);
+    
+    float minPtForEff( pf_eff_->GetYaxis()->GetXmin() ), maxPtForEff( pf_eff_->GetYaxis()->GetXmax()-0.01 );
+    float ptForEff=TMath::Max(TMath::Min(tracks[k].Pt(),maxPtForEff),minPtForEff);
+    ptForEff=TMath::Max(5.,ptForEff);
+    Int_t ptBinForEff=pf_eff_->GetYaxis()->FindBin(ptForEff);
+
+    float sf=pf_eff_->GetBinContent(etaBinForEff,ptBinForEff);
+    
+    if (sf <= 1) {
+      if (random->Rndm() > sf) {
+        dropId[k] = -1;
+      }
+    }
   }
   
   delete random;

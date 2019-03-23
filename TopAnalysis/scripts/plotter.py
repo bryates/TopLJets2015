@@ -523,6 +523,7 @@ class Plot(object):
                 gr.Draw('p')
                 #gr.Fit("pol1", "", "", 5, 25)
                 #gr.Fit("pol1", "+", "", 25, 50)
+                #gr.Fit("pol1", "+", "", 50, 100)
                 #gr.Fit("pol1", "", "", -2.4, -1.5)
                 #gr.Fit("pol1", "+", "", -1.5, -0.8)
                 #gr.Fit("pol1", "+", "", -0.8, 0.8)
@@ -1004,7 +1005,8 @@ def main():
                                 #piWgtNorm=piWgtNorm**.5
                                 #piWgtNorm=1.
                                 #print piWgtNorm
-                                normGH=1.3#11; #derived from GH, needed in B-F after corrections
+                                normGH=1.11; #derived from GH, needed in B-F after corrections
+                                #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)

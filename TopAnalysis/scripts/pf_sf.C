@@ -7,7 +7,8 @@ void pf_sf() {
 TString base("/afs/cern.ch/user/b/byates/TopAnalysis/");
 TFile *f = new TFile(base + "data/era2016/pf_tracks.root","RECREATE");
 float b[] = {-2.4,-1.5,-0.8,-0.4,0,0.4,0.8,1.5,2.4};
-float bpt[] = {0,2,4,6,10,20,30,50,100,300};
+float bpt[] = {0,2,4,6,10,15,20,30,50,100,300};
+//float bpt[] = {0,2,4,6,10,20,30,50,100,300};
 //float bpt[] = {0,1,2,3,4,5,6,7,8,9,10,20,30,50,100,300};
 //float bpt[] = {0,1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100,200,300};
 TChain *dataB = new TChain("data");
@@ -63,17 +64,34 @@ ra->Write();
 hB->Reset();
 hG->Reset();
 
-dataB->Draw("d0_pi_pt:d0_pi_eta>>hB","meson_id==421","colz");
+
+hB->SetDirectory(f);
+hG->SetDirectory(f);
+
+dataB->Draw("d0_pi_pt:d0_pi_eta>>hB","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+TH2F *tmpB = (TH2F*)hB->Clone("tmpB");
+/*
+dataB->Draw("d0_k_pt:d0_pi_eta>>hB","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+hB->Add(tmpB);
+*/
 hB->SetName("d0piB");
 hB->SetTitle("D^{0} #pi");
 hB->Draw("colz text e");
 hB->Write();
+delete tmpB;
 
-dataG->Draw("d0_pi_pt:d0_pi_eta>>hG","meson_id==421","colz");
+dataG->Draw("d0_pi_pt:d0_pi_eta>>hG","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+TH2F *tmpG = (TH2F*)hG->Clone("tmpG");
+/*
+dataG->Draw("d0_k_pt:d0_pi_eta>>hG","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+hG->Add(tmpG);
+*/
 hG->SetName("d0piG");
 hG->SetTitle("D^{0} #pi");
 hG->Draw("colz text e");
 hG->Write();
+delete tmpG;
+ra = (TH2F*)hB->Clone();
 ra->Divide(hB, hG, 1./19712.86, 1./16146.178);
 ra->SetName("pi_eta_pt");
 ra->SetTitle("");
@@ -95,5 +113,22 @@ ra->SetMinimum(0.7);
 ra->SetMaximum(1.1);
 ra->Write();
 
+delete hB;
+delete hG;
+delete ra;
+/*
+TH1F *pfB = new TH1F("pfB","pfB",100,0,100);
+TH1F *pfG = new TH1F("pfG","pfG",100,0,100);
+dataB->Draw("pf_pt>>pfB","pf_pt<100","colz");
+dataG->Draw("pf_pt>>pfG","pf_pt<100","colz");
+TH1F *r1 = (TH1F*)pfB->Clone("");
+r1->Divide(pfB, pfG, 1./19712.86, 1./16146.178);
+r1->SetDirectory(0);
+r1->GetXaxis()->SetTitle("PF p_{T}");
+r1->GetYaxis()->SetTitle("N_{B-F} / N_{GH} 1/(L_{B-F} /L_{GH})");
+r1->Draw();
+*/
+delete dataB;
+delete dataG;
 f->Close();
 }

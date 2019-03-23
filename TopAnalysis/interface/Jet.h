@@ -127,6 +127,7 @@ class Jet {
   void addDz(int idx);
   inline void updateChargedPt(float pt_chB, float pt_chG) { chargedPtEp_[0] = pt_chB; chargedPtEp_[1] = pt_chG; }
   inline void setHadFlav(int hadflav) { hadflav_ = hadflav; }
+  inline void setJchCorrection(float j_corr) { j_corr_ = j_corr; }
   TLorentzVector &getVec();
   float &getCSV();
   float getPt();
@@ -142,6 +143,7 @@ class Jet {
   float getPz();
   float &getChargedPz();
   float &getPFPz();
+  float getJchCorrection();
   inline float getXb() { return xb_; }
   int &getGenJet();
   int &getJetIndex();
@@ -168,6 +170,7 @@ class Jet {
   float PFPz_;
   float PFP_;
   float xb_;
+  float j_corr_;
   int genJet_;
   int hadflav_;
   std::vector<pfTrack> trks_;

@@ -90,6 +90,15 @@ float &Jet::getPFP() { return PFP_; }
 float Jet::getPz() { return p4_.Pz(); }
 float &Jet::getChargedPz() { return chargedPz_; }
 float &Jet::getPFPz() { return PFPz_; }
+float Jet::getJchCorrection() {
+  /*
+  float tmpCorr(1.);
+  for(auto &it : getTracks())
+    tmpCorr *= it.getPtCorrection();
+  return tmpCorr;
+  */
+  return j_corr_;
+}
 int &Jet::getGenJet() { return genJet_; }
 int &Jet::getJetIndex() { return idx_; }
 int &Jet::getIndex(int idx) { return index_[idx]; }
