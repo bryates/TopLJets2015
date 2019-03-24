@@ -470,7 +470,7 @@ void RunTopKalman(TString filename,
       treeBCDEF.SetXsec(xsec);
       treeGH.SetXsec(xsec);
       int *piSFB = new int[ev.npf+50]();
-      int *sumChBidx = new int[ev.npf+50]();
+      int *sumChBidx = new int[ev.npf]();
       int *piSFG = new int[ev.npf+50]();
 
       //Apply top pT weight to ttbar events
@@ -745,7 +745,7 @@ void RunTopKalman(TString filename,
           allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
         }
         if(!isData && piSFB[ipf]>=0) { //FIXME
-          sumChBidx[k]++;
+          sumChBidx[ipf]++;
           pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
           //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         }
@@ -1655,16 +1655,17 @@ void RunTopKalman(TString filename,
                 //skip if dropped by pi tracking eff
                 if(shouldDrop[i]<0) keepRunB=false;
                 if(shouldDrop[j]<0) keepRunB=false;
-                /*
-                if(sumChBidx[piTracks[i].getIdx()] == 0)
-                  jet.updateChargedPt(jet.getChargedPt() + piTracks[i].Pt());
+                //add skipped PF track back into sumch
+                if(sumChBidx[piTracks[i].getIdx()] == 0) {
+                  jet.updateChargedPt(jet.getChargedPt(0) + piTracks[i].Pt(),
+                                      jet.getChargedPt(1));
                   sumChBidx[piTracks[i].getIdx()]++;
                 }
-                if(sumChBidx[piTracks[j].getIdx()] == 0)
-                  jet.updateChargedPt(jet.getChargedPt() + piTracks[j].Pt());
+                if(sumChBidx[piTracks[j].getIdx()] == 0) {
+                  jet.updateChargedPt(jet.getChargedPt(0) + piTracks[j].Pt(),
+                                      jet.getChargedPt(1));
                   sumChBidx[piTracks[j].getIdx()]++;
                 }
-                */
                 //if(piSFB[piTracks[i].getIdx()]<0) keepRunB=false;
                 //if(piSFB[piTracks[j].getIdx()]<0) keepRunB=false;
                 float ptsf = 1., etasf = 1.;
