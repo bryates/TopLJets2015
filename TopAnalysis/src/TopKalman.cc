@@ -727,6 +727,7 @@ void RunTopKalman(TString filename,
       float pisfB(1.), pisfG(1.);
       for(int ij=0; ij<ev.nj; ij++)
         j_pt_corrB[ij]=1.;
+        std::cout << "Jet" << std::endl;
       for(int ipf=0; ipf<ev.npf; ipf++) {
         if(ev.pf_fromPV[ipf]<2) continue;
         if(ev.pf_j[ipf]==-1) continue;
@@ -745,6 +746,7 @@ void RunTopKalman(TString filename,
           allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
         }
         if(!isData && piSFB[ipf]>=0) { //FIXME
+          std::cout << ev.pf_pt[ipf] << std::endl;
           sumChBidx[ipf]++;
           pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
           //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
@@ -1657,17 +1659,23 @@ void RunTopKalman(TString filename,
                 if(shouldDrop[j]<0) keepRunB=false;
                 //add skipped PF track back into sumch
                 if(sumChBidx[piTracks[i].getIdx()] == 0) {
-                  jet.updateChargedPt(jet.getChargedPt(0) + piTracks[i].Pt(),
-                                      jet.getChargedPt(1));
+                  float tmpSumCh(jet.getChargedPt(0));
+                  if(tmpSumCh==0.) keepRunB=false; //all others were dropped
+                  tmpSumCh += piTracks[i].Pt();
+                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
                   sumChBidx[piTracks[i].getIdx()]++;
                 }
                 if(sumChBidx[piTracks[j].getIdx()] == 0) {
-                  jet.updateChargedPt(jet.getChargedPt(0) + piTracks[j].Pt(),
-                                      jet.getChargedPt(1));
+                  float tmpSumCh(jet.getChargedPt(0) + piTracks[j].Pt());
+                  if(tmpSumCh==0.) keepRunB=false; //all others were dropped
+                  tmpSumCh += piTracks[j].Pt();
+                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
                   sumChBidx[piTracks[j].getIdx()]++;
                 }
-                //if(piSFB[piTracks[i].getIdx()]<0) keepRunB=false;
-                //if(piSFB[piTracks[j].getIdx()]<0) keepRunB=false;
+                /*
+                if(piSFB[piTracks[i].getIdx()]<0) keepRunB=false;
+                if(piSFB[piTracks[j].getIdx()]<0) keepRunB=false;
+                */
                 float ptsf = 1., etasf = 1.;
                 //customSF(piTracks[i], "BCDEF", ptsf, etasf, pf_eff_pi); //event weight from pi track only
                 //customSF(piTracks[j], "BCDEF", ptsf, etasf, pf_eff_pi); //trk weight for K track only
