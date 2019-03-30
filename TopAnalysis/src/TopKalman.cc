@@ -471,6 +471,7 @@ void RunTopKalman(TString filename,
       treeGH.SetXsec(xsec);
       int *piSFB = new int[ev.npf+50]();
       int *sumChBidx = new int[ev.npf]();
+      int *keep = new int[ev.nj]();
       int *piSFG = new int[ev.npf+50]();
 
       //Apply top pT weight to ttbar events
@@ -701,12 +702,13 @@ void RunTopKalman(TString filename,
       //Pion tracker SFs
       if(!isData) {
         std::map<TString, std::map<TString, std::vector<double> > > trackEffMap =  getTrackingEfficiencyMap(era);
+          applyTrackingEfficiencySF(ev, pf_eff, piSFB, passBit(runSysts,PI_BIT));
+        /*
         if(runSysts==0) {
           applyTrackingEfficiencySF(ev, pf_eff, piSFB);
           //applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["nominal"], trackEffMap["BCDEF"]["binning"], piSFB);
           //applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["nominal"], trackEffMap["GH"]["binning"], piSFG);
         }
-        /*
         else if(passBit(runSysts,PI_BIT)<0) {
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["BCDEF"]["down"], trackEffMap["BCDEF"]["binning"], piSFB);
           applyEtaDepTrackingEfficiencySF(ev, trackEffMap["GH"]["down"], trackEffMap["GH"]["binning"], piSFG);
@@ -727,7 +729,6 @@ void RunTopKalman(TString filename,
       float pisfB(1.), pisfG(1.);
       for(int ij=0; ij<ev.nj; ij++)
         j_pt_corrB[ij]=1.;
-        std::cout << "Jet" << std::endl;
       for(int ipf=0; ipf<ev.npf; ipf++) {
         if(ev.pf_fromPV[ipf]<2) continue;
         if(ev.pf_j[ipf]==-1) continue;
@@ -746,8 +747,8 @@ void RunTopKalman(TString filename,
           allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
         }
         if(!isData && piSFB[ipf]>=0) { //FIXME
-          std::cout << ev.pf_pt[ipf] << std::endl;
           sumChBidx[ipf]++;
+          keep[ev.pf_j[ipf]]++;
           pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
           //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         }
@@ -1586,7 +1587,7 @@ void RunTopKalman(TString filename,
           applyTrackingEfficiencySF(ev, pf_eff_pi, piSFB);
           */
           int *shouldDrop = new int[piTracks.size()]();
-          applyTrackingEfficiencySF(piTracks, pf_eff_pi, shouldDrop);
+          applyTrackingEfficiencySF(piTracks, pf_eff_pi, shouldDrop, passBit(runSysts,PI_BIT));
           for(size_t i = 0; i < piTracks.size(); i++) {
             if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) { //i<j b/c Kalman filter already loops over all i,j
@@ -1657,25 +1658,25 @@ void RunTopKalman(TString filename,
                 //skip if dropped by pi tracking eff
                 if(shouldDrop[i]<0) keepRunB=false;
                 if(shouldDrop[j]<0) keepRunB=false;
-                //add skipped PF track back into sumch
-                if(sumChBidx[piTracks[i].getIdx()] == 0) {
-                  float tmpSumCh(jet.getChargedPt(0));
-                  if(tmpSumCh==0.) keepRunB=false; //all others were dropped
-                  tmpSumCh += piTracks[i].Pt();
-                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
-                  sumChBidx[piTracks[i].getIdx()]++;
-                }
-                if(sumChBidx[piTracks[j].getIdx()] == 0) {
-                  float tmpSumCh(jet.getChargedPt(0) + piTracks[j].Pt());
-                  if(tmpSumCh==0.) keepRunB=false; //all others were dropped
-                  tmpSumCh += piTracks[j].Pt();
-                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
-                  sumChBidx[piTracks[j].getIdx()]++;
-                }
                 /*
                 if(piSFB[piTracks[i].getIdx()]<0) keepRunB=false;
                 if(piSFB[piTracks[j].getIdx()]<0) keepRunB=false;
                 */
+                //add skipped PF track back into sumch
+                if(sumChBidx[piTracks[i].getIdx()] == 0 && sumChBidx[piTracks[j].getIdx()] != 0) {
+                  float tmpSumCh(jet.getChargedPt(0));
+                  //if(tmpSumCh==0. && jet.getTracks().size()>2) keepRunB=false; //all others were dropped
+                  tmpSumCh += piTracks[i].Pt();
+                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
+                  sumChBidx[piTracks[i].getIdx()]++;
+                }
+                if(sumChBidx[piTracks[j].getIdx()] == 0 && sumChBidx[piTracks[i].getIdx()] != 0) {
+                  float tmpSumCh(jet.getChargedPt(0) + piTracks[j].Pt());
+                  //if(tmpSumCh==0.) keepRunB=false; //all others were dropped
+                  tmpSumCh += piTracks[j].Pt();
+                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
+                  sumChBidx[piTracks[j].getIdx()]++;
+                }
                 float ptsf = 1., etasf = 1.;
                 //customSF(piTracks[i], "BCDEF", ptsf, etasf, pf_eff_pi); //event weight from pi track only
                 //customSF(piTracks[j], "BCDEF", ptsf, etasf, pf_eff_pi); //trk weight for K track only

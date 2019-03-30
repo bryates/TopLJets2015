@@ -221,7 +221,7 @@ void applyEtaDepTrackingEfficiencySF(MiniEvent_t &ev, std::vector<double> sfs, s
 }
 
 //Testing data driven SFs
-void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id) {
+void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id, int syst) {
   if(ev.isData) return;
   
   TRandom* random = new TRandom3(0); // random seed
@@ -239,6 +239,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id) {
     Int_t ptBinForEff=pf_eff_->GetYaxis()->FindBin(ptForEff);
 
     float sf=pf_eff_->GetBinContent(etaBinForEff,ptBinForEff);
+    if(syst!=0) sf += syst*pf_eff_->GetBinError(etaBinForEff,ptBinForEff);
     
     if (sf <= 1) {
       //if (abs(ev.pf_id[k]) != 211) continue;
@@ -270,7 +271,7 @@ void applyTrackingEfficiencySF(MiniEvent_t &ev, TH2 *pf_eff_, int *id) {
   delete random;
 }
 
-void applyTrackingEfficiencySF(std::vector<pfTrack> &tracks, TH2 *pf_eff_, int *dropId) {
+void applyTrackingEfficiencySF(std::vector<pfTrack> &tracks, TH2 *pf_eff_, int *dropId, int syst) {
   const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
   TRandom* random = new TRandom3(0); // random seed
 
@@ -283,10 +284,11 @@ void applyTrackingEfficiencySF(std::vector<pfTrack> &tracks, TH2 *pf_eff_, int *
     
     float minPtForEff( pf_eff_->GetYaxis()->GetXmin() ), maxPtForEff( pf_eff_->GetYaxis()->GetXmax()-0.01 );
     float ptForEff=TMath::Max(TMath::Min(tracks[k].Pt(),maxPtForEff),minPtForEff);
-    ptForEff=TMath::Max(5.,ptForEff);
+    ptForEff=TMath::Max((float)5.,ptForEff);
     Int_t ptBinForEff=pf_eff_->GetYaxis()->FindBin(ptForEff);
 
     float sf=pf_eff_->GetBinContent(etaBinForEff,ptBinForEff);
+    if(syst!=0) sf += syst*pf_eff_->GetBinError(etaBinForEff,ptBinForEff);
     
     if (sf <= 1) {
       if (random->Rndm() > sf) {

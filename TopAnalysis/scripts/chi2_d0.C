@@ -33,6 +33,8 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
+    run_chi2_d0("down_PI");
+    run_chi2_d0("up_PI");
 /*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");

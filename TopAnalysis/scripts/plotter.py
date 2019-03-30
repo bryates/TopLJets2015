@@ -983,8 +983,8 @@ def main():
                                 elif(opt.run == "BCDEFGH" and lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
                                 if(lumi == "BCDEF" and "TTJets" in tag): topPtNorm=topPtNormBCDEF
                                 elif(lumi == "GH" and "TTJets" in tag): topPtNorm=topPtNormGH
-                                if(lumi == "BCDEF"): piWgtNorm=piNormBCDEF
-                                elif(lumi == "GH"): piWgtNorm=piNormGH
+                                #if(lumi == "BCDEF"): piWgtNorm=piNormBCDEF
+                                #elif(lumi == "GH"): piWgtNorm=piNormGH
                                 #if "_meson" not in obj.GetName(): piWgtNorm=1.
                                 lumi=lumiList[lumi]
                                 #if("TTJets" in tag): lumi=lumi*0.733417
