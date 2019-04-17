@@ -230,6 +230,8 @@ if(tune.Length() > 0) {
 data->Rebin();
 mc->Rebin();
 */
+data->GetXaxis()->SetRangeUser(0.1,1.);
+mc->GetXaxis()->SetRangeUser(0.1,1.);
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;

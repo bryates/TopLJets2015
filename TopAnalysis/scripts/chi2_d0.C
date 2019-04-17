@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(1);
+int epoch(2);
 bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
@@ -33,9 +33,6 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
-    run_chi2_d0("down_PI");
-    run_chi2_d0("up_PI");
-/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -53,7 +50,6 @@ void chi2_d0() {
   }
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
-*/
 
   json += ("],");
   std::cout << json << std::endl;
@@ -279,6 +275,8 @@ if(tune.Length() > 0) {
   //mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
 */
+data->GetXaxis()->SetRangeUser(0.1,1.);
+mc->GetXaxis()->SetRangeUser(0.1,1.);
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;

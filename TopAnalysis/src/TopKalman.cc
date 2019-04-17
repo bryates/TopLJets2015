@@ -274,9 +274,19 @@ void RunTopKalman(TString filename,
   fIn=TFile::Open(pfUrl);
   TH2 *pf_eff=(TH2 *)fIn->Get("eta_pt")->Clone();
   TH2 *pf_eff_pi=(TH2 *)fIn->Get("pi_eta_pt")->Clone("eta_pt_pi");
+  TH2 *pf_eff_k=(TH2 *)fIn->Get("k_eta_pt")->Clone("eta_pt_k");
   pf_eff->SetDirectory(0);
   pf_eff_pi->SetDirectory(0);
+  pf_eff_k->SetDirectory(0);
+  fIn->Close();
+  //new blank hist for plottinf pi
   TH2F *pi_pf_eff = (TH2F*)pf_eff->Clone("pi_eta_pt");
+  pfUrl=era+"/pf_tracks_jpsi.root";
+  fIn=TFile::Open(pfUrl);
+  gSystem->ExpandPathName(pfUrl);
+  TH2 *pf_eff_jpsi=(TH2 *)fIn->Get("eta_pt")->Clone();
+  pf_eff_jpsi->SetDirectory(0);
+  fIn->Close();
   TString epoch("BCDEF");
   bool isGood_(false);
   //Dirty hack to enforce data epoch
@@ -294,7 +304,6 @@ void RunTopKalman(TString filename,
   pi_pf_eff->SetTitle("pi_eta_pt_" + epoch);
   pi_pf_eff->Reset();
   pi_pf_eff->SetDirectory(0);
-  fIn->Close();
 
   //LIST OF SYSTEMATICS
   
@@ -1365,6 +1374,19 @@ void RunTopKalman(TString filename,
             }
           }
 
+          /*
+          float *pt_chargedB_jpsi = new float[ev.nj]();
+          int *sumChBidx = new int[ev.npf]();
+          applyTrackingEfficiencySF(ev, pf_eff, piSFB, passBit(runSysts,PI_BIT));
+          if(!isData && piSFB[ipf]>=0) { //FIXME
+            sumChBidx[ipf]++;
+            keep[ev.pf_j[ipf]]++;
+            pt_chargedB_jpsi[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+            //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+          }
+          int *shouldDrop = new int[ev.npf]();
+          applyTrackingEfficiencySF(ev, pf_eff_jpsi, shouldDrop, passBit(runSysts,PI_BIT));
+          */
           for(size_t i = 0; i < muTracks.size(); i++) { //0,1 is only ~35% of all J/Psi
             //FIXME for(size_t j = 0; j < muTracks.size(); j++) {
             for(size_t j = i+1; j < muTracks.size(); j++) {
@@ -1401,9 +1423,6 @@ void RunTopKalman(TString filename,
                 runBCDEF.SetPiTrk(sf);
                 treeBCDEF.SetPiTrk(sf);
                 treeBCDEF.SetSFs(tWgt*sf);
-                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
-                treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 sf=pisfG;
                 tWgt=1.;
                 if(!isData) {
@@ -1416,6 +1435,20 @@ void RunTopKalman(TString filename,
                 treeGH.SetSFs(tWgt*sf);
                 treeGH.SetPiTrk(sf);
                 */
+                bool keepRunB(true);
+                if(!isData) {
+                  /*
+                  if(shouldDrop[muTracks[i].getIdx()]<0) keepRunB=false;
+                  if(shouldDrop[muTracks[j].getIdx()]<0) keepRunB=false;
+                  */
+                  if(piSFB[muTracks[i].getIdx()]<0) keepRunB=false;
+                  if(piSFB[muTracks[j].getIdx()]<0) keepRunB=false;
+                }
+                if(keepRunB) {
+                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
+                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
+                treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                }
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "jpsi");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "jpsi", ev.event);//, frag);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
@@ -1449,6 +1482,7 @@ void RunTopKalman(TString filename,
               //muTracks.clear();
             } //end j
           } //end i
+          //delete[] shouldDrop;
           //evch.nj++;
         }
         if(evch.nmeson>0) cht->Fill();
@@ -1462,6 +1496,7 @@ void RunTopKalman(TString filename,
       //const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
       evch.nj=0;
       if(kalman.isMesonEvent()) { //FIXME can event have BOTH D and J/Psi?
+        //copy, not ref, as sum ch is changed per D^0
         for(auto &jet : kJetsVec) {
           //jet.setJchCorrection(j_pt_corrB[jet.getJetIndex()]);
           //if(jet.getPt()>150) continue;
@@ -1587,7 +1622,9 @@ void RunTopKalman(TString filename,
           applyTrackingEfficiencySF(ev, pf_eff_pi, piSFB);
           */
           int *shouldDrop = new int[piTracks.size()]();
+          int *shouldDropK = new int[piTracks.size()]();
           applyTrackingEfficiencySF(piTracks, pf_eff_pi, shouldDrop, passBit(runSysts,PI_BIT));
+          applyTrackingEfficiencySF(piTracks, pf_eff_k, shouldDropK, passBit(runSysts,PI_BIT));
           for(size_t i = 0; i < piTracks.size(); i++) {
             if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) { //i<j b/c Kalman filter already loops over all i,j
@@ -1656,8 +1693,8 @@ void RunTopKalman(TString filename,
               }
               if(!isData) {
                 //skip if dropped by pi tracking eff
-                if(shouldDrop[i]<0) keepRunB=false;
-                if(shouldDrop[j]<0) keepRunB=false;
+                if(shouldDrop[i]<0)  keepRunB=false;
+                if(shouldDropK[j]<0) keepRunB=false;
                 /*
                 if(piSFB[piTracks[i].getIdx()]<0) keepRunB=false;
                 if(piSFB[piTracks[j].getIdx()]<0) keepRunB=false;
@@ -1667,14 +1704,14 @@ void RunTopKalman(TString filename,
                   float tmpSumCh(jet.getChargedPt(0));
                   //if(tmpSumCh==0. && jet.getTracks().size()>2) keepRunB=false; //all others were dropped
                   tmpSumCh += piTracks[i].Pt();
-                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
+                  jet.updateChargedPt(tmpSumCh, pt_chargedG[jet.getJetIndex()]);
                   sumChBidx[piTracks[i].getIdx()]++;
                 }
                 if(sumChBidx[piTracks[j].getIdx()] == 0 && sumChBidx[piTracks[i].getIdx()] != 0) {
                   float tmpSumCh(jet.getChargedPt(0) + piTracks[j].Pt());
                   //if(tmpSumCh==0.) keepRunB=false; //all others were dropped
                   tmpSumCh += piTracks[j].Pt();
-                  jet.updateChargedPt(tmpSumCh, jet.getChargedPt(1));
+                  jet.updateChargedPt(tmpSumCh, pt_chargedG[jet.getJetIndex()]);
                   sumChBidx[piTracks[j].getIdx()]++;
                 }
                 float ptsf = 1., etasf = 1.;
@@ -1918,6 +1955,7 @@ void RunTopKalman(TString filename,
           //evch.nj++;
           delete[] trkIdx;
           delete[] shouldDrop;
+          delete[] shouldDropK;
         } //end jets loop
         if(evch.nmeson>0) cht->Fill();
         evch = {}; //reset just in case (to avoid duplicates)

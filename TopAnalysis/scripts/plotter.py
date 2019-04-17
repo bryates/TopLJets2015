@@ -521,6 +521,7 @@ class Plot(object):
                 gr.SetLineColor(self.data.GetLineColor())
                 gr.SetLineWidth(self.data.GetLineWidth())
                 gr.Draw('p')
+                #gr.Fit("pol0", "", "", 1, 25)
                 #gr.Fit("pol1", "", "", 5, 25)
                 #gr.Fit("pol1", "+", "", 25, 50)
                 #gr.Fit("pol1", "+", "", 50, 100)
@@ -1006,11 +1007,15 @@ def main():
                                 #piWgtNorm=1.
                                 #print piWgtNorm
                                 normGH=1.11; #derived from GH, needed in B-F after corrections
+                                #if "_meson" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11; #derived from GH, needed in B-F after corrections
+                                if "_jpsi" in obj.GetName() and opt.run == "GH": normGH=1.02; #derived from GH, needed in B-F after corrections
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
-                            if("JPsioJet" in obj.GetName()): obj.Rebin(2)
+                            if("JPsioJet" in obj.GetName()): obj.Rebin(4)
+                            if("j_pt_ch_all_jpsi" in obj.GetName()): obj.Rebin(2)
+                            if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu1_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu2_pt" in obj.GetName()): obj.Rebin(2)
                             over=True

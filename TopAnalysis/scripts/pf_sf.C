@@ -24,7 +24,7 @@ gStyle->SetPaintTextFormat("4.2g");
 int nb = sizeof(b)/sizeof(float);
 int nbpt = sizeof(bpt)/sizeof(float);
 TH2F *hB = new TH2F("hB","hB", nb-1, b, nbpt-1, bpt);
-hB->Sumw2();
+//hB->Sumw2();
 dataB->Draw("pf_pt:pf_eta>>hB","","colz");
 hB->Draw("colz text e");
 hB->Write();
@@ -34,7 +34,7 @@ dataG->Add(base+"LJets2015/2016/eta/Chunks/Data13TeV_*_2016G_*");
 dataG->Add(base+"LJets2015/2016/eta/Chunks/Data13TeV_*_2016H_v*_*");
 
 TH2F *hG = new TH2F("hG","hG", nb-1, b, nbpt-1, bpt);
-hG->Sumw2();
+//hG->Sumw2();
 dataG->Draw("pf_pt:pf_eta>>hG","","colz");
 hG->Draw("colz text e");
 hG->Write();
@@ -111,6 +111,64 @@ for(int i = ra->GetYaxis()->GetNbins(); i > 0; i--) {
 ra->Draw("colz text e");
 ra->SetMinimum(0.7);
 ra->SetMaximum(1.1);
+ra->Write();
+
+
+hB->Reset();
+hG->Reset();
+
+delete hB;
+delete hG;
+hB = new TH2F("hB","hB", nb-1, b, nbpt-1, bpt);
+hG = new TH2F("hG","hG", nb-1, b, nbpt-1, bpt);
+
+hB->SetDirectory(f);
+hG->SetDirectory(f);
+
+dataB->Draw("d0_k_pt:d0_k_eta>>hB","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+tmpB = (TH2F*)hB->Clone("tmpB");
+/*
+dataB->Draw("d0_k_pt:d0_k_eta>>hB","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+hB->Add(tmpB);
+*/
+hB->SetName("d0kB");
+hB->SetTitle("D^{0} K");
+hB->Draw("colz text e");
+hB->Write();
+delete tmpB;
+
+dataG->Draw("d0_k_pt:d0_k_eta>>hG","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+tmpG = (TH2F*)hG->Clone("tmpG");
+/*
+dataG->Draw("d0_k_pt:d0_k_eta>>hG","meson_id==421 && (d0_mass<1.824 || d0_mass>1.904)","colz");
+hG->Add(tmpG);
+*/
+hG->SetName("d0kG");
+hG->SetTitle("D^{0} K");
+hG->Draw("colz text e");
+hG->Write();
+delete tmpG;
+ra = (TH2F*)hB->Clone();
+ra->Divide(hB, hG, 1./19712.86, 1./16146.178);
+ra->SetName("k_eta_pt");
+ra->SetTitle("");
+ra->GetXaxis()->SetTitle("N_{B-F} / N_{GH} 1/(L_{B-F} /L_{GH}) D^{0} K #eta");
+ra->GetYaxis()->SetTitle("N_{B-F} / N_{GH} 1/(L_{B-F} /L_{GH}) D^{0} K p_{T}");
+//Testing errors, ROOT seems to be correct if Sumw2 is OFF
+for(int i = ra->GetYaxis()->GetNbins(); i > 0; i--) {
+  for(int j = 1; j < ra->GetXaxis()->GetNbins(); j++) {
+    int bin = ra->GetBin(j,i);
+    float Nb = hB->GetBinContent(bin);
+    float Ng = hG->GetBinContent(bin);
+    float Nr = ra->GetBinContent(bin);
+    float sig = Nr * sqrt(1./Nb + 1/Ng);
+    ra->SetBinError(bin, sig);
+  }
+}
+ra->Draw("colz text e");
+ra->SetMinimum(0.7);
+ra->SetMaximum(1.1);
+ra->SetDirectory(f);
 ra->Write();
 
 delete hB;
