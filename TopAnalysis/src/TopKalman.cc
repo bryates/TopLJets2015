@@ -161,12 +161,13 @@ void RunTopKalman(TString filename,
 
   cout << "...producing " << outname << " from " << nentries << " events" << (runSysts ? " syst variations will be considered" : "") << endl;
 
-  if(abs(passBit(runSysts,TRIGGER_BIT))) std::cout << "running trigger systematics" << std::endl;
-  if(abs(passBit(runSysts,LEP_BIT))) std::cout << "running lepton selection systematics" << std::endl;
-  //if(abs(passBit(runSysts,TRK_BIT))) std::cout << "running tracker efficiency systematics" << std::endl;
-  if(abs(passBit(runSysts,PU_BIT))) std::cout << "running PU systematics" << std::endl;
-  if(abs(passBit(runSysts,PI_BIT))) std::cout << "running pi systematics" << std::endl;
-  if(abs(passBit(runSysts,JER_BIT))) std::cout << "running JER systematics" << std::endl;
+  TString updown = runSysts > 0 ? "up" : "down";
+  if(abs(passBit(runSysts,TRIGGER_BIT))) std::cout << TString::Format("running %s trigger systematics", updown.Data()) << std::endl;
+  if(abs(passBit(runSysts,LEP_BIT))) std::cout << TString::Format("running %s lepton selection systematics", updown.Data()) << std::endl;
+  //if(abs(passBit(runSysts,TRK_BIT))) std::cout << TString::Format("running tracker %s efficiency systematics", updown.Data()) << std::endl;
+  if(abs(passBit(runSysts,PU_BIT))) std::cout << TString::Format("running %s PU systematics", updown.Data()) << std::endl;
+  if(abs(passBit(runSysts,PI_BIT))) std::cout << TString::Format("running %s pi systematics", updown.Data()) << std::endl;
+  if(abs(passBit(runSysts,JER_BIT))) std::cout << TString::Format("running %s JER systematics", updown.Data()) << std::endl;
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
@@ -852,7 +853,7 @@ void RunTopKalman(TString filename,
 	  //save jet
           //FIXME
           //Jet tmpj(jp4, ev.j_csv[k], k, pt_charged, ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
-          Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k]/ev.j_rawsf[k], ev.j_pz_charged[k]/ev.j_rawsf[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
           tmpj.updateChargedPt(pt_chargedB[k],pt_chargedG[k]);
           //delete[] pt_charged;
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
@@ -1624,7 +1625,7 @@ void RunTopKalman(TString filename,
           int *shouldDrop = new int[piTracks.size()]();
           int *shouldDropK = new int[piTracks.size()]();
           applyTrackingEfficiencySF(piTracks, pf_eff_pi, shouldDrop, passBit(runSysts,PI_BIT));
-          applyTrackingEfficiencySF(piTracks, pf_eff_k, shouldDropK, passBit(runSysts,PI_BIT));
+          //applyTrackingEfficiencySF(piTracks, pf_eff_k, shouldDropK, passBit(runSysts,PI_BIT));
           for(size_t i = 0; i < piTracks.size(); i++) {
             if(i > tmax) break;
             for(size_t j = i+1; j < piTracks.size(); j++) { //i<j b/c Kalman filter already loops over all i,j
@@ -1693,8 +1694,8 @@ void RunTopKalman(TString filename,
               }
               if(!isData) {
                 //skip if dropped by pi tracking eff
-                if(shouldDrop[i]<0)  keepRunB=false;
-                if(shouldDropK[j]<0) keepRunB=false;
+                if(shouldDrop[i]<0) keepRunB=false;
+                if(shouldDrop[j]<0) keepRunB=false;
                 /*
                 if(piSFB[piTracks[i].getIdx()]<0) keepRunB=false;
                 if(piSFB[piTracks[j].getIdx()]<0) keepRunB=false;
@@ -1886,7 +1887,9 @@ void RunTopKalman(TString filename,
                 }
                 std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
                 //tmp_cands.push_back( track );
-                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                //keepRunB=true;
+                if(!isData && piSFB[track.getIdx()]<0) keepRunB=false;
+                if(keepRunB) runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 std::vector<pfTrack> tmp_match;
                 /*

@@ -278,15 +278,17 @@ void applyTrackingEfficiencySF(std::vector<pfTrack> &tracks, TH2 *pf_eff_, int *
   for(unsigned int k = 0; k < tracks.size(); k++) {
     if(abs(tracks[k].Eta()) > 1.5) continue;
     TString type(pf_eff_->GetName());
+    /*
     if(type.Contains("pi") && tracks[k].M()!=gMassPi) continue; //pi only
     else if(type.Contains("k") && tracks[k].M()!=gMassK) continue; //K only
+    */
     float minEtaForEff( pf_eff_->GetXaxis()->GetXmin() ), maxEtaForEff( pf_eff_->GetXaxis()->GetXmax()-0.01 );
     float etaForEff=TMath::Max(TMath::Min(tracks[k].Eta(),maxEtaForEff),minEtaForEff);
     Int_t etaBinForEff=pf_eff_->GetXaxis()->FindBin(etaForEff);
     
     float minPtForEff( pf_eff_->GetYaxis()->GetXmin() ), maxPtForEff( pf_eff_->GetYaxis()->GetXmax()-0.01 );
     float ptForEff=TMath::Max(TMath::Min(tracks[k].Pt(),maxPtForEff),minPtForEff);
-    ptForEff=TMath::Max((float)5.,ptForEff);
+    //ptForEff=TMath::Max((float)5.,ptForEff);
     Int_t ptBinForEff=pf_eff_->GetYaxis()->FindBin(ptForEff);
 
     float sf=pf_eff_->GetBinContent(etaBinForEff,ptBinForEff);

@@ -52,9 +52,10 @@ class Plot(object):
         self.savelog = False
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
-        if "_jpsi" in name or "_meson" in name:
+        #if "_jpsi" in name or "_meson" in name:
+        if "_jpsi" in name:
             self.ratiorange = (0.47,1.57)
-        self.ratiorange = (0.76,1.24)
+        #self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst, rbList):
         ## hack to fix impact parameter range (cm -> um) ##
@@ -368,8 +369,10 @@ class Plot(object):
             totalMCUncShape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             totalMCUncShape.SetFillStyle(3254)
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                totalMCUncShape.SetBinContent(xbin, totalMCUncShape.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
-                totalMCUncShape.SetBinError(xbin, math.sqrt(totalMCUncShape.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
+                totalMCUncShape.SetBinContent(xbin, totalMC.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
+                #totalMCUncShape.SetBinContent(xbin, totalMCUncShape.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
+                totalMCUncShape.SetBinError(xbin, math.sqrt(totalMC.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
+                #totalMCUncShape.SetBinError(xbin, math.sqrt(totalMCUncShape.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
             self.totalMCUnc = totalMCUnc
             self.totalMCUncShape = totalMCUncShape
 
@@ -413,6 +416,10 @@ class Plot(object):
             if noStack: stack.Draw('nostack same')
             else      : 
                stack.Draw('hist same')
+               totalMC.SetFillStyle(3254)
+               totalMC.SetFillColor(ROOT.kBlack)
+               totalMC.Draw("e2 same")
+               leg.AddEntry(totalMC, "Total MC stat unc.", 'f')
                if len(self.mcsyst)>0:
                    #self.totalMCUnc.Draw("hist same")
                    #self.totalMCUnc.Draw("e2 same")
@@ -507,6 +514,14 @@ class Plot(object):
                 ratio.SetDirectory(0)
                 self._garbageList.append(ratio)
                 ratio.Divide(totalMC)
+                statMC=totalMC.Clone('statMC')
+                for xbin in xrange(1,statMC.GetNbinsX()+1):
+                    val = statMC.GetBinContent(xbin)
+                    if val == 0.: val = 1.
+                    statMC.SetBinError(xbin, statMC.GetBinError(xbin)/val)
+                    #statMC.SetBinContent(xbin,self.totalMCUncShape.GetBinContent(xbin)/val)
+                    statMC.SetBinContent(xbin,1.)
+                statMC.Draw("e2 same")
                 #for xbin in xrange(1,ratio.GetNbinsX()+1):
                     #if totalMC.GetBinContent(xbin) > 0.:
                         #ratio.SetBinError(xbin, ratio.GetBinError(xbin)/totalMC.GetBinContent(xbin))
@@ -521,7 +536,7 @@ class Plot(object):
                 gr.SetLineColor(self.data.GetLineColor())
                 gr.SetLineWidth(self.data.GetLineWidth())
                 gr.Draw('p')
-                #gr.Fit("pol0", "", "", 1, 25)
+                gr.Fit("pol0", "", "", 0, 100)
                 #gr.Fit("pol1", "", "", 5, 25)
                 #gr.Fit("pol1", "+", "", 25, 50)
                 #gr.Fit("pol1", "+", "", 50, 100)
@@ -1007,15 +1022,19 @@ def main():
                                 #piWgtNorm=1.
                                 #print piWgtNorm
                                 normGH=1.11; #derived from GH, needed in B-F after corrections
-                                #if "_meson" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11; #derived from GH, needed in B-F after corrections
-                                if "_jpsi" in obj.GetName() and opt.run == "GH": normGH=1.02; #derived from GH, needed in B-F after corrections
-                                #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
+                                if "_meson" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.06; #derived from GH, needed in B-F after corrections
+                                elif "_meson" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11; #derived from GH, needed in B-F after corrections
+                                elif "_jpsi" in obj.GetName() and opt.run == "GH": normGH=1.01; #derived from GH, needed in B-F after corrections
+                                if "_mu_tag" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11;
+                                elif "_mu_tag" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.06;
+                                #if "_mu_tag" in obj.GetName(): normGH=0.92;
+                                ##obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("JPsioJet" in obj.GetName()): obj.Rebin(4)
                             if("j_pt_ch_all_jpsi" in obj.GetName()): obj.Rebin(2)
-                            if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
+                            #if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu1_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu2_pt" in obj.GetName()): obj.Rebin(2)
                             over=True

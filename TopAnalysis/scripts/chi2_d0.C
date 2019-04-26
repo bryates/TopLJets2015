@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(2);
+int epoch(1);
 bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
@@ -33,6 +33,7 @@ RooRealVar ptfrac;
 
 void chi2_d0() {
   run_chi2_d0("");
+/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -50,6 +51,7 @@ void chi2_d0() {
   }
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
+*/
 
   json += ("],");
   std::cout << json << std::endl;
@@ -105,6 +107,7 @@ for(auto & it : tune) {
 chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
+  chiTest->GetYaxis()->SetRangeUser(0,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
@@ -123,9 +126,9 @@ if(lumi<100)
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)", (lumi) ));
 else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
-((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
+((TF1*)(gROOT->GetFunction("pol4")))->SetParameters(1., 1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+chiTest->Fit("pol4","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -135,10 +138,10 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.7,1.0);
+float min = chiTest->GetFunction("pol4")->GetMinimumX(0.7,1.0);
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
-float chimin = chiTest->GetFunction("pol3")->Eval(min);
-float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.7,1.0);
+float chimin = chiTest->GetFunction("pol4")->Eval(min);
+float err = chiTest->GetFunction("pol4")->GetX(chimin+1,0.7,1.0);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
@@ -185,6 +188,7 @@ else
 fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+//if(tune.Length()>0) fname.ReplaceAll("_sPlot","_sPlot_test");
 std::cout << fname << std::endl;
 fmc = TFile::Open(fname);
 //TFile *fmc = TFile::Open(TString::Format("TopMass_ueup%s_sPlot_d0.root",tune.Data()));
@@ -277,7 +281,7 @@ if(tune.Length() > 0) {
 */
 data->GetXaxis()->SetRangeUser(0.1,1.);
 mc->GetXaxis()->SetRangeUser(0.1,1.);
-float chi2 = data->Chi2Test(mc, "CHI2 WW");
+float chi2 = data->Chi2Test(mc, "CHI2 NORM WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;
