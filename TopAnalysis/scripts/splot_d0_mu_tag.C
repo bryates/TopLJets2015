@@ -48,7 +48,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/Chunks/");
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp")) { //ISR,FSR,CR,UE
@@ -84,12 +84,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/" + tmp + "/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
-    TFile *gen;
-    if(!syst) gen = new TFile("/eos/cms/store/user/byates/top18012/genweights.root");
-    else gen = new TFile("/eos/cms/store/user/byates/top18012/genweights_syst.root");
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
     if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
@@ -97,7 +94,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_m"+mass,"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
-    if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
       //TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
       TString mcname(dir);
@@ -107,6 +104,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
       TString normname(dir+"../"+it+".root");
+      //isr-up only ext
+      if(normname.Contains("isr-up")) normname.ReplaceAll(".root", "_ext.root");
       TFile *f = new TFile(normname); //get correction histograms
       TH1F *pu1 = (TH1F*) f->Get("puwgtctr_BCDEF");
       TH1F *pu2 = (TH1F*) f->Get("puwgtctr_GH");
@@ -206,8 +205,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.d0_mass[j] > 2.0) continue;
       if(ep>0 && ev.epoch[j] != ep) continue;
       if(!jpT && 0) {
-        if(ev.j_pt[j]>150) continue;
-        //if(ev.j_pt_charged[j]>75) continue;
+        //if(ev.j_pt[j]>150) continue;
+        if(ev.j_pt_charged[j]>100) continue;
       }
       /*
       else
@@ -231,7 +230,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       float scale = 1.;
       tuneW.setVal(1.);
       if(!isData) {
-        std::cout << ev.xsec << std::endl;
         scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt * jerSF;// * topSF * puSF;
         if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
@@ -465,7 +463,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   frame->Draw();
 
-  int binning(22);
+  int binning(44);
   if(jpT) binning = 22;
 
   /*

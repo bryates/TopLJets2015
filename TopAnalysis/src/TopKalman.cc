@@ -1625,6 +1625,8 @@ void RunTopKalman(TString filename,
           int *shouldDrop = new int[piTracks.size()]();
           int *shouldDropK = new int[piTracks.size()]();
           applyTrackingEfficiencySF(piTracks, pf_eff_pi, shouldDrop, passBit(runSysts,PI_BIT));
+          size_t *isUsedB = new size_t[piTracks.size()]();
+          size_t *isUsedG = new size_t[piTracks.size()]();
           //applyTrackingEfficiencySF(piTracks, pf_eff_k, shouldDropK, passBit(runSysts,PI_BIT));
           for(size_t i = 0; i < piTracks.size(); i++) {
             if(i > tmax) break;
@@ -1804,13 +1806,20 @@ void RunTopKalman(TString filename,
                   allPlots["massD0_4j_all"]->Fill(mass12,wgt);
                 }
 
+                bool keepRunG(true);
+                //Check if both pi and K already used in loop (remove ij -> ji duplicates)
+                if(isUsedB[i] == j) keepRunB=false;
+                if(isUsedG[i] == j) keepRunG=false;
+
                 if(keepRunB) runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 if(keepRunB) treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                if(keepRunG) runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                if(keepRunG) treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                if(keepRunB) isUsedB[i] = j;
+                isUsedG[i] = j;
                 if(isTTbar) {
                   if(keepRunB) runBCDEF.FillGen(tops, chTag, "meson");
-                  runGH.FillGen(tops, chTag, "meson");
+                  if(keepRunG) runGH.FillGen(tops, chTag, "meson");
                 }
                 std::vector<pfTrack> tmp_match;
                 if(!isData && pfMatched.size() >1 && 0) {
@@ -1820,7 +1829,7 @@ void RunTopKalman(TString filename,
                       //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
 
                       if(keepRunB) runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
-                      runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                      if(keepRunG) runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
                     }
                   }
                 }
@@ -1829,25 +1838,25 @@ void RunTopKalman(TString filename,
                     for(size_t j = 0; j < pfReject.size(); j++) {
                       tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
                       if(keepRunB) runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
-                      runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                      if(keepRunG) runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
                     }
                   }
                 }
                 /*
                 if(genIdx>-1) {  
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
-                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
+                  if(keepRunG) treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match, frag, genJet);
                 }
                 else {
                   treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
-                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
+                  if(keepRunG) treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 }
                 */
 
                 if(keepRunB) runBCDEF.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
                 if(keepRunB) treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
-                runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
-                treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                if(keepRunG) runGH.Fill(1, ev.nvtx, htsum, stsum, ev.met_pt[0], chTag, "meson");
+                if(keepRunG) treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
 	        allPlots["HT"+chTag+"_meson"]->Fill(htsum,wgt);
 	        allPlots["HT_all_meson"]->Fill(htsum,wgt);
 	        allPlots["H"+chTag+"_meson"]->Fill(hsum,wgt);
@@ -1859,7 +1868,7 @@ void RunTopKalman(TString filename,
                 //Only run once (i.e. in first jet from collection)
                 if(&jet == &kJetsVec.front()) {
                   if(keepRunB) runBCDEF.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
-                  runGH.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
+                  if(keepRunG) runGH.Fill(leptons,lightJetsVec,kJetsVec,allJetsVec, chTag, "meson");
                 }
               //D^0 + mu for flavor tagging
               } //end extra cuts within D^0 window

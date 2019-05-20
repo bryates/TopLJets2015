@@ -25,15 +25,70 @@ int epoch(0);
 bool fullpt(0);
 TString epoch_name[3] = {"", "_BCDEF", "_GH"};
 
+TCanvas *c1 = setupCanvas();
 TString report("");
 TString json("\"d0_mu\" :   [");
-float chi2_d0_mu_tag_test(TString tune="", TString name="");
+float chi2_d0_mu_tag_test(TString tune="", TString name="", float num=0.855);
 void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
 
+void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
+TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+TFile *fdata = TFile::Open(fname);
+if(name.Length()==0)
+fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
+else
+fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+TFile *fmc = TFile::Open(fname);
+
+RooPlot *tmp = nullptr;
+tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+if(tmp==nullptr) {std::cout << fname << std::endl; return;}
+delete tmp;
+RooBinning bins(0,1.1);
+float bin[] = {0, 0.2, 0.4, 0.6, 0.7, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0, 1.1};
+//float bin[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0, 1.1};
+for(int i = 0; i < sizeof(bin)/sizeof(float); i++) {
+ bins.addBoundary(bin[i]);
+}
+tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
+((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+//mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+mc = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+mc->SetDirectory(0);
+mc->SetTitle(mc->GetName());
+tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
+((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+TH1F *mc2 = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+mc->Add(mc2);
+delete tmp;
+tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+delete tmp;
+tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
+((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+//data = (TH1F*)convert(tmp, norm, 0, 1.1);
+data = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+data->SetDirectory(0);
+data->SetTitle(data->GetName());
+tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
+((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+TH1F *data2 = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+data->Add(data2);
+delete tmp;
+
+fdata->Close();
+fmc->Close();
+delete fdata;
+delete fmc;
+}
+
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
-  /*
+/*
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
@@ -41,8 +96,8 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("uedown");
   run_chi2_d0_mu_tag("ueup");
   //run_chi2_d0_mu_tag("erdON");
-  run_chi2_d0_mu_tag("GluonMove_erdON");
-  //run_chi2_d0_mu_tag("QCD_erdON");
+  //run_chi2_d0_mu_tag("GluonMove_erdON");
+  run_chi2_d0_mu_tag("QCD_erdON");
   std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
   //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
@@ -51,9 +106,7 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
-  run_chi2_d0_mu_tag("m171v5");
-  run_chi2_d0_mu_tag("m173v5");
-  */
+*/
 
   json += ("],");
   std::cout << json << std::endl;
@@ -82,7 +135,6 @@ std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_c
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
 //TCanvas *c1 = new TCanvas("c1","c1");
-TCanvas *c1 = setupCanvas();
 TH1F *chiTest = new TH1F("chiTest_"+name,TString::Format("chiTest_%s",name.Data()),400,0,2);
 chiTest->Sumw2();
 //chiTest->SetDirectory(0);
@@ -93,7 +145,7 @@ for(auto & it : tune) {
   if(epoch==1 && param[pos]==0.875) continue; //FIXME
   if(name.Contains("m173v5") and it == "") continue; //FIXME
   std::cout << "Running on tune: " << it << std::endl;
-  float chi = chi2_d0_mu_tag_test(it, name);
+  float chi = chi2_d0_mu_tag_test(it, name, param[pos]);
   if(isnan(chi)) continue;
   if(chi<low) low = chi;
   if(chi>high) high = chi;
@@ -113,7 +165,8 @@ chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 std::cout << chiTest->GetName() << std::endl;
 std::cout << chiTest->GetTitle() << std::endl;
-tdr(chiTest);
+tdr(chiTest,epoch);
+/*
 TLatex txt;
 txt.SetNDC(true);
 txt.SetTextFont(43);
@@ -126,6 +179,7 @@ if(lumi<100)
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)", (lumi) ));
 else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
+*/
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 if(fullpt)
@@ -141,11 +195,11 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.7,1.0);
+float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.0);
 chiTest->GetFunction("pol3")->Print("v");
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
-float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.7,1.0);
+float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.0);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
@@ -177,10 +231,10 @@ c1->SaveAs("chi2_d0_mu_tag"+name+".png");
 delete pt;
 chiTest->Delete();
 //delete chiTest;
-delete c1;
+//delete c1;
 }
 
-float chi2_d0_mu_tag_test(TString tune="", TString name="") {
+float chi2_d0_mu_tag_test(TString tune="", TString name="", float num=0.855) {
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
@@ -226,12 +280,59 @@ if(tune.Length() > 0) {
   //mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
 }
 */
+//TH1F *data, *mc;
+if(epoch>0) {
+getHist(name, tune, data, mc, epoch);
+}
+else {
+getHist(name, tune, data, mc, 1, false);
+TH1F *data2, *mc2;
+getHist(name, tune, data2, mc2, 2, false);
+data->Add(data2);
+mc->Add(mc2);
+delete data2;
+delete mc2;
+
 /*
-data->Rebin();
-mc->Rebin();
+if(tune=="" && name=="") {
+TCanvas *c1 = setupCanvas();
+TPad *p1 = setupPad();
+p1->cd();
+data->Draw();
+gStyle->SetOptStat(0);
+tdr(data,0);
+data->SetMarkerStyle(20);
+data->SetMarkerColor(kBlack);
+data->SetLineColor(kBlack);
+data->SetLineWidth(2);
+c1->SaveAs("ptfrac_signal_Data_"+name+"d0.pdf");
+c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
+
+}
 */
-data->GetXaxis()->SetRangeUser(0.1,1.);
-mc->GetXaxis()->SetRangeUser(0.1,1.);
+
+data->Scale(1./data->Integral());
+mc->Scale(1./mc->Integral());
+}
+//data->GetXaxis()->SetRangeUser(0.2,1.);
+//mc->GetXaxis()->SetRangeUser(0.2,1.);
+data->SetLineColor(kBlack);
+data->SetMarkerColor(kBlack);
+data->SetMarkerStyle(20);
+data->SetLineWidth(2);
+mc->SetLineColor(kRed);
+mc->SetMarkerColor(kRed);
+mc->GetYaxis()->SetRangeUser(0.,.2);
+data->GetYaxis()->SetRangeUser(0.,.2);
+gStyle->SetOptStat(0);
+mc->Draw("hist");
+mc->Draw("same e");
+data->Draw("same");
+if(num==0) num=0.855;
+if(name=="") name="172v5";
+mc->SetTitle(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
+c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu.pdf");
+c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu.png");
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;

@@ -334,7 +334,6 @@ class Plot(object):
             for hname,h in self.mcsyst.iteritems():
                 name = hname.split(" ")[0]
                 integral=self.mc[name].Integral()
-                print name, integral
                 if(h.Integral>0): h.Scale(integral/h.Integral())
                 #if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
             systUpShape=[0.]
@@ -383,7 +382,6 @@ class Plot(object):
                 if self.dataH.Integral()==0: return
         elif self.dataH is None : return
         elif self.dataH.Integral()==0 : return 
-        print self.dataH.Integral()
 
 
         frame = totalMC.Clone('frame') if totalMC is not None else self.dataH.Clone('frame')
@@ -416,8 +414,8 @@ class Plot(object):
             if noStack: stack.Draw('nostack same')
             else      : 
                stack.Draw('hist same')
-               totalMC.SetFillStyle(3254)
                totalMC.SetFillColor(ROOT.kBlack)
+               totalMC.SetFillStyle(3245)
                totalMC.Draw("e2 same")
                leg.AddEntry(totalMC, "Total MC stat unc.", 'f')
                if len(self.mcsyst)>0:
@@ -536,7 +534,7 @@ class Plot(object):
                 gr.SetLineColor(self.data.GetLineColor())
                 gr.SetLineWidth(self.data.GetLineWidth())
                 gr.Draw('p')
-                gr.Fit("pol0", "", "", 0, 100)
+                #gr.Fit("pol0", "", "", 0, 100)
                 #gr.Fit("pol1", "", "", 5, 25)
                 #gr.Fit("pol1", "+", "", 25, 50)
                 #gr.Fit("pol1", "+", "", 50, 100)
@@ -1026,13 +1024,15 @@ def main():
                                 elif "_meson" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11; #derived from GH, needed in B-F after corrections
                                 elif "_jpsi" in obj.GetName() and opt.run == "GH": normGH=1.01; #derived from GH, needed in B-F after corrections
                                 if "_mu_tag" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11;
-                                elif "_mu_tag" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.06;
+                                elif "_mu_tag" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.04;
+                                elif "_mu_tag" in obj.GetName() and op.run == "GH" : normGH=0.91;
                                 #if "_mu_tag" in obj.GetName(): normGH=0.92;
                                 ##obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
-                            if("JPsioJet" in obj.GetName()): obj.Rebin(4)
+                            if("D0_mu_tag_mu_oJet" in obj.GetName()): obj.GetXaxis().SetRangeUser(0,1.)
+                            if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                             if("j_pt_ch_all_jpsi" in obj.GetName()): obj.Rebin(2)
                             #if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu1_pt" in obj.GetName()): obj.Rebin(2)

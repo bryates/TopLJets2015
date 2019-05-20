@@ -7,7 +7,7 @@ import os
 #jsonFile = open('data/era2016/rbFit.range','r')
 #jsonFile = open('data/era2016/rbFit.range2','r')
 #jsonFile = open('data/era2016/rbFit.pt','r')
-jsonFile = open('data/era2016/rbFit.json2','r')
+jsonFile = open('data/era2016/rbFit.json','r')
 rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
 jsonFile.close()
 
@@ -36,7 +36,7 @@ d0=0
 d0mu=1
 jpsi=2
 
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']
 #syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 report='('
@@ -90,20 +90,25 @@ while i < len(syst):
     
     if syst[i] == 'Color reconnection':
         print(syst[i], ' & ', end='')
-        print('%.3f$\pm$%.3f & ' % (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
-        print('%.3f$\pm$%.3f & ' % (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
-        print('%.3f$\pm$%.3f '   % (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
+        #print('%.3f$\pm$%.3f & ' % (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
+        print('%.3f & ' % (rbList[0][1][0]-rbList[0][1][j]), end='')
+        print('%.3f & ' % (rbList[1][1][0]-rbList[1][1][j]), end='')
+        print('%.3f '   % (rbList[2][1][0]-rbList[2][1][j]), end='')
         i+=1
         j+=2
     else:
         print(syst[i], ' & ', end='')
-        print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
-        print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j+2]-rbList[1][1][0], pow(abs(rbList[1][1][j+3]**2-rbList[1][1][1]**2),0.5)), end='')
-        print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j+2]-rbList[2][1][0], pow(abs(rbList[2][1][j+3]**2-rbList[2][1][1]**2),0.5)), end='')
+        #print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
+        #print up
+        print('%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0]), end='')
+        print('%.3f & ' %     (rbList[1][1][j+2]-rbList[1][1][0]), end='')
+        print('%.3f \\\\\n' % (rbList[2][1][j+2]-rbList[2][1][0]), end='')
         print(syst[i+1], ' & ', end='')
-        print('%.3f$\pm$%.3f & ' % (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
-        print('%.3f$\pm$%.3f & ' % (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
-        print('%.3f$\pm$%.3f ' %   (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
+        #print('%.3f$\pm$%.3f & ' % (rbList[0][1][0]-rbList[0][1][j], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
+        #print down
+        print('%.3f & ' % (rbList[0][1][j]-rbList[0][1][0]), end='')
+        print('%.3f & ' % (rbList[1][1][j]-rbList[1][1][0]), end='')
+        print('%.3f ' %   (rbList[2][1][j]-rbList[2][1][0]), end='')
         up[0] = (up[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
         up[2] = (up[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
         up[4] = (up[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
@@ -116,13 +121,14 @@ while i < len(syst):
         i+=2
         j+=4
     print('\\\\')
-print('Total up & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (up[0],up[1],up[2],up[3],up[4],up[5]))
-print('Total down & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (down[0],down[1],down[2],down[3],down[4],down[5]))
+#print('Total up & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (up[0],up[1],up[2],up[3],up[4],up[5]))
+print('Total up & %.3f & %.3f & %.3f\\\\' % (up[0],up[2],up[4]))
+print('Total down & %.3f & %.3f & %.3f\\\\' % (down[0],down[2],down[4]))
 print('======')
-print('Don\'t forget to use sed to change 0.00 to <0.001: %s/0\.000/$<$0.001/g\n')
-print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[0][1][0], rbList[0][1][1], max(abs(up[0]),abs(up[1])), max(abs(down[0]),abs(down[1]))))
-print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[1][1][0], rbList[1][1][1], max(abs(up[2]),abs(up[3])), max(abs(down[2]),abs(down[3]))))
-print('$r_{\PQb}=%0.2f \pm %0.2f \mathrm{(stat)} ^{+%0.2f}_{-%0.2f} \mathrm{(syst)}$' % (rbList[2][1][0], rbList[2][1][1], max(abs(up[4]),abs(up[5])), max(abs(down[4]),abs(down[5]))))
+print('Don\'t forget to use sed to change 0.00 to <0.001: %s/-\{0,1\}0\.000/$<$0.001/g\n')
+print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%0.2f}_{%0.2f} \syst$' % (rbList[0][1][0], rbList[0][1][1], max(up[0],up[1]), max(down[0],down[1])))
+print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%0.2f}_{%0.2f} \syst$' % (rbList[1][1][0], rbList[1][1][1], max(up[2],up[3]), max(down[2],down[3])))
+print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%0.2f}_{%0.2f} \syst$' % (rbList[2][1][0], rbList[2][1][1], max(up[4],up[5]), max(down[4],down[5])))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
 blueFile = open("BLUE/rbSFCor.txt",'w')
@@ -151,18 +157,18 @@ for l in xrange(0,3):
           j+=2
           continue
         if syst[i] == 'Color reconnection':
-            low=abs(rbList[l][1][0]-abs(rbList[l][1][j]))
-            lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
+            low=rbList[l][1][0]-rbList[l][1][j]
+            lowe=rbList[l][1][1]-rbList[l][1][j+1]
             if(low<lowe): low=lowe
             print('%.4f ' % low, end='')
             blueFile.write('%.4f ' % low)
             i+=1
             j+=2
         else:
-            low=abs(rbList[l][1][0]-abs(rbList[l][1][j]))
-            lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
-            high=abs(rbList[l][1][0]-abs(rbList[l][1][j+2]))
-            highe=abs(rbList[l][1][1]-abs(rbList[l][1][j+3]))
+            low=rbList[l][1][0]-rbList[l][1][j]
+            lowe=rbList[l][1][1]-rbList[l][1][j+1]
+            high=rbList[l][1][0]-rbList[l][1][j+2]
+            highe=rbList[l][1][1]-rbList[l][1][j+3]
             if(low<lowe): low=lowe
             if(high<highe): high=highe
             print('%.4f ' % ((low+high)/2), end='')
@@ -244,18 +250,18 @@ for l in xrange(0,3):
           j+=2
           continue
         if syst[i] == 'Color reconnection':
-            low=abs(rbList[l][1][0]-abs(rbList[l][1][j]))
-            lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
+            low=rbList[l][1][0]-rbList[l][1][j]
+            lowe=rbList[l][1][1]-rbList[l][1][j+1]
             if(low<lowe): low=lowe
             print('%.4f ' % low, end='')
             blueFile.write('%.4f ' % low)
             i+=1
             j+=2
         else:
-            low=abs(rbList[l][1][0]-abs(rbList[l][1][j]))
-            lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
-            high=abs(rbList[l][1][0]-abs(rbList[l][1][j+2]))
-            highe=abs(rbList[l][1][1]-abs(rbList[l][1][j+3]))
+            low=rbList[l][1][0]-rbList[l][1][j]
+            lowe=rbList[l][1][1]-rbList[l][1][j+1]
+            high=rbList[l][1][0]-rbList[l][1][j+2]
+            highe=rbList[l][1][1]-rbList[l][1][j+3]
             if(low<lowe): low=lowe
             if(high<highe): high=highe
             print('%.4f ' % high, end='')
@@ -336,18 +342,18 @@ for l in xrange(0,3):
           j+=2
           continue
         if syst[i] == 'Color reconnection':
-            low=abs(rbList[l][1][0]-abs(rbList[l][1][j]))
-            lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
+            low=rbList[l][1][0]-rbList[l][1][j]
+            lowe=rbList[l][1][1]-rbList[l][1][j+1]
             if(low<lowe): low=lowe
             print('%.4f ' % low, end='')
             blueFile.write('%.4f ' % low)
             i+=1
             j+=2
         else:
-            low=abs(rbList[l][1][0]-abs(rbList[l][1][j]))
-            lowe=abs(rbList[l][1][1]-abs(rbList[l][1][j+1]))
-            high=abs(rbList[l][1][0]-abs(rbList[l][1][j+2]))
-            highe=abs(rbList[l][1][1]-abs(rbList[l][1][j+3]))
+            low=rbList[l][1][0]-rbList[l][1][j]
+            lowe=rbList[l][1][1]-rbList[l][1][j+1]
+            high=rbList[l][1][0]-rbList[l][1][j+2]
+            highe=rbList[l][1][1]-rbList[l][1][j+3]
             if(low<lowe): low=lowe
             if(high<highe): high=highe
             print('%.4f ' % low, end='')
