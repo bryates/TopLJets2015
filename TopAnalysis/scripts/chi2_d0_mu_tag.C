@@ -56,28 +56,32 @@ for(int i = 0; i < sizeof(bin)/sizeof(float); i++) {
  bins.addBoundary(bin[i]);
 }
 tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
-//mc = (TH1F*)convert(tmp, norm, 0, 1.1);
-mc = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp);//, RooFit::Binning(bins));
+mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+//mc = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
+/*
 tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
 ((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
 TH1F *mc2 = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
 mc->Add(mc2);
+*/
 delete tmp;
 tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 delete tmp;
 tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
-//data = (TH1F*)convert(tmp, norm, 0, 1.1);
-data = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp);//, RooFit::Binning(bins));
+data = (TH1F*)convert(tmp, norm, 0, 1.1);
+//data = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
+/*
 tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp);//, RooFit::Binning(bins));
 TH1F *data2 = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
 data->Add(data2);
+*/
 delete tmp;
 
 fdata->Close();
@@ -88,7 +92,6 @@ delete fmc;
 
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
-/*
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
@@ -106,7 +109,6 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
-*/
 
   json += ("],");
   std::cout << json << std::endl;
@@ -292,6 +294,8 @@ data->Add(data2);
 mc->Add(mc2);
 delete data2;
 delete mc2;
+mc->Scale(1./mc->Integral());
+data->Scale(1./data->Integral());
 
 /*
 if(tune=="" && name=="") {
@@ -311,28 +315,33 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 }
 */
 
-data->Scale(1./data->Integral());
-mc->Scale(1./mc->Integral());
+//data->Scale(1./data->Integral());
+//mc->Scale(1./mc->Integral());
 }
-//data->GetXaxis()->SetRangeUser(0.2,1.);
-//mc->GetXaxis()->SetRangeUser(0.2,1.);
 data->SetLineColor(kBlack);
 data->SetMarkerColor(kBlack);
 data->SetMarkerStyle(20);
 data->SetLineWidth(2);
 mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
-mc->GetYaxis()->SetRangeUser(0.,.2);
-data->GetYaxis()->SetRangeUser(0.,.2);
+mc->GetYaxis()->SetRangeUser(0.,.06);
+data->GetYaxis()->SetRangeUser(0.,.06);
+data->GetXaxis()->SetRangeUser(0.,0.975);
+mc->GetXaxis()->SetRangeUser(0.,0.975);
 gStyle->SetOptStat(0);
+mc->SetTitle("");
+data->SetTitle("");
 mc->Draw("hist");
 mc->Draw("same e");
 data->Draw("same");
+tdr(mc, epoch);
 if(num==0) num=0.855;
 if(name=="") name="172v5";
-mc->SetTitle(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
+//mc->SetTitle(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
 c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu.pdf");
 c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu.png");
+data->GetXaxis()->SetRangeUser(0.2,0.975);
+mc->GetXaxis()->SetRangeUser(0.2,0.975);
 float chi2 = data->Chi2Test(mc, "CHI2 WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;

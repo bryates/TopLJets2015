@@ -231,6 +231,8 @@ data->Add(data2);
 mc->Add(mc2);
 delete data2;
 delete mc2;
+mc->Scale(1./mc->Integral());
+data->Scale(1./data->Integral());
 
 /*
 if(tune=="" && name=="") {
@@ -261,8 +263,8 @@ data->SetMarkerStyle(20);
 data->SetLineWidth(2);
 mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
-mc->GetYaxis()->SetRangeUser(0.,.12);
-data->GetYaxis()->SetRangeUser(0.,.12);
+mc->GetYaxis()->SetRangeUser(0.,.2);
+data->GetYaxis()->SetRangeUser(0.,.2);
 mc->Draw("hist");
 mc->Draw("same e");
 data->Draw("same");

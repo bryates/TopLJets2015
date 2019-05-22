@@ -1025,14 +1025,14 @@ def main():
                                 elif "_jpsi" in obj.GetName() and opt.run == "GH": normGH=1.01; #derived from GH, needed in B-F after corrections
                                 if "_mu_tag" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11;
                                 elif "_mu_tag" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.04;
-                                elif "_mu_tag" in obj.GetName() and op.run == "GH" : normGH=0.91;
+                                elif "_mu_tag" in obj.GetName() and opt.run == "GH" : normGH=0.91;
                                 #if "_mu_tag" in obj.GetName(): normGH=0.92;
                                 ##obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
                                 obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("D0_mu_tag_mu_oJet" in obj.GetName()): obj.GetXaxis().SetRangeUser(0,1.)
-                            if("JPsioJet" in obj.GetName()): obj.Rebin(2)
+                            #if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                             if("j_pt_ch_all_jpsi" in obj.GetName()): obj.Rebin(2)
                             #if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu1_pt" in obj.GetName()): obj.Rebin(2)

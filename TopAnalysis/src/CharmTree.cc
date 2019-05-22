@@ -208,10 +208,13 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_mass[ev_.nj] = jet.M();
     ev_.nmeson++;
     ev_.nj++;
-    //Delete duplcates
+    //Check for pi K -> K pi dupilcates and weight by half
     if(ev_.nmeson>1) {
       for(int nmeson = ev_.nmeson; nmeson > 0; nmeson--) {
-        if(ev_.jpsi_mu1_pt[nmeson] == ev_.jpsi_mu2_pt[nmeson-1] && ev_.jpsi_mu2_pt[nmeson] == ev_.jpsi_mu1_pt[nmeson-1]) ev_.nmeson--;
+        if(ev_.jpsi_mu1_pt[nmeson] == ev_.jpsi_mu2_pt[nmeson-1] && ev_.jpsi_mu2_pt[nmeson] == ev_.jpsi_mu1_pt[nmeson-1]) {
+          ev_.sfs[nmeson-1] *= 0.5;
+          ev_.sfs[nmeson] *= 0.5;
+        }
       }
     }
   }
