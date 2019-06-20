@@ -20,7 +20,7 @@
 #include "RooWorkspace.h"
 #include "RooMinuit.h"
 #include <vector>
-#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
+//#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
 using namespace RooFit;
 
 //bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
@@ -44,25 +44,32 @@ RooWorkspace create_workspace(bool isData=false) {
   return w;
 }
 
-void update_workspace(RooWorkspace *w, bool isData=false) {
+void update_workspace(RooWorkspace *w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, bool isData=false) {
   /*
   if(isData)
     w->factory("expr::mt('(a*mtg + b)', a[0.125373], b[154.426], mtg[173,165,183])");
   else
     w->factory("mt[0,-8,8]");
   */
-  w->factory("mt[0,-200,200]");
-  w->factory("expr::gaus_mean('(a1*mt + a0)', a0[72.51], a1[0.35], mt)");//, mt[173,165,180])");
+  w->factory("mt[0,-8,200]");
+  /*
   //w->factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
-  w->factory("expr::gaus_sigma('(a3*mt + a2)', a2[20.29], a3[0.05], mt)");
-  w->factory("expr::alpha('(a5*mt + a4)', a4[0.44], a5[0.003668], mt)");
+  w->factory(TString::Format("expr::gaus_sigma('(a3*mt + a2)', a2[19.89], a3[0.08], mt)",fit_par[1][0], fit_par[1][1]));
+  w->factory(TString::Format("expr::alpha('(a5*mt + a4)', a4[0.34], a5[0.003668], mt)",fit_par[2][0], fit_par[2][1]));
   //w->factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
-  w->factory("expr::gamma_gamma('(a7*mt + a6)', a6[2.47], a7[0.002], mt)");
+  w->factory(TString::Format("expr::gamma_gamma('(a7*mt + a6)', a6[2.15], a7[0.01], mt)",fit_par[3][0], fit_par[3][1]));
   //w->factory("expr::gamma_gamma('(a7*mt + a6)', a7[5.763], a6[-0.02088], mt)");
-  w->factory("expr::gamma_beta('(a9*mt + a8)', a8[40], a9[0.00], mt)");
+  w->factory(TString::Format("expr::gamma_beta('(a9*mt + a8)', a8[31.7], a9[0.03], mt)",fit_par[4][0], fit_par[4][1]));
   //w->factory("expr::gamma_beta('(a9*mt + a8)', a9[36.71], a8[0.427], mt)");
-  w->factory("expr::gamma_mu('(a11*mt + a10)', a10[11.17], a11[0.02], mt)");
+  w->factory(TString::Format("expr::gamma_mu('(a11*mt + a10)', a10[11.08], a11[-0.04], mt)",fit_par[5][0], fit_par[5][1]));
   //w->factory("expr::gamma_mu('(a11*mt + a10)', a10[53.504], a11[0.3873], mt)");
+  */
+  w->factory(TString::Format("expr::gaus_mean('(a1*mt + a0)', a0[%f], a1[%f], mt)",fit_par[0].first, fit_par[0].second));//, mt[173,165,180])");
+  w->factory(TString::Format("expr::gaus_sigma('(a3*mt + a2)', a2[%f], a3[%f], mt)",fit_par[1].first, fit_par[1].second));
+  w->factory(TString::Format("expr::alpha('(a5*mt + a4)', a4[%f], a5[%f], mt)",fit_par[2].first, fit_par[2].second));
+  w->factory(TString::Format("expr::gamma_gamma('(a7*mt + a6)', a6[%f], a7[%f], mt)",fit_par[3].first, fit_par[3].second));
+  w->factory(TString::Format("expr::gamma_beta('(a9*mt + a8)', a8[%f], a9[%f], mt)",fit_par[4].first, fit_par[4].second));
+  w->factory(TString::Format("expr::gamma_mu('(a11*mt + a10)', a10[%f], a11[%f], mt)",fit_par[5].first, fit_par[5].second));
 
   w->Print();
 }
@@ -186,7 +193,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.var("a7")->setConstant();
   */
   RooWorkspace *u = (RooWorkspace*)f->Get("w");
-  update_workspace(u,isData);
+  update_workspace(u, fit_par, fit_err, isData);
   RooRealVar *d0_l_mass = (RooRealVar*)u->var("d0_l_mass");
   /*
   RooRealVar g("g","g", 2.5, 0, 10);
@@ -227,7 +234,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   if(doBinned) w.data("data")->plotOn(frame);
   else w.data("data")->plotOn(frame,Binning(25));
   */
-  u->data("sigData")->plotOn(frame, RooFit::Binning(25));
+  u->data("sigData")->plotOn(frame);//, RooFit::Binning(25));
   std::cout << "frame plotted" << std::endl;
   //frame->Draw();
   //nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));

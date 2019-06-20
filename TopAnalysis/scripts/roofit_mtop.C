@@ -27,6 +27,7 @@
 #include <vector>
 #include "TopLJets2015/TopAnalysis/interface/CharmEvent.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
 using namespace RooFit;
 
 bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
@@ -37,19 +38,21 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi.root");
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi1.root");
+  TFile *f2 = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi2.root");
   //f->ls(); 
   TString name = "meson_l_mass_jpsi_signal";
   //TString name = "massJPsi_l_all_jpsi_BCDEF";
   cout << "loaded " << mass << endl;
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   cout << "loaded!" << endl;
 
   // Declare observable x
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   //RooRealVar jpsi_l_mass("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   RooWorkspace *w = (RooWorkspace*)f->Get("w");
+  RooWorkspace *w2 = (RooWorkspace*)f2->Get("w");
   //RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("J/#Psi+l mass");
   RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("jpsi_l_mass");
   //RooRealVar jpsi_mass("jpsi_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
@@ -63,7 +66,14 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //auto frame = w->var("J/#Psi+l mass")->frame();
   //cout << "converting" << endl;
   //TH1F *l_mass = (TH1F*)convert(meson_l_mass_jpsi_signal,true,0,250);
+  /*
+  RooDataSet dsn = *(RooDataSet*)w->data("dsSWeights");
+  RooDataSet ds("ds" ,"ds", &dsn, *dsn.get(), 0, "weight");
+  */
   RooDataSet ds = *(RooDataSet*)w->data("sigData");
+  RooDataSet ds2 = *(RooDataSet*)w2->data("sigData");
+  ds.append(ds2);
+  //ds.plotOn(frame, Binning(50));
   //ds.plotOn(frame, Binning(50));
   cout << "making dh" << endl;
   //RooDataHist dh("dh", "dh", jpsi_l_mass, Import(*l_mass));
@@ -142,12 +152,13 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //model.paramOn(frame);
 
   frame->Draw();
+  tdr(frame, 0, false);
 
   mass.ReplaceAll(".","v");
   mass += "_jpsi";
 
-  c1->SaveAs("MC13TeV_TTJets_m"+mass+".png");
-  c1->SaveAs("MC13TeV_TTJets_m"+mass+".pdf");
+  c1->SaveAs("MC13TeV_TTJets_"+mass+".png");
+  c1->SaveAs("MC13TeV_TTJets_"+mass+".pdf");
 
   //x.setRange("signal model",3.0,3.2);
   //RooAbsReal *intModel = signalGauss.createIntegral(x);
@@ -219,11 +230,10 @@ void roofit_mtop(std::vector<float> &names,
 
   mean->GetYaxis()->SetRangeUser(64,82);
   sigma->GetYaxis()->SetRangeUser(10,30);
-  alpha->GetYaxis()->SetRangeUser(0.3,0.7);
-  gamma->GetYaxis()->SetRangeUser(1,5);
-  beta->GetYaxis()->SetRangeUser(20,50);
-  beta->GetYaxis()->SetRangeUser(50,80);
-  mu->GetYaxis()->SetRangeUser(6,20);
+  alpha->GetYaxis()->SetRangeUser(0.45,0.7);
+  gamma->GetYaxis()->SetRangeUser(1,3);
+  beta->GetYaxis()->SetRangeUser(40,80);
+  mu->GetYaxis()->SetRangeUser(10,20);
   //int minbin = mean->FindFirstBinAbove(0);
   //cout << minbin << endl;
   //cout << mean->GetBinContent(minbin) << " " << mean->GetBinError(minbin) << endl;
@@ -249,8 +259,6 @@ void roofit_mtop(std::vector<float> &names,
     }
     cout << names[in] << endl;
   }
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
   gStyle->SetOptStat(0);
   /*
   for(auto &it : hists) {
@@ -264,8 +272,11 @@ void roofit_mtop(std::vector<float> &names,
   it->GetYaxis()->SetRangeUser((int)(it->GetBinContent(lbin) - it->GetBinError(lbin)), (int)(it->GetBinContent(ubin) + it->GetBinError(ubin))+1);
   }
   */
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   for(int i = 0; i < hists.size(); i++) {
     hists[i]->Draw();
+    tdr(hists[i], 0, false);
     TFitResultPtr fit = hists[i]->Fit("pol1","FS");
     Double_t slope = fit->Parameter(1);
     Double_t err = fit->ParError(1);

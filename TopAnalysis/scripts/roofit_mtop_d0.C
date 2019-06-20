@@ -27,6 +27,7 @@
 #include <vector>
 #include "TopLJets2015/TopAnalysis/interface/CharmEvent.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
 using namespace RooFit;
 
 bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
@@ -37,19 +38,21 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   mass.ReplaceAll(".","v");
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d0.root");
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d01.root");
+  TFile *f2 = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d02.root");
   //f->ls(); 
   TString name = "meson_l_mass_d0_signal";
   //TString name = "massJPsi_l_all_d0_BCDEF";
   cout << "loaded " << mass << endl;
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   cout << "loaded!" << endl;
 
   // Declare observable x
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   //RooRealVar d0_l_mass("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   RooWorkspace *w = (RooWorkspace*)f->Get("w");
+  RooWorkspace *w2 = (RooWorkspace*)f2->Get("w");
   //RooRealVar d0_l_mass = *(RooRealVar*)w->var("J/#Psi+l mass");
   RooRealVar d0_l_mass = *(RooRealVar*)w->var("d0_l_mass");
   //RooRealVar d0_mass("d0_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
@@ -63,7 +66,11 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //auto frame = w->var("J/#Psi+l mass")->frame();
   //cout << "converting" << endl;
   //TH1F *l_mass = (TH1F*)convert(meson_l_mass_d0_signal,true,0,250);
+  //RooDataSet dsn = *(RooDataSet*)w->data("dsSWeights");
+  //RooDataSet ds("ds" ,"ds", &dsn, *dsn.get(), 0, "weight");
   RooDataSet ds = *(RooDataSet*)w->data("sigData");
+  RooDataSet ds2 = *(RooDataSet*)w2->data("sigData");
+  ds.append(ds2);
   //ds.plotOn(frame, Binning(50));
   cout << "making dh" << endl;
   //RooDataHist dh("dh", "dh", d0_l_mass, Import(*l_mass));
@@ -88,13 +95,14 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar mu("mu","mu", 9, 5, 14);
   RooRealVar mu("mu","mu", 12, 11, 13);
   */
-  RooRealVar g("g","g", 2, 0, 10);
-  RooRealVar b("b","b", 33, 0, 70);
-  RooRealVar mu("mu","mu", 11.5, 0, 20);
+  RooRealVar g("g","g", 2, 0, 20);
+  RooRealVar b("b","b", 30, 0, 70);
+  RooRealVar mu("mu","mu", 10, 0, 30);
 
   // Construct Gaussian PDF for signal
-  RooRealVar mean("mean","mean", 57, 40, 90);
-  RooRealVar sigma("sigma","sigma", 16, 0, 50);
+  //RooRealVar mean("mean","mean", 57, 40, 90);
+  RooRealVar mean("mean","mean", 65, 0, 150);
+  RooRealVar sigma("sigma","sigma", 16, 8, 30);
   //RooRealVar sigma("sigma","sigma", 19, 18, 30);
   //RooRealVar sigma("sigma","sigma", 19, 18.5, 19.5);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
@@ -121,11 +129,13 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
   //RooAddPdf model("model","g+a", RooArgList(signalGauss, expo), RooArgList(nsig,nbkg)) ;
   cout << "fitting model" << endl;
-  signalModel.fitTo(ds);//,Extended());
-  //signalModel.fitTo(dh,Extended());
+  //dh.plotOn(frame);
+  ds.plotOn(frame, Binning(25));
+  signalModel.fitTo(ds, PrintLevel(-1), PrintEvalErrors(-1), Warnings(kFALSE));//,Extended());
+  //signalModel.fitTo(dh, PrintLevel(-1), PrintEvalErrors(-1));//Extended());
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
-  //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
+  RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   RooMinuit m(*nll);
   m.setPrintLevel(-1); 
   m.setPrintEvalErrors(-1);
@@ -133,8 +143,6 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   m.hesse();
   RooFitResult *r = m.save();
   */
-  //dh.plotOn(frame);
-  ds.plotOn(frame,Binning(25));
   signalModel.plotOn(frame);
   signalModel.plotOn(frame, Components(gauss),LineStyle(kDashed),LineColor(kRed));
   signalModel.plotOn(frame, Components(gamma),LineStyle(kDashed),LineColor(kBlue));
@@ -142,6 +150,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //model.paramOn(frame);
 
   frame->Draw();
+  tdr(frame, 0, false);
 
   mass.ReplaceAll(".","v");
   mass += "_d0";
@@ -217,13 +226,12 @@ void roofit_mtop(std::vector<float> &names,
   TH1F *beta  = new TH1F("beta","beta;Gamma #beta", 100, -8, 8);
   TH1F *mu    = new TH1F("mu","mu;Gamma #mu", 100, -8, 8);
 
-  mean->GetYaxis()->SetRangeUser(64,82);
-  sigma->GetYaxis()->SetRangeUser(10,30);
-  alpha->GetYaxis()->SetRangeUser(0.3,0.7);
-  gamma->GetYaxis()->SetRangeUser(1,5);
-  beta->GetYaxis()->SetRangeUser(20,50);
-  beta->GetYaxis()->SetRangeUser(50,80);
-  mu->GetYaxis()->SetRangeUser(6,20);
+  mean->GetYaxis()->SetRangeUser(58,66);
+  sigma->GetYaxis()->SetRangeUser(0,30);
+  alpha->GetYaxis()->SetRangeUser(0,0.7);
+  gamma->GetYaxis()->SetRangeUser(1.5,3);
+  beta->GetYaxis()->SetRangeUser(22,35);
+  mu->GetYaxis()->SetRangeUser(6,15);
   //int minbin = mean->FindFirstBinAbove(0);
   //cout << minbin << endl;
   //cout << mean->GetBinContent(minbin) << " " << mean->GetBinError(minbin) << endl;
@@ -249,8 +257,6 @@ void roofit_mtop(std::vector<float> &names,
     }
     cout << names[in] << endl;
   }
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
   gStyle->SetOptStat(0);
   /*
   for(auto &it : hists) {
@@ -264,8 +270,11 @@ void roofit_mtop(std::vector<float> &names,
   it->GetYaxis()->SetRangeUser((int)(it->GetBinContent(lbin) - it->GetBinError(lbin)), (int)(it->GetBinContent(ubin) + it->GetBinError(ubin))+1);
   }
   */
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   for(int i = 0; i < hists.size(); i++) {
     hists[i]->Draw();
+    tdr(hists[i], 0, false);
     TFitResultPtr fit = hists[i]->Fit("pol1","FS");
     Double_t slope = fit->Parameter(1);
     Double_t err = fit->ParError(1);

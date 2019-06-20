@@ -77,8 +77,8 @@ class Plot(object):
         if "JPsioJet" in h.GetName():
             h.GetXaxis().SetTitle("P_{T}(J/#Psi)/#Sigma p_{T}^{ch}")
             h.GetYaxis().SetTitle("Jets / 25")
-        elif "oJet" in h.GetName():
-            h.GetYaxis().SetTitle("Jets / 5")
+        if "oJet" in h.GetName():
+            h.GetYaxis().SetTitle("Jets / 0.5")
         #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
 
         h.SetTitle(title)
@@ -152,7 +152,7 @@ class Plot(object):
             except:
                 pass
 
-    def show(self, outDir,lumi,noStack=False,saveTeX=False,saveNorm=False,noRatio=False):
+    def show(self, outDir,lumi,noStack=False,saveTeX=False,saveNorm=False,noRatio=False,final=False):
 
         if len(self.mc)<2 and self.dataH is None:
             print '%s has 0 or 1 MC!' % self.name
@@ -216,7 +216,7 @@ class Plot(object):
                 self.dataH.Scale(1./self.dataH.Integral())
                 for xbin in xrange(1,self.data.GetNbinsX()+1):
                     xbin/=self.data.Integral()
-        for h in self.mc:
+        for h in reversed(self.mc):
             
             #compare
             if noStack:
@@ -402,6 +402,7 @@ class Plot(object):
         frame.Reset('ICE')
         self._garbageList.append(frame)
         #frame.GetYaxis().SetTitleSize(0.045)
+        frame.GetYaxis().SetNdivisions(10)
         frame.GetYaxis().SetTitleSize(0.047)
         frame.GetYaxis().SetLabelSize(0.04)
         frame.GetYaxis().SetNoExponent()
@@ -416,8 +417,8 @@ class Plot(object):
                stack.Draw('hist same')
                totalMC.SetFillColor(ROOT.kBlack)
                totalMC.SetFillStyle(3245)
-               totalMC.Draw("e2 same")
-               leg.AddEntry(totalMC, "Total MC stat unc.", 'f')
+               #totalMC.Draw("e2 same")
+               #leg.AddEntry(totalMC, "Total MC stat unc.", 'f')
                if len(self.mcsyst)>0:
                    #self.totalMCUnc.Draw("hist same")
                    #self.totalMCUnc.Draw("e2 same")
@@ -436,8 +437,12 @@ class Plot(object):
         txt.SetTextAlign(12)
         iniy=0.9 if self.wideCanvas else 0.95
         inix=0.12 if noStack else 0.12
-        if lumi<100:
+        if lumi<100 and final:
+            txt.DrawLatex(inix,iniy,'#bf{CMS} %3.1f pb^{-1} (13 TeV)' % (lumi) )
+        elif lumi<100:
             txt.DrawLatex(inix,iniy,'#bf{CMS} #it{Preliminary} %3.1f pb^{-1} (13 TeV)' % (lumi) )
+        elif final:
+            txt.DrawLatex(inix,iniy,'#bf{CMS} %3.1f fb^{-1} (13 TeV)' % (lumi/1000.) )
         else:
             txt.DrawLatex(inix,iniy,'#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)' % (lumi/1000.) )
 
@@ -451,16 +456,18 @@ class Plot(object):
             p2.SetLeftMargin(0.15)#.12
             p2.SetTopMargin(0.01)
             p2.SetGridx(False)
-            p2.SetGridy(True)
+            p2.SetGridy(False)
             self._garbageList.append(p2)
             p2.cd()
             ratioframe=frame.Clone('ratioframe')
             ratioframe.GetYaxis().SetTitle('Data/MC')
             #ratioframe.GetYaxis().SetTitle('Ratio')
             ratioframe.GetYaxis().SetRangeUser(self.ratiorange[0], self.ratiorange[1])
+            #ratioframe.GetYaxis().SetRangeUser(0.8,1.2)
             self._garbageList.append(frame)
-            ratioframe.GetYaxis().SetNdivisions(5)
-            ratioframe.GetYaxis().SetLabelSize(0.18)        
+            ratioframe.GetXaxis().SetNdivisions(10)
+            ratioframe.GetYaxis().SetNdivisions(3)
+            ratioframe.GetYaxis().SetLabelSize(0.18)
             ratioframe.GetYaxis().SetTitleSize(0.2)
             ratioframe.GetYaxis().SetTitleOffset(0.25)
             ratioframe.GetXaxis().SetLabelSize(0.15)
@@ -519,7 +526,7 @@ class Plot(object):
                     statMC.SetBinError(xbin, statMC.GetBinError(xbin)/val)
                     #statMC.SetBinContent(xbin,self.totalMCUncShape.GetBinContent(xbin)/val)
                     statMC.SetBinContent(xbin,1.)
-                statMC.Draw("e2 same")
+                #statMC.Draw("e2 same")
                 #for xbin in xrange(1,ratio.GetNbinsX()+1):
                     #if totalMC.GetBinContent(xbin) > 0.:
                         #ratio.SetBinError(xbin, ratio.GetBinError(xbin)/totalMC.GetBinContent(xbin))
@@ -569,8 +576,12 @@ class Plot(object):
         #save
         #if self.noPU: 
             #self.name += "_noPU"
-        if noRatio:
+        if noRatio and final:
+            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'_noRatio_final.'+ext))
+        elif noRatio:
             for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'_noRatio.'+ext))
+        elif final:
+            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'_final.'+ext))
         else:
             for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'.'+ext))
         if self.savelog:
@@ -687,6 +698,7 @@ def main():
     parser.add_option(      '--silent',      dest='silent' ,     help='only dump to ROOT file',         default=False,             action='store_true')
     parser.add_option(      '--saveTeX',     dest='saveTeX' ,    help='save as tex file as well',       default=False,             action='store_true')
     parser.add_option(      '--noRatio',     dest='noRatio' ,    help='don\'t save ratio plot',         default=False,             action='store_true')
+    parser.add_option(      '--final',       dest='final' ,      help='final veion',                    default=False,             action='store_true')
     parser.add_option(      '--rebin',       dest='rebin',       help='rebin factor',                   default=1,                 type=int)
     parser.add_option('-l', '--lumi',        dest='lumi' ,       help='lumi to print out',              default='data/era2016/lumi.json',        type='string')
     parser.add_option(      '--only',        dest='only',        help='plot only these (csv)',          default='',                type='string')
@@ -1032,7 +1044,7 @@ def main():
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("D0_mu_tag_mu_oJet" in obj.GetName()): obj.GetXaxis().SetRangeUser(0,1.)
-                            #if("JPsioJet" in obj.GetName()): obj.Rebin(2)
+                            if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                             if("j_pt_ch_all_jpsi" in obj.GetName()): obj.Rebin(2)
                             #if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
                             if("JPsi_mu1_pt" in obj.GetName()): obj.Rebin(2)
@@ -1077,7 +1089,7 @@ def main():
         if opt.saveLog    : plots[p].savelog=True
         #if not opt.puNormSF    : plots[p].noPU=True
         lumiTotal=lumiList[opt.run]
-        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX,saveNorm=opt.saveNorm,noRatio=opt.noRatio)
+        if not opt.silent : plots[p].show(outDir=outDir,lumi=lumiTotal,noStack=opt.noStack,saveTeX=opt.saveTeX,saveNorm=opt.saveNorm,noRatio=opt.noRatio,final=opt.final)
         outName = opt.outName.replace(".root","_"+opt.run+".root")
         plots[p].appendTo('%s/%s'%(outDir,outName))
         plots[p].reset()

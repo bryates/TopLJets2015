@@ -23,7 +23,7 @@ float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
 int epoch(0);
 bool fullpt(0);
-TString epoch_name[3] = {"", "_BCDEF", "_GH"};
+TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
 float N(1.);
 TCanvas *c1 = setupCanvas();
@@ -76,6 +76,7 @@ delete fmc;
 
 void chi2_d0() {
   run_chi2_d0("");
+/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -93,6 +94,14 @@ void chi2_d0() {
   }
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
+  run_chi2_d0("tpt");
+  run_chi2_d0("m166v5");
+  run_chi2_d0("m169v5");
+  run_chi2_d0("m171v5");
+  run_chi2_d0("m173v5");
+  run_chi2_d0("m175v5");
+  run_chi2_d0("m178v5");
+*/
 
   json += ("],");
   std::cout << json << std::endl;
@@ -229,10 +238,44 @@ TH1F *data2, *mc2;
 getHist(name, tune, data2, mc2, 2, false);
 data->Add(data2);
 mc->Add(mc2);
+mc->GetXaxis()->SetTitle("D^{0} p_{T} / #Sigma_{ch} p_{T}");
+data->GetXaxis()->SetTitle("D^{0} p_{T} / #Sigma_{ch} p_{T}");
 delete data2;
 delete mc2;
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
+setupPad()->cd();
+tdr(mc, epoch);
+mc->Draw();
+tdr(mc, epoch);
+if(epoch==0) {
+gStyle->SetOptStat(0);
+TString namet(name);
+data->SetMarkerStyle(20);
+data->SetMarkerColor(kBlack);
+data->SetLineColor(kBlack);
+data->SetLineWidth(2);
+if(num==0) num=0.855;
+if(namet == "") namet = "172v5";
+//if(tunet == "") tunet = "855";
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0.pdf",namet.Data(),int(num*1000)));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0.png",namet.Data(),int(num*1000)));
+
+if(namet=="172v5" && num > 0.825 && num < 0.875) {
+data->SetTitle("");
+data->GetXaxis()->SetRangeUser(0,1.1);
+mc->SetMarkerStyle(20);
+data->SetMarkerStyle(20);
+data->SetMarkerColor(kBlack);
+data->SetLineColor(kBlack);
+data->SetLineWidth(2);
+tdr(data, epoch);
+data->Draw();
+tdr(data, epoch);
+c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.pdf");
+c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.png");
+}
+}
 
 /*
 if(tune=="" && name=="") {
@@ -255,24 +298,53 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 N = mc->Integral();
 }
 
-data->GetXaxis()->SetRangeUser(0.2,1.);
-mc->GetXaxis()->SetRangeUser(0.2,1.);
+data->GetXaxis()->SetRangeUser(0.2,0.975);
+mc->GetXaxis()->SetRangeUser(0.2,0.975);
 data->SetLineColor(kBlack);
 data->SetMarkerColor(kBlack);
 data->SetMarkerStyle(20);
 data->SetLineWidth(2);
 mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
-mc->GetYaxis()->SetRangeUser(0.,.2);
-data->GetYaxis()->SetRangeUser(0.,.2);
+mc->SetMarkerStyle(1);
+mc->SetLineWidth(1);
+mc->GetYaxis()->SetRangeUser(0.,.12);
+data->GetYaxis()->SetRangeUser(0.,.12);
 mc->Draw("hist");
+tdr(mc, epoch);
 mc->Draw("same e");
 data->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
 c1->SaveAs(TString::Format("mcVdata_%s_%d",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0.pdf");
 c1->SaveAs(TString::Format("mcVdata_%s_%d",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0.png");
-float chi2 = data->Chi2Test(mc, "CHI2 WW");
+float chi2 = data->Chi2Test(mc, "CHI2 P WW");
+/*
+chi2 = 0.;
+float sum1(0.);
+float sum2(0.);
+for(int i = 0; i < data->GetNbinsX(); i++) {
+  float exp = mc->GetBinContent(i);
+  float obs = data->GetBinContent(i);
+  sum1 += obs;
+  sum2 += exp;
+  
+}
+std::cout << sum1 << " " << sum2 << std::endl;
+float ndf = data->GetXaxis()->GetLast() - data->GetXaxis()->GetFirst();
+for(int i = 0; i < data->GetNbinsX(); i++) {
+  float cnt1 = data->GetBinContent(i);
+  float cnt2 = mc->GetBinContent(i);
+  float e1sq = pow(data->GetBinError(i),2);
+  float e2sq = pow(mc->GetBinError(i),2);
+  if (cnt1 * cnt1 == 0 && cnt2 * cnt2 == 0){  continue; }
+  //if (cnt1 * cnt1 == 0 && cnt2 * cnt2 == 0){ ndf--;  continue; }
+  float delta = sum1 * cnt2 - sum2 * cnt1;
+  float sigma = sum1 * sum1 * e2sq + sum2 * sum2 *e1sq;
+  chi2 += delta * delta / sigma;
+}
+std::cout << ndf << std::endl;
+*/
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;

@@ -43,7 +43,7 @@ RooWorkspace create_workspace(bool isData=false) {
   return w;
 }
 
-void update_workspace(RooWorkspace *w, bool isData=false) {
+void update_workspace(RooWorkspace *w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, bool isData=false) {
   /*
   if(isData)
     w->factory("expr::mt('(a*mtg + b)', a[0.125373], b[154.426], mtg[173,165,183])");
@@ -51,6 +51,7 @@ void update_workspace(RooWorkspace *w, bool isData=false) {
     w->factory("mt[0,-8,8]");
   */
   w->factory("mt[0,-8,8]");
+  /*
   w->factory("expr::gaus_mean('(a1*mt + a0)', a0[72.51], a1[0.35], mt)");//, mt[173,165,180])");
   //w->factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
   w->factory("expr::gaus_sigma('(a3*mt + a2)', a2[20.29], a3[0.05], mt)");
@@ -62,6 +63,13 @@ void update_workspace(RooWorkspace *w, bool isData=false) {
   //w->factory("expr::gamma_beta('(a9*mt + a8)', a9[36.71], a8[0.427], mt)");
   w->factory("expr::gamma_mu('(a11*mt + a10)', a10[11.17], a11[0.02], mt)");
   //w->factory("expr::gamma_mu('(a11*mt + a10)', a10[53.504], a11[0.3873], mt)");
+  */
+  w->factory(TString::Format("expr::gaus_mean('(a1*mt + a0)', a0[%f], a1[%f], mt)",fit_par[0].first, fit_par[0].second));//, mt[173,165,180])");
+  w->factory(TString::Format("expr::gaus_sigma('(a3*mt + a2)', a2[%f], a3[%f], mt)",fit_par[1].first, fit_par[1].second));
+  w->factory(TString::Format("expr::alpha('(a5*mt + a4)', a4[%f], a5[%f], mt)",fit_par[2].first, fit_par[2].second));
+  w->factory(TString::Format("expr::gamma_gamma('(a7*mt + a6)', a6[%f], a7[%f], mt)",fit_par[3].first, fit_par[3].second));
+  w->factory(TString::Format("expr::gamma_beta('(a9*mt + a8)', a8[%f], a9[%f], mt)",fit_par[4].first, fit_par[4].second));
+  w->factory(TString::Format("expr::gamma_mu('(a11*mt + a10)', a10[%f], a11[%f], mt)",fit_par[5].first, fit_par[5].second));
 
   w->Print();
 }
@@ -74,7 +82,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   std::cout << mass << std::endl;
   std::cout << (doBinned ? "binned hist" : "unbinned tree") << std::endl;
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("TopMass_"+mass+"_sPlot_jpsi.root");
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi.root");
   std::cout << "TopMass_"+mass+"_sPlot_jpsi.root" << std::endl;
   ////TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
   //TChain *t = new TChain("data");
@@ -182,7 +190,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.var("a7")->setConstant();
   */
   RooWorkspace *u = (RooWorkspace*)f->Get("w");
-  update_workspace(u,isData);
+  update_workspace(u, fit_par, fit_err, isData);
   RooRealVar *jpsi_l_mass = (RooRealVar*)u->var("jpsi_l_mass");
   /*
   RooRealVar g("g","g", 2.5, 0, 10);

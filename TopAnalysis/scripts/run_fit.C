@@ -1,5 +1,6 @@
 {
-  std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
+  std::vector<float> names = {166.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+  //std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
   //std::vector<float> names = {166.5,169.5,172.5,173.5,175.5,178.5};
   //std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
   std::vector<pair<float,float>> mfits;// = {};
@@ -8,7 +9,7 @@
   std::vector<RooRealVar> masses;
   //Fit MC and get fit parameters
             //0b vary binned
-  short flags(0b11);
+  short flags(0b00);
   gROOT->ProcessLine(".L roofit_mtop.C");
   roofit_mtop(names,fit_par,fit_err,flags);
 
@@ -26,8 +27,9 @@
     mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
     //mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
     float err = mt.getError();
-    float s = pow(GetBinError(mass->FindBin(it-172.5),2));// + pow(err,2);
-    mass->SetBinError(mass->FindBin(it-172.5),sqrt(s));
+    //float s = pow(GetBinError(mass->FindBin(it-172.5),2));// + pow(err,2);
+    float s = pow(mass->GetBinError(mass->FindBin(it-172.5)),2);// + pow(err,2);
+    mass->SetBinError(mass->FindBin(it-172.5), err);
     mfits.push_back(pair<float,float>(mt.getValV()+172.5,mt.getError()));
   }
 
@@ -41,7 +43,10 @@
   std::cout << f->Parameter(0) << " + " << f->Parameter(1) << " * mt" << std::endl;
   std::cout << "(" << f_err.first << ") + (" << f_err.second << ")" << std::endl;
   std::cout << f->Chi2() << " " << f->Ndf() << " " << f->Chi2()/f->Ndf() << std::endl;
+  setupCanvas();
+  setupPad()->cd();
   mass->Draw("e");
+  tdr(mass, 0, false);
   float avg_delta(0.);
   float avg_deltag(0.);
   float avg_var(0.);
@@ -51,7 +56,7 @@
     TString tmp_mass = Form("%.1f",it);
     tmp_mass.ReplaceAll(".","v");
     float calibm = f->Parameter(0) + f->Parameter(1)*itg;
-    float deltam = calibm - mfits[&it - &names[0]].first;
+    float deltam = calibm - mfits[&it - &names[0]].first + 172.5;
     float deltag = calibm - it;
     float deltam_unc = mfits[&it - &names[0]].second;
     //float deltam_unc = min(sqrt(pow(deltam,2) + pow(mfits[&it - &names[0]].second,2)), sqrt(pow(deltam,2) - pow(mfits[&it - &names[0]].second,2)));
@@ -65,7 +70,7 @@
     avg_deltag += deltag;
     avg_var += sqrt( pow( deltam_unc, 2) );
     std::cout << it << " GeV -> RooFit mass: " << mfits[&it - &names[0]].first
-              << " GeV Calibration line mass: " << calibm << " GeV ("  << deltam << " GeV) +/-" << abs(deltam_unc) << " GeV " << deltag << " GeV" << std::endl;
+              << " GeV Calibration line mass: " << calibm+172.5 << " GeV ("  << deltam << " GeV) +/-" << abs(deltam_unc) << " GeV " << deltag << " GeV" << std::endl;
   }
   //avg_delta /= ndelta;
   avg_delta /= names.size();
@@ -78,7 +83,8 @@
     TString tmp_mass = Form("%.1f",it);
     tmp_mass.ReplaceAll(".","v");
     float calibm = f->Parameter(0) + f->Parameter(1)*itg;
-    std::cout << "Mass: " << it << " GeV -> " << calibm - avg_deltag << " GeV +/- " << sqrt(pow(f->ParError(0),2)+pow(f->ParError(1),2)) << " GeV" << std::endl;
+    std::cout << "Mass: " << it << " GeV -> " << calibm - avg_deltag << " GeV +/- " << f->ParError(1) << " GeV" << std::endl;
+    //std::cout << "Mass: " << it << " GeV -> " << calibm - avg_deltag << " GeV +/- " << sqrt(pow(f->ParError(0),2)+pow(f->ParError(1),2)) << " GeV" << std::endl;
     std::cout << mass->GetBinError(mass->FindBin(itg)) << std::endl;
   }
   std::cout << "AVG difference: " << avg_delta << " GeV" << std::endl;

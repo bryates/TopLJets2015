@@ -20,10 +20,11 @@
 using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
+bool fin(false);
 bool TDR(1);
 int epoch(0);
 bool fullpt(0);
-TString epoch_name[3] = {"", "_BCDEF", "_GH"};
+TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
 TCanvas *c1 = setupCanvas();
 TString report("");
@@ -39,6 +40,7 @@ if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
 fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
+//fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_toppTOFF_sPlot_d0_mu_tag_mu.root",tune.Data());
 else
 fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
@@ -50,15 +52,16 @@ tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
 delete tmp;
 RooBinning bins(0,1.1);
-float bin[] = {0, 0.2, 0.4, 0.6, 0.7, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0, 1.1};
+//float bin[] = {0, 0.2, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84,0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+float bin[] = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84,0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
 //float bin[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0, 1.1};
 for(int i = 0; i < sizeof(bin)/sizeof(float); i++) {
  bins.addBoundary(bin[i]);
 }
 tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp);//, RooFit::Binning(bins));
-mc = (TH1F*)convert(tmp, norm, 0, 1.1);
-//mc = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+//mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+mc = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 /*
@@ -71,9 +74,9 @@ delete tmp;
 tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 delete tmp;
 tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp);//, RooFit::Binning(bins));
-data = (TH1F*)convert(tmp, norm, 0, 1.1);
-//data = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
+((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
+//data = (TH1F*)convert(tmp, norm, 0, 1.1);
+data = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
 /*
@@ -91,6 +94,7 @@ delete fmc;
 }
 
 void chi2_d0_mu_tag() {
+/*
   run_chi2_d0_mu_tag("");
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
@@ -98,9 +102,9 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("fsr-up");
   run_chi2_d0_mu_tag("uedown");
   run_chi2_d0_mu_tag("ueup");
-  //run_chi2_d0_mu_tag("erdON");
+  run_chi2_d0_mu_tag("erdON");
   //run_chi2_d0_mu_tag("GluonMove_erdON");
-  run_chi2_d0_mu_tag("QCD_erdON");
+  //run_chi2_d0_mu_tag("QCD_erdON");
   std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
   //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
@@ -109,6 +113,14 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
+  run_chi2_d0_mu_tag("tpt");
+*/
+  run_chi2_d0_mu_tag("m166v5");
+  run_chi2_d0_mu_tag("m169v5");
+  run_chi2_d0_mu_tag("m171v5");
+  run_chi2_d0_mu_tag("m173v5");
+  run_chi2_d0_mu_tag("m175v5");
+  run_chi2_d0_mu_tag("m178v5");
 
   json += ("],");
   std::cout << json << std::endl;
@@ -151,7 +163,7 @@ for(auto & it : tune) {
   if(isnan(chi)) continue;
   if(chi<low) low = chi;
   if(chi>high) high = chi;
-  chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
+  chiTest->GetYaxis()->SetRangeUser(max(int(low)-1,0),int(high)+2);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
   //chiTest->SetBinError(chiTest->FindBin(param[pos]),1);
 }
@@ -167,7 +179,7 @@ chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 std::cout << chiTest->GetName() << std::endl;
 std::cout << chiTest->GetTitle() << std::endl;
-tdr(chiTest,epoch);
+tdr(chiTest,epoch,fin);
 /*
 TLatex txt;
 txt.SetNDC(true);
@@ -227,8 +239,14 @@ gStyle->SetOptStat(0);
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch];
 if(fullpt) name += "_jpT";
+if(fin) {
+c1->SaveAs("chi2_d0_mu_tag"+name+"_final.pdf");
+c1->SaveAs("chi2_d0_mu_tag"+name+"_final.png");
+}
+else {
 c1->SaveAs("chi2_d0_mu_tag"+name+".pdf");
 c1->SaveAs("chi2_d0_mu_tag"+name+".png");
+}
 
 delete pt;
 chiTest->Delete();
@@ -237,52 +255,7 @@ chiTest->Delete();
 }
 
 float chi2_d0_mu_tag_test(TString tune="", TString name="", float num=0.855) {
-TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
-if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
-if(fullpt) fname.ReplaceAll(".root","_jpT.root");
-TFile *fdata = TFile::Open(fname);
-TFile *fmc;
-if(name.Length()==0)
-fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
-else
-fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.Data(),tune.Data());
-if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
-if(fullpt) fname.ReplaceAll(".root","_jpT.root");
-std::cout << fname << std::endl;
-fmc = TFile::Open(fname);
-
-//TString cut("j_pt_ch<75");
-TString cut(TString::Format("epoch==%d",epoch));
-
-TH1F *mc,*data;
-RooPlot *tmp = nullptr;
-//if(fullpt) tmp = (RooPlot*)fmc->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
-tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
-mc = (TH1F*)convert(tmp, true, 0, 1.1);
-mc->SetDirectory(0);
-mc->SetTitle(mc->GetName());
-delete tmp;
-//if(fullpt) tmp = (RooPlot*)fdata->Get("ptfracJ_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-//tmp->SetTitle(TString::Format("%s_data_%s",mc->GetTitle(), name.Data()));
-data = (TH1F*)convert(tmp, true, 0, 1.1);
-data->SetDirectory(0);
-data->SetTitle(data->GetName());
-delete tmp;
-
-
-/*
-if(tune.Length() > 0) {
-  TH1F *tuneWgt = (TH1F*)fmc->Get("tuneWgt");
-  report += "ptfrac";
-  report += tune;
-  report += " scaled by ";
-  report += tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2);
-  report += '\n';
-  //mc->Scale(tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2));
-}
-*/
-//TH1F *data, *mc;
+TH1F *data, *mc;
 if(epoch>0) {
 getHist(name, tune, data, mc, epoch);
 }
@@ -292,10 +265,48 @@ TH1F *data2, *mc2;
 getHist(name, tune, data2, mc2, 2, false);
 data->Add(data2);
 mc->Add(mc2);
+mc->GetXaxis()->SetTitle("(D^{0} p_{T} + #mu p_{T}) / #Sigma_{ch} p_{T}");
+data->GetXaxis()->SetTitle("(D^{0} p_{T} + #mu p_{T}) / #Sigma_{ch} p_{T}");
 delete data2;
 delete mc2;
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
+setupPad()->cd();
+mc->Draw();
+tdr(mc, epoch, fin);
+if(epoch==0) {
+gStyle->SetOptStat(0);
+mc->SetMarkerStyle(20);
+mc->SetMarkerColor(kBlack);
+mc->SetLineColor(kBlack);
+mc->SetLineWidth(2);
+TString namet(name);
+if(num==0) num=0.855;
+if(namet == "") namet = "172v5";
+//if(tunet == "") tunet = "855";
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0mu.pdf",namet.Data(),int(num*1000)));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0mu.png",namet.Data(),int(num*1000)));
+
+if(namet=="172v5" && num > 0.825 && num < 0.875) {
+data->SetTitle("");
+data->GetXaxis()->SetRangeUser(0,1.1);
+mc->SetMarkerStyle(20);
+data->SetMarkerStyle(20);
+data->SetMarkerColor(kBlack);
+data->SetLineColor(kBlack);
+data->SetLineWidth(2);
+data->Draw();
+tdr(data, epoch, fin);
+if(fin) {
+c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu_final.pdf");
+c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu_final.png");
+}
+else {
+c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu.pdf");
+c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu.png");
+}
+}
+}
 
 /*
 if(tune=="" && name=="") {
@@ -324,8 +335,9 @@ data->SetMarkerStyle(20);
 data->SetLineWidth(2);
 mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
-mc->GetYaxis()->SetRangeUser(0.,.06);
-data->GetYaxis()->SetRangeUser(0.,.06);
+mc->SetMarkerStyle(1);
+mc->GetYaxis()->SetRangeUser(0.,.16);
+data->GetYaxis()->SetRangeUser(0.,.16);
 data->GetXaxis()->SetRangeUser(0.,0.975);
 mc->GetXaxis()->SetRangeUser(0.,0.975);
 gStyle->SetOptStat(0);
@@ -334,25 +346,27 @@ data->SetTitle("");
 mc->Draw("hist");
 mc->Draw("same e");
 data->Draw("same");
-tdr(mc, epoch);
+tdr(mc, epoch, fin);
 if(num==0) num=0.855;
 if(name=="") name="172v5";
 //mc->SetTitle(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
+if(fin) {
+c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu_final.pdf");
+c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu_final.png");
+}
+else {
 c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu.pdf");
 c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu.png");
+}
 data->GetXaxis()->SetRangeUser(0.2,0.975);
 mc->GetXaxis()->SetRangeUser(0.2,0.975);
-float chi2 = data->Chi2Test(mc, "CHI2 WW");
+float chi2 = data->Chi2Test(mc, "CHI2 P WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;
 if(chi2>high) high = chi2;
 
 delete data;
 delete mc;
-fdata->Close();
-fmc->Close();
-delete fdata;
-delete fmc;
 
 return chi2;
 

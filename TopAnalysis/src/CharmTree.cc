@@ -355,18 +355,26 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
     ev_.j_mass[ev_.nj] = jet.M();
     ev_.j_ntk[ev_.nj] = jet.getTracks().size();
-    ev_.nmeson++;
-    ev_.nj++;
 
     //Check for pi K -> K pi dupilcates and weight by half
-    if(ev_.nmeson>1) {
+    if(ev_.nmeson>0) {
       for(int nmeson = ev_.nmeson; nmeson > 0; nmeson--) {
-        if(ev_.d0_pi_pt[nmeson] == ev_.d0_k_pt[nmeson-1] && ev_.d0_k_pt[nmeson] == ev_.d0_pi_pt[nmeson-1]) {
+        if(ev_.d0_pi_pt[nmeson] == ev_.d0_k_pt[nmeson-1] && ev_.d0_k_pt[nmeson] == ev_.d0_pi_pt[nmeson-1] && ev_.epoch[nmeson] == ev_.epoch[nmeson-1] && ev_.sfs[nmeson]>0.5 && ev_.sfs[nmeson-1]>0.5) {
+          //std::cout << nmeson << " duplicate" << " " << ev_.d0_pi_pt[nmeson] << " " << nmeson-1 << " " << ev_.d0_k_pt[nmeson-1] << " " << ev_.epoch[nmeson] << " " << ev_.epoch[nmeson-1] << std::endl;
           ev_.sfs[nmeson-1] *= 0.5;
           ev_.sfs[nmeson] *= 0.5;
+          //std::cout << ev_.sfs[nmeson] << " " << ev_.sfs[nmeson-1] << std::endl;
+        }
+        else if(ev_.d0_pi_pt[nmeson] == ev_.d0_k_pt[nmeson-2] && ev_.d0_k_pt[nmeson] == ev_.d0_pi_pt[nmeson-2] && ev_.epoch[nmeson] == ev_.epoch[nmeson-2] && ev_.sfs[nmeson]>0.5 && ev_.sfs[nmeson-2]>0.5) {
+          //std::cout << nmeson << " duplicate" << " " << ev_.d0_pi_pt[nmeson] << " " << nmeson-2 << " " << ev_.d0_k_pt[nmeson-2] << " " << ev_.epoch[nmeson] << " " << ev_.epoch[nmeson-2] << std::endl;
+          ev_.sfs[nmeson-2] *= 0.5;
+          ev_.sfs[nmeson] *= 0.5;
+          //std::cout << ev_.sfs[nmeson] << " " << ev_.sfs[nmeson-1] << std::endl;
         }
       }
     }
+    ev_.nmeson++;
+    ev_.nj++;
     //std::cout << "tree done" << std::endl;
   }
 

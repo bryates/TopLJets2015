@@ -1409,6 +1409,7 @@ void RunTopKalman(TString filename,
                   int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
                   if(rbFit==1) rbWgtJPsi=(rbWgt->Eval(jpsi.Pt() / jet.getChargedPt(idx)));
                   else if(rbFit==2) rbWgtJPsi=(rbWgts[JPsi]->Eval(jpsi.Pt() / jet.getChargedPt(idx)));
+                  if(jet.getChargedPt(idx) == 0) rbWgtJPsi=1.;
                   runBCDEF.SetRbWgt(rbWgtJPsi, JPsi);
                   runGH.SetRbWgt(rbWgtJPsi, JPsi);
                 }
@@ -1674,14 +1675,6 @@ void RunTopKalman(TString filename,
               //istd::cout << piTracks[i].getKalmanMass() << " " << piTracks[j].getKalmanMass() << " " << mass12 << std::endl;
               cuts &= (mass12>1.7 && mass12<2.0);
               //if (mass12>1.65 && mass12<2.0) {
-              if(rbFit && !isData) {
-                float rbWgtD0(1.);
-                int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
-                if(rbFit==1) rbWgtD0=(rbWgt->Eval(d0.Pt() / jet.getChargedPt(idx)));
-                else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt(idx)));
-                runBCDEF.SetRbWgt(rbWgtD0, D0);
-                runGH.SetRbWgt(rbWgtD0, D0);
-              }
               //if(D0p4.Pt()<20) cuts=false; //FIXME
               //custom SFs
               //float sfB(1.),sfG(1.),tWgt(1.);
@@ -1716,6 +1709,15 @@ void RunTopKalman(TString filename,
                   tmpSumCh += piTracks[j].Pt();
                   jet.updateChargedPt(tmpSumCh, pt_chargedG[jet.getJetIndex()]);
                   sumChBidx[piTracks[j].getIdx()]++;
+                }
+                if(rbFit && !isData) {
+                  float rbWgtD0(1.);
+                  int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
+                  if(rbFit==1) rbWgtD0=(rbWgt->Eval(d0.Pt() / jet.getChargedPt(idx)));
+                  else if(rbFit==2) rbWgtD0=(rbWgts[D0]->Eval(d0.Pt() / jet.getChargedPt(idx)));
+                  if(jet.getChargedPt(idx) == 0.) rbWgtD0=1.;
+                  runBCDEF.SetRbWgt(rbWgtD0, D0);
+                  runGH.SetRbWgt(rbWgtD0, D0);
                 }
                 float ptsf = 1., etasf = 1.;
                 //customSF(piTracks[i], "BCDEF", ptsf, etasf, pf_eff_pi); //event weight from pi track only
@@ -1810,6 +1812,8 @@ void RunTopKalman(TString filename,
                 //Check if both pi and K already used in loop (remove ij -> ji duplicates)
                 if(isUsedB[i] == j) keepRunB=false;
                 if(isUsedG[i] == j) keepRunG=false;
+                if(isUsedB[i] == j) std::cout << "DUPLICATE" << std::endl;
+                if(isUsedG[i] == j) std::cout << "DUPLICATE" << std::endl;
 
                 if(keepRunB) runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 if(keepRunB) treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
@@ -1891,6 +1895,7 @@ void RunTopKalman(TString filename,
                   int idx = (runPeriod.Contains("BCDEF") ? 0 : 1);
                   if(rbFit==1) rbWgtD0mu=(rbWgt->Eval(d0mu.Pt() / jet.getChargedPt(idx)));
                   else if(rbFit==2) rbWgtD0mu=(rbWgts[D0]->Eval(d0mu.Pt() / jet.getChargedPt(idx)));
+                  if(jet.getChargedPt(idx) == 0) rbWgtD0mu=1.;
                   runBCDEF.SetRbWgt(rbWgtD0mu, D0mu);
                   runGH.SetRbWgt(rbWgtD0mu, D0mu);
                 }
