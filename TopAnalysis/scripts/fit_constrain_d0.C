@@ -51,7 +51,7 @@ void update_workspace(RooWorkspace *w, std::vector<std::pair<float,float>> &fit_
   else
     w->factory("mt[0,-8,8]");
   */
-  w->factory("mt[0,-8,200]");
+  w->factory("mt[0,-8,8]");
   /*
   //w->factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
   w->factory(TString::Format("expr::gaus_sigma('(a3*mt + a2)', a2[19.89], a3[0.08], mt)",fit_par[1][0], fit_par[1][1]));
@@ -85,7 +85,8 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   std::cout << mass << std::endl;
   std::cout << (doBinned ? "binned hist" : "unbinned tree") << std::endl;
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d0.root");
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d01.root");
+  TFile *f2 = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d02.root");
   std::cout << "sPlot/sPlot/TopMass_"+mass+"_sPlot_d0.root" << std::endl;
   ////TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
   //TChain *t = new TChain("data");
@@ -193,6 +194,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.var("a7")->setConstant();
   */
   RooWorkspace *u = (RooWorkspace*)f->Get("w");
+  RooWorkspace *u2 = (RooWorkspace*)f2->Get("w");
   update_workspace(u, fit_par, fit_err, isData);
   RooRealVar *d0_l_mass = (RooRealVar*)u->var("d0_l_mass");
   /*
@@ -234,11 +236,14 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   if(doBinned) w.data("data")->plotOn(frame);
   else w.data("data")->plotOn(frame,Binning(25));
   */
-  u->data("sigData")->plotOn(frame);//, RooFit::Binning(25));
+  RooDataSet ds = *(RooDataSet*)u->data("sigData");
+  RooDataSet ds2 = *(RooDataSet*)u2->data("sigData");
+  ds.append(ds2);
+  ds.plotOn(frame);//, RooFit::Binning(25));
   std::cout << "frame plotted" << std::endl;
   //frame->Draw();
   //nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
-  RooAbsReal *nll = u->pdf("signalModel")->createNLL(*u->data("sigData"), NumCPU(8), SumW2Error(kTRUE));
+  RooAbsReal *nll = u->pdf("signalModel")->createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   nll->Print();
   //nll = signalModel.createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
   std::cout << "NLL created" << std::endl;

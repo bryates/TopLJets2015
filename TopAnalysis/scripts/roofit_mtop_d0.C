@@ -36,6 +36,7 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
+  float mtop(mass.Atof());
   mass.ReplaceAll(".","v");
   if(mass != "172v5") mass = "m" + mass;
   TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d01.root");
@@ -95,10 +96,43 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar mu("mu","mu", 9, 5, 14);
   RooRealVar mu("mu","mu", 12, 11, 13);
   */
+  /*
   RooRealVar g("g","g", 2, 0, 20);
   RooRealVar b("b","b", 30, 0, 70);
   RooRealVar mu("mu","mu", 10, 0, 30);
+  */
 
+  //constrained versions
+  //Variables
+  RooConstVar mt("mt","mt", mtop-172.5);
+  RooRealVar p0_gamma_bet("p0_gamma_bet","p0_gamma_bet", 27, 0, 100);
+  RooRealVar p1_gamma_bet("p1_gamma_bet","p1_gamma_bet", 0.23, 0, 1);
+  RooRealVar p0_gamma_gam("p0_gamma_gam","p0_gamma_gam", 2.1, 0, 5);
+  RooRealVar p1_gamma_gam("p1_gamma_gam","p1_gamma_gam", 0.05, 0, 1);
+  RooRealVar p0_gamma_mu("p0_gamma_mu","p0_gamma_mu", 10, 5, 20);
+  RooRealVar p1_gamma_mu("p1_gamma_mu","p1_gamma_mu", 0.12, 0, 1);
+  RooRealVar p0_a("p0_a","p0_a", 0.5, 0.45, 0.6);
+  RooRealVar p1_a("p1_a","p1_a", 0.0, 0, 0.005);
+  RooRealVar p0_gauss_mu("p0_gauss_mu","p0_gauss_mu", 60, 30, 75);
+  RooRealVar p1_gauss_mu("p1_gauss_mu","p1_gauss_mu", 0.15, 0.01, 1);
+  RooRealVar p0_gauss_sig("p0_gauss_sig","p0_gauss_sig", 15, 12, 25);
+  RooRealVar p1_gauss_sig("p1_gauss_sig","p1_gauss_sig", 0.5, 0, 0.35);
+
+  //Gamma
+  RooFormulaVar alpha("alpha","@0+@1*@2", RooArgList(p0_a, p1_a, mt));
+  //RooConstVar alpha("alpha","alpha", 0.5);
+  RooFormulaVar b("b","@0+@1*@2", RooArgList(p0_gamma_bet, p1_gamma_bet, mt));
+  RooFormulaVar g("g","@0+@1*@2", RooArgList(p0_gamma_gam, p1_gamma_gam, mt));
+  RooFormulaVar mu("mu","@0+@1*@2", RooArgList(p0_gamma_mu, p1_gamma_mu, mt));
+
+  //Gaussian
+  RooFormulaVar mean("mean","@0+@1*@2", RooArgList(p0_gauss_mu, p1_gauss_mu, mt));
+  RooFormulaVar sigma("sigma","@0+@1*@2", RooArgList(p0_gauss_sig, p1_gauss_sig, mt));
+
+  RooGamma gamma("gamma","gamma",d0_l_mass,g,b,mu);
+  RooGaussian gauss("gauss","gauss",d0_l_mass,mean,sigma);
+
+  /*
   // Construct Gaussian PDF for signal
   //RooRealVar mean("mean","mean", 57, 40, 90);
   RooRealVar mean("mean","mean", 65, 0, 150);
@@ -112,10 +146,11 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //  Construct Gamma PDF for signal
   RooRealVar nbsig("nbsig","nbsignal", 100, 0 , 10000);
   RooGamma gamma("gamma","gamma", d0_l_mass, g, b, mu);
+  */
 
   cout << "defining model" << endl;
   // Construct a Gaussian+Gamma function to fit the signal component
-  RooRealVar alpha("alpha","alpha", 0.3, 0., 1.);
+  //RooRealVar alpha("alpha","alpha", 0.3, 0., 1.);
   //RooRealVar alpha("alpha","alpha", 0.45,0.44,0.46);
   //RooRealVar alpha("alpha","alpha", 0.4,0.39,0.41);
   RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
@@ -164,6 +199,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //cout << nbkg.getVal() << endl;
   //cout << nsig.getVal() * intModel->getVal() << endl;
 
+  /*
   cout << "mean," << mean.getValV() << "," << mean.getError() << endl;
   cout << "sigma," << sigma.getValV() << "," << sigma.getError() << endl;
   cout << "a," << alpha.getValV() << "," << alpha.getError() << endl;
@@ -177,6 +213,27 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   p.push_back(pair<float,float>(g.getValV(),g.getError()));
   p.push_back(pair<float,float>(b.getValV(),b.getError()));
   p.push_back(pair<float,float>(mu.getValV(),mu.getError()));
+  */
+
+  float mean_val(p0_gauss_mu.getValV() + p1_gauss_mu.getValV() * mt.getValV());
+  float mean_err(sqrt(pow(p0_gauss_mu.getError(),2) + pow(p1_gauss_mu.getError(),2)));
+  float sigma_val(p0_gauss_sig.getValV() + p1_gauss_sig.getValV() * mt.getValV());
+  float sigma_err(sqrt(pow(p0_gauss_sig.getError(),2) + pow(p1_gauss_sig.getError(),2)));
+  float alpha_val(p0_a.getValV() + p1_a.getValV() * mt.getValV());
+  float alpha_err(sqrt(pow(p0_a.getError(),2) + pow(p1_a.getError(),2)));
+  float gamma_val(p0_gamma_gam.getValV() + p1_gamma_gam.getValV() * mt.getValV());
+  float gamma_err(sqrt(pow(p0_gamma_gam.getError(),2) + pow(p1_gamma_gam.getError(),2)));
+  float beta_val(p0_gamma_bet.getValV() + p1_gamma_bet.getValV() * mt.getValV());
+  float beta_err(sqrt(pow(p0_gamma_bet.getError(),2) + pow(p1_gamma_bet.getError(),2)));
+  float mu_val(p0_gamma_mu.getValV() + p1_gamma_mu.getValV() * mt.getValV());
+  float mu_err(sqrt(pow(p0_gamma_mu.getError(),2) + pow(p1_gamma_mu.getError(),2)));
+
+  p.push_back(pair<float,float>(mean_val,mean_err));
+  p.push_back(pair<float,float>(sigma_val,sigma_err));
+  p.push_back(pair<float,float>(alpha_val,alpha_err));
+  p.push_back(pair<float,float>(gamma_val,gamma_err));
+  p.push_back(pair<float,float>(beta_val,beta_err));
+  p.push_back(pair<float,float>(mu_val,mu_err));
 
   //x.setRange("sigma",mean.getValV()-sigma.getValV(),mean.getValV()+sigma.getValV());
   //x.setRange("sigma",0,150);
