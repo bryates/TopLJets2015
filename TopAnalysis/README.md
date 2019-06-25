@@ -15,7 +15,8 @@ git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
 #For BFragmentationAnalyzer
 mkdir TopQuarkAnalysis
 cd TopQuarkAnalysis
-git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git
+git clone https://git@gitlab.cern.ch:8443/CMS-TOPPAG/BFragmentationAnalyzer.git (Kereros 5 on lxplus)
+#git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git (ssh)
 cd -
 scram b -j8
 ```
