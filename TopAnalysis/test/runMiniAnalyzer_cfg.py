@@ -143,7 +143,7 @@ if not options.runOnData:
     process.pseudoTop.jetMaxEta=cms.double(5.0)
 
 # b-frag weight producer
-process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
+#process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
 
 #EGM customization
 from TopLJets2015.TopAnalysis.customizeEGM_cff import customizeEGM
@@ -172,4 +172,5 @@ process.TFileService = cms.Service("TFileService",
 if options.runOnData:
     process.p = cms.Path(process.preYieldFilter*process.customizeJetToolsSequence*process.analysis)
 else:
-    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.bfragWgtProducer*process.analysis)
+    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.analysis)
+    #process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.bfragWgtProducer*process.analysis)
