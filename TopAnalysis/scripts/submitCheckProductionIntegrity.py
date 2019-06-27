@@ -10,7 +10,7 @@ steer the script
 def main():
 
     cmsswBase=os.environ['CMSSW_BASE']
-    eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
+    #eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
 
     #configuration
     usage = 'usage: %prog [options]'
@@ -21,11 +21,11 @@ def main():
     parser.add_option(      '--only',        dest='only',        help='only this tag',                            default=None,   type='string')
     (opt, args) = parser.parse_args()
 
-    Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
 
     #prepare output directory
     if opt.outDir is None: opt.outDir=opt.inDir
-    Popen([eos_cmd, 'mkdir', '/eos/cms/'+opt.outDir],stdout=PIPE).communicate()
+    #Popen([eos_cmd, 'mkdir', '/eos/cms/'+opt.outDir],stdout=PIPE).communicate()
 
     dset_list=getEOSlslist(directory=opt.inDir,prepend='')
     for dset in dset_list:
@@ -67,7 +67,7 @@ def main():
             #cmd='bsub -q %s %s/src/TopLJets2015/TopAnalysis/scripts/wrapLocalAnalysisRun.sh \"%s\"' % (opt.queue,cmsswBase,localMerge)
             #os.system(cmd)
 
-    Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
 
 """
 for execution from another script

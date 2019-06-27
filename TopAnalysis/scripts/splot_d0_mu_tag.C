@@ -167,9 +167,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
-  RooRealVar ptfrac("ptfrac","(D^{0} p_{T} + #mu p_{T}) / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
+  RooRealVar ptfrac("ptfrac","(D^{0} p_{T} + #mu p_{T}) / #Sigma p_{T}^{ch}", 0, 1.1, "") ;
   RooRealVar d0_pt("d0_pt","D^{0}_{#mu} p_{T}", 0, 250, "GeV");
-  RooRealVar j_pt_ch("j_pt_ch","#Sigma_{ch} p_{T} charged", 0, 400, "GeV");
+  RooRealVar j_pt_ch("j_pt_ch","#Sigma p_{T}^{ch} charged", 0, 400, "GeV");
   RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
@@ -184,7 +184,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,tuneW));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW));
   //RooDataSet dsn("dsn", "dsn", args);
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {

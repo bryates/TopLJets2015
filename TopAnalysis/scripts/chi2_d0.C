@@ -21,8 +21,8 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(0);
-bool fullpt(0);
+int epoch(2);
+bool fullpt(1);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
 float N(1.);
@@ -298,8 +298,8 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 N = mc->Integral();
 }
 
-data->GetXaxis()->SetRangeUser(0.2,0.975);
-mc->GetXaxis()->SetRangeUser(0.2,0.975);
+data->GetXaxis()->SetRangeUser(0.0,0.975);
+mc->GetXaxis()->SetRangeUser(0.0,0.975);
 data->SetLineColor(kBlack);
 data->SetMarkerColor(kBlack);
 data->SetMarkerStyle(20);

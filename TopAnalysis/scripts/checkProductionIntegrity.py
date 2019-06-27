@@ -10,7 +10,7 @@ steer the script
 """
 def main():
 
-    eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
+    #eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
 
     #configuration
     usage = 'usage: %prog [options]'
@@ -26,7 +26,7 @@ def main():
 
     #prepare output directory
     if opt.outDir is None: opt.outDir=opt.inDir
-    Popen([eos_cmd, 'mkdir', '/eos/cms/'+opt.outDir],stdout=PIPE).communicate()
+    #Popen([eos_cmd, 'mkdir', '/eos/cms/'+opt.outDir],stdout=PIPE).communicate()
 
     dset_list=getEOSlslist(directory=opt.inDir,prepend='')
     for dset in dset_list:
@@ -74,7 +74,7 @@ def main():
                 choice = raw_input('Will move to %s current output directory. [y/n] ?' % newDir ).lower()
                 if not 'y' in choice : continue
             
-            Popen([eos_cmd, 'mkdir', '/eos/cms/'+newDir],stdout=PIPE).communicate()
+            #Popen([eos_cmd, 'mkdir', '/eos/cms/'+newDir],stdout=PIPE).communicate()
     
             moveIndividualFiles=True
             if len(file_list)>0:
@@ -127,7 +127,7 @@ def main():
             if not opt.nocheck and opt.cleanup : 
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()
                 if 'y' in choice: 
-                    Popen([eos_cmd, 'rm', '-r /eos/cms/'+dset],stdout=PIPE).communicate()
+                    #Popen([eos_cmd, 'rm', '-r /eos/cms/'+dset],stdout=PIPE).communicate()
 
             print 'Crab outputs may now be found in %s' % newDir
 
