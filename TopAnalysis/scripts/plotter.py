@@ -1034,6 +1034,7 @@ def main():
                                 normGH=1.11; #derived from GH, needed in B-F after corrections
                                 if "_meson" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.06; #derived from GH, needed in B-F after corrections
                                 elif "_meson" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11; #derived from GH, needed in B-F after corrections
+                                elif "_jpsi" in obj.GetName() and opt.run == "BCDEF": normGH=1.01; #derived from GH, needed in B-F after corrections
                                 elif "_jpsi" in obj.GetName() and opt.run == "GH": normGH=1.01; #derived from GH, needed in B-F after corrections
                                 if "_mu_tag" in obj.GetName() and opt.run == "BCDEF": normGH*=1.11;
                                 elif "_mu_tag" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.04;

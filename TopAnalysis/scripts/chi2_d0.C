@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(2);
+int epoch(0);
 bool fullpt(1);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
@@ -76,7 +76,6 @@ delete fmc;
 
 void chi2_d0() {
   run_chi2_d0("");
-/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -86,7 +85,7 @@ void chi2_d0() {
   //run_chi2_d0("erdON");
   run_chi2_d0("GluonMove_erdON");
   //run_chi2_d0("QCD_erdON");
-  std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER" }; //no lepton tracker efficiencies are used!
+  std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER", "JSF" }; //no lepton tracker efficiencies are used!
   //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0("down_"+it);
@@ -95,6 +94,7 @@ void chi2_d0() {
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
   run_chi2_d0("tpt");
+/*
   run_chi2_d0("m166v5");
   run_chi2_d0("m169v5");
   run_chi2_d0("m171v5");
@@ -246,6 +246,7 @@ mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
 setupPad()->cd();
 tdr(mc, epoch);
+if(fullpt) mc->GetXaxis()->SetTitle("D^{0} / jet p_{T}");
 mc->Draw();
 tdr(mc, epoch);
 if(epoch==0) {
@@ -258,8 +259,8 @@ data->SetLineWidth(2);
 if(num==0) num=0.855;
 if(namet == "") namet = "172v5";
 //if(tunet == "") tunet = "855";
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0.pdf",namet.Data(),int(num*1000)));
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0.png",namet.Data(),int(num*1000)));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.pdf",namet.Data(),int(num*1000), epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.png",namet.Data(),int(num*1000), epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
 
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
@@ -298,8 +299,12 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 N = mc->Integral();
 }
 
-data->GetXaxis()->SetRangeUser(0.0,0.975);
-mc->GetXaxis()->SetRangeUser(0.0,0.975);
+data->GetXaxis()->SetRangeUser(0.2,0.975);
+mc->GetXaxis()->SetRangeUser(0.2,0.975);
+if(fullpt) {
+data->GetXaxis()->SetRangeUser(0.0,0.7);
+mc->GetXaxis()->SetRangeUser(0.0,0.7);
+}
 data->SetLineColor(kBlack);
 data->SetMarkerColor(kBlack);
 data->SetMarkerStyle(20);
@@ -310,14 +315,20 @@ mc->SetMarkerStyle(1);
 mc->SetLineWidth(1);
 mc->GetYaxis()->SetRangeUser(0.,.12);
 data->GetYaxis()->SetRangeUser(0.,.12);
+if(fullpt) {
+mc->GetYaxis()->SetRangeUser(0.,.16);
+data->GetYaxis()->SetRangeUser(0.,.16);
+}
 mc->Draw("hist");
 tdr(mc, epoch);
 mc->Draw("same e");
 data->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
-c1->SaveAs(TString::Format("mcVdata_%s_%d",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0.pdf");
-c1->SaveAs(TString::Format("mcVdata_%s_%d",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0.png");
+TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch]);
+if(fullpt) mcvname += "_jpT";
+c1->SaveAs(mcvname + ".pdf");
+c1->SaveAs(mcvname + ".png");
 float chi2 = data->Chi2Test(mc, "CHI2 P WW");
 /*
 chi2 = 0.;

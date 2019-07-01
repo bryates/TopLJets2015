@@ -58,7 +58,7 @@ def main():
             condorFile.write('output                = condor/log/%s_EOS_$(ProcId).out\n' % pub)
             condorFile.write('error                 = condor/log/%s_EOS_$(ProcId).err\n' % pub)
             condorFile.write('log                   = condor/log/%s_EOS.log\n' % pub)
-            condorFile.write('+JobFlavour           = "workday"\n')
+            condorFile.write('+JobFlavour           = "tomorrow"\n')
             condorFile.write('Should_Transfer_Files = NO\n')
             condorFile.write('queue')
             condorFile.close()

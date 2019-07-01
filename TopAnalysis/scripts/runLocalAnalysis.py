@@ -142,7 +142,7 @@ def main():
             ext_len=",".join(input_list).count("_ext")
             sys=""
             runSysts=0
-            syst=["TRIGGER" ,"LEP", "PU" ,"PI" ,"JER"]
+            syst=["TRIGGER" ,"LEP", "PU" ,"PI" ,"JER", "JSF"]
             #syst=["TRIGGER" ,"LEP" ,"TRK" ,"PU" ,"PI" ,"JER"]
             if(opt.runSysts!=0):
                 runSysts=2**abs(opt.runSysts)

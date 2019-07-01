@@ -38,7 +38,7 @@
 
 using namespace std;
 
-enum systBit { TRIGGER_BIT=1, LEP_BIT, PU_BIT, PI_BIT, JER_BIT };
+enum systBit { TRIGGER_BIT=1, LEP_BIT, PU_BIT, PI_BIT, JER_BIT, JSF_BIT };
 //enum systBit { TRIGGER_BIT=1, LEP_BIT, TRK_BIT, PU_BIT, PI_BIT, JER_BIT };
 int passBit(int syst, int BIT) {
   if(syst==0) return 0;
@@ -168,6 +168,7 @@ void RunTopKalman(TString filename,
   if(abs(passBit(runSysts,PU_BIT))) std::cout << TString::Format("running %s PU systematics", updown.Data()) << std::endl;
   if(abs(passBit(runSysts,PI_BIT))) std::cout << TString::Format("running %s pi systematics", updown.Data()) << std::endl;
   if(abs(passBit(runSysts,JER_BIT))) std::cout << TString::Format("running %s JER systematics", updown.Data()) << std::endl;
+  if(abs(passBit(runSysts,JSF_BIT))) std::cout << TString::Format("running %s JSF systematics", updown.Data()) << std::endl;
   
   //PILEUP WEIGHTING
   std::vector<TGraph *>puWgtGr;
@@ -328,6 +329,7 @@ void RunTopKalman(TString filename,
   allPlots["topptwgt"] = new TH1F("topptwgt","Top p_{T} weights", 2, 0, 2);
   allPlots2D["toppteta"] = new TH2F("toppteta","Top p_{T} weights vs. #eta", 100, -2.4, 2.4, 100, 0, 2);
   allPlots["jerwgt"] = new TH1F("jerwgt","JER weights", 2, 0, 2);
+  allPlots["jsfwgt"] = new TH1F("jsfwgt","JSF weights", 2, 0, 2);
   allPlots["piwgt_BCDEF"] = new TH1F("piwgt_BCDEF","pi weights", 2, 0, 2);
   allPlots["piwgt_GH"] = new TH1F("piwgt_GH","pi weights", 2, 0, 2);
   allPlots2D["jereta"] = new TH2F("jereta","JER weights vs. #eta", 100, -2.4, 2.4, 200, 0, 2);
@@ -872,14 +874,20 @@ void RunTopKalman(TString filename,
               pftk.setMother(ev.pf_mother[ipf]);
             }
 	    tmpj.addTrack(pftk); //,ev.pf_id[ipf]);
-            /*
-            if(jecUnc) {
-              jecUnc->setJetEta(jp4.Eta());
-              jecUnc->setJetPt(jp4.Pt());
-              float jes = jecUnc->getUncertainty(true);
-              cout << "jes= " << jes << endl;
+	    if(passBit(runSysts,JSF_BIT)) {
+              if(jecUnc) {
+                jecUnc->setJetEta(jp4.Eta());
+                jecUnc->setJetPt(jp4.Pt());
+                                                   //true=UP; false=DOWN
+                float jes = jecUnc->getUncertainty(passBit(runSysts,JSF_BIT)>0);
+                jp4.Print();
+	        jp4+=jp4*passBit(runSysts,JSF_BIT)*jes;
+                jp4.Print();
+                allPlots["jsfwgt"]->Fill(1.,jes);
+                allPlots["jsfwgt"]->Fill(0.,1.);
+                if(debug) std::cout << "jes= " << jes << std::endl;
+              }
             }
-            */
 	  }
           tmpj.sortTracksByPt();
 

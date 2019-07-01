@@ -1,18 +1,28 @@
 from __future__ import print_function
+import optparse
 import json
 import math
 from collections import OrderedDict
 import os
 
+usage = 'usage: %prog [options]'
+parser = optparse.OptionParser(usage)
+parser.add_option('-j', '--json',        dest='json'  ,      help='json with list of files',        default=None,              type='string')
+
+(opt, args) = parser.parse_args()
+
+#read list of samples
+jsonFile = open(opt.json,'r')
+
 #jsonFile = open('data/era2016/rbFit.range','r')
 #jsonFile = open('data/era2016/rbFit.range2','r')
 #jsonFile = open('data/era2016/rbFit.pt','r')
-jsonFile = open('data/era2016/rbFit.json','r')
+#jsonFile = open('data/era2016/rbFit_jpT.json','r')
 rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items()
 jsonFile.close()
 
 
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
 #syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Tracker efficiency up', 'Tracker efficiency down', 'Pile-up up', 'Pile-up down', '$\pi$ efficiency up', '$\pi$ efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'hdamp up', 'hdamp down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 sup = [[0] * len(syst)] * 3
@@ -34,7 +44,7 @@ report='('
     ##print 'Nom & %.4f $\pm$ %.4f & %.4f $\pm$ %.4f & %.4f $\pm$ %.4f' %(rbList[0][1][i], rbList[0][1][i+1], rbList[1][1][i], rbList[1][1][i+1], rbList[2][1][i], rbList[2][1][i+1])
     #i+=1
 
-total = 12;
+total = 14;
 for l in xrange(0,3):
     continue
     i = 1
@@ -56,7 +66,7 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down']
+skip=['Trigger selection up', 'Trigger selection down']#, 'JER up', 'JER down']
 #print('Nominal & ', end='')
 #print('%.3f & ' % (rbList[0][1][0]), end='')
 #print('%.3f & ' % (rbList[1][1][0]), end='')
@@ -135,9 +145,12 @@ while i < len(syst):
     
     if syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
         print(syst[i], ' & ', end='')
-        print('%.3f & ' %     (rbList[0][1][j]-rbList[0][1][0]), end='')
-        print('%.3f & ' %     (rbList[1][1][j]-rbList[1][1][0]), end='')
-        print('%.3f' % (rbList[2][1][j]-rbList[2][1][0]), end='')
+        #print('%.3f & ' %     (rbList[0][1][j]-rbList[0][1][0]), end='')
+        #print('%.3f & ' %     (rbList[1][1][j]-rbList[1][1][0]), end='')
+        #print('%.3f' % (rbList[2][1][j]-rbList[2][1][0]), end='')
+        print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
+        print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
+        print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
         #print('%.3f & ' % (rbList[0][1][0]-rbList[0][1][j]), end='')
         #print('%.3f & ' % (rbList[1][1][0]-rbList[1][1][j]), end='')
         #print('%.3f '   % (rbList[2][1][0]-rbList[2][1][j]), end='')
@@ -147,7 +160,7 @@ while i < len(syst):
         print(syst[i], ' & ', end='')
         #print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
         #print up
-        if "SR" in syst[i] or "Top mass" in syst[i]:
+        if "SR" in syst[i] or "Top mass" in syst[i] or 1:
             print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j+2]-rbList[1][1][0], pow(abs(rbList[1][1][j+3]**2-rbList[1][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j+2]-rbList[2][1][0], pow(abs(rbList[2][1][j+3]**2-rbList[2][1][1]**2),0.5)), end='')
@@ -161,10 +174,13 @@ while i < len(syst):
         print(syst[i+1], ' & ', end='')
         #print('%.3f$\pm$%.3f & ' % (rbList[0][1][0]-rbList[0][1][j], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
         #print down
-        if "SR" in syst[i] or "Top mass" in syst[i]:
+        if "SR" in syst[i] or "Top mass" in syst[i] or 1:
             print('%.3f & ' %     max(rbList[0][1][j]-rbList[0][1][0],pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
             print('%.3f & ' %     max(rbList[1][1][j]-rbList[1][1][0],pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
             print('%.3f ' %       max(rbList[2][1][j]-rbList[2][1][0],pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
+            print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
+            print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
+            print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
         else:
             print('%.3f & ' %     (rbList[0][1][j]-rbList[0][1][0]), end='')
             print('%.3f & ' %     (rbList[1][1][j]-rbList[1][1][0]), end='')

@@ -42,6 +42,7 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
   RooWorkspace w("w",mass);
   float wind(0.04);
+  bool tpt(true);
 /*
 void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -61,6 +62,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_%s",syst.Data()) << std::endl;
   }
+  else if(mass.Contains("tpt")) { //no top pt reweighting
+    tpt = false;
+  }
   TFile *fin;
   TGraph *g=nullptr;
   //std::vector<TGraph*> fwgt;
@@ -76,7 +80,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   else {
-    if(mass.Contains("TRK") || mass.Contains("TRIGGER") || mass.Contains("LEP") ||mass.Contains("PU") || mass.Contains("PI") || mass.Contains("JER")) {  // SFs
+    if(mass.Contains("TRK") || mass.Contains("TRIGGER") || mass.Contains("LEP") ||mass.Contains("PU") || mass.Contains("PI") || mass.Contains("JER") || mass.Contains("JSF")) {  // SFs
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
@@ -144,6 +148,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   float puSF2 = pu2->GetBinContent(1)/pu2->GetBinContent(2);
   float topSF1 = top1->GetBinContent(2)/top1->GetBinContent(1);
   float topSF2 = top2->GetBinContent(2)/top2->GetBinContent(1);
+  float jsfSF1(1.);
+  float jsfSF2(1.);
+  if(mass.Contains("JSF") && 0) {
+    TH1F *jsf1 = (TH1F*) f->Get("jsfwgt_BCDEF");
+    TH1F *jsf2 = (TH1F*) f->Get("jsfwgt_GH");
+    jsfSF1 = jsf1->GetBinContent(1)/jsf1->GetBinContent(2);
+    jsfSF2 = jsf2->GetBinContent(1)/jsf2->GetBinContent(2);
+  }
   pu1->SetDirectory(0);
   pu2->SetDirectory(0);
   top1->SetDirectory(0);
@@ -237,18 +249,21 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       tuneW.setVal(1.);
       scale *= ev.sfs[j]; //Data has sfs=0.5 if duplicates (piK and Kpi)
       if(!isData) {
-        scale *= ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        scale *= ev.norm * ev.xsec * ev.puwgt[j];// * ev.topptwgt;// * topSF * puSF;
+        if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
         //scale *= ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         scale *= 1.11; //GH normalization const
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
-          scale =  scale * 19712.86 * puSF1 * topSF1;
+          scale =  scale * 19712.86 * puSF1 * jsfSF1;// * topSF1;
+          if(tpt) scale =  scale * topSF1;
           scale *= 1.11; //GH normalization const
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
-          scale = scale * 16146.178 * puSF2 * topSF2;
+          scale = scale * 16146.178 * puSF2 * jsfSF2;// * topSF2;
+          if(tpt) scale =  scale * topSF2;
           //h2->Fill(mesonlm[j], scale);
         }
         else

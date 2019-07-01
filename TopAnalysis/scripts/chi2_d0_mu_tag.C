@@ -65,7 +65,7 @@ for(int i = 0; i < bin.size(); i++) {
 tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
 ((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
 //else ((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->reduce("j_pt<200")->plotOn(tmp, RooFit::Binning(22));
-//if(fullpt) mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+//mc = (TH1F*)convert(tmp, norm, 0, 1.1);
 mc = (TH1F*)convert(tmp, norm, bin);
 //mc = (TH1F*)convert(tmp, norm, 13, bin);
 mc->SetDirectory(0);
@@ -279,6 +279,10 @@ delete data2;
 delete mc2;
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
+data->GetXaxis()->SetRangeUser(0.,0.89);
+mc->GetXaxis()->SetRangeUser(0.,0.89);
+mc->GetYaxis()->SetRangeUser(0.,.16);
+data->GetYaxis()->SetRangeUser(0.,.16);
 setupPad()->cd();
 mc->Draw();
 tdr(mc, epoch, fin);
@@ -292,12 +296,15 @@ TString namet(name);
 if(num==0) num=0.855;
 if(namet == "") namet = "172v5";
 //if(tunet == "") tunet = "855";
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0mu.pdf",namet.Data(),int(num*1000)));
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0mu.png",namet.Data(),int(num*1000)));
+TString mcvdname(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d_BCDEFGH_d0mu",namet.Data(),int(num*1000)));
+if(fullpt) mcvdname += "_jpT";
+if(fin) mcvdname += "_final";
+c1->SaveAs(mcvdname + ".pdf");
+c1->SaveAs(mcvdname + ".png");
 
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
-data->GetXaxis()->SetRangeUser(0,1.1);
+//data->GetXaxis()->SetRangeUser(0,1.1);
 mc->SetMarkerStyle(20);
 data->SetMarkerStyle(20);
 data->SetMarkerColor(kBlack);
@@ -305,14 +312,11 @@ data->SetLineColor(kBlack);
 data->SetLineWidth(2);
 data->Draw();
 tdr(data, epoch, fin);
-if(fin) {
-c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu_final.pdf");
-c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu_final.png");
-}
-else {
-c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu.pdf");
-c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu.png");
-}
+TString ptname("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0mu");
+if(fullpt) ptname += "_jpT";
+if(fin) ptname += "_final";
+c1->SaveAs(ptname + ".pdf");
+c1->SaveAs(ptname + ".png");
 }
 }
 
@@ -348,6 +352,10 @@ mc->GetYaxis()->SetRangeUser(0.,.16);
 data->GetYaxis()->SetRangeUser(0.,.16);
 data->GetXaxis()->SetRangeUser(0.,0.975);
 mc->GetXaxis()->SetRangeUser(0.,0.975);
+if(fullpt) {
+data->GetXaxis()->SetRangeUser(0.21,0.89);
+mc->GetXaxis()->SetRangeUser(0.21,0.89);
+}
 gStyle->SetOptStat(0);
 mc->SetTitle("");
 data->SetTitle("");
@@ -371,8 +379,12 @@ c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000))
 */
 c1->SaveAs(title + ".pdf");
 c1->SaveAs(title + ".png");
-data->GetXaxis()->SetRangeUser(0.2,0.975);
-mc->GetXaxis()->SetRangeUser(0.2,0.975);
+data->GetXaxis()->SetRangeUser(0.21,0.975);
+mc->GetXaxis()->SetRangeUser(0.21,0.975);
+if(fullpt) {
+data->GetXaxis()->SetRangeUser(0.,0.89);
+mc->GetXaxis()->SetRangeUser(0.,0.89);
+}
 float chi2 = data->Chi2Test(mc, "CHI2 P WW");
 std::cout << tune << " Chi2= " << chi2 << std::endl;
 if(chi2<low) low = chi2;

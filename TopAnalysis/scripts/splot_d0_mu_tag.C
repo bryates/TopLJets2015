@@ -76,7 +76,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   else {
-    if(mass.Contains("TRK") || mass.Contains("TRIGGER") || mass.Contains("LEP") ||mass.Contains("PU") || mass.Contains("PI") || mass.Contains("JER")) {  // SFs
+    if(mass.Contains("TRK") || mass.Contains("TRIGGER") || mass.Contains("LEP") ||mass.Contains("PU") || mass.Contains("PI") || mass.Contains("JER") || mass.Contains("JSF")) {  // SFs
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");

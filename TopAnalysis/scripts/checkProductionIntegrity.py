@@ -128,6 +128,7 @@ def main():
                 choice = raw_input('Will remove output directory. [y/n] ?').lower()
                 if 'y' in choice: 
                     #Popen([eos_cmd, 'rm', '-r /eos/cms/'+dset],stdout=PIPE).communicate()
+                    os.system('rm -r /eos/cms/%s' % dset)
 
             print 'Crab outputs may now be found in %s' % newDir
 
