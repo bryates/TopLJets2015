@@ -13,6 +13,7 @@ parser.add_option('-j', '--json',        dest='json'  ,      help='json with lis
 
 #read list of samples
 jsonFile = open(opt.json,'r')
+full = True if "jpT" in opt.json else False
 
 #jsonFile = open('data/era2016/rbFit.range','r')
 #jsonFile = open('data/era2016/rbFit.range2','r')
@@ -44,7 +45,7 @@ report='('
     ##print 'Nom & %.4f $\pm$ %.4f & %.4f $\pm$ %.4f & %.4f $\pm$ %.4f' %(rbList[0][1][i], rbList[0][1][i+1], rbList[1][1][i], rbList[1][1][i+1], rbList[2][1][i], rbList[2][1][i+1])
     #i+=1
 
-total = 14;
+total = 12;
 for l in xrange(0,3):
     continue
     i = 1
@@ -66,7 +67,7 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Trigger selection up', 'Trigger selection down']#, 'JER up', 'JER down']
+skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down']
 #print('Nominal & ', end='')
 #print('%.3f & ' % (rbList[0][1][0]), end='')
 #print('%.3f & ' % (rbList[1][1][0]), end='')
@@ -106,30 +107,30 @@ while i < len(syst):
         j+=2
         continue
     if "FSR" in syst[i] or "Top mass" in syst[i]: #FSR do not symmetrize
-        sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
-        sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
-        sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])
+        #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
+        #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
+        #sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])
         down[0] = (down[0]**2 + (rbList[0][1][j]-rbList[0][1][0])**2)**.5
         down[2] = (down[2]**2 + (rbList[1][1][j]-rbList[1][1][0])**2)**.5
         down[4] = (down[4]**2 + (rbList[2][1][j]-rbList[2][1][0])**2)**.5
     elif "ISR" in syst[i]: #symmetrize, ISR separate stat
-        sdown[0][i] = max(abs(rbList[0][1][j]-rbList[0][1][0]), abs(rbList[0][1][j+1]-rbList[0][1][1]))
-        sdown[1][i] = max(abs(rbList[1][1][j]-rbList[1][1][0]), abs(rbList[1][1][j+1]-rbList[1][1][1]))
-        sdown[2][i] = max(abs(rbList[2][1][j]-rbList[2][1][0]), abs(rbList[2][1][j+1]-rbList[2][1][1]))
+        #sdown[0][i] = max(abs(rbList[0][1][j]-rbList[0][1][0]), abs(rbList[0][1][j+1]-rbList[0][1][1]))
+        #sdown[1][i] = max(abs(rbList[1][1][j]-rbList[1][1][0]), abs(rbList[1][1][j+1]-rbList[1][1][1]))
+        #sdown[2][i] = max(abs(rbList[2][1][j]-rbList[2][1][0]), abs(rbList[2][1][j+1]-rbList[2][1][1]))
         down[0] = (down[0]**2 + max(abs(rbList[0][1][j]-rbList[0][1][0]), abs(rbList[0][1][j+1]-rbList[0][1][1]))**2)**.5
         down[2] = (down[2]**2 + max(abs(rbList[1][1][j]-rbList[1][1][0]), abs(rbList[1][1][j+1]-rbList[1][1][1]))**2)**.5
         down[4] = (down[4]**2 + max(abs(rbList[2][1][j]-rbList[2][1][0]), abs(rbList[2][1][j+1]-rbList[2][1][1]))**2)**.5
     elif syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
-        sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])**2
-        sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])**2
-        sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])**2
+        #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])**2
+        #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])**2
+        #sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])**2
         down[0] = (down[0]**2 + abs(rbList[0][1][j]-rbList[0][1][0])**2)**.5
         down[2] = (down[2]**2 + abs(rbList[1][1][j]-rbList[1][1][0])**2)**.5
         down[4] = (down[4]**2 + abs(rbList[2][1][j]-rbList[2][1][0])**2)**.5
     else: #symmetrize, ISR separate stat
-        sdown[0][i] = (abs(rbList[0][1][j+2]-rbList[0][1][0])**2 + abs(rbList[0][1][j]-rbList[0][1][0])**2) / 2
-        sdown[1][i] = (abs(rbList[1][1][j+2]-rbList[1][1][0])**2 + abs(rbList[1][1][j]-rbList[1][1][0])**2) / 2
-        sdown[2][i] = (abs(rbList[2][1][j+2]-rbList[2][1][0])**2 + abs(rbList[2][1][j]-rbList[2][1][0])**2) / 2
+        #sdown[0][i] = (abs(rbList[0][1][j+2]-rbList[0][1][0])**2 + abs(rbList[0][1][j]-rbList[0][1][0])**2) / 2
+        #sdown[1][i] = (abs(rbList[1][1][j+2]-rbList[1][1][0])**2 + abs(rbList[1][1][j]-rbList[1][1][0])**2) / 2
+        #sdown[2][i] = (abs(rbList[2][1][j+2]-rbList[2][1][0])**2 + abs(rbList[2][1][j]-rbList[2][1][0])**2) / 2
         down[0] = (down[0]**2 + (abs(rbList[0][1][j]-rbList[0][1][0])**2 + abs(rbList[0][1][j]-rbList[0][1][0])**2) / 2)**.5
         down[2] = (down[2]**2 + (abs(rbList[1][1][j]-rbList[1][1][0])**2 + abs(rbList[1][1][j]-rbList[1][1][0])**2) / 2)**.5
         down[4] = (down[4]**2 + (abs(rbList[2][1][j]-rbList[2][1][0])**2 + abs(rbList[2][1][j]-rbList[2][1][0])**2) / 2)**.5
@@ -160,7 +161,7 @@ while i < len(syst):
         print(syst[i], ' & ', end='')
         #print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
         #print up
-        if "SR" in syst[i] or "Top mass" in syst[i] or 1:
+        if "SR" in syst[i] or "Top mass" in syst[i] or full:
             print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j+2]-rbList[1][1][0], pow(abs(rbList[1][1][j+3]**2-rbList[1][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j+2]-rbList[2][1][0], pow(abs(rbList[2][1][j+3]**2-rbList[2][1][1]**2),0.5)), end='')
@@ -174,7 +175,7 @@ while i < len(syst):
         print(syst[i+1], ' & ', end='')
         #print('%.3f$\pm$%.3f & ' % (rbList[0][1][0]-rbList[0][1][j], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
         #print down
-        if "SR" in syst[i] or "Top mass" in syst[i] or 1:
+        if "SR" in syst[i] or "Top mass" in syst[i] or full:
             print('%.3f & ' %     max(rbList[0][1][j]-rbList[0][1][0],pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
             print('%.3f & ' %     max(rbList[1][1][j]-rbList[1][1][0],pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
             print('%.3f ' %       max(rbList[2][1][j]-rbList[2][1][0],pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
