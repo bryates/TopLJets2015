@@ -20,6 +20,8 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
 
       //account for neutrinos for the total energy estimation and check 
       //which ones are coming from B hadron decays
+      if(abs(par->pdgId())==5)
+            std::cout << "b quark pT " << bpt << " status= " << par->status() << std::endl;
       if(par->status()==1 && IS_NEUTRINO_PDGID(absid)) 
 	{
 	  nup4 += par->p4()*tagScale;
