@@ -110,7 +110,7 @@ python scripts/mergeOutputs.py LJets2016/8db9ad6/ True
 The True flag merges the histograms only.
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i LJets2015/2016/etaPiK/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
+python scripts/plotter.py -i LJets2015/2016/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
 ```
 
 ## Submitting the full analysis to the batch system
