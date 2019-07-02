@@ -8,17 +8,15 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_8_0_26
-cd CMSSW_8_0_26/src
+cmsrel CMSSW_9_4_12
+cd CMSSW_9_4_12/src
 cmsenv
-git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
-#For BFragmentationAnalyzer
-mkdir TopQuarkAnalysis
-cd TopQuarkAnalysis
-git clone https://git@gitlab.cern.ch:8443/CMS-TOPPAG/BFragmentationAnalyzer.git (Kereros 5 on lxplus)
-#git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git (ssh)
-cd -
+git cms-init
+git cms-merge-topic cms-egamma:EgammaID_94
+git cms-merge-topic cms-egamma:EgammaID_94
+git clone -b 94x git@github.com:bryates/TopLJets2015.git
 scram b -j8
+#grab a coffee, this will take a while
 ```
 
 ## Running ntuple creation
@@ -101,7 +99,6 @@ If "-q queue_name" is appended the jobs are submitted to the batch system instea
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
 If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
 ```
-python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 python scripts/runLocalAnalysis.py -i /store/group/phys_top/byates/LJets2016/8db9ad6/ -o LJets2015/2016/ --method TOP::RunTopKalman --era era2016 --runPeriod BCDEFGH
 ```
 After the jobs have run you can merge the outputs with
@@ -111,7 +108,7 @@ python scripts/mergeOutputs.py LJets2016/8db9ad6/ True
 The True flag merges the histograms only.
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i LJets2015/2016/etaPiK/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
+python scripts/plotter.py -i LJets2015/2016/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
 ```
 
 ## Submitting the full analysis to the batch system
