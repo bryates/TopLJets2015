@@ -7,15 +7,17 @@ up to date with the on-going tasks and results
 
 ## Installation instructions
 To execute in your lxplus work area.
-cmsrel CMSSW_9_4_15
-cd CMSSW_9_4_15/
-git cms-init
-cd src/
+```
+cmsrel CMSSW_8_0_26
+cd CMSSW_8_0_26/src
 cmsenv
-git cms-merge-topic cms-egamma:EgammaID_94
-git cms-merge-topic cms-egamma:EgammaID_949
-git cms-merge-topic cms-egamma:EgammaPostRecoTools
-git clone -b 94x git@github.com:bryates/TopLJets2015.git
+git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
+#For BFragmentationAnalyzer
+mkdir TopQuarkAnalysis
+cd TopQuarkAnalysis
+git clone https://git@gitlab.cern.ch:8443/CMS-TOPPAG/BFragmentationAnalyzer.git (Kereros 5 on lxplus)
+#git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git (ssh)
+cd -
 scram b -j8
 ```
 
