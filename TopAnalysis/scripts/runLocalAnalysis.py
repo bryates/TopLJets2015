@@ -142,7 +142,7 @@ def main():
             ext_len=",".join(input_list).count("_ext")
             sys=""
             runSysts=0
-            syst=["TRIGGER" ,"LEP", "PU" ,"PI" ,"JER"]
+            syst=["TRIGGER" ,"LEP", "PU" ,"PI" ,"JER", "JSF"]
             #syst=["TRIGGER" ,"LEP" ,"TRK" ,"PU" ,"PI" ,"JER"]
             if(opt.runSysts!=0):
                 runSysts=2**abs(opt.runSysts)
@@ -154,8 +154,8 @@ def main():
             condorFile = open(target,'w')
             condorFile.write('universe              = vanilla\n')
             #condorFile.write('executable            = condor/cond_crab.sh\n')
-            if(opt.rbFit): condorFile.write('executable            = condor/cond_rbFit.sh\n')
-            else :condorFile.write('executable            = condor/cond_submit.sh\n')
+            #if(opt.rbFit): condorFile.write('executable            = condor/cond_rbFit.sh\n')
+            condorFile.write('executable            = condor/cond_submit.sh\n')
             if (opt.runSysts<0): condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd -%hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
             else: condorFile.write('arguments             = $(ClusterID) $(ProcId) %s %s %s %s %s %hd %hd\n' % (opt.input,opt.output,tag,opt.runPeriod,opt.method,opt.rbFit,runSysts))
             condorFile.write('output                = condor/log/%s_$(ProcId)%s.out\n' % (tag,sys))

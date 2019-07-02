@@ -26,6 +26,7 @@ CharmTree::CharmTree(TTree *t, TString runPeriod, TString name, bool debug) {
   debug_ = debug;
   norm_ = 1.;
   sfs_ = std::pair<float,float>(1.,0.);
+  pitrk_ = 1.;
   puWgt_ = 1.;
   top_pt_wgt_ = 1.;
   tracker_wgt_ = 1.;
@@ -136,6 +137,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.topptwgt = top_pt_wgt_;
     ev_.sfs[ev_.nmeson] = sfs_.first;
     ev_.sfsu[ev_.nmeson] = sfs_.second;
+    ev_.pitrk[ev_.nmeson] = pitrk_;
 
     /*
     ev_.peterson[ev_.nj] = frag[0];
@@ -192,7 +194,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.jpsi_chi2[ev_.nmeson] = pfCands[0].chi2();
 
     ev_.j_pt[ev_.nj] = jet.getPt();
-    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
+    int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
+    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt(idx);
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();
     ev_.j_p_charged[ev_.nj] = jet.getChargedP();
@@ -205,6 +208,15 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_mass[ev_.nj] = jet.M();
     ev_.nmeson++;
     ev_.nj++;
+    //Check for pi K -> K pi dupilcates and weight by half
+    if(ev_.nmeson>1) {
+      for(int nmeson = ev_.nmeson; nmeson > 0; nmeson--) {
+        if(ev_.jpsi_mu1_pt[nmeson] == ev_.jpsi_mu2_pt[nmeson-1] && ev_.jpsi_mu2_pt[nmeson] == ev_.jpsi_mu1_pt[nmeson-1]) {
+          ev_.sfs[nmeson-1] *= 0.5;
+          ev_.sfs[nmeson] *= 0.5;
+        }
+      }
+    }
   }
 
   else if(name.Contains("meson")) {
@@ -252,8 +264,11 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.lumi = lumi_;
     ev_.puwgt[ev_.nmeson] = puWgt_;
     ev_.topptwgt = top_pt_wgt_;
-    ev_.sfs[ev_.nmeson] = sfs_.first*tracker_wgt_*pi_wgt_.first;
+    ev_.sfs[ev_.nmeson] = sfs_.first;//*tracker_wgt_*pi_wgt_.first;
+    ev_.piptsf[ev_.nmeson] = pfCands[0].getPtCorrection();
+    ev_.kptsf[ev_.nmeson] = pfCands[1].getPtCorrection();
     ev_.sfsu[ev_.nmeson] = sqrt(pow(sfs_.second,2)+pow(pi_wgt_.second,2));
+    ev_.pitrk[ev_.nmeson] = pfCands[0].getEtaCorrection();
 
     /*
     ev_.peterson[ev_.nj] = frag[0];
@@ -327,7 +342,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_pt[ev_.nj] = jet.getPt();
     ev_.j_eta[ev_.nj] = jet.getVec().Eta();
     ev_.j_phi[ev_.nj] = jet.getVec().Phi();
-    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt();
+    int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
+    ev_.j_pt_charged[ev_.nj] = jet.getChargedPt(idx);
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
     ev_.j_p[ev_.nj] = jet.getP();
     ev_.j_p_charged[ev_.nj] = jet.getChargedP();
@@ -339,6 +355,24 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
     ev_.j_mass[ev_.nj] = jet.M();
     ev_.j_ntk[ev_.nj] = jet.getTracks().size();
+
+    //Check for pi K -> K pi dupilcates and weight by half
+    if(ev_.nmeson>0) {
+      for(int nmeson = ev_.nmeson; nmeson > 0; nmeson--) {
+        if(ev_.d0_pi_pt[nmeson] == ev_.d0_k_pt[nmeson-1] && ev_.d0_k_pt[nmeson] == ev_.d0_pi_pt[nmeson-1] && ev_.epoch[nmeson] == ev_.epoch[nmeson-1] && ev_.sfs[nmeson]>0.5 && ev_.sfs[nmeson-1]>0.5) {
+          //std::cout << nmeson << " duplicate" << " " << ev_.d0_pi_pt[nmeson] << " " << nmeson-1 << " " << ev_.d0_k_pt[nmeson-1] << " " << ev_.epoch[nmeson] << " " << ev_.epoch[nmeson-1] << std::endl;
+          ev_.sfs[nmeson-1] *= 0.5;
+          ev_.sfs[nmeson] *= 0.5;
+          //std::cout << ev_.sfs[nmeson] << " " << ev_.sfs[nmeson-1] << std::endl;
+        }
+        else if(ev_.d0_pi_pt[nmeson] == ev_.d0_k_pt[nmeson-2] && ev_.d0_k_pt[nmeson] == ev_.d0_pi_pt[nmeson-2] && ev_.epoch[nmeson] == ev_.epoch[nmeson-2] && ev_.sfs[nmeson]>0.5 && ev_.sfs[nmeson-2]>0.5) {
+          //std::cout << nmeson << " duplicate" << " " << ev_.d0_pi_pt[nmeson] << " " << nmeson-2 << " " << ev_.d0_k_pt[nmeson-2] << " " << ev_.epoch[nmeson] << " " << ev_.epoch[nmeson-2] << std::endl;
+          ev_.sfs[nmeson-2] *= 0.5;
+          ev_.sfs[nmeson] *= 0.5;
+          //std::cout << ev_.sfs[nmeson] << " " << ev_.sfs[nmeson-1] << std::endl;
+        }
+      }
+    }
     ev_.nmeson++;
     ev_.nj++;
     //std::cout << "tree done" << std::endl;
