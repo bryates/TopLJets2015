@@ -34,6 +34,7 @@ dup = [0] * len(syst)
 ddown = [0] * len(syst)
 mup = [0] * len(syst)
 mdown = [0] * len(syst)
+fsr = [0] * 6 
 report='('
 
 # [nom,  unc,  fdown,unc,  fup,  unc,  uedown,unc, ueup, unc,  CR,   unc]
@@ -67,7 +68,7 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down']
+skip=['Trigger selection up', 'Trigger selection down']#, 'JER up', 'JER down', 'JSF up', 'JSF down']
 #print('Nominal & ', end='')
 #print('%.3f & ' % (rbList[0][1][0]), end='')
 #print('%.3f & ' % (rbList[1][1][0]), end='')
@@ -106,13 +107,25 @@ while i < len(syst):
         i+=1
         j+=2
         continue
-    if "FSR" in syst[i] or "Top mass" in syst[i]: #FSR do not symmetrize
+    try:
+        test=rbList[0][1][j]
+    except:
+        break
+    print(i, j)
+    if "Top mass" in syst[i]: #FSR do not symmetrize
         #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
         #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
         #sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])
         down[0] = (down[0]**2 + (rbList[0][1][j]-rbList[0][1][0])**2)**.5
         down[2] = (down[2]**2 + (rbList[1][1][j]-rbList[1][1][0])**2)**.5
         down[4] = (down[4]**2 + (rbList[2][1][j]-rbList[2][1][0])**2)**.5
+    if "FSR" in syst[i]: #FSR separate
+        #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
+        #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
+        #sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])
+        fsr[1] = rbList[0][1][j]-rbList[0][1][0]
+        fsr[3] = rbList[1][1][j]-rbList[1][1][0]
+        fsr[5] = rbList[2][1][j]-rbList[2][1][0]
     elif "ISR" in syst[i]: #symmetrize, ISR separate stat
         #sdown[0][i] = max(abs(rbList[0][1][j]-rbList[0][1][0]), abs(rbList[0][1][j+1]-rbList[0][1][1]))
         #sdown[1][i] = max(abs(rbList[1][1][j]-rbList[1][1][0]), abs(rbList[1][1][j+1]-rbList[1][1][1]))
@@ -192,13 +205,20 @@ while i < len(syst):
         #print('%.3f & ' % (rbList[0][1][j]-rbList[0][1][0]), end='')
         #print('%.3f & ' % (rbList[1][1][j]-rbList[1][1][0]), end='')
         #print('%.3f ' %   (rbList[2][1][j]-rbList[2][1][0]), end='')
-        if "FSR" in syst[i] or "Top mass" in syst[i]: #FSR do not symmetrize
+        if "Top mass" in syst[i]: #FSR do not symmetrize
             sup[0][i] = abs(rbList[0][1][j+2]-rbList[0][1][0])
             sup[1][i] = abs(rbList[1][1][j+2]-rbList[1][1][0])
             sup[2][i] = abs(rbList[2][1][j+2]-rbList[2][1][0])
             up[0] = (up[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
             up[2] = (up[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
             up[4] = (up[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
+        if "FSR" in syst[i]: #FSR separate
+            #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
+            #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
+            #sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])
+            fsr[0] = rbList[0][1][j]-rbList[0][1][0]
+            fsr[2] = rbList[1][1][j]-rbList[1][1][0]
+            fsr[4] = rbList[2][1][j]-rbList[2][1][0]
         elif "ISR" in syst[i]: #symmetrize, ISR separate stat
             sup[0][i] = max(abs(rbList[0][1][j+2]-rbList[0][1][0]), abs(rbList[0][1][j+3]-rbList[0][1][1]))
             sup[1][i] = max(abs(rbList[1][1][j+2]-rbList[1][1][0]), abs(rbList[1][1][j+3]-rbList[1][1][1]))
@@ -230,9 +250,9 @@ print('Total up & %.3f & %.3f & %.3f\\\\' % (up[0],up[2],up[4]))
 print('Total down & %.3f & %.3f & %.3f\\\\' % (down[0],down[2],down[4]))
 print('======')
 print('Don\'t forget to use sed to change 0.00 to <0.001: %s/-\{0,1\}0\.000/$<$0.001/g\n')
-print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst$' % (rbList[0][1][0], rbList[0][1][1], up[0], -down[0]))
-print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst$' % (rbList[1][1][0], rbList[1][1][1], up[2], -down[2]))
-print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst$' % (rbList[2][1][0], rbList[2][1][1], up[4], -down[4]))
+print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst ^{%+0.2f} _{%+0.2f} \\textrm{(FSR)}$' % (rbList[0][1][0], rbList[0][1][1], up[0], -down[0], fsr[0], fsr[1]))
+print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst ^{%+0.2f} _{%+0.2f} \\textrm{(FSR)}$' % (rbList[1][1][0], rbList[1][1][1], up[2], -down[2], fsr[2], fsr[3]))
+print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst ^{%+0.2f} _{%+0.2f} \\textrm{(FSR)}$' % (rbList[2][1][0], rbList[2][1][1], up[4], -down[4], fsr[4], fsr[5]))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
 blueFile = open("BLUE/rbSFCor.txt",'w')
@@ -261,6 +281,10 @@ for l in xrange(0,3):
           i+=1
           j+=2
           continue
+        try:
+            test=rbList[0][1][j]
+        except:
+            break
         if syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
             low=rbList[l][1][0]-rbList[l][1][j]
             lowe=rbList[l][1][1]-rbList[l][1][j+1]
@@ -360,6 +384,10 @@ for l in xrange(0,3):
           i+=1
           j+=2
           continue
+        try:
+            test=rbList[0][1][j]
+        except:
+            break
         if syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
             low=rbList[l][1][0]-rbList[l][1][j]
             lowe=rbList[l][1][1]-rbList[l][1][j+1]
@@ -458,6 +486,10 @@ for l in xrange(0,3):
           i+=1
           j+=2
           continue
+        try:
+            test=rbList[0][1][j]
+        except:
+            break
         if syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
             low=rbList[l][1][0]-rbList[l][1][j]
             lowe=rbList[l][1][1]-rbList[l][1][j+1]
