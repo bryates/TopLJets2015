@@ -47,7 +47,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 # global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v10' if options.runOnData else '94X_mcRun2_asymptotic_v3')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v5' if options.runOnData else '80X_mcRun2_asymptotic_2016_TrancheIV_v6')
 
 #message logger
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -73,7 +73,7 @@ process.source = cms.Source("PoolSource",
                             )
 #if options.skipEvents > 0: process.skipEvents = cms.untracked.uint32(options.skipEvents)
 if options.runOnData:
-    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleMuon/MINIAOD/03Feb2017_ver2-v2/80000/001F228D-53EB-E611-A429-0CC47A4C8F30.root')
+    process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleMuon/MINIAOD/23Sep2016-v3/00000/00AE0629-1F98-E611-921A-008CFA1112CC.root')
     #process.source.fileNames = cms.untracked.vstring('/store/data/Run2016B/SingleElectron/MINIAOD/23Sep2016-v3/00000/00099863-E799-E611-A876-141877343E6D.root')
     #process.source.fileNames = cms.untracked.vstring('/store/data/Run2016G/DoubleMuon/MINIAOD/23Sep2016-v1/50000/0ADAF1EC-808D-E611-8B6C-008CFA056400.root')
     #process.source.fileNames = cms.untracked.vstring('file://pickevents.root')
@@ -117,6 +117,14 @@ process.countJets = cms.EDFilter("CandViewCountFilter",
 
 process.preYieldFilter = cms.Sequence(process.selectedMuons+process.selectedElectrons+process.allLeps+process.countLeps+process.selectedJets+process.countJets)
 
+######### Kalman Filter
+#process.kalman = cms.EDAnalyzer("KalmanFilter",
+    #electrons = cms.InputTag("slimmedElectrons"),
+    #muons = cms.InputTag("slimmedMuons"),
+    #jets = cms.InputTag("slimmedJets"),
+    #pfCands = cms.InputTag("packedPFCandidates::PAT"),
+#)
+
 
 #analysis
 process.load('TopLJets2015.TopAnalysis.miniAnalyzer_cfi')
@@ -143,11 +151,17 @@ if not options.runOnData:
     process.pseudoTop.jetMaxEta=cms.double(5.0)
 
 # b-frag weight producer
-#process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
+process.load('TopLJets2015.TopAnalysis.bfragWgtProducer_cfi')
 
-#EGM customization
-from TopLJets2015.TopAnalysis.customizeEGM_cff import customizeEGM
-customizeEGM(process=process,era='2016')
+# Set up electron ID (VID framework)
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+dataFormat = DataFormat.MiniAOD
+switchOnVIDElectronIdProducer(process, dataFormat)
+#my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
+                 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
+for idmod in my_id_modules:
+    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
 #jet energy corrections
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
@@ -155,13 +169,13 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Summer16_07Aug2017_V11_MC.db'
-jecTag='Summer16_07Aug2017_V11_MC_AK4PFchs'
+jecFile='Summer16_23Sep2016V4_MC.db'
+jecTag='Summer16_23Sep2016V4_MC_AK4PFchs'
 if options.runOnData : 
     #print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
     jecLevels.append( 'L2L3Residual' )
-    jecFile='Summer16_07Aug2017All_V11_DATA.db'
-    jecTag='Summer16_07Aug2017All_V11_DATA_AK4PFchs'
+    jecFile='Summer16_23Sep2016AllV4_DATA.db'
+    jecTag='Summer16_23Sep2016AllV4_DATA_AK4PFchs'
 customizeJetTools(process=process,jecLevels=jecLevels,jecFile=jecFile,jecTag=jecTag)
 
 #tfile service
@@ -170,7 +184,8 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 if options.runOnData:
-    process.p = cms.Path(process.preYieldFilter*process.customizeJetToolsSequence*process.analysis)
+    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
+    process.p = cms.Path(process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.analysis)
 else:
-    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.analysis)
-    #process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.bfragWgtProducer*process.analysis)
+    #process.p = cms.Path(process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.pseudoTop*process.analysis)
+    process.p = cms.Path(process.weightCounter*process.preYieldFilter*process.egmGsfElectronIDSequence*process.customizeJetToolsSequence*process.mergedGenParticles*process.genParticles2HepMC*process.pseudoTop*process.bfragWgtProducer*process.analysis)
