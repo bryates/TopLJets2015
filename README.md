@@ -8,17 +8,15 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_8_0_26
-cd CMSSW_8_0_26/src
+cmsrel CMSSW_9_4_12
+cd CMSSW_9_4_12/src
 cmsenv
-git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
-#For BFragmentationAnalyzer
-mkdir TopQuarkAnalysis
-cd TopQuarkAnalysis
-git clone https://git@gitlab.cern.ch:8443/CMS-TOPPAG/BFragmentationAnalyzer.git (Kereros 5 on lxplus)
-#git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git (ssh)
-cd -
+git cms-init
+git cms-merge-topic cms-egamma:EgammaID_94
+git cms-merge-topic cms-egamma:EgammaID_94
+git clone -b 94x git@github.com:bryates/TopLJets2015.git
 scram b -j8
+#grab a coffee, this will take a while
 ```
 
 ## Running ntuple creation
