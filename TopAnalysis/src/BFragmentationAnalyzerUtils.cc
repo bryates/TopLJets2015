@@ -12,7 +12,7 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
   reco::Candidate::LorentzVector nup4(0,0,0,0);
   bool hasSemiLepDecay(false),hasTauNeutrino(false),hasCharm(false);
   int nbtags(0),nctags(0),ntautags(0);
-  float pt_charged(0),charmId(-1),bpt;
+  float pt_charged(0),charmId(-1);
   for(size_t ijc=0; ijc <jconst.size(); ijc++) 
     {
       const reco::Candidate *par=jconst[ijc];
@@ -20,8 +20,6 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
 
       //account for neutrinos for the total energy estimation and check 
       //which ones are coming from B hadron decays
-      if(abs(par->pdgId())==5)
-            std::cout << "b quark pT " << bpt << " status= " << par->status() << std::endl;
       if(par->status()==1 && IS_NEUTRINO_PDGID(absid)) 
 	{
 	  nup4 += par->p4()*tagScale;

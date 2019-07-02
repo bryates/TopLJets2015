@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -122,7 +123,7 @@ private:
   edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > upFragToken_, centralFragToken_, downFragToken_;
+  //edm::EDGetTokenT<edm::ValueMap<float> > upFragToken_, centralFragToken_, downFragToken_;
   //edm::EDGetTokenT<edm::ValueMap<float> > petersonFragToken_, upFragToken_, centralFragToken_, downFragToken_;
   edm::EDGetTokenT<pat::PackedGenParticleCollection> genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
@@ -186,9 +187,9 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   xbToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:xb"))),
   petersonFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:PetersonFrag"))),
   */
-  upFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:upFrag"))),
-  centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
-  downFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:downFrag"))),
+  //upFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:upFrag"))),
+  //centralFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:centralFrag"))),
+  //downFragToken_(consumes<edm::ValueMap<float> >(edm::InputTag("bfragWgtProducer:downFrag"))),
   genParticlesToken_(consumes<pat::PackedGenParticleCollection>(edm::InputTag("packedGenParticles"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
   pseudoTopToken_(consumes<reco::GenParticleCollection>(edm::InputTag("pseudoTop"))),
@@ -201,8 +202,10 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
   puppiMetToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("puppimets"))),
   pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"))),
+  /*
   eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
+  */
   eleTightIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >(iConfig.getParameter<edm::InputTag>("eleTightIdFullInfoMap"))),
   pfjetIDLoose_( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ),  
   saveTree_( iConfig.getParameter<bool>("saveTree") ),
@@ -278,6 +281,13 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.ttbar_matchmepartons = evt->nMEPartonsFiltered();
       ev_.ttbar_w[0]           = evt->weight();
       ev_.ttbar_nw++;
+
+      //PDF info
+      ev_.g_qscale = evt->pdf()->scalePDF;
+      ev_.g_x1     = evt->pdf()->x.first;
+      ev_.g_x2     = evt->pdf()->x.second;
+      ev_.g_id1    = evt->pdf()->id.first;
+      ev_.g_id2    = evt->pdf()->id.second;
     }
   histContainer_["counter"]->Fill(1,ev_.ttbar_w[0]);
   
@@ -305,13 +315,13 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken(xbToken_,xb);
   edm::Handle<edm::ValueMap<float> > petersonFrag;
   iEvent.getByToken(petersonFragToken_,petersonFrag);
-  */
   edm::Handle<edm::ValueMap<float> > upFrag;
   iEvent.getByToken(upFragToken_,upFrag);
   edm::Handle<edm::ValueMap<float> > centralFrag;
   iEvent.getByToken(centralFragToken_,centralFrag);
   edm::Handle<edm::ValueMap<float> > downFrag;
   iEvent.getByToken(downFragToken_,downFrag);
+  */
   std::map<const reco::Candidate *,int> jetConstsMap;
   for(auto genJet = genJets->begin();  genJet != genJets->end(); ++genJet)
     {
@@ -332,14 +342,14 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
 	  ev_.ngjets++;
 	  if(abs(genJet->pdgId())) ev_.ngbjets++;
 	}
-      edm::Ref<std::vector<reco::GenJet> > genJetRef(genJets,genJet-genJets->begin());
       /*
+      edm::Ref<std::vector<reco::GenJet> > genJetRef(genJets,genJet-genJets->begin());
       ev_.xb[ev_.ngj] = (*xb)[genJetRef];
       ev_.peterson[ev_.ng] = (*petersonFrag)[genJetRef];
-      */
       ev_.up[ev_.ng] = (*upFrag)[genJetRef];
       ev_.central[ev_.ng] = (*centralFrag)[genJetRef];
       ev_.down[ev_.ng] = (*downFrag)[genJetRef];
+      */
       ev_.ng++;
       ev_.ngj++;
     }
@@ -719,6 +729,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
     }
   
   // ELECTRON SELECTION: cf. https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+  /*
   edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   iEvent.getByToken(eleVetoIdMapToken_ ,veto_id_decisions);
   edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
@@ -727,6 +738,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken(eleTightIdMapToken_ ,medium_id_decisions);
   edm::Handle<edm::ValueMap<vid::CutFlowResult> > tight_id_cutflow_data;
   iEvent.getByToken(eleTightIdFullInfoMapToken_,tight_id_cutflow_data);
+  */
   edm::Handle<edm::View<pat::Electron> >    electrons;
   iEvent.getByToken(electronToken_, electrons);    
   Int_t nele(0);
@@ -741,15 +753,33 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       if(!passPt || !passEta) continue;
      
       //look up id decisions
+      /*
       bool passVetoId = (*veto_id_decisions)[e];
       bool passTightId  = (*tight_id_decisions)[e];
       bool passMediumId  = (*medium_id_decisions)[e];
       vid::CutFlowResult fullCutFlowData = (*tight_id_cutflow_data)[e];
+      */
       bool passTightIdExceptIso(true);
+      //full id+iso decisions
+      bool isVeto( el.electronID("cutBasedElectronID-Fall17-94X-V1-veto") );
+      int vetoBits( el.userInt("cutBasedElectronID-Fall17-94X-V1-veto")  );
+      bool passVetoId( (vetoBits | 0xc0)== 0x3ff);  //mask isolation cuts and require all bits active      
+      bool isLoose( el.electronID("cutBasedElectronID-Fall17-94X-V1-loose") );
+      int looseBits( el.userInt("cutBasedElectronID-Fall17-94X-V1-loose")  );
+      bool passLooseId( (looseBits | 0xc0)== 0x3ff);  //mask isolation cuts and require all bits active
+      bool isMedium( el.electronID("cutBasedElectronID-Fall17-94X-V1-medium") );
+      int mediumBits( el.userInt("cutBasedElectronID-Fall17-94X-V1-medium")  );
+      bool passMediumId( (mediumBits | 0xc0)== 0x3ff);  //mask isolation cuts and require all bits active
+      bool isTight( el.electronID("cutBasedElectronID-Fall17-94X-V1-tight") );
+      int tightBits( el.userInt("cutBasedElectronID-Fall17-94X-V1-tight") );
+      bool passTightId( (tightBits | 0xc0)== 0x3ff);  //mask isolation cuts and require all bits active
+
+      /*
       for(size_t icut = 0; icut<fullCutFlowData.cutFlowSize(); icut++)
  	{
 	  if(icut!=9 && !fullCutFlowData.getCutResultByIndex(icut)) passTightIdExceptIso=false;
 	}
+      */
 
       //save the electron
       const reco::GenParticle * gen=el.genLepton(); 
@@ -886,6 +916,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   for(auto pf = pfcands->begin();  pf != pfcands->end(); ++pf) {
     if(ev_.npf>=5000) continue;
 
+    if(!pf->hasTrackDetails()) continue;
     ev_.pf_j[ev_.npf] = -1;
     for(size_t i=0; i<clustCands.size(); i++) {
       if(pf->pdgId()!=clustCands[i].first->pdgId()) continue;
@@ -935,6 +966,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
     {
       if(ev_.npf>=5000) continue;
 
+      if(!pf->hasTrackDetails()) continue;
       //int npf = ev_.npf;
       //if(!(fabs(pf->pdgId())==13 || std::any_of(pfCand.begin(), pfCand.end(),
       //                              [npf](std::pair<int,double>& elem) {return elem.first == npf;} ))) continue;
@@ -1042,6 +1074,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
       
       if(pf1.pt()<1 || pf2.pt()<1) continue;
+      if(!pf1.hasTrackDetails() || !pf1.hasTrackDetails()) continue;
       // correct charge combination and not muons
       /*
       if(abs(pf1.pdgId()) != 13) continue;
@@ -1218,6 +1251,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       const pat::PackedCandidate &pf1 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id1));
       const pat::PackedCandidate &pf2 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id2));
 
+      if(!pf1.hasTrackDetails() || !pf1.hasTrackDetails()) continue;
       //if(pf1.pt()<1 || pf2.pt()<1) continue;
       // correct charge combination and not muons
       /*
@@ -1625,6 +1659,7 @@ float MiniAnalyzer::getMiniIsolation(edm::Handle<pat::PackedCandidateCollection>
     float r_iso = (float)TMath::Max((float)r_iso_min,
 				    (float)TMath::Min((float)r_iso_max, (float)(kt_scale/ptcl->pt())));
     for (const pat::PackedCandidate &pfc : *pfcands) {
+      if(!pfc.hasTrackDetails()) continue;
       if (abs(pfc.pdgId())<7) continue;
       
       float dr = deltaR(pfc, *ptcl);

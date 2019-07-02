@@ -8,17 +8,15 @@ up to date with the on-going tasks and results
 ## Installation instructions
 To execute in your lxplus work area.
 ```
-cmsrel CMSSW_8_0_26
-cd CMSSW_8_0_26/src
+cmsrel CMSSW_9_4_12
+cd CMSSW_9_4_12/src
 cmsenv
-git clone -b 80x_rereco git@github.com:bryates/TopLJets2015.git
-#For BFragmentationAnalyzer
-mkdir TopQuarkAnalysis
-cd TopQuarkAnalysis
-git clone https://git@gitlab.cern.ch:8443/CMS-TOPPAG/BFragmentationAnalyzer.git (Kereros 5 on lxplus)
-#git clone ssh://git@gitlab.cern.ch:7999/CMS-TOPPAG/BFragmentationAnalyzer.git (ssh)
-cd -
+git cms-init
+git cms-merge-topic cms-egamma:EgammaID_94
+git cms-merge-topic cms-egamma:EgammaID_94
+git clone -b 94x git@github.com:bryates/TopLJets2015.git
 scram b -j8
+#grab a coffee, this will take a while
 ```
 
 ## Running ntuple creation
@@ -78,7 +76,7 @@ python scripts/runPileupEstimation.py --json data/era2016/Data13TeV_SingleMuon_l
 ```
 * B-tagging. To apply corrections to the simulation one needs the expected efficiencies stored somwewhere. The script below will project the jet pT spectrum from the TTbar sample before and after applying b-tagging, to compute the expecte efficiencies. The result will be stored in data/expTageff.root
 ```
-python scripts/saveExpectedBtagEff.py -i /store/group/phys_top/byates/LJets2016//8db9ad6/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root
+python scripts/saveExpectedBtagEff.py -i /store/group/phys_top/byates/LJets2016/8db9ad6/MC13TeV_TTJets_powheg -o data/era2016/expTageff.root
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.root and data/genweights_syst.root
 ```
