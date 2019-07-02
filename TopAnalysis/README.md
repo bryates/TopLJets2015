@@ -104,60 +104,22 @@ If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads
 python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 python scripts/runLocalAnalysis.py -i /store/group/phys_top/byates/LJets2016/8db9ad6/ -o LJets2015/2016/ --method TOP::RunTopKalman --era era2016 --runPeriod BCDEFGH
 ```
-If you want to suppress the mails sent automatically after job completion please do
+After the jobs have run you can merge the outputs with
 ```
-export LSB_JOB_REPORT_MAIL=N
+python scripts/mergeOutputs.py LJets2016/8db9ad6/ True
 ```
-before submitting the jobs to the batch. After the jobs have run you can merge the outputs with
-```
-./scripts/mergeOutputs.py analysis_muplus
-```
+The True flag merges the histograms only.
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i analysis_muplus/   -j data/era2016/samples.json  -l 12870
+python scripts/plotter.py -i LJets2015/2016/etaPiK/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
 ```
-After the plotters are created one can run the QCD estimation normalization, by fitting the MET distribution.
-The script will also produce the QCD templates using the data from the sideband region. It runs as
-```
-python scripts/runQCDEstimation.py --iso analysis_muplus/plots/plotter.root --noniso analysis_munoniso/plots/plotter.root --out analysis_muplus/
-```
-The output is a ROOT file called Data_QCDMultijets.root which can now be used in addition to the predictions of all the other backgrounds.
-To include it in the final plots you can run the plotter script again (see instructions above).
 
 ## Submitting the full analysis to the batch system
 
 A script wraps up the above procedure for all the signal and control regions used in the analyis.
 To use it you can use the following script
 ```
-sh scripts/steerAnalysis.sh <DISTS/MERGE/PLOT/BKG>
-```
-
-## Cross section fitting
-
-We use the Higgs combination tool to perform the fit of the production cross section.
-(cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideHiggsAnalysisCombinedLimit for details of the release to use).
-It currently has to be run from a CMSSW_7_1_5 release. To create the datacard you can run the following script
-```
-python scripts/createDataCard.py -i analysis_muplus/plots/plotter.root -o  analysis_muplus/datacard  -q analysis_muplus/.qcdscalefactors.pck -d nbtags
-```
-The script can be used to create the datacard from any histogram stored in plotter.root.
-For the systematic variations it expects a 2D histogram named as HISTONAMEshapes_{exp,gen} filled with alternative variations of the shape,
-being exp/gen used for experimental/generator-level systematics.
-Additional systematics from alternative samples can also be used to build the datacards using the --systInput option.
-Other options are available to choose the categories to use.
-The datacards can be further combined using the standard combineCards.py script provided by the Higgs Combination package.
-
-To run the fits and show the results you can use the following script.
-```
-python scripts/fitCrossSection.py "#mu^{+}"=analysis_muplus/datacard/datacard.dat -o analysis_muplus/datacard &
-```
-If --noFit is passed it displays the results of the last fit. The script is a wrapper used to run combine 
-to perform the fit with and without systematics, produce the post-fit nuisance parameters summary
-and the likelihood scans.
-For the standard analysis one can re-use the steerAnalysis.sh script with two options CinC/SHAPE
-will run the Cut-in-Categories/Shape analyses.
-```
-sh scripts/steerAnalysis.sh CinC/SHAPE
+sh scripts/steerTOPWidthAnalysis.sh <DISTS/MERGE/PLOT/BKG>
 ```
 
 ## Updating the code
