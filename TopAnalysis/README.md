@@ -101,7 +101,6 @@ If "-q queue_name" is appended the jobs are submitted to the batch system instea
 To check the status of your jobs run "bjobs" and then "bpeek job_number" if you want to inspect how the job is running in the cluster.
 If "-n n_jobs" is passed the script runs locally using "n_jobs" parallel threads.
 ```
-python scripts/runLocalAnalysis.py -i /store/user/byates/LJets2015/8db9ad6 -n 8 --runSysts -o analysis_muplus   --ch 13   --charge 1
 python scripts/runLocalAnalysis.py -i /store/group/phys_top/byates/LJets2016/8db9ad6/ -o LJets2015/2016/ --method TOP::RunTopKalman --era era2016 --runPeriod BCDEFGH
 ```
 After the jobs have run you can merge the outputs with
@@ -111,7 +110,7 @@ python scripts/mergeOutputs.py LJets2016/8db9ad6/ True
 The True flag merges the histograms only.
 To plot the output of the local analysis you can run the following:
 ```
-python scripts/plotter.py -i LJets2015/2016/etaPiK/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
+python scripts/plotter.py -i LJets2015/2016/ --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --run BCDEFGH
 ```
 
 ## Submitting the full analysis to the batch system
