@@ -216,9 +216,9 @@ while i < len(syst):
             #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
             #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
             #sdown[2][i] = abs(rbList[2][1][j]-rbList[2][1][0])
-            fsr[0] = rbList[0][1][j]-rbList[0][1][0]
-            fsr[2] = rbList[1][1][j]-rbList[1][1][0]
-            fsr[4] = rbList[2][1][j]-rbList[2][1][0]
+            fsr[0] = rbList[0][1][j+2]-rbList[0][1][0]
+            fsr[2] = rbList[1][1][j+2]-rbList[1][1][0]
+            fsr[4] = rbList[2][1][j+2]-rbList[2][1][0]
         elif "ISR" in syst[i]: #symmetrize, ISR separate stat
             sup[0][i] = max(abs(rbList[0][1][j+2]-rbList[0][1][0]), abs(rbList[0][1][j+3]-rbList[0][1][1]))
             sup[1][i] = max(abs(rbList[1][1][j+2]-rbList[1][1][0]), abs(rbList[1][1][j+3]-rbList[1][1][1]))
@@ -250,9 +250,9 @@ print('Total up & %.3f & %.3f & %.3f\\\\' % (up[0],up[2],up[4]))
 print('Total down & %.3f & %.3f & %.3f\\\\' % (down[0],down[2],down[4]))
 print('======')
 print('Don\'t forget to use sed to change 0.00 to <0.001: %s/-\{0,1\}0\.000/$<$0.001/g\n')
-print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst ^{%+0.2f} _{%+0.2f} \\textrm{(FSR)}$' % (rbList[0][1][0], rbList[0][1][1], up[0], -down[0], fsr[0], fsr[1]))
-print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst ^{%+0.2f} _{%+0.2f} \\textrm{(FSR)}$' % (rbList[1][1][0], rbList[1][1][1], up[2], -down[2], fsr[2], fsr[3]))
-print('$r_{\PQb}=%0.2f \pm %0.2f \stat ^{%+0.2f}_{%+0.2f} \syst ^{%+0.2f} _{%+0.2f} \\textrm{(FSR)}$' % (rbList[2][1][0], rbList[2][1][1], up[4], -down[4], fsr[4], fsr[5]))
+print('$r_{\PQb}=%0.3f \pm %0.3f \stat ^{%+0.3f}_{%+0.3f} \syst ^{%+0.3f} _{%+0.3f} \\textrm{(FSR)}$' % (rbList[0][1][0], rbList[0][1][1], up[0], -down[0], fsr[0], fsr[1]))
+print('$r_{\PQb}=%0.3f \pm %0.3f \stat ^{%+0.3f}_{%+0.3f} \syst ^{%+0.3f} _{%+0.3f} \\textrm{(FSR)}$' % (rbList[1][1][0], rbList[1][1][1], up[2], -down[2], fsr[2], fsr[3]))
+print('$r_{\PQb}=%0.3f \pm %0.3f \stat ^{%+0.3f}_{%+0.3f} \syst ^{%+0.3f} _{%+0.3f} \\textrm{(FSR)}$' % (rbList[2][1][0], rbList[2][1][1], up[4], -down[4], fsr[4], fsr[5]))
 
 print('Average for BLUE (jpsi, d0, d0mu)')
 blueFile = open("BLUE/rbSFCor.txt",'w')
