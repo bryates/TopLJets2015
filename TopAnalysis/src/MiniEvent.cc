@@ -12,11 +12,6 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   //generator level event
   t->Branch("pu",      &ev.pu,      "pu/I");
   t->Branch("putrue",      &ev.putrue,      "putrue/I");
-  t->Branch("g_id1",     &ev.g_id1,    "g_id1/I");
-  t->Branch("g_id2",     &ev.g_id2,    "g_id2/I");
-  t->Branch("g_x1",      &ev.g_x1,     "g_x1/F");
-  t->Branch("g_x2",      &ev.g_x2,     "g_x2/F");
-  t->Branch("g_qscale",  &ev.g_qscale, "g_qscale/F");
   t->Branch("ttbar_nw",        &ev.ttbar_nw,        "ttbar_nw/I");
   t->Branch("ttbar_allmepartons",        &ev.ttbar_allmepartons,        "ttbar_allmepartons/I");
   t->Branch("ttbar_matchmepartons",        &ev.ttbar_matchmepartons,        "ttbar_matchmepartons/I");

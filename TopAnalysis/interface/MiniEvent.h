@@ -21,8 +21,6 @@ struct MiniEvent_t
   Int_t pu,putrue;
   Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
   Float_t ttbar_w[500];
-  Int_t g_id1, g_id2;
-  Float_t g_x1, g_x2, g_qscale;
   Int_t ng,ngj,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson,ngmeson_daug;
   Float_t gtop_pt_wgt;
   Int_t g_id[500];
