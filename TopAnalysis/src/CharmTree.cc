@@ -97,6 +97,16 @@ void CharmTree::SetXsec(float xsec) {
   //ev_.xsec = xsec_;
 }
 
+void CharmTree::PdfWeights(CharmEvent_t &ev_, TFile *file_) {
+  std::vector< WeightSysts_t > systWgt_ = getWeightSysts(file_, "TTJets2016");
+  size_t num = systWgt_.size();
+  for(size_t iwgt = 0; iwgt < num; iwgt++) {
+    ev_.ttbar_w[iwgt] = systWgt_[iwgt].second;
+    std::cout << systWgt_[iwgt].first << "=" << systWgt_[iwgt].second << std::endl;
+  }
+  ev_.ttbar_nw = num;
+}
+
 void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets) {
   if(!isGood_) return;
   ev_.ht = HT;

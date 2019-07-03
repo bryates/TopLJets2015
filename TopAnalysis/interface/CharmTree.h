@@ -9,6 +9,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
+#include "TopLJets2015/TopAnalysis/interface/GeneratorTools.h"
 
 class CharmTree {
 
@@ -35,6 +36,7 @@ class CharmTree {
   void SetPiWgt(float pi_wgt, float unc);
   void SetLumi(float);
   void SetXsec(float);
+  void PdfWeights(CharmEvent_t &ev_, TFile *file_);
   void CheckRunPeriod(TString);
   void Write();
 
