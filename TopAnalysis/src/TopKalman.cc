@@ -2255,6 +2255,8 @@ void RunTopKalman(TString filename,
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   fOut->cd();
   if(debug) cout << "writing histograms" << endl;
+  treeBCDEF.PdfWeights(evch, fOut);
+  treeGH.PdfWeights(evch, fOut);
 
   for (auto& it : allPlots)  { 
     //if(debug) cout << it.second->GetName() << endl;
