@@ -25,6 +25,7 @@ class pfTrack {
   float DeltaR(pfTrack &rhs);
   int getPfid();
   inline int getPdgId() { return getPfid(); }
+  inline int getIdx() { return idx_; }
   inline int getGenIdx() { return genidx_; }
   inline int getNdau() { return ndau_; }
   int getMotherId();
@@ -51,6 +52,8 @@ class pfTrack {
   inline float vtxProb() { return vtxProb_; }
   inline float getKalmanMass() { return k_mass_; }
   inline float getOpeningAngle() { return opAng_; }
+  inline float getEtaCorrection() { return etaSF_; }
+  inline float getPtCorrection() { return ptSF_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
@@ -64,8 +67,11 @@ class pfTrack {
   void setMother(int);
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
+  inline void setIdx(int idx) { idx_ = idx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
   inline void setNdau(int ndau) { ndau_ = ndau; }
+  inline void setEtaCorrection(float etaSF) { etaSF_ = etaSF; }
+  inline void setPtCorrection(float ptSF) { ptSF_ = ptSF; }
   void print();
 
  private:
@@ -82,11 +88,14 @@ class pfTrack {
   float chi2_;
   float vtxProb_;
   float opAng_;
+  float etaSF_ = 1.;
+  float ptSF_ = 1.;
   int pfid_;
   int motherId_;
   int quality_;
   int genT_ = 0;
   int genidx_ = -1;
+  int idx_ = -1;
   int ndau_;
   bool highPurity_;
   bool globalMuon_;
@@ -116,7 +125,9 @@ class Jet {
   void addDxy(float dxy, float dxyE);
   void addDz(float dz, float dzE);
   void addDz(int idx);
+  inline void updateChargedPt(float pt_chB, float pt_chG) { chargedPtEp_[0] = pt_chB; chargedPtEp_[1] = pt_chG; }
   inline void setHadFlav(int hadflav) { hadflav_ = hadflav; }
+  inline void setJchCorrection(float j_corr) { j_corr_ = j_corr; }
   TLorentzVector &getVec();
   float &getCSV();
   float getPt();
@@ -124,6 +135,7 @@ class Jet {
   inline float P() { return p4_.P(); }
   inline float M() { return p4_.M(); }
   float &getChargedPt();
+  float &getChargedPt(int);
   float &getPFPt();
   float getP();
   float &getChargedP();
@@ -131,6 +143,7 @@ class Jet {
   float getPz();
   float &getChargedPz();
   float &getPFPz();
+  float getJchCorrection();
   inline float getXb() { return xb_; }
   int &getGenJet();
   int &getJetIndex();
@@ -150,12 +163,14 @@ class Jet {
   int jetindex_;
   int idx_;
   float chargedPt_;
+  float chargedPtEp_[2];
   float chargedPz_;
   float chargedP_;
   float PFPt_;
   float PFPz_;
   float PFP_;
   float xb_;
+  float j_corr_;
   int genJet_;
   int hadflav_;
   std::vector<pfTrack> trks_;

@@ -8,8 +8,8 @@ def getEOSlslist(directory, mask='', prepend='root://eoscms//eos/cms/'):
     from subprocess import Popen, PIPE
     print 'looking into: '+directory+'...'
 
-    eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
-    data = Popen([eos_cmd, 'ls', '/eos/cms/'+directory],stdout=PIPE)
+    #eos should be mounted
+    data = Popen(['ls', '/eos/cms/%s'%directory],stdout=PIPE)
     out,err = data.communicate()
 
     full_list = []

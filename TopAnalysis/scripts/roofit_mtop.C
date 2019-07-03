@@ -27,6 +27,7 @@
 #include <vector>
 #include "TopLJets2015/TopAnalysis/interface/CharmEvent.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
 using namespace RooFit;
 
 bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
@@ -35,21 +36,24 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
+  float mtop(mass.Atof());
   mass.ReplaceAll(".","v");
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("TopMass_"+mass+"_sPlot_jpsi.root");
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi1.root");
+  TFile *f2 = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi2.root");
   //f->ls(); 
   TString name = "meson_l_mass_jpsi_signal";
   //TString name = "massJPsi_l_all_jpsi_BCDEF";
   cout << "loaded " << mass << endl;
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   cout << "loaded!" << endl;
 
   // Declare observable x
   //RooRealVar x("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   //RooRealVar jpsi_l_mass("J/#psi+l mass","J/#psi+l mass", 0, 250, "GeV") ;
   RooWorkspace *w = (RooWorkspace*)f->Get("w");
+  RooWorkspace *w2 = (RooWorkspace*)f2->Get("w");
   //RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("J/#Psi+l mass");
   RooRealVar jpsi_l_mass = *(RooRealVar*)w->var("jpsi_l_mass");
   //RooRealVar jpsi_mass("jpsi_mass","J/#psi mass", 2.5, 3.4, "GeV") ;
@@ -63,7 +67,14 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //auto frame = w->var("J/#Psi+l mass")->frame();
   //cout << "converting" << endl;
   //TH1F *l_mass = (TH1F*)convert(meson_l_mass_jpsi_signal,true,0,250);
+  /*
+  RooDataSet dsn = *(RooDataSet*)w->data("dsSWeights");
+  RooDataSet ds("ds" ,"ds", &dsn, *dsn.get(), 0, "weight");
+  */
   RooDataSet ds = *(RooDataSet*)w->data("sigData");
+  RooDataSet ds2 = *(RooDataSet*)w2->data("sigData");
+  ds.append(ds2);
+  //ds.plotOn(frame, Binning(50));
   //ds.plotOn(frame, Binning(50));
   cout << "making dh" << endl;
   //RooDataHist dh("dh", "dh", jpsi_l_mass, Import(*l_mass));
@@ -88,11 +99,46 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar mu("mu","mu", 9, 5, 14);
   RooRealVar mu("mu","mu", 12, 11, 13);
   */
+  //Original
+  /*
   RooRealVar g("g","g", 2.5, 0, 10);
   RooRealVar b("b","b", 35, 0, 70);
   RooRealVar mu("mu","mu", 12, 0, 20);
+  */
+
+  //constrained versions
+  //Variables
+  RooConstVar mt("mt","mt", mtop-172.5);
+  RooRealVar p0_bet_gamma("p0_bet_gamma","p0_bet_gamma", 68, 0, 150);
+  RooRealVar p1_bet_gamma("p1_bet_gamma","p1_bet_gamma", 1.19, 0, 5);
+  RooRealVar p0_gam_gamma("p0_gam_gamma","p0_gam_gamma", 1.66, 0, 50);
+  RooRealVar p1_gam_gamma("p1_gam_gamma","p1_gam_gamma", 0.01, 0, 1);
+  RooRealVar p0_mu_gamma("p0_mu_gamma","p0_mu_gamma", 15, 0, 50);
+  RooRealVar p1_mu_gamma("p1_mu_gamma","p1_mu_gamma", 0.12, 0, 1);
+  RooRealVar p0_a("p0_a","p0_a", 0.53, 0, 1);
+  RooRealVar p1_a("p1_a","p1_a", 0., 0, 1);
+  RooRealVar p0_mu_gauss("p0_mu_gauss","p0_mu_gauss", 74, 0, 150);
+  RooRealVar p1_mu_gauss("p1_mu_gauss","p1_mu_gauss", 0.49, 0, 5);
+  RooRealVar p0_sig_gauss("p0_sig_gauss","p0_sig_gauss", 21, 0, 50);
+  RooRealVar p1_sig_gauss("p1_sig_gauss","p1_sig_gauss", 0.15, 0, 1);
+
+  //Gamma
+  RooFormulaVar alpha("alpha","@0+@1*@2", RooArgList(p0_a, p1_a, mt));
+  RooFormulaVar b("b","@0+@1*@2", RooArgList(p0_bet_gamma, p1_bet_gamma, mt));
+  RooFormulaVar g("g","@0+@1*@2", RooArgList(p0_gam_gamma, p1_gam_gamma, mt));
+  RooFormulaVar mu("mu","@0+@1*@2", RooArgList(p0_mu_gamma, p1_mu_gamma, mt));
+
+  //Gaussian
+  RooFormulaVar mean("mean","@0+@1*@2", RooArgList(p0_mu_gauss, p1_mu_gauss, mt));
+  RooFormulaVar sigma("sigma","@0+@1*@2", RooArgList(p0_sig_gauss, p1_sig_gauss, mt));
+
+  RooGamma gamma("gamma","gamma",jpsi_l_mass,g,b,mu);
+  RooGaussian gauss("gauss","gauss",jpsi_l_mass,mean,sigma);
+
+
 
   // Construct Gaussian PDF for signal
+  /*
   RooRealVar mean("mean","mean", 70, 60, 90);
   RooRealVar sigma("sigma","sigma", 19, 0, 50);
   //RooRealVar sigma("sigma","sigma", 19, 18, 30);
@@ -110,6 +156,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
   //RooRealVar alpha("alpha","alpha", 0.45,0.44,0.46);
   //RooRealVar alpha("alpha","alpha", 0.4,0.39,0.41);
+  */
   RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
 
   // Construct exponential PDF to fit the bkg component
@@ -121,7 +168,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
   //RooAddPdf model("model","g+a", RooArgList(signalGauss, expo), RooArgList(nsig,nbkg)) ;
   cout << "fitting model" << endl;
-  signalModel.fitTo(ds);//,Extended());
+  signalModel.fitTo(ds, PrintLevel(-1));//,Extended());
   //signalModel.fitTo(dh,Extended());
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
@@ -142,12 +189,13 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //model.paramOn(frame);
 
   frame->Draw();
+  tdr(frame, 0, false);
 
   mass.ReplaceAll(".","v");
   mass += "_jpsi";
 
-  c1->SaveAs("MC13TeV_TTJets_m"+mass+".png");
-  c1->SaveAs("MC13TeV_TTJets_m"+mass+".pdf");
+  c1->SaveAs("MC13TeV_TTJets_"+mass+".png");
+  c1->SaveAs("MC13TeV_TTJets_"+mass+".pdf");
 
   //x.setRange("signal model",3.0,3.2);
   //RooAbsReal *intModel = signalGauss.createIntegral(x);
@@ -155,19 +203,34 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //cout << nbkg.getVal() << endl;
   //cout << nsig.getVal() * intModel->getVal() << endl;
 
+  /*
   cout << "mean," << mean.getValV() << "," << mean.getError() << endl;
   cout << "sigma," << sigma.getValV() << "," << sigma.getError() << endl;
   cout << "a," << alpha.getValV() << "," << alpha.getError() << endl;
   cout << "g," << g.getValV() << "," << g.getError() << endl;
   cout << "b," << b.getValV() << "," << b.getError() << endl;
   cout << "mu," << mu.getValV() << "," << mu.getError() << endl;
+  */
 
-  p.push_back(pair<float,float>(mean.getValV(),mean.getError()));
-  p.push_back(pair<float,float>(sigma.getValV(),sigma.getError()));
-  p.push_back(pair<float,float>(alpha.getValV(),alpha.getError()));
-  p.push_back(pair<float,float>(g.getValV(),g.getError()));
-  p.push_back(pair<float,float>(b.getValV(),b.getError()));
-  p.push_back(pair<float,float>(mu.getValV(),mu.getError()));
+  float mean_val(p0_mu_gauss.getValV() + p1_mu_gauss.getValV() * mt.getValV());
+  float mean_err(sqrt(pow(p0_mu_gauss.getError(),2) + pow(p1_mu_gauss.getError(),2)));
+  float sigma_val(p0_sig_gauss.getValV() + p1_sig_gauss.getValV() * mt.getValV());
+  float sigma_err(sqrt(pow(p0_sig_gauss.getError(),2) + pow(p1_sig_gauss.getError(),2)));
+  float alpha_val(p0_a.getValV() + p1_a.getValV() * mt.getValV());
+  float alpha_err(sqrt(pow(p0_a.getError(),2) + pow(p1_a.getError(),2)));
+  float gamma_val(p0_gam_gamma.getValV() + p1_gam_gamma.getValV() * mt.getValV());
+  float gamma_err(sqrt(pow(p0_gam_gamma.getError(),2) + pow(p1_gam_gamma.getError(),2)));
+  float beta_val(p0_bet_gamma.getValV() + p1_bet_gamma.getValV() * mt.getValV());
+  float beta_err(sqrt(pow(p0_bet_gamma.getError(),2) + pow(p1_bet_gamma.getError(),2)));
+  float mu_val(p0_mu_gamma.getValV() + p1_mu_gamma.getValV() * mt.getValV());
+  float mu_err(sqrt(pow(p0_mu_gamma.getError(),2) + pow(p1_mu_gamma.getError(),2)));
+
+  p.push_back(pair<float,float>(mean_val,mean_err));
+  p.push_back(pair<float,float>(sigma_val,sigma_err));
+  p.push_back(pair<float,float>(alpha_val,alpha_err));
+  p.push_back(pair<float,float>(gamma_val,gamma_err));
+  p.push_back(pair<float,float>(beta_val,beta_err));
+  p.push_back(pair<float,float>(mu_val,mu_err));
 
   //x.setRange("sigma",mean.getValV()-sigma.getValV(),mean.getValV()+sigma.getValV());
   //x.setRange("sigma",0,150);
@@ -219,11 +282,10 @@ void roofit_mtop(std::vector<float> &names,
 
   mean->GetYaxis()->SetRangeUser(64,82);
   sigma->GetYaxis()->SetRangeUser(10,30);
-  alpha->GetYaxis()->SetRangeUser(0.3,0.7);
-  gamma->GetYaxis()->SetRangeUser(1,5);
-  beta->GetYaxis()->SetRangeUser(20,50);
-  beta->GetYaxis()->SetRangeUser(50,80);
-  mu->GetYaxis()->SetRangeUser(6,20);
+  alpha->GetYaxis()->SetRangeUser(0.45,0.7);
+  gamma->GetYaxis()->SetRangeUser(1,3);
+  beta->GetYaxis()->SetRangeUser(40,100);
+  mu->GetYaxis()->SetRangeUser(10,20);
   //int minbin = mean->FindFirstBinAbove(0);
   //cout << minbin << endl;
   //cout << mean->GetBinContent(minbin) << " " << mean->GetBinError(minbin) << endl;
@@ -249,8 +311,6 @@ void roofit_mtop(std::vector<float> &names,
     }
     cout << names[in] << endl;
   }
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->cd();
   gStyle->SetOptStat(0);
   /*
   for(auto &it : hists) {
@@ -264,8 +324,11 @@ void roofit_mtop(std::vector<float> &names,
   it->GetYaxis()->SetRangeUser((int)(it->GetBinContent(lbin) - it->GetBinError(lbin)), (int)(it->GetBinContent(ubin) + it->GetBinError(ubin))+1);
   }
   */
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   for(int i = 0; i < hists.size(); i++) {
     hists[i]->Draw();
+    tdr(hists[i], 0, false);
     TFitResultPtr fit = hists[i]->Fit("pol1","FS");
     Double_t slope = fit->Parameter(1);
     Double_t err = fit->ParError(1);

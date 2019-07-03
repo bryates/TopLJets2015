@@ -50,9 +50,12 @@ void pfTrack::setMother(int motherId) { motherId_ = motherId; }
 void pfTrack::print() { std:: cout << "pdgId=" << getPdgId() << " pT=" << Pt() << " eta=" << Eta() << " phi=" << Phi() << " mass=" << M() << std::endl; }
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }
-Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt) { }
-Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt), genJet_(genJet) { }
-Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt,  float chargedPz, float chargedP, float PFPt, float PFPz, float PFP, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), chargedPz_(chargedPz), chargedP_(chargedP), PFPt_(PFPt), PFPz_(PFPz), PFP_(PFP), genJet_(genJet) { }
+Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt) {
+ }
+Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt), genJet_(genJet) {
+}
+Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt,  float chargedPz, float chargedP, float PFPt, float PFPz, float PFP, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), chargedPz_(chargedPz), chargedP_(chargedP), PFPt_(PFPt), PFPz_(PFPz), PFP_(PFP), genJet_(genJet) {
+}
 Jet::Jet(TLorentzVector p4, float csv, int idx, float xb) : p4_(p4), csv_(csv), idx_(idx), xb_(xb) { }
 
 /*
@@ -76,6 +79,10 @@ TLorentzVector &Jet::getVec() { return p4_; }
 float &Jet::getCSV() { return csv_; }
 float Jet::getPt() { return p4_.Pt(); }
 float &Jet::getChargedPt() { return chargedPt_; }
+float &Jet::getChargedPt(int idx) { 
+  return chargedPtEp_[idx];
+}
+//float &Jet::getChargedPt(int idx) { return chargedPtEp_[idx]; }
 float &Jet::getPFPt() { return PFPt_; }
 float Jet::getP() { return p4_.P(); }
 float &Jet::getChargedP() { return chargedP_; }
@@ -83,6 +90,15 @@ float &Jet::getPFP() { return PFP_; }
 float Jet::getPz() { return p4_.Pz(); }
 float &Jet::getChargedPz() { return chargedPz_; }
 float &Jet::getPFPz() { return PFPz_; }
+float Jet::getJchCorrection() {
+  /*
+  float tmpCorr(1.);
+  for(auto &it : getTracks())
+    tmpCorr *= it.getPtCorrection();
+  return tmpCorr;
+  */
+  return j_corr_;
+}
 int &Jet::getGenJet() { return genJet_; }
 int &Jet::getJetIndex() { return idx_; }
 int &Jet::getIndex(int idx) { return index_[idx]; }

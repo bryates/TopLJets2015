@@ -26,6 +26,7 @@ class StdPlots {
   inline friend StdPlots operator+(const StdPlots &lhs, const StdPlots &rhs) { return Combine(lhs,rhs); };
   inline float getWgt() { return norm_ * sfs_.first * puWgt_ * top_pt_wgt_ * tracker_wgt_ * pi_wgt_.first * rbWgt_ *
                                  (1+runSysts_*(runSysts_ > 0 ? getUnc().first : getUnc().second)); };//TMath::Max(getUnc.first,getUnc.second)); };
+  inline float getSF() { return sfs_.first; };
   //inline float getUnc() { return sqrt( pow(sfs_.second,2) + pow(pi_wgt_.second,2) ); }
   inline std::pair<float,float> getUnc() { return std::pair<float, float>(sqrt( pow(sfs_.second.first,2) + pow(pi_wgt_.second.first,2) ),
                                                             sqrt( pow(sfs_.second.second,2) + pow(pi_wgt_.second.second,2) )); }
@@ -44,6 +45,7 @@ class StdPlots {
   void SetSFs(float);
   void SetSFs(float,float);
   void SetSFs(float,float,float);
+  inline void SetPiTrk(float pitrk) { pitrk_ = pitrk; };
   void SetPuWgt(float);
   void SetTopPtWgt(float);
   void SetTrackerWgt(float);
@@ -65,6 +67,7 @@ class StdPlots {
   float puWgt_;
   float top_pt_wgt_;
   float tracker_wgt_;
+  float pitrk_;
   //std::pair <float,float> pi_wgt_;
   std::pair <float,std::pair<float,float>> pi_wgt_;
   //std::vector<float> top_pt_wgt_vec;

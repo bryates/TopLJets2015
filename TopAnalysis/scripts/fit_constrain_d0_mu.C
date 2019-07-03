@@ -20,6 +20,7 @@
 #include "RooWorkspace.h"
 #include "RooMinuit.h"
 #include <vector>
+//#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
 using namespace RooFit;
 
 //bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
@@ -36,38 +37,57 @@ RooWorkspace create_workspace(bool isData=false) {
   w.factory("expr::gaus_sigma('(a3*mt + a2)', a2[14.159], a3[0.03039], mt)");
   w.factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
   w.factory("expr::gamma_gamma('(a7*mt + a6)', a7[5.763], a6[-0.02088], mt)");
-  w.factory("expr::gamma_beta('(a9*mt + a8)', a9[-36.71], a8[0.427], mt)");
-  w.factory("expr::gamma_mu('(a11*mt + a10)', a10[-53.504], a11[0.3873], mt)");
+  w.factory("expr::gamma_beta('(a9*mt + a8)', a9[36.71], a8[0.427], mt)");
+  w.factory("expr::gamma_mu('(a11*mt + a10)', a10[53.504], a11[0.3873], mt)");
 
   w.Print();
   return w;
 }
 
-void update_workspace(RooWorkspace *w, bool isData=false) {
+void update_workspace(RooWorkspace *w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, bool isData=false) {
+  /*
   if(isData)
     w->factory("expr::mt('(a*mtg + b)', a[0.125373], b[154.426], mtg[173,165,183])");
   else
     w->factory("mt[0,-8,8]");
-  w->factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
-  w->factory("expr::gaus_sigma('(a3*mt + a2)', a2[14.159], a3[0.03039], mt)");
-  w->factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
-  w->factory("expr::gamma_gamma('(a7*mt + a6)', a7[5.763], a6[-0.02088], mt)");
-  w->factory("expr::gamma_beta('(a9*mt + a8)', a9[-36.71], a8[0.427], mt)");
-  w->factory("expr::gamma_mu('(a11*mt + a10)', a10[-53.504], a11[0.3873], mt)");
+  */
+  w->factory("mt[0,-8,8]");
+  /*
+  //w->factory("expr::gaus_mean('(a1*mt + a0)', a0[-34.081], a1[0.6297], mt)");//, mt[173,165,180])");
+  w->factory(TString::Format("expr::gaus_sigma('(a3*mt + a2)', a2[19.89], a3[0.08], mt)",fit_par[1][0], fit_par[1][1]));
+  w->factory(TString::Format("expr::alpha('(a5*mt + a4)', a4[0.34], a5[0.003668], mt)",fit_par[2][0], fit_par[2][1]));
+  //w->factory("expr::alpha('(a5*mt + a4)', a4[1.062], a5[-0.003668], mt)");
+  w->factory(TString::Format("expr::gamma_gamma('(a7*mt + a6)', a6[2.15], a7[0.01], mt)",fit_par[3][0], fit_par[3][1]));
+  //w->factory("expr::gamma_gamma('(a7*mt + a6)', a7[5.763], a6[-0.02088], mt)");
+  w->factory(TString::Format("expr::gamma_beta('(a9*mt + a8)', a8[31.7], a9[0.03], mt)",fit_par[4][0], fit_par[4][1]));
+  //w->factory("expr::gamma_beta('(a9*mt + a8)', a9[36.71], a8[0.427], mt)");
+  w->factory(TString::Format("expr::gamma_mu('(a11*mt + a10)', a10[11.08], a11[-0.04], mt)",fit_par[5][0], fit_par[5][1]));
+  //w->factory("expr::gamma_mu('(a11*mt + a10)', a10[53.504], a11[0.3873], mt)");
+  */
+  w->factory(TString::Format("expr::gaus_mean('(a1*mt + a0)', a0[%f], a1[%f], mt)",fit_par[0].first, fit_par[0].second));//, mt[173,165,180])");
+  w->factory(TString::Format("expr::gaus_sigma('(a3*mt + a2)', a2[%f], a3[%f], mt)",fit_par[1].first, fit_par[1].second));
+  w->factory(TString::Format("expr::alpha('(a5*mt + a4)', a4[%f], a5[%f], mt)",fit_par[2].first, fit_par[2].second));
+  w->factory(TString::Format("expr::gamma_gamma('(a7*mt + a6)', a6[%f], a7[%f], mt)",fit_par[3].first, fit_par[3].second));
+  w->factory(TString::Format("expr::gamma_beta('(a9*mt + a8)', a8[%f], a9[%f], mt)",fit_par[4].first, fit_par[4].second));
+  w->factory(TString::Format("expr::gamma_mu('(a11*mt + a10)', a10[%f], a11[%f], mt)",fit_par[5].first, fit_par[5].second));
 
   w->Print();
 }
 
 
 RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, TString mass="166v5", short flags=0b10) {
+  TCanvas *c1 = setupCanvas();
+  TPad *p1 = setupPad();
+  p1->cd();
   bool doBinned = GET_BIT(flags, 0);
   bool allowVary = GET_BIT(flags, 1);
   bool isData(false);
   std::cout << mass << std::endl;
   std::cout << (doBinned ? "binned hist" : "unbinned tree") << std::endl;
   if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
-  std::cout << "TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root" << std::endl;
+  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu1.root");
+  TFile *f2 = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu2.root");
+  std::cout << "sPlot/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root" << std::endl;
   ////TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
   //TChain *t = new TChain("data");
   //t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
@@ -80,49 +100,49 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   //float topSF1 = top1->GetBinContent(2)/top1->GetBinContent(1);
   //float topSF2 = top2->GetBinContent(2)/top1->GetBinContent(1);
   ////TTree *t = (TTree*)f->Get("data");
-  //RooRealVar d0_mu_tag_mu_l_mass("d0_mu_tag_mu_l_mass","J/#psi+l mass", 0, 250, "GeV") ;
+  //RooRealVar d0_l_mass("d0_l_mass","J/#psi+l mass", 0, 250, "GeV") ;
   //std::cout << "loaded" << std::endl;
   //if(doBinned) {
-  //  TH1F *h1 = (TH1F*)gDirectory->Get("massJPsi_l_all_d0_mu_tag_mu_BCDEF");
-  //  TH1F *h2 = (TH1F*)gDirectory->Get("massJPsi_l_all_d0_mu_tag_mu_GH");
+  //  TH1F *h1 = (TH1F*)gDirectory->Get("massJPsi_l_all_d0_BCDEF");
+  //  TH1F *h2 = (TH1F*)gDirectory->Get("massJPsi_l_all_d0_GH");
   //  /*
-  //  t->Draw("d0_mu_tag_mu_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_mu_tag_mu_l_mass>0 && d0_mu_tag_mu_l_mass<250 && d0_mu_tag_mu_mass>3.0 && d0_mu_tag_mu_mass<3.2 && epoch==1)", "goff");
-  //  t->Draw("d0_mu_tag_mu_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_mu_tag_mu_l_mass>0 && d0_mu_tag_mu_l_mass<250 && d0_mu_tag_mu_mass>3.0 && d0_mu_tag_mu_mass<3.2 && epoch==2)", "goff");
+  //  t->Draw("d0_l_mass>>h1(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==1)", "goff");
+  //  t->Draw("d0_l_mass>>h2(50,0,250)", "norm*sfs*puwgt*topptwgt*(d0_l_mass>0 && d0_l_mass<250 && d0_mass>3.0 && d0_mass<3.2 && epoch==2)", "goff");
   //  TH1F *h1 = (TH1F*)gDirectory->Get("h1");
   //  TH1F *h2 = (TH1F*)gDirectory->Get("h2");
   //  */
   //  h1->Scale(puSF1*topSF1*832*19716.102);
   //  h2->Scale(puSF2*topSF2*832*16146.178);
-  //  TH1F *h = (TH1F*)h1->Clone("d0_mu_tag_mu_l_mass");
+  //  TH1F *h = (TH1F*)h1->Clone("d0_l_mass");
   //  h->Add(h2);
   //  err = sqrt(h->Integral());
-  //  RooDataHist dh("data", "dh", d0_mu_tag_mu_l_mass, h);
+  //  RooDataHist dh("data", "dh", d0_l_mass, h);
   //  w.import(dh);
   //}
   //else {
   //  std::cout << "parsing tree" << std::endl;
-  //  float d0_mu_tag_mulm[50],d0_mu_tag_mu_mass[50],norm[50],topptwgt[50],sfs[50],puwgt[50];
+  //  float d0lm[50],d0_mass[50],norm[50],topptwgt[50],sfs[50],puwgt[50];
   //  float l3d[50],sl3d[50];
   //  int epoch[50],meson_id[50];
   //  t->SetBranchAddress("meson_id", meson_id);
-  //  t->SetBranchAddress("d0_mu_tag_mu_l_mass", d0_mu_tag_mulm);
-  //  t->SetBranchAddress("d0_mu_tag_mu_mass", d0_mu_tag_mu_mass);
+  //  t->SetBranchAddress("d0_l_mass", d0lm);
+  //  t->SetBranchAddress("d0_mass", d0_mass);
   //  t->SetBranchAddress("norm", &norm);
   //  t->SetBranchAddress("topptwgt", &topptwgt);
   //  t->SetBranchAddress("sfs", sfs);
   //  t->SetBranchAddress("puwgt", puwgt);
   //  t->SetBranchAddress("epoch", epoch);
-  //  t->SetBranchAddress("d0_mu_tag_mu_l3d", l3d);
-  //  t->SetBranchAddress("d0_mu_tag_mu_sigmal3d", sl3d);
-  //  RooDataSet ds("data", "ds", RooArgSet(d0_mu_tag_mu_l_mass));
+  //  t->SetBranchAddress("d0_l3d", l3d);
+  //  t->SetBranchAddress("d0_sigmal3d", sl3d);
+  //  RooDataSet ds("data", "ds", RooArgSet(d0_l_mass));
   //  for(int i=0; i< t->GetEntries(); i++) {
   //    t->GetEntry(i);
   //    for(int j=0; j<2; j++) {
   //      if(meson_id[j] != 443) continue;
-  //      if(d0_mu_tag_mu_mass[j] < 3.0) continue;
-  //      if(d0_mu_tag_mu_mass[j] > 3.2) continue;
-  //      if(!(d0_mu_tag_mulm[j] > 0)) continue;
-  //      if(d0_mu_tag_mulm[j] > 250) continue;
+  //      if(d0_mass[j] < 3.0) continue;
+  //      if(d0_mass[j] > 3.2) continue;
+  //      if(!(d0lm[j] > 0)) continue;
+  //      if(d0lm[j] > 250) continue;
   //      if(l3d[j]/sl3d[j]<20.) continue;
   //      float scale = 1.;
   //      scale = sfs[j] * puwgt[j] * topptwgt[j];// * topSF * puSF;
@@ -133,16 +153,16 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   //        scale = scale * puSF2 * topSF2 * 16146.178;
   //      else
   //        continue;
-  //      d0_mu_tag_mu_l_mass = d0_mu_tag_mulm[j];
-  //      ds.add(RooArgSet(d0_mu_tag_mu_l_mass), scale);
+  //      d0_l_mass = d0lm[j];
+  //      ds.add(RooArgSet(d0_l_mass), scale);
 
   //    }
   //  }
-  //  TH1F *h = (TH1F*)f->Get("massJPsi_l_all_d0_mu_tag_mu_BCDEF");
+  //  TH1F *h = (TH1F*)f->Get("massJPsi_l_all_d0_BCDEF");
   //  w.import(ds);
   //  std::cout << "parse done!" << std::endl;
   //}
-  ////w.import(d0_mu_tag_mu_l_mass);
+  ////w.import(d0_l_mass);
   //std::cout << "loading fit parameters" << std::endl;
   //int i(0);
   //for(auto & it : fit_par) {
@@ -174,7 +194,9 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   w.var("a7")->setConstant();
   */
   RooWorkspace *u = (RooWorkspace*)f->Get("w");
-  update_workspace(u);
+  RooWorkspace *u2 = (RooWorkspace*)f2->Get("w");
+  update_workspace(u, fit_par, fit_err, isData);
+  update_workspace(u2, fit_par, fit_err, isData);
   RooRealVar *d0_l_mass = (RooRealVar*)u->var("d0_l_mass");
   /*
   RooRealVar g("g","g", 2.5, 0, 10);
@@ -185,11 +207,11 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   RooRealVar mean("mean","mean", 70, 60, 90);
   RooRealVar sigma("sigma","sigma", 19, 18, 30);
   RooRealVar ngsig("ngsig","ngsignal", 100, 0, 10000);
-  RooGaussian gauss("gauss","gauss", *d0_mu_tag_mu_l_mass, mean, sigma);
+  RooGaussian gauss("gauss","gauss", *d0_l_mass, mean, sigma);
 
   //  Construct Gamma PDF for signal
   RooRealVar nbsig("nbsig","nbsignal", 100, 0 , 10000);
-  RooGamma gamma("gamma","gamma", *d0_mu_tag_mu_l_mass, g, b, mu);
+  RooGamma gamma("gamma","gamma", *d0_l_mass, g, b, mu);
 
   RooRealVar alpha("alpha","alpha", 0.45, 0., 1.);
   RooAddPdf signalModel("signal model","gauss+gamma",RooArgList(gauss,gamma),RooArgList(alpha));
@@ -197,17 +219,17 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   */
 
   /*
-  w.factory("Gaussian::gauss(d0_mu_tag_mu_l_mass,gaus_mean,gaus_sigma)");
-  w.factory("Gamma::gamma(d0_mu_tag_mu_l_mass,gamma_gamma,gamma_beta,gamma_mu)");
+  w.factory("Gaussian::gauss(d0_l_mass,gaus_mean,gaus_sigma)");
+  w.factory("Gamma::gamma(d0_l_mass,gamma_gamma,gamma_beta,gamma_mu)");
   w.factory("SUM::signalModel(alpha*gauss,gamma)");
   */
   u->factory("Gaussian::gauss(d0_l_mass,gaus_mean,gaus_sigma)");
   u->factory("Gamma::gamma(d0_l_mass,gamma_gamma,gamma_beta,gamma_mu)");
   u->factory("SUM::signalModel(alpha*gauss,gamma)");
-  u->pdf("signalModel")->Print();
   std::cout << "model created" << std::endl;
+  u->Print("v");
   /*
-  RooPlot* frame = w.var("d0_mu_tag_mu_l_mass")->frame() ;
+  RooPlot* frame = w.var("d0_l_mass")->frame() ;
   */
   RooPlot* frame = d0_l_mass->frame() ;
   std::cout << "frame created" << std::endl;
@@ -215,11 +237,14 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   if(doBinned) w.data("data")->plotOn(frame);
   else w.data("data")->plotOn(frame,Binning(25));
   */
-  u->data("sigData")->plotOn(frame, RooFit::Binning(25));
+  RooDataSet ds = *(RooDataSet*)u->data("sigData");
+  RooDataSet ds2 = *(RooDataSet*)u2->data("sigData");
+  ds.append(ds2);
+  ds.plotOn(frame);//, RooFit::Binning(25));
   std::cout << "frame plotted" << std::endl;
   //frame->Draw();
   //nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
-  RooAbsReal *nll = u->pdf("signalModel")->createNLL(*u->data("sigData"), NumCPU(8), SumW2Error(kTRUE));
+  RooAbsReal *nll = u->pdf("signalModel")->createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   nll->Print();
   //nll = signalModel.createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
   std::cout << "NLL created" << std::endl;
@@ -237,6 +262,7 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   u->pdf("signalModel")->plotOn(frame);
   u->pdf("signalModel")->plotOn(frame, Components(*u->pdf("gauss")),LineStyle(kDashed),LineColor(kRed));
   u->pdf("signalModel")->plotOn(frame, Components(*u->pdf("gamma")),LineStyle(kDashed),LineColor(kBlue));
+  tdr(frame);
   frame->Draw();
   //w.Print();
   r->Print();
