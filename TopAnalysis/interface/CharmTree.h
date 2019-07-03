@@ -9,6 +9,7 @@
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
 #include "TopLJets2015/TopAnalysis/interface/Jet.h"
+#include "TopLJets2015/TopAnalysis/interface/GeneratorTools.h"
 
 class CharmTree {
 
@@ -16,6 +17,7 @@ class CharmTree {
   CharmTree(TTree *t, TString, TString, bool debug=false);
   ~CharmTree();
   inline float getWgt() { return norm_ * sfs_.first * puWgt_ * top_pt_wgt_; };
+  inline float getSF() { return sfs_.first; };
   void Fill(Leptons, TString, TString name="");
   void FillGen(std::vector<Particle>, TString, TString name="");
   void Fill(std::vector<Jet> lightJetsVec, std::vector<Jet> bJetsVec, std::vector<Jet> allJetsVec, TString, TString name="");
@@ -27,12 +29,14 @@ class CharmTree {
   void Fill(CharmEvent_t &ev_, std::vector<pfTrack>&, Leptons, Jet, TString, TString name="", int event=0, std::vector<pfTrack> genMatch={}, std::vector<float> frag={1.,1.,1.,1.,1.}, Jet genJet=Jet());
   void SetNorm(float);
   void SetSFs(float, float unc=0.);
+  inline void SetPiTrk(float pitrk) { pitrk_ = pitrk; };
   void SetPuWgt(float);
   void SetTopPtWgt(float);
   void SetTrackerWgt(float tracker_wgt);
   void SetPiWgt(float pi_wgt, float unc);
   void SetLumi(float);
   void SetXsec(float);
+  void PdfWeights(CharmEvent_t &ev_, TFile *file_);
   void CheckRunPeriod(TString);
   void Write();
 
@@ -44,6 +48,7 @@ class CharmTree {
   bool isGood_;
   float norm_;
   std::pair <float,float> sfs_;
+  float pitrk_;
   float puWgt_;
   float top_pt_wgt_;
   float tracker_wgt_;
