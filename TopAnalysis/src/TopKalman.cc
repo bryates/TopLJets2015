@@ -315,6 +315,9 @@ void RunTopKalman(TString filename,
   
   CharmTree treeBCDEF(t, "BCDEF", outname, debug);
   CharmTree treeGH(t, "GH", outname, debug);
+  treeBCDEF.PdfWeights(evch, ev, f);
+  treeGH.PdfWeights(evch, ev, f);
+  cht->Fill();
 
   std::vector<float> dpt;
   std::vector<float> deta;
@@ -2177,8 +2180,6 @@ void RunTopKalman(TString filename,
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   fOut->cd();
   if(debug) cout << "writing histograms" << endl;
-  treeBCDEF.PdfWeights(evch, fOut);
-  treeGH.PdfWeights(evch, fOut);
 
   for (auto& it : allPlots)  { 
     //if(debug) cout << it.second->GetName() << endl;
