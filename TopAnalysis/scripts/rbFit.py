@@ -111,7 +111,6 @@ while i < len(syst):
         test=rbList[0][1][j]
     except:
         break
-    print(i, j)
     if "Top mass" in syst[i]: #FSR do not symmetrize
         #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
         #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
@@ -189,9 +188,9 @@ while i < len(syst):
         #print('%.3f$\pm$%.3f & ' % (rbList[0][1][0]-rbList[0][1][j], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
         #print down
         if "SR" in syst[i] or "Top mass" in syst[i] or full:
-            print('%.3f & ' %     max(rbList[0][1][j]-rbList[0][1][0],pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
-            print('%.3f & ' %     max(rbList[1][1][j]-rbList[1][1][0],pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
-            print('%.3f ' %       max(rbList[2][1][j]-rbList[2][1][0],pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
+            #print('%.3f & ' %     max(rbList[0][1][j]-rbList[0][1][0],pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
+            #print('%.3f & ' %     max(rbList[1][1][j]-rbList[1][1][0],pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
+            #print('%.3f ' %       max(rbList[2][1][j]-rbList[2][1][0],pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j]-rbList[0][1][0], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j]-rbList[1][1][0], pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j]-rbList[2][1][0], pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')

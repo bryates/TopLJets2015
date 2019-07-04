@@ -43,6 +43,8 @@ void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", in
   RooWorkspace w("w",mass);
   float wind(0.04);
   bool tpt(true);
+  int pdfs[4] = {0, 1, 110, 111}; //nominal, a_s=0.118, 0.117, 0.119
+  int pdf(0);
 /*
 void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -64,6 +66,15 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   else if(mass.Contains("tpt")) { //no top pt reweighting
     tpt = false;
+  }
+  else if(mass.Contains("as118")) {
+    pdf = 1;
+  }
+  else if(mass.Contains("as117")) {
+    pdf = 2;
+  }
+  else if(mass.Contains("as119")) {
+    pdf = 3;
   }
   TFile *fin;
   TGraph *g=nullptr;
@@ -250,6 +261,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       scale *= ev.sfs[j]; //Data has sfs=0.5 if duplicates (piK and Kpi)
       if(!isData) {
         scale *= ev.norm * ev.xsec * ev.puwgt[j];// * ev.topptwgt;// * topSF * puSF;
+        if(pdf>0) scale *= pdfs[pdf];//alternate PDF event weight
         if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
         //scale *= ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         scale *= 1.11; //GH normalization const
