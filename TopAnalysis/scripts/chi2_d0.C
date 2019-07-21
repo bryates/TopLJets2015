@@ -43,29 +43,39 @@ fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data())
 //fname = TString::Format("sPlot/sPlot/morph/TopMass_172v5%s_sPlot_d0.root",tune.Data());
 else
 fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
-//fname = TString::Format("sPlot/sPlot/morph/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fmc = TFile::Open(fname);
 
 RooPlot *tmp = nullptr;
-tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-data = (TH1F*)convert(tmp, norm, 0, 1.1);
-data->SetDirectory(0);
-data->SetTitle(data->GetName());
-delete tmp;
-/*
-if(fmc->Get("ptfrac") != nullptr) {
-  mc = (TH1F*)fmc->Get("ptfrac");
-  return;
+RooBinning bins(0,1.1);
+std::vector<float> bin;
+bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.67, 0.725, 0.8, 0.875, 0.95, 1.0};
+//bin = {0.025, 0.1, 0.175, 0.25, 0.325, 0.4, 0.475, 0.55, 0.625, 0.7, 0.775, 0.85, 0.925, 0.975, 1.0};
+//bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
+//bin = {-0.025, 0.025, 0.075, 0.125,  0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.0};
+//bin = {0, 0.05, 0.1, 0.15,  0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975, 1.0};
+for(int i = 0; i < bin.size(); i++) {
+ bins.addBoundary(bin[i]);
 }
-*/
 tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+//tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
+//((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
 mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+//mc = (TH1F*)convert(tmp, norm, bin);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
+delete tmp;
+tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+std::cout << fname << std::endl;
+//tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
+//((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
+data = (TH1F*)convert(tmp, norm, 0, 1.1);
+//data = (TH1F*)convert(tmp, norm, bin);
+data->SetDirectory(0);
+data->SetTitle(data->GetName());
 delete tmp;
 
 fdata->Close();
@@ -94,14 +104,17 @@ void chi2_d0() {
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
   run_chi2_d0("tpt");
-/*
+  /*
+  run_chi2_d0("bkg");
+  run_chi2_d0("as117");
+  run_chi2_d0("as119");
   run_chi2_d0("m166v5");
   run_chi2_d0("m169v5");
   run_chi2_d0("m171v5");
   run_chi2_d0("m173v5");
   run_chi2_d0("m175v5");
   run_chi2_d0("m178v5");
-*/
+  */
 
   json += ("],");
   std::cout << json << std::endl;
@@ -228,25 +241,24 @@ delete pt;
 }
 
 float chi2_d0_test(TString tune="", TString name="", float num=0.855) {
-TH1F *data, *mc;
+TH1F *data, *data2, *mc, *mc2;
 if(epoch>0) {
 getHist(name, tune, data, mc, epoch);
 }
 else {
 getHist(name, tune, data, mc, 1, false);
-TH1F *data2, *mc2;
 getHist(name, tune, data2, mc2, 2, false);
 data->Add(data2);
 mc->Add(mc2);
-mc->GetXaxis()->SetTitle("D^{0} p_{T} / #Sigma_{ch} p_{T}");
-data->GetXaxis()->SetTitle("D^{0} p_{T} / #Sigma_{ch} p_{T}");
+mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
+data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 delete data2;
 delete mc2;
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
 setupPad()->cd();
 tdr(mc, epoch);
-if(fullpt) mc->GetXaxis()->SetTitle("D^{0} / jet p_{T}");
+if(fullpt) mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/ jet #it{p_}{T}");
 mc->Draw();
 tdr(mc, epoch);
 if(epoch==0) {

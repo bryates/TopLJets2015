@@ -23,7 +23,7 @@ float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool fin(false);
 bool TDR(1);
 int epoch(0);
-bool fullpt(1);
+bool fullpt(0);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
 TCanvas *c1 = setupCanvas();
@@ -70,12 +70,6 @@ mc = (TH1F*)convert(tmp, norm, bin);
 //mc = (TH1F*)convert(tmp, norm, 13, bin);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
-/*
-tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
-TH1F *mc2 = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
-mc->Add(mc2);
-*/
 delete tmp;
 tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 delete tmp;
@@ -87,12 +81,6 @@ data = (TH1F*)convert(tmp, norm, bin);
 //data = (TH1F*)convert(tmp, norm, 8, bin);
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
-/*
-tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp);//, RooFit::Binning(bins));
-TH1F *data2 = (TH1F*)convert(tmp, norm, sizeof(bin)/sizeof(float), bin);
-data->Add(data2);
-*/
 delete tmp;
 
 fdata->Close();
@@ -122,6 +110,8 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
   run_chi2_d0_mu_tag("tpt");
+  run_chi2_d0_mu_tag("as117");
+  run_chi2_d0_mu_tag("as119");
   run_chi2_d0_mu_tag("m166v5");
   run_chi2_d0_mu_tag("m169v5");
   run_chi2_d0_mu_tag("m171v5");
@@ -273,8 +263,8 @@ TH1F *data2, *mc2;
 getHist(name, tune, data2, mc2, 2, false);
 data->Add(data2);
 mc->Add(mc2);
-mc->GetXaxis()->SetTitle("(D^{0} p_{T} + #mu p_{T}) / #Sigma_{ch} p_{T}");
-data->GetXaxis()->SetTitle("(D^{0} p_{T} + #mu p_{T}) / #Sigma_{ch} p_{T}");
+mc->GetXaxis()->SetTitle("(D^{0} #it{p}_{T} + #mu #it{p}_{T}) / #Sigma_{ch} #it{p}_{T}");
+data->GetXaxis()->SetTitle("(D^{0} #it{p}_{T} + #mu #it{p}_{T}) / #Sigma_{ch} #it{p}_{T}");
 delete data2;
 delete mc2;
 mc->Scale(1./mc->Integral());
