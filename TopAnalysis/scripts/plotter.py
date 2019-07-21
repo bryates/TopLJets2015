@@ -79,6 +79,12 @@ class Plot(object):
             h.GetYaxis().SetTitle("Jets / 25")
         if "oJet" in h.GetName():
             h.GetYaxis().SetTitle("Jets / 0.5")
+        if "P_" in h.GetXaxis().GetTitle():
+            h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace("P_", "#it{p}_"))
+        if "p_" in h.GetXaxis().GetTitle():
+            h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace("p_", "#it{p}_"))
+        if "#eta" in h.GetXaxis().GetTitle():
+            h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace("#eta", "#it{#eta}"))
         #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
 
         h.SetTitle(title)

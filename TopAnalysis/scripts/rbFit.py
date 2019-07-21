@@ -14,6 +14,7 @@ parser.add_option('-j', '--json',        dest='json'  ,      help='json with lis
 #read list of samples
 jsonFile = open(opt.json,'r')
 full = True if "jpT" in opt.json else False
+fullstat = True
 
 #jsonFile = open('data/era2016/rbFit.range','r')
 #jsonFile = open('data/era2016/rbFit.range2','r')
@@ -68,7 +69,7 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Trigger selection up', 'Trigger selection down']#, 'JER up', 'JER down', 'JSF up', 'JSF down']
+skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down']
 #print('Nominal & ', end='')
 #print('%.3f & ' % (rbList[0][1][0]), end='')
 #print('%.3f & ' % (rbList[1][1][0]), end='')
@@ -173,7 +174,7 @@ while i < len(syst):
         print(syst[i], ' & ', end='')
         #print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
         #print up
-        if "SR" in syst[i] or "Top mass" in syst[i] or full:
+        if "SR" in syst[i] or "Top mass" in syst[i] or full or fullstat:
             print('%.3f$\pm$%.3f & ' %     (rbList[0][1][j+2]-rbList[0][1][0], pow(abs(rbList[0][1][j+3]**2-rbList[0][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f & ' %     (rbList[1][1][j+2]-rbList[1][1][0], pow(abs(rbList[1][1][j+3]**2-rbList[1][1][1]**2),0.5)), end='')
             print('%.3f$\pm$%.3f \\\\\n' % (rbList[2][1][j+2]-rbList[2][1][0], pow(abs(rbList[2][1][j+3]**2-rbList[2][1][1]**2),0.5)), end='')
@@ -187,7 +188,7 @@ while i < len(syst):
         print(syst[i+1], ' & ', end='')
         #print('%.3f$\pm$%.3f & ' % (rbList[0][1][0]-rbList[0][1][j], pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
         #print down
-        if "SR" in syst[i] or "Top mass" in syst[i] or full:
+        if "SR" in syst[i] or "Top mass" in syst[i] or full or fullstat:
             #print('%.3f & ' %     max(rbList[0][1][j]-rbList[0][1][0],pow(abs(rbList[0][1][j+1]**2-rbList[0][1][1]**2),0.5)), end='')
             #print('%.3f & ' %     max(rbList[1][1][j]-rbList[1][1][0],pow(abs(rbList[1][1][j+1]**2-rbList[1][1][1]**2),0.5)), end='')
             #print('%.3f ' %       max(rbList[2][1][j]-rbList[2][1][0],pow(abs(rbList[2][1][j+1]**2-rbList[2][1][1]**2),0.5)), end='')
@@ -208,9 +209,15 @@ while i < len(syst):
             sup[0][i] = abs(rbList[0][1][j+2]-rbList[0][1][0])
             sup[1][i] = abs(rbList[1][1][j+2]-rbList[1][1][0])
             sup[2][i] = abs(rbList[2][1][j+2]-rbList[2][1][0])
-            up[0] = (up[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
-            up[2] = (up[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
-            up[4] = (up[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
+            for sample in range(0,2):
+                shift = rbList[sample][1][j+2]-rbList[0][1][0]
+                if shift > 0:
+                  up[sample*2] = (up[0]**2 + (shift)**2)**.5
+                else:
+                  up[sample*2] = (up[0]**2 + (shift)**2)**.5
+            #up[0] = (up[0]**2 + (rbList[0][1][j+2]-rbList[0][1][0])**2)**.5
+            #up[2] = (up[2]**2 + (rbList[1][1][j+2]-rbList[1][1][0])**2)**.5
+            #up[4] = (up[4]**2 + (rbList[2][1][j+2]-rbList[2][1][0])**2)**.5
         if "FSR" in syst[i]: #FSR separate
             #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
             #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])

@@ -41,6 +41,7 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
   RooWorkspace w("w",mass);
   float wind(0.045);
+  int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
 /*
 void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -60,6 +61,15 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     syst = mass;
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_%s",syst.Data()) << std::endl;
+  }
+  else if(mass.Contains("as118")) {
+    pdf = 1;
+  }
+  else if(mass.Contains("as117")) {
+    pdf = 2;
+  }
+  else if(mass.Contains("as119")) {
+    pdf = 3;
   }
   TFile *fin;
   TGraph *g;
@@ -163,14 +173,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   cout << "loaded!" << endl;
 
   // Declare observable x
-  RooRealVar d0_mass("d0_mass","M_{K#pi}", 1.7, 2, "GeV") ;
+  RooRealVar d0_mass("d0_mass","D^{0}_{#mu} mass (GeV)", 1.7, 2, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
-  RooRealVar ptfrac("ptfrac","(D^{0} p_{T} + #mu p_{T}) / #Sigma p_{T}^{ch}", 0, 1.1, "") ;
-  RooRealVar d0_pt("d0_pt","D^{0}_{#mu} p_{T}", 0, 250, "GeV");
-  RooRealVar j_pt_ch("j_pt_ch","#Sigma p_{T}^{ch} charged", 0, 400, "GeV");
-  RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
+  RooRealVar ptfrac("ptfrac","(D^{0} #it{p}_{T} + #mu #it{p}_{T}) / #Sigma #it{p}_{T}^{ch}", 0, 1.1, "") ;
+  RooRealVar d0_pt("d0_pt","D^{0}_{#mu} #it{p}_{T}", 0, 250, "GeV");
+  RooRealVar j_pt_ch("j_pt_ch","#Sigma #it{p}_{T}^{ch} charged", 0, 400, "GeV");
+  RooRealVar j_pt("j_pt","j #it{p}_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
   /*
@@ -225,6 +235,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(!isData) {
         //scale = ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
         scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
+        if(pdf>0 && ev.ttbar_nw > pdf) scale *= ev.ttbar_w[pdf];//alternate PDF event weight
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {

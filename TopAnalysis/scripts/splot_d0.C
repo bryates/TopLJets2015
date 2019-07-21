@@ -42,9 +42,11 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
   RooWorkspace w("w",mass);
   float wind(0.04);
+  /*
   bool tpt(true);
   int pdfs[4] = {0, 1, 110, 111}; //nominal, a_s=0.118, 0.117, 0.119
   int pdf(0);
+  */
 /*
 void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -64,6 +66,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_%s",syst.Data()) << std::endl;
   }
+  /*
   else if(mass.Contains("tpt")) { //no top pt reweighting
     tpt = false;
   }
@@ -76,6 +79,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   else if(mass.Contains("as119")) {
     pdf = 3;
   }
+  */
   TFile *fin;
   TGraph *g=nullptr;
   //std::vector<TGraph*> fwgt;
@@ -187,7 +191,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
-  RooRealVar ptfrac("ptfrac","D^{0} p_{T} / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
+  RooRealVar ptfrac("ptfrac","D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}", 0, 1.1, "") ;
   RooRealVar d0_pt("d0_pt","D^{0} p_{T}", 0, 250, "GeV");
   RooRealVar j_pt_ch("j_pt_ch","j p_{T} charged", 0, 400, "GeV");
   RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
@@ -260,22 +264,22 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       tuneW.setVal(1.);
       scale *= ev.sfs[j]; //Data has sfs=0.5 if duplicates (piK and Kpi)
       if(!isData) {
-        scale *= ev.norm * ev.xsec * ev.puwgt[j];// * ev.topptwgt;// * topSF * puSF;
-        if(pdf>0) scale *= pdfs[pdf];//alternate PDF event weight
-        if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
+        scale *= ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        //if(pdf>0) scale *= pdfs[pdf];//alternate PDF event weight
+        //if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
         //scale *= ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         scale *= 1.11; //GH normalization const
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
-          scale =  scale * 19712.86 * puSF1 * jsfSF1;// * topSF1;
-          if(tpt) scale =  scale * topSF1;
+          scale =  scale * 19712.86 * puSF1 * jsfSF1 * topSF1;
+          //if(tpt) scale =  scale * topSF1;
           scale *= 1.11; //GH normalization const
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
-          scale = scale * 16146.178 * puSF2 * jsfSF2;// * topSF2;
-          if(tpt) scale =  scale * topSF2;
+          scale = scale * 16146.178 * puSF2 * jsfSF2 * topSF2;
+          //if(tpt) scale =  scale * topSF2;
           //h2->Fill(mesonlm[j], scale);
         }
         else
@@ -426,50 +430,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   cout << "fitting model" << endl;
   RooPlot* frame = d0_mass.frame() ;
-/*
-  RooBinning bins(1.7,2.0);
-bins.addBoundary(1.7);
-bins.addBoundaryPair(1.71);
-bins.addBoundaryPair(1.72);
-bins.addBoundaryPair(1.73);
-bins.addBoundaryPair(1.74);
-bins.addBoundaryPair(1.75);
-bins.addBoundaryPair(1.76);
-bins.addBoundaryPair(1.77);
-bins.addBoundaryPair(1.78);
-bins.addBoundaryPair(1.79);
-bins.addBoundaryPair(1.80);
-bins.addBoundaryPair(1.805);
-bins.addBoundaryPair(1.81);
-bins.addBoundaryPair(1.815);
-bins.addBoundaryPair(1.82);
-bins.addBoundaryPair(1.825);
-bins.addBoundaryPair(1.83);
-bins.addBoundaryPair(1.835);
-bins.addBoundaryPair(1.84);
-bins.addBoundaryPair(1.845);
-bins.addBoundaryPair(1.85);
-bins.addBoundaryPair(1.855);
-bins.addBoundaryPair(1.86);
-bins.addBoundaryPair(1.865);
-bins.addBoundaryPair(1.87);
-bins.addBoundaryPair(1.875);
-bins.addBoundaryPair(1.88);
-bins.addBoundaryPair(1.885);
-bins.addBoundaryPair(1.89);
-bins.addBoundaryPair(1.895);
-bins.addBoundaryPair(1.9);
-bins.addBoundaryPair(1.91);
-bins.addBoundaryPair(1.92);
-bins.addBoundaryPair(1.93);
-bins.addBoundaryPair(1.94);
-bins.addBoundaryPair(1.95);
-bins.addBoundaryPair(1.96);
-bins.addBoundaryPair(1.97);
-bins.addBoundaryPair(1.98);
-bins.addBoundaryPair(1.99);
-bins.addBoundaryPair(2);
-*/
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
   //ds.plotOn(frame,Binning(bins));
   //ds.plotOn(frame,Binning(60));
@@ -494,7 +454,12 @@ bins.addBoundaryPair(2);
   c1->SaveAs("massD0_"+mass+"_d0.png");
 
   frame = ptfrac.frame();
-  ds.plotOn(frame,Binning(22));
+  std::vector<float> bin;
+  RooBinning bins(0,1.1);
+  bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+  for(int i = 0; i < bin.size(); i++)
+    bins.addBoundary(bin[i]);
+  ds.plotOn(frame,Binning(bins));
  
   //model.paramOn(frame);
 
@@ -631,7 +596,7 @@ bins.addBoundaryPair(2);
   sigData.plotOn(frame2, DataError(RooAbsData::SumW2),
                  RooFit::Name("ptfrac_signal"), RooFit::MarkerColor(1),
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
-                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
+                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(bins));
   frame2->Draw();
   std::cout << "Signal: " << frame2->getHist()->Integral() << std::endl;
   frame2->SetName("ptfrac_signal");
@@ -650,7 +615,7 @@ bins.addBoundaryPair(2);
   sigData.plotOn(frame2, DataError(RooAbsData::SumW2),
                  RooFit::Name("ptfrac_signal"), RooFit::MarkerColor(1),
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
-                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
+                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(bins));
   frame2->SetName("ptfrac");
   frame2->SetTitle("");
   frame2->Draw();

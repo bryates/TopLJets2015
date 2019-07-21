@@ -315,9 +315,6 @@ void RunTopKalman(TString filename,
   
   CharmTree treeBCDEF(t, "BCDEF", outname, debug);
   CharmTree treeGH(t, "GH", outname, debug);
-  treeBCDEF.PdfWeights(evch, ev, f);
-  treeGH.PdfWeights(evch, ev, f);
-  cht->Fill();
 
   std::vector<float> dpt;
   std::vector<float> deta;
@@ -461,6 +458,11 @@ void RunTopKalman(TString filename,
         //if(xsec) norm*=xsec;
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
+        if(isTTbar && 0) {
+          treeBCDEF.PdfWeights(evch, ev, f);
+          treeGH.PdfWeights(evch, ev, f);
+          cht->Fill();
+        }
 
         //Random run period based on lumi
         /*

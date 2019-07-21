@@ -40,6 +40,7 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 void splot_jpsi(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
   RooWorkspace w("w",mass);
   float wind(0.11);
+  int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
 /*
@@ -58,6 +59,15 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     syst = mass;
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_%s",syst.Data()) << std::endl;
+  }
+  else if(mass.Contains("as118")) {
+    pdf = 1;
+  }
+  else if(mass.Contains("as117")) {
+    pdf = 2;
+  }
+  else if(mass.Contains("as119")) {
+    pdf = 3;
   }
   TFile *fin;
   TGraph *g;
@@ -151,10 +161,10 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar jpsi_mass("jpsi_mass","J/#Psi mass", 2.8, 3.4, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("jpsi_l_mass","J/#Psi+l mass", 0, 250, "GeV") ;
-  RooRealVar ptfrac("ptfrac","J/#Psi p_{T} / #Sigma_{ch} p_{T}", 0, 1.1, "") ;
-  RooRealVar jpsi_pt("jpsi_pt","J/#Psi p_{T}", 0, 250, "GeV");
-  RooRealVar j_pt_ch("j_pt_ch","j p_{T} charged", 0, 400, "GeV");
-  RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
+  RooRealVar ptfrac("ptfrac","J/#Psi #it{p}_{T} / #Sigma_{ch} #it{p}_{T}", 0, 1.1, "") ;
+  RooRealVar jpsi_pt("jpsi_pt","J/#Psi #it{p}_{T}", 0, 250, "GeV");
+  RooRealVar j_pt_ch("j_pt_ch","j #it{p}_{T} charged", 0, 400, "GeV");
+  RooRealVar j_pt("j_pt","j #it{p}_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
   
@@ -196,6 +206,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       scale *= ev.sfs[j];
       if(!isData) {
         scale = ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        if(pdf>0 && ev.ttbar_nw > pdf) scale *= ev.ttbar_w[pdf];//alternate PDF event weight
         //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
