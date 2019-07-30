@@ -29,7 +29,7 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
-  #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+  //#include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
   #include "convert.h"
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;
@@ -39,7 +39,7 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="d0_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_d0(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
   RooWorkspace w("w",mass);
   float wind(0.04);
   /*
@@ -141,7 +141,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
   std::cout << "creating file: "  << fUrl<< std::endl;
-  TFile *fout = new TFile(fUrl,"RECREATE");
+  TFile *fout;// = new TFile(fUrl,"RECREATE");
+  if(!mass.Contains("toyData"))
+  fout = new TFile(fUrl,"RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
   //disabled top pT reweighting
   //data->Draw("d0_mass>>h(30,1.7,2.0)","norm*sfs*puwgt*(meson_id==42113 && d0_l3d/d0_sigmal3d>10 && HT>180 && d0_sigmal3d>2E-4)");// && j_hadflav[d0_j]==5 && d0_pi_mother==421 && d0_k_mother==421)","goff");
@@ -210,13 +212,29 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
   RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW));
   //RooDataSet dsn("dsn", "dsn", args);
-  std::cout << "Total events: " << data->GetEntries() << std::endl;
+  int nmc = ep == 1 ? 411938 : 513809;
+  int nentries = ep == 1 ? 93836 : 85518;
+  int nset(0);
+  std::cout << "Total events: " << nmc  << std::endl;
+  int start = nmc;
+  if(mass.Contains("toyData")) {
+    std::cout << "Creating toy dataset" << std::endl;
+    TRandom3 *rand = new TRandom3(0);
+    //pick a random starting point that will encompass a subet of MC containing N points where N=num of points in the data
+    std::cout << nmc << " " << nentries << " " <<  int(float(nmc)/float(nentries)) << std::endl;
+    while(start + nentries > nmc) {
+      start = rand->Uniform(0, nentries);
+      std::cout << start << " " << start + nentries << " " << nentries << std::endl;
+    }
+    delete rand;
+  }
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
     data->GetEntry(i);
-    float scale = 1.;
     float pi = 0.;
     float k = 0.;
+    float scale = 1.;
+    //scale *= float(nmc)/float(nentries);
     for(int j=0; j<ev.nmeson; j++) {
       //int j(0);
       /* FIXME
@@ -236,6 +254,17 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(!jpT) {
         //if(ev.j_pt[j]>150) continue;
         if(ev.j_pt_charged[j]>100) continue;
+      }
+      if(mass.Contains("toyData")) {
+        /*
+        if(i < start || i > start + nentries) continue;
+        */
+        TRandom3 *rand = new TRandom3(0);
+        //if(epoch==1 && rand->Uniform(0, 1) > 0.25) continue;
+        //if(epoch==2 && rand->Uniform(0, 1) > 0.17) continue;
+        if(rand->Uniform(0, 1) > float(nentries)/float(nmc)) continue;
+        if(nset > nentries) continue;
+        nset++;
       }
       /*
       else
@@ -264,6 +293,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       tuneW.setVal(1.);
       scale *= ev.sfs[j]; //Data has sfs=0.5 if duplicates (piK and Kpi)
       if(!isData) {
+        if(mass.Contains("toyData"))
+        scale *= ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        else
         scale *= ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //if(pdf>0) scale *= pdfs[pdf];//alternate PDF event weight
         //if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
@@ -272,13 +304,20 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
+          if(mass.Contains("toyData"))
+          scale =  scale * puSF1 * jsfSF1 * topSF1;
+          else
           scale =  scale * 19712.86 * puSF1 * jsfSF1 * topSF1;
           //if(tpt) scale =  scale * topSF1;
           scale *= 1.11; //GH normalization const
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
+          if(mass.Contains("toyData"))
+          scale = scale * puSF2 * jsfSF2 * topSF2;
+          else
           scale = scale * 16146.178 * puSF2 * jsfSF2 * topSF2;
+          //if(tpt) scale =  scale * topSF1;
           //if(tpt) scale =  scale * topSF2;
           //h2->Fill(mesonlm[j], scale);
         }
@@ -450,8 +489,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame->SetName("massD0");
   frame->Write();
 
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("massD0_"+mass+"_d0.pdf");
   c1->SaveAs("massD0_"+mass+"_d0.png");
+  }
 
   frame = ptfrac.frame();
   std::vector<float> bin;
@@ -469,6 +510,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   meson_l_mass.setConstant();
   ptfrac.setConstant();
   weight.setConstant();
+  RooMsgService::instance().setSilentMode(true);
   SPlot sData("sData","An SPlot from mass", ds, &model, RooArgList(nsig,nbkg));
   std::cout << std::endl <<  "Yield of nsig is "
             << nsig.getVal() << ".  From sWeights it is "
@@ -563,9 +605,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->Draw();
   frame2->SetName("ptfrac_bkg");
   TGraph *h_frac = (TGraph*)c1->GetPrimitive("ptfrac_bkg");
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("ptfrac_bkg_"+mass+"_d0.pdf");
   c1->SaveAs("ptfrac_bkg_"+mass+"_d0.png");
   std::cout << "Background: " << frame2->getHist()->Integral() << std::endl;
+  }
   frame2 = ptfrac.frame();
   /*
   ds.plotOn(frame, RooFit::Binning(110));
@@ -604,8 +648,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->Write();
 
   if(jpT) mass = mass + "_jpT";
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("ptfrac_signal_"+mass+"_d0.pdf");
   c1->SaveAs("ptfrac_signal_"+mass+"_d0.png");
+  }
 
   frame2 = ptfrac.frame();
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),
@@ -620,19 +666,23 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->SetTitle("");
   frame2->Draw();
 
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("ptfrac_"+mass+"_d0.pdf");
   c1->SaveAs("ptfrac_"+mass+"_d0.png");
+  }
 
   frame2 = ptfrac.frame();
   bkgData.plotOn(frame2, DataError(RooAbsData::SumW2),
                  RooFit::Name("ptfrac_bkg"), RooFit::MarkerColor(419),
                  RooFit::MarkerStyle(24), RooFit::MarkerStyle(24),
-                 RooFit::LineWidth(2), RooFit::LineColor(419), Binning(binning));
+                 RooFit::LineWidth(2), RooFit::LineColor(419), Binning(bins));
   sigData.plotOn(frame2, DataError(RooAbsData::SumW2),
                  RooFit::Name("ptfrac_signal"), RooFit::MarkerColor(1),
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
-                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(binning));
+                 RooFit::LineWidth(2), RooFit::LineColor(1), Binning(bins));
   frame2->Draw();
+  ptfrac_signal = (TH1F*)convert(frame2, false, bin);
+  ptfrac_signal->SetDirectory(0);
 
   //show a legend
   c1->cd();
@@ -645,8 +695,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   leg->AddEntry("ptfrac_bkg","Background","p");
   leg->Draw();
 
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("ptfrac_"+mass+"_d0.pdf");
   c1->SaveAs("ptfrac_"+mass+"_d0.png");
+  }
 
   binning = 25;
 
@@ -673,8 +725,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   leg->AddEntry("meson_l_mass_bkg","Background","p");
   leg->Draw();
 
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("meson_l_mass_"+mass+"_d0.pdf");
   c1->SaveAs("meson_l_mass_"+mass+"_d0.png");
+  }
 
   /*
   frame2 = meson_l_mass.frame();
@@ -697,8 +751,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   frame2->SetName("meson_l_mass_signal");
   frame2->Write();
 
+  if(!mass.Contains("toyData")) {
   c1->SaveAs("meson_l_mass_signal_"+mass+"_d0.pdf");
   c1->SaveAs("meson_l_mass_signal_"+mass+"_d0.png");
+  }
 
   /*
   TH1F *signalGr=(TH1F*)c1->GetPrimitive("ptfrac_signal");
@@ -706,14 +762,28 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   signalGr->SaveAs("/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/ptfrac_signal.png");
   */
 
+  TH1F *num = new TH1F("num", "num", 1, 0, 2);
+  num->Fill(1,ds.numEntries());
+  if(!mass.Contains("toyData")) {
+  num->SetDirectory(fout);
+  num->Write();
+  }
+
   std::cout << "writting workspace to file" << std::endl;
   w.Write();
   std::cout << "writting tuneWgt to file" << std::endl;
+  if(!mass.Contains("toyData")) {
   tuneWgt->Write();
   std::cout << "closing file" << std::endl;
   fout->Close();
+  }
   std::cout << "DONE!" << std::endl;
 
   return;
 }
 
+void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+  TH1F *pdata;
+  splot_d0(pdata, mass, isData, fragWeight, ep, jpT);
+  delete pdata;
+}

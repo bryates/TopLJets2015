@@ -91,7 +91,6 @@ delete fmc;
 
 void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("");
-/*
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
@@ -110,6 +109,7 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
   run_chi2_d0_mu_tag("tpt");
+/*
   run_chi2_d0_mu_tag("as117");
   run_chi2_d0_mu_tag("as119");
   run_chi2_d0_mu_tag("m166v5");
@@ -269,8 +269,8 @@ delete data2;
 delete mc2;
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
-data->GetXaxis()->SetRangeUser(0.,0.89);
-mc->GetXaxis()->SetRangeUser(0.,0.89);
+data->GetXaxis()->SetRangeUser(0.,1.0);
+mc->GetXaxis()->SetRangeUser(0.,1.0);
 mc->GetYaxis()->SetRangeUser(0.,.16);
 data->GetYaxis()->SetRangeUser(0.,.16);
 setupPad()->cd();
@@ -369,8 +369,8 @@ c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000))
 */
 c1->SaveAs(title + ".pdf");
 c1->SaveAs(title + ".png");
-data->GetXaxis()->SetRangeUser(0.21,0.975);
-mc->GetXaxis()->SetRangeUser(0.21,0.975);
+data->GetXaxis()->SetRangeUser(0.2,0.975);
+mc->GetXaxis()->SetRangeUser(0.2,0.975);
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.,0.89);
 mc->GetXaxis()->SetRangeUser(0.,0.89);
