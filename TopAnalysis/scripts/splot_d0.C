@@ -29,7 +29,10 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
-  //#include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#ifndef CHARM
+#define CHARM
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#endif
   #include "convert.h"
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;

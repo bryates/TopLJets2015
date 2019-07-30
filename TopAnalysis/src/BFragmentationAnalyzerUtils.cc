@@ -55,6 +55,8 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
   jinfo.xb              = leadTagConst ? (leadTagConst->pt()*tagScale)/totalP4.pt() : -1;
   jinfo.xb_charged      = (leadTagConst && pt_charged>0) ? (leadTagConst->pt()*tagScale)/pt_charged : -1;
   jinfo.pt              = leadTagConst ? (leadTagConst->pt()*tagScale) : -1;
+  jinfo.eta             = leadTagConst ? leadTagConst->eta() : 999;
+  jinfo.phi             = leadTagConst ? leadTagConst->phi() : 999;
   jinfo.leadTagId       = leadTagConst ? leadTagConst->pdgId() : 0;
   jinfo.hasSemiLepDecay = hasSemiLepDecay;
   jinfo.hasTauSemiLepDecay = hasTauNeutrino;

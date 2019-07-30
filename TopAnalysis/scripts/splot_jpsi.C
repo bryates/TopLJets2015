@@ -583,11 +583,15 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   num->Write();
   }
 
-  //if(!mass.Contains("toyData")) {
+  std::cout << "writting workspace to file" << std::endl;
   w.Write();
+  std::cout << "writting tuneWgt to file" << std::endl;
+  if(!mass.Contains("toyData")) {
   tuneWgt->Write();
+  std::cout << "closing file" << std::endl;
   fout->Close();
-  //}
+  }
+  std::cout << "DONE!" << std::endl;
 
   return;
 }
