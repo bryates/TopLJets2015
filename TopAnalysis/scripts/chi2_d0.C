@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(0);
+int epoch(1);
 bool fullpt(0);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
@@ -37,6 +37,7 @@ void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
 fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data());
@@ -69,7 +70,6 @@ mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
 tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-std::cout << fname << std::endl;
 //tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 data = (TH1F*)convert(tmp, norm, 0, 1.1);
@@ -86,6 +86,7 @@ delete fmc;
 
 void chi2_d0() {
   run_chi2_d0("");
+  /*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -95,7 +96,7 @@ void chi2_d0() {
   //run_chi2_d0("erdON");
   run_chi2_d0("GluonMove_erdON");
   //run_chi2_d0("QCD_erdON");
-  std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER", "JSF" }; //no lepton tracker efficiencies are used!
+  std::vector<TString> syst = {"LEP", "PU", "PI", "TRIGGER", "JER"};//, "JSF" }; //no lepton tracker efficiencies are used!
   //std::vector<TString> syst = {"TRK", "LEP", "PU", "PI", "TRIGGER", "JER" };
   for(auto & it : syst) {
     run_chi2_d0("down_"+it);
@@ -104,6 +105,7 @@ void chi2_d0() {
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
   run_chi2_d0("tpt");
+  */
   /*
   run_chi2_d0("bkg");
   run_chi2_d0("as117");
@@ -274,6 +276,7 @@ if(namet == "") namet = "172v5";
 c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.pdf",namet.Data(),int(num*1000), epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
 c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.png",namet.Data(),int(num*1000), epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
 
+std::cout << "test" << std::endl;
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
 data->GetXaxis()->SetRangeUser(0,1.1);
@@ -311,8 +314,8 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 N = mc->Integral();
 }
 
-data->GetXaxis()->SetRangeUser(0.2,0.975);
-mc->GetXaxis()->SetRangeUser(0.2,0.975);
+data->GetXaxis()->SetRangeUser(0.125,0.975);
+mc->GetXaxis()->SetRangeUser(0.125,0.975);
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.0,0.7);
 mc->GetXaxis()->SetRangeUser(0.0,0.7);
