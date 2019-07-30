@@ -14,8 +14,11 @@
 #include "RooFitResult.h"
 #include "RooAddition.h"
 #include "RooArgSet.h"
-//#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#ifndef CHARM
+#define CHARM
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#endif
+//#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.C"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/splot_d0.C"
 
@@ -78,7 +81,7 @@ if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
-if(!toyData) nentries = ((TH1F*)fdata->Get("num"))->Integral();
+//if(!toyData) nentries = ((TH1F*)fdata->Get("num"))->Integral();
 if(name.Length()==0)
 fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_172v5%s_sPlot_%s.root",tune.Data(),sample.Data());
 //fname = TString::Format("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/sPlot/sPlot/morph/TopMass_172v5%s_sPlot_d0.root",tune.Data());
@@ -88,7 +91,7 @@ fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s%s
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 TFile *fmc = TFile::Open(fname);
-nmc = ((TH1F*)fmc->Get("num"))->Integral();
+//nmc = ((TH1F*)fmc->Get("num"))->Integral();
 
 RooPlot *tmp = nullptr;
 TString Tptfrac("ptfrac_signal");
@@ -100,59 +103,7 @@ for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
 tmp = (RooPlot*)fdata->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_Data"));
-if(toyData && 0) tmp = (RooPlot*)fdata->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_toyData%s%s",name.Data(),tune.Data()));
-RooDataSet *dsmc2;
-if(toyData && 0) {
-//tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
-//pdata = (TH1F*)convert(tmp, norm, bin);
-RooDataSet *dsdata = (RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData");
-RooDataSet *dsmc = (RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData");
-RooDataSet *dsmcnw = (RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("dsSWeights");
-RooRealVar *ptfrac = (RooRealVar*)((RooWorkspace*)fdata->Get("w"))->var("ptfrac");
-RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., -1, 2.);
-
-dsmc2 = new RooDataSet("dsmc2", "dsmc2", RooArgSet(*ptfrac,tuneW));
-  //if(nmc == 0) ((RooWorkspace*)fmc->Get("w"))->data("sigData")->numEntries();
-  nmc = ((TH1F*)fmc->Get("num"))->GetBinContent(1);
-  std::cout << nentries << " " << nmc << " " << dsdata->sumEntries()/dsmc->sumEntries() << std::endl;
-  RooRealVar row("row","row", 0, nentries);
-  RooDataSet rnd("rnd", "rnd", RooArgSet(row));
-
-  TRandom3 *rand = new TRandom3(0);
-  int start = nmc;
-  //pick a random starting point that will encompass a subet of MC containing N points where N=num of points in the data
-  std::cout << nmc << " " << nentries << " " <<  int(float(nmc)/float(nentries)) << std::endl;
-  while(start + nentries > nmc) {
-    start = rand->Uniform(0, nentries);
-    std::cout << start << " " << start + nentries << " " << nentries << std::endl;
-  }
-
-  //assign row numbers to MC
-  for(int irow = 0; irow < dsmcnw->numEntries(); irow++) {
-    double fptfrac = dsmcnw->get(irow)->getRealValue("ptfrac");
-    double wgt = dsmcnw->get(irow)->getRealValue("nsig_sw");
-    if(irow < start || irow > start + nentries) {
-      //std::cout << irow << " ";
-      ptfrac->setVal(fptfrac * 1E-20);
-    }
-    ptfrac->setVal(fptfrac);
-    tuneW.setVal(wgt);
-    dsmc2->add(RooArgSet(*ptfrac,tuneW));
-  }
-  dsmc->Print("");
-  dsmc2->Print("v");
-  RooDataSet *dsmc3 = new RooDataSet("dsmc3", "dsmc3", dsmc2, *dsmc2->get(), 0, "tuneW");
-  dsmc3->Print("");
-  
-dsmc3->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
-  pdata = (TH1F*)convert(tmp, norm, bin);
-}
-else {
-  if(!toyData) pdata = (TH1F*)convert(tmp, norm, 0, 1.1);
-  //if(nentries == 0) ((RooWorkspace*)fdata->Get("w"))->data("sigData")->numEntries();
-  //nentries = 85518;//dsdata->numEntries();
-}
-//data = (TH1F*)convert(tmp, norm, bin);
+if(!toyData) pdata = (TH1F*)convert(tmp, norm, 0, 1.1);
 if(sample.Contains("mu_tag") || sample.Contains("jpsi")) {
   //std::cout << "variable binning" << std::endl;
   delete tmp;
@@ -371,7 +322,7 @@ delete pt;
 
 float chi2_d0_toy_test(TH1F *&data, TString sample="d0", TString tune="", TString name="", float num=0.855, int iteration=0) {
 //float chi2_d0_toy_test(TH1F *&data, TH1F *&mc, TString sample="d0", TString tune="", TString name="", float num=0.855) {
-if((sample.Contains("d0_mu_tag_mu") || sample.Contains("jpsi")) && name.Contains("GluonMove_erdON"))
+if((sample.Contains("d0_mu") || sample.Contains("jpsi")) && name.Contains("GluonMove_erdON"))
   name = "erdON";
 TH1F *mc, *mc2;
 TH1F *tmpData, *tmpData2;
@@ -384,27 +335,31 @@ else {
 //only load each MC hist once (instead of each time in for loop)
 //if(mc == nullptr) {
   std::cout << "loading MC" << std::endl;
-  getHist(nentries, nmc, sample, name, tune, tmpData, mc, 2, false, false, iteration);
+  getHist(nentries, nmc, sample, name, tune, tmpData, mc, 1, false, false, iteration);
   getHist(nentries, nmc, sample, name, tune, tmpData2, mc2, 2, false, false, iteration);
-  //mc->Add(mc2);
+  mc->Add(mc2);
   std::cout << "loading MC DONE!" << std::endl;
-  //tmpData->Add(tmpData2);
+  tmpData->Add(tmpData2);
 //}
 if(tune == "_sdown") { //only compute modified hist once
+    if((name == "" || name == "172v5")) { //MC errors otherwise (e.g. FSR)
   //only load each nominal MC hist once (instead of each time in for loop)
   //if(mc == nullptr || data == nullptr) {
     std::cout << "loading MC for toy data!" << std::endl;
     TH1F *data2;
     std::cout << "creating toy data" << std::endl;
-    getHist(nentries,nmc,sample, name, tune, data, mc, 2, false, true, iteration);
+    getHist(nentries,nmc,sample, name, tune, data, mc, 1, false, true, iteration);
     getHist(nentries, nmc, sample, name, tune, data2, mc2, 2, false, true, iteration);
-    //mc->Add(mc2);
+    mc->Add(mc2);
     std::cout << "loading MC for toy data DONE!" << std::endl;
-    //data->Add(data2);
+    data->Add(data2);
+    delete data2;
+    }
+    else
+    data = (TH1F*)tmpData->Clone("");
     data->SetTitle("frame_ptfrac_toyData_hist");
     std::cout << data->GetTitle() << std::endl;
     std::cout << "creating toy data DONE!" << std::endl;
-    delete data2;
   //}
   std::cout << data->GetTitle() << std::endl;
   //scale hist to ensure the number of events hasn't changed
@@ -416,13 +371,14 @@ if(tune == "_sdown") { //only compute modified hist once
   for(int i = 1; i <= tmpData->GetNbinsX(); i++) {
     float y = shiftData->GetBinContent(i);
     float e(0.);
+    e = shiftData->GetBinError(i);
     /*
     if(name == "") //Data errors for nominal MC only
       e = tmpData->GetBinError(i);
     else //MC errors otherwise (e.g. FSR)
     */
       //toyData sample has same number of events as data, similar statistics
-      e = shiftData->GetBinError(i);
+      //e = shiftData->GetBinError(i);
     std::cout << y << " +/- " << e << " ";
     //shift each bin by random amount samples by the appropriate bin error
     if(!(name == "" || name == "172v5")) //MC errors otherwise (e.g. FSR)
@@ -571,7 +527,6 @@ if(chi2>high) high = chi2;
 
 /*
 delete data;
-delete shiftData;
 delete mc;
 */
 

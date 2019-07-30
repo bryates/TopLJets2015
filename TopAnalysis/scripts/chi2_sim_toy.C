@@ -15,7 +15,10 @@
 #include "RooAddition.h"
 #include "RooArgSet.h"
 //#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#ifndef CHARM
+#define CHARM
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#endif
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.C"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/splot_d0.C"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/splot_d0_mu_tag.C"
@@ -149,7 +152,7 @@ delete fmc;
 }
 
 void chi2_sim_toy(TString set="172v5", int queue=0) {
-  int max(10);
+  int max(5);
   for(int i = 0; i < max; i++) {
     std::cout << std::endl << "iteration " << i+1 << "/" << max << std::endl << std::endl;
     run_chi2_sim_toy(set, i + max*queue);
