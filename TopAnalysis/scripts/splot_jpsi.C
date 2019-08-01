@@ -28,8 +28,11 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
-//#include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
 #include "convert.h"
+#ifndef CHARM
+#define CHARM
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#endif
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;
 using namespace RooStats;
@@ -114,10 +117,10 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       mass += "_" + fragWeight;
       fragWeight.ReplaceAll("lep","");
       g = (TGraph*)fin->Get(fragWeight+"Frag");
+      std::cout << g->GetName() << std::endl;
     }
   }
   TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_jpsi.root");
-  //TString fUrl("TopMass_"+mass+"_sPlot_jpsi.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root", "_jpT.root");
   std::cout << "creating file: "  << fUrl<< std::endl;
@@ -227,7 +230,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(mass.Contains("toyData"))
         scale *= ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         else
-        scale = ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        scale *= ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         if(pdf>0 && ev.ttbar_nw > pdf) scale *= ev.ttbar_w[pdf];//alternate PDF event weight
         //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
@@ -236,7 +239,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           if(mass.Contains("toyData"))
           scale =  scale * puSF1 * topSF1;
           else
-          scale =  scale * 19716.102 * puSF1 * topSF1;
+          scale =  scale * 19712.86 * puSF1 * topSF1;
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
