@@ -29,11 +29,11 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
+#include "convert.h"
 #ifndef CHARM
 #define CHARM
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
 #endif
-  #include "convert.h"
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;
 using namespace RooStats;
@@ -90,7 +90,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ndau/Chunks/");
   TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   //TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
-  //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
   if(isData) {
     data->Add(dir+"Data13TeV_*");
@@ -119,14 +118,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
     }
-    /*
-    std::vector<TString> tunes = {"_down", "_ddown", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup", "_uup", "_up" };
-    for(auto &it : tunes) {
-      fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
-      fwgt.push_back((TGraph*)fin->Get(it+"Frag"));
-      frgWgt.push_back(RooRealVar(it+"Frag", it+"Frag", 1., 0, 2.));
-    }
-    */
     if(fragWeight.Length() > 0) {
       if(fragWeight.Contains("lep")) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
@@ -138,9 +129,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  std::cout << dir << std::endl;
   TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0.root");
-  //TString fUrl("sPlot/sPlot/TopMass_"+mass+"_sPlot_d0.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
   std::cout << "creating file: "  << fUrl<< std::endl;
@@ -193,6 +182,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   // Declare observable x
   RooRealVar d0_mass("d0_mass","D^{0} mass", 1.7, 2, "GeV") ;
+  RooRealVar d0_mass2("d0_mass2","D^{0} mass2", 1.7, 2, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,2.);
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
@@ -202,23 +192,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
-  /*
-  RooArgSet args(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,j_pt_ch,epoch,tuneW);
-  for(auto &it : frgWgt)
-    args.add(it);
-  args.Print();
-  */
   
   //cout << "creating dataset" << endl;
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(RooArgList(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW,""),RooArgList(d0_mass2,"")));
   //RooDataSet dsn("dsn", "dsn", args);
   int nmc = ep == 1 ? 411938 : 513809;
   int nentries = ep == 1 ? 93836 : 85518;
   int nset(0);
   std::cout << "Total events: " << nmc  << std::endl;
+  /*
   int start = nmc;
   if(mass.Contains("toyData")) {
     std::cout << "Creating toy dataset" << std::endl;
@@ -231,6 +216,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     }
     delete rand;
   }
+  */
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
     data->GetEntry(i);
@@ -308,18 +294,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
           if(mass.Contains("toyData"))
-          scale =  scale * puSF1 * jsfSF1 * topSF1;
+          scale =  scale * puSF1 * topSF1;
           else
-          scale =  scale * 19712.86 * puSF1 * jsfSF1 * topSF1;
+          scale =  scale * 19712.86 * puSF1 * topSF1;
           //if(tpt) scale =  scale * topSF1;
           scale *= 1.11; //GH normalization const
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
           if(mass.Contains("toyData"))
-          scale = scale * puSF2 * jsfSF2 * topSF2;
+          scale = scale * puSF2 * topSF2;
           else
-          scale = scale * 16146.178 * puSF2 * jsfSF2 * topSF2;
+          scale = scale * 16146.178 * puSF2 * topSF2;
           //if(tpt) scale =  scale * topSF1;
           //if(tpt) scale =  scale * topSF2;
           //h2->Fill(mesonlm[j], scale);
@@ -339,6 +325,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
+      d0_mass2.setVal(ev.d0_mass[j]);
       if(ev.d0_mass[j]>(1.864-wind) && ev.d0_mass[j]<(1.864+wind) && ev.d0_pt[j]>0) { //Symmetric around PDG mass
       //if(ev.d0_mass[j]>(1.864-0.034) && ev.d0_mass[j]<(1.864+0.034) && ev.d0_pt[j]>0) { //Symmetric around PDG mass
       //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_pt[j]>0) {
@@ -354,7 +341,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       }
       weight.setVal(scale);
       tuneW.setVal(scale);// * tuneW.getVal());
-      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,j_pt,epoch,tuneW));
+      dsn.add(RooArgSet(RooArgList(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,j_pt,epoch,tuneW,""),RooArgList(d0_mass2,"")));
       //dsn.add(RooArgSet(j_pt));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)
@@ -544,6 +531,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   bkgData.SetTitle("sBackground");
   */
   w.import(d0_mass);
+  w.import(d0_mass2);
   w.import(meson_l_mass);
   w.import(ptfrac);
   w.import(d0_pt);

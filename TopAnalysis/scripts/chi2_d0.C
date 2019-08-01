@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(1);
+int epoch(0);
 bool fullpt(0);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
@@ -64,16 +64,16 @@ tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_
 //tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
-mc = (TH1F*)convert(tmp, norm, 0, 1.1);
-//mc = (TH1F*)convert(tmp, norm, bin);
+//mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+mc = (TH1F*)convert(tmp, norm, bin);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
 tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
-data = (TH1F*)convert(tmp, norm, 0, 1.1);
-//data = (TH1F*)convert(tmp, norm, bin);
+//data = (TH1F*)convert(tmp, norm, 0, 1.1);
+data = (TH1F*)convert(tmp, norm, bin);
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
 delete tmp;
@@ -252,10 +252,11 @@ getHist(name, tune, data, mc, 1, false);
 getHist(name, tune, data2, mc2, 2, false);
 data->Add(data2);
 mc->Add(mc2);
-mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
-data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 delete data2;
 delete mc2;
+}
+mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
+data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
 setupPad()->cd();
@@ -263,7 +264,7 @@ tdr(mc, epoch);
 if(fullpt) mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/ jet #it{p_}{T}");
 mc->Draw();
 tdr(mc, epoch);
-if(epoch==0) {
+//if(epoch>=0) {
 gStyle->SetOptStat(0);
 TString namet(name);
 data->SetMarkerStyle(20);
@@ -280,6 +281,7 @@ std::cout << "test" << std::endl;
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
 data->GetXaxis()->SetRangeUser(0,1.1);
+data->GetYaxis()->SetRangeUser(0,0.145);
 mc->SetMarkerStyle(20);
 data->SetMarkerStyle(20);
 data->SetMarkerColor(kBlack);
@@ -288,10 +290,12 @@ data->SetLineWidth(2);
 tdr(data, epoch);
 data->Draw();
 tdr(data, epoch);
-c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.pdf");
-c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.png");
+//c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.pdf");
+//c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.png");
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.pdf", epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.png", epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
 }
-}
+//}
 
 /*
 if(tune=="" && name=="") {
@@ -312,7 +316,6 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 */
 
 N = mc->Integral();
-}
 
 data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
@@ -328,8 +331,8 @@ mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
 mc->SetMarkerStyle(1);
 mc->SetLineWidth(1);
-mc->GetYaxis()->SetRangeUser(0.,.12);
-data->GetYaxis()->SetRangeUser(0.,.12);
+mc->GetYaxis()->SetRangeUser(0.,.14);
+data->GetYaxis()->SetRangeUser(0.,.14);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.16);
 data->GetYaxis()->SetRangeUser(0.,.16);
