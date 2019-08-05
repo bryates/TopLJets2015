@@ -331,8 +331,13 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar ngsig2("ngsig2","ngsignal2", 100, 0, 10000);
   RooGaussian gauss2("gauss2","gaus2s", jpsi_mass, mean, sigma2);
 
+  RooRealVar sigma3("sigma3","sigma3", 0.02, 0.01, 0.5);
+  RooRealVar ngsig3("ngsig3","ngsignal3", 100, 0, 10000);
+  RooGaussian gauss3("gauss3","gaus3s", jpsi_mass, mean, sigma3);
+
   // Construct a double Gaussian function to fit the signal component
   RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2),RooArgList(ngsig1,ngsig2));
+  //RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2,gauss3),RooArgList(ngsig1,ngsig2,ngsig3));
 
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2, -5, 5.);
@@ -497,7 +502,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::MarkerStyle(20), RooFit::MarkerStyle(20),
                  RooFit::LineWidth(2), RooFit::LineColor(1), Binning(bins));
   frame2->Draw();
-  ptfrac_graph = (TGraph*)frame2->getHist()->Clone();
+  //ptfrac_graph = (TGraph*)frame2->getHist()->Clone();
   ptfrac_signal = (TH1F*)convert(frame2, false, bin);
   ptfrac_signal->SetDirectory(0);
 

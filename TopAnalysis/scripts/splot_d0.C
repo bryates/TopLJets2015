@@ -450,11 +450,16 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2.0, -10, 10);
   RooExponential expo("expo", "exponential PDF", d0_mass, lambda);
+  RooRealVar blambda("blambda", "slope", -0.1, -10, 10);
+  RooRealVar bsigma("bsigma","bsigma", 1, 0.1, 10);
+  RooGaussian bgauss("bgauss","bgauss", d0_mass, blambda, bsigma);
+  RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
   
   // Construct signal + bkg PDF
   RooRealVar nsig("nsig","#signal events", 7000, 0, 10000000) ;
   RooRealVar nbkg("nbkg","#background events", 100000, 0, 10000000) ;
   //RooAddPdf model("model","g+exp", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, prod), RooArgList(nsig,nbkg)) ;
   RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;

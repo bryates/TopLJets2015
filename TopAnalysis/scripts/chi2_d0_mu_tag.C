@@ -109,6 +109,7 @@ void chi2_d0_mu_tag() {
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
   run_chi2_d0_mu_tag("tpt");
+  run_chi2_d0_mu_tag("bkg");
 /*
   run_chi2_d0_mu_tag("as117");
   run_chi2_d0_mu_tag("as119");
