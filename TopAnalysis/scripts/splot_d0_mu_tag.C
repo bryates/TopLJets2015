@@ -28,7 +28,10 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
-//  #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#ifndef CHARM
+#define CHARM
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#endif
   #include "convert.h"
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;
@@ -407,12 +410,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -0.1, -10, 10);
+  RooRealVar blambda("blambda", "slope", -0.1, -10, 10);
   RooExponential expo("expo", "exponential PDF", d0_mass, lambda);
+  RooRealVar bsigma("bsigma","bsigma", 1, 0.1, 10);
+  RooGaussian bgauss("bgauss","bgauss", d0_mass, blambda, bsigma);
+  RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
   
   // Construct signal + bkg PDF
   RooRealVar nsig("nsig","#signal events", 4000, 0, 10000000) ;
   RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000000) ;
   //RooAddPdf model("model","g+exp", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, prod), RooArgList(nsig,nbkg)) ;
   RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;

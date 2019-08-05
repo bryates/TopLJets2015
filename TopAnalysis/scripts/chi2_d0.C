@@ -86,7 +86,6 @@ delete fmc;
 
 void chi2_d0() {
   run_chi2_d0("");
-  /*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -105,7 +104,7 @@ void chi2_d0() {
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
   run_chi2_d0("tpt");
-  */
+  run_chi2_d0("bkg");
   /*
   run_chi2_d0("bkg");
   run_chi2_d0("as117");
