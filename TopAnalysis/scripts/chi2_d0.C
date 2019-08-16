@@ -21,7 +21,7 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(0);
+int epoch(-1);
 bool fullpt(0);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
@@ -36,6 +36,7 @@ RooRealVar ptfrac;
 void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
@@ -45,6 +46,7 @@ fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data())
 else
 fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fmc = TFile::Open(fname);
@@ -52,7 +54,7 @@ TFile *fmc = TFile::Open(fname);
 RooPlot *tmp = nullptr;
 RooBinning bins(0,1.1);
 std::vector<float> bin;
-bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.67, 0.725, 0.8, 0.875, 0.95, 1.0};
+bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
 //bin = {0.025, 0.1, 0.175, 0.25, 0.325, 0.4, 0.475, 0.55, 0.625, 0.7, 0.775, 0.85, 0.925, 0.975, 1.0};
 //bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
 //bin = {-0.025, 0.025, 0.075, 0.125,  0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.0};
@@ -60,22 +62,29 @@ bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.67, 0.725, 0.
 for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
-tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+else { tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 //tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
 //mc = (TH1F*)convert(tmp, norm, 0, 1.1);
 mc = (TH1F*)convert(tmp, norm, bin);
+}
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
+//mc->Rebin();
 delete tmp;
-tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+if(epoch<0) data = (TH1F*)fdata->Get("ptfrac_signal_hist")->Clone();
+else { tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 //data = (TH1F*)convert(tmp, norm, 0, 1.1);
 data = (TH1F*)convert(tmp, norm, bin);
+}
 data->SetDirectory(0);
 data->SetTitle(data->GetName());
+//data->Rebin();
+std::cout << data->GetTitle() << std::endl;
 delete tmp;
 
 fdata->Close();
@@ -86,6 +95,9 @@ delete fmc;
 
 void chi2_d0() {
   run_chi2_d0("");
+  run_chi2_d0("down_PU");
+  run_chi2_d0("up_PU");
+/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -105,6 +117,7 @@ void chi2_d0() {
   run_chi2_d0("hdampup");
   run_chi2_d0("tpt");
   run_chi2_d0("bkg");
+*/
   /*
   run_chi2_d0("bkg");
   run_chi2_d0("as117");
@@ -243,7 +256,7 @@ delete pt;
 
 float chi2_d0_test(TString tune="", TString name="", float num=0.855) {
 TH1F *data, *data2, *mc, *mc2;
-if(epoch>0) {
+if(epoch!=0) {
 getHist(name, tune, data, mc, epoch);
 }
 else {
@@ -279,7 +292,7 @@ c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.pn
 std::cout << "test" << std::endl;
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
-data->GetXaxis()->SetRangeUser(0,1.1);
+data->GetXaxis()->SetRangeUser(0,1.);
 data->GetYaxis()->SetRangeUser(0,0.145);
 mc->SetMarkerStyle(20);
 data->SetMarkerStyle(20);
@@ -318,6 +331,10 @@ N = mc->Integral();
 
 data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
+if(epoch<0 && 0) {
+data->GetXaxis()->SetRangeUser(0.45,0.975);
+mc->GetXaxis()->SetRangeUser(0.45,0.975);
+}
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.0,0.7);
 mc->GetXaxis()->SetRangeUser(0.0,0.7);
@@ -330,8 +347,8 @@ mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
 mc->SetMarkerStyle(1);
 mc->SetLineWidth(1);
-mc->GetYaxis()->SetRangeUser(0.,.14);
-data->GetYaxis()->SetRangeUser(0.,.14);
+mc->GetYaxis()->SetRangeUser(0.,.16);
+data->GetYaxis()->SetRangeUser(0.,.16);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.16);
 data->GetYaxis()->SetRangeUser(0.,.16);

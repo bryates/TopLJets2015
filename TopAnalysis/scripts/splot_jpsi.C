@@ -41,9 +41,10 @@ using namespace RooStats;
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="jpsi_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_jpsi(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_jpsi(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
   RooWorkspace w("w",mass);
   float wind(0.11);
+  std::vector<float> type = {0., 0.7, 1.};
   int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
@@ -54,7 +55,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp") || mass.Contains("m1")) { //ISR,FSR,CR,UE
     syst = mass;
     std::cout << "Processing systematics " << TString::Format("MC13TeV_TTJets_%s",syst.Data()) << std::endl;
@@ -123,6 +124,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_jpsi.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root", "_jpT.root");
+  if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
   //if(!mass.Contains("toyData"))
@@ -223,6 +225,10 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(!(mesonlm[j] > 0)) continue;
       if(mesonlm[j] > 250) continue;
       */
+      if(xb != 0) {
+	if(type[xb] < 1) { if(ev.jpsi_pt[j]/ev.j_pt_charged[j] > type[xb] || ev.jpsi_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; }
+        else if(ev.jpsi_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; 
+      }
       float scale = 1.;
       tuneW.setVal(1.);
       scale *= ev.sfs[j];
@@ -355,7 +361,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooPlot* frame = jpsi_mass.frame() ;
   std::vector<float> bin;
   RooBinning bins(0,1.1);
-  bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
+  bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
@@ -604,9 +610,9 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   return;
 }
 
-void splot_jpsi(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_jpsi(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
   TH1F *pdata;
-  splot_jpsi(pdata, mass, isData, fragWeight, ep, jpT);
+  splot_jpsi(pdata, mass, isData, fragWeight, ep, jpT, xb);
   delete pdata;
 }
 

@@ -415,11 +415,7 @@ class Plot(object):
         frame.GetYaxis().SetTitleOffset(1.7)
         #frame.GetXaxis().SetTitleSize(0.0)
         frame.GetXaxis().SetTitleSize(0.047)
-        frame.GetYaxis().SetTicks("+");
-        frame.GetXaxis().SetTitleOffset(-1.7)
-        frame.GetYaxis().SetTitleOffset(-1.7)
-        frame.GetXaxis().SetLabelOffset(-0.03)
-        frame.GetYaxis().SetLabelOffset(-0.03)
+        frame.GetXaxis().SetNdivisions(10)
         if noRatio is False: frame.GetXaxis().SetLabelSize(0.0)
         frame.Draw()
         if totalMC is not None   : 
@@ -438,6 +434,7 @@ class Plot(object):
                    self.totalMCUncShape.Draw("e2 same")
                    leg.AddEntry(totalMCUncShape, "Total shape unc.", 'f')
         if self.data is not None : self.data.Draw('p')
+        p1.RedrawAxis()
 
 
         leg.Draw()
@@ -480,9 +477,8 @@ class Plot(object):
             ratioframe.GetYaxis().SetNdivisions(3)
             ratioframe.GetYaxis().SetLabelSize(0.18)
             ratioframe.GetYaxis().SetTitleSize(0.2)
-            ratioframe.GetYaxis().SetTitleOffset(-1.7)
+            ratioframe.GetYaxis().SetTitleOffset(0.25)
             ratioframe.GetXaxis().SetLabelSize(0.15)
-            ratioframe.GetXaxis().SetLabelOffset(0.03)
             ratioframe.GetXaxis().SetTitleSize(0.2)
             ratioframe.GetXaxis().SetTitleOffset(0.8)
             ratioframeshape=ratioframe.Clone('ratioframeshape')
