@@ -7,6 +7,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
+#include "TH2F.h"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -53,8 +54,10 @@ private:
 
   std::vector<int> hadronList_;
   std::map<std::string, TH1F *> histos_;
+  std::map<std::string, TH2F *> histos2_;
   edm::Service<TFileService> fs;
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
+  edm::EDGetTokenT<std::vector<reco::GenParticle> > genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
   std::vector<int> numEntries_;
   /*
@@ -68,12 +71,14 @@ private:
 FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
   hadronList_(iConfig.getParameter<std::vector<int> >("hadronList")),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
+  genParticlesToken_(consumes<std::vector<reco::GenParticle> >(edm::InputTag("pseudoTop"))),
   prunedGenParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"))),
   numEntries_(iConfig.getParameter<std::vector<int> >("numEntries"))
 {
   //prepare monitoring histograms
   size_t nhadrons=hadronList_.size()+1;
   histos_["semilepbr"]    = fs->make<TH1F>("semilepbr", ";B-hadron;BR",nhadrons,0,nhadrons);
+  histos2_["semilepbr"]    = fs->make<TH2F>("semilepbr", ";B-hadron;BR",nhadrons,0,nhadrons,nhadrons,0,nhadrons);
   histos_["semilepbrinc"] = fs->make<TH1F>("semilepbrinc", ";B-hadron;BR",nhadrons,0,nhadrons);
   for(size_t i=0; i<nhadrons; i++)
     {
@@ -82,8 +87,9 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
       histos_["semilepbr"]->GetXaxis()->SetBinLabel(i+1,name.c_str());
       histos_["semilepbrinc"]->GetXaxis()->SetBinLabel(i+1,name.c_str());
       histos_["xb_"+name] = fs->make<TH1F>(("xb_"+name).c_str(), (name+";x_{b}=p_{T}(B)/p_{T}(jet); Jets").c_str(), 100, 0, 2);
-      histos_["xb_semilep"+name] = fs->make<TH1F>(("xb_semilep"+name).c_str(), (name+";x_{b}=p_{T}(B)/p_{T}(jet); Jets").c_str(), 100, 0, 2);
-      histos_["z_semilep"+name] = fs->make<TH1F>(("z_semilep"+name).c_str(), (name+";z=p_{T}(B)/p_{T}(b); Jets").c_str(), 100, 0, 2);
+      histos_["xb_semilep"+name] = fs->make<TH1F>(("xb_semilep"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["z_semilep"+name] = fs->make<TH1F>(("z_semilep"+name).c_str(), (name+";z=#it{p}_{T}(B)/#it{p}_{T}(b); Jets").c_str(), 100, 0, 2);
+      histos2_["zVxb_semilep"+name] = fs->make<TH2F>(("zVxb_semilep"+name).c_str(), (name+";z=#it{p}_{T}(B)/#it{p}_{T}(b); #it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet)").c_str(), 100, 0, 2, 100, 0, 2);
     }
   for(auto it : histos_) it.second->Sumw2();
   //produces<edm::ValueMap<float> >("xb");
@@ -128,7 +134,9 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
   */
 
   edm::Handle<std::vector<reco::GenJet> > genJets;
+  edm::Handle<std::vector<reco::GenParticle> > genParticles;
   iEvent.getByToken(genJetsToken_,genJets);  
+  iEvent.getByToken(genParticlesToken_,genParticles);  
   /*
   ev_.nB = 0;
   std::map< std::string, std::vector<float> > jetWeights;
@@ -155,10 +163,10 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
       histos_["xb_inc"]->Fill(jinfo.xb);
 
       //find parent quark
-      edm::Handle<reco::GenParticleCollection> prunedGenParticles;
-      iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
-      for(size_t i = 0; i < prunedGenParticles->size(); i++) {
-        const reco::GenParticle &genIt = (*prunedGenParticles)[i];
+      edm::Handle<reco::GenParticleCollection> genParticles;
+      iEvent.getByToken(genParticlesToken_,genParticles);
+      for(size_t i = 0; i < genParticles->size(); i++) {
+        const reco::GenParticle &genIt = (*genParticles)[i];
         float deta = genIt.eta() - jinfo.eta;
         float dphi = std::abs(genIt.phi() - jinfo.phi);
         if (dphi > M_PI)
@@ -170,9 +178,11 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             if(daug->mother() == 0) break;
             daug = daug->mother();
           }
-          //if(abs(daug->pdgId()) <= 6) std::cout << "Parent quark found! PDGID= " << daug->pdgId() << std::endl;
-          if(jinfo.hasSemiLepDecay) 
+          if(abs(daug->pdgId()) <= 6) std::cout << "Parent quark found! PDGID= " << daug->pdgId() << std::endl;
+          if(jinfo.hasSemiLepDecay)  {
             histos_["z_semilepinc"]->Fill(jinfo.pt/daug->pt());
+            histos_["zVxb_semilepinc"]->Fill(jinfo.pt/daug->pt(),jinfo.xb);
+          }
         }
       }
       

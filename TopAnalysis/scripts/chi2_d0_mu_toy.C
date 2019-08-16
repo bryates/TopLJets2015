@@ -14,8 +14,11 @@
 #include "RooFitResult.h"
 #include "RooAddition.h"
 #include "RooArgSet.h"
-//#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#ifndef CHARM
+#define CHARM
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
+#endif
+//#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.C"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/splot_d0_mu_tag.C"
 

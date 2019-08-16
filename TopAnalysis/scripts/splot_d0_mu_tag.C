@@ -41,10 +41,11 @@ using namespace RooStats;
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="d0_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_d0_mu_tag(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_d0_mu_tag(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
   RooWorkspace w("w",mass);
   float wind(0.045);
   int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
+  std::vector<float> type = {0., 0.8, 1.};
 /*
 void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -132,10 +133,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  //TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   //TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
+  if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
   if(!mass.Contains("toyData"))
@@ -175,6 +178,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
+  if(xb!=0) std::cout << "slecting " << type[xb-1] << " < ptfrac < " << type[xb] << std::endl;
   cout << "loaded!" << endl;
 
   // Declare observable x
@@ -251,6 +255,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(!(mesonlm[j] > 0)) continue;
       if(mesonlm[j] > 250) continue;
       */
+      if(xb != 0) {
+	if(type[xb] < 1) { if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] > type[xb] || ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; }
+        else if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; 
+      }
       float scale = 1.;
       tuneW.setVal(1.);
       //scale *= ev.sfs[j];
@@ -691,8 +699,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   return;
 }
 
-void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
   TH1F *pdata;
-  splot_d0_mu_tag(pdata, mass, isData, fragWeight, ep, jpT);
+  splot_d0_mu_tag(pdata, mass, isData, fragWeight, ep, jpT, xb);
   delete pdata;
 }

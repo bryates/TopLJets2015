@@ -42,9 +42,18 @@ bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="d0_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_d0(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_d0(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
   RooWorkspace w("w",mass);
   float wind(0.04);
+  std::vector<float> bin;
+  //bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
+  bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+  std::vector<float> type = {0., 0.4, 0.6, 1.};
+  //std::vector<float> type = {0., 0.3, 0.45, 0.8, 1.};
+  //std::vector<float> type = {0., 0.25, 0.5, 0.7, 1.};
+  TString cut("");
+  if(xb != 0)
+    cut = TString::Format("ptfrac > %f && ptfrac < %f", type[xb-1], type[xb]);
   /*
   bool tpt(true);
   int pdfs[4] = {0, 1, 110, 111}; //nominal, a_s=0.118, 0.117, 0.119
@@ -91,9 +100,29 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   //TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   TChain *data = new TChain("data");
+  /*
   if(isData) {
     data->Add(dir+"Data13TeV_*");
     mass="Data";
+  }
+  */
+  if(isData) {
+    std::vector<TString> dataSamples;
+    mass="Data";
+    if(ep == 1)
+      dataSamples = {"Data13TeV_DoubleEG_2016B","Data13TeV_DoubleEG_2016C","Data13TeV_DoubleEG_2016D","Data13TeV_DoubleEG_2016E","Data13TeV_DoubleEG_2016F","Data13TeV_DoubleMuon_2016B","Data13TeV_DoubleMuon_2016C","Data13TeV_DoubleMuon_2016D","Data13TeV_DoubleMuon_2016E","Data13TeV_DoubleMuon_2016F","Data13TeV_MuonEG_2016B","Data13TeV_MuonEG_2016C","Data13TeV_MuonEG_2016D","Data13TeV_MuonEG_2016E","Data13TeV_MuonEG_2016F","Data13TeV_SingleElectron_2016B","Data13TeV_SingleElectron_2016C","Data13TeV_SingleElectron_2016D","Data13TeV_SingleElectron_2016E","Data13TeV_SingleElectron_2016F","Data13TeV_SingleMuon_2016B","Data13TeV_SingleMuon_2016C","Data13TeV_SingleMuon_2016D","Data13TeV_SingleMuon_2016E","Data13TeV_SingleMuon_2016F"};
+    else if(ep == 2)
+      dataSamples = {"Data13TeV_SingleMuon_2016G","Data13TeV_SingleMuon_2016H_v2","Data13TeV_SingleMuon_2016H_v3","Data13TeV_DoubleEG_2016G","Data13TeV_DoubleEG_2016H_v2","Data13TeV_DoubleEG_2016H_v3","Data13TeV_DoubleMuon_2016G","Data13TeV_DoubleMuon_2016H_v2","Data13TeV_DoubleMuon_2016H_v3","Data13TeV_MuonEG_2016G","Data13TeV_MuonEG_2016H_v2","Data13TeV_MuonEG_2016H_v3","Data13TeV_SingleElectron_2016G","Data13TeV_SingleElectron_2016H_v2","Data13TeV_SingleElectron_2016H_v3"};
+    else
+      dataSamples = {"Data13TeV_DoubleEG_2016B","Data13TeV_DoubleEG_2016C","Data13TeV_DoubleEG_2016D","Data13TeV_DoubleEG_2016E","Data13TeV_DoubleEG_2016F","Data13TeV_DoubleMuon_2016B","Data13TeV_DoubleMuon_2016C","Data13TeV_DoubleMuon_2016D","Data13TeV_DoubleMuon_2016E","Data13TeV_DoubleMuon_2016F","Data13TeV_MuonEG_2016B","Data13TeV_MuonEG_2016C","Data13TeV_MuonEG_2016D","Data13TeV_MuonEG_2016E","Data13TeV_MuonEG_2016F","Data13TeV_SingleElectron_2016B","Data13TeV_SingleElectron_2016C","Data13TeV_SingleElectron_2016D","Data13TeV_SingleElectron_2016E","Data13TeV_SingleElectron_2016F","Data13TeV_SingleMuon_2016B","Data13TeV_SingleMuon_2016C","Data13TeV_SingleMuon_2016D","Data13TeV_SingleMuon_2016E","Data13TeV_SingleMuon_2016F","Data13TeV_SingleMuon_2016G","Data13TeV_SingleMuon_2016H_v2","Data13TeV_SingleMuon_2016H_v3","Data13TeV_DoubleEG_2016G","Data13TeV_DoubleEG_2016H_v2","Data13TeV_DoubleEG_2016H_v3","Data13TeV_DoubleMuon_2016G","Data13TeV_DoubleMuon_2016H_v2","Data13TeV_DoubleMuon_2016H_v3","Data13TeV_MuonEG_2016G","Data13TeV_MuonEG_2016H_v2","Data13TeV_MuonEG_2016H_v3","Data13TeV_SingleElectron_2016G","Data13TeV_SingleElectron_2016H_v2","Data13TeV_SingleElectron_2016H_v3"};
+    for(auto & it : dataSamples) {
+      TString dataname(dir);
+      dataname += it;
+      dataname += "_*";
+      std::cout << "Adding " << it;
+      int num = data->Add(dataname);
+      std::cout << " (" << num << " files)" << std::endl;
+    }
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   else {
@@ -132,6 +161,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
+  if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
   if(!mass.Contains("toyData"))
@@ -178,6 +208,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
+  if(xb!=0) std::cout << "slecting " << type[xb-1] << " < ptfrac < " << type[xb] << std::endl;
   cout << "loaded!" << endl;
 
   // Declare observable x
@@ -235,22 +266,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         k = ev.d0_k_pt[j];
       }
       */
-      if(ev.j_pt_charged[j] == 0) continue; //some events are bad
+      //if(ev.j_pt_charged[j] == 0) continue; //some events are bad
       if(ev.meson_id[j] != 421) continue;
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
       if(ep>0 && ev.epoch[j]!=ep) continue;
-      if(!jpT) {
+      if(!jpT) { //missing in raw plots
         //if(ev.j_pt[j]>150) continue;
         if(ev.j_pt_charged[j]>100) continue;
       }
-      if(mass.Contains("toyData")) {
-        /*
-        if(i < start || i > start + nentries) continue;
-        */
+      if(mass.Contains("toyData") && 0) {
+        std::cout << "Toy data!!" << std::endl;
         TRandom3 *rand = new TRandom3(0);
-        //if(epoch==1 && rand->Uniform(0, 1) > 0.25) continue;
-        //if(epoch==2 && rand->Uniform(0, 1) > 0.17) continue;
         if(rand->Uniform(0, 1) > float(nentries)/float(nmc)) continue;
         if(nset > nentries) continue;
         nset++;
@@ -266,7 +293,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(ev.j_pt[j]>150) continue;
       */
       //if(ev.j_pt_charged[j]>75) continue;
-      if(ev.epoch[j]!=1 && ev.epoch[j]!=2) continue;
+      //if(ev.epoch[j]!=1 && ev.epoch[j]!=2) continue;
+      if(xb != 0) {
+	if(type[xb] < 1) { if(ev.d0_pt[j]/ev.j_pt_charged[j] > type[xb] || ev.d0_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; }
+        else if(ev.d0_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; 
+      }
       /*
       if(!ev.isData) {
         if(ev.j_hadflav[ev.d0_j[j]]!=5) continue;
@@ -467,7 +498,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
   //ds.plotOn(frame,Binning(bins));
   //ds.plotOn(frame,Binning(60));
-  ds.plotOn(frame,Binning(30));
+  ds.plotOn(frame,Binning(60));
   /*
   RooAbsReal *nll = model.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   RooMinuit m(*nll);
@@ -490,9 +521,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
 
   frame = ptfrac.frame();
-  std::vector<float> bin;
   RooBinning bins(0,1.1);
-  bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
   ds.plotOn(frame,Binning(bins));
@@ -778,8 +807,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   return;
 }
 
-void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false) {
+void splot_d0(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb = 0) {
   TH1F *pdata;
-  splot_d0(pdata, mass, isData, fragWeight, ep, jpT);
+  splot_d0(pdata, mass, isData, fragWeight, ep, jpT, xb);
   delete pdata;
 }
