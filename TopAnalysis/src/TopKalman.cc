@@ -1322,7 +1322,6 @@ void RunTopKalman(TString filename,
 
 
       //charmed resonance analysis : use only jets with CSV>CSVL, up to two per event
-      if(htsum<100) continue;
       evch.njpsi=0;
       evch.nmeson=0;
       evch.nj=0;
@@ -1517,7 +1516,7 @@ void RunTopKalman(TString filename,
         for(auto &jet : kJetsVec) {
           //jet.setJchCorrection(j_pt_corrB[jet.getJetIndex()]);
           //if(jet.getPt()>150) continue;
-          if(jet.getChargedPt()>100) continue;
+          //if(jet.getChargedPt()>100) continue;
           vector<pfTrack> piTracks,muTracks,piSoftTracks;
           /*
           size_t tmax = 4;

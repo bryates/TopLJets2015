@@ -21,30 +21,31 @@ using namespace RooFit;
 //TString name("");
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool TDR(1);
-int epoch(-1);
+int epoch(0);
 bool fullpt(0);
-TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
+TString epoch_name[4] = {"_xb", "_BCDEFGH", "_BCDEF", "_GH"};
 
 float N(1.);
 TCanvas *c1 = setupCanvas();
 TString report("");
 TString json("\"d0\" :      [");
-float chi2_d0_test(TString tune="", TString name="", float num=0.855);
+float chi2_d0_(TString tune="", TString name="", float num=0.855);
 void run_chi2_d0(TString);
 RooRealVar ptfrac;
 
 void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
-TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0.root");
+TString fname = TString::Format("sPlot/sPlot//TopMass_Data_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
-fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0.root",tune.Data());
-//fname = TString::Format("sPlot/sPlot/morph/TopMass_172v5%s_sPlot_d0.root",tune.Data());
+fname = TString::Format("sPlot/sPlot//TopMass_172v5%s_sPlot_d0.root",tune.Data());
+//fname = TString::Format("sPlot/sPlot//morph/TopMass_172v5%s_sPlot_d0.root",tune.Data());
 else
-fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
+fname = TString::Format("sPlot/sPlot//TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
@@ -53,12 +54,18 @@ TFile *fmc = TFile::Open(fname);
 
 RooPlot *tmp = nullptr;
 RooBinning bins(0,1.1);
+/*
 std::vector<float> bin;
 bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
+*/
 //bin = {0.025, 0.1, 0.175, 0.25, 0.325, 0.4, 0.475, 0.55, 0.625, 0.7, 0.775, 0.85, 0.925, 0.975, 1.0};
 //bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
 //bin = {-0.025, 0.025, 0.075, 0.125,  0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.0};
 //bin = {0, 0.05, 0.1, 0.15,  0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975, 1.0};
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
+if(fullpt)
+bin = {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0};
 for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
@@ -93,11 +100,13 @@ delete fdata;
 delete fmc;
 }
 
-void chi2_d0() {
+void chi2_d0(int ep=epoch, TString samp="", bool jpT=false) {
+  epoch = ep;
+  fullpt = jpT;
+  if(samp != "")
+  run_chi2_d0(samp);
+  else {
   run_chi2_d0("");
-  run_chi2_d0("down_PU");
-  run_chi2_d0("up_PU");
-/*
   run_chi2_d0("isr-down");
   run_chi2_d0("isr-up");
   run_chi2_d0("fsr-down");
@@ -115,19 +124,23 @@ void chi2_d0() {
   }
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
+  }
+/*
   run_chi2_d0("tpt");
   run_chi2_d0("bkg");
-*/
-  /*
   run_chi2_d0("bkg");
   run_chi2_d0("as117");
   run_chi2_d0("as119");
+  */
+  /*
   run_chi2_d0("m166v5");
   run_chi2_d0("m169v5");
   run_chi2_d0("m171v5");
   run_chi2_d0("m173v5");
   run_chi2_d0("m175v5");
   run_chi2_d0("m178v5");
+  */
+  /*
   */
 
   json += ("],");
@@ -167,12 +180,12 @@ chiTest->Sumw2();
 for(auto & it : tune) {
   int pos = &it - &tune[0];
   if(param[pos]>1) continue;
-  if(name == "up_PI" && param[pos]>0.975 && fullpt) continue; //remove up_PI 0.975 with large chi^2
+  //if(name == "up_PI" && param[pos]>0.975 && fullpt) continue; //remove up_PI 0.975 with large chi^2
   if(name == "GluonMove_erdON" && param[pos]==0.900 && epoch==0) continue; //remove up_PI 0.975 with large chi^2
   if(name == "GluonMove_erdON" && param[pos]<0.700 && epoch==1) continue; //remove up_PI 0.975 with large chi^2
   //if(name == "down_PU" && it=="_down" && epoch==2) continue; //remove down_UP 0.755 FIXME
   std::cout << "Running on tune: " << it << std::endl;
-  float chi = chi2_d0_test(it, name, param[pos]);
+  float chi = chi2_d0_(it, name, param[pos]);
   if(chi<low) low = chi;
   if(chi>high) high = chi;
   chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
@@ -205,7 +218,8 @@ else
     txt.DrawLatex(inix,iniy,TString::Format("#bf{CMS} #it{Preliminary} %3.1f fb^{-1} (13 TeV)", (lumi/1000.) ));
 */
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
-//TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
+((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(-88.3245, 1045.87, -2049.8, 1137.63);
+ //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
@@ -218,6 +232,7 @@ float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Par
 */
 float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.075);
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
+std::cout << std::endl << chiTest->GetFunction("pol3")->GetParameter(0) << std::endl << chiTest->GetFunction("pol3")->GetParameter(1) << std::endl << chiTest->GetFunction("pol3")->GetParameter(2) << std::endl << chiTest->GetFunction("pol3")->GetParameter(3) << std::endl << std::endl; 
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
 float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.075);
 if(name=="") { nom=min; nerr=err; }
@@ -225,6 +240,7 @@ report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
+std::cout << "chi^2 at min= " << chimin << " " << TMath::Prob(chimin,10) << std::endl;
 std::cout << "chi^2_min + 1 at x= " << err << std::endl;
 
 TPaveText *pt = new TPaveText(0.12,0.85,0.3,0.65,"NDC"); //NB blNDC
@@ -243,7 +259,7 @@ if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
 
 if(name.Length()>0) name = "_" + name;
-name += epoch_name[epoch];
+name += epoch_name[epoch+1];
 if(fullpt) name += "_jpT";
 c1->SaveAs("chi2_d0"+name+".pdf");
 c1->SaveAs("chi2_d0"+name+".png");
@@ -254,7 +270,7 @@ delete pt;
 //delete c1;
 }
 
-float chi2_d0_test(TString tune="", TString name="", float num=0.855) {
+float chi2_d0_(TString tune="", TString name="", float num=0.855) {
 TH1F *data, *data2, *mc, *mc2;
 if(epoch!=0) {
 getHist(name, tune, data, mc, epoch);
@@ -269,8 +285,6 @@ delete mc2;
 }
 mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
-mc->Scale(1./mc->Integral());
-data->Scale(1./data->Integral());
 setupPad()->cd();
 tdr(mc, epoch);
 if(fullpt) mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/ jet #it{p_}{T}");
@@ -286,14 +300,14 @@ data->SetLineWidth(2);
 if(num==0) num=0.855;
 if(namet == "") namet = "172v5";
 //if(tunet == "") tunet = "855";
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.pdf",namet.Data(),int(num*1000), epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.png",namet.Data(),int(num*1000), epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.pdf",namet.Data(),int(num*1000), epoch_name[epoch+1].Data(), (fullpt ? "_jpT" : "")));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.png",namet.Data(),int(num*1000), epoch_name[epoch+1].Data(), (fullpt ? "_jpT" : "")));
 
-std::cout << "test" << std::endl;
+std::cout << "" << std::endl;
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
-data->GetXaxis()->SetRangeUser(0,1.);
-data->GetYaxis()->SetRangeUser(0,0.145);
+data->GetXaxis()->SetRangeUser(0.,1.);
+//data->GetYaxis()->SetRangeUser(0,0.145);
 mc->SetMarkerStyle(20);
 data->SetMarkerStyle(20);
 data->SetMarkerColor(kBlack);
@@ -304,8 +318,8 @@ data->Draw();
 tdr(data, epoch);
 //c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.pdf");
 //c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.png");
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.pdf", epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.png", epoch_name[epoch].Data(), (fullpt ? "_jpT" : "")));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.pdf", epoch_name[epoch+1].Data(), (fullpt ? "_jpT" : "")));
+c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.png", epoch_name[epoch+1].Data(), (fullpt ? "_jpT" : "")));
 }
 //}
 
@@ -328,12 +342,16 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 */
 
 N = mc->Integral();
+mc->Scale(1./mc->Integral());
+data->Scale(1./data->Integral());
 
 data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
+data->GetXaxis()->SetRangeUser(0.2,0.975);
+mc->GetXaxis()->SetRangeUser(0.2,0.975);
 if(epoch<0 && 0) {
-data->GetXaxis()->SetRangeUser(0.45,0.975);
-mc->GetXaxis()->SetRangeUser(0.45,0.975);
+data->GetXaxis()->SetRangeUser(0.425,0.95);
+mc->GetXaxis()->SetRangeUser(0.425,0.95);
 }
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.0,0.7);
@@ -347,22 +365,29 @@ mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
 mc->SetMarkerStyle(1);
 mc->SetLineWidth(1);
-mc->GetYaxis()->SetRangeUser(0.,.16);
-data->GetYaxis()->SetRangeUser(0.,.16);
+mc->GetYaxis()->SetRangeUser(0.,.14);
+data->GetYaxis()->SetRangeUser(0.,.14);
 if(fullpt) {
-mc->GetYaxis()->SetRangeUser(0.,.16);
-data->GetYaxis()->SetRangeUser(0.,.16);
+mc->GetYaxis()->SetRangeUser(0.,.17);
+data->GetYaxis()->SetRangeUser(0.,.17);
 }
+/*
+int bin(mc->FindBin(0.425));
+mc->SetBinContent(bin, 0);
+data->SetBinContent(bin, 0);
+*/
 mc->Draw("hist");
 tdr(mc, epoch);
 mc->Draw("same e");
 data->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
-TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch]);
+TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch+1]);
 if(fullpt) mcvname += "_jpT";
 c1->SaveAs(mcvname + ".pdf");
 c1->SaveAs(mcvname + ".png");
+//data->SetBinContent(data->FindBin(0.4), 0);
+//mc->SetBinContent(data->FindBin(0.4), 0);
 float chi2 = data->Chi2Test(mc, "CHI2 P WW");
 /*
 chi2 = 0.;
