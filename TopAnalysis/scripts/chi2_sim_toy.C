@@ -152,7 +152,7 @@ delete fmc;
 }
 
 void chi2_sim_toy(TString set="172v5", int queue=0) {
-  int max(5);
+  int max(2);
   for(int i = 0; i < max; i++) {
     std::cout << std::endl << "iteration " << i+1 << "/" << max << std::endl << std::endl;
     run_chi2_sim_toy(set, i + max*queue);
@@ -455,8 +455,8 @@ shiftData->GetYaxis()->SetRangeUser(0,.16);
 tdr(data, epoch);
 shiftData->Draw();
 tdr(shiftData, epoch);
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_toy_BCDEFGH_sim%d.pdf",iteration));
-c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_toy_BCDEFGH_sim%d.png",iteration));
+//c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_toy_BCDEFGH_sim%d.pdf",iteration));
+//c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_toy_BCDEFGH_sim%d.png",iteration));
 }
 }
 

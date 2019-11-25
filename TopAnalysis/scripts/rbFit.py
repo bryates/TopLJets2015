@@ -14,6 +14,7 @@ parser.add_option('-j', '--json',        dest='json'  ,      help='json with lis
 #read list of samples
 jsonFile = open(opt.json,'r')
 full = True if "jpT" in opt.json else False
+full = False
 fullstat = True
 
 #jsonFile = open('data/era2016/rbFit.range','r')
@@ -24,8 +25,9 @@ rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items(
 jsonFile.close()
 
 
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']#, 'Top pT', 'Top mass up', 'Top mass down']
 #syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
+skip=['Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down', 'JSF up', 'JSF down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 sup = [[0] * len(syst)] * 3
 sdown = [[0] * len(syst)] * 3
@@ -36,6 +38,7 @@ ddown = [0] * len(syst)
 mup = [0] * len(syst)
 mdown = [0] * len(syst)
 fsr = [0] * 6 
+fitunc = [0.,0.,0.]
 report='('
 
 # [nom,  unc,  fdown,unc,  fup,  unc,  uedown,unc, ueup, unc,  CR,   unc]
@@ -49,16 +52,19 @@ report='('
 
 total = 12;
 for l in xrange(0,3):
-    continue
     i = 1
     j = 2
     while i < len(syst):
+        if syst[i] in skip: 
+            i+=1
+            j+=2
+            continue
         if syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
-            print('%.4f %.4f ' % (rbList[l][1][j], rbList[l][1][j+2]), end='')
+            print('%s/down: %.4f %.4f ' % (syst[i], rbList[l][1][j], rbList[l][1][j+2]), end='\n')
             i+=1
             j+=2
         else:
-            print('%.4f %.4f ' % (rbList[l][1][j], rbList[l][1][j+2]), end='')
+            print('%s/: %.4f %.4f ' % (syst[i], rbList[l][1][j], rbList[l][1][j+2]), end='\n')
             i+=2
             j+=4
     print('\n')
@@ -69,7 +75,6 @@ i = 1
 j = 2
 up=[0.,0.,0.,0.,0.,0.]
 down=[0.,0.,0.,0.,0.,0.]
-skip=['Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down']
 #print('Nominal & ', end='')
 #print('%.3f & ' % (rbList[0][1][0]), end='')
 #print('%.3f & ' % (rbList[1][1][0]), end='')
@@ -112,6 +117,10 @@ while i < len(syst):
         test=rbList[0][1][j]
     except:
         break
+    if "Lepton" in syst[i] or "Trigger" in syst[i] or "Tracker" in syst[i]:
+        fitunc[0] += (abs(rbList[0][1][0] - rbList[0][1][j]) + abs(rbList[0][1][0] - rbList[0][1][j+2]))/2.
+        fitunc[1] += (abs(rbList[1][1][0] - rbList[1][1][j]) + abs(rbList[1][1][0] - rbList[1][1][j+2]))/2.
+        fitunc[2] += (abs(rbList[2][1][0] - rbList[2][1][j]) + abs(rbList[2][1][0] - rbList[2][1][j+2]))/2.
     if "Top mass" in syst[i]: #FSR do not symmetrize
         #sdown[0][i] = abs(rbList[0][1][j]-rbList[0][1][0])
         #sdown[1][i] = abs(rbList[1][1][j]-rbList[1][1][0])
@@ -248,6 +257,8 @@ while i < len(syst):
 #print('Total up & %.3f$\pm$%.3f & %.3f$\pm$%.3f & %.3f$\pm$%.3f\\\\' % (up[0],up[1],up[2],up[3],up[4],up[5]))
 print('Total up & %.3f & %.3f & %.3f\\\\' % (up[0],up[2],up[4]))
 print('Total down & %.3f & %.3f & %.3f\\\\' % (down[0],down[2],down[4]))
+print()
+print('Fit procedure & %.3f & %.3f & %.3f' % (fitunc[0]/3, fitunc[1]/3, fitunc[2]/3))
 print('======')
 print('Don\'t forget to use sed to change 0.00 to <0.001: %s/-\{0,1\}0\.000/$<$0.001/g\n')
 print('$r_{\PQb}=%0.3f \pm %0.3f \stat ^{%+0.3f}_{%+0.3f} \syst ^{%+0.3f} _{%+0.3f} \\textrm{(FSR)}$' % (rbList[0][1][0], rbList[0][1][1], up[0], -down[0], fsr[0], fsr[1]))

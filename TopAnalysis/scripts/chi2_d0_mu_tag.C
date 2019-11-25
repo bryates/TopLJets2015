@@ -22,7 +22,7 @@ using namespace RooFit;
 float low(50.), high(50.),nom(0.8103),nerr(0.05);
 bool fin(false);
 bool TDR(1);
-int epoch(-1);
+int epoch(0);
 bool fullpt(0);
 TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 
@@ -37,8 +37,9 @@ void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
-if(epoch<0)fname.ReplaceAll("sPlot/sPlot/","");
+//if(epoch<0)fname.ReplaceAll("sPlot/sPlot/","");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
 fname = TString::Format("sPlot/sPlot/TopMass_172v5%s_sPlot_d0_mu_tag_mu.root",tune.Data());
@@ -55,8 +56,11 @@ TFile *fmc = TFile::Open(fname);
 std::vector<float> bin;
 RooBinning bins(0,1.1);
 if(!fullpt) bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84,0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 //float bin[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0, 1.1};
 if(fullpt) bin = {0, 0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0};
+  bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+ bin = {0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
 for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
@@ -66,10 +70,12 @@ if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 else {
 tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
-delete tmp;
+//delete tmp;
 //float bin[] = {0, 0.2, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84,0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
 //float *bin;
+delete tmp;
 tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
+//((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->reduce("ptfrac<0.99")->plotOn(tmp, RooFit::Binning(bins));
 ((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins));
 //else ((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->reduce("j_pt<200")->plotOn(tmp, RooFit::Binning(22));
 //mc = (TH1F*)convert(tmp, norm, 0, 1.1);
@@ -100,9 +106,11 @@ delete fdata;
 delete fmc;
 }
 
-void chi2_d0_mu_tag() {
+void chi2_d0_mu_tag(TString samp="") {
+  if(samp != "")
+  run_chi2_d0_mu_tag(samp);
+  else {
   run_chi2_d0_mu_tag("");
-/*
   run_chi2_d0_mu_tag("isr-down");
   run_chi2_d0_mu_tag("isr-up");
   run_chi2_d0_mu_tag("fsr-down");
@@ -120,6 +128,8 @@ void chi2_d0_mu_tag() {
   }
   run_chi2_d0_mu_tag("hdampdown");
   run_chi2_d0_mu_tag("hdampup");
+  }
+/*
   run_chi2_d0_mu_tag("tpt");
   run_chi2_d0_mu_tag("bkg");
 */
@@ -154,8 +164,8 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up" };
-std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 0.802};
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1075", "_1125" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.075, 1.125, 0.802};
 /*
 std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
@@ -183,9 +193,10 @@ for(auto & it : tune) {
 }
 
 if(fullpt)
-chiTest->GetXaxis()->SetRangeUser(0.65,1.055);
+chiTest->GetXaxis()->SetRangeUser(0.65,1.125);
 else
 chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
+if(name.Contains("fsr-down")) chiTest->GetXaxis()->SetRangeUser(0.65,1.126);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
@@ -214,6 +225,7 @@ if(fullpt)
 chiTest->Fit("pol3","FSMEQW");//,"",0.6,0.976);
 else
 chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+if(name.Contains("fsr-down")) chiTest->Fit("pol3","FSMEQRW","",0.6,1.126);//0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -223,11 +235,11 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.0);
+float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.126);
 chiTest->GetFunction("pol3")->Print("v");
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
-float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.0);
+float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.126);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
@@ -286,10 +298,10 @@ delete mc2;
 }
 mc->Scale(1./mc->Integral());
 data->Scale(1./data->Integral());
-data->GetXaxis()->SetRangeUser(0.,1.0);
-mc->GetXaxis()->SetRangeUser(0.,1.0);
-mc->GetYaxis()->SetRangeUser(0.,.16);
-data->GetYaxis()->SetRangeUser(0.,.16);
+data->GetXaxis()->SetRangeUser(0.,0.95);
+mc->GetXaxis()->SetRangeUser(0.,0.95);
+mc->GetYaxis()->SetRangeUser(0.,.26);
+data->GetYaxis()->SetRangeUser(0.,.26);
 setupPad()->cd();
 mc->Draw();
 tdr(mc, epoch, fin);
@@ -354,10 +366,10 @@ data->SetLineWidth(2);
 mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
 mc->SetMarkerStyle(1);
-mc->GetYaxis()->SetRangeUser(0.,.16);
-data->GetYaxis()->SetRangeUser(0.,.16);
-data->GetXaxis()->SetRangeUser(0.,0.975);
-mc->GetXaxis()->SetRangeUser(0.,0.975);
+mc->GetYaxis()->SetRangeUser(0.,.4);
+data->GetYaxis()->SetRangeUser(0.,.4);
+data->GetXaxis()->SetRangeUser(0.2,1.);
+mc->GetXaxis()->SetRangeUser(0.2,1.);
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.21,0.89);
 mc->GetXaxis()->SetRangeUser(0.21,0.89);
@@ -371,7 +383,7 @@ data->Draw("same");
 tdr(mc, epoch, fin);
 if(num==0) num=0.855;
 if(name=="") name="172v5";
-//mc->SetTitle(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
+mc->SetTitle(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
 TString title(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000)) + epoch_name[epoch] + "_d0mu");
 if(fullpt) title += "_jpT";
 if(fin) {
@@ -385,8 +397,8 @@ c1->SaveAs(TString::Format("mcVdata_%s_%d_d0mu_tag",name.Data(),(int)(num*1000))
 */
 c1->SaveAs(title + ".pdf");
 c1->SaveAs(title + ".png");
-data->GetXaxis()->SetRangeUser(0.2,0.975);
-mc->GetXaxis()->SetRangeUser(0.2,0.975);
+data->GetXaxis()->SetRangeUser(0.2,1.);//0.985);
+mc->GetXaxis()->SetRangeUser(0.2,1.);//0.985);
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.,0.89);
 mc->GetXaxis()->SetRangeUser(0.,0.89);

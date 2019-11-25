@@ -163,6 +163,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
       histos_["xb_inc"]->Fill(jinfo.xb);
 
       //find parent quark
+      /*
       edm::Handle<reco::GenParticleCollection> genParticles;
       iEvent.getByToken(genParticlesToken_,genParticles);
       for(size_t i = 0; i < genParticles->size(); i++) {
@@ -185,6 +186,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           }
         }
       }
+      */
       
       //exclusive histograms
       std::vector<int>::iterator hit=std::find(hadronList_.begin(), hadronList_.end(), absid);

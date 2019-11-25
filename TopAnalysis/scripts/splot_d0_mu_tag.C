@@ -53,11 +53,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp")) { //ISR,FSR,CR,UE
     syst = mass;
+    syst.ReplaceAll("_sumch", "");
     //mass = "172.5";
     std::cout << "Processing systematics " << TString::Format("MC13TeV_TTJets_%s",syst.Data()) << std::endl;
   }
@@ -84,9 +85,28 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile(dir+"MC13TeV_TTJets_m"+mass+"_0.root"); //open a randome file to get correction histograms
   //std::vector<RooRealVar> frgWgt;
   TChain *data = new TChain("data");
+  /*
   if(isData) {
     data->Add(dir+"Data13TeV_*");
     mass="Data";
+  }
+  */
+  if(isData) {
+    std::vector<TString> dataSamples;
+    if(ep == 1)
+      dataSamples = {"Data13TeV_DoubleEG_2016B","Data13TeV_DoubleEG_2016C","Data13TeV_DoubleEG_2016D","Data13TeV_DoubleEG_2016E","Data13TeV_DoubleEG_2016F","Data13TeV_DoubleMuon_2016B","Data13TeV_DoubleMuon_2016C","Data13TeV_DoubleMuon_2016D","Data13TeV_DoubleMuon_2016E","Data13TeV_DoubleMuon_2016F","Data13TeV_MuonEG_2016B","Data13TeV_MuonEG_2016C","Data13TeV_MuonEG_2016D","Data13TeV_MuonEG_2016E","Data13TeV_MuonEG_2016F","Data13TeV_SingleElectron_2016B","Data13TeV_SingleElectron_2016C","Data13TeV_SingleElectron_2016D","Data13TeV_SingleElectron_2016E","Data13TeV_SingleElectron_2016F","Data13TeV_SingleMuon_2016B","Data13TeV_SingleMuon_2016C","Data13TeV_SingleMuon_2016D","Data13TeV_SingleMuon_2016E","Data13TeV_SingleMuon_2016F"};
+    else if(ep == 2)
+      dataSamples = {"Data13TeV_SingleMuon_2016G","Data13TeV_SingleMuon_2016H_v2","Data13TeV_SingleMuon_2016H_v3","Data13TeV_DoubleEG_2016G","Data13TeV_DoubleEG_2016H_v2","Data13TeV_DoubleEG_2016H_v3","Data13TeV_DoubleMuon_2016G","Data13TeV_DoubleMuon_2016H_v2","Data13TeV_DoubleMuon_2016H_v3","Data13TeV_MuonEG_2016G","Data13TeV_MuonEG_2016H_v2","Data13TeV_MuonEG_2016H_v3","Data13TeV_SingleElectron_2016G","Data13TeV_SingleElectron_2016H_v2","Data13TeV_SingleElectron_2016H_v3"};
+    else
+      dataSamples = {"Data13TeV_DoubleEG_2016B","Data13TeV_DoubleEG_2016C","Data13TeV_DoubleEG_2016D","Data13TeV_DoubleEG_2016E","Data13TeV_DoubleEG_2016F","Data13TeV_DoubleMuon_2016B","Data13TeV_DoubleMuon_2016C","Data13TeV_DoubleMuon_2016D","Data13TeV_DoubleMuon_2016E","Data13TeV_DoubleMuon_2016F","Data13TeV_MuonEG_2016B","Data13TeV_MuonEG_2016C","Data13TeV_MuonEG_2016D","Data13TeV_MuonEG_2016E","Data13TeV_MuonEG_2016F","Data13TeV_SingleElectron_2016B","Data13TeV_SingleElectron_2016C","Data13TeV_SingleElectron_2016D","Data13TeV_SingleElectron_2016E","Data13TeV_SingleElectron_2016F","Data13TeV_SingleMuon_2016B","Data13TeV_SingleMuon_2016C","Data13TeV_SingleMuon_2016D","Data13TeV_SingleMuon_2016E","Data13TeV_SingleMuon_2016F","Data13TeV_SingleMuon_2016G","Data13TeV_SingleMuon_2016H_v2","Data13TeV_SingleMuon_2016H_v3","Data13TeV_DoubleEG_2016G","Data13TeV_DoubleEG_2016H_v2","Data13TeV_DoubleEG_2016H_v3","Data13TeV_DoubleMuon_2016G","Data13TeV_DoubleMuon_2016H_v2","Data13TeV_DoubleMuon_2016H_v3","Data13TeV_MuonEG_2016G","Data13TeV_MuonEG_2016H_v2","Data13TeV_MuonEG_2016H_v3","Data13TeV_SingleElectron_2016G","Data13TeV_SingleElectron_2016H_v2","Data13TeV_SingleElectron_2016H_v3"};
+    for(auto & it : dataSamples) {
+      TString dataname(dir);
+      dataname += it;
+      dataname += "_*";
+      std::cout << "Adding " << it;
+      int num = data->Add(dataname);
+      std::cout << " (" << num << " files)" << std::endl;
+    }
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   else {
@@ -94,7 +114,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/" + tmp + "/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
       std::cout << dir << std::endl;
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
@@ -133,12 +153,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot//TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   //TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   //TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
-  if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
+  //if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
   if(!mass.Contains("toyData"))
@@ -188,6 +208,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
   RooRealVar ptfrac("ptfrac","(D^{0} #it{p}_{T} + #mu #it{p}_{T}) / #Sigma #it{p}_{T}^{ch}", 0, 1.1, "") ;
   RooRealVar d0_pt("d0_pt","D^{0}_{#mu} #it{p}_{T}", 0, 250, "GeV");
+  RooRealVar d0_mu_pt("d0_mu_pt","D^{0}_{#mu} #it{p}_{T}", 0, 250, "GeV");
   RooRealVar j_pt_ch("j_pt_ch","#Sigma #it{p}_{T}^{ch} charged", 0, 400, "GeV");
   RooRealVar j_pt("j_pt","j #it{p}_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
@@ -203,26 +224,41 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,d0_mu_pt,epoch,j_pt_ch,tuneW));
   //RooDataSet dsn("dsn", "dsn", args);
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   int nset(0);
-  int nmc = ep == 1 ? 22711 : 22711;
-  int nentries = ep == 1 ? 3425 : 3096;
+  int nmc = ep == 1 ? 19760 : 20801;
+  int nentries = ep == 1 ? 3082 : 2757;
       std::cout << 1/(float(nentries)/float(nmc)) << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
     data->GetEntry(i);
     for(int j=0; j<ev.nmeson; j++) {
+    float pi = 0.;
+    float k = 0.;
+    float scale = 1.;
       //int j(0);
+      if(ev.nmeson>1) {
+        //if(pi == ev.d0_k_pt[j] && k == ev.d0_pi_pt[j]) continue;
+        if(ev.nmeson > j+2) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
+          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+2] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+2] && ev.meson_id[j] == ev.meson_id[j+2]) { scale *= 0.5; }
+        if(ev.nmeson > j+1) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
+          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+1] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+1] && ev.meson_id[j] == ev.meson_id[j+1]) { scale *= 0.5; }
+        pi = ev.d0_pi_pt[j];
+        k = ev.d0_k_pt[j];
+      }
       if(ev.meson_id[j] != 42113) continue;
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
       if(ep>0 && ev.epoch[j] != ep) continue;
-      if(!jpT && 0) {
+      if((ev.d0_mu_tag_mu_pt[j] / ev.j_pt_charged[j]) > 0.99) continue;
+      /*
+      if(!jpT) {
         //if(ev.j_pt[j]>150) continue;
         if(ev.j_pt_charged[j]>100) continue;
       }
+      */
       if(mass.Contains("toyData")) {
         /*
         if(i < start || i > start + nentries) continue;
@@ -259,7 +295,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 	if(type[xb] < 1) { if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] > type[xb] || ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; }
         else if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; 
       }
-      float scale = 1.;
       tuneW.setVal(1.);
       //scale *= ev.sfs[j];
       if(!isData) {
@@ -309,21 +344,22 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       epoch.setVal(ev.epoch[j]);
       //d0_mass = ev.d0_mass[j];
       d0_mass.setVal(ev.d0_mass[j]);
-      if(ev.d0_mass[j]>(1.864-wind) && ev.d0_mass[j]<(1.864+wind)) { //symmetric around PDG mass = 1.864
+      //if(ev.d0_mass[j]>(1.864-wind) && ev.d0_mass[j]<(1.864+wind)) { //symmetric around PDG mass = 1.864
       //if(ev.d0_mass[j]>(1.864-0.036) && ev.d0_mass[j]<(1.864+0.036)) { //symmetric around PDG mass = 1.864
       //if(ev.d0_mass[j]>1.83 && ev.d0_mass[j]<1.9 && ev.d0_mu_tag_mu_pt[j]>0) {
       //if(ev.d0_mass[j]>1.8 && ev.d0_mass[j]<1.93) {
       if(!jpT) ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
       else ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
+      d0_mu_pt.setVal(ev.d0_mu_pt[j]);
       j_pt_ch.setVal(ev.j_pt_charged[j]);
       j_pt.setVal(ev.j_pt[j]);
       //meson_l_mass = ev.d0_l_mass[j];
       meson_l_mass.setVal(ev.d0_l_mass[j]);
-      }
+      //}
       weight.setVal(scale);
       tuneW.setVal(scale);// * tuneW.getVal());
-      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,j_pt,epoch,tuneW));
+      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,d0_mu_pt,j_pt_ch,epoch,tuneW));
       //dsn.add(RooArgSet(j_pt));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)
@@ -403,13 +439,13 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   // Construct Crystal Ball PDF for signal
   /*
+  */
   RooRealVar cbmean("cbmean", "cbmean" , 1.864, 1.85, 1.87); 
   RooRealVar cbsigma("#sigma", "cbsigma" , 0.02, 0.001, 0.25); 
   RooRealVar ncbsig("ncbsig", "ncbsignal", 4000, 0, 10000); 
   RooRealVar n("n","cbn", 5, 0, 10);
   RooRealVar alpha("#alpha","cbalpha", 1, 0, 5);
   RooCBShape cball("cball", "crystal ball", d0_mass, mean, cbsigma, alpha, n);
-  */
 
   // Construct Gaussian1 PDF for signal
   RooRealVar sigma("sigma","sigma", 0.01, 0.005, 0.06);
@@ -469,6 +505,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::vector<float> bin;
   RooBinning bins(0,1.1);
   bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+  bin = {0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
  
@@ -501,11 +538,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(meson_l_mass);
   w.import(ptfrac);
   w.import(d0_pt);
+  w.import(d0_mu_pt);
   w.import(j_pt_ch);
-  w.import(j_pt);
   w.import(epoch);
   w.import(weight);
   w.import(tuneW);
+  w.import(model);
   //w.import(bkgData, Rename("bkgData")); //Redundant, just clone dataset and change weight to nsig_bkg
   w.import(sigData, Rename("sigData"));
   w.import(ds, Rename("dsSWeights"));

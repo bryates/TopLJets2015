@@ -373,12 +373,13 @@ if(tune == "_sdown") { //only compute modified hist once
     */
       //toyData sample has same number of events as data, similar statistics
       //e = shiftData->GetBinError(i);
-    std::cout << y << " +/- " << e << " ";
     //shift each bin by random amount samples by the appropriate bin error
-    if(!(name == "" || name == "172v5")) //MC errors otherwise (e.g. FSR)
+    if(!(name == "" || name == "172v5"))  { //MC errors otherwise (e.g. FSR)
+    std::cout << y << " +/- " << e << " ";
       y += rand->Gaus(0, e);
     std::cout << y << std::endl;
     shiftData->SetBinContent(i,y);
+    }
     //if(name.Length()==0) shiftData->SetBinError(i,shiftData->GetBinError(i) * sqrt(float(nmc)/float(nentries)));
     //shiftData->SetBinError(i,e);
   }

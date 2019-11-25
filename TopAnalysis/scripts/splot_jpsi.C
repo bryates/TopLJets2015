@@ -59,6 +59,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp") || mass.Contains("m1")) { //ISR,FSR,CR,UE
     syst = mass;
     std::cout << "Processing systematics " << TString::Format("MC13TeV_TTJets_%s",syst.Data()) << std::endl;
+    syst.ReplaceAll("_shift","");
   }
   else if(mass.Contains("m1")) { //top mass tunes
     syst = mass;
@@ -83,7 +84,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TChain *data = new TChain("data");
   if(isData) {
     data->Add(dir+"Data13TeV_*");
-    mass="Data";
+    //mass="Data";
   }
   //else data->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
   else {
@@ -91,7 +92,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/" + tmp + "/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
       std::cout << dir << std::endl;
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
@@ -272,7 +273,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       epoch.setVal(ev.epoch[j]);
       //jpsi_mass = ev.jpsi_mass[j];
       jpsi_mass.setVal(ev.jpsi_mass[j]);
-      if(ev.jpsi_mass[j]>(3.097-wind) && ev.jpsi_mass[j]<(3.097+wind) && ev.jpsi_pt[j]>0) { //Symmetric around PDG mass
+      //if(ev.jpsi_mass[j]>(2.95) && ev.jpsi_mass[j]<(3.097+wind) && ev.jpsi_pt[j]>0) { //Symmetric around PDG mass
+      //if(ev.jpsi_mass[j]>(3.097-wind) && ev.jpsi_mass[j]<(3.097+wind) && ev.jpsi_pt[j]>0) { //Symmetric around PDG mass
       //if(ev.jpsi_mass[j]>3.0 && ev.jpsi_mass[j]<3.2 && ev.jpsi_pt[j]>0) {
       //if(ev.jpsi_mass[j]>1.81 && ev.jpsi_mass[j]<1.91 && ev.jpsi_pt[j]>0) {
       if(!jpT) ptfrac.setVal(ev.jpsi_pt[j]/ev.j_pt_charged[j]);
@@ -282,7 +284,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       j_pt.setVal(ev.j_pt[j]);
       //meson_l_mass = ev.jpsi_l_mass[j];
       meson_l_mass.setVal(ev.jpsi_l_mass[j]);
-      }
+      //}
       weight.setVal(scale);
       tuneW.setVal(scale * tuneW.getVal());
       dsn.add(RooArgSet(jpsi_mass,meson_l_mass,ptfrac,weight,jpsi_pt,j_pt_ch,j_pt,epoch,tuneW));
@@ -324,8 +326,17 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   // Mean of the J/psi mass peak
   RooRealVar mean("mean","mean", 3.097, 3.097-wind, 3.097+wind);
-  mean.setVal(3.0969);
-  mean.setConstant();
+  RooRealVar mean3("mean3","mean3", 3.097, 3.097-wind, 3.097+wind);
+  //mean.setVal(3.0969);
+  //mean.setConstant();
+
+  // Construct Crystal Ball PDF for signal
+  RooRealVar cbmean("cbmean", "cbmean" , 1.864, 1.85, 1.87); 
+  RooRealVar cbsigma("csigma", "cbsigma" , 0.02, 0.001, 0.25); 
+  RooRealVar ncbsig("ncbsig", "ncbsignal", 4000, 0, 10000); 
+  RooRealVar n("n","cbn", 5, 0, 10);
+  RooRealVar alpha("#alpha","cbalpha", 1, 0, 5);
+  RooCBShape cball("cball", "crystal ball", jpsi_mass, mean, cbsigma, alpha, n);
 
   // Construct Gaussian1 PDF for signal
   RooRealVar sigma1("sigma1","sigma1", 0.02, 0.001, 0.3);
@@ -337,9 +348,9 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar ngsig2("ngsig2","ngsignal2", 100, 0, 10000);
   RooGaussian gauss2("gauss2","gaus2s", jpsi_mass, mean, sigma2);
 
-  RooRealVar sigma3("sigma3","sigma3", 0.02, 0.01, 0.5);
+  RooRealVar sigma3("sigma3","sigma3", 2, 1, 5);
   RooRealVar ngsig3("ngsig3","ngsignal3", 100, 0, 10000);
-  RooGaussian gauss3("gauss3","gaus3s", jpsi_mass, mean, sigma3);
+  RooGaussian gauss3("gauss3","gaus3s", jpsi_mass, mean3, sigma3);
 
   // Construct a double Gaussian function to fit the signal component
   RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2),RooArgList(ngsig1,ngsig2));
@@ -352,7 +363,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Construct signal + bkg PDF
   RooRealVar nsig("nsig","#signal events", 4000, 0, 10000) ;
   RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
-  RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
+  RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;
   meson_l_mass.setConstant();
@@ -361,7 +373,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooPlot* frame = jpsi_mass.frame() ;
   std::vector<float> bin;
   RooBinning bins(0,1.1);
-  bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+  //bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
+  bin = {0-.025, 0.2-.025, 0.4-.025, 0.5-.025, 0.55-.025, 0.6-.025, 0.65-.025, 0.7-.025, 0.75-.025, 0.8-.025, 0.85-.025, 0.9-.025, 0.95-.025, 1.0};
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
@@ -377,10 +390,12 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   */
 
   model.plotOn(frame);
+  float chi2 = frame->chiSquare();//"model", "data", 3);
   model.plotOn(frame, Components(expo),LineStyle(kDashed));
   frame->Draw();
   frame->SetName("massJPsi");
   frame->Write();
+  std::cout << std::endl << "chi2 " << chi2 << std::endl << std::endl;
 
   if(!mass.Contains("toyData")) {
   c1->SaveAs("massJPsi_"+mass+".pdf");
@@ -420,6 +435,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(j_pt, Silence());
   w.import(epoch, Silence());
   w.import(weight, Silence());
+  w.import(model);
   w.import(sigData, Rename("sigData"), Silence());
   //w.import(bkgData, Rename("bkgData"), Silence());
   w.import(ds, Rename("dsSWeights"), Silence());

@@ -67,7 +67,8 @@ if(name == "MC") name = "172v5";
 std::vector<float> bin;
 RooBinning bins(0,1.1);
 if(sample.Contains("mu_tag"))
-  bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+  //bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84,0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+ bin = {0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
 else if(sample.Contains("jpsi"))
 bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 else if(sample.Contains("d0"))
@@ -461,8 +462,8 @@ c1->SaveAs("ptfrac_signal_Data_"+name+"d0.png");
 N = mc->Integral();
 }
 
-shiftData->GetXaxis()->SetRangeUser(0.2,0.975);
-mc->GetXaxis()->SetRangeUser(0.2,0.975);
+shiftData->GetXaxis()->SetRangeUser(0.2,1.);
+mc->GetXaxis()->SetRangeUser(0.2,1.);
 if(fullpt) {
 shiftData->GetXaxis()->SetRangeUser(0.0,0.7);
 mc->GetXaxis()->SetRangeUser(0.0,0.7);
@@ -481,6 +482,10 @@ if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.16);
 shiftData->GetYaxis()->SetRangeUser(0.,.16);
 }
+/*
+c1 = setupCanvas();
+setupPad()->cd();
+*/
 mc->Draw("hist");
 tdr(mc, epoch);
 mc->Draw("same e");
