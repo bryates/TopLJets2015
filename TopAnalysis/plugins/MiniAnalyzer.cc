@@ -17,10 +17,12 @@
 //
 //
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -104,6 +106,7 @@ public:
   virtual void endRun(const edm::Run&,const edm::EventSetup&);  
 private:
   virtual void beginJob() override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup);
   int genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j, const reco::Vertex &primVtx);
@@ -121,6 +124,8 @@ private:
   edm::EDGetTokenT<GenEventInfoProduct> generatorevtToken_;
   edm::EDGetTokenT<LHEEventProduct> generatorlheToken_;
   edm::EDGetTokenT<LHERunInfoProduct> generatorRunInfoToken_;
+  edm::EDGetTokenT<GenLumiInfoHeader> generatorLumiHeaderToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> generatorEventInfoToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
   //edm::EDGetTokenT<edm::ValueMap<float> > upFragToken_, centralFragToken_, downFragToken_;
@@ -180,6 +185,8 @@ MiniAnalyzer::MiniAnalyzer(const edm::ParameterSet& iConfig) :
   generatorevtToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator",""))),
   generatorlheToken_(consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer",""))),
   generatorRunInfoToken_(consumes<LHERunInfoProduct,edm::InRun>({"externalLHEProducer"})),
+  generatorLumiHeaderToken_(consumes<GenLumiInfoHeader,edm::InLumi>(edm::InputTag("generator"))),
+  generatorEventInfoToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
   puToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"))),  
   genLeptonsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:leptons"))),
   genJetsToken_(consumes<std::vector<reco::GenJet> >(edm::InputTag("pseudoTop:jets"))),
@@ -272,7 +279,7 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   //
   // GENERATOR WEIGHTS
   //
-  ev_.ttbar_nw=0;
+  ev_.ttbar_nw=0, ev_.ngpsw=0;
   edm::Handle<GenEventInfoProduct> evt;
   iEvent.getByToken( generatorToken_,evt);
   if(evt.isValid())
@@ -303,6 +310,16 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
 	ev_.ttbar_nw++;
       }
     }
+
+  //parton shower weights
+  edm::Handle<GenEventInfoProduct> genEventInfoProduct;
+  iEvent.getByToken(generatorEventInfoToken_, genEventInfoProduct);      
+  if(genEventInfoProduct.isValid()){    
+    for(unsigned int i=0; i< genEventInfoProduct->weights().size(); i++){
+      ev_.gpsw[ev_.ngpsw]=genEventInfoProduct->weights().at(i);
+      ev_.ngpsw++;
+    }
+  }
       
   //
   // GENERATOR LEVEL EVENT
@@ -1577,6 +1594,31 @@ std::pair<float,float> MiniAnalyzer::ctau(const TLorentzVector &p4, const reco::
 // ------------ method called once each job just before starting event loop  ------------
 void 
 MiniAnalyzer::beginJob(){
+}
+
+void MiniAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup)
+{
+
+  if(histContainer_.find("genlumiwgts")!=histContainer_.end()) return;
+  try{
+    cout << "[MiniAnalyzer::beginLuminosityBlock]" << endl;
+    edm::Handle<GenLumiInfoHeader> gen_header;
+    iLumi.getByToken(generatorLumiHeaderToken_, gen_header);
+
+    unsigned int nwgts(gen_header->weightNames().size());
+    cout << nwgts << " weights are found" << endl;
+    histContainer_["genlumiwgts"]=fs->make<TH1F>("genlumiwgts",";Weight name;",nwgts,0,nwgts);
+    int i=1;
+    for(auto it : gen_header->weightNames() ) {
+      histContainer_["genlumiwgts"]->GetXaxis()->SetBinLabel(i,it.c_str());
+      i++;
+    }
+  }
+  catch(std::exception &e){
+    std::cout << e.what() << endl
+	      << "Failed to retrieve GenLumiInfoHeader" << std::endl;
+  }
+
 }
 
 //

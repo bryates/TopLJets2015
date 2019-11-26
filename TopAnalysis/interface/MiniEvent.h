@@ -10,6 +10,7 @@ struct MiniEvent_t
     ttbar_nw=0;
     ng=0; ngtop=0; ngpf=0; ngjpsi=0; ngmeson=0; ngmeson_daug=0;
     nl=0; nj=0; nmet=0; npf=0;
+    ngpsw=0;
   }
 
   Bool_t isData;
@@ -33,6 +34,8 @@ struct MiniEvent_t
   Int_t gmeson_id[5000],gmeson_daug_id[5000],gmeson_mother_id[5000];
   Float_t gmeson_pt[5000],gmeson_eta[5000],gmeson_phi[5000],gmeson_m[5000],gmeson_daug_dR[5000],gmeson_index[5000];
   Float_t gmeson_daug_pt[5000],gmeson_daug_eta[5000],gmeson_daug_phi[5000],gmeson_daug_m[5000],gmeson_daug_meson_index[5000],gmeson_daug_dxy[5000],gmeson_daug_dxyE[5000],gmeson_daug_dz[5000],gmeson_daug_dzE[5000];
+  Int_t ngpsw;
+  Float_t gpsw[500];
 
   //reco level event
   Int_t nvtx;
