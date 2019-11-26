@@ -1614,6 +1614,7 @@ MiniAnalyzer::endRun(const edm::Run& iRun,
 	std::vector<std::string> prunedLines;
 	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) 
 	  {
+            std::cout << lines.at(iLine); //uncomment to print all weight names
 	    if(lines.at(iLine)=="") continue;
 	    if(lines.at(iLine).find("weightgroup")!=std::string::npos) continue;
 	    prunedLines.push_back( lines.at(iLine) );

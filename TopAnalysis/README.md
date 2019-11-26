@@ -12,8 +12,8 @@ cmsrel CMSSW_9_4_12
 cd CMSSW_9_4_12/src
 cmsenv
 git cms-init
-git cms-merge-topic cms-egamma:EgammaID_94
-git cms-merge-topic cms-egamma:EgammaID_94
+git cms-merge-topic cms-egamma:EgammaID_949
+git cms-merge-topic cms-egamma:EgammaPostRecoTools
 git clone -b 94x git@github.com:bryates/TopLJets2015.git
 scram b -j8
 #grab a coffee, this will take a while
