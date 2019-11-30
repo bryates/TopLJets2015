@@ -14,7 +14,6 @@ parser.add_option('-j', '--json',        dest='json'  ,      help='json with lis
 #read list of samples
 jsonFile = open(opt.json,'r')
 full = True if "jpT" in opt.json else False
-full = False
 fullstat = True
 
 #jsonFile = open('data/era2016/rbFit.range','r')
@@ -26,8 +25,9 @@ jsonFile.close()
 
 
 syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']#, 'Top pT', 'Top mass up', 'Top mass down']
-#syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
-skip=['Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down', 'JSF up', 'JSF down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']#, 'Top pT', 'Top mass up', 'Top mass down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
+skip=['Top pT', 'Top mass up', 'Top mass down']#'Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down']#, 'JSF up', 'JSF down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 sup = [[0] * len(syst)] * 3
 sdown = [[0] * len(syst)] * 3
@@ -52,6 +52,7 @@ report='('
 
 total = 12;
 for l in xrange(0,3):
+    continue
     i = 1
     j = 2
     while i < len(syst):

@@ -505,7 +505,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::vector<float> bin;
   RooBinning bins(0,1.1);
   bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
-  bin = {0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
+  bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
  
