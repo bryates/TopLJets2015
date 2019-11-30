@@ -875,6 +875,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.j_csv[ev_.nj]=j->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       ev_.j_cvsl[ev_.nj]=j->bDiscriminator("pfCombinedCvsLJetTags");
       ev_.j_cvsb[ev_.nj]=j->bDiscriminator("pfCombinedCvsBJetTags");
+      /*
       ev_.j_vtxpx[ev_.nj]=j->userFloat("vtxPx");
       ev_.j_vtxpy[ev_.nj]=j->userFloat("vtxPy");
       ev_.j_vtxpz[ev_.nj]=j->userFloat("vtxPz");
@@ -882,6 +883,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.j_vtxNtracks[ev_.nj]=j->userFloat("vtxNtracks");
       ev_.j_vtx3DVal[ev_.nj]=j->userFloat("vtx3DVal");
       ev_.j_vtx3DSig[ev_.nj]=j->userFloat("vtx3DSig");
+      */
       ev_.j_puid[ev_.nj]=j->userFloat("pileupJetId:fullDiscriminant");      
       ev_.j_flav[ev_.nj]=j->partonFlavour();
       ev_.j_hadflav[ev_.nj]=j->hadronFlavour();
@@ -1656,7 +1658,7 @@ MiniAnalyzer::endRun(const edm::Run& iRun,
 	std::vector<std::string> prunedLines;
 	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) 
 	  {
-            std::cout << lines.at(iLine); //uncomment to print all weight names
+            //std::cout << lines.at(iLine); //uncomment to print all weight names
 	    if(lines.at(iLine)=="") continue;
 	    if(lines.at(iLine).find("weightgroup")!=std::string::npos) continue;
 	    prunedLines.push_back( lines.at(iLine) );
