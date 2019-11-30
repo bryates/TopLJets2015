@@ -374,7 +374,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::vector<float> bin;
   RooBinning bins(0,1.1);
   //bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
-  bin = {0-.025, 0.2-.025, 0.4-.025, 0.5-.025, 0.55-.025, 0.6-.025, 0.65-.025, 0.7-.025, 0.75-.025, 0.8-.025, 0.85-.025, 0.9-.025, 0.95-.025, 1.0};
+  bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));

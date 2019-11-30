@@ -885,9 +885,7 @@ void RunTopKalman(TString filename,
                 jecUnc->setJetPt(jp4.Pt());
                                                    //true=UP; false=DOWN
                 float jes = jecUnc->getUncertainty(passBit(runSysts,JSF_BIT)>0);
-                jp4.Print();
 	        jp4+=jp4*passBit(runSysts,JSF_BIT)*jes;
-                jp4.Print();
                 allPlots["jsfwgt"]->Fill(1.,jes);
                 allPlots["jsfwgt"]->Fill(0.,1.);
                 if(debug) std::cout << "jes= " << jes << std::endl;

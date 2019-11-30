@@ -140,7 +140,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
       dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
-      //dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/" + tmp + "/Chunks/");
+      if(mass.Contains("JSF")) dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
     else if(mass.Contains("_noHT")) {
