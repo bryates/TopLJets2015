@@ -10,8 +10,8 @@ from collections import OrderedDict
 #def sampleLoop(inDir,sample,HiForest,weightCounter,wgtCounter,labelH):
 def sampleLoop(args):
    inDir,sample,HiForest,weightCounter,wgtCounter,labelH=args
-   for f in os.listdir('eos/cms/%s/%s' % (inDir,sample ) ):
-       fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (inDir,sample,f ) )
+   for f in os.listdir('/eos/cms/%s/%s' % (inDir,sample ) ):
+       fIn=ROOT.TFile.Open('/eos/cms/%s/%s/%s' % (inDir,sample,f ) )
        if not HiForest:
            if wgtCounter is None:
                try:
@@ -23,7 +23,7 @@ def sampleLoop(args):
                    if not weightCounter:
                        wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
                except:
-                   print 'Check eos/cms/%s/%s/%s probably corrupted?' % (inDir,sample,f )
+                   print 'Check /eos/cms/%s/%s/%s probably corrupted?' % (inDir,sample,f )
                    continue
                wgtCounter.SetDirectory(0)
                wgtCounter.Reset('ICE')
@@ -78,11 +78,11 @@ def main():
 
     #mount locally EOS
     eos_cmd = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
-    Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse mount', 'eos'],stdout=PIPE).communicate()
 
     #loop over samples available
     genweights={}
-    for sample in os.listdir('eos/cms/%s' % opt.inDir):
+    for sample in os.listdir('/eos/cms/%s' % opt.inDir):
 
         #sum weight generator level weights
         wgtCounter=None
@@ -90,8 +90,8 @@ def main():
         labelH=None
         Nnet=None
         #sampleLoop(opt.inDir,sample,opt.HiForest,weightCounter,wgtCounter,labelH)
-        for f in os.listdir('eos/cms/%s/%s' % (opt.inDir,sample ) ):
-            fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
+        for f in os.listdir('/eos/cms/%s/%s' % (opt.inDir,sample ) ):
+            fIn=ROOT.TFile.Open('/eos/cms/%s/%s/%s' % (opt.inDir,sample,f ) )
             if not opt.HiForest:
                 if wgtCounter is None:
                     try:
@@ -103,7 +103,7 @@ def main():
                         if not weightCounter:
                             wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
                     except:
-                        print 'Check eos/cms/%s/%s/%s probably corrupted?' % (opt.inDir,sample,f )
+                        print 'Check /eos/cms/%s/%s/%s probably corrupted?' % (opt.inDir,sample,f )
                         continue
                     wgtCounter.SetDirectory(0)
                     wgtCounter.Reset('ICE')
@@ -134,9 +134,9 @@ def main():
                     except:
                         wgtCounter.Fill(0,1)
             fIn.Close()
-        if os.path.isdir('eos/cms/%s/%s' % (opt.extDir,sample)) and 0:
-            for f in os.listdir('eos/cms/%s/%s' % (opt.extDir,sample ) ):
-                fIn=ROOT.TFile.Open('eos/cms/%s/%s/%s' % (opt.extDir,sample,f ) )
+        if os.path.isdir('/eos/cms/%s/%s' % (opt.extDir,sample)) and 0:
+            for f in os.listdir('/eos/cms/%s/%s' % (opt.extDir,sample ) ):
+                fIn=ROOT.TFile.Open('/eos/cms/%s/%s/%s' % (opt.extDir,sample,f ) )
                 #sampleLoop(opt.extDir,sample,opt.HiForest,weightCounter,wgtCounter,labelH)
                 if wgtCounter is None:
                     try:
@@ -148,7 +148,7 @@ def main():
                         if not weightCounter:
                             wgtCounter=fIn.Get('analysis/fidcounter0').Clone('genwgts')
                     except:
-                        print 'Check eos/cms/%s/%s/%s probably corrupted?' % (opt.extDir,sample,f )
+                        print 'Check /eos/cms/%s/%s/%s probably corrupted?' % (opt.extDir,sample,f )
                         continue
                     wgtCounter.SetDirectory(0)
                     wgtCounter.Reset('ICE')
@@ -190,7 +190,7 @@ def main():
         genweights[sample]=wgtCounter
 
     #unmount locally EOS
-    Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
+    #Popen([eos_cmd, ' -b fuse umount', 'eos'],stdout=PIPE).communicate()
 
     #dump to ROOT file    
     cachefile=ROOT.TFile.Open(opt.cache,'RECREATE')

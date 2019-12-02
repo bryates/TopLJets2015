@@ -104,7 +104,7 @@ void CharmTree::PdfWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, TFile *file_) 
   evch_.ttbar_w[0] = ev_.ttbar_w[0];
   for(size_t iwgt = 0; iwgt < num; iwgt++) {
     //skip nominal in [0]
-    evch_.ttbar_w[iwgt+1] = ev_.ttbar_w[systWgt_[iwgt].second];
+    evch_.ttbar_w[iwgt+1] = systWgt_[iwgt].second;
   }
   evch_.ttbar_nw = num;
 }

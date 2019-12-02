@@ -20,9 +20,9 @@ std::vector< WeightSysts_t > getWeightSysts(TFile *f,TString sample) {
         systsOfInterest.push_back( WeightSysts_t("PDF"+id, xbin-1) );
       }
       */
-      if(label.Contains("PDF set = 260001")) systsOfInterest.push_back( WeightSysts_t("PDF001", xbin-1) );
-      if(label.Contains("PDF set = 265000")) systsOfInterest.push_back( WeightSysts_t("PDF101", xbin-1) );
-      if(label.Contains("PDF set = 266000")) systsOfInterest.push_back( WeightSysts_t("PDF102", xbin-1) );
+      if(label.Contains("PDF set = 260001")) systsOfInterest.push_back( WeightSysts_t("PDF001", h->GetBinContent(xbin)) );
+      if(label.Contains("PDF set = 265000")) systsOfInterest.push_back( WeightSysts_t("PDF101", h->GetBinContent(xbin)) );
+      if(label.Contains("PDF set = 266000")) systsOfInterest.push_back( WeightSysts_t("PDF102", h->GetBinContent(xbin)) );
     }
   }
 

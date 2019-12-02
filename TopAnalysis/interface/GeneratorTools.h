@@ -18,5 +18,4 @@ typedef std::pair<TString, float> WeightSysts_t;
 std::vector< WeightSysts_t > getWeightSysts(TFile *, TString sample="TTJets2016");
 std::vector< WeightSysts_t > getPartonShowerWeightSysts(TFile *f);
 
-
 #endif

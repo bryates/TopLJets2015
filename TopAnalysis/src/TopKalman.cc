@@ -16,6 +16,7 @@
 #include "TopLJets2015/TopAnalysis/interface/LeptonEfficiencyWrapper.h"
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 #include "TopLJets2015/TopAnalysis/interface/CorrectionTools.h"
+#include "TopLJets2015/TopAnalysis/interface/GeneratorTools.h"
 
 //#include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
@@ -2253,8 +2254,6 @@ void RunTopKalman(TString filename,
   TFile *fOut=TFile::Open(dirName+"/"+selPrefix+baseName,"RECREATE");
   fOut->cd();
   if(debug) cout << "writing histograms" << endl;
-  treeBCDEF.PdfWeights(evch, fOut);
-  treeGH.PdfWeights(evch, fOut);
 
   for (auto& it : allPlots)  { 
     //if(debug) cout << it.second->GetName() << endl;

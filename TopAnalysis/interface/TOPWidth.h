@@ -2,6 +2,7 @@
 #define _topwidth_h_
 
 #include "TopLJets2015/TopAnalysis/interface/CommonTools.h"
+#include "TopLJets2015/TopAnalysis/interface/GeneratorTools.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h" //FIXME
 
 #include "TH1.h"
@@ -26,6 +27,7 @@ struct TopWidthEvent_t
   Int_t t_id[10];
   Float_t met_pt,met_phi;
 };
+
 
 void createTopWidthEventTree(TTree *t,TopWidthEvent_t &twev);
 void resetTopWidthEvent(TopWidthEvent_t &twev);
