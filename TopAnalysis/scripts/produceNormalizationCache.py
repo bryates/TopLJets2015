@@ -41,7 +41,7 @@ def sampleLoop(args):
                wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
        else:
            if wgtCounter is None:
-               wgtCounter=ROOT.TH1F('genwgts','genwgts',500,0,500)
+               wgtCounter=ROOT.TH1D('genwgts','genwgts',500,0,500)
                wgtCounter.SetDirectory(0)
            hiTree=fIn.Get('hiEvtAnalyzer/HiTree')
            for i in xrange(0,hiTree.GetEntriesFast()):
@@ -121,7 +121,7 @@ def main():
                     wgtCounter.Add(fIn.Get('analysis/fidcounter0'))
             else:
                 if wgtCounter is None:
-                    wgtCounter=ROOT.TH1F('genwgts','genwgts',500,0,500)
+                    wgtCounter=ROOT.TH1D('genwgts','genwgts',500,0,500)
                     wgtCounter.SetDirectory(0)
                 hiTree=fIn.Get('hiEvtAnalyzer/HiTree')
                 for i in xrange(0,hiTree.GetEntriesFast()):
@@ -179,8 +179,9 @@ def main():
         for xbin in xrange(1,wgtCounter.GetNbinsX()+1):
             val=wgtCounter.GetBinContent(xbin)
             if val==0: continue
-            wgtCounter.SetBinContent(xbin,1./val)
+            wgtCounter.SetBinContent(xbin,val)#1./val)
             wgtCounter.SetBinError(xbin,0.)
+            print wgtCounter.GetBinContent(xbin)
         for tag,samples in samplesList:
             if tag[0] is None: continue
             if sample in tag: print tag,' xsec=',samples[0]
@@ -195,6 +196,7 @@ def main():
     #dump to ROOT file    
     cachefile=ROOT.TFile.Open(opt.cache,'RECREATE')
     for sample in genweights:
+        print genweights[sample].GetBinContent(1)
         genweights[sample].SetDirectory(cachefile)
         genweights[sample].Write(sample)
     cachefile.Close()

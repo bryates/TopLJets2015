@@ -450,11 +450,11 @@ void RunTopKalman(TString filename,
   int fsrUp(-1);
   int fsrDown(-1);
   for(size_t i = 0; i < psWeightSysts.size(); i++) {
-    if(psWeightSysts[i].first == "fsrDefHi") { //0.707
+    if(psWeightSysts[i].first == "fsrRedHi") { //0.707
       fsrUp = psWeightSysts[i].second;
       continue;
     }
-    if(psWeightSysts[i].first == "fsrDefLo") { //1.414
+    if(psWeightSysts[i].first == "fsrRedLo") { //1.414
       fsrDown = psWeightSysts[i].second;
       continue;
     }
@@ -508,6 +508,10 @@ void RunTopKalman(TString filename,
       treeGH.SetLumi(16146.178);
       treeBCDEF.SetXsec(xsec);
       treeGH.SetXsec(xsec);
+<<<<<<< HEAD
+=======
+      evch.ngfsr=0;
+>>>>>>> Updated PS weights and README
       treeBCDEF.FSRWeights(evch, ev, fsrUp, fsrDown);
       //treeGH.FSRWeights(evch, ev, fsrUp, fsrDown); //Just call once, since B-F and GH are written to the same file
       int *piSFB = new int[ev.npf+50]();

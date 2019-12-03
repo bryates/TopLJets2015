@@ -82,6 +82,7 @@ python scripts/saveExpectedBtagEff.py -i /store/group/phys_top/byates/LJets2016/
 ```
 * MC normalization. This will loop over all the samples available in EOS and produce a normalization cache (weights to normalize MC). The file will be available in data/genweights.root and data/genweights_syst.root
 ```
+THERE IS TROUBLE WITH THIS SCRIPT ON ROOT 6.10/09 (1/large number = 0)
 python scripts/produceNormalizationCache.py -i /store/group/phys_top/byates/LJets2016/8db9ad6 -o data/era2016/genweights.root
 python scripts/produceNormalizationCache.py -i /store/group/phys_top/byates/syst_samples/ -o data/era2016/genweights_syst.root -j data/era2016/syst_samples.json
 ```

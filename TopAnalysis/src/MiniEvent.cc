@@ -237,7 +237,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("ttbar_matchmepartons",        &ev.ttbar_matchmepartons);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
   t->SetBranchAddress("ngpsw",      &ev.ngpsw);
-  t->SetBranchAddress("gpsw",       ev.gpsw);
+  t->SetBranchAddress("gpsw",        ev.gpsw);
 
   //gen event (jets and dressed leptons)
   t->SetBranchAddress("ngjets",       &ev.ngjets);
