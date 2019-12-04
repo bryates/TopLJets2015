@@ -234,7 +234,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
   else if(name.Contains("meson")) {
     if(pfCands.size()<2) return;
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
-    //if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
+    if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
       /*
       std::cout << "test in CharmTree"
                 << runPeriod_ << std::endl;
@@ -254,7 +254,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
           ev_.d0_mu_tag_mu_pt[ev_.nmeson] = (D0+pfCands[2].getVec()).Pt();
         //}
       }
-      /*
       if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
         float mass123 = (D0+pfCands[2].getVec()).M();
         float deltam = mass123 - D0.M();
@@ -264,6 +263,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
         ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
         ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
       }
+      /*
       if(abs(pfCands[0].getMotherId())==42113) {
         ev_.meson_id[ev_.nmeson] = 42113;
       }
@@ -375,7 +375,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_ntk[ev_.nj] = jet.getTracks().size();
 
     //Check for pi K -> K pi dupilcates and weight by half
-    /*
     if(ev_.nmeson>0) {
       for(int nmeson = ev_.nmeson; nmeson > 0; nmeson--) {
         if(ev_.d0_pi_pt[nmeson] == ev_.d0_k_pt[nmeson-1] && ev_.d0_k_pt[nmeson] == ev_.d0_pi_pt[nmeson-1] && ev_.epoch[nmeson] == ev_.epoch[nmeson-1] && ev_.sfs[nmeson]>0.5 && ev_.sfs[nmeson-1]>0.5) {
@@ -392,7 +391,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
         }
       }
     }
-    */
     ev_.nmeson++;
     ev_.nj++;
     //std::cout << "tree done" << std::endl;

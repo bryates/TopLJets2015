@@ -16,6 +16,8 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   //generator level event
   t->Branch("ttbar_nw",      &ev.ttbar_nw,       "ttbar_nw/I");
   t->Branch("ttbar_w",        ev.ttbar_w,        "ttbar_w[ttbar_nw]/F");
+  t->Branch("ngfsr",         &ev.ngfsr,          "ngfsr/I");
+  t->Branch("gfsr",           ev.gfsr,           "gfsr[ngfsr]/F");
 
   //reco level event
   t->Branch("nvtx",      &ev.nvtx,      "nvtx/I");
@@ -198,6 +200,10 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   //generator level event
   t->SetBranchAddress("ttbar_nw",      &ev.ttbar_nw);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
+  if(t->GetListOfBranches()->FindObject("ngfsr")) {
+  t->SetBranchAddress("ngfsr",         &ev.ngfsr);
+  t->SetBranchAddress("gfsr",           ev.gfsr);
+  }
 
   //reco level event
   t->SetBranchAddress("nvtx",      &ev.nvtx);

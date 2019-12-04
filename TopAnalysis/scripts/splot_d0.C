@@ -75,7 +75,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/noHT/Chunks/");
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/Chunks/");
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && !mass.Contains("172v5")) mass = "m" + mass;
@@ -127,7 +127,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     for(auto & it : dataSamples) {
       TString dataname(dir);
       dataname += it;
-      dataname += "_*";
+      dataname += "_*.root";
       std::cout << "Adding " << it;
       int num = data->Add(dataname);
       std::cout << " (" << num << " files)" << std::endl;
@@ -139,8 +139,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
-      if(mass.Contains("JSF")) dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
+      //if(mass.Contains("JSF")) dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
     else if(mass.Contains("_noHT")) {
@@ -150,14 +150,17 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
-    if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    //PS weights instead of deficated FSR samples
+    if(syst.Length()>0 && !mass.Contains("FSR")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    else if(mass.Contains("FSR-up")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-up"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    else if(mass.Contains("FSR-down")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-down"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
       //TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
       TString mcname(dir);
       mcname += it;
-      mcname += "_*";
+      mcname += "_*.root";
       std::cout << "Adding " << it;
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
@@ -283,10 +286,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         pi = ev.d0_pi_pt[j];
         k = ev.d0_k_pt[j];
       }
-      if(ev.j_pt_charged[j] == 0) continue; //some events are bad
+      //if(ev.j_pt_charged[j] == 0) continue; //some events are bad
       if(ev.meson_id[j] != 421) continue;
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
+      if(ev.ht < 180) continue;
       if(ep>0 && ev.epoch[j]!=ep) continue;
       /*
       if(!jpT) { //missing in raw plots
@@ -313,7 +317,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       //if(ev.j_pt_charged[j]>75) continue;
       //if(ev.epoch[j]!=1 && ev.epoch[j]!=2) continue;
       //remove events below xB=0.2
-      if(ev.d0_pt[j]/ev.j_pt_charged[j] < 0.2) continue; 
+      if(ev.d0_pt[j]/ev.j_pt_charged[j] < 0.2) continue;
       if(xb != 0) {
          /*
 	if(type[xb] < 1) { cut = TString::Format("ptfrac > %f && ptfrac < %f",type[xb-1], type[xb]); }
@@ -344,6 +348,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         //if(pdf>0) scale *= pdfs[pdf];//alternate PDF event weight
         //if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
         //scale *= ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
+        //PS weights
+        /*
+        if(mass.Contains("FSR-up")) scale *= ev.gfsr[0];
+        else if(mass.Contains("FSR-down")) scale *= ev.gfsr[1];
+        */
         scale *= 1.11; //GH normalization const
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
@@ -517,6 +526,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooGaussian gauss1("gauss1","gauss1", d0_mass, mean, sigma1);
   RooPoisson pois("pois","pois", d0_mass, mean);
 
+  // Gaussian for D0->KK
+  RooRealVar meankk("meankk","meankk", 1.78, 1.78-wind, 1.78+wind);
+  RooRealVar sigmakk("sigmakk","sigmakk", 0.001, 0.0, 0.02);
+  RooRealVar ngsigkk("ngsigkk","ngsignalkk", 100, 10, 1000);
+  RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
+
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2.76, -10, 10);
   RooExponential expo("expo", "exponential PDF", d0_mass, lambda);
@@ -533,14 +548,16 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //RooAddPdf model("model","g+exp", RooArgList(poly, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf signalModel("signalModel","gauss1+gauss2",RooArgList(gauss,gauss1),RooArgList(ngsig,ngsig1));
   //RooAddPdf model("model","g+exp", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
-  RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
+  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkg,ngsigkk));
+  RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;
   RooPlot* frame = d0_mass.frame() ;
   RooFitResult *r = model.fitTo(ds, Extended(), SumW2Error(kTRUE), RooFit::Save(kTRUE), Name("data"));
   //ds.plotOn(frame,Binning(bins));
   //ds.plotOn(frame,Binning(60));
-  ds.plotOn(frame,Binning(30));
+  ds.plotOn(frame,Binning(60));
   /*
   RooAbsReal *nll = model.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   RooMinuit m(*nll);
@@ -553,7 +570,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   model.plotOn(frame, Name("model"));
   float chi2 = frame->chiSquare();//"model", "data", 3);
-  model.plotOn(frame, Components(expo),LineStyle(kDashed));
+  //model.plotOn(frame, Components(expo),LineStyle(kDashed));
+  model.plotOn(frame, Components(bkgModel),LineStyle(kDashed));
   frame->Draw();
   frame->SetName("massD0");
   frame->Write();

@@ -23,8 +23,8 @@ struct CharmEvent_t
 
 
   //gen level event
-  Int_t ttbar_nw;
-  Float_t ttbar_w[500];
+  Int_t ttbar_nw, ngfsr;
+  Float_t ttbar_w[500], gfsr[500];
 
   //reco level event
   Int_t nvtx;
