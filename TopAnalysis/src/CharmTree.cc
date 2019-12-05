@@ -254,6 +254,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
           ev_.d0_mu_tag_mu_pt[ev_.nmeson] = (D0+pfCands[2].getVec()).Pt();
         //}
       }
+      /*
       if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
         float mass123 = (D0+pfCands[2].getVec()).M();
         float deltam = mass123 - D0.M();
@@ -263,7 +264,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
         ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
         ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
       }
-      /*
       if(abs(pfCands[0].getMotherId())==42113) {
         ev_.meson_id[ev_.nmeson] = 42113;
       }
