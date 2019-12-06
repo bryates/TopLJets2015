@@ -527,8 +527,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooPoisson pois("pois","pois", d0_mass, mean);
 
   // Gaussian for D0->KK
-  RooRealVar meankk("meankk","meankk", 1.78, 1.78-wind, 1.78+wind);
-  RooRealVar sigmakk("sigmakk","sigmakk", 0.001, 0.0, 0.02);
+  RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+wind);
+  RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.02);
   RooRealVar ngsigkk("ngsigkk","ngsignalkk", 100, 10, 1000);
   RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
 
@@ -542,19 +542,21 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   
   // Construct signal + bkg PDF
   RooRealVar nsig("nsig","#signal events", 5994, 0, 10000000) ;
+  RooRealVar nbkge("nbkge","#background events", 84745, 0, 10000000) ;
   RooRealVar nbkg("nbkg","#background events", 84745, 0, 10000000) ;
   //RooAddPdf model("model","g+exp", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, prod), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(poly, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf signalModel("signalModel","gauss1+gauss2",RooArgList(gauss,gauss1),RooArgList(ngsig,ngsig1));
   //RooAddPdf model("model","g+exp", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
-  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkg,ngsigkk));
-  //RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
-  RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
+  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
+  RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
+  ///RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;
   RooPlot* frame = d0_mass.frame() ;
-  RooFitResult *r = model.fitTo(ds, Extended(), SumW2Error(kTRUE), RooFit::Save(kTRUE), Name("data"));
+  RooFitResult *r = model.fitTo(ds, SumW2Error(kTRUE), RooFit::Save(kTRUE), Name("data"));
+  //RooFitResult *r = model.fitTo(ds, Extended(), SumW2Error(kTRUE), RooFit::Save(kTRUE), Name("data"));
   //ds.plotOn(frame,Binning(bins));
   //ds.plotOn(frame,Binning(60));
   ds.plotOn(frame,Binning(60));

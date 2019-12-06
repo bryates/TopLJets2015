@@ -1828,6 +1828,7 @@ void RunTopKalman(TString filename,
                 if(keepRunB && isUsedB[piTracks[i].getIdx()]==0) isUsedB[piTracks[i].getIdx()] = piTracks[j].getIdx();
                 if(isUsedG[piTracks[i].getIdx()]==0) isUsedG[piTracks[i].getIdx()] = piTracks[j].getIdx();
                 //Remove 1/2 event for both pi<->K
+                /*
                 if(keepRunB && isUsedB[piTracks[i].getIdx()]!=piTracks[j].getIdx()) {
                   float tmp_wgt = treeBCDEF.getSF();
                   float evtWgt_ = -0.5;
@@ -1852,6 +1853,7 @@ void RunTopKalman(TString filename,
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   treeGH.SetSFs(tmp_wgt);
                 }
+                */
                 if(keepRunB) runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 if(keepRunB) treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event);//, tmp_match, frag, genJet);
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
@@ -1989,6 +1991,7 @@ void RunTopKalman(TString filename,
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 //Remove 1/2 event for both pi<->K
+                /*
                 if(keepRunB && isUsedB[piTracks[i].getIdx()]!=piTracks[j].getIdx()) {
                   float tmp_wgt = treeBCDEF.getSF();
                   float evtWgt_ = -0.5;
@@ -2013,6 +2016,7 @@ void RunTopKalman(TString filename,
                   treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                   treeGH.SetSFs(tmp_wgt);
                 }
+                */
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);

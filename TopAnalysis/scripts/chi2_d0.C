@@ -34,10 +34,11 @@ void run_chi2_d0(TString);
 RooRealVar ptfrac;
 
 void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
-TString fname = TString::Format("sPlot/sPlot//TopMass_Data_sPlot_d0.root");
+TString fname = TString::Format("sPlot/sPlot//TopMass_Data_d0kk_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
+if(name.Contains("d0kk")) fname.ReplaceAll("Data", "Data_d0kk");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
@@ -71,8 +72,8 @@ for(int i = 0; i < bin.size(); i++) {
 }
 if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 else { tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
-tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
+//tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
+//((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
 //mc = (TH1F*)convert(tmp, norm, 0, 1.1);
 mc = (TH1F*)convert(tmp, norm, bin);
@@ -83,8 +84,8 @@ mc->SetTitle(mc->GetName());
 delete tmp;
 if(epoch<0) data = (TH1F*)fdata->Get("ptfrac_signal_hist")->Clone();
 else { tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
-tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
-((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
+//tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
+//((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 //data = (TH1F*)convert(tmp, norm, 0, 1.1);
 data = (TH1F*)convert(tmp, norm, bin);
 }
