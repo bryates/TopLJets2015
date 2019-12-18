@@ -139,7 +139,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       TString tmp(mass);
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");
+      //dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
       //if(mass.Contains("JSF")) dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/Chunks/");
       std::cout << dir << std::endl;
     }
@@ -155,6 +156,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     else if(mass.Contains("FSR-up")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-up"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else if(mass.Contains("FSR-down")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-down"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    //mcSamples = { "MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets" }; // For W background only
     if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
       //TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
@@ -527,10 +529,30 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooPoisson pois("pois","pois", d0_mass, mean);
 
   // Gaussian for D0->KK
-  RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+wind);
-  RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.02);
-  RooRealVar ngsigkk("ngsigkk","ngsignalkk", 100, 10, 1000);
+  float fNgsigkk[2] = {1.11557e+02, 8.20522e+02};
+  float fSigmakk[2] = {1.94549e-02, 1.99998e-02};
+  RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+0.02);
+  RooRealVar sigmakk("sigmakk","sigmakk", 2e-2, 0.0, 0.02);
+  RooRealVar ngsigkk("ngsigkk","ngsignalkk", 100, 1, 10000);
   RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
+
+  // Gaussian for D0 from W
+  // parameters split by xB
+  std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 3.84928e+02, 1.71942e-02}, {1.86956, 3.15513e+01, 5.00000e-03}, {1.84927, 6.91239e+01, 2.39324e-02}, {1.86667, 1.14463e+02, 1.43698e-02}, {1.86901, 1.72984e+02, 1.83646e-02}}, {{1.86583, 3.30189e+02, 1.67071e-02}, {1.87131, 2.56132e+01, 5.00016e-03}, {1.85611, 5.57578e+01, 1.79126e-02}, {1.86782, 1.16715e+02, 1.45450e-02}, {1.86888, 1.31075e+02, 2.04610e-02}}};
+  float fMeanW = param_xb[ep-1][xb][0];
+  float fNgsigW = param_xb[ep-1][xb][1];
+  float fSigmaW = param_xb[ep-1][xb][2];
+  std::cout << fMeanW << "\t" << fNgsigW << "\t" << fSigmaW << std::endl;
+  RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
+  RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
+  RooRealVar ngsigW("ngsigW","ngsignalW", (1-.25)*fNgsigW);//*(1-.25));//3.30189e+02, 0, 1000);
+  // uncomment for W background samples only
+  /*
+  RooRealVar meanW("meanW","meanW", 1.86583, 1.793-wind, 1.793+wind);
+  RooRealVar sigmaW("sigmaW","sigmaW", 1.67071e-02, 0, 0.02);
+  RooRealVar ngsigW("ngsigW","ngsignalW", 3.30189e+02, 0, 1000);
+  */
+  RooGaussian gaussW("gaussW","gaussW", d0_mass, meanW, sigmaW);
 
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2.76, -10, 10);
@@ -541,17 +563,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
   
   // Construct signal + bkg PDF
-  RooRealVar nsig("nsig","#signal events", 5994, 0, 10000000) ;
-  RooRealVar nbkge("nbkge","#background events", 84745, 0, 10000000) ;
-  RooRealVar nbkg("nbkg","#background events", 84745, 0, 10000000) ;
+  RooRealVar nsig("nsig","#signal events", 5994, 400, 70000) ;
+  RooRealVar nbkge("nbkge","#background events", 84745, 8000, 800000) ;
+  RooRealVar nbkg("nbkg","#background events", 84745, 8000, 800000) ;
   //RooAddPdf model("model","g+exp", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, prod), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(poly, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf signalModel("signalModel","gauss1+gauss2",RooArgList(gauss,gauss1),RooArgList(ngsig,ngsig1));
   //RooAddPdf model("model","g+exp", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
-  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
+  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
+  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk,gaussW),RooArgList(nbkge,ngsigkk,ngsigW));
   RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
-  ///RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;
   RooPlot* frame = d0_mass.frame() ;

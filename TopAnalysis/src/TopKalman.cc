@@ -1536,7 +1536,7 @@ void RunTopKalman(TString filename,
           size_t tmax = 4;
           tmax = piTracks.size() >= tmax ? tmax : piTracks.size();
 
-          std::vector<pfTrack> pfMatched, pfReject, pfMuMatched;
+          std::vector<pfTrack> pfMatched, pfReject, pfMuMatched, pfMuReject;
           //Gen-matching
           if(!isData) {
             std::vector<pfTrack> genTracks;
@@ -1544,11 +1544,15 @@ void RunTopKalman(TString filename,
             for(int ig = 0; ig < ev.ngpf; ig++) {
               //if(!isJPsiEvent) continue;
               //if(abs(ev.gmeson_id[ig])!=443) continue; //JPsi only
-              if(abs(ev.gpf_id[ig])!=13 && abs(ev.gpf_id[ig])!=211) continue;
+              if(abs(ev.gpf_id[ig])!=13 && abs(ev.gpf_id[ig])!=211 && abs(ev.gpf_id[ig])!=321) continue;
               TLorentzVector gen;
-              gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], gMassMu);
+              gen.SetPtEtaPhiM(ev.gpf_pt[ig], ev.gpf_eta[ig], ev.gpf_phi[ig], ev.gpf_m[ig]);
               genTracks.push_back(pfTrack(gen,0,0,0,0,ev.gpf_id[ig],3,true));
+              genTracks.back().setMass(ev.gpf_m[ig]);
+              //if(ev.gpf_m[ig]>0.4) std::cout << ev.gpf_m[ig] << std::endl;
+              //if(genTracks.back().M()>0.4) std::cout << genTracks.back().M() << std::endl;
               genTracks.back().setMother(ev.gpf_mother[ig]); //daug -> mother id -> mother ttbar
+              if(genTracks.back().M()>0.4) genTracks.back().setPfid(genTracks.back().charge() * 321);
               //cout << genTracks.back().getGenT() << endl;
               if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gpf_id[ig],3,true));
             }
@@ -1556,25 +1560,47 @@ void RunTopKalman(TString filename,
             sort(genTracks.begin(), genTracks.end(),
                  [] (pfTrack a, pfTrack b) { return a.Pt() > b.Pt(); } );
 
+            float *best_used = new float[genTracks.size()];
+            int *kmatch = new int[piTracks.size()];
+            for(size_t i = 0; i < piTracks.size(); i++)
+              kmatch[i] = -1;
+            int matched(0);
+            for(size_t i = 0; i < piTracks.size(); i++) {
+              for(size_t j = i+1; j < piTracks.size(); j++) { //i<j b/c Kalman filter already loops over all i,j
+                if(i==j) continue;
+                if(piTracks[i].M()!=gMassPi) continue; //match pi only
+                if(piTracks[i].getKalmanMass() != piTracks[j].getKalmanMass()) continue;
+                kmatch[i] = j;
+                matched++;
+              }
+            }
+            //std::cout << matched << std::endl;
             for(auto & it : piTracks) { //FIXME reference might not work
               double dR = 0.3; //initial dR
               int best_idx = -1;
+              it.pos_ = (&it - &piTracks[0]);
               for(auto & itg : genTracks) {
-                if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
+                if(best_used[&itg - &genTracks[0]] > 0) continue;
+                //if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
+                if(it.charge() != itg.charge()) continue; //insure ID and charge
                 if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
                 if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
                 dR = it.getVec().DeltaR(itg.getVec());
                 best_idx = &itg - &genTracks[0]; //get index on current closest gen particle
               }
-              if(best_idx<0) { //no gen track matched
+              if(best_idx<0 || kmatch[&it - &piTracks[0]]<0) { //no gen track matched
                 pfReject.push_back(it);
+                pfReject.push_back(piTracks[kmatch[&it - &piTracks[0]]]);
               }
               else {
                 //it.setGenT(genMuTracks[best_idx].getGenT());
+                it.setGenIdx(pfMatched.size()-1);
+                it.setGenPdgId(genTracks[best_idx].getPdgId());
                 pfMatched.push_back(it);
                 pfMatched.back().setMother(genTracks[best_idx].getMotherId());
-                it.setGenIdx(pfMatched.size()-1);
-                genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                //genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
+                best_used[best_idx]++;
+                pfMatched.push_back(piTracks[kmatch[&it - &piTracks[0]]]);
               }
             }
             for(auto & it : muTracks) { //FIXME reference might not work
@@ -1588,7 +1614,7 @@ void RunTopKalman(TString filename,
                 best_idx = &itg - &genMuTracks[0]; //get index on current closest gen particle
               }
               if(best_idx<0) { //no gen track matched
-                pfReject.push_back(it);
+                pfMuReject.push_back(it);
               }
               else {
                 //it.setGenT(genMuTracks[best_idx].getGenT());
@@ -1863,23 +1889,40 @@ void RunTopKalman(TString filename,
                   runGH.FillGen(tops, chTag, "meson");
                 }
                 std::vector<pfTrack> tmp_match;
-                if(!isData && pfMatched.size() >1 && 0) {
-                  for(size_t i = 0; i < pfMatched.size(); i++) {
-                    for(size_t j = 0; j < pfMatched.size(); j++) {
-                      tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()] };
+                if(!isData && pfMatched.size() >1) {
+                  for(size_t im = 0; im < pfMatched.size(); im++) {
+                    for(size_t jm = 0; jm < pfMatched.size(); jm++) {
+                      //if(i==j) continue;
+                      if(pfMatched[im].pos_ != (int)i) continue;
+                      if(pfMatched[jm].pos_ != (int)j) continue;
+                      tmp_match = { piTracks[i],piTracks[j] };
+                      //std::cout << abs(pfMatched[i].getGenPdgId()) << "\t" << abs(pfMatched[j].getGenPdgId()) << std::endl;
                       //void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons lep, Jet jet, TString, TString name, int event, std::vector<pfTrack> genMatch, std::vector<float> frag) 
 
+                      if(abs(tmp_match[0].getGenPdgId())==321 && abs(tmp_match[1].getGenPdgId())==321) {
+
+                      if(keepRunB) runBCDEF.Fill(tmp_match, leptons, jet, chTag, "kgmeson");
+                      runGH.Fill(tmp_match, leptons, jet, chTag, "kgmeson");
+                      }
+                      //if((abs(tmp_match[0].getGenPdgId())==321 && abs(tmp_match[1].getGenPdgId())==211) || (abs(tmp_match[0].getGenPdgId())==211 && abs(tmp_match[1].getGenPdgId())==321)) {
+                      else {
                       if(keepRunB) runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
                       runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
+                      }
                     }
                   }
                 }
-                if(!isData && pfReject.size() > 1 && 0) { //save gen-unmatched J/Psi
-                  for(size_t i = 0; i < pfReject.size(); i++) {
-                    for(size_t j = 0; j < pfReject.size(); j++) {
-                      tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
-                      if(keepRunB) runBCDEF.Fill(pfReject, leptons, jet, chTag, "rgmeson");
-                      runGH.Fill(pfReject, leptons, jet, chTag, "rgmeson");
+                if(!isData && pfReject.size() > 1) { //save gen-unmatched J/Psi
+                  for(size_t ir = 0; ir < pfReject.size(); ir++) {
+                    for(size_t jr = 0; jr < pfReject.size(); jr++) {
+                      //if(i==j) continue;
+                      if(pfReject[ir].pos_ != (int)i) continue;
+                      if(pfReject[jr].pos_ != (int)j) continue;
+                      //if(i!=0) continue; //only fill in D0 first loop
+                      tmp_match = { piTracks[pfReject[ir].pos_],piTracks[pfReject[jr].pos_] };
+                      //tmp_match = { pfReject[piTracks[i].getGenIdx()],pfReject[piTracks[j].getGenIdx()] };
+                      if(keepRunB) runBCDEF.Fill(tmp_match, leptons, jet, chTag, "rgmeson");
+                      runGH.Fill(tmp_match, leptons, jet, chTag, "rgmeson");
                     }
                   }
                 }

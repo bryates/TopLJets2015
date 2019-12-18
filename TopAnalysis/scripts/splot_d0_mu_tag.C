@@ -55,7 +55,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
   TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
   mass.ReplaceAll(".","v");
-  if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
+  if(mass.Contains("v5") && !mass.Contains("172v5")) mass = "m" + mass;
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp")) { //ISR,FSR,CR,UE
     syst = mass;
     syst.ReplaceAll("_sumch", "");
@@ -448,25 +448,47 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooCBShape cball("cball", "crystal ball", d0_mass, mean, cbsigma, alpha, n);
 
   // Construct Gaussian1 PDF for signal
-  RooRealVar sigma("sigma","sigma", 0.01, 0.005, 0.06);
+  RooRealVar sigma("sigma","sigma", 1.70425e-02, 0.005, 0.06);
   RooRealVar ngsig("ngsig","ngsignal", 200, 100, 10000000);
   RooGaussian gauss("gauss","gauss", d0_mass, mean, sigma);
 
   // Construct exponential PDF to fit the bkg component
-  RooRealVar lambda("lambda", "slope", -0.1, -10, 10);
+  RooRealVar lambda("lambda", "slope", -2.68638, -10, 10);
   RooRealVar blambda("blambda", "slope", -0.1, -10, 10);
   RooExponential expo("expo", "exponential PDF", d0_mass, lambda);
   RooRealVar bsigma("bsigma","bsigma", 1, 0.1, 10);
   RooGaussian bgauss("bgauss","bgauss", d0_mass, blambda, bsigma);
   RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
+
+  // Gaussian for D0->KK
+  std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 9.13662e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
+  RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+wind);
+  RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.02);
+  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_xb[ep-1][0][1]);//15, 1, 70);
+  RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
+
+  // Gaussian for D0 from W
+  // parameters split by xB
+  param_xb = {{{1.86574, 6.67112e+02 * 3.84928e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 5.75968e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
+  float fMeanW = param_xb[ep-1][xb][0];
+  float fNgsigW = param_xb[ep-1][xb][1];
+  float fSigmaW = param_xb[ep-1][xb][2];
+  RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
+  RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
+  RooRealVar ngsigW("ngsigW","ngsignalW", fNgsigW);//3.30189e+02, 0, 1000);
+  RooGaussian gaussW("gaussW","gaussW", d0_mass, meanW, sigmaW);
   
   // Construct signal + bkg PDF
-  RooRealVar nsig("nsig","#signal events", 4000, 0, 10000000) ;
-  RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000000) ;
+  RooRealVar nsig("nsig","#signal events", 5.40765e+02, 0, 10000000) ;
+  RooRealVar nbkge("nbkge","#background events", 2.53877e+03, 0, 10000000) ;
+  RooRealVar nbkg("nbkg","#background events", 2.53877e+03, 0, 10000000) ;
   //RooAddPdf model("model","g+exp", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, prod), RooArgList(nsig,nbkg)) ;
-  RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk,gaussW),RooArgList(nbkge,ngsigkk,ngsigW));
+  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
+  RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;
   meson_l_mass.setConstant();
@@ -474,7 +496,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   weight.setConstant();
   RooPlot* frame = d0_mass.frame() ;
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
-  ds.plotOn(frame,Binning(30));
+  ds.plotOn(frame,Binning(60));
   /*
   RooAbsReal *nll = model.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   RooMinuit m(*nll);
@@ -486,6 +508,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   */
 
   model.plotOn(frame);
+  float chi2 = frame->chiSquare();//"model", "data", 3);
+  std::cout << std::endl << "chi2 " << chi2 << std::endl << std::endl;
   model.plotOn(frame, Components(expo),LineStyle(kDashed));
   frame->SetTitle("");
   frame->Draw();

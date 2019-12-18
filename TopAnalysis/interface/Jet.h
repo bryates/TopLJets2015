@@ -27,6 +27,7 @@ class pfTrack {
   inline int getPdgId() { return getPfid(); }
   inline int getIdx() { return idx_; }
   inline int getGenIdx() { return genidx_; }
+  inline int getGenPdgId() { return genpfid_; }
   inline int getNdau() { return ndau_; }
   int getMotherId();
   int charge();
@@ -67,12 +68,14 @@ class pfTrack {
   void setMother(int);
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
+  inline void setGenPdgId(int genpfid) { genpfid_ = genpfid; }
   inline void setIdx(int idx) { idx_ = idx; }
   //inline void setEpoch(TString ep, bool good) { epoch_[ep] = good; }
   inline void setNdau(int ndau) { ndau_ = ndau; }
   inline void setEtaCorrection(float etaSF) { etaSF_ = etaSF; }
   inline void setPtCorrection(float ptSF) { ptSF_ = ptSF; }
   void print();
+  int pos_;
 
  private:
   TLorentzVector vec_;
@@ -95,6 +98,7 @@ class pfTrack {
   int quality_;
   int genT_ = 0;
   int genidx_ = -1;
+  int genpfid_ = 0;
   int idx_ = -1;
   int ndau_;
   bool highPurity_;

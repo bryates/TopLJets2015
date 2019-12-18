@@ -42,7 +42,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
   allPlots["rbwgt_d0"+runPeriod_] = new TH1F("rbwgt_d0"+runPeriod_,"r_{B} event weights", 2, 0, 2);
   allPlots["rbwgt_d0mu"+runPeriod_] = new TH1F("rbwgt_d0mu"+runPeriod_,"r_{B} event weights", 2, 0, 2);
   std::vector<TString> lfsVec = { "_all", "_e", "_ee", "_em", "_mm", "_m" }; 
-  std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_kjpsi", "_meson", "_gmeson", "_rgmeson" };
+  std::vector<TString> cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_gjpsi", "_rgjpsi", "_kjpsi", "_meson", "_gmeson", "_rgmeson", "_kgmeson" };
   if(name_.Contains("Data")) //Gen plots only for MC
     cutVec = { "", "_lep", "_lepjets", "_csv", "_jpsi", "_kjpsi", "_meson" };
   std::vector<TString> wgtVec = { "" }; //, "_no_weight" };

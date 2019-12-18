@@ -24,10 +24,9 @@ rbList=json.load(jsonFile,encoding='utf-8',object_pairs_hook=OrderedDict).items(
 jsonFile.close()
 
 
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']#, 'Top pT', 'Top mass up', 'Top mass down']
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']#, 'Top pT', 'Top mass up', 'Top mass down']
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Trigger selection up', 'Trigger selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
-skip=['Top pT', 'Top mass up', 'Top mass down']#'Tracker efficiency up', 'Tracker efficiency down', 'JER up', 'JER down']#, 'JSF up', 'JSF down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']
+skip=['Top pT', 'Top mass up', 'Top mass down', 'JSF up', 'JSF down']#, 'JER up', 'JER down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 sup = [[0] * len(syst)] * 3
 sdown = [[0] * len(syst)] * 3
