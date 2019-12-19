@@ -545,7 +545,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::cout << fMeanW << "\t" << fNgsigW << "\t" << fSigmaW << std::endl;
   RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
   RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
-  RooRealVar ngsigW("ngsigW","ngsignalW", (1-.25)*fNgsigW);//*(1-.25));//3.30189e+02, 0, 1000);
+  RooRealVar ngsigW("ngsigW","ngsignalW", fNgsigW);//*(1-.25));//3.30189e+02, 0, 1000);
   // uncomment for W background samples only
   /*
   RooRealVar meanW("meanW","meanW", 1.86583, 1.793-wind, 1.793+wind);
