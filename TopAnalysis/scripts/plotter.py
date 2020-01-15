@@ -387,7 +387,9 @@ class Plot(object):
                         systDownShape[xbin] = math.sqrt(systDownShape[xbin]**2 + diff**2)
             totalMCUncShape = totalMC.Clone("totaluncshape")
             self._garbageList.append(totalMCUncShape)
-            totalMCUncShape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
+            totalMCUncShape.SetFillColor(ROOT.TColor.GetColor('#666666'))
+            totalMCUncShape.SetFillColor(1)
+            #totalMCUncShape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             totalMCUncShape.SetFillStyle(3254)
             for xbin in xrange(1,self.dataH.GetNbinsX()+1):
             #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
@@ -509,8 +511,10 @@ class Plot(object):
             ratioframeunc=ratioframeshape.Clone('ratioframeunc')
             ratioframeunc.SetFillColor(ROOT.kBlue-3)
             ratioframeunc.SetFillStyle(3245)
-            ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
-            ratioframeshape.SetFillStyle(3254)
+            ratioframeshape.SetFillColor(920)
+            ratioframeshape.SetMarkerColor(920)
+            #ratioframeshape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
+            #ratioframeshape.SetFillStyle(3254)
             ratio=self.dataH.Clone('ratio')
             if len(self.mcsyst)>0:
                 for xbin in xrange(1,totalMC.GetNbinsX()+1):
