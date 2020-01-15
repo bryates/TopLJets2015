@@ -278,7 +278,6 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       float pi = 0.;
       float k = 0.;
       /* FIXME
-      */
       if(ev.nmeson>1) {
         //if(pi == ev.d0_k_pt[j] && k == ev.d0_pi_pt[j]) continue;
         if(ev.nmeson > j+2) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
@@ -288,6 +287,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         pi = ev.d0_pi_pt[j];
         k = ev.d0_k_pt[j];
       }
+      */
       //if(ev.j_pt_charged[j] == 0) continue; //some events are bad
       if(ev.meson_id[j] != 421) continue;
       if(ev.d0_mass[j] < 1.7) continue;
@@ -342,6 +342,13 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       */
       tuneW.setVal(1.);
       scale *= ev.sfs[j]; //Data has sfs=0.5 if duplicates (piK and Kpi)
+
+      //Observed small differences between historams and treess
+      if(ev.epoch[j]==1)
+        scale *= 1.06; //BCDEF normalization const
+      if(ev.epoch[j]==2)
+        scale *= 1.13; //GH normalization const
+
       if(!isData) {
         if(mass.Contains("toyData"))
         scale *= ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
@@ -355,7 +362,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(mass.Contains("FSR-up")) scale *= ev.gfsr[0];
         else if(mass.Contains("FSR-down")) scale *= ev.gfsr[1];
         */
-        scale *= 1.11; //GH normalization const
+        //scale *= 1.11; //GH normalization const
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
@@ -364,7 +371,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           else
           scale =  scale * 19712.86 * puSF1 * topSF1;
           //if(tpt) scale =  scale * topSF1;
-          scale *= 1.11; //GH normalization const
+          //scale *= 1.06; //GH normalization const
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
@@ -374,6 +381,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           scale = scale * 16146.178 * puSF2 * topSF2;
           //if(tpt) scale =  scale * topSF1;
           //if(tpt) scale =  scale * topSF2;
+          //scale *= 1.13; //GH normalization const
           //h2->Fill(mesonlm[j], scale);
         }
         else
@@ -571,8 +579,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //RooAddPdf model("model","g+exp", RooArgList(poly, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf signalModel("signalModel","gauss1+gauss2",RooArgList(gauss,gauss1),RooArgList(ngsig,ngsig1));
   //RooAddPdf model("model","g+exp", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
-  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
-  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk,gaussW),RooArgList(nbkge,ngsigkk,ngsigW));
+  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
+  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk,gaussW),RooArgList(nbkge,ngsigkk,ngsigW));
   RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 

@@ -214,6 +214,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["D0_pi_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_pi_phi"+tag+cut+weight+runPeriod_,";D^{0} #pi #it{#phi}; Events", 50, -3.14,3.14);
     allPlots["D0_K_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_K_phi"+tag+cut+weight+runPeriod_,";D^{0} K #it{#phi}; Events", 50, -3.14,3.14);
     allPlots["D0_mu_phi"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_phi"+tag+cut+weight+runPeriod_,";D^{0} #mu #it{#phi}; Events", 50, -3.14,3.14);
+    allPlots["D0_chi2"+tag+cut+weight+runPeriod_] = new TH1F("D0_chi2"+tag+cut+weight+runPeriod_,";D^{0} #chi^{2};Events", 100,0.,5.);
 
     allPlots["D0_mu_tag_pi_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_pi_eta"+tag+cut+weight+runPeriod_,";D^{0}_{#mu} #pi #it{#eta} [GeV];Events / 0.1", 30, -2.5, 2.5);
     allPlots["D0_mu_tag_K_eta"+tag+cut+weight+runPeriod_] = new TH1F("D0_mu_tag_K_eta"+tag+cut+weight+runPeriod_,";D^{0}_{#mu} Kpi #it{#eta} [GeV];Events / 0.1", 30, -2.5, 2.5);
@@ -756,6 +757,9 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name, 
       */
       allPlots["massD0"+chTag+name+runPeriod_]->Fill(mass12,getWgt() * evtWgt_);
       allPlots["massD0_all"+name+runPeriod_]->Fill(mass12,getWgt() * evtWgt_);
+
+      allPlots["D0_chi2"+chTag+name+runPeriod_]->Fill(pi->chi2(),getWgt() * evtWgt_);
+      allPlots["D0_chi2_all"+name+runPeriod_]->Fill(pi->chi2(),getWgt() * evtWgt_);
 
       allPlots["D0_pt"+chTag+name+runPeriod_]->Fill(D0.Pt(),getWgt() * evtWgt_ * piEtaSF * piPtSF * kEtaSF * kPtSF);
       allPlots["D0_pt_all"+name+runPeriod_]->Fill(D0.Pt(),getWgt() * evtWgt_ * piEtaSF * piPtSF * kEtaSF * kPtSF);

@@ -286,6 +286,8 @@ class Plot(object):
                 #if(self.mcsyst[hname].Integral()>0): self.mcsyst[hname].Scale(nominalIntegral/self.mcsyst[hname].Integral())
             systUp=[0.]
             systDown=[0.]
+            background = totalMC.Clone('background')
+            background.Add(nominalTTbar,-1) #2) subtract nominal MC to add background only
             for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
                 systUp.append(0.)
                 systDown.append(0.)
@@ -306,7 +308,9 @@ class Plot(object):
                         #totalMCUnc = self.mcsyst[hname].Clone()
                     #else: totalMCUnc.Add(self.mcsyst[hname].Clone())
                     #totalMCUnc = self.mcsyst[hname].Clone()
-                    diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    binContent = self.mcsyst[hname].GetBinContent(xbin) + background.GetBinContent(xbin)
+                    diff = binContent - totalMC.GetBinContent(xbin)
+                    #diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
                     if rbIdx > 0 and diff != 0.0:
                         diff = abs(diff)
                         if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
@@ -316,7 +320,8 @@ class Plot(object):
                         systUp[xbin] = math.sqrt(systUp[xbin]**2 + diff**2)
                     else:
                         systDown[xbin] = math.sqrt(systDown[xbin]**2 + diff**2)
-            totalMCUnc = totalMC.Clone('totalmcunc')
+            totalMCUnc = self.dataH.Clone('totalmcunc')
+            #totalMCUnc = totalMC.Clone('totalmcunc')
             self._garbageList.append(totalMCUnc)
             #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
             #totalMCUnc.Add(totalMC) #1) add total MC
@@ -330,17 +335,20 @@ class Plot(object):
             ROOT.gStyle.SetHatchesLineWidth(1)
             totalMCUnc.SetFillStyle(400)
             totalMCUnc.SetFillStyle(3245)
-            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+            for xbin in xrange(1,self.dataH.GetNbinsX()+1):
+            #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
                 #scale=nominalIntegral/totalMCUnc.Integral()
                 #scale=len(systUp)
                 scale=1.
-                totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
-                totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2) / math.sqrt(scale))
+                totalMCUnc.SetBinContent(xbin, self.dataH.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
+                totalMCUnc.SetBinError(xbin, math.sqrt(self.dataH.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2) / math.sqrt(scale))
+                #totalMCUnc.SetBinContent(xbin, totalMCUnc.GetBinContent(xbin) + (systUp[xbin]-systDown[xbin])/2.)
+                #totalMCUnc.SetBinError(xbin, math.sqrt(totalMCUnc.GetBinError(xbin)**2 + ((systUp[xbin]+systDown[xbin])/2.)**2) / math.sqrt(scale))
             #if(totalMCUnc.Integral()>0): totalMCUnc.Scale(nominalIntegral/totalMCUnc.Integral())
             for hname,h in self.mcsyst.iteritems():
                 name = hname.split(" ")[0]
                 integral=self.mc[name].Integral()
-                if(h.Integral>0): h.Scale(integral/h.Integral())
+                if(h.Integral()>0): h.Scale(integral/h.Integral())
                 #if(h.Integral>0): h.Scale(nominalIntegral/h.Integral())
             systUpShape=[0.]
             systDownShape=[0.]
@@ -360,7 +368,15 @@ class Plot(object):
                     if 'meson' in self.name and 'mu_tag' in self.name: mIdx=0
                     elif 'meson' in self.name: mIdx=1
                     elif 'jpsi' in self.name: mIdx=2
-                    diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    tmpInt = self.mcsyst[hname].Integral()
+                    #self.mcsyst[hname].Scale(self.dataH.Integral() / tmpInt)
+                    binContent = self.mcsyst[hname].GetBinContent(xbin) + background.GetBinContent(xbin)
+                    #diff = self.mcsyst[hname].GetBinContent(xbin) - self.dataH.GetBinContent(xbin)
+                    #diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    #diff = self.mcsyst[hname].GetBinContent(xbin) - nominalTTbar.GetBinContent(xbin)
+                    diff = binContent - totalMC.GetBinContent(xbin)
+                    #diff *= self.dataH.Integral() / nominalTTbar.Integral()
+                    #self.mcsyst[hname].Scale(tmpInt / self.mcsyst[hname].Integral())
                     if rbIdx > 0 and diff != 0.0:
                         diff = abs(diff)
                         if(self.rbList[mIdx][1][rbIdx] < self.rbList[0][mIdx][0]): diff = -diff
@@ -373,10 +389,13 @@ class Plot(object):
             self._garbageList.append(totalMCUncShape)
             totalMCUncShape.SetFillColor(ROOT.TColor.GetColor('#d73027'))
             totalMCUncShape.SetFillStyle(3254)
-            for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
-                totalMCUncShape.SetBinContent(xbin, totalMC.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
+            for xbin in xrange(1,self.dataH.GetNbinsX()+1):
+            #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
+                totalMCUnc.SetBinContent(xbin, self.dataH.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
+                totalMCUnc.SetBinError(xbin, math.sqrt(totalMC.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
+                totalMCUncShape.SetBinContent(xbin, self.dataH.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
                 #totalMCUncShape.SetBinContent(xbin, totalMCUncShape.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
-                totalMCUncShape.SetBinError(xbin, math.sqrt(totalMC.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
+                totalMCUncShape.SetBinError(xbin, math.sqrt(self.dataH.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
                 #totalMCUncShape.SetBinError(xbin, math.sqrt(totalMCUncShape.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
             self.totalMCUnc = totalMCUnc
             self.totalMCUncShape = totalMCUncShape
@@ -432,7 +451,7 @@ class Plot(object):
                    #leg.AddEntry(totalMCUnc, "UE-Down", 'f')
                    #leg.AddEntry(totalMCUnc, "Total unc.", 'f')
                    self.totalMCUncShape.Draw("e2 same")
-                   leg.AddEntry(totalMCUncShape, "Total shape unc.", 'f')
+                   leg.AddEntry(totalMCUncShape, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
         p1.RedrawAxis()
 
@@ -503,7 +522,8 @@ class Plot(object):
                         totalMCUncShape=ROOT.TMath.Sqrt((uncs/val)**2)# + unc**2)
                         #if self.totalMCUnc.GetBinContent(xbin) > 0:
                             #ratioframeshape.SetBinContent(xbin,self.dataH.GetBinContent(xbin)/self.totalMCUnc.GetBinContent(xbin))
-                        ratioframeshape.SetBinContent(xbin,self.totalMCUncShape.GetBinContent(xbin)/val)
+                        ratioframeshape.SetBinContent(xbin,1.)
+                        #ratioframeshape.SetBinContent(xbin,self.totalMCUncShape.GetBinContent(xbin)/val)
                         ratioframeshape.SetBinError(xbin,totalMCUncShape)
                         ratioframeunc.SetBinContent(xbin,self.totalMCUnc.GetBinContent(xbin)/val)
                         ratioframeunc.SetBinError(xbin,totalMCUnc)

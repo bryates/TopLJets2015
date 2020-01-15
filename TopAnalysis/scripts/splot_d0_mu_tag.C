@@ -239,6 +239,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     float k = 0.;
     float scale = 1.;
       //int j(0);
+      //FIXME
+      /*
       if(ev.nmeson>1) {
         //if(pi == ev.d0_k_pt[j] && k == ev.d0_pi_pt[j]) continue;
         if(ev.nmeson > j+2) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
@@ -248,6 +250,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         pi = ev.d0_pi_pt[j];
         k = ev.d0_k_pt[j];
       }
+      */
       if(ev.meson_id[j] != 42113) continue;
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
@@ -297,12 +300,23 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       }
       tuneW.setVal(1.);
       //scale *= ev.sfs[j];
+
+      //Observed small differences between historams and treess
+      if(ev.epoch[j]==1)
+        scale *= 1.04; //BCDEF normalization const
+      if(ev.epoch[j]==2)
+        scale *= 1.03; //GH normalization const
+      scale *=1.05;
+
       if(!isData) {
+        scale *=1.05;
         //scale = ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
         if(mass.Contains("toyData"))
-        scale = ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
+        scale = ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
+        //scale = ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
         else
-        scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
+        scale = ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
+        //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * jerSF;// * topSF * puSF;
         if(pdf>0 && ev.ttbar_nw > pdf) scale *= ev.ttbar_w[pdf];//alternate PDF event weight
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
@@ -448,12 +462,12 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooCBShape cball("cball", "crystal ball", d0_mass, mean, cbsigma, alpha, n);
 
   // Construct Gaussian1 PDF for signal
-  RooRealVar sigma("sigma","sigma", 1.70425e-02, 0.005, 0.06);
+  RooRealVar sigma("sigma","sigma", 1.72424e-02, 0.005, 0.06);
   RooRealVar ngsig("ngsig","ngsignal", 200, 100, 10000000);
   RooGaussian gauss("gauss","gauss", d0_mass, mean, sigma);
 
   // Construct exponential PDF to fit the bkg component
-  RooRealVar lambda("lambda", "slope", -2.68638, -10, 10);
+  RooRealVar lambda("lambda", "slope", -2.55721, -10, 10);
   RooRealVar blambda("blambda", "slope", -0.1, -10, 10);
   RooExponential expo("expo", "exponential PDF", d0_mass, lambda);
   RooRealVar bsigma("bsigma","bsigma", 1, 0.1, 10);
@@ -461,18 +475,20 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
 
   // Gaussian for D0->KK
-  std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 9.13662e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
+  std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 8.60534e+01 / 4.60739e+03 + 8.20522e+02 * 9.43827e+01 / 4.54386e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 9.43827e+01 / 4.54386e+03, 1.67071e-02}}};
+  //std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 8.60534e+01 / 4.60739e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 9.43827e+01 / 4.54386e+03, 1.67071e-02}}};
+  //std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 9.13662e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
   RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+wind);
   RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.02);
-  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_xb[ep-1][0][1]);//15, 1, 70);
+  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_xb[0][0][1]);//15, 1, 70);
   RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
 
   // Gaussian for D0 from W
   // parameters split by xB
   param_xb = {{{1.86574, 6.67112e+02 * 3.84928e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 5.75968e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
-  float fMeanW = param_xb[ep-1][xb][0];
-  float fNgsigW = param_xb[ep-1][xb][1];
-  float fSigmaW = param_xb[ep-1][xb][2];
+  float fMeanW = param_xb[0][xb][0];
+  float fNgsigW = param_xb[0][xb][1];
+  float fSigmaW = param_xb[0][xb][2];
   RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
   RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
   RooRealVar ngsigW("ngsigW","ngsignalW", fNgsigW);//3.30189e+02, 0, 1000);
@@ -496,7 +512,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   weight.setConstant();
   RooPlot* frame = d0_mass.frame() ;
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
-  ds.plotOn(frame,Binning(60));
+  ds.plotOn(frame,Binning(30));
   /*
   RooAbsReal *nll = model.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   RooMinuit m(*nll);

@@ -74,7 +74,7 @@ case $WHAT in
 	#python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
         echo "Processing with lumi=${lumi} pb^-1"
 	python scripts/plotter.py -i ${outdir} --puNormSF puwgtctr_${RUN}  -j data/${ERA}/samples.json -l ${lumiFile} --saveLog --run ${RUN};# --mcUnc ${lumiUnc};	
-	#python scripts/plotter.py -i LJets2015/2016 --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --saveLog --run BCDEFGH
+	#python scripts/plotter.py -i LJets2015/2016 --puNormSF puwgtctr -j data/era2016/samples.json -l data/era2016/lumi.json --saveLog --run BCDEFGH --only HT_all_jpsi,JPsi_mu1_eta_all_jpsi,JPsi_mu1_pt_all_jpsi,JPsi_mu2_eta_all_jpsi,JPsi_mu2_pt_all_jpsi,JPsi_pt_all_jpsi,JPsioJet_pt_all_jpsi,JPsioJet_pt_charged_all_jpsi,dilp_pt_all_jpsi,j_pt_all_jpsi,j_pt_ch_all_jpsi,kj_pt_all_jpsi,kj_pt_ch_all_jpsi,lj_pt_all_jpsi,lj_pt_ch_all_jpsi,lp_pt_all_jpsi,massJPsi_all_jpsi,nj_all_jpsi,D0_K_eta_all_meson,D0_K_pt_all_meson,D0_mu_tag_K_eta_all_meson,D0_mu_tag_K_pt_all_meson,D0_mu_tag_mu_oJet_pt_all_meson,D0_mu_tag_mu_oJet_pt_charged_all_meson,D0_mu_tag_mu_pt_all_meson,D0_mu_tag_pi_eta_all_meson,D0_mu_tag_pi_pt_all_meson,D0_mu_tag_pt_all_meson,D0_pi_eta_all_meson,D0_pi_pt_all_meson,D0_pt_all_meson,D0oJet_pt_all_meson,D0oJet_pt_charged_all_meson,HT_all_meson,dilp_pt_all_meson,j_pt_all_meson,j_pt_ch_all_meson,j_pt_ch_mu_tag_all_meson,kj_pt_all_meson,kj_pt_ch_all_meson,lj_pt_all_meson,lj_pt_ch_all_meson,lp_pt_all_meson,massD0_all_meson,massD0_mu_tag_all_meson,nj_all_meson
         #python scripts/plotter.py -i ${outdir} -j data/${ERA}/samples.json -l ${lumi};
 	;;
     WWWSEL )

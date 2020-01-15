@@ -54,6 +54,7 @@ void KalmanEvent::buildJets() {
       if(ev_.k_j[ipf] != ij) continue; //skip if PF track doesn't belong to current jet
       if(ev_.k_pf_eta[ipf]>2.4) continue; // |eta|<2.4
       //if(ev_.k_vtxProb[ipf]<vtxProb_) continue;
+      /*
       if(ev_.k_chi2[ipf]>chi2_) continue;
       if(debug_) std::cout << "passed chi^2 < " << chi2_ << std::endl; 
       //if(ev_.k_mass[ipf]<2.5 || ev_.k_mass[ipf]>3.4) continue;
@@ -67,6 +68,7 @@ void KalmanEvent::buildJets() {
       //if(ev_.j_csv[ev_.k_j[ipf]]<csv_) continue;
       //if(ev_.k_pf_ndau[ipf]>3) continue;
       if(ev_.k_sigmal3d[ipf] < 2E-4) continue; //lots of W+jets with low sigma
+      */
       //Correct for Kalman efficiency
       TLorentzVector tkP4(0,0,0,0);
       //Match with PF tracks

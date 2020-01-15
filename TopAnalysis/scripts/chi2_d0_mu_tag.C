@@ -282,7 +282,7 @@ chiTest->Delete();
 
 float chi2_d0_mu_tag_test(TString tune="", TString name="", float num=0.855) {
 TH1F *data, *mc;
-if(epoch!=0) {
+if(epoch==0) {
 getHist(name, tune, data, mc, epoch);
 }
 else {
