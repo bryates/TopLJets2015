@@ -395,7 +395,7 @@ class Plot(object):
             #for xbin in xrange(1,nominalTTbar.GetNbinsX()+1):
                 totalMCUnc.SetBinContent(xbin, self.dataH.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
                 totalMCUnc.SetBinError(xbin, math.sqrt(totalMC.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
-                totalMCUncShape.SetBinContent(xbin, self.dataH.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
+                totalMCUncShape.SetBinContent(xbin, self.dataH.GetBinContent(xbin))# + (systUpShape[xbin]-systDownShape[xbin])/2.)
                 #totalMCUncShape.SetBinContent(xbin, totalMCUncShape.GetBinContent(xbin) + (systUpShape[xbin]-systDownShape[xbin])/2.)
                 totalMCUncShape.SetBinError(xbin, math.sqrt(self.dataH.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
                 #totalMCUncShape.SetBinError(xbin, math.sqrt(totalMCUncShape.GetBinError(xbin)**2 + ((systUpShape[xbin]+systDownShape[xbin])/2.)**2))
@@ -447,7 +447,7 @@ class Plot(object):
                totalMC.SetFillStyle(3245)
                #totalMC.Draw("e2 same")
                #leg.AddEntry(totalMC, "Total MC stat unc.", 'f')
-               if len(self.mcsyst)>0:
+               if len(self.mcsyst)>0 and 0: #FIXME
                    #self.totalMCUnc.Draw("hist same")
                    #self.totalMCUnc.Draw("e2 same")
                    #leg.AddEntry(totalMCUnc, "UE-Down", 'f')
