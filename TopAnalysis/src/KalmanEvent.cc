@@ -24,7 +24,8 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   nmeson_ = ev_.nmeson;
   vtxProb_ = 0.02;
   chi2_ = 5.; //Same as Elvire's, chi2=5.365 at vtxProb>0.02
-  l3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
+  Jl3dsig_ = 5.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
+  Dl3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
                  //D^0 https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/10v20.png
                  //J/Psi https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/Data/10v20.png
   opang_ = 0.99;
@@ -59,8 +60,9 @@ void KalmanEvent::buildJets() {
       //if(ev_.k_mass[ipf]<2.5 || ev_.k_mass[ipf]>3.4) continue;
       if(!ev_.k_mass[ipf]) continue;
       if(debug_) std::cout << "passed mass window" << std::endl; 
-      if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < l3dsig_) continue;
-      if(debug_) std::cout << "passed l3d/sigmal3d < " << l3dsig_ << std::endl; 
+      if(ev_.k_id[ipf]==443 && ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < Jl3dsig_) continue;
+      else if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < Dl3dsig_) continue;
+      if(debug_) std::cout << "passed l3d/sigmal3d < " << Dl3dsig_ << std::endl; 
       //if(ev_.k_opang[ipf] < opang_) continue;
       if(debug_) std::cout << "passed opening angle < " << opang_ << std::endl; 
       //testing CSV
@@ -73,7 +75,7 @@ void KalmanEvent::buildJets() {
       int pf_match(-1);
       int nip(0);
       for(int ip = 0; ip < ev_.npf; ip++) {
-        if(ev_.pf_fromPV[ipf]<2) continue;
+        //if(ev_.pf_fromPV[ipf]<2) continue;
         //if(ip>15) continue;
         //if(ev_.k_id[ipf]==421 && nip>20) break; //D^0 only from hardest 4
         if(ev_.k_j[ipf] != ev_.pf_j[ip]) continue; //check jet first

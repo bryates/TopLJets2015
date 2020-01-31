@@ -32,7 +32,7 @@ class KalmanEvent
   int nmeson_;
   float vtxProb_;
   float chi2_;
-  float l3dsig_;
+  float l3dsig_, Dl3dsig_, Jl3dsig_;
   float opang_;
   float csv_;
   std::vector<Jet> jets_ {};
