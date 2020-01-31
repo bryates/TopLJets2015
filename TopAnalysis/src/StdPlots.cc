@@ -143,7 +143,7 @@ StdPlots::StdPlots(TString runPeriod, TString name, bool debug) {
     allPlots["JPsioJet_pt"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt"+tag+cut+weight+runPeriod_,";#it{p}_{T}(J/#Psi)/#it{p}_{T}(jet);Events / 0.025", 40, 0,1);
     allPlots["JPsioJet_pt_mu"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt_mu"+tag+cut+weight+runPeriod_,";#it{p}_{T}(#mu)/#it{p}_{T}(jet);Events / 0.025", 40, 0,1);
     allPlots["JPsioJet_pt_hard"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt_hard"+tag+cut+weight+runPeriod_,";#it{p}_{T}(hardest)/#it{p}_{T}(jet);Events / 0.025", 40, 0,1);
-    allPlots["JPsioJet_pt_charged"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt_charged"+tag+cut+weight+runPeriod_,";#it{p}_{T}(J/#Psi)/#it{p}_{T}#Sigma #it{p}_{T}^{ch};Events / 0.025", 40, 0,1);
+    allPlots["JPsioJet_pt_charged"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt_charged"+tag+cut+weight+runPeriod_,";#it{p}_{T}(J/#Psi)/#Sigma #it{p}_{T}^{ch};Events / 0.025", 40, 0,1);
     allPlots["JPsioJet_pt_pf"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt_pf"+tag+cut+weight+runPeriod_,";#it{p}_{T}(J/#Psi)/#it{p}_{T}(jet PF tracks);Events / 0.025", 40, 0,1);
 
     allPlots["JPsioJet_pt_low_dR"+tag+cut+weight+runPeriod_] = new TH1F("JPsioJet_pt_low_dR"+tag+cut+weight+runPeriod_,";#it{p}_{T}(J/#Psi)/#it{p}_{T}(jet) (#DeltaR(J/#Psi,l)<2.0);Events / 0.02", 10, 0,1);
