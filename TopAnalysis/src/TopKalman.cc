@@ -16,6 +16,7 @@
 #include "TopLJets2015/TopAnalysis/interface/LeptonEfficiencyWrapper.h"
 #include "TopLJets2015/TopAnalysis/interface/BtagUncertaintyComputer.h"
 #include "TopLJets2015/TopAnalysis/interface/CorrectionTools.h"
+#include "TopLJets2015/TopAnalysis/interface/GeneratorTools.h"
 
 //#include "TopLJets2015/TopAnalysis/interface/OtherFunctions.h"
 #include "TopLJets2015/TopAnalysis/interface/Trigger.h"
@@ -442,6 +443,24 @@ void RunTopKalman(TString filename,
   for(auto &it : runPeriods)
     totalLumi += it.second;
 
+  //GET PS WEIGHTS
+  std::vector<WeightSysts_t> psWeightSysts;
+  if(debug || 1) std::cout << "Loading PS weights" << std::endl;
+  psWeightSysts = getPartonShowerWeightSysts(f);
+  int fsrUp(-1);
+  int fsrDown(-1);
+  for(size_t i = 0; i < psWeightSysts.size(); i++) {
+    if(psWeightSysts[i].first == "fsrRedHi") { //0.707
+      fsrUp = psWeightSysts[i].second;
+      continue;
+    }
+    if(psWeightSysts[i].first == "fsrRedLo") { //1.414
+      fsrDown = psWeightSysts[i].second;
+      continue;
+    }
+  }
+  std::cout << "FSR up " << fsrUp << "\tFSR down " << fsrDown << std::endl;
+
   //LOOP OVER EVENTS
   for (Int_t iev=0;iev<nentries;iev++)
     {
@@ -486,6 +505,8 @@ void RunTopKalman(TString filename,
       treeGH.SetLumi(16146.178);
       treeBCDEF.SetXsec(xsec);
       treeGH.SetXsec(xsec);
+      treeBCDEF.FSRWeights(evch, ev, fsrUp, fsrDown);
+      //treeGH.FSRWeights(evch, ev, fsrUp, fsrDown); //Just call once, since B-F and GH are written to the same file
       int *piSFB = new int[ev.npf+50]();
       int *sumChBidx = new int[ev.npf]();
       int *keep = new int[ev.nj]();

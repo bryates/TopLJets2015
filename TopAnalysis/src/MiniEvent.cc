@@ -16,6 +16,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("ttbar_allmepartons",        &ev.ttbar_allmepartons,        "ttbar_allmepartons/I");
   t->Branch("ttbar_matchmepartons",        &ev.ttbar_matchmepartons,        "ttbar_matchmepartons/I");
   t->Branch("ttbar_w",        ev.ttbar_w,        "ttbar_w[ttbar_nw]/F");
+  t->Branch("ngpsw",    &ev.ngpsw,   "ngpsw/I");
+  t->Branch("gpsw",      ev.gpsw,    "gpsw[ngpsw]/F");
 
   //gen event (jets and dressed leptons)
   t->Branch("ngjets",       &ev.ngjets,       "ngjets/I");
@@ -234,6 +236,10 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("ttbar_allmepartons",        &ev.ttbar_allmepartons);
   t->SetBranchAddress("ttbar_matchmepartons",        &ev.ttbar_matchmepartons);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
+  if(t->GetListOfBranches()->FindObject("ngpsw")) {
+  t->SetBranchAddress("ngpsw",      &ev.ngpsw);
+  t->SetBranchAddress("gpsw",        ev.gpsw);
+  }
 
   //gen event (jets and dressed leptons)
   t->SetBranchAddress("ngjets",       &ev.ngjets);

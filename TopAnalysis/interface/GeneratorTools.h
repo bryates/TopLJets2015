@@ -16,6 +16,6 @@
 //available theory systs
 typedef std::pair<TString, int> WeightSysts_t;
 std::vector< WeightSysts_t > getWeightSysts(TFile *, TString sample="TTJets2016");
-
+std::vector< WeightSysts_t > getPartonShowerWeightSysts(TFile *f);
 
 #endif
