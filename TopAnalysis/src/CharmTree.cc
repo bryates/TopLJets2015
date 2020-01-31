@@ -109,6 +109,15 @@ void CharmTree::PdfWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, TFile *file_) 
   evch_.ttbar_nw = num;
 }
 
+void CharmTree::FSRWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, int fsrUp, int fsrDown) {
+  evch_.ngfsr=0; //remove count remaning from last event
+  evch_.gfsr[0] = ev_.gpsw[fsrUp];
+  evch_.ngfsr++;
+  evch_.gfsr[1] = ev_.gpsw[fsrDown];
+  evch_.ngfsr++;
+  //evch_.sfs[0] *= ev_.gpsw[fsrUp];
+}
+
 void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets) {
   if(!isGood_) return;
   ev_.ht = HT;
@@ -149,6 +158,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.topptwgt = top_pt_wgt_;
     ev_.sfs[ev_.nmeson] = sfs_.first;
     ev_.sfsu[ev_.nmeson] = sfs_.second;
+    //ev_.sfs[ev_.nmeson] *= ev_.gfsr[1];
     ev_.pitrk[ev_.nmeson] = pitrk_;
 
     /*
@@ -286,6 +296,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.piptsf[ev_.nmeson] = pfCands[0].getPtCorrection();
     ev_.kptsf[ev_.nmeson] = pfCands[1].getPtCorrection();
     ev_.sfsu[ev_.nmeson] = sqrt(pow(sfs_.second,2)+pow(pi_wgt_.second,2));
+    //ev_.sfs[ev_.nmeson] *= ev_.gfsr[1];
     ev_.pitrk[ev_.nmeson] = pfCands[0].getEtaCorrection();
 
     /*
