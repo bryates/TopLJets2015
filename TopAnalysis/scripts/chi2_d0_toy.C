@@ -72,6 +72,7 @@ else if(sample.Contains("d0"))
 */
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
 TString fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s_sPlot_%s.root",name.Data(),sample.Data());
+if(name.Contains("FSR")) fname.ReplaceAll(name, "FSR");
 if(toyData) {
   splot_d0(pdata, TString::Format("toyData%d",iteration), false, "", epoch, false);
   //fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_toyData%d_sPlot_%s.root",iteration,sample.Data());
@@ -308,8 +309,8 @@ gStyle->SetOptStat(0);
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch];
 if(fullpt) name += "_jpT";
-//c1->SaveAs("chi2_d0"+name+"_toy.pdf");
-//c1->SaveAs("chi2_sim"+name+"_toy.png");
+//c1->SaveAs(TString::Format("chi2_d0%s%d_toy.pdf",name.Data(),iteration));
+//c1->SaveAs(TString::Format("chi2_d0%s%d_toy.png",name.Data(),iteration));
 
 delete pt;
 //chiTest->Delete();
@@ -383,7 +384,7 @@ if(tune == "_sdown") { //only compute modified hist once
       //toyData sample has same number of events as data, similar statistics
       //e = shiftData->GetBinError(i);
     //shift each bin by random amount samples by the appropriate bin error
-    if(!(name == "" || name == "172v5")) { //MC errors otherwise (e.g. FSR)
+    if(!(name == "" || name == "172v5" || name.Contains("FSR"))) { //MC errors otherwise (e.g. FSR)
     std::cout << y << " +/- " << e << " ";
       y += rand->Gaus(0, e);
     std::cout << y << std::endl;
@@ -400,7 +401,7 @@ if(tune == "_sdown") { //only compute modified hist once
 
 delete tmpData;
 delete tmpData2;
-TCanvas *c1 = setupCanvas();
+//TCanvas *c1 = setupCanvas();
 bool toy = tune =="_sdown" ? true : false;
 std::cout << shiftData->GetTitle() << std::endl;
 std::cout << "using toy data" << std::endl;
@@ -498,7 +499,7 @@ mc->Draw("same e");
 shiftData->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
-TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch]);
+TString mcvname(TString::Format("mcVdata_%s_%d_%s_d0_%d",name.Data(),(int)(num*1000), epoch_name[epoch].Data(), iteration));
 if(fullpt) mcvname += "_jpT";
 //c1->SaveAs(mcvname + "_toy.pdf");
 //c1->SaveAs(mcvname + "_toy.png");

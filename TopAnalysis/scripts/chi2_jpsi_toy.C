@@ -69,6 +69,7 @@ bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 else if(sample.Contains("d0"))
   bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
 TString fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s_sPlot_%s.root",name.Data(),sample.Data());
+if(name.Contains("FSR")) fname.ReplaceAll(name, "FSR");
 if(toyData) {
   splot_jpsi(pdata, TString::Format("toyData%d",iteration), false, "", epoch, false);
   //fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_toyData%d_sPlot_%s.root",iteration,sample.Data());
@@ -140,7 +141,7 @@ delete fmc;
 }
 
 void chi2_jpsi_toy(TString set="", int queue=0) {
-  int max(10);
+  int max(100);
   for(int i = 0; i < max; i++) {
     std::cout << std::endl << "iteration " << i+1 << "/" << max << std::endl << std::endl;
     run_chi2_jpsi_toy(set, i + max*queue);
@@ -305,8 +306,8 @@ gStyle->SetOptStat(0);
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch];
 if(fullpt) name += "_jpT";
-//c1->SaveAs("chi2_sim"+name+"_toy.pdf");
-//c1->SaveAs("chi2_sim"+name+"_toy.png");
+//c1->SaveAs(TString::Format("chi2_jpsi%s%d_toy.pdf",name.Data(),iteration));
+//c1->SaveAs(TString::Format("chi2_jpsi%s%d_toy.png",name.Data(),iteration));
 
 delete pt;
 //chiTest->Delete();
@@ -391,7 +392,7 @@ if(tune == "_sdown") { //only compute modified hist once
 
 delete tmpData;
 delete tmpData2;
-TCanvas *c1 = setupCanvas();
+//TCanvas *c1 = setupCanvas();
 bool toy = tune =="_sdown" ? true : false;
 std::cout << shiftData->GetTitle() << std::endl;
 std::cout << "using toy data" << std::endl;
@@ -485,7 +486,7 @@ mc->Draw("same e");
 shiftData->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
-TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch]);
+TString mcvname(TString::Format("mcVdata_%s_%d_%s_jpsi_%d",name.Data(),(int)(num*1000), epoch_name[epoch].Data(), iteration));
 if(fullpt) mcvname += "_jpT";
 //c1->SaveAs(mcvname + "_toy.pdf");
 //c1->SaveAs(mcvname + "_toy.png");

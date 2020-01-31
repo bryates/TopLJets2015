@@ -101,6 +101,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //GluonMove and QCD only!
     //if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_m"+mass,"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    else if(mass.Contains("psweights") || mass.Contains("FSR")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_2016_TTJets_psweights","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
@@ -128,7 +129,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
-  //if(!mass.Contains("toyData"))
+  if(!mass.Contains("toyData"))
   fout = new TFile(fUrl,"RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
   //disabled top pT reweighting
@@ -186,6 +187,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   int nmc = ep == 1 ? 7327 : 9539;
   int nentries = ep == 1 ? 1339 : 1329;
   int nset(0);
+  float sumFSRwgt(0);
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   for(int i=0; i < data->GetEntries(); i++) {
     ev = {};
@@ -241,6 +243,9 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(pdf>0 && ev.ttbar_nw > pdf) scale *= ev.ttbar_w[pdf];//alternate PDF event weight
         //scale = ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
+        //PS weights
+        if(mass.Contains("FSR-up")) { scale *= ev.gfsr[0]; sumFSRwgt += ev.gfsr[0]; }
+        else if(mass.Contains("FSR-down")) { scale *= ev.gfsr[1]; sumFSRwgt += ev.gfsr[1]; }
         if(ev.epoch[j]==1) {
           //scale *= 1.11;
           if(mass.Contains("toyData"))
@@ -306,11 +311,12 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::cout << "Re-weighting based on norm weight" << std::endl;
   for(int i = 0; i < dsn.numEntries(); i++) {
     double tmpW = dsn.get(i)->getRealValue("tuneW");
-    tuneW.setVal(tmpW * tuneShape);
-    weight.setVal(tuneW.getVal());
+    //tuneW.setVal(tmpW * tuneShape);
+    weight.setVal(tuneW.getVal() / sumFSRwgt);
     //std::cout << tuneW.getVal() << " " << weight.getVal() << std::endl;;
   }
   std::cout << "Re-weighting done!" << std::endl;
+  std::cout << dsn.numEntries() / sumFSRwgt << std::endl;
   */
   //RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "weight");
   RooDataSet ds("ds", "ds", &dsn, *dsn.get(), 0, "tuneW");

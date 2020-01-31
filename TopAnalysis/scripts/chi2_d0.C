@@ -39,6 +39,7 @@ if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
 if(name.Contains("d0kk")) fname.ReplaceAll("Data", "Data_d0kk");
+if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR_toyData");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
