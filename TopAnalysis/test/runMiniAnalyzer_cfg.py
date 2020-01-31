@@ -47,7 +47,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 # global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v5' if options.runOnData else 'Fall17_17Nov2017_V6_MC')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v5' if options.runOnData else '94X_mc2017_realistic_v14')
 
 #message logger
 process.load("FWCore.MessageService.MessageLogger_cfi")
