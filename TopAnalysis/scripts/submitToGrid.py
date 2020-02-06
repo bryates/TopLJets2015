@@ -8,7 +8,7 @@ creates the crab cfg and submits the job
 """
 def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=False):
     
-    jecDB="Summer16_23Sep2016AllV4_DATA.db" if isData else "Summer16_23Sep2016V4_MC.db"
+    jecDB="Summer16_23Sep2016AllV4_DATA.db" if isData else "Fall17_17Nov2017_V32_94X_MC.db"
     #jecDB="Spring16_25nsV3_DATA.db" if isData else "Spring16_25nsV3_MC.db"
     os.system('ln -s ${CMSSW_BASE}/src/TopLJets2015/TopAnalysis/data/era2016/%s' % jecDB)
 

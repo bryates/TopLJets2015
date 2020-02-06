@@ -172,8 +172,8 @@ from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from TopLJets2015.TopAnalysis.customizeJetTools_cff import *
 jecLevels=['L1FastJet','L2Relative','L3Absolute']
-jecFile='Summer16_23Sep2016V4_MC.db'
-jecTag='Summer16_23Sep2016V4_MC_AK4PFchs'
+jecFile='Fall17_17Nov2017_V32_94X_MC.db'
+jecTag='Fall17_17Nov2017_V32_94X_MC_AK4PFchs'
 if options.runOnData : 
     #print 'Warning we\'re still using Spring16 MC corrections for data - to be updated'
     jecLevels.append( 'L2L3Residual' )
