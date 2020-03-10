@@ -159,6 +159,14 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 	  histos_["semilepbrinc"]->Fill(0);
           //xb for semi-leptonic ttbar decay
           histos_["xb_semilepinc"]->Fill(jinfo.xb);
+          if(jinfo.leadTagId==511)
+            histos_["xb_semilep511"]->Fill(jinfo.xb);
+          if(jinfo.leadTagId==521)
+            histos_["xb_semilep521"]->Fill(jinfo.xb);
+          if(jinfo.leadTagId==531)
+            histos_["xb_semilep531"]->Fill(jinfo.xb);
+          if(jinfo.leadTagId==5122)
+            histos_["xb_semilep5122"]->Fill(jinfo.xb);
 	}
       histos_["xb_inc"]->Fill(jinfo.xb);
 
