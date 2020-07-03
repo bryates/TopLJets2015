@@ -267,6 +267,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
         //}
       }
       /*
+      */
       if(pfCands.size()>2 && abs(pfCands[2].getPdgId())==211) {
         float mass123 = (D0+pfCands[2].getVec()).M();
         float deltam = mass123 - D0.M();
@@ -279,7 +280,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
       if(abs(pfCands[0].getMotherId())==42113) {
         ev_.meson_id[ev_.nmeson] = 42113;
       }
-      */
     }
 
     int epoch(0);
