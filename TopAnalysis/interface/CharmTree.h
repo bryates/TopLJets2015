@@ -27,6 +27,7 @@ class CharmTree {
   void Fill(std::vector<pfTrack>&, Leptons, TString, TString name=""); //e.g. J/Psi plots+mu
   void Fill(std::vector<pfTrack>&, Jet, TString, TString name=""); //e.g. J/Psi plots+mu
   void Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets);
+  void Fill(CharmEvent_t &ev_, MiniEvent_t &ev);
   void Fill(CharmEvent_t &ev_, std::vector<pfTrack>&, Leptons, Jet, TString, TString name="", int event=0, std::vector<pfTrack> genMatch={}, std::vector<float> frag={1.,1.,1.,1.,1.}, Jet genJet=Jet());
   void SetNorm(float);
   void SetSFs(float, float unc=0.);

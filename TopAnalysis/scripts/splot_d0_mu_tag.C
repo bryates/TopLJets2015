@@ -117,6 +117,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
       std::cout << dir << std::endl;
     }
+    else if(mass.Contains("_FSR")) {
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test2/Chunks/");
+      std::cout << dir << std::endl;
+
+    }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
     if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
@@ -210,6 +215,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar d0_pt("d0_pt","D^{0}_{#mu} #it{p}_{T}", 0, 250, "GeV");
   RooRealVar d0_mu_pt("d0_mu_pt","D^{0}_{#mu} #it{p}_{T}", 0, 250, "GeV");
   RooRealVar j_pt_ch("j_pt_ch","#Sigma #it{p}_{T}^{ch} charged", 0, 400, "GeV");
+  RooRealVar j_hadflav("j_hadflav","j hadflav", 0, 6, "");
+  RooRealVar mcFile("mcFile","mcFile", 0, 6, "");
   RooRealVar j_pt("j_pt","j #it{p}_{T}", 0, 400, "GeV");
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
@@ -224,7 +231,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,d0_mu_pt,epoch,j_pt_ch,tuneW));
+  //RooDataSet dsn("dsn", "dsn", RooArgSet(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,d0_mu_pt,epoch,j_pt_ch,tuneW));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(RooArgList(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW,""),RooArgList(j_hadflav,mcFile,"")));
   //RooDataSet dsn("dsn", "dsn", args);
   std::cout << "Total events: " << data->GetEntries() << std::endl;
   int nset(0);
@@ -241,16 +249,21 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       //int j(0);
       //FIXME
       /*
-      if(ev.nmeson>1) {
+      */
+      if(ev.nmeson>1 && !mass.Contains("_dup")) {
         //if(pi == ev.d0_k_pt[j] && k == ev.d0_pi_pt[j]) continue;
         if(ev.nmeson > j+2) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
-          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+2] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+2] && ev.meson_id[j] == ev.meson_id[j+2]) { scale *= 0.5; }
+          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+2] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+2] && ev.meson_id[j] == ev.meson_id[j+2] && ev.epoch[j] == ev.epoch[j+2]) { continue; } //scale *= 0.5; totalDup++; } //FIXME
         if(ev.nmeson > j+1) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
-          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+1] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+1] && ev.meson_id[j] == ev.meson_id[j+1]) { scale *= 0.5; }
+          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+1] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+1] && ev.meson_id[j] == ev.meson_id[j+1] && ev.epoch[j] == ev.epoch[j+1]) { continue; } //scale *= 0.5; totalDup++; } //FIXME
         pi = ev.d0_pi_pt[j];
         k = ev.d0_k_pt[j];
       }
-      */
+      if(mass.Contains("_c") && 0) {
+        if(ev.j_hadflav[j] == 5 && TString(data->GetFile()->GetName()).Contains("powheg")) continue;
+        else if(mass.Contains("ttbar_c") && !TString(data->GetFile()->GetName()).Contains("powheg")) continue;
+        else if(mass.Contains("W_c") && TString(data->GetFile()->GetName()).Contains("powheg")) continue;
+      }
       if(ev.meson_id[j] != 42113) continue;
       if(ev.d0_mass[j] < 1.7) continue;
       if(ev.d0_mass[j] > 2.0) continue;
@@ -262,7 +275,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(ev.j_pt_charged[j]>100) continue;
       }
       */
-      if(mass.Contains("toyData")) {
+      if(mass.Contains("toyData") || 1) {
         /*
         if(i < start || i > start + nentries) continue;
         */
@@ -368,12 +381,22 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       d0_mu_pt.setVal(ev.d0_mu_pt[j]);
       j_pt_ch.setVal(ev.j_pt_charged[j]);
       j_pt.setVal(ev.j_pt[j]);
+      if(!isData) j_hadflav.setVal(ev.j_hadflav[j]);
+      if(!isData) {
+      if(TString(data->GetFile()->GetName()).Contains("powheg")) mcFile.setVal(5);
+      else if(TString(data->GetFile()->GetName()).Contains("W1Jets")) mcFile.setVal(4);
+      else if(TString(data->GetFile()->GetName()).Contains("W2Jets")) mcFile.setVal(4);
+      else if(TString(data->GetFile()->GetName()).Contains("W3Jets")) mcFile.setVal(4);
+      else if(TString(data->GetFile()->GetName()).Contains("W4Jets")) mcFile.setVal(4);
+      else mcFile.setVal(0);
+      }
       //meson_l_mass = ev.d0_l_mass[j];
       meson_l_mass.setVal(ev.d0_l_mass[j]);
       //}
       weight.setVal(scale);
       tuneW.setVal(scale);// * tuneW.getVal());
-      dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,d0_mu_pt,j_pt_ch,epoch,tuneW));
+      //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,d0_mu_pt,j_pt_ch,epoch,tuneW));
+      dsn.add(RooArgSet(RooArgList(d0_mass,meson_l_mass,ptfrac,weight,d0_pt,j_pt_ch,j_pt,epoch,tuneW,""),RooArgList(j_hadflav,mcFile,"")));
       //dsn.add(RooArgSet(j_pt));
       //dsn.add(RooArgSet(d0_mass,meson_l_mass,ptfrac,weight), scale);
       //within D^0 mass peak (1.864 +/- 0.05)
@@ -465,6 +488,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar sigma("sigma","sigma", 1.72424e-02, 0.005, 0.06);
   RooRealVar ngsig("ngsig","ngsignal", 200, 100, 10000000);
   RooGaussian gauss("gauss","gauss", d0_mass, mean, sigma);
+  RooRealVar nsig("nsig","#signal events", 5.40765e+02, 0, 10000000) ;
 
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2.55721, -10, 10);
@@ -475,35 +499,88 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
 
   // Gaussian for D0->KK
-  std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 8.60534e+01 / 4.60739e+03 + 8.20522e+02 * 9.43827e+01 / 4.54386e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 9.43827e+01 / 4.54386e+03, 1.67071e-02}}};
+  std::vector< std::vector< std::vector<float> > > param_kk = {{{1.86574, 593.710 * 8.60534e+01 / 4.60739e+03 + 635.790 * 9.43827e+01 / 4.54386e+03, 1.71942e-02}},{{1.86574, 593.710 * 8.60534e+01 / 4.60739e+03, 1.71942e-02}}, {{1.86583, 635.790 * 9.43827e+01 / 4.54386e+03, 1.67071e-02}}};
   //std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 8.60534e+01 / 4.60739e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 9.43827e+01 / 4.54386e+03, 1.67071e-02}}};
   //std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 9.13662e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
-  RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+wind);
-  RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.02);
-  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_xb[0][0][1]);//15, 1, 70);
+  RooRealVar meankk("meankk","meankk", 1.793);//, 1.78, 1.8);//, 1.793-wind, 1.793+wind);
+  RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.2);
+  //RooRealVar ngsigkk("ngsigkk","ngsignalkk", nsig.getVal()*0.1); //PDG gives 10.33% NO improvement over ratio method
+  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_kk[ep][xb][1]);//, 0, param_xb[ep][xb][1]*4);//15, 1, 70);
   RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
 
+  /*
   // Gaussian for D0 from W
   // parameters split by xB
-  param_xb = {{{1.86574, 6.67112e+02 * 3.84928e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 5.75968e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
-  float fMeanW = param_xb[0][xb][0];
-  float fNgsigW = param_xb[0][xb][1];
-  float fSigmaW = param_xb[0][xb][2];
+  param_xb = {{{0,0,0}}, {{1.86574, 6.67112e+02 * 3.84928e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 5.75968e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
+  float fMeanW = param_xb[ep][xb][0];
+  float fNgsigW = param_xb[ep][xb][1];
+  float fSigmaW = param_xb[ep][xb][2];
   RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
   RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
   RooRealVar ngsigW("ngsigW","ngsignalW", fNgsigW);//3.30189e+02, 0, 1000);
   RooGaussian gaussW("gaussW","gaussW", d0_mass, meanW, sigmaW);
+  */
+
+  // Gaussian for D0 from W
+  // parameters split by xB
+  std::vector< std::vector< std::vector<float> > > param_xb = {
+//W+jets
+  { {1.86650,809.083,0.0240726},
+    {1.86963, 3.02056e+01, 5.00000e-03},
+    {1.84938, 6.76886e+01, 2.36030e-02},
+    {1.86692, 1.06236e+02, 1.42172e-02},
+    {1.86920, 1.52382e+02, 1.78739e-02} },
+//W+jets
+  { {1.86628,770.989,0.0224446},
+    {1.87119, 2.87829e+01, 5.00001e-03},
+    {1.85507, 6.00529e+01, 1.74030e-02},
+    {1.86771, 1.25488e+02, 1.43434e-02},
+    {1.86873, 1.41636e+02, 2.06772e-02} } };
+  float fNsigD0mu[2] = {738.565, 633.992};
+  float fNsigD0[2] = {3940.52, 3596.98};
+  float fMeanW = param_xb[ep-1][xb][0];
+  float fNgsigW = (fNsigD0mu[ep-1] / fNsigD0[ep-1]) * param_xb[ep-1][xb][1];
+  float fSigmaW = param_xb[ep-1][xb][2];
+  if(mass.Contains("Wup")) fNgsigW *= 1.25; 
+  if(mass.Contains("Wdown")) fNgsigW *= 0.75; 
+  std::cout << fMeanW << "\t" << fNgsigW << "\t" << fSigmaW << std::endl;
+  RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
+  RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
+  RooRealVar ngsigW("ngsigW","ngsignalW", fNgsigW);//*(1-.25));//3.30189e+02, 0, 1000);
+  //std::vector< std::vector<float> > param_c = {{1.86655,4.37139e+02,1.84842e-02}, {1.86522,4.00813e+02,1.85381e-02}};
+  //std::vector< std::vector<float> > param_c = {{1.86686,1.31039e+03,1.99984e-02,-2.53337,9.67438e+04},{1.86503,1.29264e+03,2.06294e-02,-2.62181,9.99288e+04}};
+  //std::vector< std::vector<float> > param_c = {{1.86644,1.36245e+03,2.04736e-02,-2.66732,2.40061e+04}, {1.86562,1.27583e+03,2.01833e-02,-2.70638,2.71743e+04}};
+  //non-W peak background
+  //std::vector< std::vector<float> > param_c = {{1.86636e+00,1.00793e+03,2.20152e-02}, {1.86446e+00,9.52467e+02,2.22968e-02}};
+  //ttbar c
+  std::vector< std::vector<float> > param_c = {{1.86576,587.458,0.0176923}, {1.86500,504.077,0.0169587}};
+  float fMeanc = param_c[ep-1][0];
+  float fNgsigc = (fNsigD0mu[ep-1] / fNsigD0[ep-1]) * param_c[ep-1][1];
+  //float fNgsigc = param_c[ep-1][1];
+  float fSigmac = param_c[ep-1][2];
+  float fLambdac = param_c[ep-1][3];
+  float fNbkgec = param_c[ep-1][4];
+  if(mass.Contains("cup")) fNgsigc *= 1.25; 
+  if(mass.Contains("cdown")) fNgsigc *= 0.75; 
+  RooRealVar meanc("meanc","meanc", fMeanc);//1.86583, 1.793-wind, 1.793+wind);
+  RooRealVar sigmac("sigmac","sigmac", fSigmac);//1.67071e-02, 0, 0.02);
+  RooRealVar ngsigc("ngsigc","ngsignalc", fNgsigc);//*(1+.25));//3.30189e+02, 0, 1000);
+  RooRealVar nbkgec("ngbkgec","ngbkgenalc", fNbkgec);//*(1-.25));//3.30189e+02, 0, 1000);
+
+  RooGaussian gaussW("gaussW","gaussW", d0_mass, meanW, sigmaW);
+  RooGaussian gaussc("gaussc","gaussc", d0_mass, meanc, sigmac);
   
   // Construct signal + bkg PDF
-  RooRealVar nsig("nsig","#signal events", 5.40765e+02, 0, 10000000) ;
   RooRealVar nbkge("nbkge","#background events", 2.53877e+03, 0, 10000000) ;
   RooRealVar nbkg("nbkg","#background events", 2.53877e+03, 0, 10000000) ;
   //RooAddPdf model("model","g+exp", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, prod), RooArgList(nsig,nbkg)) ;
-  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk,gaussW),RooArgList(nbkge,ngsigkk,ngsigW));
-  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
+  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk,gaussW,gaussc),RooArgList(nbkge,ngsigkk,ngsigW,ngsigc));
+  RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(prod,gausskk),RooArgList(nbkge,ngsigkk));
+  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,gausskk),RooArgList(nbkge,ngsigkk));
   RooAddPdf model("model","g+exp", RooArgList(gauss, bkgModel), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+exp", RooArgList(gauss, expo, gausskk), RooArgList(nsig,nbkg,ngsigkk)) ;
   //RooAddPdf model("model","g+exp", RooArgList(gauss, expo), RooArgList(nsig,nbkg)) ;
 
   cout << "fitting model" << endl;
@@ -512,7 +589,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   weight.setConstant();
   RooPlot* frame = d0_mass.frame() ;
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));
-  ds.plotOn(frame,Binning(30));
+  ds.plotOn(frame,Binning(60));
   /*
   RooAbsReal *nll = model.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   RooMinuit m(*nll);
@@ -526,7 +603,9 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   model.plotOn(frame);
   float chi2 = frame->chiSquare();//"model", "data", 3);
   std::cout << std::endl << "chi2 " << chi2 << std::endl << std::endl;
-  model.plotOn(frame, Components(expo),LineStyle(kDashed));
+  model.plotOn(frame, Components(bkgModel),LineStyle(kDashed));
+  //model.plotOn(frame, Components(RooArgSet(expo)),LineStyle(kDashed));
+  //model.plotOn(frame, Components(RooArgSet(expo,gausskk)),LineStyle(kDashed));
   frame->SetTitle("");
   frame->Draw();
   frame->SetName("massD0");
@@ -580,6 +659,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(d0_pt);
   w.import(d0_mu_pt);
   w.import(j_pt_ch);
+  w.import(j_hadflav);
+  w.import(mcFile);
   w.import(epoch);
   w.import(weight);
   w.import(tuneW);

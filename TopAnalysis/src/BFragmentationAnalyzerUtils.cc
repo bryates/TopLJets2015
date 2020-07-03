@@ -12,7 +12,9 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
   reco::Candidate::LorentzVector nup4(0,0,0,0);
   bool hasSemiLepDecay(false),hasTauNeutrino(false),hasCharm(false);
   int nbtags(0),nctags(0),ntautags(0);
-  float pt_charged(0),charmId(-1),bpt;
+  float pt_charged(0),charmId(-1),motherId(-1),bpt;
+  std::vector< std::vector<double> > meson;
+  std::vector<int> mesonId;
   for(size_t ijc=0; ijc <jconst.size(); ijc++) 
     {
       const reco::Candidate *par=jconst[ijc];
@@ -32,6 +34,14 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
       if(par->status()==1) { //final state sum charged pT
         pt_charged += abs(par->pt() * par->charge());
       }
+      if(absid>400 && absid<500) {
+      if(!IS_JPSI_PDGID(absid) && !IS_D0_PDGID(absid) && !IS_Ds_PDGID(absid))
+        motherId= absid;
+      }
+      if(absid==211) {
+        meson.push_back(std::vector<double>({par->pt(),par->eta(),par->phi(),par->mass()}));
+        mesonId.push_back(par->pdgId());
+      }
       if(par->status()!=2) continue;
       
       //count number of tags
@@ -40,7 +50,7 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
       if(IS_CHADRON_PDGID(absid)) nctags++;
       if(IS_JPSI_PDGID(absid) || IS_D0_PDGID(absid) || IS_Ds_PDGID(absid)) {
         hasCharm = true;
-        charmId = absid;
+        charmId = par->pdgId();
       }
 
 
@@ -65,6 +75,9 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
   jinfo.ntautags        = ntautags;
   jinfo.hasCharm = hasCharm;
   jinfo.charmId = charmId;
+  jinfo.motherId = motherId;
+  jinfo.meson = meson;
+  jinfo.mesonId = mesonId;
 
   return jinfo;
 }

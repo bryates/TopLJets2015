@@ -16,8 +16,10 @@ Interpolate extremes and then derive the weights based on a 2nd order spline for
 def smoothWeights(gr):
 
     #interpolate for low xb
-    gr.Fit('pol9','QR+','',0,0.7)
-    lowxb=gr.GetFunction('pol9')
+    gr.Fit('pol3','QR+','',0,0.7)
+    lowxb=gr.GetFunction('pol3')
+    #gr.Fit('pol9','QR+','',0,0.7)
+    #lowxb=gr.GetFunction('pol9')
 
     #flatten tail for xb>1
     gr.Fit('pol0','QR+','',1.03,2)
@@ -65,6 +67,7 @@ def main():
     #for tag in ['up','central','down']:
     #for tag in ['up','central','down','Peterson']:
         if tag == 'cuetp8m2t4': continue
+        if 'Bhadron' in tag: continue
         print tag
         xb[tag].Scale(1./xb[tag].Integral())
         xb['cuetp8m2t4'].Scale(1./xb['cuetp8m2t4'].Integral())
@@ -103,7 +106,42 @@ def main():
 
     semilepbrUp.Write()
     semilepbrDown.Write()
-        
+
+    for entry in BRs:
+        for unc in ['Dzbu','Dzbd','Dzu','Dzd']:
+            pid=entry[0]
+
+            name='bfragAnalysis/xb_semilepDzbu{}'.format(pid)
+            fIn=ROOT.TFile.Open(fName)
+            tag=unc+str(pid)
+            xb[tag]=fIn.Get(name).Clone(unc+str(pid))
+            xb[tag].Scale(1./xb[tag].Integral())
+            xb[tag].Divide(xb['cuetp8m2t4'])
+            xb[tag].SetDirectory(0)
+            fIn.Close()
+
+    #for entry in BRs:
+    #    for unc in ['Dzbu','Dzbd','Dzu','Dzd']:
+    #        pid=entry[0]
+    #        tag=unc+str(pid)
+    #        gr=ROOT.TGraphErrors(xb[tag])
+    #        gr.SetMarkerStyle(20)
+    #        sgr=smoothWeights(gr)
+    #        sgr.SetName('semilep'+unc+str(pid)+'Frag')
+    #        sgr.SetLineColor(ROOT.kBlue)
+    #        fOut.cd()
+    #        sgr.Write()
+       
+    #for entry in BRs:
+    #    for unc in ['Dzb','Dz']:
+    #        pid=entry[0]
+    #        tag=unc+'u'+str(pid)
+    #        tagd=unc+'d'+str(pid)
+    #        x = xb[tagd].Clone(tag+'over'+tagd)
+    #        x.Divide(x,xb[tag],1,1,'B')
+    #        fOut.cd()
+    #        x.Write()
+            
 
     fOut.Close()
     print 'Fragmentation been saved to',outf

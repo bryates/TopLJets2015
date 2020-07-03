@@ -25,7 +25,9 @@ jsonFile.close()
 
 
 syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', 'JSF up', 'JSF down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'Top pT', 'Top mass up', 'Top mass down']
-syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']
+syst=['Nom', 'ISR-up', 'ISR-down', 'FSR-up', 'FSR-down', 'Underlying event up', 'Underlying event down', 'Color reconnection', 'Lepton selection up', 'Lepton selection down', 'Pile-up up', 'Pile-up down', 'Tracker efficiency up', 'Tracker efficiency down', 'Trigger selection up', 'Trigger selection down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down', 'W up', 'W down', 'c up', 'c down', 'fit fcn']
+#syst=['Nom', 'isr-up', 'isr-down', 'fsr-up', 'fsr-down', 'ueup', 'uedown', 'Color reconnetion', 'Lepton up', 'Lepton down', 'PU up', 'PU down', 'Tracker up', 'Tracker down', 'Trigger up', 'Trigger down', 'JER up', 'JER down', '\\textsc{me}/\\textsc{ps} up', '\\textsc{me}/\\textsc{ps} down']#, 'W up', 'W down', 'c up', 'c down', 'fit-fcn']
+print(len(syst))
 skip=['Top pT', 'Top mass up', 'Top mass down', 'JSF up', 'JSF down']#, 'JER up', 'JER down']
 fit=[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 sup = [[0] * len(syst)] * 3
@@ -59,6 +61,16 @@ for l in xrange(0,3):
             i+=1
             j+=2
             continue
+        #if 'W ' in syst[i] and l is not 1: 
+        #    rbList[l][1].append(rbList[l][1][0])
+        #    rbList[l][1].append(rbList[l][1][1])
+        #    rbList[l][1].append(rbList[l][1][0])
+        #    rbList[l][1].append(rbList[l][1][1])
+        #if 'c ' in syst[i] and l is not 1: 
+        #    rbList[l][1].append(rbList[l][1][0])
+        #    rbList[l][1].append(rbList[l][1][1])
+        #    rbList[l][1].append(rbList[l][1][0])
+        #    rbList[l][1].append(rbList[l][1][1])
         if syst[i] == 'Color reconnection' or syst[i] == 'Top pT':
             print('%s/down: %.4f %.4f ' % (syst[i], rbList[l][1][j], rbList[l][1][j+2]), end='\n')
             i+=1

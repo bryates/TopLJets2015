@@ -45,6 +45,7 @@ class Plot(object):
         #self.mc = {}
         self.dataH = None
         self.data = None
+        self.totalMC = None
         self.totalMCUnc = None
         self.totalMCUncShape = None
         self._garbageList = []
@@ -106,6 +107,9 @@ class Plot(object):
         elif isSyst:
             try:
                 self.mcsyst[title].Add(h)
+                #if "pid" in title:
+                #    j_pid_all_jpsi_BCDEF.SetBinContent(7, j_pid_all_jpsi_BCDEF.GetBinContent(22))
+                #    j_pid_all_jpsi_BCDEF->SetBinError(7, j_pid_all_jpsi_BCDEF->GetBinError(22))
             except:
                 self.mcsyst[title]=h
                 self.mcsyst[title].SetName('%s_%s' % (h.GetName(), title ) )
@@ -116,6 +120,18 @@ class Plot(object):
                 self.mcsyst[title].SetLineWidth(1)
                 self.mcsyst[title].SetFillColor(color)
                 self.mcsyst[title].SetFillStyle(1001)
+                #if "pid" in title:
+                #    j_pid_all_jpsi_BCDEF.SetBinContent(7, j_pid_all_jpsi_BCDEF.GetBinContent(22))
+                #    j_pid_all_jpsi_BCDEF->SetBinError(7, j_pid_all_jpsi_BCDEF->GetBinError(22))
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetRangeUser(0,7)
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(1, "unknown")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(2, "u")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(3, "d")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(4, "s")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(5, "c")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(6, "b")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(6, "b")
+                #    j_pid_all_jpsi_BCDEF->GetXaxis()->SetBinLabel(7, "g")
                 self._garbageList.append(h)
         else:
             try:
@@ -261,6 +277,7 @@ class Plot(object):
             except:
                 totalMC = self.mc[h].Clone('totalmc')
                 self._garbageList.append(totalMC)
+                self._garbageList.append(self.totalMC)
                 totalMC.SetDirectory(0)
         if saveNorm:
             stack = ROOT.THStack('mc','mc')
@@ -449,13 +466,15 @@ class Plot(object):
                totalMC.SetFillStyle(3245)
                #totalMC.Draw("e2 same")
                #leg.AddEntry(totalMC, "Total MC stat unc.", 'f')
+               print 'MC',self.name, totalMC.Integral()
+               print 'Data',self.name, self.dataH.Integral()
                if len(self.mcsyst)>0: #FIXME
                    #self.totalMCUnc.Draw("hist same")
                    #self.totalMCUnc.Draw("e2 same")
                    #leg.AddEntry(totalMCUnc, "UE-Down", 'f')
                    #leg.AddEntry(totalMCUnc, "Total unc.", 'f')
                    self.totalMCUncShape.Draw("e2 same")
-                   totalMC.Draw("e2 same")
+                   #totalMC.Draw("e2 same")
                    leg.AddEntry(totalMCUncShape, "Total unc.", 'f')
         if self.data is not None : self.data.Draw('p')
         p1.RedrawAxis()
@@ -749,7 +768,7 @@ def main():
     #samplesList=list(reversed(samplesList))
     jsonFile.close()
 
-    systs = ['/TRIGGER', '/LEP', '/PU', '/PI', '/JER' ]
+    systs = ['/TRIGGER']#, '/LEP', '/PU', '/PI', '/JER' ]
     #systs = ['/TRIGGER', '/TRK', '/LEP', '/PU', '/PI', '/JER' ]
     inDir = [opt.inDir]
     for syst in systs:
@@ -838,10 +857,10 @@ def main():
                         #if 'powheg' not in sp[0]: continue
                         tmp = 'down/' + tmp
                         #sp[0]+=tmp
-                    if 'up' in Dir and '_up_' not in sp[0]: continue
-                    if 'down' in Dir and '_down_' not in sp[0]: continue
-                    if 'up' not in Dir and '_up_' in sp[0]: continue
-                    if 'down' not in Dir and '_down_' in sp[0]: continue
+                    #if 'up' in Dir and '_up_' not in sp[0]: continue
+                    #if 'down' in Dir and '_down_' not in sp[0]: continue
+                    #if 'up' not in Dir and '_up_' in sp[0]: continue
+                    #if 'down' not in Dir and '_down_' in sp[0]: continue
                     fIn=ROOT.TFile.Open('%s/%s.root' % ( Dir, sp[0]) )
                     #fIn=ROOT.TFile.Open('%s/%s.root' % ( opt.inDir, sp[0]) )
                     if not fIn : continue
@@ -1075,8 +1094,33 @@ def main():
                                 elif "_mu_tag" in obj.GetName() and opt.run == "BCDEFGH": normGH*=1.04;
                                 elif "_mu_tag" in obj.GetName() and opt.run == "GH" : normGH=0.91;
                                 #if "_mu_tag" in obj.GetName(): normGH=0.92;
-                                ##obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF)
-                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH)
+                                #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF) #normGH OFF
+                                flavwgt = 1
+                                if "massJPsi" in obj.GetName() and "b-jet" in sp[1]:
+                                     flavwgt = 0.792899
+                                elif "massJPsi" in obj.GetName() and "c-jet" in sp[1]:
+                                     flavwgt = 0.207101
+                                elif "massD0" in obj.GetName() and "b-jet" in sp[1]:
+                                     flavwgt = 0.8703125
+                                elif "massD0" in obj.GetName() and "c-jet" in sp[1]:
+                                    flavwgt = 0.1296875
+                                elif "massD0_mu_tag" in obj.GetName() and "b-jet" in sp[1]:
+                                     flavwgt = 0.970457
+                                elif "massD0_mu_tag" in obj.GetName() and "c-jet" in sp[1]:
+                                     flavwgt = 0.0295430
+                                if "massJPsi" in obj.GetName() and "t#bar{t} c-jet" in sp[1]:
+                                     flavwgt = 0
+                                if "massJPsi" in obj.GetName() and "t#bar{t} b-jet" in sp[1]:
+                                     flavwgt = 1
+                                if "massD0_mu" in obj.GetName() and "t#bar{t} c-jet" in sp[1]:
+                                     flavwgt = 0
+                                if "massD0_mu" in obj.GetName() and "t#bar{t} b-jet" in sp[1]:
+                                     flavwgt = 1
+                                if "massD0_mu" in obj.GetName() and "DY b-jet" in sp[1]:
+                                     flavwgt = 1
+                                if "DY b-jet" in sp[1]: flavwgt=1
+                                #obj.Scale(flavwgt*xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH) #normGH ON
+                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH) #normGH ON
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("D0_mu_tag_mu_oJet" in obj.GetName()): obj.GetXaxis().SetRangeUser(0,1.)

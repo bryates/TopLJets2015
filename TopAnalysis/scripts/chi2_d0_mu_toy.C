@@ -68,12 +68,14 @@ std::vector<float> bin;
 RooBinning bins(0,1.1);
 if(sample.Contains("mu_tag"))
   //bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84,0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
- bin = {0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
+ bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
 else if(sample.Contains("jpsi"))
 bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 else if(sample.Contains("d0"))
   bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+ bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
 TString fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s_sPlot_%s.root",name.Data(),sample.Data());
+if(name.Contains("FSR")) fname.ReplaceAll(name, "FSR");
 if(toyData) {
   splot_d0_mu_tag(pdata, TString::Format("toyData%d",iteration), false, "", epoch, false);
   //fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_toyData%d_sPlot_%s.root",iteration,sample.Data());
@@ -145,7 +147,7 @@ delete fmc;
 }
 
 void chi2_d0_mu_toy(TString set="", int queue=0) {
-  int max(10);
+  int max(100);
   for(int i = 0; i < max; i++) {
     std::cout << std::endl << "iteration " << i+1 << "/" << max << std::endl << std::endl;
     run_chi2_d0_mu_toy(set, i + max*queue);
@@ -269,7 +271,7 @@ else
 */
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+chiTest->Fit("pol3","FSMEQRW","",0.6,1.125);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -279,10 +281,10 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.075);
+float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.125);
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
-float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.075);
+float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.125);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
@@ -476,7 +478,7 @@ mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
 mc->SetMarkerStyle(1);
 mc->SetLineWidth(1);
-mc->GetYaxis()->SetRangeUser(0.,.16);
+mc->GetYaxis()->SetRangeUser(0.,.46);
 shiftData->GetYaxis()->SetRangeUser(0.,.16);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.16);

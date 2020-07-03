@@ -1226,7 +1226,8 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       */
       if(pf1.pdgId()*pf2.pdgId() != -211*211) continue;
       
-      if(pf1.pt()<1.0 || pf2.pt()<5.0) continue; //K pT > 1 GeV, pi pT > 5 GeV
+      if(pf1.pt()<1.0 || pf2.pt()<1.0) continue; //K pT > 1 GeV, pi pT > 5 GeV
+      //if(pf1.pt()<1.0 || pf2.pt()<5.0) continue; //K pT > 1 GeV, pi pT > 5 GeV
       if(fabs(pf1.eta()) > 2.4 || fabs(pf2.eta())> 2.4) continue;
       
       TLorentzVector p_track1, p_track2;
@@ -1357,6 +1358,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_pf_ndau[ev_.nkpf]=id1;
       ev_.k_pf_id[ev_.nkpf]=pf1.pdgId();
       ev_.k_pf_pt[ev_.nkpf]=pf1.pt();
+      ev_.k_pf_ptE[ev_.nkpf]=trk1->ptError();
       ev_.k_pf_eta[ev_.nkpf]=pf1.eta();
       ev_.k_pf_phi[ev_.nkpf]=pf1.phi();
       ev_.k_pf_m[ev_.nkpf]=gMassK;
@@ -1386,6 +1388,7 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.k_pf_ndau[ev_.nkpf]=id2;
       ev_.k_pf_id[ev_.nkpf]=pf2.pdgId();
       ev_.k_pf_pt[ev_.nkpf]=pf2.pt();
+      ev_.k_pf_ptE[ev_.nkpf]=trk2->ptError();
       ev_.k_pf_eta[ev_.nkpf]=pf2.eta();
       ev_.k_pf_phi[ev_.nkpf]=pf2.phi();
       ev_.k_pf_m[ev_.nkpf]=gMassPi;

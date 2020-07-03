@@ -336,7 +336,7 @@ else {
   getHist(nentries, nmc, sample, name, tune, tmpData, mc, 1, false, false, iteration);
   getHist(nentries, nmc, sample, name, tune, tmpData2, mc2, 2, false, false, iteration);
   mc->Add(mc2);
-  mc = (TH1F*)mc2->Clone();
+  //mc = (TH1F*)mc2->Clone();
   std::cout << "loading MC DONE!" << std::endl;
   tmpData->Add(tmpData2);
   tmpData = (TH1F*)tmpData2->Clone();
@@ -353,10 +353,10 @@ if(tune == "_sdown") { //only compute modified hist once
     getHist(nentries,nmc,sample, name, tune, data, mc, 1, false, true, iteration);
     getHist(nentries, nmc, sample, name, tune, data2, mc2, 2, false, true, iteration);
     mc->Add(mc2);
-  mc = (TH1F*)mc2->Clone();
+  //mc = (TH1F*)mc2->Clone();
     std::cout << "loading MC for toy data DONE!" << std::endl;
     data->Add(data2);
-  data = (TH1F*)data2->Clone();
+  //data = (TH1F*)data2->Clone();
     delete data2;
     }
     else
@@ -384,7 +384,7 @@ if(tune == "_sdown") { //only compute modified hist once
       //toyData sample has same number of events as data, similar statistics
       //e = shiftData->GetBinError(i);
     //shift each bin by random amount samples by the appropriate bin error
-    if(!(name == "" || name == "172v5" || name.Contains("FSR"))) { //MC errors otherwise (e.g. FSR)
+    if(!(name == "" || name == "172v5")) {// || name.Contains("FSR"))) { //MC errors otherwise (e.g. FSR)
     std::cout << y << " +/- " << e << " ";
       y += rand->Gaus(0, e);
     std::cout << y << std::endl;
@@ -490,9 +490,9 @@ mc->GetYaxis()->SetRangeUser(0.,.16);
 shiftData->GetYaxis()->SetRangeUser(0.,.16);
 }
 /*
+*/
 TCanvas *c1 = setupCanvas();
 setupPad()->cd();
-*/
 mc->Draw("hist");
 tdr(mc, epoch);
 mc->Draw("same e");
@@ -501,7 +501,7 @@ if(num==0) num=0.855;
 if(name=="") name="172v5";
 TString mcvname(TString::Format("mcVdata_%s_%d_%s_d0_%d",name.Data(),(int)(num*1000), epoch_name[epoch].Data(), iteration));
 if(fullpt) mcvname += "_jpT";
-//c1->SaveAs(mcvname + "_toy.pdf");
+c1->SaveAs(mcvname + "_toy.pdf");
 //c1->SaveAs(mcvname + "_toy.png");
 float chi2 = shiftData->Chi2Test(mc, "CHI2 P WW");
 /*

@@ -16,7 +16,7 @@ struct CharmEvent_t
 
   Bool_t isData;
   Int_t run,event,epoch[50];
-  Float_t norm,xsec,lumi,puwgt[50],topptwgt;
+  Float_t norm,xsec,lumi,lum,puwgt[50],topptwgt;
   Float_t sfs[50],sfsu[50],pitrk[50],piptsf[50],kptsf[50]; //need to split into separate parts
   Float_t ht,met,st;
   Int_t nlj;
@@ -38,7 +38,7 @@ struct CharmEvent_t
   Float_t j_p[500],j_p_pf[500],j_p_charged[500];
   Float_t j_pz[500],j_pz_pf[500],j_pz_charged[500];
   Float_t j_csv[500];
-  Int_t j_hadflav[500];
+  Int_t j_hadflav[500], j_flav[500], j_pid[500];
   //Float_t gj_pt[500],gj_eta[500],gj_phi[500];
 
   //PF candidates

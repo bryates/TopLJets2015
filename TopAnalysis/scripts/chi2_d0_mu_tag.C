@@ -37,6 +37,7 @@ void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR_toyData");
 //if(epoch<0)fname.ReplaceAll("sPlot/sPlot/","");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
@@ -106,7 +107,8 @@ delete fdata;
 delete fmc;
 }
 
-void chi2_d0_mu_tag(TString samp="") {
+void chi2_d0_mu_tag(TString samp="", bool isFinal=false) {
+  fin = isFinal;
   if(samp != "")
   run_chi2_d0_mu_tag(samp);
   else {
@@ -132,10 +134,10 @@ void chi2_d0_mu_tag(TString samp="") {
 /*
   run_chi2_d0_mu_tag("tpt");
   run_chi2_d0_mu_tag("bkg");
-*/
-/*
   run_chi2_d0_mu_tag("as117");
   run_chi2_d0_mu_tag("as119");
+*/
+/*
   run_chi2_d0_mu_tag("m166v5");
   run_chi2_d0_mu_tag("m169v5");
   run_chi2_d0_mu_tag("m171v5");
@@ -179,9 +181,10 @@ chiTest->Sumw2();
 for(auto & it : tune) {
   int pos = &it - &tune[0];
   if(param[pos]<0.65 && !name.Contains("fsr-up")) continue;
-  if(!fullpt && param[pos]>1 && !name.Contains("fsr-down")) continue;
-  if(epoch==1 && param[pos]==0.875) continue; //FIXME
-  if(name.Contains("m173v5") and it == "") continue; //FIXME
+  //if(!fullpt && param[pos]>1 && !name.Contains("fsr-down")) continue;
+  //if(epoch==1 && param[pos]==0.875) continue; //FIXME
+  if(param[pos]>0.976) continue; //FIXME
+  //if(name.Contains("m173v5") and it == "") continue; //FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it, name, param[pos]);
   if(isnan(chi)) continue;
@@ -225,7 +228,7 @@ if(fullpt)
 chiTest->Fit("pol3","FSMEQW");//,"",0.6,0.976);
 else
 chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
-if(name.Contains("fsr-down")) chiTest->Fit("pol3","FSMEQRW","",0.6,1.126);//0.976);
+if(name.Contains("fsr-down")) chiTest->Fit("pol3","FSMEQRW","",0.6,1.26);//0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -235,7 +238,7 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.126);
+float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,0.976);
 chiTest->GetFunction("pol3")->Print("v");
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
@@ -282,7 +285,7 @@ chiTest->Delete();
 
 float chi2_d0_mu_tag_test(TString tune="", TString name="", float num=0.855) {
 TH1F *data, *mc;
-if(epoch==0) {
+if(epoch!=0) {
 getHist(name, tune, data, mc, epoch);
 }
 else {

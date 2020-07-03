@@ -1,5 +1,5 @@
 {
-  std::vector<float> names = {166.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+  std::vector<float> names = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
   //std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
   //std::vector<float> names = {166.5,169.5,172.5,173.5,175.5,178.5};
   //std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
@@ -122,4 +122,13 @@
 
   c1->SaveAs("masses"+name+".pdf");
   c1->SaveAs("masses"+name+".png");
+  RooRealVar mt = fit_constrain(w,fit_par,fit_err,"Data",flags, true);
+  std::cout << "Fitting to data gives mt=" << mt.getVal() << std::endl;
+  float mass_fit = mass->GetFunction("pol1")->Eval(mt.getVal());
+  std::cout << mass_fit - avg_deltag << " +/- " << abs(mass_fit -  mass->GetFunction("pol1")->Eval(mt.getVal() + mt.getError())) << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) + mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) + mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - avg_deltag << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) -  mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) - mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - avg_deltag << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) + mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) + mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - mass_fit << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) -  mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) - mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - mass_fit << std::endl;
+  //<< " - " << mass->GetFunction("pol1")->Eval(mt.getVal() - mt.getError()) - mass_fit << std::endl;
 }

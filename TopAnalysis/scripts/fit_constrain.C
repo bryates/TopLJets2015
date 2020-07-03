@@ -75,16 +75,17 @@ void update_workspace(RooWorkspace *w, std::vector<std::pair<float,float>> &fit_
 }
 
 
-RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, TString mass="166v5", short flags=0b10) {
+RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fit_par, std::vector<std::pair<float,float>> &fit_err, TString mass="166v5", short flags=0b10, bool isData=false) {
   bool doBinned = GET_BIT(flags, 0);
   bool allowVary = GET_BIT(flags, 1);
-  bool isData(false);
   std::cout << mass << std::endl;
   std::cout << (doBinned ? "binned hist" : "unbinned tree") << std::endl;
-  if(mass != "172v5") mass = "m" + mass;
-  TFile *f = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi1.root");
-  TFile *f2 = new TFile("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi2.root");
-  std::cout << "TopMass_"+mass+"_sPlot_jpsi.root" << std::endl;
+  if(mass != "172v5" && mass.Contains("v5")) mass = "m" + mass;
+  TString fname = TString("sPlot/sPlot/TopMass_"+mass+"_sPlot_jpsi1.root");
+  TFile *f = new TFile(fname);
+  fname.ReplaceAll("1.root", "2.root");
+  TFile *f2 = new TFile(fname);
+  std::cout << fname << std::endl;
   ////TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
   //TChain *t = new TChain("data");
   //t->Add("Chunks/MC13TeV_TTJets_m"+mass+"_*.root");
@@ -192,6 +193,8 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   */
   RooWorkspace *u = (RooWorkspace*)f->Get("w");
   RooWorkspace *u2 = (RooWorkspace*)f2->Get("w");
+  std::cout << "Current WS" << std::endl;
+  u->Print();
   update_workspace(u, fit_par, fit_err, isData);
   RooRealVar *jpsi_l_mass = (RooRealVar*)u->var("jpsi_l_mass");
   /*
@@ -222,11 +225,13 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   u->factory("Gaussian::gauss(jpsi_l_mass,gaus_mean,gaus_sigma)");
   u->factory("Gamma::gamma(jpsi_l_mass,gamma_gamma,gamma_beta,gamma_mu)");
   u->factory("SUM::signalModel(alpha*gauss,gamma)");
+  jpsi_l_mass->Print() ;
   std::cout << "model created" << std::endl;
   u->Print("v");
   /*
   RooPlot* frame = w.var("jpsi_l_mass")->frame() ;
   */
+  jpsi_l_mass->Print() ;
   RooPlot* frame = jpsi_l_mass->frame() ;
   std::cout << "frame created" << std::endl;
   /*
@@ -236,10 +241,20 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   RooDataSet ds = *(RooDataSet*)u->data("sigData");
   RooDataSet ds2 = *(RooDataSet*)u2->data("sigData");
   ds.append(ds2);
-  ds.plotOn(frame, RooFit::Binning(25));
+  TCanvas *c1 = setupCanvas();
+  setupPad()->cd();
   std::cout << "frame plotted" << std::endl;
   //frame->Draw();
   //nll = w.pdf("signalModel")->createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
+  auto meson_l_mass_jpsi_signal = (RooPlot*)f->Get("meson_l_mass_jpsi_signal");
+  TH1F *l_mass = (TH1F*)convert(meson_l_mass_jpsi_signal,false,0,250);
+  meson_l_mass_jpsi_signal = (RooPlot*)f2->Get("meson_l_mass_jpsi_signal");
+  TH1F *l_mass2 = (TH1F*)convert(meson_l_mass_jpsi_signal,false,0,250);
+  l_mass->Add(l_mass2);
+  RooDataHist dh("dh", "dh", *jpsi_l_mass, Import(*l_mass));
+  dh.plotOn(frame);
+  //ds.plotOn(frame, RooFit::Binning(25));
+  /*
   RooAbsReal *nll = u->pdf("signalModel")->createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
   nll->Print();
   //nll = signalModel.createNLL(*w.data("data"), NumCPU(8), SumW2Error(kTRUE));
@@ -250,18 +265,39 @@ RooRealVar fit_constrain(RooWorkspace w, std::vector<std::pair<float,float>> &fi
   m.migrad();
   m.hesse();
   RooFitResult *r = m.save();
+  */
   /*
   w.pdf("signalModel")->plotOn(frame);
   w.pdf("signalModel")->plotOn(frame, Components(*w.pdf("gauss")),LineStyle(kDashed),LineColor(kRed));
   w.pdf("signalModel")->plotOn(frame, Components(*w.pdf("gamma")),LineStyle(kDashed),LineColor(kBlue));
   */
+  //u->pdf("signalModel")->fitTo(ds, Extended(), SumW2Error(kFALSE));
+  //u->pdf("signalModel")->fitTo(dh, Extended(), SumW2Error(kFALSE));
+  u->pdf("signalModel")->fitTo(dh, SumW2Error(kFALSE));
   u->pdf("signalModel")->plotOn(frame);
   u->pdf("signalModel")->plotOn(frame, Components(*u->pdf("gauss")),LineStyle(kDashed),LineColor(kRed));
   u->pdf("signalModel")->plotOn(frame, Components(*u->pdf("gamma")),LineStyle(kDashed),LineColor(kBlue));
   frame->Draw();
   //w.Print();
-  r->Print();
+  //r->Print();
   //w.var("mt")->setError(err);
+  if(isData) c1->SaveAs("data_fit_jpsi.pdf");
+  if(isData) c1->SaveAs("data_fit_jpsi.png");
+  if(isData) {
+  RooRealVar mt = *u->var("mt");
+  mt.setRange(-4,6);
+  RooPlot *likeframe = mt.frame();
+  //nll->plotOn(likeframe,ShiftToZero(),LineColor(9));
+  likeframe->SetXTitle("M_{t} - 172.5");
+  likeframe->SetYTitle("-log(L/L_{max})");
+  likeframe->SetMaximum(5.);
+  likeframe->Draw();
+  TLegend *leg_nll_data = new TLegend(0.58,0.82,0.9,0.9,NULL,"brNDC");
+  leg_nll_data->SetHeader(TString::Format("M_{t} = (%3.1f #pm %1.1f) GeV", mt.getVal()+172.5, mt.getError()));
+  leg_nll_data->Draw("same");
+  c1->SaveAs("data_nll_jpsi.pdf");
+  c1->SaveAs("data_nll_jpsi.png");
+  }
   return *u->var("mt");
   //return *w.var("mt");
 }

@@ -70,11 +70,14 @@ if(name == "MC") name = "172v5";
 std::vector<float> bin;
 RooBinning bins(0,1.1);
 if(sample.Contains("mu_tag"))
-  bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+  //bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+ bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
 else if(sample.Contains("jpsi"))
-bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
+//bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
+bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 else if(sample.Contains("d0"))
-  bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+  //bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
+bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 TString fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s_sPlot_%s.root",name.Data(),sample.Data());
 if(toyData) {
   if(sample.Contains("mu_tag"))
@@ -85,6 +88,7 @@ if(toyData) {
     splot_d0(pdata, TString::Format("toyData%d",iteration), false, "", epoch, false);
   //fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_toyData%d_sPlot_%s.root",iteration,sample.Data());
 }
+if(name.Contains("FSR")) fname.ReplaceAll(name, "FSR");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 std::cout << fname << std::endl;
@@ -319,7 +323,7 @@ gStyle->SetOptStat(0);
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch];
 if(fullpt) name += "_jpT";
-//c1->SaveAs("chi2_sim"+name+"_toy.pdf");
+c1->SaveAs("chi2_sim"+name+"_toy.pdf");
 //c1->SaveAs("chi2_sim"+name+"_toy.png");
 
 delete pt;
@@ -511,6 +515,8 @@ if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.16);
 shiftData->GetYaxis()->SetRangeUser(0.,.16);
 }
+TCanvas *c1 = setupCanvas();
+setupPad()->cd();
 mc->Draw("hist");
 tdr(mc, epoch);
 mc->Draw("same e");
@@ -519,7 +525,7 @@ if(num==0) num=0.855;
 if(name=="") name="172v5";
 TString mcvname(TString::Format("mcVdata_%s_%d_sim",name.Data(),(int)(num*1000)) + epoch_name[epoch]);
 if(fullpt) mcvname += "_jpT";
-//c1->SaveAs(mcvname + "_toy.pdf");
+c1->SaveAs(mcvname + "_toy.pdf");
 //c1->SaveAs(mcvname + "_toy.png");
 float chi2 = shiftData->Chi2Test(mc, "CHI2 P WW");
 /*

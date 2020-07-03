@@ -1,6 +1,6 @@
 {
   //std::vector<float> names = {166.5,171.5,172.5,173.5,175.5,178.5};
-  std::vector<float> names = {166.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+  std::vector<float> names = {166.5, 171.5, 172.5, 173.5, 175.5};//, 178.5};
   //std::vector<float> names = {171.5,172.5,173.5,175.5,178.5};
   //std::vector<float> names = {166.5,169.5,171.5,172.5,173.5,175.5,178.5};
   std::vector<pair<float,float>> mfits;// = {};
@@ -23,7 +23,7 @@
   for(auto & it : names) {
     TString tmp_mass = Form("%.1f",it);
     tmp_mass.ReplaceAll(".","v");
-    RooRealVar mt = fit_constrain(w,fit_par,fit_err,tmp_mass,flags);
+    RooRealVar mt = fit_constrain_d0(w,fit_par,fit_err,tmp_mass,flags);
     mt.Print();
     mass->SetBinContent(mass->FindBin(it-172.5),mt.getValV()+172.5);
     //mass->SetBinError(mass->FindBin(it-172.5),mt.getError());
@@ -45,7 +45,6 @@
   std::cout << f->Chi2() << " " << f->Ndf() << " " << f->Chi2()/f->Ndf() << std::endl;
   setupCanvas();
   setupPad()->cd();
-  mass->Draw("e");
   tdr(mass, 0, false);
   float avg_delta(0.);
   float avg_deltag(0.);
@@ -89,6 +88,13 @@
   }
   std::cout << "AVG difference: " << avg_delta << " GeV" << std::endl;
   std::cout << "AVG from GEN: " << avg_deltag << " GeV" << std::endl;
+  RooRealVar mt = fit_constrain_d0(w,fit_par,fit_err,"Data",flags, true);
+  float mass_fit = mass->GetFunction("pol1")->Eval(mt.getVal());
+  std::cout << mass_fit - avg_deltag << " +/- " << abs(mass_fit -  mass->GetFunction("pol1")->Eval(mt.getVal() + mt.getError())) << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) + mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) + mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - avg_deltag << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) -  mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) - mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - avg_deltag << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) + mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) + mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - mass_fit << std::endl;
+  std::cout <<  mass->GetFunction("pol1")->GetParameter(0) -  mass->GetFunction("pol1")->GetParError(0) + ( mass->GetFunction("pol1")->GetParameter(1) - mass->GetFunction("pol1")->GetParError(1)) * mt.getVal() - mass_fit << std::endl;
   /*
   for(auto & it : names) {
     TString tmp_mass = Form("%.1f",it);
@@ -105,6 +111,7 @@
   TString name("");
   if(flags&0x2) name = "_d0_vary";
   else name = "_d0";
+  mass->Draw("e");
   char sign = '+';
   if(f->Parameter(1)<0) sign = '-';
   TString leg_title = TString::Format("Calibration curve : %0.2f (#pm%0.2f) %c m_{t} %0.2f (#pm%0.2f)",f->Parameter(0),abs(f->ParError(0)),sign,f->Parameter(1),abs(f->ParError(1)));

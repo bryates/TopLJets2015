@@ -474,6 +474,10 @@ void RunTopKalman(TString filename,
       if(!isData) {
         norm =  normH ? normH->GetBinContent(1) : 1.0;
         xsec = normH ? normH->GetBinContent(2) : 0.;
+        if(filename.Contains("TTJets_symmetric")) {
+          norm = 1.29733e-08;
+          xsec = 832;
+        }
         //if(xsec) norm*=xsec;
 	//update nominal event weight
 	if(ev.ttbar_nw>0) norm*=ev.ttbar_w[0];
@@ -784,12 +788,13 @@ void RunTopKalman(TString filename,
           allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
           allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
         }
-        if(!isData && piSFB[ipf]>=0) { //FIXME
+        if(!isData && piSFB[ipf]>=0) {
           sumChBidx[ipf]++;
           keep[ev.pf_j[ipf]]++;
           pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
           //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         }
+        //if(!isData) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         if(isData) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         /*
         if(piSFG[ipf]>=0) {
@@ -882,6 +887,9 @@ void RunTopKalman(TString filename,
           //FIXME
           //Jet tmpj(jp4, ev.j_csv[k], k, pt_charged, ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
           Jet tmpj(jp4, ev.j_csv[k], k, ev.j_pt_charged[k], ev.j_pz_charged[k], ev.j_p_charged[k], ev.j_pt_pf[k], ev.j_pz_pf[k], ev.j_p_pf[k], ev.j_g[k]); //Store pt of charged and total PF tracks and gen matched index
+          tmpj.setHadFlav(ev.j_hadflav[k]);
+          tmpj.setFlav(ev.j_flav[k]);
+          tmpj.setPdgId(ev.j_pid[k]);
           tmpj.updateChargedPt(pt_chargedB[k],pt_chargedG[k]);
           //delete[] pt_charged;
 	  for(int ipf = 0; ipf < ev.npf; ipf++) {
@@ -1344,6 +1352,8 @@ void RunTopKalman(TString filename,
       evch.njpsi=0;
       evch.nmeson=0;
       evch.nj=0;
+      treeBCDEF.Fill(evch, ev);
+      treeGH.Fill(evch, ev);
       //Better J/Psi (Just look how much shorter it is!)
       const float gMassMu(0.1057),gMassK(0.4937),gMassPi(0.1396);
       if(kalman.isJPsiEvent()) {
@@ -1711,7 +1721,7 @@ void RunTopKalman(TString filename,
               //Check masses from Kalman class
               if(piTracks[i].M()!=gMassPi) continue;
               if(piTracks[j].M()!=gMassK) continue;
-              if(piTracks[i].Pt() < 5) continue;
+              if(piTracks[i].Pt() < 5) continue; //FIXME
               //if(piTracks[i].Pt() < 12) continue; //norm GEN vs norm unmatched pi cross at 12 GeV
               if(piTracks[j].Pt() < 1) continue;
               bool cuts(true),keepRunB(true),runG(true);
@@ -2047,7 +2057,7 @@ void RunTopKalman(TString filename,
                 //if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
                 //if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
                 if(fabs(mass12-1.864) > 0.1) continue; // tighter mass window cut
-                if( piTracks[j].charge() == track.charge() ) continue;
+                //if( piTracks[j].charge() == track.charge() ) continue;
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
                 //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };

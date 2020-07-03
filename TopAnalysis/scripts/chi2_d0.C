@@ -19,16 +19,19 @@
 
 using namespace RooFit;
 //TString name("");
-float low(50.), high(50.),nom(0.8103),nerr(0.05);
+float low(50.), high(50.),nom(0.8103),nerr(0.05),pre(0);
+TString errtxt;
 bool TDR(1);
 int epoch(0);
 bool fullpt(0);
+bool fin(false);
 TString epoch_name[4] = {"_xb", "_BCDEFGH", "_BCDEF", "_GH"};
 
 float N(1.);
 TCanvas *c1 = setupCanvas();
 TString report("");
 TString json("\"d0\" :      [");
+TString rbtest[3] = {"", "", ""};
 float chi2_d0_(TString tune="", TString name="", float num=0.855);
 void run_chi2_d0(TString);
 RooRealVar ptfrac;
@@ -37,6 +40,10 @@ void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool
 TString fname = TString::Format("sPlot/sPlot//TopMass_Data_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("noDup_shift")) fname.ReplaceAll("Data", "Data_noDup_shift");
+else if(name.Contains("noDup")) fname.ReplaceAll("Data", "Data_noDup");
+if(name.Contains("noTrkSF")) fname.ReplaceAll("Data", "Data_noTrkSF");
+if(name.Contains("ep")) fname.ReplaceAll("Data", "Data_ep");
 if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
 if(name.Contains("d0kk")) fname.ReplaceAll("Data", "Data_d0kk");
 if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR_toyData");
@@ -102,9 +109,9 @@ delete fdata;
 delete fmc;
 }
 
-void chi2_d0(int ep=epoch, TString samp="", bool jpT=false) {
+void chi2_d0(int ep=epoch, TString samp="", bool isFinal=false) {
+  fin = isFinal;
   epoch = ep;
-  fullpt = jpT;
   if(samp != "")
   run_chi2_d0(samp);
   else {
@@ -126,6 +133,11 @@ void chi2_d0(int ep=epoch, TString samp="", bool jpT=false) {
   }
   run_chi2_d0("hdampdown");
   run_chi2_d0("hdampup");
+  run_chi2_d0("172v5_Wdown");
+  run_chi2_d0("172v5_Wup");
+  run_chi2_d0("172v5_cdown");
+  run_chi2_d0("172v5_cup");
+  run_chi2_d0("fit-fcn");
   }
 /*
   run_chi2_d0("tpt");
@@ -142,11 +154,15 @@ void chi2_d0(int ep=epoch, TString samp="", bool jpT=false) {
   run_chi2_d0("m175v5");
   run_chi2_d0("m178v5");
   */
-  /*
-  */
 
   json += ("],");
+  std::cout << errtxt << std::endl;
   std::cout << json << std::endl;
+  /*
+  std::cout << rbtest[0] << std::endl;
+  std::cout << rbtest[1] << std::endl;
+  std::cout << rbtest[2] << std::endl;
+  */
 
 }
 
@@ -188,8 +204,14 @@ for(auto & it : tune) {
   if(name == "GluonMove_erdON" && param[pos]==0.900 && epoch==0) continue; //remove up_PI 0.975 with large chi^2
   if(name == "GluonMove_erdON" && param[pos]<0.700 && epoch==1) continue; //remove up_PI 0.975 with large chi^2
   //if(name == "down_PU" && it=="_down" && epoch==2) continue; //remove down_UP 0.755 FIXME
+  //if(name.Contains("172v5_W") && it=="_cccentral") continue; //remove down_UP 0.755 FIXME
+  //if(name.Contains("172v5_W") && it=="_ccentral") continue; //remove down_UP 0.755 FIXME
+  //if(name.Contains("172v5_W") && it=="_central") continue; //remove down_UP 0.755 FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_(it, name, param[pos]);
+  if(abs(pre - chi) > 5 && abs(chiTest->FindBin(param[pos-2]) - chi) > 5 && pos>0) errtxt += Form("submit(\"%s\", false, \"%s\", 1);, ", name.Data(), tune[pos-1].Data());
+  //if(abs(pre - chi) > chi) errtxt += Form("%s %0.3f, ", name.Data(), param[pos-1]);
+  pre = chi;
   if(chi<low) low = chi;
   if(chi>high) high = chi;
   chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
@@ -265,8 +287,8 @@ gStyle->SetOptStat(0);
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch+1];
 if(fullpt) name += "_jpT";
-c1->SaveAs("chi2_d0"+name+".pdf");
-c1->SaveAs("chi2_d0"+name+".png");
+c1->SaveAs("chi2_d0"+name+(fin ? "_final" : "")+".pdf");
+c1->SaveAs("chi2_d0"+name+(fin ? "_final" : "")+".png");
 
 delete pt;
 //chiTest->Delete();
@@ -276,7 +298,7 @@ delete pt;
 
 float chi2_d0_(TString tune="", TString name="", float num=0.855) {
 TH1F *data, *data2, *mc, *mc2;
-if(epoch!=0) {
+if(epoch!=0) { //FIXME !=
 getHist(name, tune, data, mc, epoch);
 }
 else {
@@ -284,6 +306,14 @@ getHist(name, tune, data, mc, 1, false);
 getHist(name, tune, data2, mc2, 2, false);
 data->Add(data2);
 mc->Add(mc2);
+rbtest[2] += "{";
+for(int ibin = 1; ibin <= mc->GetNbinsX(); ibin++) {
+  rbtest[0] += TString::Format("%0.3f, ", num);
+  rbtest[1] += TString::Format("%d, ", ibin);
+  rbtest[2] += TString::Format("%0.2f, ", mc->GetBinContent(ibin));
+  //rbtest[2] += TString::Format("{%0.2f, %0.3f}, ", mc->GetBinContent(ibin), mc->GetBinError(ibin));
+}
+rbtest[2] += "}";
 delete data2;
 delete mc2;
 }
@@ -353,6 +383,8 @@ data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
 data->GetXaxis()->SetRangeUser(0.2,0.975);
 mc->GetXaxis()->SetRangeUser(0.2,0.975);
+data->GetXaxis()->SetRangeUser(0.2,1.0);
+mc->GetXaxis()->SetRangeUser(0.2,1.0);
 if(epoch<0 && 0) {
 data->GetXaxis()->SetRangeUser(0.425,0.95);
 mc->GetXaxis()->SetRangeUser(0.425,0.95);

@@ -227,6 +227,8 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_pz_pf[ev_.nj] = jet.getPFPz();
     ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
+    ev_.j_flav[ev_.nj] = jet.getFlav();
+    ev_.j_pid[ev_.nj] = jet.getPdgId();
     ev_.j_mass[ev_.nj] = jet.M();
     ev_.nmeson++;
     ev_.nj++;
@@ -408,6 +410,13 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.nj++;
     //std::cout << "tree done" << std::endl;
   }
+
+}
+
+void CharmTree::Fill(CharmEvent_t &ev_, MiniEvent_t &ev) {
+  ev_.run = ev.run;
+  ev_.lum = ev.lumi;
+  ev_.event = ev.event;
 
 }
 

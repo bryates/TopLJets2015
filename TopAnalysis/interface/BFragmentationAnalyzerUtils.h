@@ -11,10 +11,12 @@
 
 struct JetFragInfo_t
 {
-  float xb,xb_charged,pt,charmId,eta,phi;
+  float xb,xb_charged,pt,charmId,motherId,eta,phi;
   int leadTagId;
   bool hasSemiLepDecay,hasTauSemiLepDecay,hasCharm;
   int nbtags,nctags,ntautags;
+  std::vector< std::vector<double> > meson;
+  std::vector<int> mesonId;
 };
 
 JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale=1.0E+20);

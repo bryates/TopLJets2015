@@ -33,7 +33,7 @@ using namespace RooFit;
 bool GET_BIT(short x, short b) { return (x & (1<<b) ); }
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="jpsi_fit.root") {
-void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
+void mtop_norm(std::vector<pair<float,float>> &p, TString mass="172.5", short flags=0b00) {
   //TFile *f = new TFile("../BatchJobs/merged.root"); 
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   float mtop(mass.Atof());
@@ -66,7 +66,11 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   RooPlot* frame = jpsi_l_mass.frame() ;
   //auto frame = w->var("J/#Psi+l mass")->frame();
   //cout << "converting" << endl;
-  //TH1F *l_mass = (TH1F*)convert(meson_l_mass_jpsi_signal,true,0,250);
+  auto meson_l_mass_jpsi_signal = (RooPlot*)f->Get("meson_l_mass_jpsi_signal");
+  TH1F *l_mass = (TH1F*)convert(meson_l_mass_jpsi_signal,false,0,250);
+  meson_l_mass_jpsi_signal = (RooPlot*)f2->Get("meson_l_mass_jpsi_signal");
+  TH1F *l_mass2 = (TH1F*)convert(meson_l_mass_jpsi_signal,false,0,250);
+  l_mass->Add(l_mass2);
   /*
   RooDataSet dsn = *(RooDataSet*)w->data("dsSWeights");
   RooDataSet ds("ds" ,"ds", &dsn, *dsn.get(), 0, "weight");
@@ -78,6 +82,7 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //ds.plotOn(frame, Binning(50));
   cout << "making dh" << endl;
   //RooDataHist dh("dh", "dh", jpsi_l_mass, Import(*l_mass));
+  RooDataHist dh("dh", "dh", jpsi_l_mass, l_mass);
   //RooDataHist dh("dh", "dh", jpsi_l_mass, h);
   //RooDataHist dh = *ds.binnedClone();
   cout << "making frame" << endl;
@@ -168,8 +173,10 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   //RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
   //RooAddPdf model("model","g+a", RooArgList(signalGauss, expo), RooArgList(nsig,nbkg)) ;
   cout << "fitting model" << endl;
-  signalModel.fitTo(ds, PrintLevel(-1));//,Extended());
-  //signalModel.fitTo(dh,Extended());
+  dh.plotOn(frame);
+  //ds.plotOn(frame,Binning(25));
+  //signalModel.fitTo(ds, PrintLevel(-1));//,Extended());
+  signalModel.fitTo(dh);//, Extended());
   /*
   RooAbsReal *nll = signalModel.createNLL(dh, NumCPU(8), SumW2Error(kTRUE));
   //RooAbsReal *nll = signalModel.createNLL(ds, NumCPU(8), SumW2Error(kTRUE));
@@ -180,8 +187,6 @@ void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short fl
   m.hesse();
   RooFitResult *r = m.save();
   */
-  //dh.plotOn(frame);
-  ds.plotOn(frame,Binning(25));
   signalModel.plotOn(frame);
   signalModel.plotOn(frame, Components(gauss),LineStyle(kDashed),LineColor(kRed));
   signalModel.plotOn(frame, Components(gamma),LineStyle(kDashed),LineColor(kBlue));

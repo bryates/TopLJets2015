@@ -167,6 +167,28 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   c1->cd();
   cout << "loaded!" << endl;
 
+std::vector<TH1F*> hCorrBtop;
+std::vector<TH1F*> hCorrBpi;
+std::vector<TH1F*> hCorrBpu;
+std::vector<TH1F*> hCorrGtop;
+std::vector<TH1F*> hCorrGpi;
+std::vector<TH1F*> hCorrGpu;
+/*
+{
+std::vector<TString> mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+for(auto it : mcSamples) {
+  TFile *file = new TFile("LJets2015/2016/test/" + it + ".root");
+  hCorrBtop.push_back((TH1F*)file->Get("topptwgt_BCDEF")->Clone());
+  hCorrBpi.push_back((TH1F*)file->Get("piwgt_BCDEF")->Clone());
+  hCorrBpu.push_back((TH1F*)file->Get("puwgtctr_BCDEF")->Clone());
+
+  hCorrGtop.push_back((TH1F*)file->Get("topptwgt_GH")->Clone());
+  //hCorrGpi.push_back((TH1F*)file->Get("piwgt_GH")->Clone());
+  hCorrGpu.push_back((TH1F*)file->Get("puwgtctr_GH")->Clone());
+}
+}
+*/
+
   // Declare observable x
   RooRealVar jpsi_mass("jpsi_mass","J/#Psi mass", 2.8, 3.4, "GeV") ;
   RooRealVar weight("weight","weight",1.,0.,36000.);
@@ -175,6 +197,18 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooRealVar jpsi_pt("jpsi_pt","J/#Psi #it{p}_{T}", 0, 250, "GeV");
   RooRealVar j_pt_ch("j_pt_ch","j #it{p}_{T} charged", 0, 400, "GeV");
   RooRealVar j_pt("j_pt","j #it{p}_{T}", 0, 400, "GeV");
+  RooRealVar j_hadflav("j_hadflav","j hadflav", 0, 6, "");
+  /*
+  RooCategory mcFile("mcFile","mcFile");
+  {
+    std::vector<TString> mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+  for(auto & it : mcSamples) {
+    mcFile.defineType(it.Data());
+  }
+  }
+  */
+  //RooRealVar mcFile("mcFile","mcFile", 0, 6, "");
+  RooRealVar mcFile("mcFile","mcFile", 0, 20);
   RooRealVar epoch("epoch","epoch",1,2);
   RooRealVar tuneW = RooRealVar("tuneW", "tuneW", 1., 0, 2.);
   
@@ -182,7 +216,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,jpsi_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(jpsi_mass,ptfrac,meson_l_mass,weight,jpsi_pt,j_pt_ch,j_pt,tuneW));
+  //RooDataSet dsn("dsn", "dsn", RooArgSet(jpsi_mass,ptfrac,meson_l_mass,weight,jpsi_pt,j_pt_ch,j_pt,tuneW));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(RooArgList(jpsi_mass,ptfrac,meson_l_mass,weight,jpsi_pt,epoch,j_pt_ch,j_pt,tuneW,""),RooArgList(j_hadflav,mcFile,"")));
   //RooDataSet dsn("dsn", "dsn", RooArgSet(jpsi_mass,ptfrac,meson_l_mass,weight));
   int nmc = ep == 1 ? 7327 : 9539;
   int nentries = ep == 1 ? 1339 : 1329;
@@ -194,6 +229,11 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     data->GetEntry(i);
     for(int j=0; j<ev.nmeson; j++) {
       //int j(0);
+      if(mass.Contains("_c") && 0) {
+        if(ev.j_hadflav[j] == 5 && TString(data->GetFile()->GetName()).Contains("powheg")) continue;
+        else if(mass.Contains("ttbar_c") && !TString(data->GetFile()->GetName()).Contains("powheg")) continue;
+        else if(mass.Contains("W_c") && TString(data->GetFile()->GetName()).Contains("powheg")) continue;
+      }
       if(ev.meson_id[j] != 443) continue;
       if(ev.jpsi_mass[j] < 2.8) continue;
       if(ev.jpsi_mass[j] > 3.4) continue;
@@ -213,7 +253,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(ep==2 && rand->Uniform(0, 1) > 0.14) continue;
         */
         if(rand->Uniform(0, 1) > float(nentries)/float(nmc)) continue;
-        //if(nset > nentries) continue;
+        if(nset > nentries) continue;
         nset++;
       }
       /*
@@ -287,12 +327,50 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       jpsi_pt.setVal(ev.jpsi_pt[j]);
       j_pt_ch.setVal(ev.j_pt_charged[j]);
       j_pt.setVal(ev.j_pt[j]);
+      if(!isData) j_hadflav.setVal(ev.j_hadflav[j]);
+      if(!isData) {
+/*
+      if(TString(data->GetFile()->GetName()).Contains("powheg")) mcFile.setVal(5);
+      else if(TString(data->GetFile()->GetName()).Contains("W1Jets")) mcFile.setVal(4);
+      else if(TString(data->GetFile()->GetName()).Contains("W2Jets")) mcFile.setVal(4);
+      else if(TString(data->GetFile()->GetName()).Contains("W3Jets")) mcFile.setVal(4);
+      else if(TString(data->GetFile()->GetName()).Contains("W4Jets")) mcFile.setVal(4);
+      else mcFile.setVal(0);
+*/
+       TString tmp = TString(data->GetFile()->GetName());
+       tmp.ReplaceAll("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/", "");
+       int ind(-1);
+       if(tmp.Contains("ext"))
+       ind = tmp.Index(TRegexp("ext_[0-9]*.root"));
+       else
+       ind = tmp.Index(TRegexp("_[0-9]*.root"));
+       tmp.Remove(ind, tmp.Length()-ind);
+       //std::cout << tmp << std::endl;
+    std::vector<TString> mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+       ind = distance(mcSamples.begin(), find(mcSamples.begin(), mcSamples.end(), tmp));
+       if(ev.epoch[j]==1 && 0) {
+         scale /= (puSF1 * topSF1);
+         scale *= hCorrBtop[ind]->GetBinContent(2)/hCorrBtop[ind]->GetBinContent(1);
+         scale *= hCorrBpi[ind]->GetBinContent(1)/hCorrBpi[ind]->GetBinContent(2);
+         scale *= hCorrBpu[ind]->GetBinContent(1)/hCorrBpu[ind]->GetBinContent(2);
+       }
+       else if(ev.epoch[j]==2 && 0) {
+         scale /= (puSF1 * topSF1);
+         scale *= hCorrGtop[ind]->GetBinContent(2)/hCorrGtop[ind]->GetBinContent(1);
+         scale *= hCorrGpu[ind]->GetBinContent(1)/hCorrGpu[ind]->GetBinContent(2);
+       }
+       //std::cout << ind << std::endl;
+       //mcFile.setLabel(tmp);
+       mcFile.setVal(ind);
+       //mcFile.setVal(data->GetFile()->GetName());
+      }
       //meson_l_mass = ev.jpsi_l_mass[j];
       meson_l_mass.setVal(ev.jpsi_l_mass[j]);
       //}
       weight.setVal(scale);
       tuneW.setVal(scale * tuneW.getVal());
-      dsn.add(RooArgSet(jpsi_mass,meson_l_mass,ptfrac,weight,jpsi_pt,j_pt_ch,j_pt,epoch,tuneW));
+      //dsn.add(RooArgSet(jpsi_mass,meson_l_mass,ptfrac,weight,jpsi_pt,j_pt_ch,j_pt,epoch,tuneW));
+      dsn.add(RooArgSet(RooArgList(jpsi_mass,meson_l_mass,ptfrac,weight,jpsi_pt,j_pt_ch,j_pt,epoch,tuneW,""),RooArgList(j_hadflav,mcFile,"")));
       //dsn.add(RooArgSet(j_pt));
       //dsn.add(RooArgSet(jpsi_mass,meson_l_mass,ptfrac,weight));
       //dsn.add(RooArgSet(jpsi_mass,meson_l_mass,ptfrac,weight), scale);
@@ -337,11 +415,10 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //mean.setConstant();
 
   // Construct Crystal Ball PDF for signal
-  RooRealVar cbmean("cbmean", "cbmean" , 1.864, 1.85, 1.87); 
   RooRealVar cbsigma("csigma", "cbsigma" , 0.02, 0.001, 0.25); 
   RooRealVar ncbsig("ncbsig", "ncbsignal", 4000, 0, 10000); 
   RooRealVar n("n","cbn", 5, 0, 10);
-  RooRealVar alpha("#alpha","cbalpha", 1, 0, 5);
+  RooRealVar alpha("alpha","cbalpha", 1, 0, 5);
   RooCBShape cball("cball", "crystal ball", jpsi_mass, mean, cbsigma, alpha, n);
 
   // Construct Gaussian1 PDF for signal
@@ -365,12 +442,44 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2, -5, 5.);
   RooExponential expo("expo", "exponential PDF", jpsi_mass, lambda);
+
+  RooRealVar cbmean("cbmean", "cbmean" , 3.093);
+  RooRealVar bkgcbsigma("csigma", "cbsigma" , 0.034);
+  RooRealVar bkgncbsig("ncbsig", "ncbsignal", 194);
+  RooRealVar bkgn("n","cbn", 10);
+  RooRealVar bkgalpha("alpha","cbalpha", 1.1);
+  RooCBShape bkgcball("bkgcball", "crystal ball", jpsi_mass, cbmean, bkgcbsigma, bkgalpha, bkgn);
+
+  //std::vector< std::vector<float> > param_c = {{1.86644,1.36245e+03,2.04736e-02,-2.66732,2.40061e+04}, {1.86562,1.27583e+03,2.01833e-02,-2.70638,2.71743e+04}};
+  std::vector< std::vector<float> > param_c = {{3.09803e+00,1.17511e+00,9.99884e+00,1.93583e+02,3.49406e-02,-1.36613e+00,4.28522e+01}, {3.09766e+00,1.05342e+00,9.99590e+00,1.93656e+02,3.27095e-02,-1.01739e+00,4.88592e+01}};
+
+  float fMeanc = param_c[ep-1][0];
+  float fNc = param_c[ep-1][1];
+  float fNalphac = param_c[ep-1][2];
+  float fNcbsigc = param_c[ep-1][3];
+  float fNsigmac = param_c[ep-1][4];
+  float fLambdac = param_c[ep-1][5];
+  float fNbkgec = param_c[ep-1][6];
+  //if(name.Contains("Wup")) fNcbsigc *= 1.25; 
+  //if(name.Contains("Wdown")) fNcbsigc *= 0.75; 
+  RooRealVar meanc("meanc", "meanc" , fMeanc);
+  RooRealVar ncbsigc("ncbsigc","ncbsignalc", fNcbsigc*(1+.25));//3.30189e+02, 0, 1000);
+  RooRealVar cbsigmac("csigmac", "cbsigmac", fNsigmac);
+  RooRealVar nc("nc","cbnc", fNc);
+  RooRealVar alphac("alphac","cbalphac", fNalphac);
+  RooCBShape cballc("cballc", "crystal ballc", jpsi_mass, meanc, cbsigmac, alphac, nc);
+  RooRealVar lambdac("lambdac", "slope", fLambdac);
+  RooRealVar nbkgec("nbkgec","nbkgenalc", fNbkgec*(1-.25));//3.30189e+02, 0, 1000);
+  RooExponential expoc("expoc", "exponential PDF", jpsi_mass, lambdac);
   
   // Construct signal + bkg PDF
   RooRealVar nsig("nsig","#signal events", 4000, 0, 10000) ;
   RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
-  RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
-  //RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,expoc,gaussc),RooArgList(nbkge,nbkgec,ngsigc));
+  //RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
+  RooAddPdf model("model","g+a", RooArgList(cball, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
+  //RooAddPdf model("model","g+a", RooArgList(cball, expo, bkgcball), RooArgList(nsig,nbkg,bkgncbsig)) ;
+  //RooAddPdf model("model","g+a", RooArgList(signalModel, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
 
   cout << "fitting model" << endl;
   meson_l_mass.setConstant();
@@ -397,7 +506,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
   model.plotOn(frame);
   float chi2 = frame->chiSquare();//"model", "data", 3);
-  model.plotOn(frame, Components(expo),LineStyle(kDashed));
+  //model.plotOn(frame, Components(RooArgSet(expo)),LineStyle(kDashed));
+  model.plotOn(frame, Components(RooArgSet(expo,cballc)),LineStyle(kDashed));
   frame->Draw();
   frame->SetName("massJPsi");
   frame->Write();
@@ -439,6 +549,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   w.import(jpsi_pt, Silence());
   w.import(j_pt_ch, Silence());
   w.import(j_pt, Silence());
+  w.import(j_hadflav);
+  w.import(mcFile);
   w.import(epoch, Silence());
   w.import(weight, Silence());
   w.import(model);

@@ -24,7 +24,7 @@ void KalmanEvent::loadEvent(const MiniEvent_t &ev) {
   nmeson_ = ev_.nmeson;
   vtxProb_ = 0.02;
   chi2_ = 5.; //Same as Elvire's, chi2=5.365 at vtxProb>0.02
-  Jl3dsig_ = 5.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
+  Jl3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png FIXME 5 for PSweights sample
   Dl3dsig_ = 10.; //Elvire used 20 but prompt becomes ~1% at L3D=0.01 in https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/ratio.png
                  //D^0 https://byates.web.cern.ch/byates/Top2016/2016/test/D0/L3D/Data/10v20.png
                  //J/Psi https://byates.web.cern.ch/byates/Top2016/2016/test/JPsi/L3D/Data/10v20.png
@@ -44,6 +44,8 @@ void KalmanEvent::buildJets() {
     kjp4.SetPtEtaPhiM(ev_.k_j_pt[ij],ev_.k_j_eta[ij],ev_.k_j_phi[ij],ev_.k_j_mass[ij]);
     Jet tmpj(jp4, ev_.j_csv[ij], ij, ev_.j_pt_charged[ij], ev_.j_pz_charged[ij], ev_.j_p_charged[ij], ev_.j_pt_pf[ij], ev_.j_pz_pf[ij], ev_.j_p_pf[ij], ev_.j_g[ij]); //Store pt of charged and total PF tracks and gen matched index
     tmpj.setHadFlav(ev_.j_hadflav[ij]);
+    tmpj.setFlav(ev_.j_flav[ij]);
+    tmpj.setPdgId(ev_.j_pid[ij]);
     if(debug_) std::cout << "jet pT=" << tmpj.getPt() << std::endl;
     //int npi(0);
     for(int ipf = 0; ipf < ev_.nkpf; ipf++) {
@@ -61,7 +63,7 @@ void KalmanEvent::buildJets() {
       if(!ev_.k_mass[ipf]) continue;
       if(debug_) std::cout << "passed mass window" << std::endl; 
       if(ev_.k_id[ipf]==443 && ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < Jl3dsig_) continue;
-      else if(ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < Dl3dsig_) continue;
+      else if(ev_.k_id[ipf]!=443 && ev_.k_l3d[ipf]/ev_.k_sigmal3d[ipf] < Dl3dsig_) continue;
       if(debug_) std::cout << "passed l3d/sigmal3d < " << Dl3dsig_ << std::endl; 
       //if(ev_.k_opang[ipf] < opang_) continue;
       if(debug_) std::cout << "passed opening angle < " << opang_ << std::endl; 

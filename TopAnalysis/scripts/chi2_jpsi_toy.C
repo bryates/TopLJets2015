@@ -266,7 +266,7 @@ else
 */
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+chiTest->Fit("pol3","FSMEQRW","",0.6,1.15);//0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -276,10 +276,10 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.075);
+float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.25);//1.075);
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
-float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.075);
+float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.25);//1.075);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
