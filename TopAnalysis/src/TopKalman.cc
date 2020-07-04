@@ -2051,17 +2051,33 @@ void RunTopKalman(TString filename,
                 treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
                 treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson", ev.event, tmp_match);
               }
+              /*
+              piSoftTracks.clear();
+              for(auto &jet : allJetsVec) {
+                for(auto &track : jet.getTracks()) {
+                  if(abs(track.getPdgId())==211 && track.Pt()<5) piSoftTracks.push_back(track); //save soft pions for D* separately
+                }
+              }
+              */
               if(piSoftTracks.size()<1) continue;
               for(auto &track : piSoftTracks) {
-                if(abs(track.getMotherId())!=413) continue;
+                //if(abs(track.getMotherId())!=413) continue;
                 //if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
                 //if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
-                if(fabs(mass12-1.864) > 0.1) continue; // tighter mass window cut
+                //if(fabs(mass12-1.864) > 0.1) continue; // tighter mass window cut
                 //if( piTracks[j].charge() == track.charge() ) continue;
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
                 //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
                 tmp_cands.push_back( track );
+                /*
+                float mass123 = (tmp_cands[0].getVec() + tmp_cands[1].getVec() +tmp_cands[2].getVec()).M();
+                float deltam = mass123-mass12;
+                if(deltam<0.14 || deltam>0.16) continue;
+                std::cout << deltam << std::endl;
+                if(mass123<1.9 || mass123>2.2) continue;
+                std::cout << (tmp_cands[0].getVec() + tmp_cands[1].getVec() +tmp_cands[2].getVec()).M() << std::endl;
+                */
                 runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 //Remove 1/2 event for both pi<->K

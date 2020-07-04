@@ -274,6 +274,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
         if(deltam<0.14 || deltam>0.16) return;
         ev_.ds_mass[ev_.nmeson] = mass123;
         ev_.ds_pi2_pt[ev_.nmeson] = pfCands[2].Pt();
+        //std::cout << "pi2 pt = " << pfCands[2].Pt() << " GeV" << std::endl;
         ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
         ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
       }

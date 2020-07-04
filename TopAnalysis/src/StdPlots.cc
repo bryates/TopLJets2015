@@ -918,7 +918,7 @@ void StdPlots::Fill(std::vector<pfTrack> &pfCands, TString chTag, TString name, 
     //if (mass12<1.65 && mass12>2.0) return;
 
     if(fabs(pfCands[2].getPdgId()) != 211) return; //reinforce pion
-    if(pfCands[2].getMotherId()!=413) return;
+    //if(pfCands[2].getMotherId()!=413) return;
     // Kaon and pion have opposite charges
     // I.e. correct mass assumption
     //if(pfCands[1].charge() != -pfCands[2].charge()) return;
