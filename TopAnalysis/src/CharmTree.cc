@@ -277,6 +277,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
         //std::cout << "pi2 pt = " << pfCands[2].Pt() << " GeV" << std::endl;
         ev_.ds_pi2_eta[ev_.nmeson] = pfCands[2].Eta();
         ev_.ds_pi2_phi[ev_.nmeson] = pfCands[2].Phi();
+        ev_.meson_id[ev_.nmeson] = 413;
       }
       if(abs(pfCands[0].getMotherId())==42113) {
         ev_.meson_id[ev_.nmeson] = 42113;

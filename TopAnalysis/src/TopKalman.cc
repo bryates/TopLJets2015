@@ -1588,10 +1588,10 @@ void RunTopKalman(TString filename,
               if(abs(ev.gpf_id[ig])==13) genMuTracks.push_back(pfTrack(gen,0,0,0,0, ev.gpf_id[ig],3,true));
             }
             //sort GEN tracks
+            //std::cout << "Built genTracks" << std::endl;
             sort(genTracks.begin(), genTracks.end(),
                  [] (pfTrack a, pfTrack b) { return a.Pt() > b.Pt(); } );
 
-            float *best_used = new float[genTracks.size()];
             int *kmatch = new int[piTracks.size()];
             for(size_t i = 0; i < piTracks.size(); i++)
               kmatch[i] = -1;
@@ -1606,27 +1606,56 @@ void RunTopKalman(TString filename,
               }
             }
             //std::cout << matched << std::endl;
+            //std::cout << "Looping over piTracks" << std::endl;
+            /*
+            std::cout << "piTracks has " << piTracks.size() << std::endl;
             for(auto & it : piTracks) { //FIXME reference might not work
-              double dR = 0.3; //initial dR
+              it.print();
+            }
+            std::cout << "genTracks has " << genTracks.size() << std::endl;
+            if(piTracks.size() > 0) {
+            for(auto & it : genTracks) { //FIXME reference might not work
+              it.print();
+            }
+            }
+            std::cout << std::endl << std::endl;
+            */
+            int *best_used = new int[genTracks.size()];
+            for(auto & it : piTracks) { //FIXME reference might not work
+              double dR = 0.1; //initial dR
               int best_idx = -1;
               it.pos_ = (&it - &piTracks[0]);
+              /*
+              std::cout << "Checking" << std::endl;
+              it.print(); 
+              */
               for(auto & itg : genTracks) {
-                if(best_used[&itg - &genTracks[0]] > 0) continue;
+                //if(best_used[&itg - &genTracks[0]] > 0) continue;
+                //std::cout << "Checking with" << std::endl;
+                //itg.print(); 
                 //if(it.getPdgId() != itg.getPdgId()) continue; //insure ID and charge
+                if(abs(itg.getPdgId()) != 211 && abs(itg.getPdgId()) != 321) continue;
                 if(it.charge() != itg.charge()) continue; //insure ID and charge
                 if(it.getVec().DeltaR(itg.getVec())>dR) continue; //find dR
-                if(((it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
+                if((abs(it.Pt()-itg.Pt())/it.Pt())>0.10) continue; //gen and reco less than 10% difference
                 dR = it.getVec().DeltaR(itg.getVec());
                 best_idx = &itg - &genTracks[0]; //get index on current closest gen particle
               }
-              if(best_idx<0 || kmatch[&it - &piTracks[0]]<0) { //no gen track matched
+              if(best_idx<0) {// || kmatch[&it - &piTracks[0]]<0) { //no gen track matched
                 pfReject.push_back(it);
                 pfReject.push_back(piTracks[kmatch[&it - &piTracks[0]]]);
+                /*
+                std::cout << "No match found!" << std::endl;
+                it.print();
+                */
               }
               else {
                 //it.setGenT(genMuTracks[best_idx].getGenT());
+                //it.print();
+                //genTracks[best_idx].print();
                 it.setGenIdx(pfMatched.size()-1);
                 it.setGenPdgId(genTracks[best_idx].getPdgId());
+                it.setMother(genTracks[best_idx].getMotherId());
                 pfMatched.push_back(it);
                 pfMatched.back().setMother(genTracks[best_idx].getMotherId());
                 //genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
@@ -1634,6 +1663,7 @@ void RunTopKalman(TString filename,
                 pfMatched.push_back(piTracks[kmatch[&it - &piTracks[0]]]);
               }
             }
+            //std::cout << "Done looping over piTracks" << std::endl;
             for(auto & it : muTracks) { //FIXME reference might not work
               double dR = 0.3; //initial dR
               int best_idx = -1;
@@ -1658,17 +1688,25 @@ void RunTopKalman(TString filename,
           }
           Jet genJet;
           int genIdx(-1);
+          int *genjetmask = new int[genJetsVec.size()];
           for(auto & gjet : genJetsVec) {
+            if(genjetmask[(&gjet - &genJetsVec[0])] > 0) continue; //already matched!
             if(gjet.getVec().DeltaR(jet.getVec())>0.1) continue; //find good dR match
-            if(gjet.getVec().DeltaR(jet.getVec()) > genJet.getVec().DeltaR(jet.getVec())) continue; //find tighter dR match
-            genJet = gjet;
+            //if(gjet.getVec().DeltaR(jet.getVec()) > genJet.getVec().DeltaR(jet.getVec())) continue; //find tighter dR match
             genIdx = genJet.getJetIndex();
             break;
           }
+          /*
+          if(genIdx > -1) {
+            genjetmask[genIdx] = 1;
+          }
+          */
           std::vector<float> frag;
-          if(genIdx>-1)
-            frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+          if(genIdx>-1) {
+            //genJet = genJetsVec.at(genIdx);
+            //frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
             //frag = {ev.xb[genJet.getJetIndex()]};//,ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+          }
 
           sort(piTracks.begin(), piTracks.end(),
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );
@@ -2055,12 +2093,24 @@ void RunTopKalman(TString filename,
               piSoftTracks.clear();
               for(auto &jet : allJetsVec) {
                 for(auto &track : jet.getTracks()) {
-                  if(abs(track.getPdgId())==211 && track.Pt()<5) piSoftTracks.push_back(track); //save soft pions for D* separately
+                  if(jet.getJetIndex() != piTracks[i].getJetIndex()) continue;
+                  //if(track.Pt()>5) continue;
+                  if(abs(track.getPdgId())==211) piSoftTracks.push_back(track); //save soft pions for D* separately
                 }
               }
+              std::vector<std::pair<float,int>> bestPi;
               */
               if(piSoftTracks.size()<1) continue;
               for(auto &track : piSoftTracks) {
+              /*
+                float mass123 = (piTracks[i].getVec() + piTracks[j].getVec() + track.getVec()).M();
+                bestPi.push_back(std::pair<float,int>(abs(mass123-2.010),&track - &piSoftTracks[0]));
+              }
+              sort(bestPi.begin(), bestPi.end(),
+                   [] (std::pair<float,int> a, std::pair<float,int> b) { return a.first < b.first; } );
+              if(bestPi.size()>0) {
+                auto track = piSoftTracks[bestPi[0].second];
+              */
                 //if(abs(track.getMotherId())!=413) continue;
                 //if(piTracks[j].getKalmanMass() != track.getKalmanMass()) continue;
                 //if(fabs(mass12-1.864) > 0.05) continue; // tighter mass window cut
@@ -2069,17 +2119,19 @@ void RunTopKalman(TString filename,
                   // Kaon and pion have opposite charges
                   // I.e. correct mass assumption
                 //std::vector<pfTrack> tmp_cands = { piTracks[i],piTracks[j],track };
-                tmp_cands.push_back( track );
-                /*
-                float mass123 = (tmp_cands[0].getVec() + tmp_cands[1].getVec() +tmp_cands[2].getVec()).M();
+                std::vector<pfTrack> tmp_match;
+                tmp_match = { piTracks[i],piTracks[j],track };
+                float mass123 = (tmp_match[0].getVec() + tmp_match[1].getVec() +tmp_match[2].getVec()).M();
                 float deltam = mass123-mass12;
+                /*
+                if(fabs(mass12-1.864) < 0.1)
+                if(deltam > 0.14 && deltam < 0.16)
                 if(deltam<0.14 || deltam>0.16) continue;
                 std::cout << deltam << std::endl;
                 if(mass123<1.9 || mass123>2.2) continue;
-                std::cout << (tmp_cands[0].getVec() + tmp_cands[1].getVec() +tmp_cands[2].getVec()).M() << std::endl;
                 */
-                runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
-                runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
+                runBCDEF.Fill(tmp_match, leptons, jet, chTag, "meson");
+                runGH.Fill(tmp_match, leptons, jet, chTag, "meson");
                 //Remove 1/2 event for both pi<->K
                 /*
                 if(keepRunB && isUsedB[piTracks[i].getIdx()]!=piTracks[j].getIdx()) {
@@ -2088,10 +2140,10 @@ void RunTopKalman(TString filename,
                   treeBCDEF.SetSFs(tmp_wgt*evtWgt_);
                   std::vector<pfTrack> tmp_dup = {piTracks[i], piTracks[j], track};
                   runBCDEF.Fill(tmp_dup, leptons, jet, chTag, "meson", -0.5);
-                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                  treeBCDEF.Fill(evch, tmp_match, leptons, jet, chTag, "meson");
                   tmp_dup = {piTracks[j], piTracks[i], track};
                   runBCDEF.Fill(tmp_dup, leptons, jet, chTag, "meson", -0.5);
-                  treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                  treeBCDEF.Fill(evch, tmp_match, leptons, jet, chTag, "meson");
                   treeBCDEF.SetSFs(tmp_wgt);
                 }
                 if(isUsedG[piTracks[i].getIdx()]!=piTracks[j].getIdx()) {
@@ -2100,17 +2152,18 @@ void RunTopKalman(TString filename,
                   treeGH.SetSFs(tmp_wgt*evtWgt_);
                   std::vector<pfTrack> tmp_dup = {piTracks[i], piTracks[j]};
                   runGH.Fill(tmp_dup, leptons, jet, chTag, "meson", -0.5);
-                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                  treeGH.Fill(evch, tmp_match, leptons, jet, chTag, "meson");
                   tmp_dup = {piTracks[j], piTracks[i]};
                   runGH.Fill(tmp_dup, leptons, jet, chTag, "meson", -0.5);
-                  treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                  treeGH.Fill(evch, tmp_match, leptons, jet, chTag, "meson");
                   treeGH.SetSFs(tmp_wgt);
                 }
                 */
-                treeBCDEF.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
-                treeGH.Fill(evch, tmp_cands, leptons, jet, chTag, "meson");
+                treeBCDEF.Fill(evch, tmp_match, leptons, jet, chTag, "meson");
+                treeGH.Fill(evch, tmp_match, leptons, jet, chTag, "meson");
                 treeBCDEF.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
                 treeGH.Fill(evch, ev.nvtx, htsum, stsum, ev.met_pt[0], lightJetsVec);
+                tmp_match.pop_back();
               } //end D*
               /*
               runBCDEF.SetPiTrk(1./sfB);

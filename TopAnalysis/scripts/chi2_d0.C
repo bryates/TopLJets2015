@@ -38,25 +38,49 @@ RooRealVar ptfrac;
 
 void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
 TString fname = TString::Format("sPlot/sPlot//TopMass_Data_sPlot_d0.root");
+if(name.Contains("_bkg")) fname = TString::Format("sPlot/sPlot//TopMass_Data_bkg_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("_xb")) {
+fname.ReplaceAll("_xb","");
+fname.ReplaceAll(".root","_xb.root");
+}
 if(name.Contains("noDup_shift")) fname.ReplaceAll("Data", "Data_noDup_shift");
 else if(name.Contains("noDup")) fname.ReplaceAll("Data", "Data_noDup");
 if(name.Contains("noTrkSF")) fname.ReplaceAll("Data", "Data_noTrkSF");
 if(name.Contains("ep")) fname.ReplaceAll("Data", "Data_ep");
 if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
 if(name.Contains("d0kk")) fname.ReplaceAll("Data", "Data_d0kk");
-if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR_toyData");
+if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR");
+if(name.Contains("dupBest")) fname.ReplaceAll("Data","Data_dupBest");
+if(name.Contains("BDzb")) fname.ReplaceAll("Data","Data_dupBest");
+if(name.Contains("_ds")) fname.ReplaceAll("Data","Data_ds");
+if(name.Contains("_dupNest")) fname.ReplaceAll("Data","Data_dupNest");
+if(name.Contains("172v5_no")) fname.ReplaceAll("Data","Data_no");
+if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
+  fname.ReplaceAll("Data","172v5");
+std::cout << name << std::endl;
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
 fname = TString::Format("sPlot/sPlot//TopMass_172v5%s_sPlot_d0.root",tune.Data());
 //fname = TString::Format("sPlot/sPlot//morph/TopMass_172v5%s_sPlot_d0.root",tune.Data());
+else {
+if(name.Contains("_no")) {
+  name.ReplaceAll("_no", "");
+  fname = TString::Format("sPlot/sPlot//TopMass_%s%s_no_sPlot_d0.root",name.Data(),tune.Data());
+  std::cout << fname << std::endl;
+}
 else
-fname = TString::Format("sPlot/sPlot//TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
+  fname = TString::Format("sPlot/sPlot//TopMass_%s%s_sPlot_d0.root",name.Data(),tune.Data());
+}
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("_xb")) {
+fname.ReplaceAll("_xb","");
+fname.ReplaceAll(".root","_xb.root");
+}
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fmc = TFile::Open(fname);
@@ -78,7 +102,12 @@ bin = {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0
 for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
-if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+//if(epoch<0) std::cout << "getting hist" << std::endl;
+//if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+//if(epoch<0 || fname.Contains("_xb")) mc->Add((TH1F*)fmc->Get("ptfrac_bkg_hist")->Clone());
+else if(fname.Contains("no_sPlot"))  mc = (TH1F*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
+else if(fname.Contains("no_sPlot"))  mc->Scale(1/10.);
 else { tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 //tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
@@ -90,7 +119,12 @@ mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 //mc->Rebin();
 delete tmp;
-if(epoch<0) data = (TH1F*)fdata->Get("ptfrac_signal_hist")->Clone();
+//if(epoch<0) std::cout << "getting hist" << std::endl;
+//if(epoch<0 || fname.Contains("_xb")) std::cout << "getting hist" << std::endl;
+//if(epoch<0) std::cout << "getting hist" << std::endl;
+if(epoch<0 || fname.Contains("_xb")) data = (TH1F*)fdata->Get("ptfrac_signal_hist")->Clone();
+//if(epoch<0 || fname.Contains("_xb")) data->Add((TH1F*)fdata->Get("ptfrac_bkg_hist")->Clone());
+else if(fname.Contains("no_sPlot"))  data = (TH1F*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 else { tmp = (RooPlot*)fdata->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 //tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fdata->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
@@ -198,7 +232,8 @@ chiTest->Sumw2();
 //chiTest->SetDirectory(0);
 for(auto & it : tune) {
   int pos = &it - &tune[0];
-  if(param[pos]>1) continue;
+  if(param[pos]>1.1) continue;
+  //if(param[pos]<0.675) continue;
   //if(param[pos]>1 && !name.Contains("fsr-down")) continue;
   //if(name == "up_PI" && param[pos]>0.975 && fullpt) continue; //remove up_PI 0.975 with large chi^2
   if(name == "GluonMove_erdON" && param[pos]==0.900 && epoch==0) continue; //remove up_PI 0.975 with large chi^2
@@ -220,7 +255,7 @@ for(auto & it : tune) {
 }
 
 chiTest->GetXaxis()->SetRangeUser(0.65,1.255);
-chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
+//chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
@@ -246,7 +281,7 @@ else
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(-88.3245, 1045.87, -2049.8, 1137.63);
  //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+chiTest->Fit("pol3","FSMEQRW","",0.6,1.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -263,7 +298,7 @@ float chimin = chiTest->GetFunction("pol3")->Eval(min);
 float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.075);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
-json += Form("%.4f, %.4f, ",min,abs(min-err));
+json += Form("%.3f +/- %.3f ",min,abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
 std::cout << "chi^2 at min= " << chimin << " " << TMath::Prob(chimin,10) << std::endl;
@@ -382,12 +417,12 @@ data->Scale(1./data->Integral());
 data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
 data->GetXaxis()->SetRangeUser(0.2,0.975);
-mc->GetXaxis()->SetRangeUser(0.2,0.975);
-data->GetXaxis()->SetRangeUser(0.2,1.0);
-mc->GetXaxis()->SetRangeUser(0.2,1.0);
+mc->GetXaxis()->SetRangeUser(0.4,0.975);
+data->GetXaxis()->SetRangeUser(0.2,1.1);//0.975);
+mc->GetXaxis()->SetRangeUser(0.2,1.1);//0.975);
 if(epoch<0 && 0) {
-data->GetXaxis()->SetRangeUser(0.425,0.95);
-mc->GetXaxis()->SetRangeUser(0.425,0.95);
+data->GetXaxis()->SetRangeUser(0.4,1.0);
+mc->GetXaxis()->SetRangeUser(0.4,1.0);
 }
 if(fullpt) {
 data->GetXaxis()->SetRangeUser(0.0,0.7);
@@ -401,8 +436,12 @@ mc->SetLineColor(kRed);
 mc->SetMarkerColor(kRed);
 mc->SetMarkerStyle(1);
 mc->SetLineWidth(1);
-mc->GetYaxis()->SetRangeUser(0.,.14);
-data->GetYaxis()->SetRangeUser(0.,.14);
+/*
+mc->GetYaxis()->SetRangeUser(0.,.16);
+data->GetYaxis()->SetRangeUser(0.,.16);
+*/
+mc->GetYaxis()->SetRangeUser(0.,.18);
+data->GetYaxis()->SetRangeUser(0.,.18);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.17);
 data->GetYaxis()->SetRangeUser(0.,.17);

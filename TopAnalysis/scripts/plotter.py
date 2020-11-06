@@ -73,6 +73,9 @@ class Plot(object):
             h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (untagged) [GeV]");
         if "massD0_mu_tag" in h.GetName() and "massD0_mu_tag_l_" not in h.GetName():
             h.GetXaxis().SetTitle("M(K^{#pm}#pi^{#mp}) (tagged) [GeV]");
+        if "D*" in h.GetName() and "< " not in h.GetName():
+            h.GetXaxis().SetTitle((TStrint(h.GetXaxis().GetTitle()).ReplaceAll("<",">")));
+            print h.GetXaxis().GetTitle()
         if "D0_mu_tag_mu" in h.GetName():
             h.GetXaxis().SetTitle("(D^{0} p_{T} + #mu p_{T})/#Sigma p_{T}^{ch}")
         if "JPsioJet" in h.GetName():
@@ -1159,7 +1162,7 @@ def main():
 
     #show plots
     ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetOptStat(0)
+    #ROOT.gStyle.SetOptStat(0)
     ROOT.gROOT.SetBatch(True)
     outDir=opt.inDir+'/plots'
     os.system('mkdir -p %s' % outDir)

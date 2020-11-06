@@ -29,6 +29,7 @@
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
 #include "convert.h"
+#include "param.h"
 #ifndef CHARM
 #define CHARM
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
@@ -44,7 +45,8 @@ using namespace RooStats;
 void splot_jpsi(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
   RooWorkspace w("w",mass);
   float wind(0.11);
-  std::vector<float> type = {0., 0.7, 1.};
+  std::vector<float> type = {0., 0.55, 1.};
+  //std::vector<float> type = {0., 0.7, 1.};
   int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
   mass.ReplaceAll(".","v");
   if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
@@ -78,6 +80,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TFile *fin;
   TGraph *g;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
+  TH1F *tuneFSR = new TH1F("tuneFSR","tuneFSR",3,0,3);
   //TFile *f = new TFile("MC13TeV_TTJets_m"+mass+".root");
   TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   //TFile *f = new TFile(dir+"MC13TeV_TTJets_m"+mass+"_0.root"); //open a randome file to get correction histograms
@@ -94,6 +97,11 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
       dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
       std::cout << dir << std::endl;
+    }
+    else if(mass.Contains("_FSR")) {
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test2/Chunks/");
+      std::cout << dir << std::endl;
+
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
@@ -126,7 +134,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_jpsi.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root", "_jpT.root");
-  if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
+  if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*1000)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
   if(!mass.Contains("toyData"))
@@ -243,7 +251,7 @@ for(auto it : mcSamples) {
       if(ev.jpsi_sigmal3d[j]<2E-4) continue;
       */
       if(ev.ht<80) continue;
-      if(mass.Contains("toyData")) {
+      if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()==0)) {
         /*
         if(i < start || i > start + nentries) continue;
         */
@@ -276,7 +284,7 @@ for(auto it : mcSamples) {
       tuneW.setVal(1.);
       scale *= ev.sfs[j];
       if(!isData) {
-        if(mass.Contains("toyData"))
+        if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()==0))
         scale *= ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         else
         scale *= ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
@@ -288,7 +296,7 @@ for(auto it : mcSamples) {
         else if(mass.Contains("FSR-down")) { scale *= ev.gfsr[1]; sumFSRwgt += ev.gfsr[1]; }
         if(ev.epoch[j]==1) {
           //scale *= 1.11;
-          if(mass.Contains("toyData"))
+          if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()==0))
           scale =  scale * puSF1 * topSF1;
           else
           scale =  scale * 19712.86 * puSF1 * topSF1;
@@ -296,7 +304,7 @@ for(auto it : mcSamples) {
         }
         else if(ev.epoch[j]==2) {
           //scale *= 1.01;
-          if(mass.Contains("toyData"))
+          if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()==0))
           scale = scale * puSF2 * topSF2;
           else
           scale = scale * 16146.178 * puSF2 * topSF2;
@@ -329,13 +337,13 @@ for(auto it : mcSamples) {
       j_pt.setVal(ev.j_pt[j]);
       if(!isData) j_hadflav.setVal(ev.j_hadflav[j]);
       if(!isData) {
-/*
-      if(TString(data->GetFile()->GetName()).Contains("powheg")) mcFile.setVal(5);
+      if(TString(data->GetFile()->GetName()).Contains("TTJets")) mcFile.setVal(5);
       else if(TString(data->GetFile()->GetName()).Contains("W1Jets")) mcFile.setVal(4);
       else if(TString(data->GetFile()->GetName()).Contains("W2Jets")) mcFile.setVal(4);
       else if(TString(data->GetFile()->GetName()).Contains("W3Jets")) mcFile.setVal(4);
       else if(TString(data->GetFile()->GetName()).Contains("W4Jets")) mcFile.setVal(4);
       else mcFile.setVal(0);
+/*
 */
        TString tmp = TString(data->GetFile()->GetName());
        tmp.ReplaceAll("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/", "");
@@ -361,7 +369,6 @@ for(auto it : mcSamples) {
        }
        //std::cout << ind << std::endl;
        //mcFile.setLabel(tmp);
-       mcFile.setVal(ind);
        //mcFile.setVal(data->GetFile()->GetName());
       }
       //meson_l_mass = ev.jpsi_l_mass[j];
@@ -409,15 +416,15 @@ for(auto it : mcSamples) {
   cout << "defining variables" << endl;
 
   // Mean of the J/psi mass peak
-  RooRealVar mean("mean","mean", 3.097, 3.097-wind, 3.097+wind);
+  RooRealVar mean("mean","mean", 3.097);//	, 3.097-wind, 3.097+wind);
   RooRealVar mean3("mean3","mean3", 3.097, 3.097-wind, 3.097+wind);
   //mean.setVal(3.0969);
   //mean.setConstant();
 
   // Construct Crystal Ball PDF for signal
-  RooRealVar cbsigma("csigma", "cbsigma" , 0.02, 0.001, 0.25); 
+  RooRealVar cbsigma("csigma", "cbsigma" , 0.033);//, 0.001, 0.25); 
   RooRealVar ncbsig("ncbsig", "ncbsignal", 4000, 0, 10000); 
-  RooRealVar n("n","cbn", 5, 0, 10);
+  RooRealVar n("n","cbn", 10);//, 0, 100);
   RooRealVar alpha("alpha","cbalpha", 1, 0, 5);
   RooCBShape cball("cball", "crystal ball", jpsi_mass, mean, cbsigma, alpha, n);
 
@@ -436,8 +443,8 @@ for(auto it : mcSamples) {
   RooGaussian gauss3("gauss3","gaus3s", jpsi_mass, mean3, sigma3);
 
   // Construct a double Gaussian function to fit the signal component
-  RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2),RooArgList(ngsig1,ngsig2));
-  //RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2,gauss3),RooArgList(ngsig1,ngsig2,ngsig3));
+  //RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2),RooArgList(ngsig1,ngsig2));
+  RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2,gauss3),RooArgList(ngsig1,ngsig2,ngsig3));
 
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2, -5, 5.);
@@ -477,7 +484,9 @@ for(auto it : mcSamples) {
   RooRealVar nbkg("nbkg","#background events", 4000, 0, 10000) ;
   //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,expoc,gaussc),RooArgList(nbkge,nbkgec,ngsigc));
   //RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
-  RooAddPdf model("model","g+a", RooArgList(cball, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
+  //RooAddPdf model("model","g+a", RooArgList(cball, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
+  RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, expo, bkgcball), RooArgList(nsig,nbkg,bkgncbsig)) ;
   //RooAddPdf model("model","g+a", RooArgList(signalModel, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
 
@@ -486,10 +495,10 @@ for(auto it : mcSamples) {
   //ptfrac.setConstant();
   weight.setConstant();
   RooPlot* frame = jpsi_mass.frame() ;
-  std::vector<float> bin;
+  //std::vector<float> bin;
   RooBinning bins(0,1.1);
   //bin = {0, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
-  bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
+  //bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
   model.fitTo(ds, Extended(), SumW2Error(kTRUE));

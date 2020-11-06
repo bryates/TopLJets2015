@@ -51,7 +51,7 @@ def main():
     #configuration
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option('-m', '--method',      dest='method',      help='method to run [%default]',                   default='TOP-16-006::RunTop16006',  type='string')
+    parser.add_option('-m', '--method',      dest='method',      help='method to run [%default]',                   default='TOP::RunTopKalman',  type='string')
     parser.add_option('-i', '--in',          dest='input',       help='input directory with files or single file [%default]',  default=None,       type='string')
     parser.add_option('-o', '--out',         dest='output',      help='output directory (or file if single file to process)  [%default]',  default='analysis', type='string')
     parser.add_option('-e', '--ext',         dest='ext',         help='extput directory with files or single file [%default]',  default='/store/group/phys_top/byates/ext/',       type='string')

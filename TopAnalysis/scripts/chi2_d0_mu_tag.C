@@ -34,12 +34,23 @@ void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
 
 void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
+//TString fname = TString::Format("sPlot/sPlot/TopMass_Data_bkg_sPlot_d0_mu_tag_mu.root");
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("_xb")) {
+fname.ReplaceAll("_xb","");
+fname.ReplaceAll(".root","_xb.root");
+}
+if(name.Contains("_inc")) {
+fname.ReplaceAll("_inc","");
+fname.ReplaceAll(".root","_inc.root");
+}
 if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR_toyData");
 //if(epoch<0)fname.ReplaceAll("sPlot/sPlot/","");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
+  fname.ReplaceAll("Data","172v5");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
@@ -50,6 +61,14 @@ fname = TString::Format("sPlot/sPlot/TopMass_%s%s_sPlot_d0_mu_tag_mu.root",name.
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(epoch<0)fname.ReplaceAll("sPlot/sPlot/","");
+if(name.Contains("_xb")) {
+fname.ReplaceAll("_xb","");
+fname.ReplaceAll(".root","_xb.root");
+}
+if(name.Contains("_inc")) {
+fname.ReplaceAll("_inc","");
+fname.ReplaceAll(".root","_inc.root");
+}
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fmc = TFile::Open(fname);
@@ -67,7 +86,7 @@ for(int i = 0; i < bin.size(); i++) {
 }
 
 RooPlot *tmp = nullptr;
-if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+if(epoch<0 || fname.Contains("_xb") || fname.Contains("_inc")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 else {
 tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
@@ -86,7 +105,7 @@ mc = (TH1F*)convert(tmp, norm, bin);
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
 delete tmp;
-if(epoch<0) data = (TH1F*)fdata->Get("ptfrac_signal_hist")->Clone();
+if(epoch<0 || fname.Contains("_xb") || fname.Contains("_inc")) data = (TH1F*)fdata->Get("ptfrac_signal_hist")->Clone();
 else {
 tmp = (RooPlot*)fdata->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 delete tmp;
@@ -166,8 +185,12 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1075", "_1125" };
-std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.075, 1.125, 0.802};
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_up", "_1075", "_1125" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 1.055, 1.075, 1.125, 0.802};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1075", "_1125" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.075, 1.125, 0.802};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1075", "_1125" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.075, 1.125, 0.802};
 /*
 std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
@@ -183,7 +206,8 @@ for(auto & it : tune) {
   if(param[pos]<0.65 && !name.Contains("fsr-up")) continue;
   //if(!fullpt && param[pos]>1 && !name.Contains("fsr-down")) continue;
   //if(epoch==1 && param[pos]==0.875) continue; //FIXME
-  if(param[pos]>0.976) continue; //FIXME
+  //if(param[pos]>0.976) continue; //FIXME
+  if(param[pos]>1.056) continue; //FIXME
   //if(name.Contains("m173v5") and it == "") continue; //FIXME
   std::cout << "Running on tune: " << it << std::endl;
   float chi = chi2_d0_mu_tag_test(it, name, param[pos]);
@@ -198,7 +222,8 @@ for(auto & it : tune) {
 if(fullpt)
 chiTest->GetXaxis()->SetRangeUser(0.65,1.125);
 else
-chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
+chiTest->GetXaxis()->SetRangeUser(0.65,1.056);
+//chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.056);
 if(name.Contains("fsr-down")) chiTest->GetXaxis()->SetRangeUser(0.65,1.126);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
@@ -227,7 +252,7 @@ else
 if(fullpt)
 chiTest->Fit("pol3","FSMEQW");//,"",0.6,0.976);
 else
-chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+chiTest->Fit("pol3","FSMEQRW","",0.6,1.976);
 if(name.Contains("fsr-down")) chiTest->Fit("pol3","FSMEQRW","",0.6,1.26);//0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
@@ -245,7 +270,7 @@ float chimin = chiTest->GetFunction("pol3")->Eval(min);
 float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.126);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
-json += Form("%.4f, %.4f, ",min,abs(min-err));
+json += Form("%.3f +/- %.3f ",min,abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
 std::cout << "chi^2_min + 1 at x= " << err << std::endl;
@@ -380,6 +405,7 @@ mc->GetXaxis()->SetRangeUser(0.21,0.89);
 gStyle->SetOptStat(0);
 mc->SetTitle("");
 data->SetTitle("");
+tdr(mc, epoch, fin);
 mc->Draw("hist");
 mc->Draw("same e");
 data->Draw("same");

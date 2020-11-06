@@ -191,6 +191,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("run",       &ev.run);
   t->SetBranchAddress("event",     &ev.event);
   t->SetBranchAddress("lumi",      &ev.lumi);
+  if(t->GetListOfBranches()->FindObject("lum"))
   t->SetBranchAddress("lum",       &ev.lum);
   t->SetBranchAddress("epoch",      ev.epoch);
   t->SetBranchAddress("norm",      &ev.norm);

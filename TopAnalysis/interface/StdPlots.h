@@ -6,6 +6,7 @@
 #include <map>
 #include "TString.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TTree.h"
 #include "TopLJets2015/TopAnalysis/interface/Particle.h"
 #include "TopLJets2015/TopAnalysis/interface/Leptons.h"
@@ -57,6 +58,7 @@ class StdPlots {
 
  private:
   std::map<TString, TH1 *> allPlots;
+  std::map<TString, TH2 *> allPlots2D;
   TString runPeriod_;
   TString name_;
   bool debug_;

@@ -79,6 +79,7 @@ else if(sample.Contains("d0"))
   //bin = {-0.025, 0.05, 0.125, 0.2, 0.275, 0.35, 0.425, 0.5, 0.575, 0.65, 0.725, 0.8, 0.875, 0.95, 1.0};
 bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 TString fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s_sPlot_%s.root",name.Data(),sample.Data());
+if(name.Contains("FSR")) fname.ReplaceAll(name, "FSR");
 if(toyData) {
   if(sample.Contains("mu_tag"))
     splot_d0_mu_tag(pdata, TString::Format("toyData%d",iteration), false, "", epoch, false);
@@ -88,9 +89,11 @@ if(toyData) {
     splot_d0(pdata, TString::Format("toyData%d",iteration), false, "", epoch, false);
   //fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_toyData%d_sPlot_%s.root",iteration,sample.Data());
 }
-if(name.Contains("FSR")) fname.ReplaceAll(name, "FSR");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("_xb.root"));
+if(sample.Contains("mu_tag"))
+  fname.ReplaceAll("_xb","_inc");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
@@ -100,11 +103,14 @@ else
 fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_%s%s_sPlot_%s.root",name.Data(),tune.Data(),sample.Data());
 //fname = TString::Format("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/sPlot/sPlot/morph/TopMass_%s%s_sPlot_sim.root",name.Data(),tune.Data());
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
+if(epoch>0) fname.ReplaceAll(".root",TString::Format("_xb.root"));
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
+if(sample.Contains("mu_tag"))
+  fname.ReplaceAll("_xb","_inc");
 TFile *fmc = TFile::Open(fname);
 
 RooPlot *tmp = nullptr;
-TString Tptfrac("ptfrac_signal");
+TString Tptfrac("ptfrac_signal_hist");
 if(sample.Contains("mu_tag")) Tptfrac = "ptfrac_mu_tag_signal";
 //bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
 //bin = {-0.025, 0.025, 0.075, 0.125,  0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.0};
@@ -112,9 +118,10 @@ if(sample.Contains("mu_tag")) Tptfrac = "ptfrac_mu_tag_signal";
 for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
-tmp = (RooPlot*)fdata->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_Data"));
-if(!toyData) pdata = (TH1F*)convert(tmp, norm, 0, 1.1);
-if(sample.Contains("mu_tag") || sample.Contains("jpsi")) {
+//tmp = (RooPlot*)fdata->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_Data"));
+pdata = (TH1F*)fdata->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_Data"));
+//if(!toyData) pdata = (TH1F*)convert(tmp, norm, 0, 1.1);
+if((sample.Contains("mu_tag") || sample.Contains("jpsi")) && 0) {
   //std::cout << "variable binning" << std::endl;
   delete tmp;
   tmp = ((RooWorkspace*)fdata->Get("w"))->var("ptfrac")->frame();
@@ -130,14 +137,15 @@ if(fmc->Get("ptfrac")->GetBinContent(0) != 0) {
   return;
 }
 */
-tmp = (RooPlot*)fmc->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
+//tmp = (RooPlot*)fmc->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 //if(nmc == 0) ((RooWorkspace*)fmc->Get("w"))->data("sigData")->numEntries();
 //tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();
 //((RooDataSet*)((RooWorkspace*)fmc->Get("w"))->data("sigData"))->plotOn(tmp, RooFit::Binning(bins), DataError(RooAbsData::SumW2));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
-mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+//mc = (TH1F*)convert(tmp, norm, 0, 1.1);
+mc = (TH1F*)fmc->Get(Tptfrac)->Clone(TString::Format("ptfrac_signal_Data"));
 //mc = (TH1F*)convert(tmp, norm, bin);
-if(sample.Contains("mu_tag") || sample.Contains("jpsi")) {
+if((sample.Contains("mu_tag") || sample.Contains("jpsi")) && 0) {
   //std::cout << "variable binning" << std::endl;
   delete tmp;
   tmp = ((RooWorkspace*)fmc->Get("w"))->var("ptfrac")->frame();

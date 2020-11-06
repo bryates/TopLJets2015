@@ -7,7 +7,8 @@ BRs=[
     (511, 'B^{0}',        0.23845, 0.1043, 0.1033, 0.0028),
     (521, 'B^{+}',        0.25579, 0.1129, 0.1099, 0.0028),
     (531, 'B^{0}_{s}',    0.21920, 0.0930, 0.0960, 0.008),
-    (5122, '#Lambda_{b}', 0.17870, 0.0770, 0.104, 0.022)
+    (5122, '#Lambda_{b}', 0.17870, 0.0770, 0.104, 0.022),
+    ('inc', 'inc', 1, 1, 1, 1)
     ]
 
 """
@@ -95,6 +96,7 @@ def main():
 
         i=semilepbrUp.GetN()
         pid,_,py8inc,py8exc,pdg,pdgUnc=entry
+        if pid == 'inc': continue
 
         brUp   = py8inc*(1+ROOT.TMath.Max((pdg+pdgUnc)-py8exc,0.)/py8exc)
         semilepbrUp.SetPoint(i,     pid*(-1), (1-brUp)/(1-py8inc))
@@ -108,14 +110,19 @@ def main():
     semilepbrDown.Write()
 
     for entry in BRs:
-        for unc in ['Dzbu','Dzbd','Dzu','Dzd']:
+        for unc in ['Dzb','Dzbu','Dzbd']:#,'Dz','Dzu','Dzd']:
             pid=entry[0]
+            if pid == 'inc' and unc[-1] == 'u': continue
+            if pid == 'inc' and unc[-1] == 'd': continue
+            if pid != 'inc' and unc[-1] == 'z': continue
+            if pid != 'inc' and unc[-1] == 'b': continue
 
-            name='bfragAnalysis/xb_semilepDzbu{}'.format(pid)
+            name='bfragAnalysis/xb_semilep{}{}'.format(unc,pid)
             fIn=ROOT.TFile.Open(fName)
             tag=unc+str(pid)
             xb[tag]=fIn.Get(name).Clone(unc+str(pid))
-            xb[tag].Scale(1./xb[tag].Integral())
+            if xb[tag].Integral():
+                xb[tag].Scale(1./xb[tag].Integral())
             xb[tag].Divide(xb['cuetp8m2t4'])
             xb[tag].SetDirectory(0)
             fIn.Close()
@@ -132,16 +139,52 @@ def main():
     #        fOut.cd()
     #        sgr.Write()
        
-    #for entry in BRs:
-    #    for unc in ['Dzb','Dz']:
-    #        pid=entry[0]
-    #        tag=unc+'u'+str(pid)
-    #        tagd=unc+'d'+str(pid)
-    #        x = xb[tagd].Clone(tag+'over'+tagd)
-    #        x.Divide(x,xb[tag],1,1,'B')
-    #        fOut.cd()
-    #        x.Write()
-            
+    for entry in BRs:
+        if entry[0] == 'inc': continue
+        for unc in ['Dzb']:#,'Dz']:
+            pid=entry[0]
+            tag=unc+str(pid)
+            tagu=unc+'u'+str(pid)
+            tagd=unc+'d'+str(pid)
+            x = xb[tagd].Clone(tag+'over'+tagd)
+            #x.Divide(x,xb[tag],1,1,'B')
+            if x.Integral(): x.Scale(1./x.Integral())
+            x.Divide(xb['cuetp8m2t4'])
+            fOut.cd()
+            x.Write()
+            gr=ROOT.TGraphErrors(x)
+            gr.SetMarkerStyle(20)
+            sgr=smoothWeights(gr)
+            sgr.SetName('semilep'+unc+str(pid)+'Frag')
+            sgr.SetLineColor(ROOT.kBlue)
+            fOut.cd()
+            sgr.Write()
+
+    for unc in ['Dzb']:#,'Dz']:
+        pid=entry[0]
+        #xb_semilepDzbinc
+        tag='xb_semilep'+unc+'inc'
+        tag=unc+'inc'
+        tagu=unc+'u'+str(pid)
+        tagd=unc+'d'+str(pid)
+        name='bfragAnalysis/xb_semilep{}{}'.format(unc,pid)
+        print name
+        #x=fIn.Get(name).Clone(unc+str(pid))
+        x = xb[tag].Clone(tag+'overnom')
+        #x.Divide(x,xb[tag],1,1,'B')
+        #x.Scale(1./x.Integral())
+        #x.Divide(xb['cuetp8m2t4'])
+        #x.Divide(x,xb['cuetp8m2t4'],1,1,'B')
+        fOut.cd()
+        x.Write()
+        gr=ROOT.TGraphErrors(x)
+        gr.SetMarkerStyle(20)
+        sgr=smoothWeights(gr)
+        sgr.SetName('semilep'+unc+'uncFrag')
+        print sgr.GetName()
+        sgr.SetLineColor(ROOT.kBlue)
+        fOut.cd()
+        sgr.Write()
 
     fOut.Close()
     print 'Fragmentation been saved to',outf

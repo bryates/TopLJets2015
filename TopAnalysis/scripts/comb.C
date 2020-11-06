@@ -35,8 +35,8 @@ RooBinning bins(0,1.1);
 for(int i = 0; i < bin.size(); i++) {
  bins.addBoundary(bin[i]);
 }
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up" };
-//tune = { "_fit", "_fitup", "_fitdown" };
+std::vector<TString> tune = {"_sdown", "_central" };
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1125" };
 for(size_t s = 0; s < tune.size(); s++) {
 TH1F *tot = nullptr;
 TH1F *totm = nullptr;
@@ -47,7 +47,7 @@ RooRealVar *nsig_sw;
 RooRealVar *nsig;
 RooRealVar *nbkg;
 //size_t s(7);
-if(s != 7) continue; //FIXME uncomment for Data
+//if(s != 7) continue; //FIXME uncomment for Data
 //if(tune[s] != "_700") continue;
 for(size_t i = 1; i < type.size(); i++) {
   TH1F *ptep = nullptr;
@@ -55,11 +55,11 @@ for(size_t i = 1; i < type.size(); i++) {
   for(int epoch = 1; epoch <= 2; epoch++) {
     //if(epoch == 2 && i == 0) continue;
     //if(epoch ==2 && type[i] <= 0.575) continue;
-    TString fUrl(TString::Format("sPlot/sPlot//TopMass_Data%s_sPlot_d0%d_%d.root",tune[s].Data(), epoch, int(type[i]*1000)));
+    TString fUrl(TString::Format("sPlot/sPlot//TopMass_172v5%s_sPlot_d0%d_%d.root",tune[s].Data(), epoch, int(type[i]*1000)));
     //fUrl.ReplaceAll("d01", "d0");
    /*
     if(epoch==1 && type[i]<=0.5) 
-      fUrl = TString::Format("sPlot/sPlot//TopMass_Data%s_sPlot_d0_%d.root",tune[s].Data(), int(type[i]*1000));
+      fUrl = TString::Format("sPlot/sPlot//TopMass_172v5%s_sPlot_d0_%d.root",tune[s].Data(), int(type[i]*1000));
    */
     std::cout << fUrl << std::endl;
     TFile *f = TFile::Open(fUrl);
@@ -98,16 +98,16 @@ for(size_t i = 1; i < type.size(); i++) {
     if(epoch==2 && ptep2 != nullptr) ptep2->SetDirectory(0);
     if(epoch==1 && ptep1 != nullptr) ptep1->Draw();
     else if(epoch==2 && ptep2 != nullptr) ptep2->Draw();
-    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_%d-%d_d0%d.png", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
-    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_%d-%d_d0%d.pdf", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
+    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_%d-%d_d0%d.png", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
+    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_%d-%d_d0%d.pdf", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
     //if(epoch==1) std::cout << ptep1->Integral() << std::endl;
     RooPlot *mass = (RooPlot*)f->Get("massD0");
     mass->SetTitle("");
     tdr(mass, epoch);
     mass->Draw();
     tdr(mass, epoch);
-    c1->SaveAs(TString::Format("www/meson/tdr/massD0_Data%s_%d-%d_d0%d.png", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
-    c1->SaveAs(TString::Format("www/meson/tdr/massD0_Data%s_%d-%d_d0%d.pdf", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
+    c1->SaveAs(TString::Format("www/meson/tdr/massD0_172v5%s_%d-%d_d0%d.png", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
+    c1->SaveAs(TString::Format("www/meson/tdr/massD0_172v5%s_%d-%d_d0%d.pdf", tune[s].Data(), int(type[i-1]*1000), int(type[i]*1000), epoch));
     std::cout << "mass" << std::endl;
     RooWorkspace *w = (RooWorkspace*)f->Get("w");
     RooDataSet *dsn = (RooDataSet*)w->data("dsSWeights");
@@ -130,15 +130,15 @@ for(size_t i = 1; i < type.size(); i++) {
     delete f;
   }
   ptep->Draw();
-  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_%d-%d_d0.png", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
-  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_%d-%d_d0.pdf", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
+  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_%d-%d_d0.png", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
+  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_%d-%d_d0.pdf", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
   char c;
   delete ptep;
   ptep = nullptr;
   massp->SetMinimum(0);
   massp->Draw();
-  c1->SaveAs(TString::Format("www/meson/tdr/massD0_Data%s_%d-%d_d0.png", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
-  c1->SaveAs(TString::Format("www/meson/tdr/massD0_Data%s_%d-%d_d0.pdf", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
+  c1->SaveAs(TString::Format("www/meson/tdr/massD0_172v5%s_%d-%d_d0.png", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
+  c1->SaveAs(TString::Format("www/meson/tdr/massD0_172v5%s_%d-%d_d0.pdf", tune[s].Data(), int(type[i-1]*1000), int( type[i]*1000)));
   delete massp;
   massp = nullptr;
 }
@@ -149,12 +149,12 @@ if(tune[s] == "") {
 totm->Draw();
     std::cout << "n tot mass: " << totm->Integral() << std::endl;
 //fnc->Draw("same");
-    c1->SaveAs(TString::Format("www/meson/tdr/massD0_Data_d0.png"));
-    c1->SaveAs(TString::Format("www/meson/tdr/massD0_Data_d0.pdf"));
+    c1->SaveAs(TString::Format("www/meson/tdr/massD0_172v5_d0.png"));
+    c1->SaveAs(TString::Format("www/meson/tdr/massD0_172v5_d0.pdf"));
 }
 tot->Draw();
-    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_d0.png", tune[s].Data()));
-    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_d0.pdf", tune[s].Data()));
+    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_d0.png", tune[s].Data()));
+    c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_d0.pdf", tune[s].Data()));
   if(ptep1!=nullptr) {
   ptep1->SetTitle(ptep1->GetName());
   ptep1->SetMinimum(0);
@@ -162,8 +162,8 @@ tot->Draw();
   ptep1->GetXaxis()->SetRangeUser(0,1.1);
   ptep1->Draw();
   tdr(ptep1,1);
-  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_BCDEF_d0.png", tune[s].Data()));
-  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_BCDEF_d0.pdf", tune[s].Data()));
+  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_BCDEF_d0.png", tune[s].Data()));
+  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_BCDEF_d0.pdf", tune[s].Data()));
   delete ptep1;
   ptep1 = nullptr;
   }
@@ -171,13 +171,13 @@ tot->Draw();
   ptep2->SetMinimum(0);
   ptep2->Draw();
   ptep2->SetTitle(ptep2->GetName());
-  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_GH_d0.png", tune[s].Data()));
-  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_Data%s_GH_d0.pdf", tune[s].Data()));
+  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_GH_d0.png", tune[s].Data()));
+  c1->SaveAs(TString::Format("www/meson/tdr/ptfrac_signal_172v5%s_GH_d0.pdf", tune[s].Data()));
   delete ptep2;
   ptep2 = nullptr;
   }
 if(tune[s] == "") mc = (TH1F*)tot->Clone();
-TFile *fout = TFile::Open(TString::Format("sPlot/sPlot//TopMass_Data%s_sPlot_d0_xb.root",tune[s].Data()),"RECREATE");
+TFile *fout = TFile::Open(TString::Format("sPlot/sPlot//TopMass_172v5%s_sPlot_d0_xb.root",tune[s].Data()),"RECREATE");
 tot->SetDirectory(fout);
 tot->SetMaximum(2000);
 tot->Write();
@@ -202,7 +202,7 @@ totm = nullptr;
 /*
 TH1F *h;
 for(int epoch = 1; epoch < 2; epoch++) {
-  TString fUrl(TString::Format("sPlot/sPlot//TopMass_Data_sPlot_d0%d.root", epoch));
+  TString fUrl(TString::Format("sPlot/sPlot//TopMass_172v5_sPlot_d0%d.root", epoch));
   std::cout << fUrl << std::endl;
   TFile *f = new TFile(fUrl);
   if(f == nullptr) return;

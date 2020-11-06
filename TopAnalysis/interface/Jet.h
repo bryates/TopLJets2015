@@ -55,6 +55,7 @@ class pfTrack {
   inline float getOpeningAngle() { return opAng_; }
   inline float getEtaCorrection() { return etaSF_; }
   inline float getPtCorrection() { return ptSF_; }
+  inline int getJetIndex() { return jId_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
@@ -74,6 +75,7 @@ class pfTrack {
   inline void setNdau(int ndau) { ndau_ = ndau; }
   inline void setEtaCorrection(float etaSF) { etaSF_ = etaSF; }
   inline void setPtCorrection(float ptSF) { ptSF_ = ptSF; }
+  inline void setJetIndex(int jId) { jId_ = jId; }
   void print();
   int pos_;
 
@@ -93,6 +95,7 @@ class pfTrack {
   float opAng_;
   float etaSF_ = 1.;
   float ptSF_ = 1.;
+  int jId_ = -1;
   int pfid_;
   int motherId_;
   int quality_;
