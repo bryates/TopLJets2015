@@ -1552,6 +1552,7 @@ void RunTopKalman(TString filename,
           tmax = jet.getTracks().size() >= tmax ? tmax : jet.getTracks().size();
           */
           for(auto &track : jet.getTracks()) {
+            track.setJetHadFlav(jet.getHadFlav());
             //Only save up to first 4 hardest tracks (sorted by pT already)
             //Only save up to first 4 hardest tracks (sorted by pT already)
             if(abs(track.getMotherId())!=421 && abs(track.getMotherId())!=42113 && abs(track.getMotherId())!=413) continue;
