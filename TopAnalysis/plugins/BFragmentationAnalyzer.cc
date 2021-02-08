@@ -285,7 +285,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           if(jinfo.motherId==431 && jinfo.charmId==421)
             histos_["xb_semilepDzu431"]->Fill(jinfo.xb, 1. - hadronUncDz_[6]/100);
 
-          if(jinfo.motherId>0 && jinfo.charmId==421) std::cout << jinfo.motherId << std::endl;
+          //if(jinfo.motherId>0 && jinfo.charmId==421) std::cout << jinfo.motherId << std::endl;
 
           if(jinfo.leadTagId==511)
             histos_["xb_semilep511"]->Fill(jinfo.xb);
@@ -315,7 +315,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             if(daug->mother() == 0) break;
             daug = daug->mother();
           }
-          if(abs(daug->pdgId()) <= 6) std::cout << "Parent quark found! PDGID= " << daug->pdgId() << std::endl;
+          //if(abs(daug->pdgId()) <= 6) std::cout << "Parent quark found! PDGID= " << daug->pdgId() << std::endl;
           if(jinfo.hasSemiLepDecay)  {
             histos_["z_semilepinc"]->Fill(jinfo.pt/daug->pt());
             histos_["zVxb_semilepinc"]->Fill(jinfo.pt/daug->pt(),jinfo.xb);
@@ -363,14 +363,14 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           histos_["xb_semilep421"]->Fill(jinfo.xb);
           for(size_t k = 0; k < jinfo.meson.size(); k++) {
             if(i==k) continue;
-            std::cout << jinfo.mesonId[i] << " " << jinfo.mesonId[j] << " " << jinfo.mesonId[k] << std::endl;
+            //std::cout << jinfo.mesonId[i] << " " << jinfo.mesonId[j] << " " << jinfo.mesonId[k] << std::endl;
             if(jinfo.mesonId[i]==jinfo.mesonId[k]) continue;
             TLorentzVector p4p2;
             p4k.SetPtEtaPhiM(jinfo.meson[k][0], jinfo.meson[k][1], jinfo.meson[k][2], gMassK);
             float mass123 = (p4p+p4k+p4p2).M();// - mass12;
             //if(jinfo.mesonId[i]==jinfo.mesonId[k]) histos_["massDsinc"]->Fill(mass123);
             //else histos_["massDs_ssinc"]->Fill(mass123);
-            std::cout << "mass123=" << mass123 << std::endl;
+            //std::cout << "mass123=" << mass123 << std::endl;
 	    if (mass123>1.9 && mass123<2.2) {
               if(jinfo.mesonId[i]==jinfo.mesonId[k]) {
                 histos_["massDsinc"]->Fill(mass123);

@@ -1,9 +1,9 @@
 #include <TString.h>
 #include <TFile.h>
 #include <TH1.h>
-#include "param.h"
-#include "convert.h"
-#include "tdr.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.h"
 
 TH1F *nombkgB = nullptr;
 TH1F *nombkgG = nullptr;
@@ -120,21 +120,25 @@ param["up"]=1.055;
         auto c1 = setupCanvas();
         c1->cd();
         setupPad()->cd();
-        d->plotOn(frame, RooFit::Binning(60), RooFit::DrawOption("AP"));
+        d->plotOn(frame, RooFit::Binning(30), RooFit::DrawOption("AP"));
         auto mass = (TH1F*)convert(frame, false, 1.7, 2.0);
+        //auto gauss = (RooBukinPdf*)w->pdf("bukin_novos");
         auto gauss = (RooGaussian*)w->pdf("gauss");
         auto expo = (RooAddPdf*)w->pdf("expo");
-        auto model = new RooAddPdf("model","g+a", RooArgList(*gauss, *expo), RooArgList(*w->var("nsig"),*w->var("nbkg"))) ;
+        //auto model = new RooAddPdf("model","g+a", RooArgList(*gauss, *expo), RooArgList(*w->var("nsig"),*w->var("nbkg"))) ;
+        auto model = (RooAddPdf*)w->pdf("model");
         if(cutname[i] == "c")
           model = (RooAddPdf*)w->pdf("model");
         model->fitTo(*d);
         model->plotOn(frame);
         frame->Draw();
-        /*
+        float chi2 = frame->chiSquare();//"model", "data", 3);
+        std::cout << std::endl << cutname[i] << " chi2 " << chi2 << std::endl << std::endl;
         if(name=="172v5") {
         c1->SaveAs(TString::Format("www/meson/morph/mass/massD0_bkgHand_%s%s%s_d0_xb.pdf",name.Data(), cutname[i].Data(), epoch_name[ep+1].Data()));
         c1->SaveAs(TString::Format("www/meson/morph/mass/massD0_bkgHand_%s%s%s_d0_xb.png",name.Data(), cutname[i].Data(), epoch_name[ep+1].Data()));
         }
+        /*
         */
         auto framem = w->var("d0_mass")->frame();
         //w->pdf("model")->plotOn(framem, RooFit::Components("gauss"), RooFit::Binning(60), RooFit::DrawOption("AL"));
@@ -146,9 +150,11 @@ param["up"]=1.055;
           scalesig[i] += framem->getCurve()->Integral() * mass->GetBinContent(ibin);
         }
         */
+        //w->var("d0_mass")->setRange("window", w->var("mean")->getVal() - 2 * w->var("sigp")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigp")->getVal());
         w->var("d0_mass")->setRange("window", w->var("mean")->getVal() - 2 * w->var("sigma")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigma")->getVal());
         //scalesig[i] = w->pdf("gauss")->createIntegral(*w->var("d0_mass"),"window")->getVal() * w->var("nsig")->getVal();
         auto x = *w->var("d0_mass");
+        //x.setRange("window",w->var("mean")->getVal() - 2 * w->var("sigp")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigp")->getVal());
         x.setRange("window",w->var("mean")->getVal() - 2 * w->var("sigma")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigma")->getVal());
         //x.setRange("window",1.8,1.93);
         RooAbsReal *intModel = model->createIntegral(x);
@@ -182,8 +188,8 @@ param["up"]=1.055;
         */
         //std::cout << "bkg = " << framem->getCurve()->Integral() * w->var("nbkg")->getVal() << std::endl;;
         std::cout << "bkg = " << scalebkg[i] << std::endl;;
-        if((i== 1 && name.EqualTo("172v5_ext")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
-        //if((i== 1 && name.EqualTo("isr-up")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
+        //if((i== 1 && name.EqualTo("172v5")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
+        if((i== 1 && name.EqualTo("172v5_charmdown")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
         std::cout << "sig/bkg = " << scale[i] << std::endl;;
 
         fin->Close();
@@ -248,6 +254,7 @@ param["up"]=1.055;
         else bkg_tot->Add(tmp);
         */
         std::cout << "new frame" << std::endl;
+        //w->var("d0_mass")->setRange(w->var("mean")->getVal() - 2 * w->var("sigp")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigp")->getVal());
         w->var("d0_mass")->setRange(w->var("mean")->getVal() - 2 * w->var("sigma")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigma")->getVal());
         auto cut = TString::Format("d0_mass>%0.3f && d0_mass<%0.3f", w->var("mean")->getVal() - 2 * w->var("sigma")->getVal(), w->var("mean")->getVal() + 2 * w->var("sigma")->getVal());
         std::cout << "cut=" << cut << std::endl;
@@ -322,8 +329,8 @@ param["up"]=1.055;
       fin->Close();
       delete fin;
     }
-    if(!name.EqualTo("172v5_ext")) {
-    //if(!name.EqualTo("isr-up")) {
+    //if(!name.EqualTo("172v5")) {
+    if(!name.EqualTo("172v5_charmdown")) {
       TString fnamenom = (TString::Format("sPlot/sPlot/TopMass_172v5_sPlot_d0%d_xb.root", ep));
           if(name.Contains("Wup")) fnamenom.ReplaceAll("Wup", "172v5");
           if(name.Contains("Wdown")) fnamenom.ReplaceAll("Wdown", "172v5");
@@ -345,6 +352,7 @@ param["up"]=1.055;
       if(name.Contains("Oup")) bkgo->Scale(1.25);
       if(name.Contains("Odown")) bkgo->Scale(0.75);
       scale[2] = ((TH1F*)finnom->Get("scale"))->GetBinContent(3);
+      std::cout << "Loading nominal W jet bkg" << std::endl;
       bkgW = (TH1F*)finnom->Get("ptfrac_bkgW_hist");
       bkgW->SetDirectory(0);
       if(name.Contains("Wup")) bkgW->Scale(1.25);
@@ -354,8 +362,8 @@ param["up"]=1.055;
       std::cout << "sig/bkg = " << scale[1] << std::endl;;
       finnom->Close();
     }
-    else if(name.EqualTo("172v5_ext")) {
-    //else if(name.EqualTo("isr-up")) {
+    //else if(name.EqualTo("172v5")) {
+    else if(name.EqualTo("172v5_charmdown")) {
       bkgc->Scale(scale[1]);
     }
     if(!isData && name == "172v5") {
@@ -436,7 +444,7 @@ param["up"]=1.055;
     bkg->SetMarkerColor(kRed);
     sig->Draw("same");
     TString tmpname = TString::Format("%s_%d", TString(name(0, name.First("_"))).Data(), int(1000 * param[TString(name(name.First("_")+1,name.Length())).Data()]));
-    if(name.EqualTo("172v5_ext")) tmpname = "172v5_855";
+    if(name.EqualTo("172v5")) tmpname = "172v5_855";
     if(name.EqualTo("Data")) tmpname = "Data";
     std::cout << tmpname << std::endl;
         /*
@@ -446,8 +454,7 @@ param["up"]=1.055;
     tdr(bkgW,ep);
     bkgW->Draw();
     tdr(bkgW,ep);
-        if(name=="172v5") {
-    c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_bkgHand_%sW%s_d0_xb.pdf",name.Data(), epoch_name[ep+1].Data()));
+        if(name=="172v5") { c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_bkgHand_%sW%s_d0_xb.pdf",name.Data(), epoch_name[ep+1].Data()));
     c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_bkgHand_%sW%s_d0_xb.png",name.Data(), epoch_name[ep+1].Data()));
         }
     tdr(bkgc,ep);
@@ -492,7 +499,7 @@ param["up"]=1.055;
     s->Fill(1., scale[1]);
     s->Fill(2., scale[2]);
     /*
-    if(name.EqualTo("172v5_ext")) {
+    if(name.EqualTo("172v5")) {
     }
     */
     s->Write();

@@ -38,6 +38,7 @@ RooRealVar ptfrac;
 
 void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool norm=true) {
 TString fname = TString::Format("sPlot/sPlot//TopMass_Data_sPlot_d0.root");
+//TString fname = TString::Format("sPlot/sPlot//TopMass_Data_var_sPlot_d0.root");
 if(name.Contains("_bkg")) fname = TString::Format("sPlot/sPlot//TopMass_Data_bkg_sPlot_d0.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
@@ -57,6 +58,9 @@ if(name.Contains("BDzb")) fname.ReplaceAll("Data","Data_dupBest");
 if(name.Contains("_ds")) fname.ReplaceAll("Data","Data_ds");
 if(name.Contains("_dupNest")) fname.ReplaceAll("Data","Data_dupNest");
 if(name.Contains("172v5_no")) fname.ReplaceAll("Data","Data_no");
+if(name.Contains("172v5_var_up")) fname.ReplaceAll("Data","Data_var_up");
+else if(name.Contains("172v5_var_down")) fname.ReplaceAll("Data","Data_var_down");
+else if(name.Contains("172v5_var")) fname.ReplaceAll("Data","Data_var");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
   fname.ReplaceAll("Data","172v5");
 std::cout << name << std::endl;
@@ -80,6 +84,10 @@ else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(name.Contains("_xb")) {
 fname.ReplaceAll("_xb","");
 fname.ReplaceAll(".root","_xb.root");
+}
+if(name.Contains("_charm")) {
+fname.ReplaceAll("_charmup","");
+fname.ReplaceAll("_charmdown","");
 }
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
@@ -115,8 +123,47 @@ if(tmp==nullptr) {std::cout << fname << std::endl; return;}
 //mc = (TH1F*)convert(tmp, norm, 0, 1.1);
 mc = (TH1F*)convert(tmp, norm, bin);
 }
+if(name.Contains("_charmup")) {
+  std::cout << name << std::endl;
+  auto fnomname = TString::Format("sPlot/sPlot//TopMass_172v5%s_sPlot_d0%d_xb.root",tune.Data(), epoch);
+  fnomname.ReplaceAll("charmup","");
+  TFile *fnom = TFile::Open(fnomname);
+  TFile *fup = TFile::Open(TString::Format("sPlot/sPlot//TopMass_172v5_charmup_sPlot_d0%d_xb.root", epoch));
+  std::cout << fnom->GetName() << std::endl;
+  std::cout << fup->GetName() << std::endl;
+  auto tmpnom = (TH1F*)fnom->Get("ptfrac_bkgc_hist")->Clone("nom");
+  auto tmpup = (TH1F*)fup->Get("ptfrac_bkgc_hist")->Clone("charmup");
+  for(int i = 0; i < tmpnom->GetNbinsX(); i++) {
+    std::cout << i << ":\t" << tmpnom->GetBinContent(i) << "\t" << tmpup->GetBinContent(i) << std::endl;
+  }
+  mc->Add(tmpnom);
+  mc->Add(tmpup,-1);
+  mc->SetDirectory(0);
+  delete tmpup;
+  fnom->Close();
+  fup->Close();
+  delete fnom;
+  delete fup;
+}
+if(name.Contains("_charmdown")) {
+  auto fnom = TFile::Open(TString::Format("sPlot/sPlot//TopMass_172v5_sPlot_d0%d_xb.root",epoch));
+  auto fdown = TFile::Open(TString::Format("sPlot/sPlot/TopMass_172v5_charmdown_sPlot_d0%d_xb.root",epoch));
+  std::cout << fnom->GetName() << std::endl;
+  std::cout << fdown->GetName() << std::endl;
+  auto tmpnom = (TH1F*)fnom->Get("ptfrac_bkgc_hist")->Clone("nom");
+  auto tmpdown = (TH1F*)fdown->Get("ptfrac_bkgc_hist")->Clone("charmdown");
+  mc->Add(tmpnom);
+  mc->Add(tmpdown,-1);
+  mc->SetDirectory(0);
+  delete tmpdown;
+  fnom->Close();
+  fdown->Close();
+  delete fnom;
+  delete fdown;
+}
 mc->SetDirectory(0);
 mc->SetTitle(mc->GetName());
+std::cout << mc->GetTitle() << std::endl;
 //mc->Rebin();
 delete tmp;
 //if(epoch<0) std::cout << "getting hist" << std::endl;
@@ -216,8 +263,10 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1125" };
-std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.125, 0.802};
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1125" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.125, 0.802};
 /*
 std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_ddown", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_uup", "_up" };
 std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.000, 1.055};
@@ -254,8 +303,8 @@ for(auto & it : tune) {
   //chiTest->SetBinError(chiTest->FindBin(param[pos]),sqrt(1./N));
 }
 
-chiTest->GetXaxis()->SetRangeUser(0.65,1.255);
-//chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
+//chiTest->GetXaxis()->SetRangeUser(0.65,1.255);
+chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
@@ -281,7 +330,7 @@ else
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(-88.3245, 1045.87, -2049.8, 1137.63);
  //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-chiTest->Fit("pol3","FSMEQRW","",0.6,1.976);
+chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -418,8 +467,8 @@ data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
 data->GetXaxis()->SetRangeUser(0.2,0.975);
 mc->GetXaxis()->SetRangeUser(0.4,0.975);
-data->GetXaxis()->SetRangeUser(0.2,1.1);//0.975);
-mc->GetXaxis()->SetRangeUser(0.2,1.1);//0.975);
+data->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
+mc->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
 if(epoch<0 && 0) {
 data->GetXaxis()->SetRangeUser(0.4,1.0);
 mc->GetXaxis()->SetRangeUser(0.4,1.0);
@@ -440,8 +489,8 @@ mc->SetLineWidth(1);
 mc->GetYaxis()->SetRangeUser(0.,.16);
 data->GetYaxis()->SetRangeUser(0.,.16);
 */
-mc->GetYaxis()->SetRangeUser(0.,.18);
-data->GetYaxis()->SetRangeUser(0.,.18);
+mc->GetYaxis()->SetRangeUser(0.,.14);
+data->GetYaxis()->SetRangeUser(0.,.14);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.17);
 data->GetYaxis()->SetRangeUser(0.,.17);

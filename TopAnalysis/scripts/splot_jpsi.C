@@ -23,6 +23,8 @@
 #include "RooBreitWigner.h"
 #include "RooGamma.h"
 #include "RooGlobalFunc.h"
+#include "RooBukinPdf.h"
+#include "RooNovosibirsk.h"
 #include <RooFitResult.h>
 #include "RooWorkspace.h"
 #include "RooMinuit.h"
@@ -49,7 +51,7 @@ void splot_jpsi(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, T
   //std::vector<float> type = {0., 0.7, 1.};
   int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
   mass.ReplaceAll(".","v");
-  if(mass.Contains("v5") && mass != "172v5") mass = "m" + mass;
+  if(mass.Contains("v5") && !mass.Contains("172v5")) mass = "m" + mass;
 /*
 void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -113,6 +115,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
+      if(mass.Contains("172v5_ext") && it.Contains("powheg"))
+        dir="/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
       TString mcname(dir);
       mcname += it;
       mcname += "_*.root";
@@ -125,6 +129,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
       }
       else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      if(mass.Contains("172v5_ext"))
+      fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_ext.root");
       mass += "_" + fragWeight;
       fragWeight.ReplaceAll("lep","");
       g = (TGraph*)fin->Get(fragWeight+"Frag");
@@ -428,6 +434,18 @@ for(auto it : mcSamples) {
   RooRealVar alpha("alpha","cbalpha", 1, 0, 5);
   RooCBShape cball("cball", "crystal ball", jpsi_mass, mean, cbsigma, alpha, n);
 
+  // Construct Bukin PDF for signal
+  RooRealVar sigp("sigp", "sigp", 0.02, 0.001, 0.3);
+  RooRealVar xi("xi", "xi", 0.02, 0.001, 0.3);
+  RooRealVar rho1("rho1", "rho1", -0.1, -1, -0.001);
+  RooRealVar rho2("rho2", "rho2", 0.1, 0.001, 1);
+  RooBukinPdf bukin("bukin", "bukin", jpsi_mass, mean, sigp, xi, rho1, rho2);
+
+  // Construct Novosibirsk PDF for signal
+  RooRealVar novosig("novosig", "novosig", 0.02, 0.001, 0.3);
+  RooRealVar novostail("novostail", "novostail", 1.0, 0, 10);
+  RooNovosibirsk novos("novos", "novos", jpsi_mass, mean, novosig, novostail);
+
   // Construct Gaussian1 PDF for signal
   RooRealVar sigma1("sigma1","sigma1", 0.02, 0.001, 0.3);
   RooRealVar ngsig1("ngsig1","ngsignal1", 100, 0, 10000);
@@ -485,7 +503,10 @@ for(auto it : mcSamples) {
   //RooAddPdf bkgModel("bkgModel","expo+gausskk",RooArgList(expo,expoc,gaussc),RooArgList(nbkge,nbkgec,ngsigc));
   //RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
-  RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+a", RooArgList(bukin, expo), RooArgList(nsig,nbkg)) ;
+  RooAddPdf model("model","g+a", RooArgList(bukin, novos), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+a", RooArgList(cball, novos), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, expo, bkgcball), RooArgList(nsig,nbkg,bkgncbsig)) ;
   //RooAddPdf model("model","g+a", RooArgList(signalModel, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;

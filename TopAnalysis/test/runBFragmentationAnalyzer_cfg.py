@@ -3,7 +3,9 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing ('python')
 options.register('inputFile', 
-                 '/store/mc/RunIISummer16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/36CDAE89-B3BE-E611-B022-0025905B8604.root',
+                 #'/store/mc/RunIISummer16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/36CDAE89-B3BE-E611-B022-0025905B8604.root',
+                 'file:///afs/cern.ch/work/b/byates/LJets2015/2016/36CDAE89-B3BE-E611-B022-0025905B8604.root',
+                 #'file:///eos/cms/store/user/byates/36CDAE89-B3BE-E611-B022-0025905B8604.root',
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
                  "input file to process"
@@ -43,10 +45,10 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(options.maxEvents)
-#)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(options.maxEvents)
+)
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
@@ -100,6 +102,9 @@ if options.frag=='P':
 if options.frag=='BL':
 	process.generator.PythiaParameters.processParameters.append('StringZ:rFactB = %f'%options.param)
         print "Running Bowler-Lund with rFactB = %s" % options.param
+if options.frag=='BLc':
+	process.generator.PythiaParameters.processParameters.append('StringZ:rFactC = %f'%options.param)
+        print "Running Bowler-Lund with rFactC = %s" % options.param
 print "max events = %s" % options.maxEvents
 
 #pseudo-top config
