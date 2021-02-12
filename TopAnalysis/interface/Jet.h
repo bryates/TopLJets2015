@@ -56,6 +56,7 @@ class pfTrack {
   inline float getEtaCorrection() { return etaSF_; }
   inline float getPtCorrection() { return ptSF_; }
   inline int getJetIndex() { return jId_; }
+  inline int getJetHadFlav() { return hadflav_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
@@ -67,6 +68,7 @@ class pfTrack {
   void setIsMuon(bool);
   void setGenT(int);
   void setMother(int);
+  inline void setJetHadFlav(int hadflav) { hadflav_ = hadflav; }
   inline void setPromoted() { promoted_ = true; }
   inline void setGenIdx(int genidx) { genidx_ = genidx; }
   inline void setGenPdgId(int genpfid) { genpfid_ = genpfid; }
@@ -104,6 +106,7 @@ class pfTrack {
   int genpfid_ = 0;
   int idx_ = -1;
   int ndau_;
+  int hadflav_ = 0;
   bool highPurity_;
   bool globalMuon_;
   bool trackerMuon_;

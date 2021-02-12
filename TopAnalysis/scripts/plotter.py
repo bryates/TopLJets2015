@@ -89,6 +89,13 @@ class Plot(object):
             h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace("p_", "#it{p}_"))
         if "#eta" in h.GetXaxis().GetTitle():
             h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace("#eta", "#it{#eta}"))
+        if "c#tau" in h.GetXaxis().GetTitle():
+            h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace('GeV', 'cm'))
+            h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace('GeV', 'cm'))
+        if "#sigma_{c#tau}" in h.GetXaxis().GetTitle():
+            h.GetXaxis().SetRangeUser(10,100)
+            h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace(' [cm]', ''))
+            h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace('/ 1 cm', ''))
         #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
 
         h.SetTitle(title)
@@ -1105,7 +1112,11 @@ def main():
                                      flavwgt = 0.207101
                                 elif "massD0" in obj.GetName() and "b-jet" in sp[1]:
                                      flavwgt = 0.8703125
+                                elif "D0_ctau" in obj.GetName() and "b-jet" in sp[1]:
+                                     flavwgt = 0.8703125
                                 elif "massD0" in obj.GetName() and "c-jet" in sp[1]:
+                                    flavwgt = 0.1296875
+                                elif "D0_ctau" in obj.GetName() and "c-jet" in sp[1]:
                                     flavwgt = 0.1296875
                                 elif "massD0_mu_tag" in obj.GetName() and "b-jet" in sp[1]:
                                      flavwgt = 0.970457
@@ -1122,11 +1133,12 @@ def main():
                                 if "massD0_mu" in obj.GetName() and "DY b-jet" in sp[1]:
                                      flavwgt = 1
                                 if "DY b-jet" in sp[1]: flavwgt=1
-                                #obj.Scale(flavwgt*xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH) #normGH ON
-                                obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH) #normGH ON
+                                obj.Scale(flavwgt*xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH) #normGH ON
+                                #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*jerNorm*rbFitSF*normGH) #normGH ON
                                 #obj.Scale(xsec*lumi*puNormSF*sfVal*topPtNorm*piWgtNorm*jerNorm*rbFitSF)
                                 #obj.Scale(lumi*puNormSF*sfVal*topPtNorm)
                             if("D0_mu_tag_mu_oJet" in obj.GetName()): obj.GetXaxis().SetRangeUser(0,1.)
+                            if("ctau" in obj.GetName()): obj.Rebin(2)
                             if("JPsioJet" in obj.GetName()): obj.Rebin(2)
                             if("j_pt_ch_all_jpsi" in obj.GetName()): obj.Rebin(2)
                             #if("JPsi_pt" in obj.GetName()): obj.Rebin(2)
@@ -1162,7 +1174,7 @@ def main():
 
     #show plots
     ROOT.gStyle.SetOptTitle(0)
-    #ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetOptStat(0)
     ROOT.gROOT.SetBatch(True)
     outDir=opt.inDir+'/plots'
     os.system('mkdir -p %s' % outDir)
