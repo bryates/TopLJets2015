@@ -61,6 +61,10 @@ if(name.Contains("172v5_no")) fname.ReplaceAll("Data","Data_no");
 if(name.Contains("172v5_var_up")) fname.ReplaceAll("Data","Data_var_up");
 else if(name.Contains("172v5_var_down")) fname.ReplaceAll("Data","Data_var_down");
 else if(name.Contains("172v5_var")) fname.ReplaceAll("Data","Data_var");
+if(name.Contains("172v5_mass")) fname.ReplaceAll("Data","Data_mass");
+if(name.Contains("172v5_bestmass")) fname.ReplaceAll("Data","Data_bestmass");
+if(name.Contains("172v5_randmass_var")) fname.ReplaceAll("Data","Data_randmass_var");
+else if(name.Contains("172v5_randmass")) fname.ReplaceAll("Data","Data_randmass");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
   fname.ReplaceAll("Data","172v5");
 std::cout << name << std::endl;
@@ -406,6 +410,7 @@ data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 setupPad()->cd();
 tdr(mc, epoch);
 if(fullpt) mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/ jet #it{p_}{T}");
+mc->GetYaxis()->SetRangeUser(0,2000);
 mc->Draw();
 tdr(mc, epoch);
 //if(epoch>=0) {
@@ -506,6 +511,15 @@ mc->Draw("same e");
 data->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
+TPaveText *txt = new TPaveText(0.3,0.90,0.4,0.70,"NDC"); //NB blNDC
+txt->SetFillStyle(0);
+txt->SetTextAlign(11);
+txt->SetBorderSize(0);
+txt->SetTextFont(42);
+txt->SetTextSize(0.046);
+TString text = TString::Format("#it{r}_{B} = %.3f", num);
+txt->AddText(text);
+txt->Draw();
 TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch+1]);
 if(fullpt) mcvname += "_jpT";
 c1->SaveAs(mcvname + ".pdf");
