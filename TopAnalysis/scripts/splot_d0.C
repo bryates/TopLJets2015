@@ -311,7 +311,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     for(int j=0; j<ev.nmeson; j++) {
       if(j == toSkip) std::cout << "skipping=" << j << std::endl;
       if(j == toSkip) totalDup++;
-      //if(j == toSkip) continue;
+      if(j == toSkip) continue;
       float scale = 1.;
       //int j(0);
       float pi = 0.;
@@ -319,43 +319,49 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       /* FIXME
       */
       if(ev.nmeson>1){// && !mass.Contains("_dup")) {
+        //continue; //only save events with 1 D0
         //if(pi == ev.d0_k_pt[j] && k == ev.d0_pi_pt[j]) continue;
         if(ev.nmeson > j+2) //entries are 2 apart (j=0 epoch 1 j=1 epoch 2, j=2 epoch 1 j=3 epoch 2
           //if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+2] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+2] && ev.meson_id[j] == ev.meson_id[j+2]) { scale *= 0.5; totalDup++; } //FIXME
-          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+2] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+2] && ev.meson_id[j] == ev.meson_id[j+2] && ev.epoch[j] == ev.epoch[j+2]) { //continue; } //scale *= 0.5; totalDup++; } //FIXME
+          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+2] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+2] && ev.meson_id[j] == ev.meson_id[j+2] && ev.epoch[j] == ev.epoch[j+2]) { //scale *= 0.5; totalDup++; } //FIXME
+  
+            TRandom3 *rand = new TRandom3(0);
+            if(rand->Uniform(1)<0.5) toSkip=j+2;
+            else toSkip=j;
+            delete rand;
             continue;
+            //Closest to D0 mass
+            /*
             float diff1 = abs(ev.d0_mass[j] - 1.864);
             float diff2 = abs(ev.d0_mass[j+2] - 1.864);
             if(diff1 <= diff2) toSkip=j+2;
             else toSkip=j;
             std::cout << diff1 << "checking " << j << std::endl;
             std::cout << diff1 << " " << diff2 << " should skipping=" << toSkip << std::endl;
-            /*
-            if(diff1 < diff2) ev.d0_pt[j+2] *= 2E-20;
-            else ev.d0_pt[j] *= 2E-20;
-            */
-            /*
-            totalDup++;
             */
           }
+        /*
+        */
         if(ev.nmeson > j+1) //entries are 1 apart in data
           //if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+1] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+1] && ev.meson_id[j] == ev.meson_id[j+1]) { scale *= 0.5; totalDup++; } //FIXME
-          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+1] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+1] && ev.meson_id[j] == ev.meson_id[j+1] && ev.epoch[j] == ev.epoch[j+1]) { //continue; } //scale *= 0.5; totalDup++; } //FIXME
+          if(ev.d0_pi_pt[j] == ev.d0_k_pt[j+1] && ev.d0_k_pt[j] == ev.d0_pi_pt[j+1] && ev.meson_id[j] == ev.meson_id[j+1] && ev.epoch[j] == ev.epoch[j+1]) { //scale *= 0.5; totalDup++; } //FIXME
+            /*
+            */
+            TRandom3 *rand = new TRandom3(0);
+            if(rand->Uniform(1)<0.5) toSkip=j+1;
+            else toSkip=j;
+            delete rand;
             continue;
+            //Closest to D0 mass
             float diff1 = abs(ev.d0_mass[j] - 1.864);
             float diff2 = abs(ev.d0_mass[j+1] - 1.864);
             if(diff1 <= diff2) toSkip=j+1;
             else toSkip=j;
             std::cout << diff1 << "checking " << j << std::endl;
             std::cout << diff1 << " " << diff2 << " should skipping=" << toSkip << std::endl;
-            /*
-            if(diff1 < diff2) ev.d0_pt[j+1] *= 2E-20;
-            else ev.d0_pt[j] *= 2E-20;
-            */
-            /*
-            totalDup++;
-            */
           }
+            /*
+            */
         pi = ev.d0_pi_pt[j];
         k = ev.d0_k_pt[j];
       }
@@ -629,7 +635,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
 
   // Construct Gaussian1 PDF for signal
-  RooRealVar sigma("sigma","sigma", 0.019);//0.0195, 0.005, 0.04);
+  RooRealVar sigma("sigma","sigma", 0.019, 0.005, 0.04);
   RooRealVar ngsig("ngsig","ngsignal", 1000, 100, 10000000);
   RooGaussian gauss("gauss","gauss", d0_mass, mean, sigma);
   RooRealVar nsig("nsig","#signal events", 5994, 0, 70000) ;

@@ -60,8 +60,8 @@ TH1F *smoothPlot(TH1F *fit, std::vector<std::pair<float,TString>> range, int sca
   int num = 1000;
   for(int i = 0; i < num; i++) {
     double x = 2.*i/num;
-    //if(x<0.2) continue;
-    smooth->SetPoint(i, x, tSpline->Eval(x));
+    double val = tSpline->Eval(x);
+    smooth->SetPoint(i, x, val);
   }
 
   auto smoothHist = (TH1F*)fit->Clone();
@@ -470,10 +470,11 @@ else if(fname.Contains("d0"))
 else if(fname.Contains("jpsi"))
   data->GetXaxis()->SetTitle("J/#Psi #it{p}_{T}/#Sigma #it{p}_{T}^{ch}");
 data->GetYaxis()->SetTitle("1/N dN/d#it{x}_{B}");
-data->GetXaxis()->SetRangeUser(0,1.1);//0.975);
+data->GetXaxis()->SetRangeUser(0,1.0);//0.975);
 if(sample==1) data->GetXaxis()->SetRangeUser(0.2,1.0);
 if(sample==1) fit->GetXaxis()->SetRangeUser(0.2,1.0);
 data->SetMinimum(0);
+if(sample!=0) data->SetBinContent(1, -1);
 data->Draw();
 fit->SetFillColor(kGreen+1);
 fit->SetMarkerColor(kGreen+1);
@@ -496,7 +497,7 @@ for(int i = 1; i <= fitup->GetNbinsX(); i++) {
   fitup->SetBinContent(i, fit->GetBinError(i));
 }
 int scale = 1;
-if(sample==0) scale = 1;
+if(sample==0) scale = 10;
 else if(sample==1) scale = 5;
 auto fitupsm = (TH1F*)smoothPlot(fitup, range, scale);
 for(int i = 1; i <= fitsm->GetNbinsX(); i++) {
@@ -509,6 +510,14 @@ for(int i = 1; i <= fitsm->GetNbinsX(); i++) {
 }
 if(sample<2) fitsm->Draw("same e3");
 else fit->Draw("same e3");
+double x[2] = {0.01, 0.2};
+auto *fitmask = new TH1F("fitmask", "fitmask", 1, x);
+fitmask->SetBinContent(1, 0);
+fitmask->SetBinError(1, 0.04);
+fitmask->SetFillColor(kWhite);
+fitmask->SetMarkerColor(kWhite);
+fitmask->Draw("same e2");
+data->Draw("AXIS same");
 //g->Draw("same");
 //smooth->Draw("same");
 //fit->SetTitle("pp: t#bar{t} #rightarrow WWb#bar{b}");

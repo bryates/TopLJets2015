@@ -57,6 +57,10 @@ if(name.Contains("BDzb")) fname.ReplaceAll("Data","Data_dupBest");
 if(name.Contains("_ds")) fname.ReplaceAll("Data","Data_ds");
 if(name.Contains("_dupNest")) fname.ReplaceAll("Data","Data_dupNest");
 if(name.Contains("172v5_no")) fname.ReplaceAll("Data","Data_no");
+if(name.Contains("172v5_mass")) fname.ReplaceAll("Data","Data_mass");
+if(name.Contains("172v5_bestmass")) fname.ReplaceAll("Data","Data_bestmass");
+if(name.Contains("172v5_randmass_var")) fname.ReplaceAll("Data","Data_randmass_var");
+else if(name.Contains("172v5_randmass")) fname.ReplaceAll("Data","Data_randmass");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
   fname.ReplaceAll("Data","172v5");
 std::cout << name << std::endl;
@@ -254,8 +258,8 @@ for(auto & it : tune) {
   //chiTest->SetBinError(chiTest->FindBin(param[pos]),sqrt(1./N));
 }
 
-chiTest->GetXaxis()->SetRangeUser(0.65,1.255);
-//chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
+//chiTest->GetXaxis()->SetRangeUser(0.65,1.255);
+chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
 chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
@@ -357,6 +361,7 @@ data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 setupPad()->cd();
 tdr(mc, epoch);
 if(fullpt) mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/ jet #it{p_}{T}");
+mc->GetYaxis()->SetRangeUser(0,2000);
 mc->Draw();
 tdr(mc, epoch);
 //if(epoch>=0) {
@@ -418,8 +423,8 @@ data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
 data->GetXaxis()->SetRangeUser(0.2,0.975);
 mc->GetXaxis()->SetRangeUser(0.4,0.975);
-data->GetXaxis()->SetRangeUser(0.2,1.1);//0.975);
-mc->GetXaxis()->SetRangeUser(0.2,1.1);//0.975);
+data->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
+mc->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
 if(epoch<0 && 0) {
 data->GetXaxis()->SetRangeUser(0.4,1.0);
 mc->GetXaxis()->SetRangeUser(0.4,1.0);
@@ -440,8 +445,8 @@ mc->SetLineWidth(1);
 mc->GetYaxis()->SetRangeUser(0.,.16);
 data->GetYaxis()->SetRangeUser(0.,.16);
 */
-mc->GetYaxis()->SetRangeUser(0.,.18);
-data->GetYaxis()->SetRangeUser(0.,.18);
+mc->GetYaxis()->SetRangeUser(0.,.14);
+data->GetYaxis()->SetRangeUser(0.,.14);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.17);
 data->GetYaxis()->SetRangeUser(0.,.17);
@@ -457,6 +462,15 @@ mc->Draw("same e");
 data->Draw("same");
 if(num==0) num=0.855;
 if(name=="") name="172v5";
+TPaveText *txt = new TPaveText(0.3,0.90,0.4,0.70,"NDC"); //NB blNDC
+txt->SetFillStyle(0);
+txt->SetTextAlign(11);
+txt->SetBorderSize(0);
+txt->SetTextFont(42);
+txt->SetTextSize(0.046);
+TString text = TString::Format("#it{r}_{B} = %.3f", num);
+txt->AddText(text);
+txt->Draw();
 TString mcvname(TString::Format("mcVdata_%s_%d_d0",name.Data(),(int)(num*1000)) + epoch_name[epoch+1]);
 if(fullpt) mcvname += "_jpT";
 c1->SaveAs(mcvname + ".pdf");

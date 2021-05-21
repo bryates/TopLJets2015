@@ -54,8 +54,8 @@ class Plot(object):
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
         #if "_jpsi" in name or "_meson" in name:
-        if "_jpsi" in name:
-            self.ratiorange = (0.47,1.57)
+        if "_jpsi" or "massD0_mu" in name:
+            self.ratiorange = (0.1,2.2)#1.6)
         #self.ratiorange = (0.76,1.24)
 
     def add(self, h, title, color, isData, isSyst, rbList):
@@ -97,6 +97,10 @@ class Plot(object):
             h.GetXaxis().SetTitle(h.GetXaxis().GetTitle().replace(' [cm]', ''))
             h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace('/ 1 cm', ''))
         #h.GetYaxis().SetTitle(h.GetYaxis().GetTitle().replace("Events","Jets"))
+        #if "#it{p}_{T}" in h.GetXaxis().GetTitle():
+        #    mbin = h.GetNbsinX()
+        #    mval = h.GetXaxis().GetBinContent(mbin+1)
+        #    #h.GetXaxis().SetRangeUser(0, mval)
 
         h.SetTitle(title)
         if isData:
@@ -243,12 +247,15 @@ class Plot(object):
         if self.dataH is not None:
             if self.data is None: self.finalize()
             leg.AddEntry( self.data, self.data.GetTitle(),'p')
+            leg.AddEntry( '', '', '')
             nlegCols += 1
             if saveNorm:
                 self.dataH.Scale(1./self.dataH.Integral())
                 for xbin in xrange(1,self.data.GetNbinsX()+1):
                     xbin/=self.data.Integral()
-        for h in reversed(self.mc):
+        self.mclist = [x for _,x in sorted(zip(self.mc.values(), self.mc.keys()), key=lambda pair : pair[0].Integral())]
+        #for h in reversed(self.mc):
+        for h in reversed(self.mclist):
             
             #compare
             if noStack:
@@ -451,7 +458,8 @@ class Plot(object):
         else:
             maxY=self.dataH.GetMaximum()
 
-        frame.GetYaxis().SetRangeUser(0.1,maxY*1.45)
+        frame.GetYaxis().SetRangeUser(0.1,maxY*1.15)
+        #frame.GetYaxis().SetRangeUser(0.1,5500)
 
         frame.SetDirectory(0)
         frame.Reset('ICE')
@@ -490,11 +498,11 @@ class Plot(object):
         p1.RedrawAxis()
 
 
-        leg.Draw()
+        #leg.Draw()
         txt=ROOT.TLatex()
         txt.SetNDC(True)
         txt.SetTextFont(43)
-        txt.SetTextSize(16)
+        txt.SetTextSize(20)
         txt.SetTextAlign(12)
         iniy=0.9 if self.wideCanvas else 0.95
         inix=0.12 if noStack else 0.12
@@ -658,6 +666,24 @@ class Plot(object):
             for ext in self.plotformats : c.SaveAs(os.path.join(outDir, self.name+'_log.'+ext))
 
         if saveTeX : self.convertToTeX(outDir=outDir)
+
+        c = ROOT.TCanvas('c','c',500,500)# if noRatio is False else ROOT.TCanvas('c','c',cwid,450)
+        c.cd()
+        leg.SetBorderSize(0)
+        leg.SetFillStyle(0)        
+        leg.SetTextFont(43)
+        leg.SetTextSize(30)
+        leg.SetTextAlign(12)
+        leg.SetX1(0.1)#, iniy-dy*ndy, 0.95, iniy+0.05)
+        leg.SetY1(0.1)#, iniy-dy*ndy, 0.95, iniy+0.05)
+        #leg.SetY2(0.1)#, iniy-dy*ndy, 0.95, iniy+0.05)
+        #leg.SetNColumns(ROOT.TMath.Min(nlegCols/2,3))
+        leg.SetNColumns(2)
+        leg.Draw()
+        if final:
+            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, 'leg'+'_final.'+ext))
+        else:
+            for ext in self.plotformats : c.SaveAs(os.path.join(outDir, 'leg'+'.'+ext))
 
 
     def convertToTeX(self, outDir):
