@@ -63,7 +63,8 @@ else if(name.Contains("172v5_var_down")) fname.ReplaceAll("Data","Data_var_down"
 else if(name.Contains("172v5_var")) fname.ReplaceAll("Data","Data_var");
 if(name.Contains("172v5_mass")) fname.ReplaceAll("Data","Data_mass");
 if(name.Contains("172v5_bestmass")) fname.ReplaceAll("Data","Data_bestmass");
-if(name.Contains("172v5_randmass_var")) fname.ReplaceAll("Data","Data_randmass_var");
+if(name.Contains("172v5_randmass_var_hand")) fname.ReplaceAll("Data","Data_randmass_var_hand");
+else if(name.Contains("172v5_randmass_var")) fname.ReplaceAll("Data","Data_randmass_var");
 else if(name.Contains("172v5_randmass")) fname.ReplaceAll("Data","Data_randmass");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
   fname.ReplaceAll("Data","172v5");
@@ -117,7 +118,7 @@ for(int i = 0; i < bin.size(); i++) {
 //if(epoch<0) std::cout << "getting hist" << std::endl;
 //if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
-//if(epoch<0 || fname.Contains("_xb")) mc->Add((TH1F*)fmc->Get("ptfrac_bkg_hist")->Clone());
+//if(epoch<0 || fname.Contains("_xb")) mc->Add((TH1F*)fmc->Get("ptfrac_signal_bkgW")->Clone());
 else if(fname.Contains("no_sPlot"))  mc = (TH1F*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
 else if(fname.Contains("no_sPlot"))  mc->Scale(1/10.);
 else { tmp = (RooPlot*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));

@@ -9,7 +9,7 @@ struct CharmEvent_t
   {
     ttbar_nw=0;
     nl=0; nj=0; npf=0;
-    njpsi=0; nmeson=0;
+    njpsi=0; nmeson=0; nk=0;
     ht=0; met=0; st=0;
     nlj=0; event=0; nvtx=0;
   }
@@ -48,7 +48,7 @@ struct CharmEvent_t
 
   //JPsi candidates
   Int_t njpsi;
-  Float_t jpsi_mass[50],jpsi_pt[50],jpsi_eta[50],jpsi_phi[50],jpsi_p[50],jpsi_pz[50];
+  Float_t jpsi_mass[50],jpsi_b_mass[50],jpsi_pt[50],jpsi_eta[50],jpsi_phi[50],jpsi_p[50],jpsi_pz[50];
   Float_t jpsi_j[50],jpsi_ptrel[50],jpsi_l[50];//,jpsi_j_dR[50];
   Float_t jpsi_mu1_pt[50],jpsi_mu1_eta[50],jpsi_mu1_phi[50];
   Float_t jpsi_mu2_pt[50],jpsi_mu2_eta[50],jpsi_mu2_phi[50];
@@ -59,7 +59,7 @@ struct CharmEvent_t
   Float_t jpsi_sigmax[5000],jpsi_sigmay[5000],jpsi_sigmaz[5000];
 
   //D meson candidates
-  Int_t nmeson, meson_id[50],d0_j[50],d0_l[50],d0_ndau[50];
+  Int_t nmeson, nk, meson_id[50],d0_j[50],d0_l[50],d0_ndau[50];
   Float_t d0_mass[50],d0_pt[50],d0_eta[50],d0_phi[50],d0_p[50],d0_pz[50];
   Float_t ds_mass[50],ds_pt[50],ds_eta[50],ds_phi[50],ds_p[50],ds_pz[50];
   Float_t d0_ptrel[50];//,d0_j_dR[50];

@@ -189,7 +189,7 @@ param["up"]=1.055;
         //std::cout << "bkg = " << framem->getCurve()->Integral() * w->var("nbkg")->getVal() << std::endl;;
         std::cout << "bkg = " << scalebkg[i] << std::endl;;
         //if((i== 1 && name.EqualTo("172v5")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
-        if((i== 1 && name.EqualTo("172v5_charmdown")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
+        if((i== 1 && name.EqualTo("172v5_randmass_var")) || i!=1) scale[i] = scalesig[i] / (scalesig[i] + scalebkg[i]);
         std::cout << "sig/bkg = " << scale[i] << std::endl;;
 
         fin->Close();
@@ -330,7 +330,7 @@ param["up"]=1.055;
       delete fin;
     }
     //if(!name.EqualTo("172v5")) {
-    if(!name.EqualTo("172v5_charmdown")) {
+    if(!name.EqualTo("172v5_randmass_var")) {
       TString fnamenom = (TString::Format("sPlot/sPlot/TopMass_172v5_sPlot_d0%d_xb.root", ep));
           if(name.Contains("Wup")) fnamenom.ReplaceAll("Wup", "172v5");
           if(name.Contains("Wdown")) fnamenom.ReplaceAll("Wdown", "172v5");
@@ -363,7 +363,7 @@ param["up"]=1.055;
       finnom->Close();
     }
     //else if(name.EqualTo("172v5")) {
-    else if(name.EqualTo("172v5_charmdown")) {
+    else if(name.EqualTo("172v5_randmass_var")) {
       bkgc->Scale(scale[1]);
     }
     if(!isData && name == "172v5") {
@@ -522,6 +522,6 @@ void bkgsub() {
   for(auto t : tune)
     bkgsub(TString::Format("172v5%s", t.Data()), false);
   */
-  bkgsub("172v5", false);
-  bkgsub("Data", true);
+  bkgsub("172v5_randmass_var", false);
+  bkgsub("Data_randmass_var", true);
 }

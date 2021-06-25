@@ -106,6 +106,8 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
       histos_["massDsmD0_ss"+name] = fs->make<TH1F>(("massDsmD0_ss"+name).c_str(), "massDsmD0_ss", 1000, 0.14, 0.17);
       histos_["xb_semilep"+name] = fs->make<TH1F>(("xb_semilep"+name).c_str(), ("xb_semilep"+name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       if(i==0) histos_["xb_semilep421"] = fs->make<TH1F>(("xb_semilep421"), ("xb_semilep421;#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+      histos_["xb_semilepDsDzpi0"+name] = fs->make<TH1F>(("xb_semilepDsDzpi0"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_semilepDsDzgamma"+name] = fs->make<TH1F>(("xb_semilepDsDzgamma"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzb"+name] = fs->make<TH1F>(("xb_semilepDzb"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzbu"+name] = fs->make<TH1F>(("xb_semilepDzbu"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzbd"+name] = fs->make<TH1F>(("xb_semilepDzbd"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
@@ -184,6 +186,10 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           histos_["xb_semilepinc"]->Fill(jinfo.xb);
           if(jinfo.charmId==-421)
             histos_["xb_semilepDzbinc"]->Fill(jinfo.xb);
+          if(jinfo.hasDspi0)
+            histos_["xb_semilepDsDzpi0inc"]->Fill(jinfo.xb);
+          if(jinfo.hasDsgamma)
+            histos_["xb_semilepDsDzgammainc"]->Fill(jinfo.xb);
 
           float wgt = 1.;
           //BR up

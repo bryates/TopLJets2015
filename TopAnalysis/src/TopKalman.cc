@@ -1352,6 +1352,7 @@ void RunTopKalman(TString filename,
       evch.njpsi=0;
       evch.nmeson=0;
       evch.nj=0;
+      evch.nk=0;
       treeBCDEF.Fill(evch, ev);
       treeGH.Fill(evch, ev);
       //Better J/Psi (Just look how much shorter it is!)
@@ -1359,6 +1360,7 @@ void RunTopKalman(TString filename,
       if(kalman.isJPsiEvent()) {
         for(auto &jet : kJetsVec) {
           vector<pfTrack> muTracks;
+          vector<pfTrack> kTracks;
           for(auto &track : jet.getTracks()) {
             if(track.getMotherId()!=443) continue;
             if(abs(track.getPdgId())==13) { track.setMass(gMassMu); muTracks.push_back(track); }
@@ -1367,6 +1369,14 @@ void RunTopKalman(TString filename,
             //if(abs(track.getPdgId())==13) { cout << endl << ev.event << ": " << ev.k_pf_pt[1] << " " << ev.k_pf_eta[1] << " " << ev.k_pf_phi[1] <<  " " << ev.k_mass[1] << endl; }
           }
           if(muTracks.size()<2) continue;
+          for(auto &ajet : allJetsVec) {
+            if(jet.getJetIndex() != ajet.getJetIndex()) continue;
+            for(auto &track : jet.getTracks()) { 
+              if(abs(track.getPdgId())==211) { track.setMass(gMassK); kTracks.push_back(track); }
+            }
+          }
+          sort(kTracks.begin(), kTracks.end(),
+               [] (pfTrack a, pfTrack b) { return a.Pt() > b.Pt(); } );
           Jet genJet;
           for(auto & gjet : genJetsVec) {
             if(gjet.getVec().DeltaR(jet.getVec())>0.1) continue; //find good dR match
@@ -1455,6 +1465,10 @@ void RunTopKalman(TString filename,
                   runGH.SetRbWgt(rbWgtJPsi, JPsi);
                 }
                 std::vector<pfTrack> tmp_cands = { muTracks[i],muTracks[j] };
+                if(kTracks.size() > 0) {
+                  for(auto &kcand : kTracks)
+                    tmp_cands.push_back(kcand);
+                }
                 float sf(1.),tWgt(1.);
                 /*
                 if(!isData) {

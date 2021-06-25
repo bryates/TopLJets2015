@@ -468,7 +468,7 @@ if(fname.Contains("mu_tag"))
 else if(fname.Contains("d0"))
   data->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/#Sigma #it{p}_{T}^{ch}");
 else if(fname.Contains("jpsi"))
-  data->GetXaxis()->SetTitle("J/#Psi #it{p}_{T}/#Sigma #it{p}_{T}^{ch}");
+  data->GetXaxis()->SetTitle("J/#psi #it{p}_{T}/#Sigma #it{p}_{T}^{ch}");
 data->GetYaxis()->SetTitle("1/N dN/d#it{x}_{B}");
 data->GetXaxis()->SetRangeUser(0,1.0);//0.975);
 if(sample==1) data->GetXaxis()->SetRangeUser(0.2,1.0);
@@ -516,6 +516,7 @@ fitmask->SetBinContent(1, 0);
 fitmask->SetBinError(1, 0.04);
 fitmask->SetFillColor(kWhite);
 fitmask->SetMarkerColor(kWhite);
+data->SetBinContent(1,-1.);
 fitmask->Draw("same e2");
 data->Draw("AXIS same");
 //g->Draw("same");

@@ -84,6 +84,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   //JPsi candidates
   t->Branch("njpsi",        &ev.njpsi,        "njpsi/I");
   t->Branch("nmeson",       &ev.nmeson,       "nmeson/I");
+  t->Branch("nk",           &ev.nk,           "nk/I");
   t->Branch("meson_id",      ev.meson_id,     "meson_id[nmeson]/I");
   t->Branch("epoch" ,        ev.epoch,        "epoch[nmeson]/I");
   t->Branch("puwgt",         ev.puwgt,        "puwgt[nmeson]/F");
@@ -94,6 +95,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("kptsf",         ev.kptsf,        "kptsf[nmeson]/F");
 
   t->Branch("jpsi_mass",    ev.jpsi_mass,     "jpsi_mass[nmeson]/F");
+  t->Branch("jpsi_b_mass",  ev.jpsi_b_mass,   "jpsi_b_mass[nk]/F");
   t->Branch("jpsi_pt",      ev.jpsi_pt,       "jpsi_pt[nmeson]/F");
   t->Branch("jpsi_eta",     ev.jpsi_eta,      "jpsi_eta[nmeson]/F");
   t->Branch("jpsi_phi",     ev.jpsi_phi,      "jpsi_phi[nmeson]/F");
@@ -273,6 +275,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   //JPsi candidates
   t->SetBranchAddress("njpsi",       &ev.njpsi);
   t->SetBranchAddress("jpsi_mass",    ev.jpsi_mass);
+  t->SetBranchAddress("jpsi_b_mass",  ev.jpsi_b_mass);
   t->SetBranchAddress("jpsi_pt",      ev.jpsi_pt);
   t->SetBranchAddress("jpsi_eta",     ev.jpsi_eta);
   t->SetBranchAddress("jpsi_phi",     ev.jpsi_phi);
@@ -309,6 +312,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
 
   //D meson candidates
   t->SetBranchAddress("nmeson",       &ev.nmeson);
+  t->SetBranchAddress("nk",           &ev.nk);
   t->SetBranchAddress("meson_id",      ev.meson_id);
   t->SetBranchAddress("d0_mass",       ev.d0_mass);
   t->SetBranchAddress("d0_pt",         ev.d0_pt);

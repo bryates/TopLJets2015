@@ -14,6 +14,7 @@ struct JetFragInfo_t
   float xb,xb_charged,pt,charmId,motherId,eta,phi;
   int leadTagId;
   bool hasSemiLepDecay,hasTauSemiLepDecay,hasCharm;
+  bool hasDspi0,hasDsgamma;
   int nbtags,nctags,ntautags;
   std::vector< std::vector<double> > meson;
   std::vector<int> mesonId;

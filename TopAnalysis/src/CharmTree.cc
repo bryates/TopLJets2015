@@ -213,6 +213,16 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.jpsi_mu2_eta[ev_.nmeson] = pfCands[1].Eta();
     ev_.jpsi_mu2_phi[ev_.nmeson] = pfCands[1].Phi();
 
+    if(pfCands.size()>2) {
+      for(size_t ik = 2; ik < pfCands.size(); ik++) {
+        ev_.jpsi_k_pt[ev_.nk]  = pfCands[ik].Pt();
+        ev_.jpsi_k_eta[ev_.nk] = pfCands[ik].Eta();
+        ev_.jpsi_k_phi[ev_.nk] = pfCands[ik].Phi();
+        ev_.jpsi_b_mass[ev_.nk] = (jpsi+pfCands[ik].getVec()).M();
+        ev_.nk++;
+      }
+    }
+       
     ev_.jpsi_chi2[ev_.nmeson] = pfCands[0].chi2();
 
     ev_.j_pt[ev_.nj] = jet.getPt();

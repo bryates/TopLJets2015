@@ -11,6 +11,7 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
   const reco::Candidate *leadTagConst=0;
   reco::Candidate::LorentzVector nup4(0,0,0,0);
   bool hasSemiLepDecay(false),hasTauNeutrino(false),hasCharm(false);
+  bool hasDspi0(false),hasDsgamma(false);
   int nbtags(0),nctags(0),ntautags(0);
   float pt_charged(0),charmId(-1),motherId(-1),bpt;
   std::vector< std::vector<double> > meson;
@@ -22,8 +23,6 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
 
       //account for neutrinos for the total energy estimation and check 
       //which ones are coming from B hadron decays
-      if(abs(par->pdgId())==5)
-            std::cout << "b quark pT " << bpt << " status= " << par->status() << std::endl;
       if(par->status()==1 && IS_NEUTRINO_PDGID(absid)) 
 	{
 	  nup4 += par->p4()*tagScale;
@@ -42,6 +41,8 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
         meson.push_back(std::vector<double>({par->pt(),par->eta(),par->phi(),par->mass()}));
         mesonId.push_back(par->pdgId());
       }
+      if(absid==111 && IS_Ds_PDGID(motherId)) hasDspi0 = true;
+      if(absid==22 && IS_Ds_PDGID(motherId)) hasDsgamma = true;
       if(par->status()!=2) continue;
       
       //count number of tags
@@ -78,6 +79,8 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
   jinfo.motherId = motherId;
   jinfo.meson = meson;
   jinfo.mesonId = mesonId;
+  jinfo.hasDspi0 = hasDspi0;
+  jinfo.hasDsgamma = hasDsgamma;
 
   return jinfo;
 }

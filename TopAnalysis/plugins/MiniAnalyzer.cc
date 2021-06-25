@@ -927,7 +927,7 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   sort(pfCand.begin(),pfCand.end(), [](std::pair<int,double> i, std::pair<int,double> j) { return i.second > j.second ; } );
-  pfCand.resize(6); //keep only 6 hardest non muon PF candidates
+  //pfCand.resize(6); //keep only 6 hardest non muon PF candidates
 
   //Now actually put the desired jets in the ntuple
   ev_.npf=0;
@@ -953,8 +953,8 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       if(ev_.pf_id[ev_.npf])
       if(ev_.pf_j[ev_.npf]>=0 &&
         (nPFJet[ev_.pf_j[ev_.npf]].first < 2 &&
-         nPFJet[ev_.pf_j[ev_.npf]].second < 2) &&
-         ev_.npf != hard.first) continue;
+         nPFJet[ev_.pf_j[ev_.npf]].second < 2)) continue;
+         //ev_.npf != hard.first) continue;
       
       //extra requirements for unclustered PF candidates
       //ONLY save mu/pi/K
