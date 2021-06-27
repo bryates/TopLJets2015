@@ -1197,6 +1197,46 @@ void MiniAnalyzer::KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetu
       ev_.njpsi++;
       ev_.nmeson++;
 
+      for (unsigned int id3 = 0; id3 < ndau; ++id3) {
+	if(id1 == id3) continue;
+	if(id2 == id3) continue;
+
+	const pat::PackedCandidate &pf3 = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id3));
+        if(abs(pf3.pdgId())!=211) continue;
+
+        const float gMassK(0.4937);
+
+	if(fabs(pf3.eta()) > 2.4) continue;
+
+        //pf3
+        ev_.k_j[ev_.nkpf]=ev_.nj;
+        ev_.k_pf_id[ev_.nkpf]=pf3.pdgId();
+        ev_.k_pf_pt[ev_.nkpf]=pf3.pt();
+        ev_.k_pf_eta[ev_.nkpf]=pf3.eta();
+        ev_.k_pf_phi[ev_.nkpf]=pf3.phi();
+        ev_.k_pf_m[ev_.nkpf]=gMassK;
+        ev_.k_id[ev_.nkpf]=443211;
+        ev_.k_mass[ev_.nkpf]=mass12;
+        ev_.k_chi2[ev_.nkpf]=tv.normalisedChiSquared();
+        ev_.k_ndof[ev_.nkpf]=tv.degreesOfFreedom();
+        ev_.k_vtxProb[ev_.nkpf]=vtxProb;
+        ev_.k_dxy[ev_.nkpf]=dxy;
+        ev_.k_dxyE[ev_.nkpf]=dxyE;
+        ev_.k_l3d[ev_.nkpf]=l3d.first;
+        ev_.k_sigmal3d[ev_.nkpf]=l3d.second;
+        ev_.k_lx[ev_.nkpf]=lsigma[0].first;
+        ev_.k_sigmax[ev_.nkpf]=lsigma[0].second;
+        ev_.k_ly[ev_.nkpf]=lsigma[1].first;
+        ev_.k_sigmay[ev_.nkpf]=lsigma[1].second;
+        ev_.k_lz[ev_.nkpf]=lsigma[2].first;
+        ev_.k_sigmaz[ev_.nkpf]=lsigma[2].second;
+        ev_.nkpf++;
+
+        ev_.njpsi++;
+        ev_.nmeson++;
+
+      }
+
       //if (vtxProb<0.02) continue;
     }
   }// end of J/psi

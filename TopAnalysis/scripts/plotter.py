@@ -54,7 +54,7 @@ class Plot(object):
         #self.noPU = False
         self.ratiorange = (0.76,1.24)
         #if "_jpsi" in name or "_meson" in name:
-        if "massD0_mu" in name:
+        if "massD0" in name:
             self.ratiorange = (0.4,1.6)#1.6)
         elif "_jpsi" in name:
             self.ratiorange = (0.1,2.2)#1.6)

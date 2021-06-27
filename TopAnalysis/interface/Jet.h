@@ -144,6 +144,8 @@ class Jet {
   float &getCSV();
   float getPt();
   inline float Pt() { return p4_.Pt(); }
+  inline float Eta() { return p4_.Eta(); }
+  inline float Phi() { return p4_.Phi(); }
   inline float P() { return p4_.P(); }
   inline float M() { return p4_.M(); }
   float &getChargedPt();
