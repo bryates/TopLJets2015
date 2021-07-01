@@ -76,7 +76,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ctauup/");
+  //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/noTrkSF/");
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/Chunks/");
   mass.ReplaceAll(".","v");
@@ -184,7 +185,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(fragWeight.Contains("lep")) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
       }
-      else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_rc.root");
+      else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
       if(mass.Contains("172v5_ext"))
       fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_ext.root");
       mass += "_" + fragWeight;
@@ -313,7 +314,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //scale *= float(nmc)/float(nentries);
     int toSkip=-1;
     for(int j=0; j<ev.nmeson; j++) {
-      if(j == toSkip) std::cout << "skipping=" << j << std::endl;
+      //if(j == toSkip) std::cout << "skipping=" << j << std::endl;
       if(j == toSkip) totalDup++;
       if(j == toSkip) continue;
       float scale = 1.;
