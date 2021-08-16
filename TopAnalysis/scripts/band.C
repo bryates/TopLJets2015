@@ -269,6 +269,7 @@ setupPad()->cd();
 
 std::vector<TString> samples = { "jpsi", "d0", "d0_mu_tag_mu" };
 TString fname=TString::Format("sPlot/sPlot/TopMass_172v5_fit_sPlot_%s.root",samples[sample].Data());
+if(sample==2) fname=TString::Format("sPlot/TopMass_172v5_fit_sPlot_%s.root",samples[sample].Data());
 //TString fname=TString::Format("sPlot/sPlot/TopMass_172v5_%s_sPlot_%s.root",samples[sample].Data(),samples[sample].Data());
 //fname.ReplaceAll("d0_mu_tag_mu.root","d0_mu_tag_mu.root");
 int epoch=0;
@@ -492,6 +493,8 @@ else if(sample==1) range = {std::make_pair<float,TString>(0.5, "pol1"), std::mak
 else if(sample==2) range = {std::make_pair<float,TString>(0.7, "pol2"), std::make_pair<float,TString>(0.9, "pol1"), std::make_pair<float,TString>(1.0, "pol1")};
     //bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0};
 auto fitsm = (TH1F*)smoothPlot(fit, range);
+fitsm->SetName("fit");
+fitsm->SetTitle("fit");
 auto fitup = (TH1F*)fit->Clone();
 for(int i = 1; i <= fitup->GetNbinsX(); i++) {
   fitup->SetBinContent(i, fit->GetBinError(i));
@@ -559,4 +562,16 @@ else {
 c1->SaveAs(TString::Format("www/meson/tdr/fit_%s_spline.pdf",samples[sample].Data()));
 c1->SaveAs(TString::Format("www/meson/tdr/fit_%s_spline.png",samples[sample].Data()));
 }
+auto outname = TString::Format("band_%s.root", samples[sample].Data());
+std::cout << outname << std::endl;
+auto fout = TFile::Open(outname, "RECREATE");
+data->SetDirectory(fout);
+if(sample<2) fitsm->SetDirectory(fout);
+else fit->SetDirectory(fout);
+fitmask->SetDirectory(fout);
+data->Write();
+if(sample<2) fitsm->Write();
+else fit->Write();
+fitmask->Write();
+fout->Close();
 }

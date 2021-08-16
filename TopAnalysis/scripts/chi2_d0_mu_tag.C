@@ -29,6 +29,7 @@ TString epoch_name[3] = {"_BCDEFGH", "_BCDEF", "_GH"};
 TCanvas *c1 = setupCanvas();
 TString report("");
 TString json("\"d0_mu\" :   [");
+TString hepdata("");
 float chi2_d0_mu_tag_test(TString tune="", TString name="", float num=0.855);
 void run_chi2_d0_mu_tag(TString);
 RooRealVar ptfrac;
@@ -167,6 +168,7 @@ void chi2_d0_mu_tag(TString samp="", bool isFinal=false) {
 
   json += ("],");
   std::cout << json << std::endl;
+  std::cout << hepdata << std::endl;
 
 }
 
@@ -185,8 +187,10 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_up", "_1075", "_1125" };
-std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 1.055, 1.075, 1.125, 0.802};
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup" };
+std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};//, "_up", "_1075", "_1125" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.075, 1.125, 0.802};
 //std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1075", "_1125" };
 //std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.075, 1.125, 0.802};
 //std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1075", "_1125" };
@@ -198,7 +202,7 @@ std::vector<TString> tune = {"_down", "_ddown", "_dddown", "", "_cccentral", "_c
 std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.975, 1.000, 1.055};
 */
 //TCanvas *c1 = new TCanvas("c1","c1");
-TH1F *chiTest = new TH1F("chiTest_"+name,TString::Format("chiTest_%s",name.Data()),400,0,2);
+TH1F *chiTest = new TH1F("chiTest_"+name,TString::Format("chiTest_%s;#it{r}_{b};Fit #chi^{2}",name.Data()),400,0,2);
 chiTest->Sumw2();
 //chiTest->SetDirectory(0);
 for(auto & it : tune) {
@@ -214,8 +218,9 @@ for(auto & it : tune) {
   if(isnan(chi)) continue;
   if(chi<low) low = chi;
   if(chi>high) high = chi;
-  chiTest->GetYaxis()->SetRangeUser(max(int(low)-1,0),int(high)+2);
+  chiTest->GetYaxis()->SetRangeUser(int(low)-0.5,int(high)+1.5);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
+  hepdata += TString::Format("%.3f %.1f\n", param[pos], chi);
   //chiTest->SetBinError(chiTest->FindBin(param[pos]),1);
 }
 
@@ -226,7 +231,7 @@ chiTest->GetXaxis()->SetRangeUser(0.65,1.056);
 //chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.056);
 if(name.Contains("fsr-down")) chiTest->GetXaxis()->SetRangeUser(0.65,1.126);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
-chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
+//chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
@@ -289,6 +294,17 @@ if(name.Length() > 0)
 pt->AddText(text);
 if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
+TPaveText *var = new TPaveText(0.44,0.53,0.59,0.65,"NDC"); //NB blNDC
+var->SetFillStyle(0);
+var->SetTextAlign(21);
+var->SetBorderSize(0);
+var->SetTextFont(42);
+var->SetTextSize(0.046);
+TString tvar = TString::Format("D^{0}_{#mu} channel");
+var->AddText(tvar);
+tvar = TString::Format("(#it{ndf}=%d)", 5);//bin.size());
+var->AddText(tvar);
+var->Draw();
 
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch];

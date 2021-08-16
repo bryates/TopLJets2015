@@ -53,6 +53,13 @@ JetFragInfo_t analyzeJet(const reco::GenJet &genJet,float tagScale)
         hasCharm = true;
         charmId = par->pdgId();
       }
+      /*
+      if(par->mother() != nullptr) {
+        //if(absid==411 || absid==10411 || absid==10421 || absid==413 || absid==423 || absid==10413 || absid==10423 || absid==20413 || absid==20423 || absid==415 || absid==425 || absid==431 || absid==10431 || absid==433 || absid==10433 || absid==20433 || absid==435)
+            //std::cout << par->pdgId() << std::endl;
+        if(IS_D0_PDGID(absid)) std::cout << absid << "->" << int(par->mother()->pdgId()) << std::endl;
+      }
+      */
 
 
       //save leading pT tag

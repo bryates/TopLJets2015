@@ -378,9 +378,16 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.d0_opang[ev_.nmeson] = pfCands[0].getOpeningAngle();
 
     if(genMatch.size()>0) {
+      ev_.d0_pi_gpt[ev_.nmeson] = genMatch[0].Pt();
+      ev_.d0_k_gpt[ev_.nmeson]  = genMatch[1].Pt();
+      ev_.d0_pi_gpid[ev_.nmeson] = genMatch[0].getPdgId();
+      ev_.d0_k_gpid[ev_.nmeson]  = genMatch[1].getPdgId();
       ev_.d0_pi_mother[ev_.nmeson] = genMatch[0].getMotherId();
       ev_.d0_k_mother[ev_.nmeson]  = genMatch[1].getMotherId();
+      ev_.d0_gen[ev_.nmeson] = true;
     }
+    else
+      ev_.d0_gen[ev_.nmeson] = false;
 
     ev_.j_pt[ev_.nj] = jet.getPt();
     ev_.j_eta[ev_.nj] = jet.getVec().Eta();

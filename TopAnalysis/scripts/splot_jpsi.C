@@ -461,8 +461,8 @@ for(auto it : mcSamples) {
   RooGaussian gauss3("gauss3","gaus3s", jpsi_mass, mean3, sigma3);
 
   // Construct a double Gaussian function to fit the signal component
-  //RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2),RooArgList(ngsig1,ngsig2));
-  RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2,gauss3),RooArgList(ngsig1,ngsig2,ngsig3));
+  RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2),RooArgList(ngsig1,ngsig2));
+  //RooAddPdf signalModel("signal model","gauss1+gauss2",RooArgList(gauss1,gauss2,gauss3),RooArgList(ngsig1,ngsig2,ngsig3));
 
   // Construct exponential PDF to fit the bkg component
   RooRealVar lambda("lambda", "slope", -2, -5, 5.);
@@ -504,10 +504,10 @@ for(auto it : mcSamples) {
   //RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
   //RooAddPdf model("model","g+a", RooArgList(bukin, expo), RooArgList(nsig,nbkg)) ;
-  RooAddPdf model("model","g+a", RooArgList(bukin, novos), RooArgList(nsig,nbkg)) ;
+  //RooAddPdf model("model","g+a", RooArgList(bukin, novos), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, novos), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, expo), RooArgList(nsig,nbkg)) ;
-  //RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
+  RooAddPdf model("model","g+a", RooArgList(signalModel, expo), RooArgList(nsig,nbkg)) ;
   //RooAddPdf model("model","g+a", RooArgList(cball, expo, bkgcball), RooArgList(nsig,nbkg,bkgncbsig)) ;
   //RooAddPdf model("model","g+a", RooArgList(signalModel, expo, cballc), RooArgList(nsig,nbkg,ncbsigc)) ;
 

@@ -16,6 +16,7 @@
 #include "RooArgSet.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/tdr.C"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
 
 using namespace RooFit;
 //TString name("");
@@ -31,6 +32,7 @@ float N(1.);
 TCanvas *c1 = setupCanvas();
 TString report("");
 TString json("\"d0\" :      [");
+TString hepdata("");
 TString rbtest[3] = {"", "", ""};
 float chi2_d0_(TString tune="", TString name="", float num=0.855);
 void run_chi2_d0(TString);
@@ -62,10 +64,13 @@ if(name.Contains("172v5_var_up")) fname.ReplaceAll("Data","Data_var_up");
 else if(name.Contains("172v5_var_down")) fname.ReplaceAll("Data","Data_var_down");
 else if(name.Contains("172v5_var")) fname.ReplaceAll("Data","Data_var");
 if(name.Contains("172v5_mass")) fname.ReplaceAll("Data","Data_mass");
+if(name.Contains("172v5_width")) fname.ReplaceAll("Data","Data_width");
 if(name.Contains("172v5_bestmass")) fname.ReplaceAll("Data","Data_bestmass");
 if(name.Contains("172v5_randmass_var_hand")) fname.ReplaceAll("Data","Data_randmass_var_hand");
 else if(name.Contains("172v5_randmass_var")) fname.ReplaceAll("Data","Data_randmass_var");
 else if(name.Contains("172v5_randmass")) fname.ReplaceAll("Data","Data_randmass");
+if(name.Contains("172v5_ctauup")) fname.ReplaceAll("Data","Data_ctauup");
+if(name.Contains("172v5_ctaudown")) fname.ReplaceAll("Data","Data_ctaudown");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
   fname.ReplaceAll("Data","172v5");
 std::cout << name << std::endl;
@@ -109,7 +114,6 @@ bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 
 //bin = {0, 0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.975, 1.0};
 //bin = {-0.025, 0.025, 0.075, 0.125,  0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.0};
 //bin = {0, 0.05, 0.1, 0.15,  0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975, 1.0};
-#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
 if(fullpt)
 bin = {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0};
 for(int i = 0; i < bin.size(); i++) {
@@ -244,6 +248,7 @@ void chi2_d0(int ep=epoch, TString samp="", bool isFinal=false) {
   json += ("],");
   std::cout << errtxt << std::endl;
   std::cout << json << std::endl;
+  std::cout << hepdata << std::endl;
   /*
   std::cout << rbtest[0] << std::endl;
   std::cout << rbtest[1] << std::endl;
@@ -280,7 +285,7 @@ std::vector<float> param = {0.755, 0.775, 0.800, 0.855, 0.875, 0.900, 0.955, 0.9
 */
 //TCanvas *c1 = new TCanvas("c1","c1");
 //TCanvas *c1 = setupCanvas();
-TH1F *chiTest = new TH1F("chiTest_"+name,TString::Format("chiTest_%s",name.Data()),400,0,2);
+TH1F *chiTest = new TH1F("chiTest_"+name,TString::Format("chiTest_%s;#it{r}_{b};Fit #chi^{2}",name.Data()),400,0,2);
 //TH1F *chiTest = new TH1F("chiTest_"+name,TString::Format("chiTest_%s",name.Data()),400,0,2);
 chiTest->Sumw2();
 //chiTest->SetDirectory(0);
@@ -305,19 +310,20 @@ for(auto & it : tune) {
   if(chi>high) high = chi;
   chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
   chiTest->SetBinContent(chiTest->FindBin(param[pos]),chi);
+  hepdata += TString::Format("%.3f %.1f\n", param[pos], chi);
   //chiTest->SetBinError(chiTest->FindBin(param[pos]),sqrt(1./N));
 }
 
 //chiTest->GetXaxis()->SetRangeUser(0.65,1.255);
 chiTest->GetXaxis()->SetRangeUser(0.65,0.976);//1.055);
 //chiTest->GetYaxis()->SetRangeUser(55,90);
-chiTest->GetYaxis()->SetRangeUser(int(low)-1,int(high)+2);
+chiTest->GetYaxis()->SetRangeUser(int(low)-0.5,int(high)+1.5);
 //chiTest->GetYaxis()->SetRangeUser(200,220);
 chiTest->SetMarkerStyle(20);
 chiTest->Draw("p9");
 std::cout << chiTest->GetName() << std::endl;
 std::cout << chiTest->GetTitle() << std::endl;
-tdr(chiTest,epoch);
+tdr(chiTest,epoch, fin);
 /*
 TLatex txt;
 txt.SetNDC(true);
@@ -372,6 +378,17 @@ if(name.Length() > 0)
 pt->AddText(text);
 if(!TDR) pt->Draw();
 gStyle->SetOptStat(0);
+TPaveText *var = new TPaveText(0.44,0.53,0.59,0.65,"NDC"); //NB blNDC
+var->SetFillStyle(0);
+var->SetTextAlign(21);
+var->SetBorderSize(0);
+var->SetTextFont(42);
+var->SetTextSize(0.046);
+TString tvar = TString::Format("D^{0} channel");
+var->AddText(tvar);
+tvar = TString::Format("(#it{ndf}=%d)", 10);//bin.size());
+var->AddText(tvar);
+var->Draw();
 
 if(name.Length()>0) name = "_" + name;
 name += epoch_name[epoch+1];
@@ -409,11 +426,11 @@ delete mc2;
 mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 data->GetXaxis()->SetTitle("D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
 setupPad()->cd();
-tdr(mc, epoch);
+tdr(mc, epoch, fin);
 if(fullpt) mc->GetXaxis()->SetTitle("D^{0} #it{p}_{T}/ jet #it{p_}{T}");
 mc->GetYaxis()->SetRangeUser(0,2000);
 mc->Draw();
-tdr(mc, epoch);
+tdr(mc, epoch, fin);
 //if(epoch>=0) {
 gStyle->SetOptStat(0);
 TString namet(name);
@@ -437,9 +454,9 @@ data->SetMarkerStyle(20);
 data->SetMarkerColor(kBlack);
 data->SetLineColor(kBlack);
 data->SetLineWidth(2);
-tdr(data, epoch);
+tdr(data, epoch, fin);
 data->Draw();
-tdr(data, epoch);
+tdr(data, epoch, fin);
 //c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.pdf");
 //c1->SaveAs("www/meson/morph/ptfrac/ptfrac_signal_Data_BCDEFGH_d0.png");
 c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_Data%s_d0%s.pdf", epoch_name[epoch+1].Data(), (fullpt ? "_jpT" : "")));
@@ -454,7 +471,7 @@ TPad *p1 = setupPad();
 p1->cd();
 data->Draw();
 gStyle->SetOptStat(0);
-tdr(data,0);
+tdr(data,0, fin);
 data->SetMarkerStyle(20);
 data->SetMarkerColor(kBlack);
 data->SetLineColor(kBlack);
@@ -507,7 +524,7 @@ mc->SetBinContent(bin, 0);
 data->SetBinContent(bin, 0);
 */
 mc->Draw("hist");
-tdr(mc, epoch);
+tdr(mc, epoch, fin);
 mc->Draw("same e");
 data->Draw("same");
 if(num==0) num=0.855;

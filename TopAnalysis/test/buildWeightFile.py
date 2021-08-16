@@ -53,10 +53,51 @@ def main():
     #derive the weights
     xb={}
     for tag,_,_ in TUNES:
-        fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%(tag,MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%tag
+        if 'Dss' in tag:
+            fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%('fit',MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%'fit'
+        else:
+            fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%(tag,MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%tag
         fIn=ROOT.TFile.Open(fName)
         #xb[tag]=fIn.Get('bfragAnalysis/xb_semilepinc').Clone(tag)
-        xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
+        if 'DssDz' in tag and any([n in tag for n in ['u','d']]):
+            xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
+            tmp=fIn.Get('bfragAnalysis/xb_%s' % tag).Clone(tag+'tmp')
+            fIn2 = []
+            if tag[-1] == 'u':
+                fIn2=ROOT.TFile.Open('LJets2015/2016/bfrag/xb_fitup.root')
+            elif tag[-1] == 'd':
+                fIn2=ROOT.TFile.Open('LJets2015/2016/bfrag/xb_fitdown.root')
+            else:
+                pass
+            tmpD=fIn2.Get('bfragAnalysis/xb_%s' % tag).Clone(tag+'tmpD')
+            xb[tag].Add(tmp, -1) # Remove e.g. DssDz
+            xb[tag].Add(tmpD, 1) # Add in e.g. DssDz shifted up
+            fIn2.Close()
+        elif 'Dss' in tag and 'noDss' not in tag:
+            xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
+            if any(n == tag[-1] for n in ['u','d']):
+                tmp=fIn.Get('bfragAnalysis/xb_%s' % tag[:-1]).Clone()#' % tag).Clone()
+                if tag[-1] == 'u':
+                    fIn2=ROOT.TFile.Open('LJets2015/2016/bfrag/xb_fitup.root')
+                else:
+                    fIn2=ROOT.TFile.Open('LJets2015/2016/bfrag/xb_fitdown.root')
+                tmpD=fIn2.Get('bfragAnalysis/xb_%s' % tag[:-1]).Clone()#' % tag).Clone()
+                xb[tag].Add(tmp, -1)
+                xb[tag].Add(tmpD, 1)
+            elif 'Ten' in tag:
+                pass
+                tmp=fIn.Get('bfragAnalysis/xb_%s' % 'DssDz').Clone()#' % tag).Clone()
+                xb[tag].Add(tmp, -1)
+                xb[tag + 'TenUp'] = xb[tag].Clone()
+                xb[tag + 'TenDown'] = xb[tag].Clone()
+                tmp.Scale(1.1) # Vary Dss by 5%
+                xb[tag + 'TenUp'].Add(tmp) # Vary Dss by 10%
+                tmp.Scale(0.9*0.9) # Vary Dss by 5%
+                xb[tag + 'TenDown'].Add(tmp) # Vary Dss by 10%
+            else:
+                pass
+        else:
+            xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
         #xb[tag].Rebin(2);
         xb[tag].SetDirectory(0)
         fIn.Close()

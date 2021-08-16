@@ -89,6 +89,19 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
   histos_["bpmunc"] = fs->make<TH1F>("bpmunc", ";B^{#pm}-hadron;Unc",nhadrons,0,nhadrons);
   histos_["bsunc"] = fs->make<TH1F>("bsunc", ";B^{0}_{s}-hadron;Unc",nhadrons,0,nhadrons);
   histos_["lbunc"] = fs->make<TH1F>("lbunc", ";#Lambda^{0}_{s}-hadron;Unc",nhadrons,0,nhadrons);
+  histos_["xb_noDss"] = fs->make<TH1F>("xb_noDss", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_noDssDz"] = fs->make<TH1F>("xb_noDssDz", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_noDssDzb"] = fs->make<TH1F>("xb_noDssDzb", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_Dss"] = fs->make<TH1F>("xb_Dss", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_DssDzb"] = fs->make<TH1F>("xb_DssDzb", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_DssDzbu"] = fs->make<TH1F>("xb_DssDzbu", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_DssDzbd"] = fs->make<TH1F>("xb_DssDzbd", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_DssDz"] = fs->make<TH1F>("xb_DssDz", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_DssDzu"] = fs->make<TH1F>("xb_DssDzu", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_DssDzd"] = fs->make<TH1F>("xb_DssDzd", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_semilepDss"] = fs->make<TH1F>("xb_semilepDss", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_semilepDssDzb"] = fs->make<TH1F>("xb_semilepDssDzb", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+  histos_["xb_semilepDssDz"] = fs->make<TH1F>("xb_semilepDssDz", (";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
   for(size_t i=0; i<nhadrons; i++)
     {
       std::string name("inc");
@@ -104,13 +117,26 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
       histos_["massDs_ss"+name] = fs->make<TH1F>(("massDs_ss"+name).c_str(), "massDs_ss", 1000, 1.9, 2.2);
       histos_["massDsmD0"+name] = fs->make<TH1F>(("massDsmD0"+name).c_str(), "massDsmD0", 1000, 0.14, 0.17);
       histos_["massDsmD0_ss"+name] = fs->make<TH1F>(("massDsmD0_ss"+name).c_str(), "massDsmD0_ss", 1000, 0.14, 0.17);
+      histos_["xb_"+name] = fs->make<TH1F>(("xb_"+name).c_str(), ("xb_"+name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilep"+name] = fs->make<TH1F>(("xb_semilep"+name).c_str(), ("xb_semilep"+name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      if(i==0) histos_["xb_421"] = fs->make<TH1F>(("xb_421"), ("xb_421;#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
       if(i==0) histos_["xb_semilep421"] = fs->make<TH1F>(("xb_semilep421"), ("xb_semilep421;#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets"), 100, 0, 2);
+      histos_["xb_DsDzpi0"+name] = fs->make<TH1F>(("xb_DsDzpi0"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_DsDzgamma"+name] = fs->make<TH1F>(("xb_DsDzgamma"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_Dzb"+name] = fs->make<TH1F>(("xb_Dzb"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_Dzbu"+name] = fs->make<TH1F>(("xb_Dzbu"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_Dzbd"+name] = fs->make<TH1F>(("xb_Dzbd"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_Dz"+name] = fs->make<TH1F>(("xb_Dz"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_Dzu"+name] = fs->make<TH1F>(("xb_Dzu"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_Dzd"+name] = fs->make<TH1F>(("xb_Dzd"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["z_"+name] = fs->make<TH1F>(("z_"+name).c_str(), (name+";z=#it{p}_{T}(B)/#it{p}_{T}(b); Jets").c_str(), 100, 0, 2);
+      histos2_["zVxb_"+name] = fs->make<TH2F>(("zVxb_"+name).c_str(), (name+";z=#it{p}_{T}(B)/#it{p}_{T}(b); #it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet)").c_str(), 100, 0, 2, 100, 0, 2);
       histos_["xb_semilepDsDzpi0"+name] = fs->make<TH1F>(("xb_semilepDsDzpi0"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDsDzgamma"+name] = fs->make<TH1F>(("xb_semilepDsDzgamma"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzb"+name] = fs->make<TH1F>(("xb_semilepDzb"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzbu"+name] = fs->make<TH1F>(("xb_semilepDzbu"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzbd"+name] = fs->make<TH1F>(("xb_semilepDzbd"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_semilepDz"+name] = fs->make<TH1F>(("xb_semilepDz"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzu"+name] = fs->make<TH1F>(("xb_semilepDzu"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_semilepDzd"+name] = fs->make<TH1F>(("xb_semilepDzd"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["z_semilep"+name] = fs->make<TH1F>(("z_semilep"+name).c_str(), (name+";z=#it{p}_{T}(B)/#it{p}_{T}(b); Jets").c_str(), 100, 0, 2);
@@ -182,6 +208,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 	  if(!jinfo.hasTauSemiLepDecay)
 	    histos_["semilepbr"]->Fill(0);
 	  histos_["semilepbrinc"]->Fill(0);
+
           //xb for semi-leptonic ttbar decay
           histos_["xb_semilepinc"]->Fill(jinfo.xb);
           if(jinfo.charmId==-421)
@@ -213,6 +240,8 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 
           histos_["xb_semilepDzbuinc"]->Fill(jinfo.xb, wgt);
           histos_["xb_semilepDzuinc"]->Fill(jinfo.xb, wgt);
+          if(jinfo.motherId>400 && jinfo.motherId<500)
+            histos_["xb_semilepDss"]->Fill(jinfo.xb, wgt);
 
           if(jinfo.leadTagId==511 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu511"]->Fill(jinfo.xb, wgt);
@@ -232,6 +261,8 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_semilepDzu5122"]->Fill(jinfo.xb, wgt);
           if(jinfo.motherId==413 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu413"]->Fill(jinfo.xb, 1. + hadronUncDzb_[4]/100);
+          if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==-421)
+            histos_["xb_semilepDssDzb"]->Fill(jinfo.xb, wgt);
 
           if(jinfo.motherId==413 && jinfo.charmId==421)
             histos_["xb_semilepDzu413"]->Fill(jinfo.xb, 1. + hadronUncDz_[4]/100);
@@ -243,6 +274,8 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_semilepDzbu431"]->Fill(jinfo.xb, 1. + hadronUncDzb_[6]/100);
           if(jinfo.motherId==431 && jinfo.charmId==421)
             histos_["xb_semilepDzu431"]->Fill(jinfo.xb, 1. + hadronUncDz_[6]/100);
+          if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==421)
+            histos_["xb_semilepDssDz"]->Fill(jinfo.xb, wgt);
 
           //BR down
           if(jinfo.leadTagId==511 && jinfo.charmId==-421)
@@ -290,6 +323,8 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_semilepDzbu431"]->Fill(jinfo.xb, 1. - hadronUncDzb_[6]/100);
           if(jinfo.motherId==431 && jinfo.charmId==421)
             histos_["xb_semilepDzu431"]->Fill(jinfo.xb, 1. - hadronUncDz_[6]/100);
+          if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==421)
+            histos_["xb_DssDzd"]->Fill(jinfo.xb, 1. - 0.05);
 
           //if(jinfo.motherId>0 && jinfo.charmId==421) std::cout << jinfo.motherId << std::endl;
 
@@ -302,6 +337,149 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           if(jinfo.leadTagId==5122)
             histos_["xb_semilep5122"]->Fill(jinfo.xb);
 	}
+
+      if(!jinfo.hasTauSemiLepDecay)
+        histos_["semilepbr"]->Fill(0);
+
+      //xb for semi-leptonic ttbar decay
+      histos_["xb_inc"]->Fill(jinfo.xb);
+      if(jinfo.charmId==-421)
+        histos_["xb_Dzbinc"]->Fill(jinfo.xb);
+      if(jinfo.hasDspi0)
+        histos_["xb_DsDzpi0inc"]->Fill(jinfo.xb);
+      if(jinfo.hasDsgamma)
+        histos_["xb_DsDzgammainc"]->Fill(jinfo.xb);
+
+      float wgt = 1.;
+      //BR up
+      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+        wgt = (1. + hadronUncDzb_[0]/100);
+      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+        wgt = (1. + hadronUncDzb_[1]/100);
+      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+        wgt = (1. + hadronUncDzb_[2]/100);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+        wgt = (1. + hadronUncDzb_[3]/100);
+
+      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+        wgt = (1. + hadronUncDz_[0]/100);
+      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+        wgt = (1. + hadronUncDz_[1]/100);
+      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+        wgt = (1. + hadronUncDz_[2]/100);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+        wgt = (1. + hadronUncDz_[3]/100);
+
+      histos_["xb_Dzbuinc"]->Fill(jinfo.xb, wgt);
+      histos_["xb_Dzuinc"]->Fill(jinfo.xb, wgt);
+
+      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+        histos_["xb_Dzbu511"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+        histos_["xb_Dzu511"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+        histos_["xb_Dzbu521"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+        histos_["xb_Dzu521"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+        histos_["xb_Dzbu531"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+        histos_["xb_Dzu531"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+        histos_["xb_Dzbu5122"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+        histos_["xb_Dzu5122"]->Fill(jinfo.xb, wgt);
+      if(jinfo.motherId==413 && jinfo.charmId==-421)
+        histos_["xb_Dzbu413"]->Fill(jinfo.xb, 1. + hadronUncDzb_[4]/100);
+      if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==-421)
+        histos_["xb_DssDzb"]->Fill(jinfo.xb, wgt);
+      else if(jinfo.charmId==-421)
+        histos_["xb_noDssDzb"]->Fill(jinfo.xb, wgt);
+      if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==-421)
+        histos_["xb_DssDzbu"]->Fill(jinfo.xb, 1. + 0.05);
+
+      if(jinfo.motherId==413 && jinfo.charmId==421)
+        histos_["xb_Dzu413"]->Fill(jinfo.xb, 1. + hadronUncDz_[4]/100);
+      if(jinfo.motherId==423 && jinfo.charmId==-421)
+        histos_["xb_Dzbu423"]->Fill(jinfo.xb, 1. + hadronUncDzb_[5]/100);
+      if(jinfo.motherId==423 && jinfo.charmId==421)
+        histos_["xb_Dzu423"]->Fill(jinfo.xb, 1. + hadronUncDz_[5]/100);
+      if(jinfo.motherId==431 && jinfo.charmId==-421)
+        histos_["xb_Dzbu431"]->Fill(jinfo.xb, 1. + hadronUncDzb_[6]/100);
+      if(jinfo.motherId==431 && jinfo.charmId==421)
+        histos_["xb_Dzu431"]->Fill(jinfo.xb, 1. + hadronUncDz_[6]/100);
+      if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==421)
+        histos_["xb_DssDz"]->Fill(jinfo.xb, wgt);
+      else if(jinfo.charmId==421)
+        histos_["xb_noDssDz"]->Fill(jinfo.xb, wgt);
+      if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==421)
+        histos_["xb_DssDzu"]->Fill(jinfo.xb, 1. + 0.05);
+
+      //BR down
+      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+        wgt = (1. - hadronUncDzb_[0]/100);
+      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+        wgt = (1. - hadronUncDzb_[1]/100);
+      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+        wgt = (1. - hadronUncDzb_[2]/100);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+        wgt = (1. - hadronUncDzb_[3]/100);
+
+      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+        wgt = (1. - hadronUncDz_[0]/100);
+      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+        wgt = (1. - hadronUncDz_[1]/100);
+      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+        wgt = (1. - hadronUncDz_[2]/100);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+        wgt = (1. - hadronUncDz_[3]/100);
+
+      histos_["xb_Dzbdinc"]->Fill(jinfo.xb, wgt);
+      histos_["xb_Dzdinc"]->Fill(jinfo.xb, wgt);
+
+      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+        histos_["xb_Dzbd511"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+        histos_["xb_Dzd511"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+        histos_["xb_Dzbd521"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+        histos_["xb_Dzd521"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+        histos_["xb_Dzbd531"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+        histos_["xb_Dzd531"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+        histos_["xb_Dzbd5122"]->Fill(jinfo.xb, wgt);
+      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+        histos_["xb_Dzd5122"]->Fill(jinfo.xb, wgt);
+      if(jinfo.motherId==423 && jinfo.charmId==-421)
+        histos_["xb_Dzbu423"]->Fill(jinfo.xb, 1. - hadronUncDzb_[5]/100);
+      if(jinfo.motherId==423 && jinfo.charmId==421)
+        histos_["xb_Dzu423"]->Fill(jinfo.xb, 1. - hadronUncDz_[5]/100);
+      if(jinfo.motherId==431 && jinfo.charmId==-421)
+        histos_["xb_Dzbu431"]->Fill(jinfo.xb, 1. - hadronUncDzb_[6]/100);
+      if(jinfo.motherId==431 && jinfo.charmId==421)
+        histos_["xb_Dzu431"]->Fill(jinfo.xb, 1. - hadronUncDz_[6]/100);
+      if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==421)
+        histos_["xb_DssDzd"]->Fill(jinfo.xb, 1. - 0.05);
+      if(jinfo.motherId>400 && jinfo.motherId<500 && jinfo.charmId==-421)
+        histos_["xb_DssDzbd"]->Fill(jinfo.xb, 1. - 0.05);
+
+      //if(jinfo.motherId>0 && jinfo.charmId==421) std::cout << jinfo.motherId << std::endl;
+
+      if(jinfo.leadTagId==511)
+        histos_["xb_511"]->Fill(jinfo.xb);
+      if(jinfo.leadTagId==521)
+        histos_["xb_521"]->Fill(jinfo.xb);
+      if(jinfo.leadTagId==531)
+        histos_["xb_531"]->Fill(jinfo.xb);
+      if(jinfo.leadTagId==5122)
+            histos_["xb_5122"]->Fill(jinfo.xb);
+      if(jinfo.motherId>400 && jinfo.motherId<500)
+        histos_["xb_Dss"]->Fill(jinfo.xb, wgt);
+      else
+        histos_["xb_noDss"]->Fill(jinfo.xb, wgt);
       histos_["xb_inc"]->Fill(jinfo.xb);
 
       //find parent quark

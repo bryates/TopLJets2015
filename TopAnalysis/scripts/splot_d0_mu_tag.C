@@ -161,7 +161,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       std::cout << g->GetName() << std::endl;
     }
   }
-  TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  TString fUrl("sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
+  //TString fUrl("/eos/cms/store/group/phys_top/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   if(mass != "172v5" && mass != "Data" && xb > 0)
     fUrl = TString("/eos/cms/store/user/byates/sPlot/TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   //TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
@@ -649,6 +650,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
   bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
   bin = {0, 0.2, 0.4, 0.6, 0.75, 0.85, 0.95, 1.0}; 
+  bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
   for(int i = 0; i < bin.size(); i++)
     bins.addBoundary(bin[i]);
  

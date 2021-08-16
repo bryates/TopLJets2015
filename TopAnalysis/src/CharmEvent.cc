@@ -177,6 +177,11 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("d0_sigmaz",     ev.d0_sigmaz,      "d0_sigmaz[nmeson]/F");
   t->Branch("d0_pi_mother",  ev.d0_pi_mother,   "d0_pi_mother[nmeson]/F");
   t->Branch("d0_k_mother",   ev.d0_k_mother,    "d0_k_mother[nmeson]/F");
+  t->Branch("d0_pi_gpt",     ev.d0_pi_gpt,      "d0_pi_gpt[nmeson]/F");
+  t->Branch("d0_k_gpt",      ev.d0_k_gpt,       "d0_k_gpt[nmeson]/F");
+  t->Branch("d0_pi_gpid",    ev.d0_pi_gpid,     "d0_pi_gpid[nmeson]/F");
+  t->Branch("d0_k_gpid",     ev.d0_k_gpid,      "d0_k_gpid[nmeson]/F");
+  t->Branch("d0_gen",        ev.d0_gen,         "d0_gen[nmeson]/O");
 
   //Fragmentation
   t->Branch("peterson",    ev.peterson,     "peterson[nj]/F");
@@ -363,6 +368,11 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("d0_sigmaz",     ev.d0_sigmaz);
   t->SetBranchAddress("d0_pi_mother",  ev.d0_pi_mother);
   t->SetBranchAddress("d0_k_mother",   ev.d0_k_mother);
+  t->SetBranchAddress("d0_pi_gpt",  ev.d0_pi_gpt);
+  t->SetBranchAddress("d0_k_gpt",   ev.d0_k_gpt);
+  t->SetBranchAddress("d0_pi_gpid",  ev.d0_pi_gpid);
+  t->SetBranchAddress("d0_k_gpid",   ev.d0_k_gpid);
+  t->SetBranchAddress("d0_gen",      ev.d0_gen);
 
   //Fragmentation
   t->SetBranchAddress("peterson",    ev.peterson);

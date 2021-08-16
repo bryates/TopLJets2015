@@ -76,8 +76,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ctauup/");
-  //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/noTrkSF/");
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/etaPiK/Chunks/");
   mass.ReplaceAll(".","v");
@@ -665,6 +664,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Gaussian for D0->KK
   float fNgsigkk[2] = {1.11557e+02, 8.20522e+02};
   float fSigmakk[2] = {1.94549e-02, 1.99998e-02};
+//bkg_km = {{1.792, 1.792, 1.792, 1.792, 1.792, 1.792, 1.792, 1.792 },{1.792, 1.792, 1.792, 1.792, 1.792, 1.792, 1.792, 1.792 }};
+//bkg_ks = {{0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02},{0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02}};
   RooRealVar meankk("meankk","meankk", 1.792);//, 1.72, 1.81);// floating gives 1.792 +/- 3.465e-03
   RooRealVar sigmakk("sigmakk","sigmakk", 0.02);// 3.3e-2, 0.01, 0.04);
   RooFormulaVar ngsigkk("ngsigkk","ngsignalkk", "nsig * 0.1", nsig);
@@ -749,13 +750,16 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   RooGaussian gaussW("gaussW","gaussW", d0_mass, meanW, sigmaW);
   RooGaussian gaussc("gaussc","gaussc", d0_mass, meanc, sigmac);
 
+std::vector<std::vector<std::vector<float>>> bkg_l = {{{-3.12281, -2.72134, -2.37471, -1.99907},{-3.17785, -2.71087, -2.193, -2.13344}},{{-3.23984, -2.8445, -2.74351, -2.34972},{-3.20198, -2.74154, -2.57881, -2.55858}}};
   // Construct exponential PDF to fit the bkg component
-  RooRealVar lambda("lambda", "slope", -2.76, -20, 20);
+  //RooRealVar lambda("lambda", "slope", -2.76, -20, 20);
+  RooRealVar lambda("lambda", "slope", bkg_l[isData][ep-1][xb-1]);
   RooRealVar lambdac("lambdac", "slope", fLambdac);
   RooExponential expo("expo", "exponential PDF", d0_mass, lambda);
   RooExponential expoc("expoc", "exponential PDF", d0_mass, lambdac);
   RooRealVar blambda("blambda", "slope", -0.1, -10, 10);
-  RooRealVar bsigma("bsigma","bsigma", 1, 0.1, 1);
+  RooRealVar bmean("bmean","bmean", 1.865, 1.7, 2.0);
+  RooRealVar bsigma("bsigma","bsigma", 0.7, 0, 2);
   RooGaussian bgauss("bgauss","bgauss", d0_mass, mean, bsigma);
   RooProdPdf prod("bkg", "expo*bgauss", RooArgList(expo, bgauss));
   
