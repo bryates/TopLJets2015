@@ -3,7 +3,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "THStack.h"
-#include "LJets2015/2016/mtop/tdr_sim.C"
+#include "/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/tdr_sim.C"
 
 void plotXbYield(bool norm=false) {
 TFile *fin = new TFile("LJets2015/2016/bfrag/xb_fit.root");

@@ -7,7 +7,7 @@
 #include <RooPlot.h>
 #include <RooHist.h>
 #include "convert.h"
-#include "LJets2015/2016/mtop/tdr_sim.C"
+#include "/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/tdr_sim.C"
 
 void plotDssWeights(bool fin=false) {
 std::vector<TString> tune = {"DssuFrag", "DssdFrag", "DssDzuFrag", "DssDzdFrag", "DssDzTenUpFrag", "DssDzTenUpFrag" };
