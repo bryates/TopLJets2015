@@ -10,8 +10,9 @@
 #include "/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/tdr_sim.C"
 
 void plotDssWeights(bool fin=false) {
+//std::vector<TString> tune = {"DssuFrag", "DssdFrag", "DssDzTenUpFrag", "DssDzTenDownFrag" };
 std::vector<TString> tune = {"DssuFrag", "DssdFrag", "DssDzuFrag", "DssDzdFrag", "DssDzTenUpFrag", "DssDzTenUpFrag" };
-std::vector<float> param = {0.906, 0.810, 1.05, 0.95, 1.1, 0.9};
+std::vector<TString> param = {"0.906", "0.810", "+5%", "-5%", "+10%", "-10%"};
 std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack};
 
 //TFile *f = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
@@ -61,21 +62,21 @@ for(size_t i=0; i<tune.size(); i++){
   tmp.back()->SetFillColor(color[i]);
   //tmp.back()->SetFillColor(0);
   //if(i==0) tmp->SetTitle("J/#Psi #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");
-  tmp.back()->SetTitle(TString::Format("%0.3f",param[i]));
+  tmp.back()->SetTitle(TString::Format("%s",param[i].Data()));
   if(param[i]==0)
     tmp.back()->SetTitle("Fit");
   if(tune[i] == TString("fitFrag")) tmp.back()->SetLineStyle(10);
   if(i==0) {
     tmp.back()->GetXaxis()->SetRangeUser(0.,1.0);
     tmp.back()->GetYaxis()->SetRangeUser(0.2,1.35);
-    tmp.front()->GetXaxis()->SetTitle("(B #it{p}_{T}^{#it{r}_{b}} / jet #it{p}_{T}) / (B #it{p}_{T}^{#it{r}_{b}=0.855} / jet #it{p}_{T})");
+    tmp.front()->GetXaxis()->SetTitle("#it{x}_{b}");
     tmp.front()->GetYaxis()->SetTitle("Weight relative to #it{r}_{b} = 0.855");
     //tmp.front()->GetYaxis()->SetTitle("Jets / 0.05");
     tmp.back()->Draw("ACI same");
     tmp.back()->GetYaxis()->SetRangeUser(0.8,1.2);
     tmp.back()->Draw("ACI same");
     tdr(tmp.back(), 0, fin);
-    tmp.back()->SetTitle(TString::Format("%0.3f",param[0]));
+    tmp.back()->SetTitle(TString::Format("%s",param[0].Data()));
   }
   else tmp.back()->Draw("CI same");
   leg->AddEntry( tmp.back(), tmp.back()->GetTitle(),"f");
@@ -91,22 +92,22 @@ rb->SetTextSize(0.036);
 TString text = TString::Format("Weight relative to #it{r}_{b} = 0.855");
 rb->AddText(text);
 //rb->Draw();
-rb = new TPaveText(0.26,iniy,0.58,iniy+0.15,"NDC"); //NB blNDC
+rb = new TPaveText(0.15,iniy,0.47,iniy+0.15,"NDC"); //NB blNDC
 rb->SetFillStyle(0);
 rb->SetTextAlign(11);
 rb->SetBorderSize(0);
 rb->SetTextFont(42);
 rb->SetTextSize(0.036);
-text = TString::Format("#it{r}_{b} value -- BR_{var} / BR_{nom}");
+text = TString("#pm 1#sigma #it{r}_{b} variation -- #pm 5% and #pm 10% BR variation");
 rb->AddText(text);
 rb->Draw();
 tmp.front()->SetTitle("");
 if(fin) {
-c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights_final.png");
-c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights_final.pdf");
+c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/Dss_weights_final.png");
+c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/Dss_weights_final.pdf");
 }
 else {
-c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights.png");
-c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights.pdf");
+c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/Dss_weights.png");
+c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/Dss_weights.pdf");
 }
 }

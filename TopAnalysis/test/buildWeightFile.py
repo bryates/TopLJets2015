@@ -53,7 +53,7 @@ def main():
     #derive the weights
     xb={}
     for tag,_,_ in TUNES:
-        if 'Dss' in tag:
+        if 'Dss' in tag or 'Dz' in tag:
             fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%('fit',MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%'fit'
         else:
             fName='LJets2015/2016/bfrag/xb_%s_numEvent%d.root'%(tag,MAXEVENTS) if MAXEVENTS>0 else 'LJets2015/2016/bfrag/xb_%s.root'%tag
@@ -90,12 +90,17 @@ def main():
                 xb[tag].Add(tmp, -1)
                 xb[tag + 'TenUp'] = xb[tag].Clone()
                 xb[tag + 'TenDown'] = xb[tag].Clone()
-                tmp.Scale(1.1) # Vary Dss by 5%
+                tmp.Scale(1.1) # Vary Dss by 10%
                 xb[tag + 'TenUp'].Add(tmp) # Vary Dss by 10%
-                tmp.Scale(0.9*0.9) # Vary Dss by 5%
+                tmp.Scale(1/1.1) # Undo vary Dss by 10%
+                tmp.Scale(0.9) # Vary Dss by -10%
                 xb[tag + 'TenDown'].Add(tmp) # Vary Dss by 10%
             else:
                 pass
+        elif any(n in tag for n in ['BpmDz', 'BsDz', 'LbDz']):
+            d = {'Bpm' : 521, 'Bs' : 531, 'Lb' : 5122}
+            xb[tag]=fIn.Get('bfragAnalysis/xb_Dzu%s' % d[tag[:-2]]).Clone(tag)
+            xb['B0Dz']=fIn.Get('bfragAnalysis/xb_Dzu511').Clone('B0Dz')
         else:
             xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
         #xb[tag].Rebin(2);
