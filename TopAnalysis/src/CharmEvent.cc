@@ -61,6 +61,7 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("j_flav",     ev.j_flav,    "j_flav[nj]/I");
   t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
   t->Branch("j_pid",     ev.j_pid,    "j_pid[nj]/I");
+  t->Branch("j_gXb",       ev.j_gXb,      "j_gXb[nj]/F");
   /*
   t->Branch("gj_pt",       ev.gj_pt,      "gj_pt[nj]/F");
   t->Branch("gj_eta",      ev.gj_eta,     "gj_eta[nj]/F");
@@ -256,6 +257,7 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
     t->SetBranchAddress("j_ntk",      ev.j_ntk);
   t->SetBranchAddress("j_csv",      ev.j_csv);
   t->SetBranchAddress("j_hadflav",     ev.j_hadflav);
+  t->SetBranchAddress("j_gXb",       ev.j_gXb);
   /*
   t->SetBranchAddress("gj_pt",       ev.gj_pt);
   t->SetBranchAddress("gj_eta",      ev.gj_eta);

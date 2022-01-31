@@ -784,6 +784,7 @@ void RunTopKalman(TString filename,
         j_pt_corrB[ev.pf_j[ipf]] *= pftk.getPtCorrection();
         //pisfB *= customSF(pftk, "BCDEF", ptsf,etasf);
         //pisfB /= ptsf;
+        TRandom *random = new TRandom3(0);
         if(ptsf > 0) {
           allPlots["piwgt_BCDEF"]->Fill(0.,1.0);
           allPlots["piwgt_BCDEF"]->Fill(1.,ptsf);
@@ -792,10 +793,12 @@ void RunTopKalman(TString filename,
           sumChBidx[ipf]++;
           keep[ev.pf_j[ipf]]++;
           pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+          //if(random->Uniform(1) > 0.02) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
           //if(piSFB[ipf]>1 || (piSFB[ipf]==0 && piSFG[ipf]<1)) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         }
         //if(!isData) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         if(isData) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+        //if(isData and random->Uniform(1) > 0.02) pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         /*
         if(piSFG[ipf]>=0) {
           if(piSFG[ipf]>1 || (piSFG[ipf]==0 && piSFB[ipf]<1)) pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
@@ -804,7 +807,10 @@ void RunTopKalman(TString filename,
         pt_chargedB[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
         */
+        //FIXME
         pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+        //if(random->Uniform(1) > 0.02) pt_chargedG[ev.pf_j[ipf]] += ev.pf_pt[ipf];
+        delete random;
         //Stor all PF pT and eta for data driven corrections
       }
       Float_t htsum(0),hsum(0),htbsum(0);
@@ -958,6 +964,7 @@ void RunTopKalman(TString filename,
 	
 	//save jet
         Jet tmpgj(jp4, ev.g_id[k], k, ev.xb[k]);
+	if(ev.g_B[k]>=0) tmpgj.setB(ev.g_B[k]);
         genJetsVec.push_back(tmpgj);
       }
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
@@ -1386,6 +1393,7 @@ void RunTopKalman(TString filename,
           }
           //std::vector<float> frag = {ev.xb[genJet.getJetIndex()],ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()],};
           std::vector<float> frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+          jet.setgXb(ev.gmeson_pt[genJet.getB()]/genJet.Pt());
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching

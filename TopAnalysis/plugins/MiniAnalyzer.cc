@@ -104,11 +104,13 @@ public:
 private:
   virtual void beginJob() override;
   int genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  //bool isAncestor(const reco::Candidate* ancestor, const reco::Candidate * particle);
   int recAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void KalmanAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup, const pat::Jet &j, const reco::Vertex &primVtx);
   std::pair<float,float> ctau(const TLorentzVector &p4, const reco::Vertex &fittedVertex,
                               const reco::Vertex &primVtx, std::vector<std::pair<float,float>> &lsigma);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void findFinalDaughter(int mother, const reco::Candidate *daug, std::vector<std::pair<int,int>> &chain, MiniEvent_t ev_);
   virtual void endJob() override;
   float getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands,
 			 const reco::Candidate* ptcl,  
@@ -249,6 +251,23 @@ MiniAnalyzer::~MiniAnalyzer()
 //
 // member functions
 //
+
+/*
+bool MiniAnalyzer::isAncestor(const reco::Candidate* ancestor, const reco::Candidate * particle)
+{
+//particle is already the ancestor
+        if(ancestor == particle ) return true;
+
+//otherwise loop on mothers, if any and return true if the ancestor is found
+        for(size_t i=0;i< particle->numberOfMothers();i++)
+        {
+                if(isAncestor(ancestor,particle->mother(i))) return true;
+        }
+//if we did not return yet, then particle and ancestor are not relatives
+        return false;
+}
+*/
+
 int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //
@@ -325,6 +344,7 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.g_eta[ev_.ng]  = genJet->eta();
       ev_.g_phi[ev_.ng]  = genJet->phi();
       ev_.g_m[ev_.ng]    = genJet->mass();       
+      //if(abs(genJet->pdgId())==5) std::cout << "gen jets     PdgID: " << genJet->pdgId() << " pt " << genJet->pt() << " eta: " << genJet->eta() << " phi: " << genJet->phi() << std::endl;
       
       //gen level selection
       if(genJet->pt()>25 && fabs(genJet->eta())<2.5)
@@ -405,12 +425,48 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   //Meson decay (J/Psi or D0)
   ev_.ngjpsi=0;
   ev_.ngmeson=0;
+  ev_.ngmeson_daug = 0;
+  ev_.ngmeson_daug_daug = 0;
   //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
   for(size_t i = 0; i < prunedGenParticles->size(); i++) {
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
+    //const Candidate * bMeson = &(*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
+    if(absid > 500 && absid < 600) { // B mesons only
+      ev_.gmeson_id[ev_.ngmeson]  = genIt.pdgId();
+      ev_.gmeson_pt[ev_.ngmeson]  = genIt.pt();
+      ev_.gmeson_eta[ev_.ngmeson] = genIt.eta();
+      ev_.gmeson_phi[ev_.ngmeson] = genIt.phi();
+      for(int ng = 0; ng < ev_.ng; ng++) {
+        ev_.g_B[ng] = -1;
+        if(reco::deltaR(genIt.eta(),genIt.phi(),ev_.g_eta[ng], ev_.g_phi[ng]) < 0.01) { // Look for gen b-jet match
+          ev_.g_B[ng] = ev_.ngmeson;
+          break; // Done looking
+        }
+      }
+      ev_.ngmeson++;
+      /*
+      std::cout << "gen B     PdgID: " << bMeson->pdgId() << " pt " << bMeson->pt() << " eta: " << bMeson->eta() << " phi: " << bMeson->phi() << std::endl;
+      for(size_t j=0; j<genParticles->size();j++){
+//get the pointer to the first survied ancestor of a given packed GenParticle in the prunedCollection 
+         const Candidate * motherInPrunedCollection = (*genParticles)[j].mother(0) ;
+         if(motherInPrunedCollection != nullptr && isAncestor( bMeson , motherInPrunedCollection)){
+           std::cout << "     PdgID: " << (*genParticles)[j].pdgId() << " pt " << (*genParticles)[j].pt() << " eta: " << (*genParticles)[j].eta() << " phi: " << (*genParticles)[j].phi() << std::endl;
+         }
+      }
+      */
+      continue; //FIXME testing B meson only
+      for(int n = 0; n < (int)genIt.numberOfDaughters(); n++) { // Save all B meson daughters
+        const reco::Candidate *daug=genIt.daughter(n);
+        std::vector<std::pair<int,int>> decayChain;
+        //findFinalDaughter(ev_.ngmeson-1, daug, decayChain, ev_);
+        //for(auto & d : decayChain) std::cout << "(" << d.first << " -> " << d.second << ")" << "\t";
+        //if(decayChain.size()>0) std::cout << std::endl;
+        }
+      }
+    continue; //FIXME
     if(absid!=443 && absid!=421 && absid!=413) continue;
     if(genIt.numberOfDaughters()<2) continue;
     /*
@@ -1000,6 +1056,39 @@ int MiniAnalyzer::recAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 // ------------ method called for each event  ------------
+/*
+void MiniAnalyzer::findFinalDaughter(int mother, const reco::Candidate *daug, std::vector<std::pair<int,int>> &chain, MiniEvent_t ev_) {
+  for(int n = 0; n < (int)daug->numberOfDaughters(); n++) {
+    //std::cout << "n=" << daug->numberOfDaughters() << "\t" << daug->pdgId() << std::endl;
+    if(daug->numberOfDaughters() > 0) findFinalDaughter(ev_.ngmeson-1, daug->daughter(n), chain, ev_);
+        ev_.gmeson_id[ev_.ngmeson] = daug->pdgId();
+        ev_.gmeson_pt[ev_.ngmeson] = daug->pt();
+        ev_.gmeson_eta[ev_.ngmeson] = daug->eta();
+        ev_.gmeson_phi[ev_.ngmeson] = daug->phi();
+        ev_.gmeson_mother_id[ev_.ngmeson] = mother;
+        std::cout << mother << "\t" << ev_.gmeson_id[ev_.ngmeson] << "\t" << ev_.gmeson_index[ev_.ngmeson] << std::endl;
+        continue;
+        if(abs(ev_.gmeson_daug_id[ev_.ngmeson_daug]) == 443 || abs(ev_.gmeson_daug_id[ev_.ngmeson_daug]) == 421) {
+          for(int l = 0; l < (int)daug->numberOfDaughters(); l++) { // Save all D0 and J/Psi meson daughters
+            const reco::Candidate *ddaug=daug->daughter(l);
+            ev_.ngmeson_daug_daug = n;
+            if(abs(ddaug->pdgId())==211 || abs(ddaug->pdgId())==321) std::cout << abs(ddaug->pdgId()) << std::endl;;
+            ev_.gmeson_daug_daug_id[ev_.ngmeson_daug_daug] = ddaug->pdgId();
+            ev_.gmeson_daug_daug_pt[ev_.ngmeson_daug_daug] = ddaug->pt();
+            ev_.gmeson_daug_daug_eta[ev_.ngmeson_daug_daug] = ddaug->eta();
+            ev_.gmeson_daug_daug_phi[ev_.ngmeson_daug_daug] = ddaug->phi();
+            ev_.gmeson_daug_daug_meson_index[ev_.ngmeson_daug_daug] = ev_.ngmeson_daug;
+            ev_.ngmeson_daug_daug++;
+          }
+        }
+
+    ev_.ngmeson++;
+    //chain.push_back(std::pair<int,int>(daug->mother()->pdgId(),daug->pdgId()));
+    //for(auto & d : chain) std::cout << "n=" << n << " (" << d.first << " -> " << d.second << ")" << "\t";
+  }
+}
+*/
+
 void MiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   histContainer_["counter"]->Fill(0);

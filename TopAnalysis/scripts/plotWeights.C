@@ -10,9 +10,12 @@
 #include "/afs/cern.ch/user/b/byates/CMSSW_8_0_26/src/TopLJets2015/TopAnalysis/LJets2015/2016/mtop/tdr_sim.C"
 
 void plotWeights(bool fin=false) {
-std::vector<TString> tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DssDzuFrag", "DssDzdFrag", "DssDzTenUpFrag", "DssDzTenUpFrag" };
-std::vector<TString> param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "+5%", "-5%", "+10%", "-10%"};
-std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kRed, kCyan, kCyan};
+std::vector<TString> tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DssDzuFrag", "DssDzdFrag", "DssDzTenUpFrag", "DssDzTenUpFrag", "DzuchargedincFrag", "DzdchargedincFrag" };
+std::vector<TString> param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "+5%", "-5%", "+10%", "-10%", "charged Up", "charged Down"};
+tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DzuchargedincFrag", "DzdchargedincFrag" };
+param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "charged Up", "charged Down"};
+std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kOrange};
+//std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kRed, kCyan, kCyan};
 //std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kBlue, kGreen, kRed, kRed, kCyan, kCyan};
 
 //TFile *f = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
@@ -72,7 +75,7 @@ for(size_t i=0; i<tune.size(); i++){
   tmp.back()->SetTitle(TString::Format("%s",param[i].Data()));
   if(param[i]==0)
     tmp.back()->SetTitle("Fit");
-  if(tune[i] == TString("fitFrag") || tune[i].Contains("Dss")) tmp.back()->SetLineStyle(10);
+  if(tune[i] == TString("fitFrag") || tune[i].Contains("Dss") || tune[i].Contains("Dz")) tmp.back()->SetLineStyle(10);
   if(i==0) {
     tmp.back()->GetXaxis()->SetRangeUser(0.,1.0);
     tmp.back()->GetYaxis()->SetRangeUser(0.2,1.35);
@@ -118,7 +121,8 @@ BR->SetTextAlign(11);
 BR->SetBorderSize(0);
 BR->SetTextFont(42);
 BR->SetTextSize(0.036);
-text = TString::Format("#it{BR}(B #rightarrow D** #rightarrow D^{0}) variation (dash-dotted)");
+text = TString::Format("D^{0} p_{T}^{GEN} / #Sigma p_{T}^{ch} variation (dash-dotted)");
+//text = TString::Format("#it{BR}(B #rightarrow D** #rightarrow D^{0}) variation (dash-dotted)");
 BR->AddText(text);
 BR->Draw();
 tmp.front()->SetTitle("");

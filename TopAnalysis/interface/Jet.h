@@ -140,6 +140,8 @@ class Jet {
   inline void setFlav(int flav) { flav_ = flav; }
   inline void setPdgId(int pid) { pid_ = pid; }
   inline void setJchCorrection(float j_corr) { j_corr_ = j_corr; }
+  inline void setB(int genB) { genB_ = genB; }
+  inline void setgXb(int genXb) { genXb_ = genXb; }
   TLorentzVector &getVec();
   float &getCSV();
   float getPt();
@@ -165,6 +167,8 @@ class Jet {
   inline int getHadFlav() { return hadflav_; }
   inline int getFlav() { return flav_; }
   inline int getPdgId() { return pid_; }
+  inline int getB() { return genB_; }
+  inline float getgXb() { return genXb_; }
   float &getDxy(int idx);
   float &getDz(int idx);
   float &getDxyE(int idx);
@@ -187,7 +191,9 @@ class Jet {
   float PFP_;
   float xb_;
   float j_corr_;
+  float genXb_;
   int genJet_;
+  int genB_;
   int hadflav_;
   int flav_;
   int pid_;

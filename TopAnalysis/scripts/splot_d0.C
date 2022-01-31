@@ -106,6 +106,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   */
   TFile *fin;
   TGraph *g=nullptr;
+  TGraph *DzShape=nullptr;
+  TGraph *DssShape=nullptr;
+  TGraph *DssShapeup=nullptr;
+  TGraph *DsShapeup=nullptr;
+  TGraph *DsShapedown=nullptr;
   TH1F *BDzb=nullptr;
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
@@ -154,17 +159,18 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
     }
     else if(mass.Contains("_FSR")) {
-      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test2/Chunks/");
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+      //dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test2/Chunks/");
       std::cout << dir << std::endl;
 
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
     std::vector<TString> mcSamples;
-    //PS weights instead of deficated FSR samples
+    //PS weights instead of dedicated FSR samples
     if(syst.Length()>0 && !mass.Contains("FSR")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s*",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
-    else if(mass.Contains("FSR")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_2016_TTJets_psweights","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
-    //else if(mass.Contains("FSR-up")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-up"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
-    //else if(mass.Contains("FSR-down")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-down"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    //else if(mass.Contains("FSR")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_2016_TTJets_psweights","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    else if(mass.Contains("FSR-up")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-up"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    else if(mass.Contains("FSR-down")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_fsr-down"),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //if(mass.Contains("_c")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //mcSamples = { "MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets" }; // For W background only
@@ -173,6 +179,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       //TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
       if(mass.Contains("172v5_ext") && it.Contains("powheg"))
         dir="/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
+      else if(it.Contains("TTJets_powheg"))
+        dir="/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/genxB/";
       TString mcname(dir);
       mcname += it;
       mcname += "_*.root";
@@ -180,17 +188,39 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
     }
+    /*
+    if(fragWeight.Contains("Dz")) {
+      int idx = fragWeight.First("Dz");
+      auto dz_in = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/bfrag/xb_fit" + fragWeight(idx+2, fragWeight.Length() - idx) + ".root");
+      std::cout << "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/bfrag/xb_fit" + fragWeight(idx+2, fragWeight.Length() - idx) + ".root" << std::endl;
+      g = (TGraph*)dz_in->Get("bfragAnalysis/xb_Dzinc");
+    }
+    */
     if(fragWeight.Length() > 0) {
       if(fragWeight.Contains("lep")) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
       }
-      else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      /*
+      if(fragWeight.Contains("Dz")) {
+        int idx = fragWeight.First("Dz");
+        auto dz_in = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/bfrag/xb_fit" + fragWeight(idx+2, fragWeight.Length() - idx) + ".root");
+        std::cout << "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/bfrag/xb_fit" + fragWeight(idx+2, fragWeight.Length() - idx) + ".root" << std::endl;
+        g = (TGraph*)dz_in->Get("bfragAnalysis/xb_Dzinc");
+      }
+      */
+      else fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
+      //else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
       if(mass.Contains("172v5_ext"))
       fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_ext.root");
       mass += "_" + fragWeight;
       fragWeight.ReplaceAll("lep","");
       try{
       g = (TGraph*)fin->Get(fragWeight+"Frag");
+      DssShape = (TGraph*)fin->Get("DssDzFrag");
+      DssShapeup = (TGraph*)fin->Get("DssDzTenUpFrag");
+      //DssShapeup = (TGraph*)fin->Get("DssDzTenDownFrag");
+      DsShapeup = (TGraph*)fin->Get("Dzu431Frag");
+      DsShapedown = (TGraph*)fin->Get("Dzd431Frag");
       }
       catch (...) {
         std::cout << fragWeight << " not found!" << std::endl;
@@ -272,6 +302,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //RooRealVar weight("weight","weight",1.,0.,36000.);
   RooRealVar meson_l_mass("d0_l_mass","D^{0}+l mass", 0, 250, "GeV") ;
   RooRealVar ptfrac("ptfrac","D^{0} #it{p}_{T} / #Sigma #it{p}_{T}^{ch}", 0, 1.1, "") ;
+  RooRealVar Bfrac("Bfrac","B #it{p}_{T} / jet #it{p}_{T}", 0, 1.1, "") ;
   RooRealVar d0_pt("d0_pt","D^{0} p_{T}", 0, 250, "GeV");
   RooRealVar j_pt_ch("j_pt_ch","j p_{T} charged", 0, 400, "GeV");
   RooRealVar j_pt("j_pt","j p_{T}", 0, 400, "GeV");
@@ -284,7 +315,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   // Create a binned dataset that imports contents of TH1 and associates its contents to observable 'x'
 
   //RooDataSet dsn("dsn", "dsn", RooArgSet(meson_id,d0_mass,ptfrac,meson_l_mass,weight), Import(*data), Cut("meson_id==42113"));
-  RooDataSet dsn("dsn", "dsn", RooArgSet(RooArgList(d0_mass,ptfrac,meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW,""),RooArgList(d0_mass2,j_hadflav,mcFile,"")));
+  RooDataSet dsn("dsn", "dsn", RooArgSet(RooArgList(d0_mass,ptfrac,
+meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW,""),RooArgList(d0_mass2,j_hadflav,mcFile,"")));
   //RooDataSet dsn("dsn", "dsn", args);
   int nmc = ep == 1 ? 430267 : 555621;
   int nentries = ep == 1 ? 97791 : 92135;
@@ -391,7 +423,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         if(ev.j_pt_charged[j]>100) continue;
       }
       */
-      if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0)) {
+      //if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0)) {
+      if(mass.Contains("toyData") && fragWeight.Length()>0) {
         TRandom3 *rand = new TRandom3(0);
         if(rand->Uniform(0, 1) > float(nentries)/float(nmc)) continue;
         if(nset > nentries) continue;
@@ -441,7 +474,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         scale *= 1.13; //GH normalization const
 
       if(!isData) {
-        if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0))
+        //if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0))
+        if(mass.Contains("toyData") && fragWeight.Length()>0)
         scale *= ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         else
         scale *= ev.norm * ev.xsec * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
@@ -449,18 +483,19 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         //if(tpt) scale *= ev.topptwgt;// * topSF * puSF;
         //scale *= ev.norm * ev.xsec * ev.sfs[j] * ev.puwgt[j] * ev.topptwgt;// * topSF * puSF;
         //PS weights
-        /*
-        */
+        /*FIXME
         if(mass.Contains("FSR-up") && TString(data->GetFile()->GetName()).Contains("psweights")) scale *= ev.gfsr[0];
         else if(mass.Contains("FSR-down") && TString(data->GetFile()->GetName()).Contains("psweights")) scale *= ev.gfsr[1];
         if(mass.Contains("FSR-up") && TString(data->GetFile()->GetName()).Contains("psweights")) tuneFSR->Fill(1, ev.gfsr[0]);
         else if(mass.Contains("FSR-down") && TString(data->GetFile()->GetName()).Contains("psweights")) tuneFSR->Fill(2, ev.gfsr[1]);
         tuneFSR->Fill(0);
+        */
         scale *= 1.11; //GH normalization const
         //if(!jpT) scale *= ev.pitrk[j];
         //scale = norm * sfs[j] * puwgt[j] * topptwgt * topSF * puSF;
         if(ev.epoch[j]==1) {
-          if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0))
+          //if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0))
+          if(mass.Contains("toyData") && fragWeight.Length()>0)
           scale =  scale * puSF1 * topSF1;
           else
           scale =  scale * 19712.86 * puSF1 * topSF1;
@@ -469,7 +504,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           //h1->Fill(mesonlm[j], scale);
         }
         else if(ev.epoch[j]==2) {
-          if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0))
+          //if(mass.Contains("toyData") || (mass.EqualTo("FSR") && fragWeight.Length()>0))
+          if(mass.Contains("toyData") && fragWeight.Length()>0)
           scale = scale * puSF2 * topSF2;
           else
           scale = scale * 16146.178 * puSF2 * topSF2;
@@ -482,6 +518,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           continue;
         tuneWgt->Fill(0.,1.0);
         double frac(ev.d0_pt[j]/ev.j_pt_charged[j]);
+        if (ev.j_gXb[ev.nj]>=0) frac = ev.j_gXb[ev.nj]; // Currently powheg only
         if(BDzb == nullptr) {
           std::cout << "not found!" << std::endl;
           return;
@@ -490,6 +527,15 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
           if(frac>1.) frac = 1.;
           if(frac<0.1) frac = 0.1;
           scale *= g->Eval(frac);
+          /*
+          TRandom3 *rand = new TRandom3(0);
+          if(rand->Uniform(1)<0.3) // Randomly select 30% of events
+            scale *= DssShapeup->Eval(frac);
+          */
+          if(name.Contains("Dsup"))
+            scale *= DsShapeup->Eval(frac);
+          else if(name.Contains("Dsdown"))
+            scale *= DsShapedown->Eval(frac);
           tuneWgt->Fill(1.,g->Eval(frac));
           //tuneWgt->Fill(1.,g->Eval(frac)*BDzb->GetBinContent(BDzb->FindBin(frac)));
         }
@@ -543,8 +589,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   */
   double tuneShape = 1.;
   if(tuneWgt->GetBinContent(2) > 0) tuneShape = tuneWgt->GetBinContent(1)/tuneWgt->GetBinContent(2);
+  /*
   if(mass.Contains("FSR-up")) tuneShape *= tuneFSR->GetBinContent(1)/tuneFSR->GetBinContent(2);
   else if(mass.Contains("FSR-down")) tuneShape *= tuneFSR->GetBinContent(1)/tuneFSR->GetBinContent(3);
+  */
   std::cout << "Norm weight: " << tuneShape << std::endl;
   //very inefficient second loop to adjust normalization
   std::cout << "Re-weighting based on norm weight" << std::endl;
@@ -652,7 +700,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
 
   // Construct Gaussian1 PDF for signal
-  RooRealVar sigma("sigma","sigma", 0.019, 0.005, 0.04);
+  RooRealVar sigma("sigma","sigma", 0.019);//, 0.005, 0.04);
   RooRealVar ngsig("ngsig","ngsignal", 1000, 100, 10000000);
   RooGaussian gauss("gauss","gauss", d0_mass, mean, sigma);
   RooRealVar nsig("nsig","#signal events", 5994, 0, 70000) ;

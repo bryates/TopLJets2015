@@ -34,7 +34,7 @@ struct CharmEvent_t
   Float_t l_chi2norm[50], l_dxy[50], l_dxyE[50], l_dz[50], l_dzE[50];
 
   Int_t nj;
-  Float_t j_pt[500],j_pt_pf[500],j_pt_charged[500],j_eta[500],j_phi[500],j_mass[500],j_ntk[50];
+  Float_t j_pt[500],j_pt_pf[500],j_pt_charged[500],j_eta[500],j_phi[500],j_mass[500],j_ntk[50],j_gXb[500];
   Float_t j_p[500],j_p_pf[500],j_p_charged[500];
   Float_t j_pz[500],j_pz_pf[500],j_pz_charged[500];
   Float_t j_csv[500];

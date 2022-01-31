@@ -50,19 +50,19 @@ void pfTrack::setMother(int motherId) { motherId_ = motherId; }
 void pfTrack::print() { std:: cout << "pdgId=" << getPdgId() << " pT=" << Pt() << " eta=" << Eta() << " phi=" << Phi() << " mass=" << M() << std::endl; }
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) {
-hadflav_=0; flav_=0; pid_=0; 
+hadflav_=0; flav_=0; pid_=0; genB_ = -1; genXb_ = -1;
  }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt) {
-hadflav_=0; flav_=0; pid_=0; 
+hadflav_=0; flav_=0; pid_=0; genB_ = -1; genXb_ = -1;
  }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt), genJet_(genJet) {
-hadflav_=0; flav_=0; pid_=0; 
+hadflav_=0; flav_=0; pid_=0; genB_ = -1; genXb_ = -1;
 }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt,  float chargedPz, float chargedP, float PFPt, float PFPz, float PFP, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), chargedPz_(chargedPz), chargedP_(chargedP), PFPt_(PFPt), PFPz_(PFPz), PFP_(PFP), genJet_(genJet) {
-hadflav_=0; flav_=0; pid_=0; 
+hadflav_=0; flav_=0; pid_=0; genB_ = -1; genXb_ = -1;
 }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float xb) : p4_(p4), csv_(csv), idx_(idx), xb_(xb) {
-hadflav_=0; flav_=0; pid_=0; 
+hadflav_=0; flav_=0; pid_=0; genB_ = -1; genXb_ = -1;
  }
 
 /*

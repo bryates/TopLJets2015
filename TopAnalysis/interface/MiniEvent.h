@@ -8,7 +8,7 @@ struct MiniEvent_t
   MiniEvent_t()
   {
     ttbar_nw=0;
-    ng=0; ngtop=0; ngpf=0; ngjpsi=0; ngmeson=0; ngmeson_daug=0;
+    ng=0; ngtop=0; ngpf=0; ngjpsi=0; ngmeson=0; ngmeson_daug=0; ngmeson_daug_daug=0;
     nl=0; nj=0; nmet=0; npf=0;
     ngpsw=0;
   }
@@ -21,17 +21,20 @@ struct MiniEvent_t
   Int_t pu,putrue;
   Int_t ttbar_nw, ttbar_allmepartons, ttbar_matchmepartons;
   Float_t ttbar_w[500];
-  Int_t ng,ngj,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson,ngmeson_daug;
+  Int_t ng,ngj,ngjets,ngbjets,ngleptons,ngtop,ngpf,ngjpsi,ngmeson,ngmeson_daug,ngmeson_daug_daug;
   Float_t gtop_pt_wgt;
   Int_t g_id[500];
   Float_t g_pt[500],g_eta[500],g_phi[500],g_m[500]; 
+  Int_t g_B[500];
   Int_t gtop_id[15];
   Float_t gtop_pt[15],gtop_eta[15],gtop_phi[15],gtop_m[15]; 
   Int_t gpf_id[5000],gpf_c[5000],gpf_g[5000],gpf_mother[5000];
   Float_t gpf_pt[5000],gpf_eta[5000],gpf_phi[5000],gpf_m[5000];
   Int_t gmeson_id[5000],gmeson_daug_id[5000],gmeson_mother_id[5000];
+  Int_t gmeson_daug_daug_id[5000];
   Float_t gmeson_pt[5000],gmeson_eta[5000],gmeson_phi[5000],gmeson_m[5000],gmeson_daug_dR[5000],gmeson_index[5000];
   Float_t gmeson_daug_pt[5000],gmeson_daug_eta[5000],gmeson_daug_phi[5000],gmeson_daug_m[5000],gmeson_daug_meson_index[5000],gmeson_daug_dxy[5000],gmeson_daug_dxyE[5000],gmeson_daug_dz[5000],gmeson_daug_dzE[5000];
+  Float_t gmeson_daug_daug_pt[5000],gmeson_daug_daug_eta[5000],gmeson_daug_daug_phi[5000],gmeson_daug_daug_m[5000],gmeson_daug_daug_meson_index[5000],gmeson_daug_daug_dxy[5000],gmeson_daug_daug_dxyE[5000],gmeson_daug_daug_dz[5000],gmeson_daug_daug_dzE[5000];
   Int_t ngpsw;
   Float_t gpsw[500];
 

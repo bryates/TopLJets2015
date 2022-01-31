@@ -54,7 +54,8 @@ if(name.Contains("noTrkSF")) fname.ReplaceAll("Data", "Data_noTrkSF");
 if(name.Contains("ep")) fname.ReplaceAll("Data", "Data_ep");
 if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
 if(name.Contains("d0kk")) fname.ReplaceAll("Data", "Data_d0kk");
-if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR");
+//if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR");
+if(name.Contains("FSR")) fname.ReplaceAll("Data","Data_randmass");
 if(name.Contains("dupBest")) fname.ReplaceAll("Data","Data_dupBest");
 if(name.Contains("BDzb")) fname.ReplaceAll("Data","Data_dupBest");
 if(name.Contains("_ds")) fname.ReplaceAll("Data","Data_ds");
@@ -69,6 +70,9 @@ if(name.Contains("172v5_bestmass")) fname.ReplaceAll("Data","Data_bestmass");
 if(name.Contains("172v5_randmass_var_hand")) fname.ReplaceAll("Data","Data_randmass_var_hand");
 else if(name.Contains("172v5_randmass_var")) fname.ReplaceAll("Data","Data_randmass_var");
 else if(name.Contains("172v5_randmass")) fname.ReplaceAll("Data","Data_randmass");
+else if(name.Contains("172v5_Dz")) fname.ReplaceAll("Data","Data_randmass");
+else if(name.Contains("172v5_Bfrag")) fname.ReplaceAll("Data","Data_randmass");
+else if(name.Contains("172v5_sumchptrand")) fname.ReplaceAll("Data","Data_randmass");
 if(name.Contains("172v5_ctauup")) fname.ReplaceAll("Data","Data_ctauup");
 if(name.Contains("172v5_ctaudown")) fname.ReplaceAll("Data","Data_ctaudown");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
@@ -92,7 +96,7 @@ else
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(name.Contains("_xb")) {
-fname.ReplaceAll("_xb","");
+fname.ReplaceAll("_xb_","_");
 fname.ReplaceAll(".root","_xb.root");
 }
 if(name.Contains("_charm")) {
@@ -273,8 +277,20 @@ std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
 std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
 std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
 */
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup" };
-std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};
+std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+/* FIXME these were for the B->D^0 GEN level weight cross checks
+tune = {"_Dzdown", "_Dzdchargedinc", "", "_Dzuchargedinc", "_Dzup"};
+param = {0.755, 0.810, 0.855, 0.906, 1.055};
+*/
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup" };
+//std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
 //std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up", "_1125" };
 //std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975, 1.055, 1.125, 0.802};
 /*
@@ -341,7 +357,7 @@ else
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(-88.3245, 1045.87, -2049.8, 1137.63);
  //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
-chiTest->Fit("pol3","FSMEQRW","",0.6,0.976);
+chiTest->Fit("pol2","FSMEQRW","",0.6,0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ");
 //TFitResultPtr fit = chiTest->Fit("pol2","FSMEQ","",0.8,1.0);
@@ -351,11 +367,11 @@ float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * p
 float err = (-1)*fit->Parameter(1) / (2 * fit->Parameter(2)) - sqrt(pow(fit->Parameter(1),2)
             - 4 * fit->Parameter(2) * (fit->Parameter(0) - chimin - 1)) / (2 * fit->Parameter(2));
 */
-float min = chiTest->GetFunction("pol3")->GetMinimumX(0.6,1.075);
+float min = chiTest->GetFunction("pol2")->GetMinimumX(0.6,1.075);
 //float chimin = fit->Parameter(0) + fit->Parameter(1)*min + fit->Parameter(2) * pow(min,2) + fit->Parameter(3) * pow(min,3);
-std::cout << std::endl << chiTest->GetFunction("pol3")->GetParameter(0) << std::endl << chiTest->GetFunction("pol3")->GetParameter(1) << std::endl << chiTest->GetFunction("pol3")->GetParameter(2) << std::endl << chiTest->GetFunction("pol3")->GetParameter(3) << std::endl << std::endl; 
-float chimin = chiTest->GetFunction("pol3")->Eval(min);
-float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.075);
+//std::cout << std::endl << chiTest->GetFunction("pol3")->GetParameter(0) << std::endl << chiTest->GetFunction("pol3")->GetParameter(1) << std::endl << chiTest->GetFunction("pol3")->GetParameter(2) << std::endl << chiTest->GetFunction("pol3")->GetParameter(3) << std::endl << std::endl; 
+float chimin = chiTest->GetFunction("pol2")->Eval(min);
+float err = chiTest->GetFunction("pol2")->GetX(chimin+1,0.6,1.075);
 if(name=="") { nom=min; nerr=err; }
 report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
 json += Form("%.3f +/- %.3f ",min,abs(min-err));
@@ -370,7 +386,7 @@ pt->SetTextAlign(11);
 pt->SetBorderSize(0);
 pt->SetTextFont(42);
 pt->SetTextSize(0.046);
-TString text = TString::Format("r_{B}= %.4f +/- %.4f (stat)",min,abs(min-err));
+TString text = TString::Format("r_{b}= %.4f +/- %.4f (stat)",min,abs(min-err));
 if(name.Length() > 0)
   text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<nom ? '-' : '+'), abs(nom-min), sqrt(abs(pow(nerr,2)-pow(abs(min-err),2))));
   //text += TString::Format(" %c %.4f (syst) +/- %.4f",(min<nom ? '-' : '+'), abs(nom-min), sqrt(abs(pow(0.0507584,2)-pow(abs(min-err),2))));
@@ -447,7 +463,7 @@ c1->SaveAs(TString::Format("www/meson/morph/ptfrac/ptfrac_signal_%s_%d%s_d0%s.pn
 std::cout << "" << std::endl;
 if(namet=="172v5" && num > 0.825 && num < 0.875) {
 data->SetTitle("");
-data->GetXaxis()->SetRangeUser(0.,1.);
+data->GetXaxis()->SetRangeUser(0,1.);
 //data->GetYaxis()->SetRangeUser(0,0.145);
 mc->SetMarkerStyle(20);
 data->SetMarkerStyle(20);
@@ -490,8 +506,12 @@ data->GetXaxis()->SetRangeUser(0.125,0.975);
 mc->GetXaxis()->SetRangeUser(0.125,0.975);
 data->GetXaxis()->SetRangeUser(0.2,0.975);
 mc->GetXaxis()->SetRangeUser(0.4,0.975);
+data->GetXaxis()->SetRangeUser(0.4,1.);//0.975);
+mc->GetXaxis()->SetRangeUser(0.4,1.);//0.975);
 data->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
 mc->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
+//data->GetXaxis()->SetRangeUser(0.45,1.);//0.975);
+//mc->GetXaxis()->SetRangeUser(0.45,1.);//0.975);
 if(epoch<0 && 0) {
 data->GetXaxis()->SetRangeUser(0.4,1.0);
 mc->GetXaxis()->SetRangeUser(0.4,1.0);
@@ -514,6 +534,8 @@ data->GetYaxis()->SetRangeUser(0.,.16);
 */
 mc->GetYaxis()->SetRangeUser(0.,.14);
 data->GetYaxis()->SetRangeUser(0.,.14);
+mc->GetYaxis()->SetRangeUser(0.,.18);
+data->GetYaxis()->SetRangeUser(0.,.18);
 if(fullpt) {
 mc->GetYaxis()->SetRangeUser(0.,.17);
 data->GetYaxis()->SetRangeUser(0.,.17);

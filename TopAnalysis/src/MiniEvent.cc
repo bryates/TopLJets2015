@@ -30,6 +30,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("g_eta",     ev.g_eta,    "g_eta[ng]/F");
   t->Branch("g_phi",     ev.g_phi,    "g_phi[ng]/F");
   t->Branch("g_m",       ev.g_m,      "g_m[ng]/F");
+  t->Branch("g_B",       ev.g_B,      "g_B[ng]/I");
 
   //gen level J/Psi
   t->Branch("ngjpsi",       &ev.ngjpsi, "ngjpsi/I");
@@ -40,6 +41,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gmeson_daug_pt",  ev.gmeson_daug_pt, "gmeson_daug_pt[ngmeson_daug]/F");
   t->Branch("gmeson_daug_eta", ev.gmeson_daug_eta, "gmeson_daug_eta[ngmeson_daug]/F");
   t->Branch("gmeson_daug_phi", ev.gmeson_daug_phi, "gmeson_daug_phi[ngmeson_daug]/F");
+  t->Branch("ngmeson_daug_daug", &ev.ngmeson_daug_daug, "ngmeson_daug_daug/I");
+  t->Branch("gmeson_mother_id",  ev.gmeson_mother_id, "gmeson_mother_id[ngmeson]/I");
+  t->Branch("gmeson_daug_daug_id",  ev.gmeson_daug_daug_id, "gmeson_daug_daug_id[ngmeson_daug_daug]/I");
+  t->Branch("gmeson_daug_daug_pt",  ev.gmeson_daug_daug_pt, "gmeson_daug_daug_pt[ngmeson_daug_daug]/F");
+  t->Branch("gmeson_daug_daug_eta", ev.gmeson_daug_daug_eta, "gmeson_daug_daug_eta[ngmeson_daug_daug]/F");
+  t->Branch("gmeson_daug_daug_phi", ev.gmeson_daug_daug_phi, "gmeson_daug_daug_phi[ngmeson_daug_daug]/F");
   t->Branch("gmeson_id",     ev.gmeson_id, "gmeson_id[ngmeson]/I");
   t->Branch("gmeson_pt",     ev.gmeson_pt, "gmeson_pt[ngmeson]/F");
   t->Branch("gmeson_eta",    ev.gmeson_eta, "gmeson_eta[ngmeson]/F");
@@ -48,6 +55,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gmeson_daug_dR",  ev.gmeson_daug_dR, "gmeson_daug_dR[ngmeson]/F");
   t->Branch("gmeson_index",  ev.gmeson_index, "gmeson_index[ngmeson]/F");
   t->Branch("gmeson_daug_meson_index",  ev.gmeson_daug_meson_index, "gmeson_daug_meson_index[ngmeson_daug]/F");
+  t->Branch("gmeson_daug_daug_meson_index",  ev.gmeson_daug_daug_meson_index, "gmeson_daug_daug_meson_index[ngmeson_daug_daug]/F");
 
   //top (lastCopy and pseudo-top)
   t->Branch("ngtop",     &ev.ngtop,      "ngtop/I");
@@ -253,6 +261,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("g_eta",     ev.g_eta);
   t->SetBranchAddress("g_phi",     ev.g_phi);
   t->SetBranchAddress("g_m",       ev.g_m);
+  t->SetBranchAddress("g_B",       ev.g_B);
 
   //top (lastCopy and pseudo-top)
   t->SetBranchAddress("ngtop",     &ev.ngtop);

@@ -268,7 +268,8 @@ TCanvas *c1 = setupCanvas();
 setupPad()->cd();
 
 std::vector<TString> samples = { "jpsi", "d0", "d0_mu_tag_mu" };
-TString fname=TString::Format("sPlot/sPlot/TopMass_172v5_fit_sPlot_%s.root",samples[sample].Data());
+TString fname=TString::Format("sPlot/sPlot/TopMass_172v5_Dz_sPlot_%s.root",samples[sample].Data());
+//TString fname=TString::Format("sPlot/sPlot/TopMass_172v5_fit_sPlot_%s.root",samples[sample].Data());
 if(sample==2) fname=TString::Format("sPlot/TopMass_172v5_fit_sPlot_%s.root",samples[sample].Data());
 //TString fname=TString::Format("sPlot/sPlot/TopMass_172v5_%s_sPlot_%s.root",samples[sample].Data(),samples[sample].Data());
 //fname.ReplaceAll("d0_mu_tag_mu.root","d0_mu_tag_mu.root");
@@ -299,7 +300,8 @@ cent->Add(cent2);
 std::cout << "nomalizing histogram" << std::endl;
 cent->Scale(1./cent->Integral());
 
-fname.ReplaceAll("fit_",TString::Format("fitup_"));
+fname.ReplaceAll("Dz_",TString::Format("Dz_Dzuinc_"));
+//fname.ReplaceAll("fit_",TString::Format("fitup_"));
 //fname.ReplaceAll(TString::Format("%s_",samples[sample].Data()),TString::Format("%sup_",samples[sample].Data()));
 if(sample!=1)
 fname.ReplaceAll(TString::Format("%s2",samples[sample].Data()), TString::Format("%s1",samples[sample].Data()));
@@ -311,7 +313,8 @@ up->Add(up2);
 }
 up->Scale(1./up->Integral());
 
-fname.ReplaceAll("fitup_",TString::Format("fitdown_"));
+fname.ReplaceAll("Dzuinc_",TString::Format("Dzdinc_"));
+//fname.ReplaceAll("fitup_",TString::Format("fitdown_"));
 //fname.ReplaceAll(TString::Format("%sup_",samples[sample].Data()),TString::Format("%sdown_",samples[sample].Data()));
 if(sample!=1)
 fname.ReplaceAll(TString::Format("%s2",samples[sample].Data()), TString::Format("%s1",samples[sample].Data()));
@@ -323,7 +326,8 @@ down->Add(down2);
 }
 down->Scale(1./down->Integral());
 
-fname.ReplaceAll("172v5_fitdown",TString::Format("Data"));
+fname.ReplaceAll("172v5_Dz_Dzdinc",TString::Format("Data"));
+//fname.ReplaceAll("172v5_fitdown",TString::Format("Data"));
 //fname.ReplaceAll(TString::Format("172v5_%sdown",samples[sample].Data()), "Data");
 if(sample!=1)
 fname.ReplaceAll(TString::Format("%s2",samples[sample].Data()), TString::Format("%s1",samples[sample].Data()));
@@ -489,7 +493,8 @@ lep->SetTitle("LEP tune");
 //fit->Draw("same e3");
 std::vector<std::pair<float,TString>> range;
 if(sample==0) range = {std::make_pair<float,TString>(0.4, "pol1"), std::make_pair<float,TString>(0.85, "pol2"), std::make_pair<float,TString>(1.0, "pol1")};
-else if(sample==1) range = {std::make_pair<float,TString>(0.5, "pol1"), std::make_pair<float,TString>(0.85, "pol2"), std::make_pair<float,TString>(1.0, "pol2")};
+else if(sample==1) range = {std::make_pair<float,TString>(0.3, "pol1"), std::make_pair<float,TString>(0.7, "pol2"), std::make_pair<float,TString>(1.0, "pol2")};
+//else if(sample==1) range = {std::make_pair<float,TString>(0.5, "pol1"), std::make_pair<float,TString>(0.85, "pol2"), std::make_pair<float,TString>(1.0, "pol2")};
 else if(sample==2) range = {std::make_pair<float,TString>(0.7, "pol2"), std::make_pair<float,TString>(0.9, "pol1"), std::make_pair<float,TString>(1.0, "pol1")};
     //bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0};
 auto fitsm = (TH1F*)smoothPlot(fit, range);

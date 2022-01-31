@@ -6,7 +6,7 @@
 
 void plotDss(bool norm=true, bool ratio=false) {
 TFile *fin = new TFile("LJets2015/2016/bfrag/xb_fit.root");
-std::vector<TString> hadron = {"inc", "noDss", "Dss"};//, "DssDz", "DssDzb"};
+std::vector<TString> hadron = {"inc", "noDss", "Dss"};//,  "411","10411","10421","10413","10423","20413","20423","415","425","10431","433","10433","20433","435"};//, "DssDz", "DssDzb"};
 std::vector<TString> name   = {"Inc.", "No D^{**}", "D^{**}", "D^{**} #rightarrow D^{0}", "D^{**} #rightarrow #bar{D^{0}}"};
 std::map<TString, TString> pdgids;
 pdgids["inc"] = "Inc.";
@@ -14,6 +14,20 @@ pdgids["noDss"] = "No D^{**}";
 pdgids["Dss"] = "D^{**}";
 pdgids["DssDz"] = "D^{**} #rightarrow D^{0}";
 pdgids["DssDzb"] = "D^{**} #rightarrow #bar{D^{0}}";
+pdgids["411"] = "411";
+pdgids["10411"] = "10411";
+pdgids["10421"] = "10421";
+pdgids["10413"] = "10413";
+pdgids["10423"] = "10423";
+pdgids["20413"] = "20413";
+pdgids["20423"] = "20423";
+pdgids["415"] = "415";
+pdgids["425"] = "425";
+pdgids["10431"] = "10431";
+pdgids["433"] = "433";
+pdgids["10433"] = "10433";
+pdgids["20433"] = "20433";
+pdgids["435"] = "435";
 std::vector<int> color = {kBlack, kRed, kCyan-3, kOrange+3, kBlue+1, kCyan}; //kOrange, kYellow-7, kViolet-4, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet, kBlack};
 //std::vector<int> color = {kBlack, kBlue, kCyan-3, kOrange+3, kRed+1, kCyan}; //kOrange, kYellow-7, kViolet-4, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet, kBlack};
 c1 = setupCanvas();
@@ -30,6 +44,7 @@ for(size_t ibin = 0; ibin < hadron.size(); ibin++) {
     h = (TH1F*)fin->Get("bfragAnalysis/xb_inc")->Clone();
   else
     h = (TH1F*)fin->Get(TString::Format("bfragAnalysis/xb_%s", hadron[ibin].Data()))->Clone();
+  std::cout << hadron[ibin] << std::endl;
   h->SetDirectory(0);
   h->GetXaxis()->SetRangeUser(0, 1.01);
   //if(norm) h->SetFillColor(color[ibin]);
@@ -37,6 +52,8 @@ for(size_t ibin = 0; ibin < hadron.size(); ibin++) {
   h->SetMarkerColor(color[ibin]);
   h->SetLineWidth(2);
   //if(ibin==0) h->SetLineWidth(6);
+  if(ibin>=name.size()) name.push_back(hadron[ibin]);
+      //h->SetTitle(hadron[ibin]);
   h->SetTitle(name[ibin]);
   if(ibin == 0) {
     h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);

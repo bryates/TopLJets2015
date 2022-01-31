@@ -30,6 +30,7 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
     #config_file.write('config.General.transferLogs=True\n')
     config_file.write('\n')
     config_file.write('config.section_("JobType")\n')
+    config_file.write('config.JobType.maxMemoryMB = 4096\n')
     config_file.write('config.JobType.pluginName = "Analysis"\n')
     config_file.write('config.JobType.psetName = "'+cfg+'"\n')
     config_file.write('config.JobType.disableAutomaticOutputCollection = False\n')
@@ -46,7 +47,7 @@ def submitProduction(tag,lfnDirBase,dataset,isData,cfg,workDir,lumiMask,submit=F
         config_file.write('config.Data.lumiMask = \'%s\'\n' %lumiMask)
     else : 
         config_file.write('config.Data.splitting = "FileBased"\n')
-        config_file.write('config.Data.unitsPerJob = 4\n')
+        config_file.write('config.Data.unitsPerJob = 2\n')
     config_file.write('config.Data.publication = True\n')
     config_file.write('config.Data.ignoreLocality = False\n')
     config_file.write('config.Data.outLFNDirBase = \'%s\'\n' % lfnDirBase)
