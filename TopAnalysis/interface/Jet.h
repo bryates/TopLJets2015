@@ -132,10 +132,16 @@ class Jet {
   inline void updateChargedPt(float pt_chB, float pt_chG) { chargedPtEp_[0] = pt_chB; chargedPtEp_[1] = pt_chG; }
   inline void setHadFlav(int hadflav) { hadflav_ = hadflav; }
   inline void setJchCorrection(float j_corr) { j_corr_ = j_corr; }
+  inline void setB(int genB) { genB_ = genB; }
+  inline void setgXb(float genXb) { genXb_ = genXb; }
+  inline void setPdgId(int pdgId) { pdgId_ = pdgId; }
+  inline void print() { std::cout << "Jet pT=" << Pt() << " eta=" << Eta() << " phi=" << Phi() << " mass=" << M() << std::endl << "genB=" << getB() << " genXb=" << getgXb() << std::endl;}
   TLorentzVector &getVec();
   float &getCSV();
   float getPt();
   inline float Pt() { return p4_.Pt(); }
+  inline float Eta() { return p4_.Eta(); }
+  inline float Phi() { return p4_.Phi(); }
   inline float P() { return p4_.P(); }
   inline float M() { return p4_.M(); }
   float &getChargedPt();
@@ -152,7 +158,10 @@ class Jet {
   int &getGenJet();
   int &getJetIndex();
   int &getIndex(int idx);
+  inline int getPdgId() { return pdgId_; }
   inline int getHadFlav() { return hadflav_; }
+  inline int getB() { return genB_; }
+  inline float getgXb() { return genXb_; }
   float &getDxy(int idx);
   float &getDz(int idx);
   float &getDxyE(int idx);
@@ -166,6 +175,7 @@ class Jet {
   float csv_;
   int jetindex_;
   int idx_;
+  int pdgId_;
   float chargedPt_;
   float chargedPtEp_[2];
   float chargedPz_;
@@ -174,8 +184,10 @@ class Jet {
   float PFPz_;
   float PFP_;
   float xb_;
+  float genXb_;
   float j_corr_;
   int genJet_;
+  int genB_;
   int hadflav_;
   std::vector<pfTrack> trks_;
   std::vector<int> index_;

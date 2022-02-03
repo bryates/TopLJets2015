@@ -42,6 +42,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -87,6 +88,9 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace pat; 
+
+#define IS_BHADRON_PDGID(id) ( ((abs(id)/100)%10 == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
+#define IS_CHADRON_PDGID(id) ( ((abs(id)/100)%10 == 4) || (abs(id) >= 4000 && abs(id) <= 4999) )
 
 //
 // class declaration
@@ -313,12 +317,23 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<edm::ValueMap<float> > downFrag;
   iEvent.getByToken(downFragToken_,downFrag);
   std::map<const reco::Candidate *,int> jetConstsMap;
+  ev_.ngmeson=0;
   for(auto genJet = genJets->begin();  genJet != genJets->end(); ++genJet)
     {
       //map the gen particles which are clustered in this jet
       std::vector< const reco::Candidate * > jconst=genJet->getJetConstituentsQuick ();
-      for(size_t ijc=0; ijc <jconst.size(); ijc++)
+      ev_.g_B[ev_.ng] = -1;
+      for(size_t ijc=0; ijc <jconst.size(); ijc++) {
 	jetConstsMap[ jconst[ijc] ] = ev_.ng;
+        if(IS_BHADRON_PDGID(abs(jconst[ijc]->pdgId()))) {
+          ev_.gmeson_id[ev_.ngmeson]  = jconst[ijc]->pdgId(); // FIXME by default, unstable particles (status>1) are scaled by 1E-20
+          ev_.gmeson_pt[ev_.ngmeson]  = jconst[ijc]->pt();
+          ev_.gmeson_eta[ev_.ngmeson] = jconst[ijc]->eta();
+          ev_.gmeson_phi[ev_.ngmeson] = jconst[ijc]->phi();
+          ev_.g_B[ev_.ng] = ev_.ngmeson;
+          ev_.ngmeson++;
+        }
+      }
       
       ev_.g_id[ev_.ng]   = genJet->pdgId();
       ev_.g_pt[ev_.ng]   = genJet->pt();
@@ -404,22 +419,41 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
   //J/Psi decay
   //Meson decay (J/Psi or D0)
   ev_.ngjpsi=0;
-  ev_.ngmeson=0;
   //prurned also used for top/stop
   edm::Handle<reco::GenParticleCollection> prunedGenParticles;
   iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
+  /*
   for(size_t i = 0; i < prunedGenParticles->size(); i++) {
     const reco::GenParticle &genIt = (*prunedGenParticles)[i];
     int absid=abs(genIt.pdgId());
+
+    //if(absid > 500 && absid < 600) { // B mesons only
+    if(IS_BHADRON_PDGID(absid)) { // B mesons only
+      ev_.gmeson_id[ev_.ngmeson]  = genIt.pdgId();
+      ev_.gmeson_pt[ev_.ngmeson]  = genIt.pt();
+      ev_.gmeson_eta[ev_.ngmeson] = genIt.eta();
+      ev_.gmeson_phi[ev_.ngmeson] = genIt.phi();
+      for(int ng = 0; ng < ev_.ng; ng++) {
+        ev_.g_B[ng] = -1;
+        if(reco::deltaR(genIt.eta(),genIt.phi(),ev_.g_eta[ng], ev_.g_phi[ng]) < 0.01) { // Look for gen b-jet match
+        //if(reco::deltaR(par->eta(),par->phi(),ev_.g_eta[ng], ev_.g_phi[ng]) < 0.01) { // Look for gen b-jet match
+          ev_.g_B[ng] = ev_.ngmeson;
+          break; // Done looking
+        }
+      }
+      ev_.ngmeson++;
+    }
+  //}
+    continue; // Stop here, eventaully remove the rest
+  */
+    /*
     if(absid!=443 && absid!=421 && absid!=413) continue;
     if(genIt.numberOfDaughters()<2) continue;
-    /*
     const reco::GenParticle* motherTmp = &(*prunedGenParticles)[i];
     while(abs(motherTmp->pdgId()) != 6 && abs(motherTmp->pdgId()) != 22 && abs(motherTmp->pdgId()) != 2212) {
       if (motherTmp->mother() == 0) break;
       motherTmp = (reco::GenParticle*) motherTmp->mother();
     }
-    */
     //cout << "mother0 id= " << motherTmp->pdgId() << endl;
     //if(genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-13*13 &&
     //   genIt.daughter(0)->pdgId()*genIt.daughter(1)->pdgId()!=-211*321 &&
@@ -442,7 +476,6 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       if(abs(daug->pdgId())==14 || abs(daug->pdgId())==13) continue;
       if(abs(daug->pdgId())==12 || abs(daug->pdgId())==11) continue;
       //if(!JPsiDaughter) cout << "event = " << ev_.event << " ngmeson = " << ev_.ngmeson << " : pdgId() = " << genIt.pdgId() << " : daughter n = " << ipf <<  " : ngmeson_daughter = " << ev_.ngmeson_daug << " : daug->pdgId() = " << daug->pdgId() << endl;
-      /*
       if(JPsiDaughter) cout << "J/Psi" << endl;
       else if(D0Daughter) cout << "D0" << endl;
       cout << "daugther is muon: pT, eta, phi" << endl;
@@ -450,7 +483,6 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       cout << daug->pt() << ", ";
       cout << daug->eta() << ", ";
       cout << daug->phi() << endl;
-      */
       //2*ev_.ngjpsi to account for 2 duaghters per J/Psi
       ev_.gmeson_daug_id[ev_.ngmeson_daug] = daug->pdgId();
       ev_.gmeson_daug_pt[ev_.ngmeson_daug] = daug->pt();
@@ -459,12 +491,10 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.gmeson_daug_meson_index[ev_.ngmeson_daug] = ev_.ngmeson;
       //cout << "i: " << i << " " << ev_.event << " " << ev_.ngmeson << " " << ev_.ngmeson_daug << " " << ev_.ngmeson << endl;
 
-      /*
       ev_.gjpsi_mu_dxy[ev_.ngjpsi]  = daug->dxy(primVtx.position());
       ev_.gjpsi_mu_dxyE[ev_.ngjpsi]  = daug->dxyE();
       ev_.gjpsi_mu_dz[ev_.ngjpsi]  = daug->dz(primVtx.position());
       ev_.gjpsi_mu_dzE[ev_.ngjpsi]  = daug->dzE();
-      */
 
       //Find t(tbar) mother
       while(abs(daug->pdgId()) != 6 && abs(daug->pdgId()) != 22 && abs(daug->pdgId()) != 2212) {
@@ -485,13 +515,11 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
       ev_.ngmeson_daug++;
     }
     if(!JPsiDaughter && !D0Daughter && !DsDaughter) continue;
-    /*
     cout << "J/Psi: pT, eta, phi, M" << endl;
     cout << genIt.pt() << ", ";
     cout << genIt.eta() << ", ";
     cout << genIt.phi() << ", ";
     cout << genIt.mass() << endl;
-    */
     ev_.gmeson_id[ev_.ngmeson]     = genIt.pdgId();
     ev_.gmeson_pt[ev_.ngmeson]     = genIt.pt();
     ev_.gmeson_eta[ev_.ngmeson]    = genIt.eta();
@@ -503,6 +531,7 @@ int MiniAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::EventSetup& i
     //if(JPsiDaughter || D0Daughter) ev_.ngmeson++;
     ev_.ngmeson++;
   }
+    */
 
   //top or stop quarks (lastCopy)
   //edm::Handle<reco::GenParticleCollection> prunedGenParticles;

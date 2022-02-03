@@ -16,6 +16,8 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("ttbar_allmepartons",        &ev.ttbar_allmepartons,        "ttbar_allmepartons/I");
   t->Branch("ttbar_matchmepartons",        &ev.ttbar_matchmepartons,        "ttbar_matchmepartons/I");
   t->Branch("ttbar_w",        ev.ttbar_w,        "ttbar_w[ttbar_nw]/F");
+  t->Branch("ngpsw",    &ev.ngpsw,   "ngpsw/I");
+  t->Branch("gpsw",      ev.gpsw,    "gpsw[ngpsw]/F");
 
   //gen event (jets and dressed leptons)
   t->Branch("ngjets",       &ev.ngjets,       "ngjets/I");
@@ -28,6 +30,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("g_eta",     ev.g_eta,    "g_eta[ng]/F");
   t->Branch("g_phi",     ev.g_phi,    "g_phi[ng]/F");
   t->Branch("g_m",       ev.g_m,      "g_m[ng]/F");
+  t->Branch("g_B",       ev.g_B,      "g_B[ng]/I");
 
   //gen level J/Psi
   t->Branch("ngjpsi",       &ev.ngjpsi, "ngjpsi/I");
@@ -38,6 +41,12 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gmeson_daug_pt",  ev.gmeson_daug_pt, "gmeson_daug_pt[ngmeson_daug]/F");
   t->Branch("gmeson_daug_eta", ev.gmeson_daug_eta, "gmeson_daug_eta[ngmeson_daug]/F");
   t->Branch("gmeson_daug_phi", ev.gmeson_daug_phi, "gmeson_daug_phi[ngmeson_daug]/F");
+  t->Branch("ngmeson_daug_daug", &ev.ngmeson_daug_daug, "ngmeson_daug_daug/I");
+  t->Branch("gmeson_mother_id",  ev.gmeson_mother_id, "gmeson_mother_id[ngmeson]/I");
+  t->Branch("gmeson_daug_daug_id",  ev.gmeson_daug_daug_id, "gmeson_daug_daug_id[ngmeson_daug_daug]/I");
+  t->Branch("gmeson_daug_daug_pt",  ev.gmeson_daug_daug_pt, "gmeson_daug_daug_pt[ngmeson_daug_daug]/F");
+  t->Branch("gmeson_daug_daug_eta", ev.gmeson_daug_daug_eta, "gmeson_daug_daug_eta[ngmeson_daug_daug]/F");
+  t->Branch("gmeson_daug_daug_phi", ev.gmeson_daug_daug_phi, "gmeson_daug_daug_phi[ngmeson_daug_daug]/F");
   t->Branch("gmeson_id",     ev.gmeson_id, "gmeson_id[ngmeson]/I");
   t->Branch("gmeson_pt",     ev.gmeson_pt, "gmeson_pt[ngmeson]/F");
   t->Branch("gmeson_eta",    ev.gmeson_eta, "gmeson_eta[ngmeson]/F");
@@ -46,6 +55,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("gmeson_daug_dR",  ev.gmeson_daug_dR, "gmeson_daug_dR[ngmeson]/F");
   t->Branch("gmeson_index",  ev.gmeson_index, "gmeson_index[ngmeson]/F");
   t->Branch("gmeson_daug_meson_index",  ev.gmeson_daug_meson_index, "gmeson_daug_meson_index[ngmeson_daug]/F");
+  t->Branch("gmeson_daug_daug_meson_index",  ev.gmeson_daug_daug_meson_index, "gmeson_daug_daug_meson_index[ngmeson_daug_daug]/F");
 
   //top (lastCopy and pseudo-top)
   t->Branch("ngtop",     &ev.ngtop,      "ngtop/I");
@@ -184,6 +194,7 @@ void createMiniEventTree(TTree *t,MiniEvent_t &ev)
   t->Branch("k_pf_ndau",   ev.k_pf_ndau,    "k_pf_ndau[nkpf]/I");
   t->Branch("k_pf_id",     ev.k_pf_id,      "k_pf_id[nkpf]/F");
   t->Branch("k_pf_pt",     ev.k_pf_pt,      "k_pf_pt[nkpf]/F");
+  t->Branch("k_pf_ptE",    ev.k_pf_ptE,     "k_pf_ptE[nkpf]/F");
   t->Branch("k_pf_eta",    ev.k_pf_eta,     "k_pf_eta[nkpf]/F");
   t->Branch("k_pf_phi",    ev.k_pf_phi,     "k_pf_phi[nkpf]/F");
   t->Branch("k_pf_m",      ev.k_pf_m,       "k_pf_m[nkpf]/F");
@@ -234,6 +245,10 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("ttbar_allmepartons",        &ev.ttbar_allmepartons);
   t->SetBranchAddress("ttbar_matchmepartons",        &ev.ttbar_matchmepartons);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
+  if(t->GetListOfBranches()->FindObject("ngpsw")) {
+  t->SetBranchAddress("ngpsw",      &ev.ngpsw);
+  t->SetBranchAddress("gpsw",        ev.gpsw);
+  }
 
   //gen event (jets and dressed leptons)
   t->SetBranchAddress("ngjets",       &ev.ngjets);
@@ -246,6 +261,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("g_eta",     ev.g_eta);
   t->SetBranchAddress("g_phi",     ev.g_phi);
   t->SetBranchAddress("g_m",       ev.g_m);
+  t->SetBranchAddress("g_B",       ev.g_B);
 
   //top (lastCopy and pseudo-top)
   t->SetBranchAddress("ngtop",     &ev.ngtop);
@@ -406,6 +422,7 @@ void attachToMiniEventTree(TTree *t,MiniEvent_t &ev,bool full)
   t->SetBranchAddress("k_pf_ndau",   ev.k_pf_ndau);
   t->SetBranchAddress("k_pf_id",     ev.k_pf_id);
   t->SetBranchAddress("k_pf_pt",     ev.k_pf_pt);
+  t->SetBranchAddress("k_pf_ptE",    ev.k_pf_ptE);
   t->SetBranchAddress("k_pf_eta",    ev.k_pf_eta);
   t->SetBranchAddress("k_pf_phi",    ev.k_pf_phi);
   t->SetBranchAddress("k_pf_m",      ev.k_pf_m);

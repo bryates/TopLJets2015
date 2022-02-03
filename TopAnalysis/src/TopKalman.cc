@@ -917,6 +917,8 @@ void RunTopKalman(TString filename,
         kJetsVec.push_back(jet);
         //allJetsVec.push_back(jet);
       }
+      std::vector<bool> matched;// = new bool[ev.ngmeson];
+      for(int m = 0; m < ev.ngmeson; m++) matched.push_back(false);
       for (int k=0; k<ev.ng;k++) {
         //check kinematics
         if(abs(ev.g_id[k])==13 || abs(ev.g_id[k])==11) continue; //skip leptons since they are stored after genJets
@@ -928,7 +930,43 @@ void RunTopKalman(TString filename,
 	if(fabs(jp4.Eta()) > 2.4) continue;
 	
 	//save jet
-        Jet tmpgj(jp4, ev.g_id[k], k, ev.xb[k]);
+        Jet tmpgj(jp4, k, k, ev.xb[k]);
+        tmpgj.setPdgId(ev.g_id[k]);
+        //Jet tmpgj(jp4, ev.g_id[k], k, ev.xb[k]); PdgId instead if idx
+        /*
+        // Look for better packed jet pruned B meson matches
+        float bestDR(999);
+        int bestB(-1);
+        for(int iB = 0; iB < ev.ngmeson; iB++) {
+	  TLorentzVector Bp4;
+	  Bp4.SetPtEtaPhiM(ev.gmeson_pt[iB],ev.gmeson_eta[iB],ev.gmeson_phi[iB],0);
+          //if(tmpgj.getVec().DeltaR(Bp4) < 0.01 and !matched[iB]) { // ntulpes have a lot of -1
+          float tmpDR(tmpgj.getVec().DeltaR(Bp4));
+          if(tmpDR < 0.04) { // ntulpes have a lot of -1
+            if(tmpDR > bestDR) continue;
+            bestDR = tmpDR;
+            if(debug) std::cout << "Match iB=" << iB << " where ev.g_B=" << ev.g_B[k] << std::endl;
+            //std::cout << "Match iB=" << bestB << " where getB=" << tmpgj.getB() << " jetIdx=" << tmpgj.getJetIndex() << " with dR=" << tmpgj.getVec().DeltaR(Bp4) << "(" << bestDR << ")" << std::endl;
+	    ev.g_B[k] = iB;
+	    //bestB = iB;
+            tmpgj.setB(ev.g_B[k]);
+  	    tmpgj.setgXb(ev.gmeson_pt[ev.g_B[k]]/tmpgj.Pt());
+          }
+          //matched[bestB] = true;
+        }
+        */
+        //std::cout << "Match iB=" << bestB << " where getB=" << tmpgj.getB() << " PdgId=" << tmpgj.getPdgId() << " jetIdx=" << tmpgj.getJetIndex() << " with dR=" << bestDR << std::endl;
+	if(ev.g_B[k]>=0) {
+          tmpgj.setB(ev.g_B[k]);
+  	  tmpgj.setgXb(ev.gmeson_pt[ev.g_B[k]]*1e20/tmpgj.Pt()); // FIXME miniAOD scales unstable particles (status>1) by 1E-20. IF this is changed in the ntuples, remove the scaling here!!
+	}
+	else {
+        /*
+	if(ev.g_B[k]<0) {
+        */
+          tmpgj.setB(-1);
+  	  tmpgj.setgXb(-1);
+	}
         genJetsVec.push_back(tmpgj);
       }
       if(debug) cout << kJetsVec.size() << " Kalman jets found" << endl;
@@ -1337,14 +1375,36 @@ void RunTopKalman(TString filename,
           }
           if(muTracks.size()<2) continue;
           Jet genJet;
+          int genIdx(-1);
           for(auto & gjet : genJetsVec) {
             if(gjet.getVec().DeltaR(jet.getVec())>0.1) continue; //find good dR match
             if(gjet.getVec().DeltaR(jet.getVec()) > genJet.getVec().DeltaR(jet.getVec())) continue; //find tighter dR match
             genJet = gjet;
-            break;
+            genIdx = genJet.getJetIndex();
+            continue;
+            //break;
           }
           //std::vector<float> frag = {ev.xb[genJet.getJetIndex()],ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()],};
           std::vector<float> frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+          if(genIdx>-1) {
+            frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+            //frag = {ev.xb[genJet.getJetIndex()]};//,ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+            /*
+            jet.print();
+            /std::cout << "Matches ";
+            genJet.print();
+            std::cout << "PdgId=" << genJet.getPdgId() << " jetIdx=" << genJet.getJetIndex() << std::endl;
+            */
+            if(debug) std::cout << "here" << std::endl;
+  	    jet.setgXb(genJet.getgXb());
+            if(debug) std::cout << "here DONE!" << genJet.getgXb() << std::endl;
+          }
+          /*
+          else {
+            std::cout << "No matching jet"; 
+            jet.print();
+          }
+          */
 
           std::vector<pfTrack> pfmuMatched, pfmuReject;
           //Gen-matching
@@ -1632,12 +1692,17 @@ void RunTopKalman(TString filename,
             if(gjet.getVec().DeltaR(jet.getVec()) > genJet.getVec().DeltaR(jet.getVec())) continue; //find tighter dR match
             genJet = gjet;
             genIdx = genJet.getJetIndex();
-            break;
+            continue;
+            //break;
           }
           std::vector<float> frag;
-          if(genIdx>-1)
+          if(genIdx>-1) {
             frag = {ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
             //frag = {ev.xb[genJet.getJetIndex()]};//,ev.peterson[genJet.getJetIndex()],ev.up[genJet.getJetIndex()],ev.central[genJet.getJetIndex()],ev.down[genJet.getJetIndex()]};
+            if(debug) std::cout << "here" << std::endl;
+  	    jet.setgXb(genJet.getgXb());
+            if(debug) std::cout << "here DONE!" << genJet.getgXb() << std::endl;
+          }
 
           sort(piTracks.begin(), piTracks.end(),
                [] (pfTrack a, pfTrack b) { return a.M() < b.M(); } );

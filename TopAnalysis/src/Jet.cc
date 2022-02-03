@@ -51,12 +51,12 @@ void pfTrack::print() { std:: cout << "pdgId=" << getPdgId() << " pT=" << Pt() <
 
 Jet::Jet(TLorentzVector p4, float csv, int idx) : p4_(p4), csv_(csv), idx_(idx) { }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt) {
- }
+ genXb_ = -1; genB_ = -1; }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt, float PFPt, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), PFPt_(PFPt), genJet_(genJet) {
-}
+ genXb_ = -1; genB_ = -1; }
 Jet::Jet(TLorentzVector p4, float csv, int idx, float chargedPt,  float chargedPz, float chargedP, float PFPt, float PFPz, float PFP, int genJet) : p4_(p4), csv_(csv), idx_(idx), chargedPt_(chargedPt), chargedPz_(chargedPz), chargedP_(chargedP), PFPt_(PFPt), PFPz_(PFPz), PFP_(PFP), genJet_(genJet) {
-}
-Jet::Jet(TLorentzVector p4, float csv, int idx, float xb) : p4_(p4), csv_(csv), idx_(idx), xb_(xb) { }
+ genXb_ = -1; genB_ = -1; }
+Jet::Jet(TLorentzVector p4, float csv, int idx, float xb) : p4_(p4), csv_(csv), idx_(idx), xb_(xb) {  genXb_ = -1; genB_ = -1; }
 
 /*
 Jet::Jet(TLorentzVector p4, float csv, int idx) {

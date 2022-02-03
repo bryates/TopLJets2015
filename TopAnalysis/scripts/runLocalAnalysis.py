@@ -124,7 +124,8 @@ def main():
                             break
                         else : 
                             processThisTag=True
-                    elif itag in tag:
+                    #elif itag in tag: # FIXME
+                    elif itag == tag:
                         processThisTag=True
                         break
                 if not processThisTag : continue
