@@ -33,6 +33,7 @@
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
 #endif
   #include "convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
 //#include "TopAnalysis/interface/CharmEvent.h"
 using namespace RooFit;
 using namespace RooStats;
@@ -45,7 +46,8 @@ void splot_d0_mu_tag(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=fal
   RooWorkspace w("w",mass);
   float wind(0.045);
   int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
-  std::vector<float> type = {0., 0.8, 1.};
+  //std::vector<float> bin_mu = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
+  //std::vector<float> type_d0mu = {0., 0.8, 1.};
 /*
 void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 */
@@ -78,8 +80,11 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TFile *fin;
   TGraph *g;
+  TH1F *hg=nullptr;
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
+  TH1F *xbWgt   = new TH1F("xbWgt","xbWgt",bin_mu.size()-1,bin_mu.data());
+  TH1F *xbN     = new TH1F("xbN","xbN",bin_mu.size()-1,bin_mu.data());
   TFile *f = new TFile(dir+"../MC13TeV_TTJets_powheg.root"); //open a randome file to get correction histograms
   //TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/ndau/Chunks/");
   //TFile *f = new TFile(dir+"MC13TeV_TTJets_m"+mass+"_0.root"); //open a randome file to get correction histograms
@@ -112,22 +117,35 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   else {
     if(mass.Contains("TRK") || mass.Contains("TRIGGER") || mass.Contains("LEP") ||mass.Contains("PU") || mass.Contains("PI") || mass.Contains("JER") || mass.Contains("JSF")) {  // SFs
       TString tmp(mass);
+      tmp.ReplaceAll("_Bfrag_genreco", "");
       tmp.ReplaceAll("_","/");
       //dir = TString("/eos/cms/store/user/byates/top18012/" + tmp + "/Chunks/");
       dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/" + tmp + "/");//Chunks/");
       std::cout << dir << std::endl;
     }
     //std::vector<TString> mcSamples = { "MC13TeV_TTJets_powheg" };
+    else if(mass.Contains("_FSR")) {
+      dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+      std::cout << dir << std::endl;
+
+    }
     std::vector<TString> mcSamples;
     if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_TTJets_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //Gluon Move and QCD only!
     //if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_m"+mass,"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    //else mcSamples = { "MC13TeV_TTJets_powheg" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
       //TString mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/";
       TString mcname(dir);
+      if(it.Contains("powheg") && mass.Contains("Bfrag") && ep==0)
+        mcname=TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/genxB/Chunks/");
+      if(it.Contains("sr") || it.Contains("erdON") || it.Contains("Move") || it.Contains("ue") || it.Contains("hdamp")) { //ISR,FSR,CR,UE
+        mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/syst/Chunks/";
+        it.ReplaceAll("_Bfrag_genreco", "");
+      }
       mcname += it;
       mcname += "_*.root";
       std::cout << "Adding " << it;
@@ -146,10 +164,15 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(fragWeight.Contains("lep")) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
       }
-      else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      //else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      else fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
       mass += "_" + fragWeight;
       fragWeight.ReplaceAll("lep","");
       g = (TGraph*)fin->Get(fragWeight+"Frag");
+      if(mass.Contains("Bfrag") && ep>0) {
+        hg = (TH1F*)fin->Get(fragWeight+"gen_d0_mu_tag_muFrag");
+        std::cout << hg->GetName() << std::endl;
+      }
       std::cout << g->GetName() << std::endl;
     }
   }
@@ -158,10 +181,10 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TString fUrl("TopMass_"+mass+"_sPlot_d0_mu_tag_mu.root");
   if(ep>0) fUrl.ReplaceAll(".root",TString::Format("%d.root",ep));
   if(jpT) fUrl.ReplaceAll(".root","_jpT.root");
-  //if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type[xb]*100)));
+  //if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type_d0mu[xb]*100)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
-  if(!mass.Contains("toyData"))
+  //if(!mass.Contains("toyData"))
   fout = new TFile(fUrl,"RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
   //disabled top pT reweighting
@@ -198,7 +221,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TCanvas *c1 = new TCanvas("c1","c1");
   c1->cd();
-  if(xb!=0) std::cout << "slecting " << type[xb-1] << " < ptfrac < " << type[xb] << std::endl;
+  if(xb!=0) std::cout << "slecting " << type_d0mu[xb-1] << " < ptfrac < " << type_d0mu[xb] << std::endl;
   cout << "loaded!" << endl;
 
   // Declare observable x
@@ -292,8 +315,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(mesonlm[j] > 250) continue;
       */
       if(xb != 0) {
-	if(type[xb] < 1) { if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] > type[xb] || ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; }
-        else if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type[xb-1]) continue; 
+	if(type_d0mu[xb] < 1) { if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] > type_d0mu[xb] || ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type_d0mu[xb-1]) continue; }
+        else if(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j] < type_d0mu[xb-1]) continue; 
       }
       tuneW.setVal(1.);
       //scale *= ev.sfs[j];
@@ -332,6 +355,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
 
           if(frac>1.) frac = 1.;
           if(frac<0.1) frac = 0.1;
+          if(mass.Contains("Bfrag") && ep>0) {
+            scale *= hg->GetBinContent(hg->FindBin(frac));
+            tuneWgt->Fill(1.,hg->GetBinContent(hg->FindBin(frac)));
+          }
+          else {
+            scale *= g->Eval(frac);
+            tuneWgt->Fill(1.,g->Eval(frac));
+          }
           /*
           for(auto &it : fwgt)
             args.setRealValue(it->GetName(),scale*it->Eval(frac));
@@ -352,6 +383,15 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       else ptfrac.setVal(ev.d0_mu_tag_mu_pt[j]/ev.j_pt[j]);
       d0_pt.setVal(ev.d0_mu_tag_mu_pt[j]);
       d0_mu_pt.setVal(ev.d0_mu_pt[j]);
+      if(ev.j_gXb[j]>0) {
+        float fwgt = 1.;
+        if(fragWeight.Length() > 0)
+          fwgt = g->Eval(ev.j_gXb[j]);
+        int ibin = xbWgt->FindBin(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
+        float val = xbWgt->GetBinContent(ibin);
+        xbWgt->SetBinContent(ibin, val+fwgt);
+        xbN->SetBinContent(ibin, xbN->GetBinContent(ibin)+1);
+      }
       j_pt_ch.setVal(ev.j_pt_charged[j]);
       j_pt.setVal(ev.j_pt[j]);
       //meson_l_mass = ev.d0_l_mass[j];
@@ -464,15 +504,15 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::vector< std::vector< std::vector<float> > > param_xb = {{{1.86574, 6.67112e+02 * 9.13662e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 8.20522e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
   RooRealVar meankk("meankk","meankk", 1.793);//, 1.793-wind, 1.793+wind);
   RooRealVar sigmakk("sigmakk","sigmakk", 2e-2);//, 0.0, 0.02);
-  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_xb[ep-1][0][1]);//15, 1, 70);
+  RooRealVar ngsigkk("ngsigkk","ngsignalkk", param_xb[0][0][0]);//[ep-1][0][1]);//15, 1, 70);
   RooGaussian gausskk("gausskk","gausskk", d0_mass, meankk, sigmakk);
 
   // Gaussian for D0 from W
   // parameters split by xB
   param_xb = {{{1.86574, 6.67112e+02 * 3.84928e+02 / 4.76112e+03, 1.71942e-02}}, {{1.86583, 5.75968e+02 * 3.30189e+02 / 3.97104e+03, 1.67071e-02}}};
-  float fMeanW = param_xb[ep-1][xb][0];
-  float fNgsigW = param_xb[ep-1][xb][1];
-  float fSigmaW = param_xb[ep-1][xb][2];
+  float fMeanW = param_xb[0][0][0];//[ep-1][xb][0];
+  float fNgsigW = param_xb[0][0][0];//[ep-1][xb][1];
+  float fSigmaW = param_xb[0][0][0];//[ep-1][xb][2];
   RooRealVar meanW("meanW","meanW", fMeanW);//1.86583, 1.793-wind, 1.793+wind);
   RooRealVar sigmaW("sigmaW","sigmaW", fSigmaW);//1.67071e-02, 0, 0.02);
   RooRealVar ngsigW("ngsigW","ngsignalW", fNgsigW);//3.30189e+02, 0, 1000);
@@ -526,12 +566,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   if(jpT) ds.plotOn(frame,Binning(22));
   else ds.plotOn(frame,Binning(22));
 
-  std::vector<float> bin;
   RooBinning bins(0,1.1);
-  bin = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
-  bin = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
-  for(int i = 0; i < bin.size(); i++)
-    bins.addBoundary(bin[i]);
+ /*
+  std::vector<float> bin_mu;
+  bin_mu = {0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0};
+  bin_mu = {0, 0.2, 0.4, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0}; 
+  */
+  for(int i = 0; i < bin_mu.size(); i++)
+    bins.addBoundary(bin_mu[i]);
  
   //model.paramOn(frame);
   /*
@@ -657,7 +699,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
                  RooFit::LineWidth(2), RooFit::LineColor(1), Binning(bins));
   frame2->SetTitle("");
   frame2->Draw();
-  ptfrac_signal = (TH1F*)convert(frame2, false, bin);
+  ptfrac_signal = (TH1F*)convert(frame2, false, bin_mu);
   ptfrac_signal->SetDirectory(0);
 
   //show a legend
@@ -753,6 +795,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   std::cout << "writting tuneWgt to file" << std::endl;
   tuneWgt->Write();
   if(!mass.Contains("toyData")) {
+  for(int ibin = 1; ibin <= xbWgt->GetNbinsX(); ibin++) {
+    // Adjust for variable bin_mu width
+    //xbWgt->SetBinContent(ibin, xbWgt->GetBinContent(ibin) / xbWgt->GetBinWidth(ibin));
+    //xbWgt->SetBinContent(ibin, xbWgt->GetBinContent(ibin) / xbN->GetBinContent(ibin));
+  }
+  xbWgt->Divide(xbN);
+  xbWgt->Write();
+  xbN->Write();
   std::cout << "closing file" << std::endl;
   fout->Close();
   }
