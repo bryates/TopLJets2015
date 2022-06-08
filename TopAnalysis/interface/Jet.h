@@ -57,6 +57,8 @@ class pfTrack {
   inline float getPtCorrection() { return ptSF_; }
   //inline bool isGoodEpoch(TString ep) { return epoch_[ep]; }
   TLorentzVector &getVec();
+  inline TLorentzVector &getGenVec() { return genVec_; }
+  inline void setGenVec(TLorentzVector p4) { genVec_ = p4; }
   //inline TLorentzVector operator+(pfTrack &rhs) { return vec_+rhs.getVec() ; }
   inline bool isMuon() { return isMuon_; }
   void setPfid(int pfid);
@@ -79,6 +81,7 @@ class pfTrack {
 
  private:
   TLorentzVector vec_;
+  TLorentzVector genVec_;
   float dxy_;
   float dxyE_;
   float dz_;
