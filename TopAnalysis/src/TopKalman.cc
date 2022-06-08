@@ -1658,6 +1658,8 @@ void RunTopKalman(TString filename,
                 it.setGenPdgId(genTracks[best_idx].getPdgId());
                 pfMatched.push_back(it);
                 pfMatched.back().setMother(genTracks[best_idx].getMotherId());
+                pfMatched.back().setGenVec(genTracks[best_idx].getVec());
+                it.setGenVec(genTracks[best_idx].getVec());
                 //genTracks.erase(genTracks.begin() + best_idx); //remove gen track so it cannot be matched again!
                 best_used[best_idx]++;
                 pfMatched.push_back(piTracks[kmatch[&it - &piTracks[0]]]);
@@ -2052,13 +2054,13 @@ void RunTopKalman(TString filename,
                 if(keepRunB) runBCDEF.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 runGH.Fill(tmp_cands, leptons, jet, chTag, "meson");
                 std::vector<pfTrack> tmp_match;
-                /*
                 if(!isData && pfMatched.size() > 1 && pfMuMatched.size() > 0) { //save gen-matched J/Psi
                   //std::vector<pfTrack> tmp_matched_cands = { pfMatched[0],pfMatched[1],pfMuMatched[0] };
                   tmp_match = { pfMatched[piTracks[i].getGenIdx()],pfMatched[piTracks[j].getGenIdx()],pfMuMatched[track.getGenIdx()] };
                   runBCDEF.Fill(tmp_match, leptons, jet, chTag, "gmeson");
                   runGH.Fill(tmp_match, leptons, jet, chTag, "gmeson");
                 }
+                /*
                 */
                 /*
                 if(!isData) {
