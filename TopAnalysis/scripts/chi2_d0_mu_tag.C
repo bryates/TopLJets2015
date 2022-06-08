@@ -37,6 +37,7 @@ void getHist(TString name, TString tune, TH1F *&data, TH1F *&mc, int epoch, bool
 TString fname = TString::Format("sPlot/sPlot/TopMass_Data_sPlot_d0_mu_tag_mu.root");
 if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
+if(name.Contains("Bfrag_genreco")) fname.ReplaceAll("Data", "Data_Bfrag_genreco");
 //if(epoch<0)fname.ReplaceAll("sPlot/sPlot/","");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
@@ -66,7 +67,8 @@ for(int i = 0; i < bin.size(); i++) {
 }
 
 RooPlot *tmp = nullptr;
-if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_smoothUp5")->Clone();
+//if(epoch<0) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 else {
 tmp = (RooPlot*)fmc->Get("ptfrac_mu_tag_signal")->Clone(TString::Format("ptfrac_signal_mc%s%s",name.Data(),tune.Data()));
 if(tmp==nullptr) {std::cout << fname << std::endl; return;}
@@ -241,7 +243,7 @@ chiTest->GetFunction("pol3")->Print("v");
 float chimin = chiTest->GetFunction("pol3")->Eval(min);
 float err = chiTest->GetFunction("pol3")->GetX(chimin+1,0.6,1.126);
 if(name=="") { nom=min; nerr=err; }
-report = Form("Minimum at x= %g +/- %0.6g",min, abs(min-err));
+report = Form("Minimum at x= %0.3f +/- %0.3f",min, abs(min-err));
 json += Form("%.4f, %.4f, ",min,abs(min-err));
 //std::cout << "Minimum at x= " << min << " +/- " << abs(min - err) << std::endl;
 std::cout << report << std::endl;
