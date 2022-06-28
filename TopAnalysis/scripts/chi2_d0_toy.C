@@ -147,10 +147,8 @@ for(int i = 0; i < bin.size(); i++) {
 if(epoch<0 || fname.Contains("_xb")) bkg = (TH1F*)fmc->Get("ptfrac_bkg_hist")->Clone();
 bkg->SetDirectory(0);
 if((epoch<0 || fname.Contains("_xb")) && syst > 0) mc = (TH1F*)fmc->Get(TString::Format("ptfrac_signal_smoothUp%d", syst))->Clone();
-else if(epoch<0 || fname.Contains("_inc") || fname.Contains("_noSmooth")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
-else if(epoch<0 || fname.Contains("_xb") || name.Contains("_noSmooth")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
-else if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
-//else if((epoch<0 || fname.Contains("_xb")) && !name.Contains("_toys")) mc = (TH1F*)fmc->Get("ptfrac_signal_smooth")->Clone();
+else if(name.Contains("_noSmooth")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+else if((epoch<0 || fname.Contains("_xb"))) mc = (TH1F*)fmc->Get("ptfrac_signal_smooth")->Clone();
 else if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 //if(epoch<0 || fname.Contains("_xb")) mc->Add((TH1F*)fmc->Get("ptfrac_signal_bkgW")->Clone());
 //else if(fname.Contains("no_sPlot"))  mc = (TH1F*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
@@ -311,10 +309,11 @@ void chi2_d0_toy(int ep=epoch, TString samp="", bool isFinal=false, int syst = 0
   run_chi2_d0_toy("m175v5");
   run_chi2_d0_toy("m178v5");
   */
+    std::cout << mcHists.size() << std::endl;
     for(auto mc : mcHists)
-      std::cout << mc->Integral() << std::endl;
-  std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "", "_cccentral", "_925", "_central", "_uuup" };
-  std::vector<float> param = {0.655, 0.700, 0.725, 0.755, 0.775, 0.800, 0.825, 0.855, 0.875, 0.925, 0.955, 0.975};
+      std::cout << mc->GetTitle() << "\t" << mc->Integral() << std::endl;
+  std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};
+  std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
   TString json("\"d0\" :   [");
   for(int i = 0; i < 1000; i++) {
     std::cout << "iteration: " << i << std::endl;
@@ -328,8 +327,10 @@ void chi2_d0_toy(int ep=epoch, TString samp="", bool isFinal=false, int syst = 0
       e = dataHist->GetBinError(i);
       std::cout << y << " +/- " << e << " ";
       //shift each bin by random amount samples by the appropriate bin error
+      float yold = y;
       if(!(samp == "" || samp == "172v5")) //MC errors otherwise (e.g. FSR)
         y += rand->Gaus(0, e);
+      std::cout << y << "\t" << (y-yold)/e << std::endl;
       dataHist->SetBinContent(i,y);
     }
     delete rand;
@@ -343,12 +344,37 @@ void chi2_d0_toy(int ep=epoch, TString samp="", bool isFinal=false, int syst = 0
       TH1F *mc = mcHists[pos];
       if(pos==0) continue;
       //std::cout << "Fitting " << tune[pos-1] << std::endl;
+      float mcScale = mc->Integral();
+      float dataHistScale = dataHist->Integral();
+      std::cout << mc->GetTitle() << std::endl;
+      std::cout << "mcScale=" << mcScale << std::endl;
+      /*
+      mc->Scale(1./mcScale);
+      dataHist->Scale(1./dataHistScale);
+      */
+      mc->GetYaxis()->SetRangeUser(0., 0.16);
+      mc->GetXaxis()->SetRangeUser(0.2, 1.);
+      if(i < 10) {
+      mc->Draw("hist");
+      tdr(mc, epoch, fin);
+      mc->Draw("same e");
+      dataHist->Draw("same");
+      TString mcvname(TString::Format("mcVdata_%s_%d_d0",samp.Data(),(int)(param[pos-1]*1000)) + epoch_name[epoch+1]);
+      TString postfix = TString::Format("_%d", i);
+      c1->SaveAs(mcvname + (postfix.Length()>0 ? postfix : "") + ".pdf");
+      c1->SaveAs(mcvname + (postfix.Length()>0 ? postfix : "") + ".png");
+      }
       float chi2 = dataHist->Chi2Test(mc, "CHI2 P WW");
       std::cout << chi2 << std::endl;
       if(chi2<low) low = chi2;
       if(chi2>high) high = chi2;
       chiTest->GetYaxis()->SetRangeUser(max(int(low)-1,0),int(high)+2);
       chiTest->SetBinContent(chiTest->FindBin(param[pos-1]),chi2);
+      /*
+      mc->Scale(mcScale);
+      dataHist->Scale(dataHistScale);
+      std::cout << "mcScale=" << mcScale << std::endl;
+      */
     }
     chiTest->SetMarkerStyle(20);
     chiTest->Draw("p9");
@@ -608,15 +634,17 @@ if(name.Contains("toys") && tune == "_sdown") { //only compute modified hist onc
     e = shiftData->GetBinError(i);
     std::cout << y << " +/- " << e << " ";
     //shift each bin by random amount samples by the appropriate bin error
+    float yold = y;
     if(!(name == "" || name == "172v5")) //MC errors otherwise (e.g. FSR)
       y += rand->Gaus(0, e);
-    std::cout << y << std::endl;
+    std::cout << y << "\t" << (y-yold)/e << std::endl;
     shiftData->SetBinContent(i,y);
     //if(name.Length()==0) shiftData->SetBinError(i,shiftData->GetBinError(i) * sqrt(float(nmc)/float(nentries)));
     shiftData->SetBinError(i,e);
   }
   mcHists.push_back((TH1F*)shiftData->Clone());
   mcHists.back()->SetDirectory(0);
+  mcHists.back()->Scale(1./mcHists.back()->Integral());
   delete rand;
   std::cout << data->GetEntries() << " " << shiftData->GetEntries() << std::endl;
   //shiftData->Scale(data->Integral()/shiftData->Integral());
@@ -633,8 +661,11 @@ for(int ibin = 1; ibin <= mc->GetNbinsX(); ibin++) {
   rbtest[2] += TString::Format("%0.2f, ", mc->GetBinContent(ibin));
   //rbtest[2] += TString::Format("{%0.2f, %0.3f}, ", mc->GetBinContent(ibin), mc->GetBinError(ibin));
 }
-mcHists.push_back((TH1F*)mc->Clone());
+mcHists.push_back((TH1F*)mc->Clone(TString::Format("%0.3f", num)));
 mcHists.back()->SetDirectory(0);
+mcHists.back()->Scale(1./mcHists.back()->Integral());
+mcHists.back()->SetTitle(TString::Format("%0.3f", num));
+std::cout << "Title=" << TString::Format("%0.3f", num) << std::endl;
 rbtest[2] += "}";
 delete data2;
 delete mc2;
