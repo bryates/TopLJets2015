@@ -17,6 +17,7 @@ BRs=[
 Interpolate extremes and then derive the weights based on a 2nd order spline for the remaining nodes
 """
 def smoothWeights(gr):
+    print 'in smoothWeights'
 
     #interpolate for low xb
     gr.Fit('pol3','QR+','',0,0.7)
@@ -33,10 +34,23 @@ def smoothWeights(gr):
         lowxb=gr.GetFunction('pol4')
         gr.Fit('pol0', 'QR+', '', 0.6, 1)
         highxb=gr.GetFunction('pol0')
-    if 'B' in gr.GetName() and 'Dz' in gr.GetName(): 
-       print 'fitting', gr.GetName()
-       gr.Fit('pol4','FSE','',0.01,0.3)
-       lowxb=gr.GetFunction('pol4')
+    if 'B' in gr.GetName()[0] and 'Dz' in gr.GetName(): 
+       print 'Fitting', gr.GetName()
+       if 'B0' in gr.GetName():
+           gr.Fit('pol3','FSE','',0.01,0.3)
+           lowxb=gr.GetFunction('pol3')
+       '''
+       elif 'Bpm' in gr.GetName():
+           gr.Fit('pol4','FSE','',0.01,0.2)
+           lowxb=gr.GetFunction('pol4')
+       elif 'Bs' in gr.GetName():
+           gr.Fit('pol2','FSE','',0.01,0.2)
+           lowxb=gr.GetFunction('pol2')
+       elif 'LBb' in gr.GetName():
+           gr.Fit('pol2','FSE','',0.01,0.25)
+           lowxb=gr.GetFunction('pol2')
+       print lowxb.GetName()
+       '''
 
        #flatten tail for xb>1
        gr.Fit('pol0','FSE+','',1.03,2)
@@ -47,13 +61,73 @@ def smoothWeights(gr):
     for i in xrange(0,gr.GetN()):
         gr.GetPoint(i,x,y)
         if 'B' in gr.GetName() and 'Dz' in gr.GetName(): 
+          y_fit = 0
+          if 'B0' in gr.GetName():
             if x<0.3:
-                smoothExtremesGr.SetPoint(i,x,lowxb.Eval(x))
+                if 'Dzu' in gr.GetName():
+                    y_fit = 9.86650e-01 + 9.60443e-02 * x - 2.15011e-01 * x**2 + 1.34148e-01 * x**3
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 8.25374e-01 + 1.34838e+00 * x - 2.98210e+00 * x**2 + 1.19945e+00 * x**3
+
+                # B0Dzu + B0Dzbu
+                #y_fit = 9.42875e-01 + 4.69678e-01 * x - 1.27676e+00 * x**2 + 1.09242e+00 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
             elif x>1.03:
-                smoothExtremesGr.SetPoint(i,x,highxb.Eval(x))
+                if 'Dzu' in gr.GetName():
+                    y_fit = 9.99858e-01
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 1.01589e+00
+                # B0Dzu + B0Dzbu
+                #y_fit = 1.00171e+00
+                smoothExtremesGr.SetPoint(i,x,y_fit)
             else:
                 smoothExtremesGr.SetPoint(i,x,y)
-            continue
+          elif 'Bpm' in gr.GetName():
+            if x<0.3:
+                if 'Dzu' in gr.GetName():
+                    y_fit = 9.78080e-01 + 1.71640e-01 * x - 4.20042e-01 * x**2 + 2.77696e-01 * x**3
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 1.02193e+00 - 1.72181e-01 * x + 4.24049e-01 * x**2 - 2.85548e-01 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'Dzu' in gr.GetName():
+                    y_fit = 9.99858e-01
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 9.98710e-01
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            else:
+                smoothExtremesGr.SetPoint(i,x,y)
+          elif 'Bs' in gr.GetName():
+            if x<0.3:
+                if 'Dzu' in gr.GetName():
+                    y_fit = 1.00072e+00 - 5.62308e-03 * x - 1.02392e-02 * x**2 + 7.23915e-02 * x**3
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 9.99277e-01 + 5.72156e-03 * x + 9.49264e-03 * x**2 - 7.07651e-02 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'Dzu' in gr.GetName():
+                    y_fit = 9.99299e-01
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 1.00070e+00
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            else:
+                smoothExtremesGr.SetPoint(i,x,y)
+          elif 'BLb' in gr.GetName():
+            if x<0.3:
+                if 'Dzu' in gr.GetName():
+                    y_fit = 1.04502e+00 - 3.48664e-01 * x + 8.69205e-01 * x**2 - 6.40364e-01 * x**3
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 9.55377e-01 + 3.44411e-01 * x - 8.51884e-01 * x**2 + 6.15222e-01 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'Dzu' in gr.GetName():
+                    y_fit = 9.98481e-01
+                elif 'Dzd' in gr.GetName():
+                    y_fit = 1.00151e+00
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            else:
+                smoothExtremesGr.SetPoint(i,x,y)
+          continue
 
         elif 'Dz413' in gr.GetName() or 'Dzrand413' in gr.GetName(): 
             if x<0.8:
@@ -211,13 +285,15 @@ def main():
                 xb[tag + 'TenDown'].Add(tmp) # Vary Dss by 10%
             else:
                 pass
+        '''
         elif 'cuetp8m2t4Dzb' in tag:
             xb[tag]=fIn.Get('bfragAnalysis/xb_BDzbchargedinc').Clone(tag)
             xb[tag].Scale(1./xb[tag].Integral())
-            print tag, fIn.GetName(), xb[tag].GetName(), xb[tag].Integral()
-        elif 'cuetp8m2t4Dz' in tag:
+            #print tag, fIn.GetName(), xb[tag.replace('Dzb', 'Dz')].GetName(), xb[tag.replace('Dzb', 'Dz')].Integral()
+        '''
+        if 'cuetp8m2t4Dz' in tag:
             xb[tag]=fIn.Get('bfragAnalysis/xb_BDzchargedinc').Clone(tag)
-            print fIn.Get('bfragAnalysis/xb_BDzchargedinc').GetName()
+            #print fIn.Get('bfragAnalysis/xb_BDzchargedinc').GetName()
             xb[tag].Scale(1./xb[tag].Integral())
             print tag, fIn.GetName(), xb[tag].GetName(), xb[tag].Integral()
         elif 'B' in tag and tag[-1] != 'B':
@@ -250,7 +326,9 @@ def main():
         else:
             xb[tag]=fIn.Get('bfragAnalysis/xb_inc').Clone(tag)
         #xb[tag].Rebin(2);
+        tmp_tag = tag if 'cuet' not in tag else tag.replace('Dzb', 'Dz')
         xb[tag].SetDirectory(0)
+        #xb[tmp_tag].SetDirectory(0)
         fIn.Close()
         '''
         '''
@@ -289,8 +367,8 @@ def main():
         if 'Bhadron' in tag: continue
         #print(tag)
         gr=ROOT.TGraphErrors(xb[tag])
-        sgr=smoothWeights(gr)
         gr.SetName(tag)
+        sgr=smoothWeights(gr)
         gr.SetMarkerStyle(20)
         if tag[0] != 'B' and 'Dz' not in tag:
             xb['cuetp8m2t4'].Scale(1./xb['cuetp8m2t4'].Integral())
@@ -307,6 +385,7 @@ def main():
               else:
                   print xb[tag].GetBinContent(i), xb['cuetp8m2t4Dz'].GetBinContent(i)
           '''
+          '''
           if 'Dzb' in tag and 'cuet' not in tag:
               print 'normalizing', tag, xb[tag].Integral(), xb['cuetp8m2t4Dzb'].GetName(), xb['cuetp8m2t4Dzb'].Integral()
               #xb[tag].Divide(xb[tag], xb['cuetp8m2t4Dzb'], 1./xb[tag].Integral(), 1./xb['cuetp8m2t4Dzb'].Integral())
@@ -314,24 +393,27 @@ def main():
               #xb[tag].Scale(1./xb[tag].Integral())
               print 'normalized', tag, xb[tag].Integral(), xb['cuetp8m2t4Dzb'].Integral()
               gr=ROOT.TGraphErrors(xb[tag])
-              sgr=smoothWeights(gr)
               gr.SetName(tag)
+              sgr=smoothWeights(gr)
               gr.SetMarkerStyle(20)
-          elif 'Dz' in tag and 'cuet' not in tag:
+          '''
+          if 'Dz' in tag and 'cuet' not in tag:
               print 'normalizing', tag, xb[tag].Integral(), xb['cuetp8m2t4Dz'].GetName(), xb['cuetp8m2t4Dz'].Integral()
-              #xb[tag].Divide(xb[tag], xb['cuetp8m2t4Dz'], 1./xb[tag].Integral(), 1./xb['cuetp8m2t4Dz'].Integral())
-              xb[tag].Divide(xb['cuetp8m2t4Dz'])
+              xb[tag].Divide(xb[tag], xb['cuetp8m2t4Dz'], 1./xb[tag].Integral(), 1./xb['cuetp8m2t4Dz'].Integral())
+              #xb[tag].Divide(xb['cuetp8m2t4Dz'])
               #xb[tag].Scale(1./xb[tag].Integral())
               print 'normalized', tag, xb[tag].Integral(), xb['cuetp8m2t4Dz'].Integral()
               gr=ROOT.TGraphErrors(xb[tag])
-              sgr=smoothWeights(gr)
               gr.SetName(tag)
+              print 'smoothing', tag, gr.GetName()
+              sgr=smoothWeights(gr)
               gr.SetMarkerStyle(20)
           c1 = ROOT.TCanvas("c1", "c1", 800, 800)
           #gr.GetXaxis().SetRangeUser(0, 1.)
           sgr.Draw("ALP")
           gr.Draw("L")
           gr.Draw("ALP")
+          gr.Draw("LP")
           c1.SaveAs('LJets2015/2016/mtop/www/meson/tdr/xb_gen_' + str(int(1000*param)) + tag + '.png')
           c1.SaveAs('LJets2015/2016/mtop/www/meson/tdr/xb_gen_' + str(int(1000*param)) + tag + '.pdf')
           sgr.Draw("ALP")
