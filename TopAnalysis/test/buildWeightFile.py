@@ -128,6 +128,78 @@ def smoothWeights(gr):
             else:
                 smoothExtremesGr.SetPoint(i,x,y)
           continue
+        if 'B' in gr.GetName() and 'JPsi' in gr.GetName():
+          y_fit = 0
+          if 'B0' in gr.GetName():
+            if x<0.3:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 9.94225e-01 + 1.76753e-02 * x - 1.09667e-02 * x**2 + 2.66248e-03 * x**3
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 9.47458e-01 + 3.07180e-01 * x - 4.30312e-01 * x**2 + 1.63287e-01 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+                print('HERE', gr.GetName(), x, y, y_fit, smoothExtremesGr.Eval(x), smoothExtremesGr.Eval(0.5))
+            elif x>1.03:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 1.00349e+00
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 1.00235e+00
+                print('HERE', gr.GetName(), x, y, y_fit)
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+          elif 'Bpm' in gr.GetName():
+            if x<0.3:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 9.90611e-01 + 2.95523e-02 * x - 2.03090e-02 * x**2 + 4.67948e-03 * x**3
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 1.01176e+00 - 1.63046e-01 * x + 1.15054e+00 * x**2 - 2.38317e+00 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 1.00405e+00
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 9.96020e-01
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+          elif 'Bs' in gr.GetName():
+            if x<0.3:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 9.97676e-01 - 4.57963e-03 * x + 2.17068e-02 * x**2 - 1.03688e-02 * x**3
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 1.00905e+00 - 2.36442e-01 * x + 1.83778e+00 * x**2 - 3.79638e+00 * x**2
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 1.00290e+00
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 9.97098e-01
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+          elif 'BLb' in gr.GetName():
+            if x<0.3:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 1.02024e+00 - 5.09694e-02 * x + 1.56724e-02 * x**2 + 1.57631e-03 * x**3
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 9.64448e-01 + 6.31817e-01 * x - 4.57531e+00 * x**2 + 9.31111e+00 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 9.88755e-01
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 8.25374e-01 + 1.34838e+00 * x - 2.98210e+00 * x**2 + 1.19945e+00 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+
+                # B0JPsiu + B0JPsibu
+                #y_fit = 9.42875e-01 + 4.69678e-01 * x - 1.27676e+00 * x**2 + 1.09242e+00 * x**3
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            elif x>1.03:
+                if 'JPsiu' in gr.GetName():
+                    y_fit = 9.99858e-01
+                elif 'JPsid' in gr.GetName():
+                    y_fit = 1.01589e+00
+                # B0JPsiu + B0JPsibu
+                #y_fit = 1.00171e+00
+                smoothExtremesGr.SetPoint(i,x,y_fit)
+            else:
+                smoothExtremesGr.SetPoint(i,x,y)
+          print('HERE', gr.GetName(), x, y, y_fit, smoothExtremesGr.Eval(x), smoothExtremesGr.Eval(0.5))
+          continue
 
         elif 'Dz413' in gr.GetName() or 'Dzrand413' in gr.GetName(): 
             if x<0.8:
@@ -200,13 +272,12 @@ def smoothWeights(gr):
             continue
 
 
+        if x<0.55:
+            smoothExtremesGr.SetPoint(i,x,lowxb.Eval(x))
+        elif x>1.03:
+            smoothExtremesGr.SetPoint(i,x,highxb.Eval(x))
         else:
-            if x<0.55:
-                smoothExtremesGr.SetPoint(i,x,lowxb.Eval(x))
-            elif x>1.03:
-                smoothExtremesGr.SetPoint(i,x,highxb.Eval(x))
-            else:
-                smoothExtremesGr.SetPoint(i,x,y)
+            smoothExtremesGr.SetPoint(i,x,y)
 
     #smooth the weights
     tSpline=ROOT.TMVA.TSpline2("spline",smoothExtremesGr)
@@ -233,7 +304,7 @@ def main():
         if 'Dz' in tag and 'B' not in tag and 'cuet' not in tag:
             print 'NOT here', tag
             fIn=ROOT.TFile.Open('LJets2015/2016/bfrag/xb_fit.root')
-        if 'B' in tag or 'cuetp8m2t4Dz' in tag:
+        if 'B' in tag or 'cuetp8m2t4Dz' in tag or 'cuetp8m2t4JPsi' in tag:
             print 'Bmeson' ,tag
             fIn=ROOT.TFile.Open('LJets2015/2016/bfrag/xb_Bmeson.root')
         #xb[tag]=fIn.Get('bfragAnalysis/xb_semilepinc').Clone(tag)
@@ -296,6 +367,11 @@ def main():
             #print fIn.Get('bfragAnalysis/xb_BDzchargedinc').GetName()
             xb[tag].Scale(1./xb[tag].Integral())
             print tag, fIn.GetName(), xb[tag].GetName(), xb[tag].Integral()
+        elif 'cuetp8m2t4JPsi' in tag:
+            xb[tag]=fIn.Get('bfragAnalysis/xb_BJPsichargedinc').Clone(tag)
+            #print fIn.Get('bfragAnalysis/xb_BDzchargedinc').GetName()
+            xb[tag].Scale(1./xb[tag].Integral())
+            print tag, fIn.GetName(), xb[tag].GetName(), xb[tag].Integral()
         elif 'B' in tag and tag[-1] != 'B':
             xb[tag]=fIn.Get('bfragAnalysis/xb_{}chargedinc'.format(tag)).Clone(tag)
             xb[tag].Scale(1./xb[tag].Integral())
@@ -336,7 +412,7 @@ def main():
         fName='/eos/cms/store/group/phys_top/byates/sPlot/TopMass_172v5_Bfrag_genreco_%s_sPlot_d0.root'%tag
         for d in ['d0', 'd0_mu_tag_mu', 'jpsi']:
             fName='/eos/cms/store/group/phys_top/byates/sPlot/TopMass_172v5_Bfrag_genreco_%s_sPlot_%s.root'%(tag,d)
-            if 'cuetp8m2t4Dz' in tag:
+            if 'cuetp8m2t4Dz' in tag or 'cuetp8m2t4JPsi' in tag:
                 fName = 'LJets2015/2016/bfrag/xb_Bmeson.root'
             elif tag == 'cuetp8m2t4':
                 fName='/eos/cms/store/group/phys_top/byates/sPlot/TopMass_172v5_Bfrag_avg_%s.root'%d
@@ -370,7 +446,7 @@ def main():
         gr.SetName(tag)
         sgr=smoothWeights(gr)
         gr.SetMarkerStyle(20)
-        if tag[0] != 'B' and 'Dz' not in tag:
+        if tag[0] != 'B' and 'Dz' not in tag and 'JPsi' not in tag:
             xb['cuetp8m2t4'].Scale(1./xb['cuetp8m2t4'].Integral())
             print 'cuetp8m2t4', xb['cuetp8m2t4'].Integral()
             xb[tag].Divide(xb[tag], xb['cuetp8m2t4'], 1./xb[tag].Integral(), 1./xb['cuetp8m2t4'].Integral())
@@ -408,6 +484,17 @@ def main():
               print 'smoothing', tag, gr.GetName()
               sgr=smoothWeights(gr)
               gr.SetMarkerStyle(20)
+          elif 'JPsi' in tag and 'cuet' not in tag:
+              print 'normalizing', tag, xb[tag].Integral(), xb['cuetp8m2t4JPsi'].GetName(), xb['cuetp8m2t4JPsi'].Integral()
+              xb[tag].Divide(xb[tag], xb['cuetp8m2t4JPsi'], 1./xb[tag].Integral(), 1./xb['cuetp8m2t4JPsi'].Integral())
+              #xb[tag].Divide(xb['cuetp8m2t4JPsi'])
+              #xb[tag].Scale(1./xb[tag].Integral())
+              print 'normalized', tag, xb[tag].Integral(), xb['cuetp8m2t4JPsi'].Integral()
+              gr=ROOT.TGraphErrors(xb[tag])
+              gr.SetName(tag)
+              print 'smoothing', tag, gr.GetName()
+              sgr=smoothWeights(gr)
+              gr.SetMarkerStyle(20)
           c1 = ROOT.TCanvas("c1", "c1", 800, 800)
           #gr.GetXaxis().SetRangeUser(0, 1.)
           sgr.Draw("ALP")
@@ -434,6 +521,7 @@ def main():
           c1.SaveAs('LJets2015/2016/mtop/www/meson/tdr/xb_ratio_' + str(int(1000*param)) + '.pdf')
         sgr.SetName(tag+'Frag')
         sgr.SetLineColor(ROOT.kBlue)
+        print 'Eval', tag, sgr.Eval(0.5)
         sgr.Write()
 
         '''
