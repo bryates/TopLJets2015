@@ -13,9 +13,9 @@ git cms-init
 cd src/
 cmsenv
 git cms-merge-topic cms-egamma:EgammaID_94
-git cms-merge-topic cms-egamma:EgammaID_94
+git cms-merge-topic cms-egamma:EgammaID_949
+git cms-merge-topic cms-egamma:EgammaPostRecoTools
 git clone -b 94x git@github.com:bryates/TopLJets2015.git
->>>>>>> Updated README
 scram b -j8
 ```
 

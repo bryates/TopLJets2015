@@ -38,6 +38,8 @@ class CharmTree {
   void SetLumi(float);
   void SetXsec(float);
   void PdfWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, TFile *file_);
+  void FSRWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, int fsrUp, int fsrDown);
+  void PdfWeights(CharmEvent_t &evch_, TFile *file_);
   void CheckRunPeriod(TString);
   void Write();
 

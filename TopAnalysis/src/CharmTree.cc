@@ -109,6 +109,15 @@ void CharmTree::PdfWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, TFile *file_) 
   evch_.ttbar_nw = num;
 }
 
+void CharmTree::FSRWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, int fsrUp, int fsrDown) {
+  evch_.ngfsr=0; //remove count remaning from last event
+  evch_.gfsr[0] = ev_.gpsw[fsrUp];
+  evch_.ngfsr++;
+  evch_.gfsr[1] = ev_.gpsw[fsrDown];
+  evch_.ngfsr++;
+  //evch_.sfs[0] *= ev_.gpsw[fsrUp];
+}
+
 void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets) {
   if(!isGood_) return;
   ev_.ht = HT;

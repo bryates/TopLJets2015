@@ -10,12 +10,15 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("norm",         &ev.norm,         "norm/F");
   t->Branch("xsec",         &ev.xsec,         "xsec/F");
   t->Branch("lumi",         &ev.lumi,         "lumi/F");
+  t->Branch("lum",          &ev.lum,          "lum/F");
   t->Branch("topptwgt",     &ev.topptwgt,     "topptwgt/F");
 
 
   //generator level event
   t->Branch("ttbar_nw",      &ev.ttbar_nw,       "ttbar_nw/I");
   t->Branch("ttbar_w",        ev.ttbar_w,        "ttbar_w[ttbar_nw]/F");
+  t->Branch("ngfsr",         &ev.ngfsr,          "ngfsr/I");
+  t->Branch("gfsr",           ev.gfsr,           "gfsr[ngfsr]/F");
 
   //reco level event
   t->Branch("nvtx",      &ev.nvtx,      "nvtx/I");
@@ -55,7 +58,9 @@ void createCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->Branch("j_pz_charged",  ev.j_pz_charged,   "j_pz_charged[nj]/F");
   t->Branch("j_mass",     ev.j_mass,     "j_mass[nj]/F");
   t->Branch("j_csv",      ev.j_csv,     "j_csv[nj]/F");
+  t->Branch("j_flav",     ev.j_flav,    "j_flav[nj]/I");
   t->Branch("j_hadflav",     ev.j_hadflav,    "j_hadflav[nj]/I");
+  t->Branch("j_pid",     ev.j_pid,    "j_pid[nj]/I");
   /*
   t->Branch("gj_pt",       ev.gj_pt,      "gj_pt[nj]/F");
   t->Branch("gj_eta",      ev.gj_eta,     "gj_eta[nj]/F");
@@ -186,6 +191,8 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   t->SetBranchAddress("run",       &ev.run);
   t->SetBranchAddress("event",     &ev.event);
   t->SetBranchAddress("lumi",      &ev.lumi);
+  if(t->GetListOfBranches()->FindObject("lum"))
+  t->SetBranchAddress("lum",       &ev.lum);
   t->SetBranchAddress("epoch",      ev.epoch);
   t->SetBranchAddress("norm",      &ev.norm);
   t->SetBranchAddress("xsec",      &ev.xsec);
@@ -198,6 +205,10 @@ void attachToCharmEventTree(TTree *t, CharmEvent_t &ev)
   //generator level event
   t->SetBranchAddress("ttbar_nw",      &ev.ttbar_nw);
   t->SetBranchAddress("ttbar_w",        ev.ttbar_w);
+  if(t->GetListOfBranches()->FindObject("ngfsr")) {
+  t->SetBranchAddress("ngfsr",         &ev.ngfsr);
+  t->SetBranchAddress("gfsr",           ev.gfsr);
+  }
 
   //reco level event
   t->SetBranchAddress("nvtx",      &ev.nvtx);
