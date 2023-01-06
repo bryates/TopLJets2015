@@ -88,6 +88,8 @@ if(name.Contains("172v5_ctaudown")) fname.ReplaceAll("Data","Data_ctaudown");
 if(name.Contains("isr") || name.Contains("fsr") || name.Contains("ue") || name.Contains("erdON") || name.Contains("hdamp"))
   //fname.ReplaceAll("Data","172v5");
 std::cout << name << std::endl;
+//Hack to run on B0Dzu
+//fname.ReplaceAll("Data_Bfrag_genreco","172v5_Bfrag_genreco_B0Dzu");
 if(fullpt) fname.ReplaceAll(".root","_jpT.root");
 std::cout << fname << std::endl;
 TFile *fdata = TFile::Open(fname);
@@ -141,7 +143,7 @@ for(int i = 0; i < bin.size(); i++) {
 if(epoch<0 || fname.Contains("_xb")) bkg = (TH1F*)fmc->Get("ptfrac_bkg_hist")->Clone();
 bkg->SetDirectory(0);
 if((epoch<0 || fname.Contains("_xb")) && syst > 0) mc = (TH1F*)fmc->Get(TString::Format("ptfrac_signal_smoothUp%d", syst))->Clone();
-else if((epoch<0 || fname.Contains("_xb")) && !name.Contains("_toys")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+//else if((epoch<0 || fname.Contains("_xb")) && !name.Contains("_toys")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 //else if((epoch<0 || fname.Contains("_xb")) && !name.Contains("_toys")) mc = (TH1F*)fmc->Get("ptfrac_signal_smooth")->Clone();
 else if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 //if(epoch<0 || fname.Contains("_xb")) mc->Add((TH1F*)fmc->Get("ptfrac_signal_bkgW")->Clone());
@@ -322,20 +324,16 @@ low=999.;
 high=0;
 //name=lname;
 //gROOT->ProcessLine(".L convert.C");
-//std::vector<TString> tune = {"", "_up", "_central", "_down"};
-//std::vector<float> param = {0.855, 1.079, 0.8949, 0.6981};
-/*
-std::vector<TString> tune = {"_down", "", "_cccentral", "_central", "_up" };
-std::vector<float> param = {0.755, 0.855, 0.875, 0.955, 1.055};
-std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_central", "_up" };
-std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.955, 1.055};
-std::vector<TString> tune = {"_sdown", "_down", "_scentral", "", "_cccentral", "_925", "_central", "_up" };
-std::vector<float> param = {0.655, 0.755, 0.825, 0.855, 0.875, 0.925, 0.955, 1.055};
-*/
-std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};
-std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
-//std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};
-//std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
+std::vector<TString> tune = {"_sdown", "_725", "_down", "_dddown", "", "_cccentral", "_ccentral", "_central", "_uuup"};
+std::vector<float> param = {0.655, 0.725, 0.755, 0.775, 0.855, 0.875, 0.9, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_725", "_down", "_dddown", "_scentral", "","_cccentral", "_ccentral", "_central", "_uuup"};
+//std::vector<float> param = {0.655, 0.725, 0.755, 0.775, 0.825, 0.855, 0.875, 0.9, 0.955, 0.975};
+//std::vector<TString> tune = {"_sdown", "_725", "_down", "_dddown", "_scentral", "","_cccentral", "_ccentral", "_central", "_uuup", "_up"};
+//std::vector<float> param = {0.655, 0.725, 0.755, 0.775, 0.825, 0.855, 0.875, 0.9, 0.955, 0.975, 1.055};
+//std::vector<TString> tune = {"_sdown", "_725", "_down", "_dddown", "_ddown", "_scentral", "","_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up"};
+//std::vector<float> param = {0.655, 0.725, 0.755, 0.775, 0.8, 0.825, 0.855, 0.875, 0.9, 0.925, 0.955, 0.975, 1.055};
+//std::vector<TString> tune = {"_sdown", "_700", "_725", "_down", "_dddown", "_ddown", "_scentral", "","_cccentral", "_ccentral", "_925", "_central", "_uuup", "_up"};
+//std::vector<float> param = {0.655, 0.7, 0.725, 0.755, 0.775, 0.8, 0.825, 0.855, 0.875, 0.9, 0.925, 0.955, 0.975, 1.055};
 //std::vector<TString> tune = {"_sdown", "_700", "_725", "_dddown", "_scentral", "", "_cccentral", "_ccentral", "_925", "_central", "_uuup"};
 //std::vector<float> param = {0.655, 0.700, 0.725, 0.775, 0.825, 0.855, 0.875, 0.900, 0.925, 0.955, 0.975};
 /* FIXME these were for the B->D^0 GEN level weight cross checks
@@ -420,7 +418,7 @@ else
 */
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(1., 1., 1., 1.);
 ((TF1*)(gROOT->GetFunction("pol3")))->SetParameters(-88.3245, 1045.87, -2049.8, 1137.63);
-TString pol = "pol3";
+TString pol = "pol2";
  //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,1.055);
 chiTest->Fit(pol,"FSMEQRW","",0.6,1.055);//0.976);
 //TFitResultPtr fit = chiTest->Fit("pol3","FSEMQ","",0.6,0.975);
@@ -502,9 +500,11 @@ bkg1->Add(bkg2);
 data->Add(bkg1, -1);
 */
 //static std::vector<float> bin = {0, 0.2, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
+/*
 static std::vector<double> rebin = {0, 0.4, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0};
 data = (TH1F*)data->Rebin(rebin.size()-1, "", rebin.data());
 mc = (TH1F*)mc->Rebin(rebin.size()-1, "", rebin.data());
+*/
 if(name.Contains("toys") && tune == "_sdown") { //only compute modified hist once
   TH1F *dtmp, *dtmp2, *mtmp, *mtmp2;
   getHist(name, "", dtmp, mtmp, bkg1, 1, false, syst);
@@ -628,8 +628,11 @@ data->GetXaxis()->SetRangeUser(0.4,1.);//0.975);
 mc->GetXaxis()->SetRangeUser(0.4,1.);//0.975);
 data->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
 mc->GetXaxis()->SetRangeUser(0.2,1.);//0.975);
-data->GetXaxis()->SetRangeUser(0.6,1.);//0.975);
-mc->GetXaxis()->SetRangeUser(0.6,1.);//0.975);
+data->GetXaxis()->SetRangeUser(0.61,1.);//0.975);
+mc->GetXaxis()->SetRangeUser(0.61,1.);//0.975);
+data->GetXaxis()->SetRangeUser(0.65,1.);//0.975);
+mc->GetXaxis()->SetRangeUser(0.65,1.);//0.975);
+//mc->Smooth(1, "R");
 if(epoch<0 && 0) {
 data->GetXaxis()->SetRangeUser(0.5,1.0);
 mc->GetXaxis()->SetRangeUser(0.5,1.0);

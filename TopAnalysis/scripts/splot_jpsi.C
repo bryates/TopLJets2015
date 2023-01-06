@@ -30,8 +30,8 @@
 #include "RooMinuit.h"
 #include <vector>
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/interface/CharmEvent.h"
-#include "convert.h"
-#include "param.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/convert.h"
+#include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
 #ifndef CHARM
 #define CHARM
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/src/CharmEvent.cc"
@@ -44,7 +44,7 @@ using namespace RooStats;
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="jpsi_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_jpsi(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
+void splot_jpsi(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0, TString BWeight="") {
 #include "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/mtop/param.h"
   RooWorkspace w("w",mass);
   float wind(0.11);
@@ -60,7 +60,8 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   //TFile *f = new TFile("plots/plotter_mtop_BCDEFGH.root");
   TString syst("");
   //TString dir("/eos/cms/store/user/byates/top18012/Chunks/");
-  TString dir("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test/Chunks/");
+  TString dir("/eos/cms/store/user/byates/top18012/test/Chunks/");
+  //dir = TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/test_bak/Chunks/");
   if(mass.Contains("sr") || mass.Contains("erdON") || mass.Contains("Move") || mass.Contains("ue") || mass.Contains("hdamp") || mass.Contains("m1")) { //ISR,FSR,CR,UE
     syst = mass;
     std::cout << "Processing systematics " << TString::Format("MC13TeV_TTJets_%s",syst.Data()) << std::endl;
@@ -82,6 +83,22 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TFile *fin;
   TGraph *g;
+  TGraph *B0DzShapeup=nullptr;
+  TGraph *B0DzShapedown=nullptr;
+  TGraph *BpmDzShapeup=nullptr;
+  TGraph *BpmDzShapedown=nullptr;
+  TGraph *BsDzShapeup=nullptr;
+  TGraph *BsDzShapedown=nullptr;
+  TGraph *BLbDzShapeup=nullptr;
+  TGraph *BLbDzShapedown=nullptr;
+  TH1F *hB0DzShapeup=nullptr;
+  TH1F *hB0DzShapedown=nullptr;
+  TH1F *hBpmDzShapeup=nullptr;
+  TH1F *hBpmDzShapedown=nullptr;
+  TH1F *hBsDzShapeup=nullptr;
+  TH1F *hBsDzShapedown=nullptr;
+  TH1F *hBLbDzShapeup=nullptr;
+  TH1F *hBLbDzShapedown=nullptr;
   TH1F *hg=nullptr;
   TH1F *xbWgt   = new TH1F("xbWgt","xbWgt",bin_jpsi.size()-1,bin_jpsi.data());
   TH1F *xbN     = new TH1F("xbN","xbN",bin_jpsi.size()-1,bin_jpsi.data());
@@ -116,6 +133,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_m"+mass,"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     else if(mass.Contains("psweights") || mass.Contains("FSR")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_2016_TTJets_psweights","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
+    else if(mass.Contains("genreco") and ep==0) mcSamples = { "MC13TeV_TTJets_powheg" };
     //else if (ep==0) mcSamples = { "MC13TeV_TTJets_powheg" };
     //else mcSamples = { "MC13TeV_TTJets_powheg" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
@@ -127,8 +145,9 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       if(it.Contains("powheg") && mass.Contains("Bfrag") && ep==0)
         mcname=TString("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/genxB/Chunks/");
       if(it.Contains("sr") || it.Contains("erdON") || it.Contains("Move") || it.Contains("ue") || it.Contains("hdamp")) { //ISR,FSR,CR,UE
-        mcname = "/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/syst/Chunks/";
+        mcname = "/eos/cms/store/user/byates/top18012/syst/Chunks/";
         it.ReplaceAll("_Bfrag_genreco", "");
+        it.ReplaceAll("_toyData", "");
       }
       mcname += it;
       mcname += "_*.root";
@@ -136,18 +155,61 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       int num = data->Add(mcname);
       std::cout << " (" << num << " files)" << std::endl;
     }
+    if(BWeight.Contains("B") && BWeight.Contains("Dz")) {
+      fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
+      //else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      if(mass.Contains("172v5_ext"))
+      fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_ext.root");
+      mass += "_" + BWeight;
+      std::cout << "Looking for " << BWeight << std::endl;
+      if(mass.Contains("Bfrag") && ep>0) {
+        hg = (TH1F*)fin->Get(BWeight+"gen_jpsiFrag");
+        if(hg==nullptr) {
+            std::cout << BWeight+"gen_jpsiFrag not found!" << std::endl;
+            exit(1);
+        }
+        else if (hg!=nullptr) std::cout << hg->GetName() << std::endl;
+      }
+      try{
+      g = (TGraph*)fin->Get(BWeight+"Frag");
+      hB0DzShapeup = (TH1F*)fin->Get("B0Dzugen_jpsiFrag");
+      hB0DzShapedown = (TH1F*)fin->Get("B0Dzdgen_jpsiFrag");
+      hBpmDzShapeup = (TH1F*)fin->Get("BpmDzugen_jpsiFrag");
+      hBpmDzShapedown = (TH1F*)fin->Get("BpmDzdgen_jpsiFrag");
+      hBsDzShapeup = (TH1F*)fin->Get("BsDzugen_jpsiFrag");
+      hBsDzShapedown = (TH1F*)fin->Get("BsDzdgen_jpsiFrag");
+      hBLbDzShapeup = (TH1F*)fin->Get("BLbDzugen_jpsiFrag");
+      hBLbDzShapedown = (TH1F*)fin->Get("BLbDzdgen_jpsiFrag");
+      }
+      catch (...) {
+        std::cout << BWeight << " not found!" << std::endl;
+        return;
+      }
+      std::cout << g->GetName() << std::endl;
+      //fin->Close();
+    }
     if(fragWeight.Length() > 0) {
       if(fragWeight.Contains("lep")) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
       }
-      //else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
-      else fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
+      else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      //else fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
       if(mass.Contains("172v5_ext"))
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_ext.root");
       mass += "_" + fragWeight;
       fragWeight.ReplaceAll("lep","");
+      std::cout << fragWeight+"Frag" << std::endl;
       g = (TGraph*)fin->Get(fragWeight+"Frag");
+      //B0DzShapeup = (TGraph*)fin->Get("B0DzuFrag");
+      //B0DzShapedown = (TGraph*)fin->Get("B0DzdFrag");
+      //BpmDzShapeup = (TGraph*)fin->Get("BpmDzuFrag");
+      //BpmDzShapedown = (TGraph*)fin->Get("BpmDzdFrag");
+      //BsDzShapeup = (TGraph*)fin->Get("BsDzuFrag");
+      //BsDzShapedown = (TGraph*)fin->Get("BsDzdFrag");
+      //BLbDzShapeup = (TGraph*)fin->Get("BLbDzuFrag");
+      //BLbDzShapedown = (TGraph*)fin->Get("BLbDzdFrag");
       if(mass.Contains("Bfrag") && ep>0) {
+        std::cout << "Loading" << fragWeight+"gen_jpsiFrag" << std::endl;
         hg = (TH1F*)fin->Get(fragWeight+"gen_jpsiFrag");
         std::cout << hg->GetName() << std::endl;
       }
@@ -160,7 +222,7 @@ void splot_jpsi_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   if(xb != 0) fUrl.ReplaceAll(".root",TString::Format("_%d.root",int(type_jpsi[xb]*1000)));
   std::cout << "creating file: "  << fUrl<< std::endl;
   TFile *fout;// = new TFile(fUrl,"RECREATE");
-  if(!mass.Contains("toyData"))
+  //if(!mass.Contains("toyData"))
   fout = new TFile(fUrl,"RECREATE");
   //data->Add("/afs/cern.ch/user/b/byates/TopAnalysis/LJets2015/2016/Chunks/MC13TeV_W*Jets_*.root");
   //disabled top pT reweighting
@@ -336,17 +398,46 @@ for(auto it : mcSamples) {
         else
           continue;
         tuneWgt->Fill(0.,1.0);
-        if(fragWeight.Length() > 0) {
+        if(fragWeight.Length() > 0 || (BWeight.Contains("B") && BWeight.Contains("Dz"))) {
           double frac(ev.jpsi_pt[j]/ev.j_pt_charged[j]);
           if(frac>1.) frac = 1.;
           if(frac<0.1) frac = 0.1;
+          float Dzwgt = 1.;
+          float xBwgt = 1.;
+          /*
+            if(BWeight.Contains("B0Dzu") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hB0DzShapeup->GetBinContent(hB0DzShapeup->FindBin(frac));
+            else if(BWeight.Contains("hB0Dzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hB0DzShapedown->GetBinContent(hB0DzShapedown->FindBin(frac));
+            else if(BWeight.Contains("hBpmDzu") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBpmDzShapeup->GetBinContent(hBpmDzShapeup->FindBin(frac));
+            else if(BWeight.Contains("hBpmDzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBpmDzShapedown->GetBinContent(hBpmDzShapedown->FindBin(frac));
+            else if(BWeight.Contains("hBsDzu") && TString(data->GetFile()->GetName()).Contains("powheg")) {
+              Dzwgt = hBsDzShapeup->GetBinContent(hBsDzShapeup->FindBin(frac));
+            }
+            else if(BWeight.Contains("hBsDzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBsDzShapedown->GetBinContent(hBsDzShapedown->FindBin(frac));
+            else if(BWeight.Contains("hBLbDzu") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBLbDzShapeup->GetBinContent(hBLbDzShapeup->FindBin(frac));
+            else if(BWeight.Contains("hBLbDzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBLbDzShapedown->GetBinContent(hBLbDzShapedown->FindBin(frac));
+          */
           if(mass.Contains("Bfrag") && ep>0) {
+            if(hg != nullptr)
+                xBwgt = hg->GetBinContent(hg->FindBin(frac));
+            //xBwgt *= Dzwgt;
+            scale *= xBwgt;
             scale *= hg->GetBinContent(hg->FindBin(frac));
-            tuneWgt->Fill(1.,hg->GetBinContent(hg->FindBin(frac)));
+            //tuneWgt->Fill(1.,hg->GetBinContent(hg->FindBin(frac)));
+            tuneWgt->Fill(1.,xBwgt);
           }
           else {
-            scale *= g->Eval(frac);
-            tuneWgt->Fill(1.,g->Eval(frac));
+            float wgt = g->Eval(frac);
+            scale *= wgt;
+            tuneWgt->Fill(1.,wgt);
+            //scale *= g->Eval(frac);
+            //tuneWgt->Fill(1.,g->Eval(frac));
           }
         }
         else tuneWgt->Fill(1., 1.0); //unit weights to make re-weighting easier to loop over
@@ -364,7 +455,7 @@ for(auto it : mcSamples) {
       jpsi_pt.setVal(ev.jpsi_pt[j]);
       if(ev.j_gXb[j]>0 && ev.jpsi_pt[j]/ev.j_pt_charged[j] > 0) {
         float fwgt = 1.;
-        if(fragWeight.Length() > 0)
+        if(fragWeight.Length() > 0 || BWeight.Length() > 0)
           fwgt = g->Eval(ev.j_gXb[j]);
         int ibin = xbWgt->FindBin(ev.jpsi_pt[j]/ev.j_pt_charged[j]);
         float val = xbWgt->GetBinContent(ibin);
@@ -375,7 +466,7 @@ for(auto it : mcSamples) {
       j_pt.setVal(ev.j_pt[j]);
       if(!isData) j_hadflav.setVal(ev.j_hadflav[j]);
       if(!isData) {
-      if(TString(data->GetFile()->GetName()).Contains("TTJets")) mcFile.setVal(5);
+      if(TString(data->GetFile()->GetName()).Contains("TTJets") || TString(data->GetFile()->GetName()).Contains("sr") || TString(data->GetFile()->GetName()).Contains("erdON") || TString(data->GetFile()->GetName()).Contains("Move") || TString(data->GetFile()->GetName()).Contains("ue") || TString(data->GetFile()->GetName()).Contains("hdamp") || TString(data->GetFile()->GetName()).Contains("m1")) mcFile.setVal(5);
       else if(TString(data->GetFile()->GetName()).Contains("W1Jets")) mcFile.setVal(4);
       else if(TString(data->GetFile()->GetName()).Contains("W2Jets")) mcFile.setVal(4);
       else if(TString(data->GetFile()->GetName()).Contains("W3Jets")) mcFile.setVal(4);
@@ -460,7 +551,7 @@ for(auto it : mcSamples) {
   //mean.setConstant();
 
   // Construct Crystal Ball PDF for signal
-  RooRealVar cbsigma("csigma", "cbsigma" , 0.033);//, 0.001, 0.25); 
+  RooRealVar cbsigma("cbsigma", "cbsigma" , 0.033);//, 0.001, 0.25); 
   RooRealVar ncbsig("ncbsig", "ncbsignal", 4000, 0, 10000); 
   RooRealVar n("n","cbn", 10);//, 0, 100);
   RooRealVar alpha("alpha","cbalpha", 1, 0, 5);
@@ -501,7 +592,7 @@ for(auto it : mcSamples) {
   RooExponential expo("expo", "exponential PDF", jpsi_mass, lambda);
 
   RooRealVar cbmean("cbmean", "cbmean" , 3.093);
-  RooRealVar bkgcbsigma("csigma", "cbsigma" , 0.034);
+  RooRealVar bkgcbsigma("bkgcbsigma", "bkgcbsigma" , 0.034);
   RooRealVar bkgncbsig("ncbsig", "ncbsignal", 194);
   RooRealVar bkgn("n","cbn", 10);
   RooRealVar bkgalpha("alpha","cbalpha", 1.1);
@@ -530,7 +621,7 @@ for(auto it : mcSamples) {
   //if(name.Contains("Wdown")) fNcbsigc *= 0.75; 
   RooRealVar meanc("meanc", "meanc" , fMeanc);
   RooRealVar ncbsigc("ncbsigc","ncbsignalc", fNcbsigc*(1+.25));//3.30189e+02, 0, 1000);
-  RooRealVar cbsigmac("csigmac", "cbsigmac", fNsigmac);
+  RooRealVar cbsigmac("cbsigmac", "cbsigmac", fNsigmac);
   RooRealVar nc("nc","cbnc", fNc);
   RooRealVar alphac("alphac","cbalphac", fNalphac);
   RooCBShape cballc("cballc", "crystal ballc", jpsi_mass, meanc, cbsigmac, alphac, nc);
@@ -824,9 +915,9 @@ for(auto it : mcSamples) {
   return;
 }
 
-void splot_jpsi(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
+void splot_jpsi(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0, TString BWeight="") {
   TH1F *pdata;
-  splot_jpsi(pdata, mass, isData, fragWeight, ep, jpT, xb);
+  splot_jpsi(pdata, mass, isData, fragWeight, ep, jpT, xb, BWeight);
   delete pdata;
 }
 

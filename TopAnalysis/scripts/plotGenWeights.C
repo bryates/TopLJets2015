@@ -13,11 +13,12 @@ void plotGenWeights(TString proc="d0", bool fin=false) {
 gStyle->SetOptStat(0);
 std::vector<TString> tune = {TString::Format("sdowngen_%sFrag", proc.Data()), TString::Format("700gen_%sFrag", proc.Data()), TString::Format("725gen_%sFrag", proc.Data()), TString::Format("downgen_%sFrag", proc.Data()), TString::Format("dddowngen_%sFrag", proc.Data()), TString::Format("ddowngen_%sFrag", proc.Data()), TString::Format("scentralgen_%sFrag", proc.Data()), TString::Format("cccentralgen_%sFrag", proc.Data()), TString::Format("ccentralgen_%sFrag", proc.Data()), TString::Format("925gen_%sFrag", proc.Data()), TString::Format("centralgen_%sFrag", proc.Data()), TString::Format("uuupgen_%sFrag", proc.Data()), TString::Format("uupgen_%sFrag", proc.Data()), TString::Format("upgen_%sFrag", proc.Data()), TString::Format("Dzuchargedincgen_%sFrag", proc.Data()), TString::Format("Dzdchargedincgen_%sFrag", proc.Data()), TString::Format("Dzbuchargedincgen_%sFrag", proc.Data()), TString::Format("Dzbdchargedincgen_%sFrag", proc.Data())};
 std::vector<TString> param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "D^{0} up", "D^{0} down", "D^{0} up", "D^{0} down"} ;
-tune = {TString::Format("sdowngen_%sFrag", proc.Data()), TString::Format("725gen_%sFrag", proc.Data()), TString::Format("downgen_%sFrag", proc.Data()), TString::Format("dddowngen_%sFrag", proc.Data()), TString::Format("scentralgen_%sFrag", proc.Data()), "",TString::Format("cccentralgen_%sFrag", proc.Data()), TString::Format("ccentralgen_%sFrag", proc.Data()), TString::Format("centralgen_%sFrag", proc.Data()), TString::Format("uuupgen_%sFrag", proc.Data()),TString::Format("Dzuchargedincgen_%sFrag", proc.Data()), TString::Format("Dzdchargedincgen_%sFrag", proc.Data()), TString::Format("Dzbuchargedincgen_%sFrag", proc.Data()), TString::Format("Dzbdchargedincgen_%sFrag", proc.Data()), TString::Format("B0Dzuchargedincgen_%sFrag", proc.Data()), TString::Format("B0Dzdchargedincgen_%sFrag", proc.Data()), TString::Format("B0Dzbuchargedincgen_%sFrag", proc.Data()), TString::Format("B0Dzbdchargedincgen_%sFrag", proc.Data()), TString::Format("BpmDzuchargedincgen_%sFrag", proc.Data()), TString::Format("BpmDzdchargedincgen_%sFrag", proc.Data()), TString::Format("BpmDzbuchargedincgen_%sFrag", proc.Data()), TString::Format("BpmDzbdchargedincgen_%sFrag", proc.Data())}, TString::Format("BsDzuchargedincgen_%sFrag", proc.Data()), TString::Format("BsDzdchargedincgen_%sFrag", proc.Data()), TString::Format("BsDzbuchargedincgen_%sFrag", proc.Data()), TString::Format("BsDzbdchargedincgen_%sFrag", proc.Data()), TString::Format("BLbDzuchargedincgen_%sFrag", proc.Data()), TString::Format("BLbDzdchargedincgen_%sFrag", proc.Data()), TString::Format("BLbDzbuchargedincgen_%sFrag", proc.Data()), TString::Format("BLbDzbdchargedincgen_%sFrag", proc.Data());
-param = {"0.655", "0.725", "0.755", "0.775", "0.825", "0.855", "0.875", "0.9", "0.955", "0.975", "D^{0} up", "D^{0} down", "#bar{D^{0}} up", "#bar{D^{0}} down", "B^{0} #rightarrow D^{0} up", "B^{0} #rightarrow D^{0} down", "B^{0} #rightarrow #bar{D^{0}} up", "B^{0} #rightarrow #bar{D^{0}} down", "B^{#pm} #rightarrow D^{0} up", "B^{#pm} #rightarrow D^{0} down", "B^{#pm} #rightarrow #bar{D^{0}} up", "B^{#pm} #rightarrow #bar{}D^{0}} down", "B^{*} #rightarrow D^{0} up", "B^{*} #rightarrow D^{0} down", "B^{*} #rightarrow #bar{D^{0}} up", "B^{*} #rightarrow #bar{D^{0}} down", "#Lambda_{b} #rightarrow D^{0} up", "#Lambda_{b} #rightarrow D^{0} down", "#Lambda_{b} #rightarrow #bar{D^{0}} up", "#Lambda_{b} #rightarrow #bar{D^{0}} down"};
+tune = {TString::Format("sdowngen_%sFrag", proc.Data()), TString::Format("725gen_%sFrag", proc.Data()), TString::Format("downgen_%sFrag", proc.Data()), TString::Format("dddowngen_%sFrag", proc.Data()), TString::Format("scentralgen_%sFrag", proc.Data()), "",TString::Format("cccentralgen_%sFrag", proc.Data()), TString::Format("ccentralgen_%sFrag", proc.Data()), TString::Format("centralgen_%sFrag", proc.Data()), TString::Format("uuupgen_%sFrag", proc.Data()),TString::Format("B0Dzugen_%sFrag", proc.Data()), TString::Format("B0Dzdgen_%sFrag", proc.Data()), TString::Format("B0Dzbugen_%sFrag", proc.Data()), TString::Format("B0Dzbdgen_%sFrag", proc.Data()), TString::Format("BpmDzugen_%sFrag", proc.Data()), TString::Format("BpmDzdgen_%sFrag", proc.Data()), TString::Format("BpmDzbugen_%sFrag", proc.Data()), TString::Format("BpmDzbdgen_%sFrag", proc.Data()), TString::Format("BsDzugen_%sFrag", proc.Data()), TString::Format("BsDzdgen_%sFrag", proc.Data()), TString::Format("BsDzbugen_%sFrag", proc.Data()), TString::Format("BsDzbdgen_%sFrag", proc.Data()), TString::Format("BLbDzugen_%sFrag", proc.Data()), TString::Format("BLbDzdgen_%sFrag", proc.Data()), TString::Format("BLbDzbugen_%sFrag", proc.Data()), TString::Format("BLbDzbdgen_%sFrag", proc.Data())};
+std::cout << tune.size() << std::endl;
+param = {"0.655", "0.725", "0.755", "0.775", "0.825", "0.855", "0.875", "0.9", "0.955", "0.975", "B^{0} #rightarrow D^{0} up", "B^{0} #rightarrow D^{0} down", "B^{0} #rightarrow #bar{D^{0}} up", "B^{0} #rightarrow #bar{D^{0}} down", "B^{#pm} #rightarrow D^{0} up", "B^{#pm} #rightarrow D^{0} down", "B^{#pm} #rightarrow #bar{D^{0}} up", "B^{#pm} #rightarrow #bar{}D^{0}} down", "B* #rightarrow D^{0} up", "B* #rightarrow D^{0} down", "B* #rightarrow #bar{D^{0}} up", "B* #rightarrow #bar{D^{0}} down", "#Lambda_{b} #rightarrow D^{0} up", "#Lambda_{b} #rightarrow D^{0} down", "#Lambda_{b} #rightarrow #bar{D^{0}} up", "#Lambda_{b} #rightarrow #bar{D^{0}} down"};
 //std::vector<TString> tune = {TString::Format("sdowngen_%sFrag", proc.Data()), TString::Format("700gen_%sFrag", proc.Data()), TString::Format("725gen_%sFrag", proc.Data()), TString::Format("scentralgen_%sFrag", proc.Data()), TString::Format("ccentralgen_%sFrag", proc.Data()), TString::Format("925gen_%sFrag", proc.Data()), TString::Format("centralgen_%sFrag", proc.Data())};//, TString::Format("uuupgen_%sFrag", proc.Data())};
 //std::vector<TString> param = {"0.655", "0.700", "0.725", "0.825", "0.900", "0.925", "0.955"};//, "0.975"};
-std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kOrange};
+std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kOrange, kBlue+5, kGreen+2, kRed+4, kViolet+2, kCyan+2, kMagenta-3};
 //std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kRed, kCyan, kCyan};
 //std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kBlue, kGreen, kRed, kRed, kCyan, kCyan};
 
@@ -39,7 +40,7 @@ p1->cd();
 //TPad *p1 = setupPad();
 //p1->cd();
 gPad->cd();
-float iniy=0.35;
+float iniy=0.4;
 float dy=0.03;
 float ndy=param.size()/3;
 TLegend *leg = new TLegend(0.21, iniy-dy*ndy, 0.79, iniy+0.05);
@@ -49,7 +50,7 @@ leg->SetFillStyle(1001);
 leg->SetTextFont(43);
 leg->SetTextSize(12);
 //leg->SetHeader("#it{r}_{b} value", "C");
-leg->SetNColumns(7);
+leg->SetNColumns(3);
 //leg->SetHeader("#it{r}_{b} value", "C");
 for(size_t i=0; i<tune.size(); i++){
 
@@ -59,7 +60,7 @@ for(size_t i=0; i<tune.size(); i++){
     std::cout << tune[i] << " not found!" << std::endl;
     continue;
   }
-  std::cout << tune[i] << std::endl;
+  std::cout << tune[i] << " " << param[i] << " " << i << "/" << tune.size() << std::endl;
   tmp.push_back((TH1F*)f->Get(tune[i]));
   std::cout << tmp.back()->GetName() << std::endl;
   /*
@@ -72,6 +73,10 @@ for(size_t i=0; i<tune.size(); i++){
   }
   */
   tmp.back()->SetLineColor(color[i]);
+  if(TString(param[i]).Contains("B") || TString(param[i]).Contains("Lambda")) {
+    tmp.back()->SetLineColor(color[i-10]);
+    tmp.back()->SetLineStyle(kDashDotted);
+  }
   //tmp.back()->SetFillColor(color[i]);
   //tmp.back()->SetFillColor(0);
   //if(i==0) tmp->SetTitle("J/#Psi #it{p}_{T} / #Sigma #it{p}_{T}^{ch}");

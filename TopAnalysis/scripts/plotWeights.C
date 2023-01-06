@@ -12,8 +12,10 @@
 void plotWeights(bool fin=false) {
 std::vector<TString> tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DssDzuFrag", "DssDzdFrag", "DssDzTenUpFrag", "DssDzTenUpFrag", "DzuchargedincFrag", "DzdchargedincFrag" };
 std::vector<TString> param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "+5%", "-5%", "+10%", "-10%", "charged Up", "charged Down"};
-tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DzuchargedincFrag", "DzdchargedincFrag" };
-param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "charged Up", "charged Down"};
+tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DzuFrag", "DzdFrag", "B0DzuFrag", "B0DzdFrag", "B0DzbuFrag", "B0DzbdFrag", "BpmDzuFrag", "BpmDzdFrag", "BpmDzbuFrag", "BpmDzbdFrag", "BsDzuFrag", "BsDzdFrag", "BsDzbuFrag", "BsDzbdFrag", "BLbDzuFrag", "BLbDzdFrag", "BLbDzbuFrag", "BLbDzbdFrag"};
+tune = {"sdownFrag", "700Frag", "725Frag", "downFrag", "ddownFrag", "dddownFrag", "scentralFrag",  "cccentralFrag", "ccentralFrag", "925Frag", "centralFrag", "uuupFrag", "uupFrag", "upFrag", "fitFrag", "DzuFrag", "DzdFrag"};//, "B0DzuFrag", "B0DzdFrag", "BpmDzuFrag", "BpmDzdFrag", "BsDzuFrag", "BsDzdFrag", "BLbDzuFrag", "BLbDzdFrag"};
+param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "charged Up", "charged Down", "B^{0} #rightarrow D^{0} up", "B^{0} #rightarrow D^{0} down", "B^{0} #rightarrow #bar{D^{0}} up", "B^{0} #rightarrow #bar{D^{0}} down", "B^{#pm} #rightarrow D^{0} up", "B^{#pm} #rightarrow D^{0} down", "B^{#pm} #rightarrow #bar{D^{0}} up", "B^{#pm} #rightarrow #bar{}D^{0}} down", "B^{*} #rightarrow D^{0} up", "B^{*} #rightarrow D^{0} down", "B^{*} #rightarrow #bar{D^{0}} up", "B^{*} #rightarrow #bar{D^{0}} down", "#Lambda_{b} #rightarrow D^{0} up", "#Lambda_{b} #rightarrow D^{0} down", "#Lambda_{b} #rightarrow #bar{D^{0}} up", "#Lambda_{b} #rightarrow #bar{D^{0}} down"};
+param = {"0.655", "0.700", "0.725", "0.755", "0.775", "0.800", "0.825", "0.875", "0.900", "0.925", "0.955", "0.975", "1.000", "1.055", "0", "charged Up", "charged Down", "B^{0} #rightarrow D^{0} up", "B^{0} #rightarrow D^{0} down", "B^{#pm} #rightarrow D^{0} up", "B^{#pm} #rightarrow D^{0} down", "B^{*} #rightarrow D^{0} up", "B^{*} #rightarrow D^{0} down", "#Lambda_{b} #rightarrow D^{0} up", "#Lambda_{b} #rightarrow D^{0} down"};
 std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kOrange};
 //std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kRed, kRed, kCyan, kCyan};
 //std::vector<int> color = {kBlue, kCyan-3, kOrange+3, kRed+1, kOrange, kYellow-7, kGreen+2, kCyan-7, kBlue+2, kMagenta, kOrange+10, kSpring+9, kViolet+3, kRed-5, kBlack, kBlue, kGreen, kRed, kRed, kCyan, kCyan};
@@ -57,6 +59,8 @@ legDss->SetNColumns(7);
 for(size_t i=0; i<tune.size(); i++){
 
   //tmp = ((RooPlot*)f->Get("ptfrac_signal"))->getHist();
+  if(tune[i].Contains("Dz") && !tune[i].Contains("B")) continue;
+  std::cout << tune[i] << std::endl;
   if(tune[i] == TString("fitFrag")) continue; //Fit is now 0.855, no need to draw
   tmp.push_back((TGraph*)f->Get(tune[i]));
   /*
@@ -127,6 +131,7 @@ BR->AddText(text);
 BR->Draw();
 tmp.front()->SetTitle("");
 /*
+*/
 if(fin) {
 c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights_final.png");
 c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights_final.pdf");
@@ -135,5 +140,4 @@ else {
 c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights.png");
 c1->SaveAs("LJets2015/2016/mtop/www/meson/morph/weights.pdf");
 }
-*/
 }

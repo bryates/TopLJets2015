@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -57,6 +58,7 @@ private:
   std::vector<int> DssList_;
   std::vector<double> hadronUncDzb_;
   std::vector<double> hadronUncDz_;
+  std::vector<double> hadronUncJPsi_;
   std::vector<double> hadronDz_;
   std::vector<double> hadronDzb_;
   std::vector<double> hadronBSF;
@@ -81,6 +83,7 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
   DssList_(iConfig.getParameter<std::vector<int> >("DssList")),
   hadronUncDzb_(iConfig.getParameter<std::vector<double> >("hadronUncDzb")),
   hadronUncDz_(iConfig.getParameter<std::vector<double> >("hadronUncDz")),
+  hadronUncJPsi_(iConfig.getParameter<std::vector<double> >("hadronUncJPsi")),
   hadronDz_(iConfig.getParameter<std::vector<double> >("hadronDz")),
   hadronDzb_(iConfig.getParameter<std::vector<double> >("hadronDzb")),
   hadronBSF(iConfig.getParameter<std::vector<double> >("hadronBSF")),
@@ -176,6 +179,18 @@ FragmentationAnalyzer::FragmentationAnalyzer(const edm::ParameterSet& iConfig) :
       histos_["xb_BpmDzdcharged"+name] = fs->make<TH1F>(("xb_BpmDzdcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_BsDzdcharged"+name] = fs->make<TH1F>(("xb_BsDzdcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_BLbDzdcharged"+name] = fs->make<TH1F>(("xb_BLbDzdcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BJPsicharged"+name] = fs->make<TH1F>(("xb_BJPsicharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_B0JPsiucharged"+name] = fs->make<TH1F>(("xb_B0JPsiucharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BpmJPsicharged"+name] = fs->make<TH1F>(("xb_BpmJPsicharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BpmJPsiucharged"+name] = fs->make<TH1F>(("xb_BpmJPsiucharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BsJPsicharged"+name] = fs->make<TH1F>(("xb_BsJPsicharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BsJPsiucharged"+name] = fs->make<TH1F>(("xb_BsJPsiucharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BLbJPsicharged"+name] = fs->make<TH1F>(("xb_BLbJPsicharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BLbJPsiucharged"+name] = fs->make<TH1F>(("xb_BLbJPsiucharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_B0JPsidcharged"+name] = fs->make<TH1F>(("xb_B0JPsidcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BpmJPsidcharged"+name] = fs->make<TH1F>(("xb_BpmJPsidcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BsJPsidcharged"+name] = fs->make<TH1F>(("xb_BsJPsidcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
+      histos_["xb_BLbJPsidcharged"+name] = fs->make<TH1F>(("xb_BLbJPsidcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_Dzd"+name] = fs->make<TH1F>(("xb_Dzd"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_Dzdrand"+name] = fs->make<TH1F>(("xb_Dzdrand"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
       histos_["xb_Dzdcharged"+name] = fs->make<TH1F>(("xb_Dzdcharged"+name).c_str(), (name+";#it{x}_{b}=#it{p}_{T}(B)/#it{p}_{T}(jet); Jets").c_str(), 100, 0, 2);
@@ -430,54 +445,55 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           float bwgt[4] = {1., 1., 1., 1.};
           bwgt[0] = hadronBunc[0] / hadronBSF[0]; // B0 SF up
           bwgt[1] = hadronBunc[1] / hadronBSF[1]; // Bpm SF down
-          bwgt[2] = hadronBunc[2] / hadronBSF[2]; // Bs SF doen
+          bwgt[2] = hadronBunc[2] / hadronBSF[2]; // Bs SF down
           bwgt[3] = hadronBunc[3] / hadronBSF[3]; // Lambda_b SF down
-          if(jinfo.leadTagId==511 && jinfo.charmId==-421) {
+          // Divide by 3 -> shift one up/down by x and the others down/up by x/3 to maintain sum(BR)=1
+          if(absid==511 && abs(jinfo.charmId)==421) {
             histos_["xb_BDzchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]);
             histos_["xb_B0Dzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
-            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]));
-            histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]));
-            histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]));
+            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]/3));
+            histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]/3));
+            histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]/3));
             histos_["xb_B0Dzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]));
-            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
-            histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
-            histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
+            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]/3));
+            histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]/3));
+            histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]/3));
           }
-          if(jinfo.leadTagId==521 && jinfo.charmId==-421) {
+          if(absid==521 && abs(jinfo.charmId)==421) {
             histos_["xb_BDzchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]);
             histos_["xb_B0Dzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]));
-            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
-            histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]));
-            histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]));
+            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]/3));
+            histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]/3));
+            histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]/3));
             histos_["xb_B0Dzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
-            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]));
-            histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
-            histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
+            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]/3));
+            histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]/3));
+            histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]/3));
           }
-          if(jinfo.leadTagId==531 && jinfo.charmId==-421) {
+          if(absid==531 && abs(jinfo.charmId)==421) {
             histos_["xb_BDzchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]);
-            histos_["xb_B0Dzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
-            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
+            histos_["xb_B0Dzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]/3));
+            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]/3));
             histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]));
-            histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
-            histos_["xb_B0Dzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]));
-            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]));
+            histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]/3));
+            histos_["xb_B0Dzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2])/3);
+            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]/3));
             histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
-            histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]));
+            histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]/3));
           }
-          if(jinfo.leadTagId==5122 && jinfo.charmId==-421) {
+          if(absid==5122 && abs(jinfo.charmId)==421) {
             histos_["xb_BDzchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]);
-            histos_["xb_B0Dzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
-            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
-            histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
+            histos_["xb_B0Dzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]/3));
+            histos_["xb_BpmDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]/3));
+            histos_["xb_BsDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]/3));
             histos_["xb_BLbDzuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]));
-            histos_["xb_B0Dzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]));
-            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]));
-            histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]));
+            histos_["xb_B0Dzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]/3));
+            histos_["xb_BpmDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]/3));
+            histos_["xb_BsDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]/3));
             histos_["xb_BLbDzdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
           }
 
-          if(jinfo.leadTagId==511 && jinfo.charmId==421) {
+          if(absid==511 && jinfo.charmId==421) {
             histos_["xb_BDzbchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]);
             histos_["xb_B0Dzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
             histos_["xb_BpmDzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]));
@@ -488,7 +504,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_BsDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
             histos_["xb_BLbDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
           }
-          if(jinfo.leadTagId==521 && jinfo.charmId==421) {
+          if(absid==521 && jinfo.charmId==421) {
             histos_["xb_BDzbchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]);
             histos_["xb_B0Dzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]));
             histos_["xb_BpmDzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
@@ -499,7 +515,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_BsDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
             histos_["xb_BLbDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
           }
-          if(jinfo.leadTagId==531 && jinfo.charmId==421) {
+          if(absid==531 && jinfo.charmId==421) {
             histos_["xb_BDzbchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]);
             histos_["xb_B0Dzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
             histos_["xb_BpmDzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
@@ -510,7 +526,7 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_BsDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
             histos_["xb_BLbDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]));
           }
-          if(jinfo.leadTagId==5122 && jinfo.charmId==421) {
+          if(absid==5122 && jinfo.charmId==421) {
             histos_["xb_BDzbchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]);
             histos_["xb_B0Dzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
             histos_["xb_BpmDzbuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
@@ -521,23 +537,73 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_BsDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]));
             histos_["xb_BLbDzbdchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
           }
+          //J/Psi
+          bwgt[0] = hadronBunc[0] / hadronBSF[0]; // B0 SF up
+          bwgt[1] = hadronBunc[1] / hadronBSF[1]; // Bpm SF down
+          bwgt[2] = hadronBunc[2] / hadronBSF[2]; // Bs SF down
+          bwgt[3] = hadronBunc[3] / hadronBSF[3]; // Lambda_b SF down
+          // Divide by 3 -> shift one up/down by x and the others down/up by x/3 to maintain sum(BR)=1
+          if(absid==511 && abs(jinfo.charmId)==443) {
+            histos_["xb_BJPsichargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]);
+            histos_["xb_B0JPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]));
+            histos_["xb_BpmJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]/3));
+            histos_["xb_BsJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]/3));
+            histos_["xb_BLbJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]/3));
+            histos_["xb_B0JPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1-bwgt[0]));
+            histos_["xb_BpmJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]/3));
+            histos_["xb_BsJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]/3));
+            histos_["xb_BLbJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[0]*(1+bwgt[0]/3));
+          }
+          if(absid==521 && abs(jinfo.charmId)==443) {
+            histos_["xb_BJPsichargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]);
+            histos_["xb_B0JPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]));
+            histos_["xb_BpmJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]/3));
+            histos_["xb_BsJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]/3));
+            histos_["xb_BLbJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]/3));
+            histos_["xb_B0JPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]));
+            histos_["xb_BpmJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1-bwgt[1]/3));
+            histos_["xb_BsJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]/3));
+            histos_["xb_BLbJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[1]*(1+bwgt[1]/3));
+          }
+          if(absid==531 && abs(jinfo.charmId)==443) {
+            histos_["xb_BJPsichargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]);
+            histos_["xb_B0JPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]/3));
+            histos_["xb_BpmJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]/3));
+            histos_["xb_BsJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]));
+            histos_["xb_BLbJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]/3));
+            histos_["xb_B0JPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2])/3);
+            histos_["xb_BpmJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]/3));
+            histos_["xb_BsJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1-bwgt[2]));
+            histos_["xb_BLbJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[2]*(1+bwgt[2]/3));
+          }
+          if(absid==5122 && abs(jinfo.charmId)==443) {
+            histos_["xb_BJPsichargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]);
+            histos_["xb_B0JPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]/3));
+            histos_["xb_BpmJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]/3));
+            histos_["xb_BsJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]/3));
+            histos_["xb_BLbJPsiuchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]));
+            histos_["xb_B0JPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]/3));
+            histos_["xb_BpmJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]/3));
+            histos_["xb_BsJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1+bwgt[3]/3));
+            histos_["xb_BLbJPsidchargedinc"]->Fill(jinfo.xb_charged_charm, bwgt[3]*(1-bwgt[3]));
+          }
 
-          if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+          if(absid==511 && jinfo.charmId==-421)
             wgt = (1. + hadronUncDzb_[0]) / hadronDzb_[0];
-          if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+          if(absid==521 && jinfo.charmId==-421)
             wgt = (1. + hadronUncDzb_[1]) / hadronDzb_[1];
-          if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+          if(absid==531 && jinfo.charmId==-421)
             wgt = (1. + hadronUncDzb_[2]) / hadronDzb_[2];
-          if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+          if(absid==5122 && jinfo.charmId==-421)
             wgt = (1. + hadronUncDzb_[3]) / hadronDzb_[3];
 
-          if(jinfo.leadTagId==511 && jinfo.charmId==421)
+          if(absid==511 && jinfo.charmId==421)
             wgt = (1. + hadronUncDz_[0]) / hadronDz_[0];
-          if(jinfo.leadTagId==521 && jinfo.charmId==421)
+          if(absid==521 && jinfo.charmId==421)
             wgt = (1. + hadronUncDz_[1]) / hadronDz_[1];
-          if(jinfo.leadTagId==531 && jinfo.charmId==421)
+          if(absid==531 && jinfo.charmId==421)
             wgt = (1. + hadronUncDz_[2]) / hadronDz_[2];
-          if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+          if(absid==5122 && jinfo.charmId==421)
             wgt = (1. + hadronUncDz_[3]) / hadronDz_[3];
 
           histos_["xb_semilepDzbuinc"]->Fill(jinfo.xb_charm, wgt);
@@ -545,29 +611,29 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
           if(jinfo.motherId>400 && jinfo.motherId<500)
             histos_["xb_semilepDss"]->Fill(jinfo.xb, wgt);
 
-          if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+          if(absid==511 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu511"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==511 && jinfo.charmId==421)
+          if(absid==511 && jinfo.charmId==421)
             histos_["xb_semilepDz511"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==511 && jinfo.charmId==421)
+          if(absid==511 && jinfo.charmId==421)
             histos_["xb_semilepDzu511"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+          if(absid==521 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu521"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==521 && jinfo.charmId==421)
+          if(absid==521 && jinfo.charmId==421)
             histos_["xb_semilepDz521"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==521 && jinfo.charmId==421)
+          if(absid==521 && jinfo.charmId==421)
             histos_["xb_semilepDzu521"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+          if(absid==531 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu531"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==531 && jinfo.charmId==421)
+          if(absid==531 && jinfo.charmId==421)
             histos_["xb_semilepDz531"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==531 && jinfo.charmId==421)
+          if(absid==531 && jinfo.charmId==421)
             histos_["xb_semilepDzu531"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+          if(absid==5122 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu5122"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+          if(absid==5122 && jinfo.charmId==421)
             histos_["xb_semilepDz5122"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+          if(absid==5122 && jinfo.charmId==421)
             histos_["xb_semilepDzu5122"]->Fill(jinfo.xb_charm, wgt);
           if(jinfo.motherId==413 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu413"]->Fill(jinfo.xb_charm, 1. + hadronUncDzb_[4] / hadronDzb_[4]);
@@ -588,42 +654,42 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
             histos_["xb_semilepDssDz"]->Fill(jinfo.xb_charm, wgt);
 
           //BR down
-          if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+          if(absid==511 && jinfo.charmId==-421)
             wgt = (1. - hadronUncDzb_[0]) / hadronDzb_[0];
-          if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+          if(absid==521 && jinfo.charmId==-421)
             wgt = (1. - hadronUncDzb_[1]) / hadronDzb_[1];
-          if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+          if(absid==531 && jinfo.charmId==-421)
             wgt = (1. - hadronUncDzb_[2]) / hadronDzb_[2];
-          if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+          if(absid==5122 && jinfo.charmId==-421)
             wgt = (1. - hadronUncDzb_[3]) / hadronDzb_[3];
 
-          if(jinfo.leadTagId==511 && jinfo.charmId==421)
+          if(absid==511 && jinfo.charmId==421)
             wgt = (1. - hadronUncDz_[0]) / hadronDz_[0];
-          if(jinfo.leadTagId==521 && jinfo.charmId==421)
+          if(absid==521 && jinfo.charmId==421)
             wgt = (1. - hadronUncDz_[1]) / hadronDz_[1];
-          if(jinfo.leadTagId==531 && jinfo.charmId==421)
+          if(absid==531 && jinfo.charmId==421)
             wgt = (1. - hadronUncDz_[2]) / hadronDz_[2];
-          if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+          if(absid==5122 && jinfo.charmId==421)
             wgt = (1. - hadronUncDz_[3]) / hadronDz_[3];
 
           histos_["xb_semilepDzbdinc"]->Fill(jinfo.xb_charm, wgt);
           histos_["xb_semilepDzdinc"]->Fill(jinfo.xb_charm, wgt);
 
-          if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+          if(absid==511 && jinfo.charmId==-421)
             histos_["xb_semilepDzbd511"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==511 && jinfo.charmId==421)
+          if(absid==511 && jinfo.charmId==421)
             histos_["xb_semilepDzd511"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+          if(absid==521 && jinfo.charmId==-421)
             histos_["xb_semilepDzbd521"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==521 && jinfo.charmId==421)
+          if(absid==521 && jinfo.charmId==421)
             histos_["xb_semilepDzd521"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+          if(absid==531 && jinfo.charmId==-421)
             histos_["xb_semilepDzbd531"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==531 && jinfo.charmId==421)
+          if(absid==531 && jinfo.charmId==421)
             histos_["xb_semilepDzd531"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+          if(absid==5122 && jinfo.charmId==-421)
             histos_["xb_semilepDzbd5122"]->Fill(jinfo.xb_charm, wgt);
-          if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+          if(absid==5122 && jinfo.charmId==421)
             histos_["xb_semilepDzd5122"]->Fill(jinfo.xb_charm, wgt);
           if(jinfo.motherId==423 && jinfo.charmId==-421)
             histos_["xb_semilepDzbu423"]->Fill(jinfo.xb_charm, 1. - hadronUncDzb_[5] / hadronDzb_[5]);
@@ -638,13 +704,13 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 
           //if(jinfo.motherId>0 && jinfo.charmId==421) std::cout << jinfo.motherId << std::endl;
 
-          if(jinfo.leadTagId==511)
+          if(absid==511)
             histos_["xb_semilep511"]->Fill(jinfo.xb);
-          if(jinfo.leadTagId==521)
+          if(absid==521)
             histos_["xb_semilep521"]->Fill(jinfo.xb);
-          if(jinfo.leadTagId==531)
+          if(absid==531)
             histos_["xb_semilep531"]->Fill(jinfo.xb);
-          if(jinfo.leadTagId==5122)
+          if(absid==5122)
             histos_["xb_semilep5122"]->Fill(jinfo.xb);
 	}
 
@@ -669,22 +735,22 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 
       float wgt = 1.;
       //BR up
-      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+      if(absid==511 && jinfo.charmId==-421)
         wgt = (1. + hadronUncDzb_[0]) / hadronDzb_[0];
-      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+      if(absid==521 && jinfo.charmId==-421)
         wgt = (1. + hadronUncDzb_[1]) / hadronDzb_[1];
-      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+      if(absid==531 && jinfo.charmId==-421)
         wgt = (1. + hadronUncDzb_[2]) / hadronDzb_[2];
-      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+      if(absid==5122 && jinfo.charmId==-421)
         wgt = (1. + hadronUncDzb_[3]) / hadronDzb_[3];
 
-      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+      if(absid==511 && jinfo.charmId==421)
         wgt = (1. + hadronUncDz_[0]) / hadronDz_[0];
-      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+      if(absid==521 && jinfo.charmId==421)
         wgt = (1. + hadronUncDz_[1]) / hadronDz_[1];
-      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+      if(absid==531 && jinfo.charmId==421)
         wgt = (1. + hadronUncDz_[2]) / hadronDz_[2];
-      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+      if(absid==5122 && jinfo.charmId==421)
         wgt = (1. + hadronUncDz_[3]) / hadronDz_[3];
 
       if(jinfo.charmId==421) {
@@ -707,21 +773,21 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
       histos_["xb_JPsichargedrandinc"]->Fill(jinfo.xb_charged_charm_rand, 1);
       }
 
-      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+      if(absid==511 && jinfo.charmId==-421)
         histos_["xb_Dzbu511"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+      if(absid==511 && jinfo.charmId==421)
         histos_["xb_Dzu511"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+      if(absid==521 && jinfo.charmId==-421)
         histos_["xb_Dzbu521"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+      if(absid==521 && jinfo.charmId==421)
         histos_["xb_Dzu521"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+      if(absid==531 && jinfo.charmId==-421)
         histos_["xb_Dzbu531"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+      if(absid==531 && jinfo.charmId==421)
         histos_["xb_Dzu531"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+      if(absid==5122 && jinfo.charmId==-421)
         histos_["xb_Dzbu5122"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+      if(absid==5122 && jinfo.charmId==421)
         histos_["xb_Dzu5122"]->Fill(jinfo.xb_charm, wgt);
       if(jinfo.motherId==413 && jinfo.charmId==-421)
         histos_["xb_Dzbu413"]->Fill(jinfo.xb_charm, 1. + hadronUncDzb_[4] / hadronDzb_[4]);
@@ -754,22 +820,22 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
         histos_[TString::Format("xb_DssDzu%d", jinfo.motherId).Data()]->Fill(jinfo.xb_charm, 1. + 0.05);
 
       //BR down
-      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+      if(absid==511 && jinfo.charmId==-421)
         wgt = (1. - hadronUncDzb_[0]) / hadronDzb_[0];
-      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+      if(absid==521 && jinfo.charmId==-421)
         wgt = (1. - hadronUncDzb_[1]) / hadronDzb_[1];
-      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+      if(absid==531 && jinfo.charmId==-421)
         wgt = (1. - hadronUncDzb_[2]) / hadronDzb_[2];
-      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+      if(absid==5122 && jinfo.charmId==-421)
         wgt = (1. - hadronUncDzb_[3]) / hadronDzb_[3];
 
-      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+      if(absid==511 && jinfo.charmId==421)
         wgt = (1. - hadronUncDz_[0] / hadronDz_[0]);
-      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+      if(absid==521 && jinfo.charmId==421)
         wgt = (1. - hadronUncDz_[1] / hadronDz_[1]);
-      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+      if(absid==531 && jinfo.charmId==421)
         wgt = (1. - hadronUncDz_[2] / hadronDz_[2]);
-      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+      if(absid==5122 && jinfo.charmId==421)
         wgt = (1. - hadronUncDz_[3] / hadronDz_[3]);
 
       if(jinfo.charmId==421) {
@@ -780,21 +846,21 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
       histos_["xb_Dzbdinc"]->Fill(jinfo.xb_charm, wgt);
       }
 
-      if(jinfo.leadTagId==511 && jinfo.charmId==-421)
+      if(absid==511 && jinfo.charmId==-421)
         histos_["xb_Dzbd511"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==511 && jinfo.charmId==421)
+      if(absid==511 && jinfo.charmId==421)
         histos_["xb_Dzd511"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==521 && jinfo.charmId==-421)
+      if(absid==521 && jinfo.charmId==-421)
         histos_["xb_Dzbd521"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==521 && jinfo.charmId==421)
+      if(absid==521 && jinfo.charmId==421)
         histos_["xb_Dzd521"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==531 && jinfo.charmId==-421)
+      if(absid==531 && jinfo.charmId==-421)
         histos_["xb_Dzbd531"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==531 && jinfo.charmId==421)
+      if(absid==531 && jinfo.charmId==421)
         histos_["xb_Dzd531"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==5122 && jinfo.charmId==-421)
+      if(absid==5122 && jinfo.charmId==-421)
         histos_["xb_Dzbd5122"]->Fill(jinfo.xb_charm, wgt);
-      if(jinfo.leadTagId==5122 && jinfo.charmId==421)
+      if(absid==5122 && jinfo.charmId==421)
         histos_["xb_Dzd5122"]->Fill(jinfo.xb_charm, wgt);
       if(jinfo.motherId==423 && jinfo.charmId==-421)
         histos_["xb_Dzbd423"]->Fill(jinfo.xb_charm, 1. - hadronUncDzb_[5] / hadronDzb_[5]);
@@ -815,13 +881,13 @@ void FragmentationAnalyzer::genAnalysis(const edm::Event& iEvent, const edm::Eve
 
       //if(jinfo.motherId>0 && jinfo.charmId==421) std::cout << jinfo.motherId << std::endl;
 
-      if(jinfo.leadTagId==511)
+      if(absid==511)
         histos_["xb_511"]->Fill(jinfo.xb);
-      if(jinfo.leadTagId==521)
+      if(absid==521)
         histos_["xb_521"]->Fill(jinfo.xb);
-      if(jinfo.leadTagId==531)
+      if(absid==531)
         histos_["xb_531"]->Fill(jinfo.xb);
-      if(jinfo.leadTagId==5122)
+      if(absid==5122)
             histos_["xb_5122"]->Fill(jinfo.xb);
       if(jinfo.motherId>400 && jinfo.motherId<500)
         histos_["xb_Dss"]->Fill(jinfo.xb, wgt);

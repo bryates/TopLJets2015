@@ -47,6 +47,7 @@ if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(name.Contains("_xb")) {
 fname.ReplaceAll("_xb","");
+fname.ReplaceAll("_noSmooth","");
 fname.ReplaceAll(".root","_xb.root");
 }
 if(name.Contains("noDup_shift")) fname.ReplaceAll("Data", "Data_noDup_shift");
@@ -94,12 +95,14 @@ TFile *fdata = TFile::Open(fname);
 if(name.Length()==0)
 fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot//morph/TopMass_172v5%s_sPlot_jpsi.root",tune.Data());
 else {
+/*
 if(name.Contains("_no")) {
   name.ReplaceAll("_no", "");
   fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot//TopMass_%s%s_no_sPlot_jpsi.root",name.Data(),tune.Data());
   std::cout << fname << std::endl;
 }
 else
+*/
   fname = TString::Format("/eos/cms/store/group/phys_top/byates/sPlot//TopMass_%s%s_sPlot_jpsi.root",name.Data(),tune.Data());
 }
 if(name.Contains("_toys")) fname.ReplaceAll("_toys","");
@@ -107,6 +110,7 @@ if(epoch>0) fname.ReplaceAll(".root",TString::Format("%d.root",epoch));
 else if(epoch<0) fname.ReplaceAll(".root","_xb.root");
 if(name.Contains("_xb")) {
 fname.ReplaceAll("_xb_","_");
+fname.ReplaceAll("_noSmooth","");
 fname.ReplaceAll(".root","_xb.root");
 }
 if(name.Contains("_charm")) {
@@ -140,9 +144,9 @@ for(int i = 0; i < bin.size(); i++) {
 //if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 if(epoch<0 || fname.Contains("_xb")) bkg = (TH1F*)fmc->Get("ptfrac_bkg_hist")->Clone();
 bkg->SetDirectory(0);
-if((epoch<0 || fname.Contains("_xb")) && syst > 0) mc = (TH1F*)fmc->Get(TString::Format("ptfrac_signal_smoothUp%d", syst))->Clone();
-else if(name.Contains("_noSmooth")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
-else if((epoch<0 || fname.Contains("_xb"))) mc = (TH1F*)fmc->Get("ptfrac_signal_smooth")->Clone();
+if((epoch<0 || fname.Contains("_xb")) && syst > 0) { std::cout << "Loading smoothUp" << syst << std::endl; mc = (TH1F*)fmc->Get(TString::Format("ptfrac_signal_smoothUp%d", syst))->Clone(); }
+//else if(name.Contains("_noSmooth")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
+//else if((epoch<0 || fname.Contains("_xb"))) mc = (TH1F*)fmc->Get("ptfrac_signal_smooth")->Clone();
 else if(epoch<0 || fname.Contains("_xb")) mc = (TH1F*)fmc->Get("ptfrac_signal_hist")->Clone();
 //if(epoch<0 || fname.Contains("_xb")) mc->Add((TH1F*)fmc->Get("ptfrac_signal_bkgW")->Clone());
 //else if(fname.Contains("no_sPlot"))  mc = (TH1F*)fmc->Get("ptfrac_signal")->Clone(TString::Format("ptfrac_signal_data%s%s",name.Data(),tune.Data()));
@@ -510,13 +514,13 @@ std::vector<double> rebin = {0-0.025, 0.4-0.025, 0.6-0.025, 0.65-0.025, 0.7-0.02
 data = (TH1F*)data->Rebin(rebin.size()-1, "", rebin.data());
 mc = (TH1F*)mc->Rebin(rebin.size()-1, "", rebin.data());
 */
+/*
 for(int i = 1; i <= data->GetNbinsX(); i++) {
   data->SetBinContent(i, data->GetBinContent(i) / data->GetBinWidth(i));
   data->SetBinError(i, data->GetBinError(i) / data->GetBinWidth(i));
   mc->SetBinContent(i, mc->GetBinContent(i) / mc->GetBinWidth(i));
   mc->SetBinError(i, mc->GetBinError(i) / mc->GetBinWidth(i));
 }
-/*
 */
 if(name.Contains("toys") && tune == "_sdown") { //only compute modified hist once
   TH1F *dtmp, *dtmp2, *mtmp, *mtmp2;

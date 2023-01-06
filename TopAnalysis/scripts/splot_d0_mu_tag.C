@@ -42,7 +42,7 @@ using namespace RooStats;
 
 //void roofit_mtop_BCDEFGH(TString mass="166v5", TString file="d0_fit.root") {
 //void mtop_norm(std::vector<pair<float,float>> &p, TString mass="171.5", short flags=0b00) {
-void splot_d0_mu_tag(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
+void splot_d0_mu_tag(TH1F *&ptfrac_signal, TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0, TString BWeight="") {
   RooWorkspace w("w",mass);
   float wind(0.045);
   int pdf(0); //nominal, a_s=0.118, 0.117, 0.119
@@ -80,6 +80,22 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   }
   TFile *fin;
   TGraph *g;
+  TGraph *B0DzShapeup=nullptr;
+  TGraph *B0DzShapedown=nullptr;
+  TGraph *BpmDzShapeup=nullptr;
+  TGraph *BpmDzShapedown=nullptr;
+  TGraph *BsDzShapeup=nullptr;
+  TGraph *BsDzShapedown=nullptr;
+  TGraph *BLbDzShapeup=nullptr;
+  TGraph *BLbDzShapedown=nullptr;
+  TH1F *hB0DzShapeup=nullptr;
+  TH1F *hB0DzShapedown=nullptr;
+  TH1F *hBpmDzShapeup=nullptr;
+  TH1F *hBpmDzShapedown=nullptr;
+  TH1F *hBsDzShapeup=nullptr;
+  TH1F *hBsDzShapedown=nullptr;
+  TH1F *hBLbDzShapeup=nullptr;
+  TH1F *hBLbDzShapedown=nullptr;
   TH1F *hg=nullptr;
   //std::vector<TGraph*> fwgt;
   TH1F *tuneWgt = new TH1F("tuneWgt","tuneWgt",2,0,2);
@@ -135,6 +151,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
     //if(syst.Length()>0) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_m"+mass,"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     //else mcSamples = { "MC13TeV_TTJets_powheg" };
+    else if(mass.Contains("genreco") and ep==0) mcSamples = { "MC13TeV_TTJets_powheg" };
     else mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW","MC13TeV_TTJets_powheg","MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     if(mass.Contains("QCD") || mass.Contains("GluonMove")) mcSamples = { "MC13TeV_DY10to50","MC13TeV_DY50toInf","MC13TeV_SingleT_t","MC13TeV_SingleT_tW","MC13TeV_SingleTbar_t","MC13TeV_SingleTbar_tW",TString::Format("MC13TeV_%s",syst.Data()),"MC13TeV_TTWToLNu","MC13TeV_TTWToQQ","MC13TeV_TTZToLLNuNu","MC13TeV_TTZToQQ","MC13TeV_W1Jets","MC13TeV_W2Jets","MC13TeV_W3Jets","MC13TeV_W4Jets","MC13TeV_WWTo2L2Nu","MC13TeV_WWToLNuQQ","MC13TeV_WZ","MC13TeV_ZZ" };
     for(auto & it : mcSamples) {
@@ -160,6 +177,39 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       frgWgt.push_back(RooRealVar(it+"Frag", it+"Frag", 1., 0, 2.));
     }
     */
+    if(BWeight.Contains("B") && BWeight.Contains("Dz")) {
+      fin = TFile::Open("/afs/cern.ch/user/b/byates/TopAnalysis/data/era2016/bfragweights.root");
+      //else fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights.root");
+      if(mass.Contains("172v5_ext"))
+      fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_ext.root");
+      mass += "_" + BWeight;
+      std::cout << "Looking for " << BWeight << std::endl;
+      if(mass.Contains("Bfrag") && ep>0) {
+        hg = (TH1F*)fin->Get(BWeight+"gen_d0_mu_tag_muFrag");
+        if(hg==nullptr) {
+            std::cout << BWeight+"gen_d0_mu_tag_muFrag not found!" << std::endl;
+            exit(1);
+        }
+        else if (hg!=nullptr) std::cout << hg->GetName() << std::endl;
+      }
+      try{
+      g = (TGraph*)fin->Get(BWeight+"Frag");
+      hB0DzShapeup = (TH1F*)fin->Get("B0Dzugen_d0_mu_tag_muFrag");
+      hB0DzShapedown = (TH1F*)fin->Get("B0Dzdgen_d0_mu_tag_muFrag");
+      hBpmDzShapeup = (TH1F*)fin->Get("BpmDzugen_d0_mu_tag_muFrag");
+      hBpmDzShapedown = (TH1F*)fin->Get("BpmDzdgen_d0_mu_tag_muFrag");
+      hBsDzShapeup = (TH1F*)fin->Get("BsDzugen_d0_mu_tag_muFrag");
+      hBsDzShapedown = (TH1F*)fin->Get("BsDzdgen_d0_mu_tag_muFrag");
+      hBLbDzShapeup = (TH1F*)fin->Get("BLbDzugen_d0_mu_tag_muFrag");
+      hBLbDzShapedown = (TH1F*)fin->Get("BLbDzdgen_d0_mu_tag_muFrag");
+      }
+      catch (...) {
+        std::cout << BWeight << " not found!" << std::endl;
+        return;
+      }
+      std::cout << g->GetName() << std::endl;
+      //fin->Close();
+    }
     if(fragWeight.Length() > 0) {
       if(fragWeight.Contains("lep")) {
         fin = TFile::Open("/eos/cms/store/user/byates/top18012/bfragweights_Markus.root");
@@ -169,6 +219,14 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       mass += "_" + fragWeight;
       fragWeight.ReplaceAll("lep","");
       g = (TGraph*)fin->Get(fragWeight+"Frag");
+      B0DzShapeup = (TGraph*)fin->Get("B0DzuFrag");
+      B0DzShapedown = (TGraph*)fin->Get("B0DzdFrag");
+      BpmDzShapeup = (TGraph*)fin->Get("BpmDzuFrag");
+      BpmDzShapedown = (TGraph*)fin->Get("BpmDzdFrag");
+      BsDzShapeup = (TGraph*)fin->Get("BsDzuFrag");
+      BsDzShapedown = (TGraph*)fin->Get("BsDzdFrag");
+      BLbDzShapeup = (TGraph*)fin->Get("BLbDzuFrag");
+      BLbDzShapedown = (TGraph*)fin->Get("BLbDzdFrag");
       if(mass.Contains("Bfrag") && ep>0) {
         hg = (TH1F*)fin->Get(fragWeight+"gen_d0_mu_tag_muFrag");
         std::cout << hg->GetName() << std::endl;
@@ -348,27 +406,58 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
         else
           continue;
         tuneWgt->Fill(0.,1.0);
-        if(fragWeight.Length() > 0) {
+        if(fragWeight.Length() > 0 || (BWeight.Contains("B") && BWeight.Contains("Dz"))) {
           double frac(0.);
           if(jpT) frac=ev.d0_mu_tag_mu_pt[j]/ev.j_pt[j];
           else frac=ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j];
 
           if(frac>1.) frac = 1.;
           if(frac<0.1) frac = 0.1;
+          float Dzwgt = 1.;
+          float xBwgt = 1.;
+            if(mass.Contains("B0Dzu") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hB0DzShapeup->GetBinContent(hB0DzShapeup->FindBin(frac));
+            else if(BWeight.Contains("hB0Dzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hB0DzShapedown->GetBinContent(hB0DzShapedown->FindBin(frac));
+            else if(BWeight.Contains("hBpmDzu") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBpmDzShapeup->GetBinContent(hBpmDzShapeup->FindBin(frac));
+            else if(BWeight.Contains("hBpmDzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBpmDzShapedown->GetBinContent(hBpmDzShapedown->FindBin(frac));
+            else if(BWeight.Contains("hBsDzu") && TString(data->GetFile()->GetName()).Contains("powheg")) {
+              Dzwgt = hBsDzShapeup->GetBinContent(hBsDzShapeup->FindBin(frac));
+            }
+            else if(BWeight.Contains("hBsDzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBsDzShapedown->GetBinContent(hBsDzShapedown->FindBin(frac));
+            else if(BWeight.Contains("hBLbDzu") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBLbDzShapeup->GetBinContent(hBLbDzShapeup->FindBin(frac));
+            else if(BWeight.Contains("hBLbDzd") && TString(data->GetFile()->GetName()).Contains("powheg"))
+              Dzwgt = hBLbDzShapedown->GetBinContent(hBLbDzShapedown->FindBin(frac));
           if(mass.Contains("Bfrag") && ep>0) {
-            scale *= hg->GetBinContent(hg->FindBin(frac));
-            tuneWgt->Fill(1.,hg->GetBinContent(hg->FindBin(frac)));
+            if(hg != nullptr)
+                xBwgt = hg->GetBinContent(hg->FindBin(frac));
+            //xBwgt *= Dzwgt;
+            scale *= xBwgt;
+            if (Dzwgt < 0) {
+              std::cout << "Negative for frac=" << frac << "\t" << Dzwgt << std::endl;
+              return;
+            }
+            tuneWgt->Fill(1.,xBwgt);
+            //scale *= hg->GetBinContent(hg->FindBin(frac));
+            //tuneWgt->Fill(1.,hg->GetBinContent(hg->FindBin(frac)));
           }
           else {
-            scale *= g->Eval(frac);
-            tuneWgt->Fill(1.,g->Eval(frac));
+            float wgt = g->Eval(frac);
+            scale *= wgt;
+            tuneWgt->Fill(1.,wgt);
+            //scale *= g->Eval(frac);
+            //tuneWgt->Fill(1.,g->Eval(frac));
           }
           /*
           for(auto &it : fwgt)
             args.setRealValue(it->GetName(),scale*it->Eval(frac));
-          */
           scale *= g->Eval(frac);
           tuneWgt->Fill(1.,g->Eval(frac));
+          */
         }
         else tuneWgt->Fill(1., 1.0); //unit weights to make re-weighting easier to loop over
       }
@@ -385,7 +474,7 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
       d0_mu_pt.setVal(ev.d0_mu_pt[j]);
       if(ev.j_gXb[j]>0) {
         float fwgt = 1.;
-        if(fragWeight.Length() > 0)
+        if(fragWeight.Length() > 0 || BWeight.Length() > 0)
           fwgt = g->Eval(ev.j_gXb[j]);
         int ibin = xbWgt->FindBin(ev.d0_mu_tag_mu_pt[j]/ev.j_pt_charged[j]);
         float val = xbWgt->GetBinContent(ibin);
@@ -811,8 +900,8 @@ void splot_d0_mu(RooWorkspace &w, TString mass="172.5", bool isData=false) {
   return;
 }
 
-void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0) {
+void splot_d0_mu_tag(TString mass="172.5", bool isData=false, TString fragWeight="", int ep=0, bool jpT=false, int xb=0, TString BWeight="") {
   TH1F *pdata;
-  splot_d0_mu_tag(pdata, mass, isData, fragWeight, ep, jpT, xb);
+  splot_d0_mu_tag(pdata, mass, isData, fragWeight, ep, jpT, xb, BWeight);
   delete pdata;
 }
