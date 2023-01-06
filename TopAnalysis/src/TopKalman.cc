@@ -450,11 +450,11 @@ void RunTopKalman(TString filename,
   int fsrUp(-1);
   int fsrDown(-1);
   for(size_t i = 0; i < psWeightSysts.size(); i++) {
-    if(psWeightSysts[i].first == "fsrRedHi") { //0.707
+    if(psWeightSysts[i].first == "fsrDefHi") { //0.5
       fsrUp = psWeightSysts[i].second;
       continue;
     }
-    if(psWeightSysts[i].first == "fsrRedLo") { //1.414
+    if(psWeightSysts[i].first == "fsrDefLo") { //2.0
       fsrDown = psWeightSysts[i].second;
       continue;
     }
