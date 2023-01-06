@@ -508,10 +508,7 @@ void RunTopKalman(TString filename,
       treeGH.SetLumi(16146.178);
       treeBCDEF.SetXsec(xsec);
       treeGH.SetXsec(xsec);
-<<<<<<< HEAD
-=======
       evch.ngfsr=0;
->>>>>>> Updated PS weights and README
       treeBCDEF.FSRWeights(evch, ev, fsrUp, fsrDown);
       //treeGH.FSRWeights(evch, ev, fsrUp, fsrDown); //Just call once, since B-F and GH are written to the same file
       int *piSFB = new int[ev.npf+50]();
