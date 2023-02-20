@@ -215,6 +215,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.jpsi_chi2[ev_.nmeson] = pfCands[0].chi2();
 
     ev_.j_pt[ev_.nj] = jet.getPt();
+    ev_.j_gXb[ev_.nj] = jet.getgXb();
     int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
     ev_.j_pt_charged[ev_.nj] = jet.getChargedPt(idx);
     ev_.j_pt_pf[ev_.nj] = jet.getPFPt();
@@ -367,6 +368,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     }
 
     ev_.j_pt[ev_.nj] = jet.getPt();
+    ev_.j_gXb[ev_.nj] = jet.getgXb();
     ev_.j_eta[ev_.nj] = jet.getVec().Eta();
     ev_.j_phi[ev_.nj] = jet.getVec().Phi();
     int idx = (runPeriod_.Contains("BCDEF") ? 0 : 1);
