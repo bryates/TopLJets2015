@@ -445,9 +445,10 @@ void RunTopKalman(TString filename,
   //GET PS WEIGHTS
   std::vector<WeightSysts_t> psWeightSysts;
   if(debug) std::cout << "Loading PS weights" << std::endl;
+  int fsrUp(7); // fsrDefHi
+  int fsrDown(9); // fsrDefLo
+  /*
   psWeightSysts = getPartonShowerWeightSysts(f);
-  int fsrUp(-1);
-  int fsrDown(-1);
   for(size_t i = 0; i < psWeightSysts.size(); i++) {
     if(psWeightSysts[i].first == "fsrDefHi") { //0.5
       fsrUp = psWeightSysts[i].second;
@@ -458,6 +459,7 @@ void RunTopKalman(TString filename,
       continue;
     }
   }
+  */
   if(debug) std::cout << "FSR up " << fsrUp << "\tFSR down " << fsrDown << std::endl;
 
   //LOOP OVER EVENTS

@@ -109,6 +109,15 @@ void CharmTree::PdfWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, TFile *file_) 
   evch_.ttbar_nw = num;
 }
 
+void CharmTree::FSRWeights(CharmEvent_t &evch_, MiniEvent_t &ev_, int fsrUp, int fsrDown) {
+  evch_.ngfsr=0; //remove count remaning from last event
+  evch_.gfsr[0] = ev_.gpsw[fsrUp];
+  evch_.ngfsr++;
+  evch_.gfsr[1] = ev_.gpsw[fsrDown];
+  evch_.ngfsr++;
+  //evch_.sfs[0] *= ev_.gpsw[fsrUp];
+}
+
 void CharmTree::Fill(CharmEvent_t &ev_, double nvtx, double HT, double ST, double MET, std::vector<Jet> lightJets) {
   if(!isGood_) return;
   ev_.ht = HT;
@@ -129,7 +138,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
   //Fill(pfCands, lep, chTag, name); //Fill meson+lep plots
   //Fill(pfCands, jet, chTag, name); //Fill meson+jet run2
   if(!name.EqualTo("")) name = "_" + name;
-  if(debug_) std::cout << "Filling " << name << std::endl;
   if(name.Contains("jpsi")) {
     TLorentzVector jpsi = pfCands[0].getVec() + pfCands[1].getVec();
     if(jpsi.M()<2.5 || jpsi.M()>3.4) return; //Loose window for mass resonance
@@ -219,7 +227,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
     ev_.j_mass[ev_.nj] = jet.M();
-    ev_.j_gXb[ev_.nj] = jet.getgXb();
     ev_.nmeson++;
     ev_.nj++;
     //Check for pi K -> K pi dupilcates and weight by half
@@ -236,7 +243,7 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
   else if(name.Contains("meson")) {
     if(pfCands.size()<2) return;
     TLorentzVector D0 = pfCands[0].getVec() + pfCands[1].getVec();
-    if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
+    //if(D0.M()<1.7 || D0.M()>2.0) return; //Loose window for mass resonance
       /*
       std::cout << "test in CharmTree"
                 << runPeriod_ << std::endl;
@@ -358,12 +365,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
       ev_.d0_pi_mother[ev_.nmeson] = genMatch[0].getMotherId();
       ev_.d0_k_mother[ev_.nmeson]  = genMatch[1].getMotherId();
     }
-      ev_.d0_pi_pt_gen[ev_.nmeson] = pfCands[0].getGenVec().Pt();
-      ev_.d0_k_pt_gen[ev_.nmeson] = pfCands[1].getGenVec().Pt();
-      ev_.d0_pi_eta_gen[ev_.nmeson] = pfCands[0].getGenVec().Eta();
-      ev_.d0_k_eta_gen[ev_.nmeson] = pfCands[1].getGenVec().Eta();
-      ev_.d0_pi_phi_gen[ev_.nmeson] = pfCands[0].getGenVec().Phi();
-      ev_.d0_k_phi_gen[ev_.nmeson] = pfCands[1].getGenVec().Phi();
 
     ev_.j_pt[ev_.nj] = jet.getPt();
     ev_.j_eta[ev_.nj] = jet.getVec().Eta();
@@ -380,7 +381,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.j_csv[ev_.nj] = jet.getCSV();
     ev_.j_hadflav[ev_.nj] = jet.getHadFlav();
     ev_.j_mass[ev_.nj] = jet.M();
-    ev_.j_gXb[ev_.nj] = jet.getgXb();
     ev_.j_ntk[ev_.nj] = jet.getTracks().size();
 
     //Check for pi K -> K pi dupilcates and weight by half
@@ -406,7 +406,6 @@ void CharmTree::Fill(CharmEvent_t &ev_, std::vector<pfTrack>& pfCands, Leptons l
     ev_.nj++;
     //std::cout << "tree done" << std::endl;
   }
-  if(debug_) std::cout << "Filling " << name << " DONE!" << std::endl;
 
 }
 
