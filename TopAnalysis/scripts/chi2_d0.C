@@ -56,7 +56,7 @@ if(name.Contains("ep")) fname.ReplaceAll("Data", "Data_ep");
 if(name.Contains("noHT")) fname.ReplaceAll("Data", "Data_noHT");
 if(name.Contains("d0kk")) fname.ReplaceAll("Data", "Data_d0kk");
 //if(name.Contains("FSR")) fname.ReplaceAll("Data","FSR");
-if(name.Contains("FSR")) fname.ReplaceAll("Data","Data_randmass");
+//if(name.Contains("FSR")) fname.ReplaceAll("Data","Data_randmass");
 if(name.Contains("dupBest")) fname.ReplaceAll("Data","Data_dupBest");
 if(name.Contains("BDzb")) fname.ReplaceAll("Data","Data_dupBest");
 if(name.Contains("_ds")) fname.ReplaceAll("Data","Data_ds");

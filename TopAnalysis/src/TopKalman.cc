@@ -960,6 +960,7 @@ void RunTopKalman(TString filename,
         tmpgj.setPdgId(ev.g_id[k]);
         //Jet tmpgj(jp4, ev.g_id[k], k, ev.xb[k]); PdgId instead if idx
         /*
+        */
         // Look for better packed jet pruned B meson matches
         float bestDR(999);
         int bestB(-1);
@@ -980,11 +981,11 @@ void RunTopKalman(TString filename,
           }
           //matched[bestB] = true;
         }
-        */
         //std::cout << "Match iB=" << bestB << " where getB=" << tmpgj.getB() << " PdgId=" << tmpgj.getPdgId() << " jetIdx=" << tmpgj.getJetIndex() << " with dR=" << bestDR << std::endl;
 	if(ev.g_B[k]>=0) {
           tmpgj.setB(ev.g_B[k]);
-  	  tmpgj.setgXb(ev.gmeson_pt[ev.g_B[k]]*1e20/tmpgj.Pt()); // FIXME miniAOD scales unstable particles (status>1) by 1E-20. IF this is changed in the ntuples, remove the scaling here!!
+      double scale = 1;//1e20;
+  	  tmpgj.setgXb(ev.gmeson_pt[ev.g_B[k]]*scale/tmpgj.Pt()); // FIXME miniAOD scales unstable particles (status>1) by 1E-20. IF this is changed in the ntuples, remove the scaling here!!
 	}
 	else {
         /*

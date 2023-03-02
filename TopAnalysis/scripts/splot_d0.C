@@ -758,7 +758,7 @@ meson_l_mass,weight,d0_pt,epoch,j_pt_ch,j_pt,tuneW),RooArgList(d0_mass2,j_hadfla
   std::cout << "Done loading tree" << std::endl;
 
   //tuneW.setConstant();
-  if(tuneWgt->GetBinContent(-2) > 0) tuneW.setVal(tuneWgt->GetBinContent(2)/tuneWgt->GetBinContent(1));
+  if(tuneWgt->GetBinContent(2) > 0) tuneW.setVal(tuneWgt->GetBinContent(2)/tuneWgt->GetBinContent(1));
   /*
   RooDataSet tmp("tmp", "tmp", &dsn, *dsn.get(), 0, "weight");
   RooDataSet ds("ds", "ds", &tmp, *tmp.get(), 0, "tuneW");
